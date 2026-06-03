@@ -1,31 +1,33 @@
 services:
   espocrm-db:
-    image: mariadb:latest
+    image: postgres:16
     container_name: espocrm-db
     environment:
-      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
-      MARIADB_DATABASE: ${MARIADB_DATABASE}
-      MARIADB_USER: ${MARIADB_USER}
-      MARIADB_PASSWORD: ${MARIADB_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
-      - espocrm-db:/var/lib/mysql
+      - espocrm-db:/var/lib/postgresql/data
+    ports:
+      - "${POSTGRES_PORT}:5432"
     restart: always
     healthcheck:
-      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
-      interval: 20s
-      start_period: 10s
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      start_period: 30s
       timeout: 10s
-      retries: 3
+      retries: 5
 
   espocrm:
     image: espocrm/espocrm
     container_name: espocrm
     environment:
-      ESPOCRM_DATABASE_PLATFORM: Mysql
+      ESPOCRM_DATABASE_PLATFORM: Postgresql
       ESPOCRM_DATABASE_HOST: espocrm-db
-      ESPOCRM_DATABASE_NAME: ${MARIADB_DATABASE}
-      ESPOCRM_DATABASE_USER: ${MARIADB_USER}
-      ESPOCRM_DATABASE_PASSWORD: ${MARIADB_PASSWORD}
+      ESPOCRM_DATABASE_PORT: "5432"
+      ESPOCRM_DATABASE_NAME: ${POSTGRES_DB}
+      ESPOCRM_DATABASE_USER: ${POSTGRES_USER}
+      ESPOCRM_DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
       ESPOCRM_ADMIN_USERNAME: ${ESPOCRM_ADMIN_USERNAME}
       ESPOCRM_ADMIN_PASSWORD: ${ESPOCRM_ADMIN_PASSWORD}
       ESPOCRM_SITE_URL: ${ESPOCRM_SITE_URL}

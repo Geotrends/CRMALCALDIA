@@ -1,6 +1,6 @@
 # CRM Alcaldía — EspoCRM
 
-Stack local/producción con Docker (Windows y Mac).
+Stack local/producción con Docker (Windows y Mac). Base de datos: **PostgreSQL 16**.
 
 ## Requisitos
 
