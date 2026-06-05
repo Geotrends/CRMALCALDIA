@@ -11,11 +11,7 @@
         "formatoSolicitudHelp": "Descargue el formato oficial con los datos del caso ya diligenciados.",
         "formatoSolicitudUnavailable": "Disponible para Inspección cuando el caso tenga radicado y expediente.",
         "Gestión posterior a radicación": "Asignación",
-        "Asignación": "Asignación",
-        "Acta de visita": "Acta de visita",
-        "llenarActaVisita": "Llenar acta de visita",
-        "actaVisitaPanelHelp": "Diligencie el acta oficial de visita para este caso.",
-        "actaVisitaPanelUnavailable": "Disponible para el patrullero asignado cuando el caso esté En proceso y tenga radicado y expediente."
+        "Asignación": "Asignación"
     },
     "options": {
         "cTipo": {

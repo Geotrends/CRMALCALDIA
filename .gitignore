@@ -7,3 +7,5 @@ Thumbs.db
 tmp_*.sql
 dump-espocrm-*.sql
 Untitled
+*.md
+*.drawio

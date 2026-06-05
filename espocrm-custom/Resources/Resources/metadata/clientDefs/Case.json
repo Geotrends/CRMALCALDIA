@@ -3,23 +3,10 @@
         "edit": "custom:views/case/record/edit",
         "detail": "custom:views/case/record/detail"
     },
-    "relationshipPanels": {
-        "actasVisita": {
-            "create": true,
-            "select": false,
-            "layout": "listSmall",
-            "label": "Actas de visita"
-        }
-    },
+    "relationshipPanels": {},
     "sidePanels": {
         "edit": [],
         "detail": [
-            {
-                "name": "actaVisitaPanel",
-                "label": "Acta de visita",
-                "view": "custom:views/case/record/panels/acta-visita",
-                "notRefreshable": true
-            },
             {
                 "name": "formatoSolicitud",
                 "label": "Formato solicitud",

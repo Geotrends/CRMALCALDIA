@@ -202,11 +202,6 @@
         "cRemitidoA": {
             "type": "belongsTo",
             "entity": "User"
-        },
-        "actasVisita": {
-            "type": "hasMany",
-            "entity": "ActaVisita",
-            "foreign": "case"
         }
     }
 }
