@@ -13,6 +13,10 @@ define('custom:views/modals/acta-visita', [
                     callback(view);
                 }
 
+                this.listenToOnce(view, 'before:save', () => {
+                    ActaFromCase.ensureNameBeforeSave(view.model, this.getUser());
+                });
+
                 this.listenToOnce(view, 'after:render', () => {
                     ActaFromCase.lockAutoFields(view);
                 });

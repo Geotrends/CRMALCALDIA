@@ -1,1 +1,17 @@
-[]
+[
+    {
+        "name": "actaVisitaPanel"
+    },
+    {
+        "name": "formatoSolicitud"
+    },
+    {
+        "name": "activities"
+    },
+    {
+        "name": "history"
+    },
+    {
+        "name": "tasks"
+    }
+]

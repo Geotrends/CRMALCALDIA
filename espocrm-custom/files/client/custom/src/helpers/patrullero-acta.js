@@ -9,7 +9,13 @@ define('custom:helpers/patrullero-acta', [], function () {
 
         const teams = user.get('teamsNames') || {};
 
-        return Object.values(teams).includes(TEAM_PATRULLEROS);
+        if (Object.values(teams).includes(TEAM_PATRULLEROS)) {
+            return true;
+        }
+
+        const roles = user.get('rolesNames') || {};
+
+        return Object.values(roles).includes('Patrullero');
     };
 
     const isCasePostRadicado = function (model) {
@@ -18,11 +24,6 @@ define('custom:helpers/patrullero-acta', [], function () {
 
         return radicado !== '' && expediente !== '';
     };
-
-    const ALLOWED_STATUSES = [
-        'En proceso',
-        'Radicado',
-    ];
 
     const shouldShowLlenarActaButton = function (user, model) {
         if (!user || !model) {
@@ -37,17 +38,7 @@ define('custom:helpers/patrullero-acta', [], function () {
             return false;
         }
 
-        if (!isCasePostRadicado(model)) {
-            return false;
-        }
-
-        const status = model.get('status') || '';
-
-        if (ALLOWED_STATUSES.indexOf(status) === -1) {
-            return false;
-        }
-
-        return true;
+        return isCasePostRadicado(model);
     };
 
     const getUnavailableReason = function (user, model) {
@@ -63,13 +54,7 @@ define('custom:helpers/patrullero-acta', [], function () {
             return 'El caso debe tener radicado y expediente.';
         }
 
-        const status = model.get('status') || '';
-
-        if (ALLOWED_STATUSES.indexOf(status) === -1) {
-            return 'Disponible cuando el caso esté En proceso (asignado por Julian).';
-        }
-
-        return '';
+        return 'Disponible cuando el caso tenga radicado, expediente y esté asignado a usted.';
     };
 
     return {

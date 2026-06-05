@@ -41,7 +41,11 @@ define('custom:views/case/record/panels/acta-visita', [
                 return;
             }
 
-            $panel.toggle(PatrulleroActa.isPatrulleroUser(this.getUser()));
+            const user = this.getUser();
+            const show = PatrulleroActa.isPatrulleroUser(user)
+                || PatrulleroActa.shouldShowLlenarActaButton(user, this.model);
+
+            $panel.toggle(show);
         },
 
         data: function () {

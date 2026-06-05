@@ -24,12 +24,6 @@
                 {
                     "name": "anio"
                 }
-            ],
-            [
-                {
-                    "name": "assignedUser"
-                },
-                false
             ]
         ],
         "style": "default",
@@ -165,9 +159,7 @@
                 {
                     "name": "funcionarioCargo"
                 },
-                {
-                    "name": "funcionarioFirma"
-                }
+                false
             ]
         ],
         "style": "default",
@@ -187,13 +179,23 @@
                 {
                     "name": "establecimientoCargo"
                 },
-                {
-                    "name": "establecimientoFirma"
-                }
+                false
             ]
         ],
         "style": "default",
         "label": "Por parte del establecimiento"
+    },
+    {
+        "rows": [
+            [
+                {
+                    "name": "formatoManoAdjunto",
+                    "fullWidth": true
+                }
+            ]
+        ],
+        "style": "default",
+        "label": "Formato diligenciado a mano"
     },
     {
         "rows": [

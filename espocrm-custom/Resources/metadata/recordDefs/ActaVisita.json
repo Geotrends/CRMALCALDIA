@@ -1,0 +1,5 @@
+{
+    "earlyBeforeCreateHookClassNameList": [
+        "Espo\\Custom\\Classes\\RecordHooks\\ActaVisita\\EarlyBeforeCreate"
+    ]
+}

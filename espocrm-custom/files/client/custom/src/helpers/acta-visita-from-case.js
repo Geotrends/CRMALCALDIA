@@ -34,14 +34,49 @@ define('custom:helpers/acta-visita-from-case', [], function () {
             fechaVisita: now.toISOString().slice(0, 10),
             estado: 'Pendiente',
             autorizacionDatos: false,
-            assignedUserId: caseModel.get('assignedUserId') || (user ? user.id : null),
-            assignedUserName: caseModel.get('assignedUserName') || (user ? user.get('name') : null),
             direccionAfectacion: caseModel.get('cDireccion') || '',
             telefono: caseModel.get('cTelefono') || '',
             barrio: caseModel.get('cBarrio') || '',
             posibleAfectante: caseModel.get('cPerjudicante') || caseModel.get('cPeticionario') || '',
             funcionarioNombre: user ? user.get('name') : '',
         };
+    };
+
+    const buildName = function (model) {
+        const parts = ['Acta visita'];
+        const radicado = String(model.get('numeroRadicado') || '').trim();
+        const expediente = String(model.get('expediente') || '').trim();
+
+        if (radicado) {
+            parts.push('Rad. ' + radicado);
+        }
+
+        if (expediente) {
+            parts.push('Exp. ' + expediente);
+        }
+
+        if (parts.length === 1 && model.get('caseId')) {
+            parts.push(model.get('caseId'));
+        }
+
+        return parts.join(' — ');
+    };
+
+    const ensureNameBeforeSave = function (model, user) {
+        if (!model) {
+            return;
+        }
+
+        if (user && !model.get('assignedUserId')) {
+            model.set({
+                assignedUserId: user.id,
+                assignedUserName: user.get('name'),
+            });
+        }
+
+        if (!String(model.get('name') || '').trim()) {
+            model.set('name', buildName(model));
+        }
     };
 
     const lockAutoFields = function (recordView) {
@@ -57,6 +92,8 @@ define('custom:helpers/acta-visita-from-case', [], function () {
     return {
         AUTO_READONLY_FIELDS: AUTO_READONLY_FIELDS,
         buildDefaultsFromCase: buildDefaultsFromCase,
+        buildName: buildName,
+        ensureNameBeforeSave: ensureNameBeforeSave,
         lockAutoFields: lockAutoFields,
     };
 });

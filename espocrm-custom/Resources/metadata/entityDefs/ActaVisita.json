@@ -2,15 +2,15 @@
     "fields": {
         "name": {
             "type": "varchar",
-            "required": true,
+            "required": false,
             "maxLength": 200,
             "trim": true,
-            "readOnly": true
+            "readOnlyAfterCreate": true
         },
         "case": {
             "type": "link",
             "required": true,
-            "readOnly": true,
+            "readOnlyAfterCreate": true,
             "isCustom": true
         },
         "autorizacionDatos": {
@@ -22,7 +22,7 @@
             "type": "int",
             "min": 2000,
             "max": 2100,
-            "readOnly": true,
+            "readOnlyAfterCreate": true,
             "isCustom": true
         },
         "posibleAfectante": {
@@ -33,13 +33,13 @@
         "numeroRadicado": {
             "type": "varchar",
             "maxLength": 100,
-            "readOnly": true,
+            "readOnlyAfterCreate": true,
             "isCustom": true
         },
         "expediente": {
             "type": "varchar",
             "maxLength": 100,
-            "readOnly": true,
+            "readOnlyAfterCreate": true,
             "isCustom": true
         },
         "direccionAfectacion": {
@@ -99,11 +99,6 @@
             "rows": 4,
             "isCustom": true
         },
-        "funcionarioFirma": {
-            "type": "varchar",
-            "maxLength": 255,
-            "isCustom": true
-        },
         "funcionarioNombre": {
             "type": "varchar",
             "maxLength": 150,
@@ -117,11 +112,6 @@
         "funcionarioCargo": {
             "type": "varchar",
             "maxLength": 150,
-            "isCustom": true
-        },
-        "establecimientoFirma": {
-            "type": "varchar",
-            "maxLength": 255,
             "isCustom": true
         },
         "establecimientoNombre": {
@@ -143,6 +133,7 @@
             "type": "enum",
             "options": ["Pendiente", "Diligenciada", "Aprobada"],
             "default": "Pendiente",
+            "readOnlyAfterCreate": true,
             "isCustom": true
         },
         "vistoBueno": {
@@ -163,6 +154,21 @@
             "type": "bool",
             "default": false,
             "isCustom": true
+        },
+        "formatoManoAdjunto": {
+            "type": "attachmentMultiple",
+            "previewSize": "medium",
+            "accept": ["image/*", "application/pdf", ".doc", ".docx"],
+            "isCustom": true
+        },
+        "assignedUser": {
+            "type": "link",
+            "readOnlyAfterCreate": true,
+            "view": "views/fields/assigned-user"
+        },
+        "teams": {
+            "type": "linkMultiple",
+            "view": "views/fields/teams"
         },
         "createdAt": {
             "type": "datetime",

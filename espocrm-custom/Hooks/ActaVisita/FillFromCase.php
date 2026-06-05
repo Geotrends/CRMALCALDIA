@@ -54,8 +54,7 @@ class FillFromCase implements BeforeSave
         }
 
         if (!$entity->get('assignedUserId')) {
-            $assignedUserId = $case->get('assignedUserId') ?: $this->user->getId();
-            $entity->set('assignedUserId', $assignedUserId);
+            $entity->set('assignedUserId', $this->user->getId());
         }
 
         $this->fillIfEmpty($entity, 'direccionAfectacion', $case->get('cDireccion'));
