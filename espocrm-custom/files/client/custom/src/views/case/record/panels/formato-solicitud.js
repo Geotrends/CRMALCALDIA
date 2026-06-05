@@ -29,6 +29,12 @@ define('custom:views/case/record/panels/formato-solicitud', [
                 e.preventDefault();
                 e.stopPropagation();
 
+                if (!this.isDownloadEnabled()) {
+                    Espo.Ui.warning(this.translate('formatoSolicitudPending', 'Case'));
+
+                    return;
+                }
+
                 const format = $(e.currentTarget).data('format') || 'pdf';
 
                 this.actionDownloadFormato({format: format});
@@ -52,35 +58,47 @@ define('custom:views/case/record/panels/formato-solicitud', [
         data: function () {
             const pdfId = this.model.get('cFormatoSolicitudPdfId');
             const pdfName = this.model.get('cFormatoSolicitudPdfName');
-
-            const canDownload = this.canDownload();
+            const canAccess = this.canAccess();
+            const downloadEnabled = this.isDownloadEnabled();
 
             return {
-                visible: canDownload,
-                hasAutoPdf: canDownload && !!pdfId,
+                visible: canAccess,
+                downloadEnabled: downloadEnabled,
+                helpText: downloadEnabled
+                    ? this.translate('formatoSolicitudHelp', 'Case')
+                    : this.translate('formatoSolicitudPending', 'Case'),
+                unavailableText: this.translate('formatoSolicitudUnavailable', 'Case'),
+                hasAutoPdf: downloadEnabled && !!pdfId,
                 autoPdfName: pdfName || this.translate('downloadFormatoPdf', 'Case'),
-                autoPdfUrl: this.canDownload()
+                autoPdfUrl: downloadEnabled && this.model.id
                     ? this.getBasePath()
                         + '?entryPoint=FormatoSolicitud'
                         + '&id=' + encodeURIComponent(this.model.id)
                         + '&format=pdf'
                     : '',
+                wordLabel: this.translate('downloadFormatoWord', 'Case'),
+                pdfLabel: this.translate('downloadFormatoPdf', 'Case'),
             };
         },
 
-        canDownload: function () {
+        canAccess: function () {
             return FormatoSolicitudAccess.canDownloadFormatoSolicitud(this.getUser(), this.model);
         },
 
+        isDownloadEnabled: function () {
+            return this.canAccess()
+                && FormatoSolicitudAccess.isFormatoSolicitudHabilitado(this.model);
+        },
+
         isVisible: function () {
-            return this.canDownload();
+            return this.canAccess();
         },
 
         actionDownloadFormato: function (data) {
             const format = (data && data.format) || 'pdf';
 
-            if (!this.canDownload()) {
-                Espo.Ui.warning(this.translate('formatoSolicitudUnavailable', 'Case'));
+            if (!this.isDownloadEnabled()) {
+                Espo.Ui.warning(this.translate('formatoSolicitudPending', 'Case'));
 
                 return;
             }

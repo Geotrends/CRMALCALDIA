@@ -29,7 +29,13 @@
         },
         "status": {
             "Pendiente de radicacion": "Pendiente de radicacion",
-            "Radicado": "Radicado"
+            "Radicado": "Radicado",
+            "Asignado": "Asignado",
+            "En proceso": "En proceso",
+            "Visita realizada": "Visita realizada",
+            "Visita aprobada": "Visita aprobada",
+            "Finalizado": "Finalizado",
+            "Proceso cerrado": "Proceso cerrado"
         }
     }
 }

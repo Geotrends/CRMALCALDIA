@@ -1,0 +1,42 @@
+[
+    {
+        "rows": [
+            [
+                {"name": "case"},
+                {"name": "estado", "readOnly": true}
+            ],
+            [
+                {"name": "fechaAuto"},
+                {"name": "fechaDada"}
+            ],
+            [
+                {"name": "numeroRadicado", "readOnly": true},
+                {"name": "consecutivoInterno", "readOnly": true}
+            ]
+        ],
+        "style": "default",
+        "label": "Información general"
+    },
+    {
+        "rows": [
+            [{"name": "referencia", "fullWidth": true}]
+        ],
+        "style": "default",
+        "label": "Referencia"
+    },
+    {
+        "rows": [
+            [{"name": "motivoArchivo", "fullWidth": true}]
+        ],
+        "style": "default",
+        "label": "Motivo del archivo"
+    },
+    {
+        "rows": [
+            [{"name": "inspector"}],
+            [{"name": "inspectorCargo", "fullWidth": true}]
+        ],
+        "style": "default",
+        "label": "Inspector"
+    }
+]

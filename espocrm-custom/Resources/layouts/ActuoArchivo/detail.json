@@ -1,0 +1,31 @@
+[
+    {
+        "rows": [
+            [
+                {"name": "case"},
+                {"name": "estado"}
+            ],
+            [
+                {"name": "fechaAuto"},
+                {"name": "fechaDada"}
+            ],
+            [
+                {"name": "numeroRadicado"},
+                {"name": "consecutivoInterno"}
+            ],
+            [
+                {"name": "referencia", "fullWidth": true}
+            ],
+            [
+                {"name": "motivoArchivo", "fullWidth": true}
+            ],
+            [
+                {"name": "inspector"},
+                {"name": "inspectorCargo"}
+            ],
+            [
+                {"name": "cFormatoActuoArchivoPdf", "fullWidth": true}
+            ]
+        ]
+    }
+]

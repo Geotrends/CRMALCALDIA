@@ -9,6 +9,12 @@
             "select": false,
             "layout": "listSmall",
             "label": "Actas de visita"
+        },
+        "actuosArchivo": {
+            "create": false,
+            "select": false,
+            "layout": "listSmall",
+            "label": "Autos de archivo"
         }
     },
     "sidePanels": {
@@ -30,6 +36,18 @@
                 "name": "formatoActaVisita",
                 "label": "Formato acta de visita",
                 "view": "custom:views/case/record/panels/formato-acta-visita",
+                "notRefreshable": true
+            },
+            {
+                "name": "actuoArchivoPanel",
+                "label": "Auto de archivo",
+                "view": "custom:views/case/record/panels/actuo-archivo",
+                "notRefreshable": true
+            },
+            {
+                "name": "formatoActuoArchivo",
+                "label": "Formato auto de archivo",
+                "view": "custom:views/case/record/panels/formato-actuo-archivo",
                 "notRefreshable": true
             },
             {

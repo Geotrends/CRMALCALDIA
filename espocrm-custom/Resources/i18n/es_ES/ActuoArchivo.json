@@ -1,0 +1,41 @@
+{
+    "fields": {
+        "name": "Nombre",
+        "case": "Caso vinculado",
+        "fechaAuto": "Fecha del auto",
+        "numeroRadicado": "Número de radicado",
+        "consecutivoInterno": "Consecutivo interno",
+        "referencia": "Referencia (tema del proceso)",
+        "motivoArchivo": "Motivo del archivo",
+        "fechaDada": "Fecha de expedición",
+        "inspector": "Inspector",
+        "inspectorCargo": "Cargo del inspector",
+        "estado": "Estado",
+        "cFormatoActuoArchivoPdf": "Auto de archivo (PDF)",
+        "assignedUser": "Inspector",
+        "teams": "Equipos",
+        "createdAt": "Creado",
+        "modifiedAt": "Modificado"
+    },
+    "labels": {
+        "Create ActuoArchivo": "Crear auto de archivo",
+        "ActuoArchivo": "Auto de archivo",
+        "ActuosArchivo": "Autos de archivo",
+        "Formato auto de archivo": "Formato auto de archivo",
+        "downloadFormatoActuoWord": "Descargar Word",
+        "downloadFormatoActuoPdf": "Descargar PDF",
+        "formatoActuoArchivoHelp": "El formato está listo. Puede descargar Word o PDF.",
+        "formatoActuoArchivoPending": "El formato estará disponible cuando guarde el auto de archivo con referencia y motivo.",
+        "formatoActuoArchivoUnavailable": "Disponible para Inspección cuando el caso esté Finalizado."
+    },
+    "options": {
+        "estado": {
+            "Pendiente": "Pendiente",
+            "Diligenciada": "Diligenciada"
+        }
+    },
+    "links": {
+        "case": "Caso",
+        "inspector": "Inspector"
+    }
+}

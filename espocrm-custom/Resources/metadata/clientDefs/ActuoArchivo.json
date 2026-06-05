@@ -1,0 +1,23 @@
+{
+    "controller": "controllers/record",
+    "iconClass": "fas fa-archive",
+    "color": "#6c757d",
+    "recordViews": {
+        "detail": "views/record/detail",
+        "edit": "views/record/edit",
+        "list": "views/record/list"
+    },
+    "sidePanels": {
+        "detail": [
+            {
+                "name": "formatoActuoArchivo",
+                "label": "Formato auto de archivo",
+                "view": "custom:views/actuo-archivo/record/panels/formato-actuo-archivo",
+                "notRefreshable": true
+            }
+        ]
+    },
+    "modalViews": {
+        "edit": "custom:views/modals/actuo-archivo"
+    }
+}

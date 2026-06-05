@@ -1,0 +1,121 @@
+{
+    "fields": {
+        "name": {
+            "type": "varchar",
+            "required": false,
+            "maxLength": 200,
+            "trim": true,
+            "readOnlyAfterCreate": true
+        },
+        "case": {
+            "type": "link",
+            "required": true,
+            "readOnlyAfterCreate": true,
+            "isCustom": true
+        },
+        "fechaAuto": {
+            "type": "date",
+            "isCustom": true
+        },
+        "numeroRadicado": {
+            "type": "varchar",
+            "maxLength": 100,
+            "readOnlyAfterCreate": true,
+            "isCustom": true
+        },
+        "consecutivoInterno": {
+            "type": "varchar",
+            "maxLength": 100,
+            "readOnlyAfterCreate": true,
+            "isCustom": true
+        },
+        "referencia": {
+            "type": "text",
+            "rows": 3,
+            "isCustom": true
+        },
+        "motivoArchivo": {
+            "type": "text",
+            "rows": 8,
+            "isCustom": true
+        },
+        "fechaDada": {
+            "type": "date",
+            "isCustom": true
+        },
+        "inspector": {
+            "type": "link",
+            "isCustom": true
+        },
+        "inspectorCargo": {
+            "type": "varchar",
+            "maxLength": 200,
+            "default": "Inspector de Policía para Asuntos Ambientales",
+            "isCustom": true
+        },
+        "estado": {
+            "type": "enum",
+            "options": ["Pendiente", "Diligenciada"],
+            "default": "Pendiente",
+            "readOnlyAfterCreate": true,
+            "isCustom": true
+        },
+        "cFormatoActuoArchivoPdf": {
+            "type": "file",
+            "readOnly": true,
+            "isCustom": true
+        },
+        "assignedUser": {
+            "type": "link",
+            "readOnlyAfterCreate": true,
+            "view": "views/fields/assigned-user"
+        },
+        "teams": {
+            "type": "linkMultiple",
+            "view": "views/fields/teams"
+        },
+        "createdAt": {
+            "type": "datetime",
+            "readOnly": true
+        },
+        "modifiedAt": {
+            "type": "datetime",
+            "readOnly": true
+        }
+    },
+    "links": {
+        "case": {
+            "type": "belongsTo",
+            "entity": "Case",
+            "foreign": "actuosArchivo"
+        },
+        "assignedUser": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "inspector": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "teams": {
+            "type": "hasMany",
+            "entity": "Team",
+            "relationName": "entityTeam",
+            "layoutRelationshipsDisabled": true
+        },
+        "createdBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "modifiedBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        }
+    },
+    "entityClassName": "Espo\\Custom\\Entities\\ActuoArchivo",
+    "collection": {
+        "orderBy": "createdAt",
+        "order": "desc",
+        "textFilterFields": ["name", "numeroRadicado", "consecutivoInterno", "referencia"]
+    }
+}

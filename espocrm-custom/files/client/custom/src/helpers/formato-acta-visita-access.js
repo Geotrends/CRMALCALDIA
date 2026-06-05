@@ -2,7 +2,8 @@ define('custom:helpers/formato-acta-visita-access', [
     'custom:helpers/radicacion-fields',
     'custom:helpers/post-radicacion-fields',
     'custom:helpers/patrullero-acta',
-], function (RadicacionFields, PostRadicacionFields, PatrulleroActa) {
+    'custom:helpers/acta-visita-case-status',
+], function (RadicacionFields, PostRadicacionFields, PatrulleroActa, ActaVisitaCaseStatus) {
 
     const canDownloadFormatoActaVisita = function (user, model) {
         if (!user || !model) {
@@ -28,7 +29,12 @@ define('custom:helpers/formato-acta-visita-access', [
         return model.get('assignedUserId') === user.id;
     };
 
+    const isFormatoActaHabilitado = function (model) {
+        return ActaVisitaCaseStatus.isFormatoActaHabilitado(model);
+    };
+
     return {
         canDownloadFormatoActaVisita: canDownloadFormatoActaVisita,
+        isFormatoActaHabilitado: isFormatoActaHabilitado,
     };
 });

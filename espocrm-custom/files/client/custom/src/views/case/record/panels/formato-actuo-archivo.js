@@ -1,19 +1,19 @@
-define('custom:views/case/record/panels/formato-acta-visita', [
+define('custom:views/case/record/panels/formato-actuo-archivo', [
     'views/record/panels/side',
-    'custom:helpers/formato-acta-visita-case-access',
-    'custom:helpers/acta-visita-case-status',
-], function (Dep, FormatoActaVisitaCaseAccess, ActaVisitaCaseStatus) {
+    'custom:helpers/formato-actuo-archivo-case-access',
+    'custom:helpers/actuo-archivo-case-status',
+], function (Dep, FormatoActuoArchivoCaseAccess, ActuoArchivoCaseStatus) {
 
     return Dep.extend({
 
-        template: 'custom:case/record/panels/formato-acta-visita',
+        template: 'custom:case/record/panels/formato-actuo-archivo',
 
         setup: function () {
             Dep.prototype.setup.call(this);
 
             this.downloadEnabled = false;
 
-            this.listenTo(this.model, 'change:cNumeroRadicado change:cExpediente change:assignedUserId', function () {
+            this.listenTo(this.model, 'change:status', function () {
                 this.loadFormatoState();
             });
 
@@ -38,8 +38,8 @@ define('custom:views/case/record/panels/formato-acta-visita', [
                 return;
             }
 
-            ActaVisitaCaseStatus.fetchActaForCase(this.model.id).then((acta) => {
-                this.downloadEnabled = ActaVisitaCaseStatus.isFormatoActaHabilitado(acta);
+            ActuoArchivoCaseStatus.fetchActuoForCase(this.model.id).then((actuo) => {
+                this.downloadEnabled = ActuoArchivoCaseStatus.isFormatoActuoHabilitado(actuo);
                 this.reRenderIfNeeded();
             });
         },
@@ -52,21 +52,21 @@ define('custom:views/case/record/panels/formato-acta-visita', [
         },
 
         bindDownloadButtons: function () {
-            this.$el.find('[data-action="downloadFormatoActaCaso"]').off('click.formatoActaCaso');
+            this.$el.find('[data-action="downloadFormatoActuoCaso"]').off('click.formatoActuoCaso');
 
-            this.$el.find('[data-action="downloadFormatoActaCaso"]').on('click.formatoActaCaso', (e) => {
+            this.$el.find('[data-action="downloadFormatoActuoCaso"]').on('click.formatoActuoCaso', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
 
                 if (!this.isDownloadEnabled()) {
-                    Espo.Ui.warning(this.translate('formatoActaVisitaCasePending', 'Case'));
+                    Espo.Ui.warning(this.translate('formatoActuoArchivoCasePending', 'Case'));
 
                     return;
                 }
 
                 const format = $(e.currentTarget).data('format') || 'pdf';
 
-                this.actionDownloadFormatoActaCaso({format: format});
+                this.actionDownloadFormatoActuoCaso({format: format});
             });
         },
 
@@ -92,16 +92,16 @@ define('custom:views/case/record/panels/formato-acta-visita', [
                 visible: canAccess,
                 downloadEnabled: downloadEnabled,
                 helpText: downloadEnabled
-                    ? this.translate('formatoActaVisitaCaseHelp', 'Case')
-                    : this.translate('formatoActaVisitaCasePending', 'Case'),
-                unavailableText: this.translate('formatoActaVisitaCaseUnavailable', 'Case'),
-                wordLabel: this.translate('downloadFormatoActaWord', 'Case'),
-                pdfLabel: this.translate('downloadFormatoActaPdf', 'Case'),
+                    ? this.translate('formatoActuoArchivoCaseHelp', 'Case')
+                    : this.translate('formatoActuoArchivoCasePending', 'Case'),
+                unavailableText: this.translate('formatoActuoArchivoCaseUnavailable', 'Case'),
+                wordLabel: this.translate('downloadFormatoActuoWord', 'Case'),
+                pdfLabel: this.translate('downloadFormatoActuoPdf', 'Case'),
             };
         },
 
         canAccess: function () {
-            return FormatoActaVisitaCaseAccess.canDownloadFormatoActaVisitaFromCase(
+            return FormatoActuoArchivoCaseAccess.canDownloadFormatoActuoArchivoFromCase(
                 this.getUser(),
                 this.model
             );
@@ -115,11 +115,11 @@ define('custom:views/case/record/panels/formato-acta-visita', [
             return this.canAccess();
         },
 
-        actionDownloadFormatoActaCaso: function (data) {
+        actionDownloadFormatoActuoCaso: function (data) {
             const format = (data && data.format) || 'pdf';
 
             if (!this.isDownloadEnabled()) {
-                Espo.Ui.warning(this.translate('formatoActaVisitaCasePending', 'Case'));
+                Espo.Ui.warning(this.translate('formatoActuoArchivoCasePending', 'Case'));
 
                 return;
             }
@@ -131,7 +131,7 @@ define('custom:views/case/record/panels/formato-acta-visita', [
             }
 
             const url = this.getBasePath()
-                + '?entryPoint=FormatoActaVisitaCaso'
+                + '?entryPoint=FormatoActuoArchivoCaso'
                 + '&id=' + encodeURIComponent(this.model.id)
                 + '&format=' + encodeURIComponent(format);
 

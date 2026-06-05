@@ -52,6 +52,10 @@ define('custom:helpers/acta-visita-case-status', [], function () {
         return list[0];
     };
 
+    const isFormatoActaHabilitado = function (acta) {
+        return isActaDiligenciada(acta);
+    };
+
     const ACTA_SELECT = [
         'id',
         'estado',
@@ -60,6 +64,7 @@ define('custom:helpers/acta-visita-case-status', [], function () {
         'analisisSituacion',
         'conclusion',
         'requerimientos',
+        'cFormatoActaVisitaPdfId',
         'modifiedAt',
     ].join(',');
 
@@ -97,6 +102,7 @@ define('custom:helpers/acta-visita-case-status', [], function () {
     return {
         CONTENT_FIELDS: CONTENT_FIELDS,
         isActaDiligenciada: isActaDiligenciada,
+        isFormatoActaHabilitado: isFormatoActaHabilitado,
         fetchActaForCase: fetchActaForCase,
     };
 });

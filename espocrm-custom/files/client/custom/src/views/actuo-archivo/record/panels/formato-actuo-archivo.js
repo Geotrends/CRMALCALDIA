@@ -1,16 +1,16 @@
-define('custom:views/acta-visita/record/panels/formato-acta-visita', [
+define('custom:views/actuo-archivo/record/panels/formato-actuo-archivo', [
     'views/record/panels/side',
-    'custom:helpers/formato-acta-visita-access',
-], function (Dep, FormatoActaVisitaAccess) {
+    'custom:helpers/formato-actuo-archivo-access',
+], function (Dep, FormatoActuoArchivoAccess) {
 
     return Dep.extend({
 
-        template: 'custom:acta-visita/record/panels/formato-acta-visita',
+        template: 'custom:actuo-archivo/record/panels/formato-actuo-archivo',
 
         setup: function () {
             Dep.prototype.setup.call(this);
 
-            this.listenTo(this.model, 'change:cFormatoActaVisitaPdfId', function () {
+            this.listenTo(this.model, 'change:cFormatoActuoArchivoPdfId', function () {
                 this.reRender();
                 this.togglePanel();
             });
@@ -23,21 +23,21 @@ define('custom:views/acta-visita/record/panels/formato-acta-visita', [
         },
 
         bindDownloadButtons: function () {
-            this.$el.find('[data-action="downloadFormatoActa"]').off('click.formatoActa');
+            this.$el.find('[data-action="downloadFormatoActuo"]').off('click.formatoActuo');
 
-            this.$el.find('[data-action="downloadFormatoActa"]').on('click.formatoActa', (e) => {
+            this.$el.find('[data-action="downloadFormatoActuo"]').on('click.formatoActuo', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
 
                 if (!this.isDownloadEnabled()) {
-                    Espo.Ui.warning(this.translate('formatoActaVisitaPending', 'ActaVisita'));
+                    Espo.Ui.warning(this.translate('formatoActuoArchivoPending', 'ActuoArchivo'));
 
                     return;
                 }
 
                 const format = $(e.currentTarget).data('format') || 'pdf';
 
-                this.actionDownloadFormatoActa({format: format});
+                this.actionDownloadFormatoActuo({format: format});
             });
         },
 
@@ -56,7 +56,6 @@ define('custom:views/acta-visita/record/panels/formato-acta-visita', [
         },
 
         data: function () {
-            const pdfName = this.model.get('cFormatoActaVisitaPdfName');
             const canAccess = this.canAccess();
             const downloadEnabled = this.isDownloadEnabled();
 
@@ -64,40 +63,32 @@ define('custom:views/acta-visita/record/panels/formato-acta-visita', [
                 visible: canAccess,
                 downloadEnabled: downloadEnabled,
                 helpText: downloadEnabled
-                    ? this.translate('formatoActaVisitaHelp', 'ActaVisita')
-                    : this.translate('formatoActaVisitaPending', 'ActaVisita'),
-                unavailableText: this.translate('formatoActaVisitaUnavailable', 'ActaVisita'),
-                hasAutoPdf: downloadEnabled && !!this.model.get('cFormatoActaVisitaPdfId'),
-                autoPdfName: pdfName || this.translate('downloadFormatoActaPdf', 'ActaVisita'),
-                autoPdfUrl: downloadEnabled && this.model.id
-                    ? this.getBasePath()
-                        + '?entryPoint=FormatoActaVisita'
-                        + '&id=' + encodeURIComponent(this.model.id)
-                        + '&format=pdf'
-                    : '',
-                wordLabel: this.translate('downloadFormatoActaWord', 'ActaVisita'),
-                pdfLabel: this.translate('downloadFormatoActaPdf', 'ActaVisita'),
+                    ? this.translate('formatoActuoArchivoHelp', 'ActuoArchivo')
+                    : this.translate('formatoActuoArchivoPending', 'ActuoArchivo'),
+                unavailableText: this.translate('formatoActuoArchivoUnavailable', 'ActuoArchivo'),
+                wordLabel: this.translate('downloadFormatoActuoWord', 'ActuoArchivo'),
+                pdfLabel: this.translate('downloadFormatoActuoPdf', 'ActuoArchivo'),
             };
         },
 
         canAccess: function () {
-            return FormatoActaVisitaAccess.canDownloadFormatoActaVisita(this.getUser(), this.model);
+            return FormatoActuoArchivoAccess.canDownloadFormatoActuoArchivo(this.getUser(), this.model);
         },
 
         isDownloadEnabled: function () {
             return this.canAccess()
-                && FormatoActaVisitaAccess.isFormatoActaHabilitado(this.model);
+                && FormatoActuoArchivoAccess.isFormatoActuoHabilitado(this.model);
         },
 
         isVisible: function () {
             return this.canAccess();
         },
 
-        actionDownloadFormatoActa: function (data) {
+        actionDownloadFormatoActuo: function (data) {
             const format = (data && data.format) || 'pdf';
 
             if (!this.isDownloadEnabled()) {
-                Espo.Ui.warning(this.translate('formatoActaVisitaPending', 'ActaVisita'));
+                Espo.Ui.warning(this.translate('formatoActuoArchivoPending', 'ActuoArchivo'));
 
                 return;
             }
@@ -109,7 +100,7 @@ define('custom:views/acta-visita/record/panels/formato-acta-visita', [
             }
 
             const url = this.getBasePath()
-                + '?entryPoint=FormatoActaVisita'
+                + '?entryPoint=FormatoActuoArchivo'
                 + '&id=' + encodeURIComponent(this.model.id)
                 + '&format=' + encodeURIComponent(format);
 

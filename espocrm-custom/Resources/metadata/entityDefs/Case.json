@@ -165,6 +165,29 @@
             "readOnly": true,
             "isCustom": true
         },
+        "status": {
+            "options": [
+                "Pendiente de radicacion",
+                "Radicado",
+                "Asignado",
+                "En proceso",
+                "Visita realizada",
+                "Visita aprobada",
+                "Finalizado",
+                "Proceso cerrado"
+            ],
+            "default": "Pendiente de radicacion",
+            "style": {
+                "Pendiente de radicacion": "warning",
+                "Radicado": "info",
+                "Asignado": "primary",
+                "En proceso": "primary",
+                "Visita realizada": "info",
+                "Visita aprobada": "success",
+                "Finalizado": "success",
+                "Proceso cerrado": "default"
+            }
+        },
         "cCategoria": {
             "type": "multiEnum",
             "options": [
@@ -211,6 +234,11 @@
         "actasVisita": {
             "type": "hasMany",
             "entity": "ActaVisita",
+            "foreign": "case"
+        },
+        "actuosArchivo": {
+            "type": "hasMany",
+            "entity": "ActuoArchivo",
             "foreign": "case"
         }
     }

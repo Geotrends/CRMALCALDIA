@@ -11,14 +11,24 @@ use Espo\ORM\Repository\Option\SaveOptions;
 
 /**
  * Cuando Julian asigna un patrullero en un caso ya radicado,
- * el estado pasa a En proceso.
+ * el estado pasa a Asignado.
  */
 class SetEnProcesoOnPatrulleroAssignment implements BeforeSave
 {
     public static int $order = 99;
 
-    private const STATUS_EN_PROCESO = 'En proceso';
+    private const STATUS_ASIGNADO = 'Asignado';
     private const TEAM_PATRULLEROS = 'Patrulleros';
+
+    /** @var string[] */
+    private const ADVANCE_FROM = [
+        'Radicado',
+        'Pendiente de radicacion',
+        'New',
+        'Assigned',
+        'Pending',
+        '',
+    ];
 
     public function __construct(
         private EntityManager $entityManager
@@ -40,7 +50,13 @@ class SetEnProcesoOnPatrulleroAssignment implements BeforeSave
             return;
         }
 
-        $entity->set('status', self::STATUS_EN_PROCESO);
+        $current = trim((string) $entity->get('status'));
+
+        if (!in_array($current, self::ADVANCE_FROM, true)) {
+            return;
+        }
+
+        $entity->set('status', self::STATUS_ASIGNADO);
     }
 
     private function isPostRadicado(Entity $entity): bool

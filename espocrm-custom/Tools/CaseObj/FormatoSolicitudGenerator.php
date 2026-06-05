@@ -52,6 +52,10 @@ class FormatoSolicitudGenerator
             throw new Forbidden();
         }
 
+        if (!$internal && !$this->isFormatoHabilitado($case)) {
+            throw new Forbidden('El formato de solicitud aún no está habilitado.');
+        }
+
         $templatePath = $this->getTemplatePath();
         $scriptPath = $this->getScriptPath();
 
@@ -142,6 +146,11 @@ class FormatoSolicitudGenerator
                 ? 'application/pdf'
                 : 'application/msword',
         ];
+    }
+
+    public function isFormatoHabilitado(Entity $case): bool
+    {
+        return $this->isPostRadicado($case);
     }
 
     private function canDownloadFormato(Entity $case): bool

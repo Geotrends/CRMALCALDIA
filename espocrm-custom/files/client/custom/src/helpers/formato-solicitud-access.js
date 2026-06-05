@@ -21,7 +21,12 @@ define('custom:helpers/formato-solicitud-access', [
             || PostRadicacionFields.isAsignadorUser(user);
     };
 
+    const isFormatoSolicitudHabilitado = function (model) {
+        return PostRadicacionFields.isCasePostRadicado(model);
+    };
+
     return {
         canDownloadFormatoSolicitud: canDownloadFormatoSolicitud,
+        isFormatoSolicitudHabilitado: isFormatoSolicitudHabilitado,
     };
 });

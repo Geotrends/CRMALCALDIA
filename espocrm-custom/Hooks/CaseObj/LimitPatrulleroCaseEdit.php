@@ -28,6 +28,10 @@ class LimitPatrulleroCaseEdit implements BeforeSave
             return;
         }
 
+        if ($options->get('skipPatrulleroCaseLimit') || $options->get('skipCaseStatusUpdate')) {
+            return;
+        }
+
         throw new Forbidden('Los patrulleros solo pueden consultar el caso asignado.');
     }
 

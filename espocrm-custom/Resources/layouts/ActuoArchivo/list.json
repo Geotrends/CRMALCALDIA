@@ -1,0 +1,8 @@
+[
+    {"name": "name", "width": 25, "link": true},
+    {"name": "case", "width": 18},
+    {"name": "numeroRadicado", "width": 12},
+    {"name": "consecutivoInterno", "width": 12},
+    {"name": "estado", "width": 12},
+    {"name": "createdAt", "width": 12}
+]

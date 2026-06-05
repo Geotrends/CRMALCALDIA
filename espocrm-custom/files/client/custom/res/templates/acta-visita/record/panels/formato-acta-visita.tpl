@@ -1,6 +1,6 @@
 <div class="panel-body">
     {{#if visible}}
-        <p class="text-muted small">{{translate 'formatoActaVisitaHelp' category='ActaVisita'}}</p>
+        <p class="text-muted small">{{helpText}}</p>
         {{#if hasAutoPdf}}
             <p class="text-success small">
                 <span class="fas fa-check-circle"></span>
@@ -10,13 +10,13 @@
                 <span class="fas fa-file-pdf"></span> {{autoPdfName}}
             </a>
         {{/if}}
-        <button type="button" class="btn btn-default btn-block" data-action="downloadFormatoActa" data-format="docx">
-            <span class="fas fa-file-word"></span> {{translate 'downloadFormatoActaWord' category='ActaVisita'}}
+        <button type="button" class="btn btn-default btn-block" data-action="downloadFormatoActa" data-format="docx"{{#unless downloadEnabled}} disabled{{/unless}}>
+            <span class="fas fa-file-word"></span> {{wordLabel}}
         </button>
-        <button type="button" class="btn btn-default btn-block" data-action="downloadFormatoActa" data-format="pdf">
-            <span class="fas fa-file-pdf"></span> {{translate 'downloadFormatoActaPdf' category='ActaVisita'}}
+        <button type="button" class="btn btn-default btn-block" data-action="downloadFormatoActa" data-format="pdf"{{#unless downloadEnabled}} disabled{{/unless}}>
+            <span class="fas fa-file-pdf"></span> {{pdfLabel}}
         </button>
     {{else}}
-        <p class="text-muted small">{{translate 'formatoActaVisitaUnavailable' category='ActaVisita'}}</p>
+        <p class="text-muted small">{{unavailableText}}</p>
     {{/if}}
 </div>

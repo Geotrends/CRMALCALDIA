@@ -1,6 +1,6 @@
 <div class="panel-body">
     {{#if visible}}
-        <p class="text-muted small">{{translate 'formatoSolicitudHelp' category='Case'}}</p>
+        <p class="text-muted small">{{helpText}}</p>
         {{#if hasAutoPdf}}
             <p class="text-success small">
                 <span class="fas fa-check-circle"></span>
@@ -10,13 +10,13 @@
                 <span class="fas fa-file-pdf"></span> {{autoPdfName}}
             </a>
         {{/if}}
-        <button type="button" class="btn btn-default btn-block" data-action="downloadFormato" data-format="doc">
-            <span class="fas fa-file-word"></span> {{translate 'downloadFormatoWord' category='Case'}}
+        <button type="button" class="btn btn-default btn-block" data-action="downloadFormato" data-format="doc"{{#unless downloadEnabled}} disabled{{/unless}}>
+            <span class="fas fa-file-word"></span> {{wordLabel}}
         </button>
-        <button type="button" class="btn btn-default btn-block" data-action="downloadFormato" data-format="pdf">
-            <span class="fas fa-file-pdf"></span> {{translate 'downloadFormatoPdf' category='Case'}}
+        <button type="button" class="btn btn-default btn-block" data-action="downloadFormato" data-format="pdf"{{#unless downloadEnabled}} disabled{{/unless}}>
+            <span class="fas fa-file-pdf"></span> {{pdfLabel}}
         </button>
     {{else}}
-        <p class="text-muted small">{{translate 'formatoSolicitudUnavailable' category='Case'}}</p>
+        <p class="text-muted small">{{unavailableText}}</p>
     {{/if}}
 </div>

@@ -45,6 +45,10 @@ class FormatoActaVisitaGenerator
             throw new Forbidden();
         }
 
+        if (!$internal && !$this->isFormatoActaHabilitado($acta)) {
+            throw new Forbidden('El formato de acta de visita aún no está habilitado.');
+        }
+
         $slug = preg_replace(
             '/[^\w\-]+/u',
             '_',
@@ -76,6 +80,12 @@ class FormatoActaVisitaGenerator
             throw new Forbidden();
         }
 
+        $acta = $this->resolveActaForCase($caseId);
+
+        if (!$internal && !$this->isFormatoActaHabilitado($acta)) {
+            throw new Forbidden('El formato de acta de visita aún no está habilitado.');
+        }
+
         $payload = $this->buildPayloadForCase($case);
 
         $slug = preg_replace(
@@ -85,6 +95,19 @@ class FormatoActaVisitaGenerator
         ) ?: 'caso';
 
         return $this->runGenerator($format, $payload, $slug);
+    }
+
+    public function isFormatoActaHabilitado(?Entity $acta): bool
+    {
+        if (!$acta) {
+            return false;
+        }
+
+        if (trim((string) $acta->get('cFormatoActaVisitaPdfId')) !== '') {
+            return true;
+        }
+
+        return $this->actaHasFormatoData($acta);
     }
 
     public function canDownloadFormatoFromCase(Entity $case): bool
