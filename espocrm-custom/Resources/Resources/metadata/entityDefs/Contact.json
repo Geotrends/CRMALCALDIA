@@ -1,0 +1,28 @@
+{
+    "fields": {
+        "cTipoDeDocumento": {
+            "type": "enum",
+            "options": ["CC", "CE", "NIT", "Pasaporte", "Otro"],
+            "default": "CC",
+            "maxLength": 100,
+            "isCustom": true
+        },
+        "cNumeroDeDocumento": {
+            "type": "varchar",
+            "maxLength": 50,
+            "isCustom": true
+        },
+        "cBarrioResidencia": {
+            "type": "varchar",
+            "maxLength": 150,
+            "isCustom": true
+        },
+        "cMunicipio": {
+            "type": "enum",
+            "options": ["Envigado"],
+            "default": "Envigado",
+            "maxLength": 100,
+            "isCustom": true
+        }
+    }
+}

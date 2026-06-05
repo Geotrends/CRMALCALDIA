@@ -17,6 +17,18 @@ docker compose up -d
 
 Abre **http://localhost:8080** e inicia sesión con `ESPOCRM_ADMIN_USERNAME` / `ESPOCRM_ADMIN_PASSWORD` del `.env`.
 
+### Mac — continuar desde Windows (backup + `.env`)
+
+1. Copia `backups/espocrm.dump` y tu `.env` al repo clonado.
+2. Ejecuta:
+
+```bash
+chmod +x scripts/setup-mac.sh
+./scripts/setup-mac.sh
+```
+
+3. Abre **http://localhost:8080** (usuarios y casos vienen del backup).
+
 ## Comandos útiles
 
 | Acción | Comando |

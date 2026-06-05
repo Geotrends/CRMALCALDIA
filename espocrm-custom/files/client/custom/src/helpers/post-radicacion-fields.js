@@ -1,7 +1,14 @@
 define('custom:helpers/post-radicacion-fields', [], function () {
 
-    const ROLE_ASIGNADOR = 'Asignador';
+    const ROLE_ASIGNADOR = 'asignador';
     const ASIGNACION_FIELD = 'assignedUser';
+
+    const normalize = function (value) {
+        return String(value)
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '');
+    };
 
     const isAsignadorUser = function (user) {
         if (!user) {
@@ -12,9 +19,16 @@ define('custom:helpers/post-radicacion-fields', [], function () {
             return true;
         }
 
-        const roles = user.get('rolesNames') || {};
+        if (user.get('userName') === 'julian.asignador') {
+            return true;
+        }
 
-        return Object.values(roles).includes(ROLE_ASIGNADOR);
+        const names = [];
+
+        Object.values(user.get('rolesNames') || {}).forEach((name) => names.push(name));
+        Object.values(user.get('teamsNames') || {}).forEach((name) => names.push(name));
+
+        return names.some((name) => normalize(name).includes(ROLE_ASIGNADOR));
     };
 
     const isCasePostRadicado = function (model) {

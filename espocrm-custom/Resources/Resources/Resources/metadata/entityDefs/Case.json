@@ -1,0 +1,207 @@
+{
+    "fields": {
+        "name": {
+            "required": false
+        },
+        "cFechaVencimiento": {
+            "notNull": false,
+            "type": "date",
+            "isCustom": true
+        },
+        "cFechaCaso": {
+            "notNull": false,
+            "type": "datetime",
+            "required": true,
+            "default": "javascript: return this.dateTime.getNow(1);",
+            "minuteStep": 30,
+            "isCustom": true
+        },
+        "cNumeroRadicado": {
+            "type": "varchar",
+            "maxLength": 100,
+            "options": [],
+            "isCustom": true
+        },
+        "cExpediente": {
+            "type": "varchar",
+            "maxLength": 100,
+            "options": [],
+            "isCustom": true
+        },
+        "cPeticionario": {
+            "type": "varchar",
+            "required": true,
+            "maxLength": 100,
+            "options": [],
+            "isCustom": true
+        },
+        "cCedula": {
+            "type": "varchar",
+            "required": true,
+            "maxLength": 100,
+            "options": [],
+            "isCustom": true
+        },
+        "cDireccion": {
+            "type": "varchar",
+            "maxLength": 100,
+            "options": [],
+            "isCustom": true
+        },
+        "cTelefono": {
+            "type": "varchar",
+            "maxLength": 100,
+            "options": [],
+            "isCustom": true
+        },
+        "cBarrio": {
+            "type": "enum",
+            "options": [
+                "barrio 1",
+                "barrio 2"
+            ],
+            "style": {
+                "barrio 1": null,
+                "barrio 2": null
+            },
+            "default": "barrio 1",
+            "maxLength": 100,
+            "isCustom": true
+        },
+        "cCorreo": {
+            "type": "varchar",
+            "maxLength": 200,
+            "options": [],
+            "isCustom": true
+        },
+        "cCanalDeReporte": {
+            "type": "enum",
+            "options": [
+                "Telefono",
+                "Correo",
+                "Personal"
+            ],
+            "style": {
+                "Telefono": null,
+                "Correo": null,
+                "Personal": null
+            },
+            "default": "Telefono",
+            "maxLength": 100,
+            "isCustom": true
+        },
+        "cPerjudicante": {
+            "type": "varchar",
+            "maxLength": 200,
+            "options": [],
+            "isCustom": true
+        },
+        "cTelefonoPerjudicante": {
+            "type": "varchar",
+            "maxLength": 100,
+            "options": [],
+            "isCustom": true
+        },
+        "cDireccionPerjudicante": {
+            "type": "varchar",
+            "maxLength": 100,
+            "options": [],
+            "isCustom": true
+        },
+        "cBarrioPerjudicante": {
+            "type": "enum",
+            "options": [
+                "barrio 1",
+                "barrio 2"
+            ],
+            "style": {
+                "barrio 1": null,
+                "barrio 2": null
+            },
+            "default": "barrio 1",
+            "maxLength": 100,
+            "isCustom": true
+        },
+        "cRespuestaInmediata": {
+            "type": "varchar",
+            "maxLength": 1000,
+            "options": [],
+            "isCustom": true
+        },
+        "cRecibidaPor": {
+            "type": "link",
+            "isCustom": true
+        },
+        "cRemitidoA": {
+            "type": "link",
+            "isCustom": true
+        },
+        "cTipo": {
+            "type": "enum",
+            "options": [
+                "",
+                "Queja / reporte ambiental",
+                "PQRSD",
+                "Derecho de petición",
+                "Reclamo",
+                "Sugerencia",
+                "Denuncia",
+                "Otro"
+            ],
+            "style": {
+                "Queja / reporte ambiental": null,
+                "PQRSD": null,
+                "Derecho de petición": null,
+                "Reclamo": null,
+                "Sugerencia": null,
+                "Denuncia": null,
+                "Otro": null
+            },
+            "required": true,
+            "isCustom": true
+        },
+        "cCategoria": {
+            "type": "multiEnum",
+            "options": [
+                "Hídrico",
+                "Suelo de protección",
+                "Suelo",
+                "Aire",
+                "Fauna silvestre",
+                "Flora",
+                "Gestión socioambiental de obra",
+                "Servicios públicos",
+                "Fauna doméstica",
+                "Paisaje",
+                "Minero",
+                "Residuos sólidos"
+            ],
+            "style": {
+                "Hídrico": null,
+                "Suelo de protección": null,
+                "Suelo": null,
+                "Aire": null,
+                "Fauna silvestre": null,
+                "Flora": null,
+                "Gestión socioambiental de obra": null,
+                "Servicios públicos": null,
+                "Fauna doméstica": null,
+                "Paisaje": null,
+                "Minero": null,
+                "Residuos sólidos": null
+            },
+            "required": true,
+            "isCustom": true
+        }
+    },
+    "links": {
+        "cRecibidaPor": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "cRemitidoA": {
+            "type": "belongsTo",
+            "entity": "User"
+        }
+    }
+}

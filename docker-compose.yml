@@ -19,7 +19,10 @@ services:
       retries: 5
 
   espocrm:
-    image: espocrm/espocrm
+    build:
+      context: ./docker/espocrm
+      dockerfile: Dockerfile
+    image: crm-alcaldia/espocrm
     container_name: espocrm
     environment:
       ESPOCRM_DATABASE_PLATFORM: Postgresql
@@ -42,7 +45,7 @@ services:
       - "8080:80"
 
   espocrm-daemon:
-    image: espocrm/espocrm
+    image: crm-alcaldia/espocrm
     container_name: espocrm-daemon
     volumes:
       - espocrm:/var/www/html
@@ -52,7 +55,7 @@ services:
       - espocrm
 
   espocrm-websocket:
-    image: espocrm/espocrm
+    image: crm-alcaldia/espocrm
     container_name: espocrm-websocket
     environment:
       ESPOCRM_CONFIG_USE_WEB_SOCKET: "true"

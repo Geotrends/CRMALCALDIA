@@ -1,0 +1,207 @@
+{
+    "fields": {
+        "name": {
+            "type": "varchar",
+            "required": true,
+            "maxLength": 200,
+            "trim": true,
+            "readOnly": true
+        },
+        "case": {
+            "type": "link",
+            "required": true,
+            "readOnly": true,
+            "isCustom": true
+        },
+        "autorizacionDatos": {
+            "type": "bool",
+            "default": false,
+            "isCustom": true
+        },
+        "anio": {
+            "type": "int",
+            "min": 2000,
+            "max": 2100,
+            "readOnly": true,
+            "isCustom": true
+        },
+        "posibleAfectante": {
+            "type": "varchar",
+            "maxLength": 255,
+            "isCustom": true
+        },
+        "numeroRadicado": {
+            "type": "varchar",
+            "maxLength": 100,
+            "readOnly": true,
+            "isCustom": true
+        },
+        "expediente": {
+            "type": "varchar",
+            "maxLength": 100,
+            "readOnly": true,
+            "isCustom": true
+        },
+        "direccionAfectacion": {
+            "type": "varchar",
+            "maxLength": 500,
+            "isCustom": true
+        },
+        "telefono": {
+            "type": "varchar",
+            "maxLength": 50,
+            "isCustom": true
+        },
+        "barrio": {
+            "type": "varchar",
+            "maxLength": 150,
+            "isCustom": true
+        },
+        "zona": {
+            "type": "enum",
+            "options": ["", "Urbano", "Rural"],
+            "default": "",
+            "isCustom": true
+        },
+        "fechaVisita": {
+            "type": "date",
+            "isCustom": true
+        },
+        "objetoVisita": {
+            "type": "text",
+            "rows": 4,
+            "isCustom": true
+        },
+        "situacionEncontrada": {
+            "type": "text",
+            "rows": 5,
+            "isCustom": true
+        },
+        "analisisSituacion": {
+            "type": "text",
+            "rows": 5,
+            "isCustom": true
+        },
+        "registroFotografico": {
+            "type": "attachmentMultiple",
+            "previewSize": "medium",
+            "sourceList": ["Document"],
+            "accept": ["image/*"],
+            "isCustom": true
+        },
+        "conclusion": {
+            "type": "text",
+            "rows": 4,
+            "isCustom": true
+        },
+        "requerimientos": {
+            "type": "text",
+            "rows": 4,
+            "isCustom": true
+        },
+        "funcionarioFirma": {
+            "type": "varchar",
+            "maxLength": 255,
+            "isCustom": true
+        },
+        "funcionarioNombre": {
+            "type": "varchar",
+            "maxLength": 150,
+            "isCustom": true
+        },
+        "funcionarioCedula": {
+            "type": "varchar",
+            "maxLength": 50,
+            "isCustom": true
+        },
+        "funcionarioCargo": {
+            "type": "varchar",
+            "maxLength": 150,
+            "isCustom": true
+        },
+        "establecimientoFirma": {
+            "type": "varchar",
+            "maxLength": 255,
+            "isCustom": true
+        },
+        "establecimientoNombre": {
+            "type": "varchar",
+            "maxLength": 150,
+            "isCustom": true
+        },
+        "establecimientoCedula": {
+            "type": "varchar",
+            "maxLength": 50,
+            "isCustom": true
+        },
+        "establecimientoCargo": {
+            "type": "varchar",
+            "maxLength": 150,
+            "isCustom": true
+        },
+        "estado": {
+            "type": "enum",
+            "options": ["Pendiente", "Diligenciada", "Aprobada"],
+            "default": "Pendiente",
+            "isCustom": true
+        },
+        "vistoBueno": {
+            "type": "bool",
+            "default": false,
+            "isCustom": true
+        },
+        "observacionesRevision": {
+            "type": "text",
+            "rows": 3,
+            "isCustom": true
+        },
+        "fechaAprobacion": {
+            "type": "date",
+            "isCustom": true
+        },
+        "registroOficial": {
+            "type": "bool",
+            "default": false,
+            "isCustom": true
+        },
+        "createdAt": {
+            "type": "datetime",
+            "readOnly": true
+        },
+        "modifiedAt": {
+            "type": "datetime",
+            "readOnly": true
+        }
+    },
+    "links": {
+        "case": {
+            "type": "belongsTo",
+            "entity": "Case",
+            "foreign": "actasVisita"
+        },
+        "assignedUser": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "teams": {
+            "type": "hasMany",
+            "entity": "Team",
+            "relationName": "entityTeam",
+            "layoutRelationshipsDisabled": true
+        },
+        "createdBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "modifiedBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        }
+    },
+    "entityClassName": "Espo\\Custom\\Entities\\ActaVisita",
+    "collection": {
+        "orderBy": "createdAt",
+        "order": "desc",
+        "textFilterFields": ["name", "numeroRadicado", "expediente", "posibleAfectante"]
+    }
+}

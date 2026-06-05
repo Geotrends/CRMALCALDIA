@@ -35,7 +35,7 @@ class FormatoSolicitudGenerator
             throw new BadRequest("Formato no válido. Use doc o pdf.");
         }
 
-        if (!$this->user->isAdmin() && !$this->userHasInspeccionRole()) {
+        if (!$this->userHasInspeccionRole()) {
             throw new Forbidden();
         }
 
@@ -47,9 +47,10 @@ class FormatoSolicitudGenerator
         }
 
         $radicado = trim((string) $case->get('cNumeroRadicado'));
+        $expediente = trim((string) $case->get('cExpediente'));
 
-        if ($radicado === '') {
-            throw new BadRequest('El caso aún no tiene número de radicado.');
+        if ($radicado === '' || $expediente === '') {
+            throw new BadRequest('El caso debe tener número de radicado y expediente.');
         }
 
         $templatePath = $this->getTemplatePath();
@@ -65,13 +66,29 @@ class FormatoSolicitudGenerator
 
         $payload = $this->buildPayload($case);
         $workDir = sys_get_temp_dir() . '/formato-solicitud-' . uniqid('', true);
-        mkdir($workDir, 0700, true);
+
+        if (!is_dir($workDir) && !mkdir($workDir, 0770, true) && !is_dir($workDir)) {
+            throw new Error('No se pudo crear el directorio temporal.');
+        }
+
+        $loProfile = $workDir . '/lo-profile';
+
+        if (!is_dir($loProfile) && !mkdir($loProfile, 0770, true) && !is_dir($loProfile)) {
+            throw new Error('No se pudo crear el perfil de LibreOffice.');
+        }
 
         $safeRadicado = preg_replace('/[^\w\-]+/', '_', $radicado) ?: 'caso';
         $outputPath = $workDir . '/FormatoSolicitud-' . $safeRadicado . '.' . $format;
         $jsonPath = $workDir . '/payload.json';
 
         file_put_contents($jsonPath, json_encode($payload, JSON_UNESCAPED_UNICODE));
+
+        $env = [
+            'HOME' => $workDir,
+            'TMPDIR' => $workDir,
+            'LO_PROFILE' => $loProfile,
+            'PATH' => getenv('PATH') ?: '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
+        ];
 
         $process = proc_open(
             [
@@ -86,7 +103,9 @@ class FormatoSolicitudGenerator
                 1 => ['pipe', 'w'],
                 2 => ['pipe', 'w'],
             ],
-            $pipes
+            $pipes,
+            $workDir,
+            $env
         );
 
         if (!is_resource($process)) {

@@ -12,20 +12,37 @@ import time
 import uno
 
 
+def get_lo_profile():
+    profile = os.environ.get("LO_PROFILE")
+    if not profile:
+        profile = os.path.join(tempfile.gettempdir(), f"lo-profile-{os.getuid()}")
+    os.makedirs(profile, exist_ok=True)
+    return profile
+
+
 def start_soffice():
-    subprocess.run(["pkill", "-f", "soffice"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    time.sleep(0.5)
-    port = 2002
+    profile = get_lo_profile()
+    profile_url = "file://" + profile.replace(" ", "%20")
+    port = 20000 + (os.getpid() % 10000)
     proc = subprocess.Popen(
         [
             "soffice",
             "--headless",
             "--invisible",
+            "--nologo",
+            "--nofirststartwizard",
+            f"-env:UserInstallation={profile_url}",
             f"--accept=socket,host=127.0.0.1,port={port};urp;",
         ],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
+        env={
+            **os.environ,
+            "HOME": profile,
+            "TMPDIR": profile,
+        },
     )
+    time.sleep(1.5)
     return proc, port
 
 
@@ -157,10 +174,16 @@ def fill_doc(template_path, output_path, data):
 
 
 def convert_to_pdf(doc_path, pdf_path):
+    profile = get_lo_profile()
+    profile_url = "file://" + profile.replace(" ", "%20")
     subprocess.run(
         [
             "soffice",
             "--headless",
+            "--invisible",
+            "--nologo",
+            "--nofirststartwizard",
+            f"-env:UserInstallation={profile_url}",
             "--convert-to",
             "pdf",
             "--outdir",
@@ -170,6 +193,11 @@ def convert_to_pdf(doc_path, pdf_path):
         check=True,
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
+        env={
+            **os.environ,
+            "HOME": profile,
+            "TMPDIR": profile,
+        },
     )
     generated = os.path.join(
         os.path.dirname(pdf_path) or ".",

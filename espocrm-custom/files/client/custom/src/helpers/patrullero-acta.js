@@ -12,7 +12,19 @@ define('custom:helpers/patrullero-acta', [], function () {
         return Object.values(teams).includes(TEAM_PATRULLEROS);
     };
 
-    const shouldShowActaVisita = function (user, model) {
+    const isCasePostRadicado = function (model) {
+        const radicado = String(model.get('cNumeroRadicado') || '').trim();
+        const expediente = String(model.get('cExpediente') || '').trim();
+
+        return radicado !== '' && expediente !== '';
+    };
+
+    const ALLOWED_STATUSES = [
+        'En proceso',
+        'Radicado',
+    ];
+
+    const shouldShowLlenarActaButton = function (user, model) {
         if (!user || !model) {
             return false;
         }
@@ -21,21 +33,49 @@ define('custom:helpers/patrullero-acta', [], function () {
             return false;
         }
 
-        if (model.get('status') !== 'En proceso') {
+        if (model.get('assignedUserId') !== user.id) {
             return false;
         }
 
-        const actaEstado = model.get('cActaEstado');
-
-        if (actaEstado === 'Diligenciada' || actaEstado === 'Aprobada') {
+        if (!isCasePostRadicado(model)) {
             return false;
         }
 
-        return model.get('assignedUserId') === user.id;
+        const status = model.get('status') || '';
+
+        if (ALLOWED_STATUSES.indexOf(status) === -1) {
+            return false;
+        }
+
+        return true;
+    };
+
+    const getUnavailableReason = function (user, model) {
+        if (!isPatrulleroUser(user)) {
+            return 'Solo patrulleros ven este panel.';
+        }
+
+        if (model.get('assignedUserId') !== user.id) {
+            return 'El caso no está asignado a usted.';
+        }
+
+        if (!isCasePostRadicado(model)) {
+            return 'El caso debe tener radicado y expediente.';
+        }
+
+        const status = model.get('status') || '';
+
+        if (ALLOWED_STATUSES.indexOf(status) === -1) {
+            return 'Disponible cuando el caso esté En proceso (asignado por Julian).';
+        }
+
+        return '';
     };
 
     return {
         isPatrulleroUser: isPatrulleroUser,
-        shouldShowActaVisita: shouldShowActaVisita,
+        isCasePostRadicado: isCasePostRadicado,
+        shouldShowLlenarActaButton: shouldShowLlenarActaButton,
+        getUnavailableReason: getUnavailableReason,
     };
 });

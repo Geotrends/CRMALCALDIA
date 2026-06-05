@@ -12,7 +12,41 @@ define('custom:views/case/record/panels/formato-solicitud', [
 
             this.listenTo(this.model, 'change:cNumeroRadicado change:cExpediente', function () {
                 this.reRender();
+                this.togglePanel();
             });
+        },
+
+        afterRender: function () {
+            Dep.prototype.afterRender.call(this);
+            this.togglePanel();
+            this.bindDownloadButtons();
+        },
+
+        bindDownloadButtons: function () {
+            this.$el.find('[data-action="downloadFormato"]').off('click.formato');
+
+            this.$el.find('[data-action="downloadFormato"]').on('click.formato', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const format = $(e.currentTarget).data('format') || 'pdf';
+
+                this.actionDownloadFormato({format: format});
+            });
+        },
+
+        togglePanel: function () {
+            const $panel = this.$el.closest('.panel, .record-panel');
+
+            if (!$panel.length) {
+                return;
+            }
+
+            if (this.isVisible()) {
+                $panel.show();
+            } else {
+                $panel.hide();
+            }
         },
 
         data: function () {
@@ -22,40 +56,40 @@ define('custom:views/case/record/panels/formato-solicitud', [
         },
 
         isVisible: function () {
-            const user = this.getUser();
-
-            if (!RadicacionFields.isCaseRadicado(this.model)) {
+            if (!RadicacionFields.isCasePostRadicado(this.model)) {
                 return false;
             }
 
-            if (user.isAdmin()) {
-                return true;
-            }
-
-            const roles = user.get('rolesNames') || {};
-
-            return Object.values(roles).includes('Inspección');
+            return RadicacionFields.isInspeccionUser(this.getUser());
         },
 
         actionDownloadFormato: function (data) {
-            const format = (data && data.format) || 'doc';
+            const format = (data && data.format) || 'pdf';
 
             if (!this.isVisible()) {
+                Espo.Ui.warning(this.translate('formatoSolicitudUnavailable', 'Case'));
+
                 return;
             }
 
-            const radicado = String(this.model.get('cNumeroRadicado') || '').trim() || this.model.id;
-            const url = '?entryPoint=FormatoSolicitud'
+            if (!this.model.id) {
+                Espo.Ui.error(this.translate('Error'));
+
+                return;
+            }
+
+            const url = this.getBasePath()
+                + '?entryPoint=FormatoSolicitud'
                 + '&id=' + encodeURIComponent(this.model.id)
                 + '&format=' + encodeURIComponent(format);
 
             Espo.Ui.notify(this.translate('pleaseWait', 'messages'));
 
-            window.location.href = url;
+            window.location.assign(url);
 
-            setTimeout(function () {
+            setTimeout(() => {
                 Espo.Ui.notify(false);
-            }, 1500);
+            }, 5000);
         },
     });
 });

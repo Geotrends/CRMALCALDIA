@@ -1,0 +1,19 @@
+{
+    "relationshipPanels": {
+        "users": {
+            "label": "Patrulleros en este equipo",
+            "createDisabled": true,
+            "editDisabled": true,
+            "removeDisabled": false,
+            "layout": "listForTeam",
+            "selectPrimaryFilterName": "active",
+            "filterList": ["all", "active"],
+            "rowActionList": [
+                "changeTeamPosition"
+            ],
+            "selectMandatoryAttributeList": [
+                "teamRole"
+            ]
+        }
+    }
+}

@@ -1,0 +1,27 @@
+[
+    {
+        "name": "cNumeroRadicado",
+        "link": true,
+        "width": 14
+    },
+    {
+        "name": "cFechaCaso",
+        "width": 12
+    },
+    {
+        "name": "cPeticionario",
+        "width": 16
+    },
+    {
+        "name": "cCanalDeReporte",
+        "width": 12
+    },
+    {
+        "name": "status",
+        "width": 12
+    },
+    {
+        "name": "assignedUser",
+        "width": 14
+    }
+]

@@ -3,3 +3,7 @@
 backups/
 .DS_Store
 Thumbs.db
+~$*
+tmp_*.sql
+dump-espocrm-*.sql
+Untitled

@@ -1,0 +1,39 @@
+{
+    "recordViews": {
+        "edit": "custom:views/case/record/edit",
+        "detail": "custom:views/case/record/detail"
+    },
+    "relationshipPanels": {},
+    "sidePanels": {
+        "edit": [],
+        "detail": [
+            {
+                "name": "formatoSolicitud",
+                "label": "Formato solicitud",
+                "view": "custom:views/case/record/panels/formato-solicitud",
+                "notRefreshable": true
+            },
+            {
+                "name": "activities",
+                "reference": "activities",
+                "view": "crm:views/case/record/panels/activities"
+            },
+            {
+                "name": "history",
+                "reference": "history"
+            },
+            {
+                "name": "tasks",
+                "reference": "tasks"
+            }
+        ]
+    },
+    "fields": {
+        "assignedUser": {
+            "view": "custom:views/case/fields/assigned-user"
+        }
+    },
+    "dynamicLogic": {
+        "fields": {}
+    }
+}

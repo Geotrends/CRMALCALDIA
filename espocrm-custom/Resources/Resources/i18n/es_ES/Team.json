@@ -1,0 +1,9 @@
+{
+    "labels": {
+        "Users": "Patrulleros del equipo",
+        "Create Team": "Crear equipo"
+    },
+    "fields": {
+        "description": "Notas (opcional). Los patrulleros se agregan abajo en la sección «Patrulleros del equipo»."
+    }
+}

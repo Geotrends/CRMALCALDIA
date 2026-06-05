@@ -1,0 +1,202 @@
+[
+    {
+        "rows": [
+            [
+                {
+                    "name": "case"
+                },
+                {
+                    "name": "estado",
+                    "readOnly": true
+                }
+            ],
+            [
+                {
+                    "name": "numeroRadicado",
+                    "readOnly": true
+                },
+                {
+                    "name": "expediente",
+                    "readOnly": true
+                }
+            ],
+            [
+                {
+                    "name": "fechaVisita"
+                },
+                {
+                    "name": "anio",
+                    "readOnly": true
+                }
+            ],
+            [
+                {
+                    "name": "assignedUser"
+                },
+                false
+            ]
+        ],
+        "style": "default",
+        "label": "Información general"
+    },
+    {
+        "rows": [
+            [
+                {
+                    "name": "autorizacionDatos",
+                    "fullWidth": true
+                }
+            ]
+        ],
+        "style": "default",
+        "label": "Autorización de datos personales"
+    },
+    {
+        "rows": [
+            [
+                {
+                    "name": "posibleAfectante"
+                },
+                false
+            ],
+            [
+                {
+                    "name": "direccionAfectacion",
+                    "fullWidth": true
+                }
+            ],
+            [
+                {
+                    "name": "telefono"
+                },
+                {
+                    "name": "barrio"
+                }
+            ],
+            [
+                {
+                    "name": "zona"
+                },
+                false
+            ]
+        ],
+        "style": "default",
+        "label": "Datos del lugar"
+    },
+    {
+        "rows": [
+            [
+                {
+                    "name": "objetoVisita",
+                    "fullWidth": true
+                }
+            ]
+        ],
+        "style": "default",
+        "label": "Objeto de la visita o solicitud"
+    },
+    {
+        "rows": [
+            [
+                {
+                    "name": "situacionEncontrada",
+                    "fullWidth": true
+                }
+            ]
+        ],
+        "style": "default",
+        "label": "Situación encontrada"
+    },
+    {
+        "rows": [
+            [
+                {
+                    "name": "analisisSituacion",
+                    "fullWidth": true
+                }
+            ]
+        ],
+        "style": "default",
+        "label": "Análisis de la situación"
+    },
+    {
+        "rows": [
+            [
+                {
+                    "name": "registroFotografico",
+                    "fullWidth": true
+                }
+            ]
+        ],
+        "style": "default",
+        "label": "Registro fotográfico"
+    },
+    {
+        "rows": [
+            [
+                {
+                    "name": "conclusion",
+                    "fullWidth": true
+                }
+            ]
+        ],
+        "style": "default",
+        "label": "Conclusión"
+    },
+    {
+        "rows": [
+            [
+                {
+                    "name": "requerimientos",
+                    "fullWidth": true
+                }
+            ]
+        ],
+        "style": "default",
+        "label": "Requerimientos"
+    },
+    {
+        "rows": [
+            [
+                {
+                    "name": "funcionarioNombre"
+                },
+                {
+                    "name": "funcionarioCedula"
+                }
+            ],
+            [
+                {
+                    "name": "funcionarioCargo"
+                },
+                {
+                    "name": "funcionarioFirma"
+                }
+            ]
+        ],
+        "style": "default",
+        "label": "Funcionario quien realizó la visita"
+    },
+    {
+        "rows": [
+            [
+                {
+                    "name": "establecimientoNombre"
+                },
+                {
+                    "name": "establecimientoCedula"
+                }
+            ],
+            [
+                {
+                    "name": "establecimientoCargo"
+                },
+                {
+                    "name": "establecimientoFirma"
+                }
+            ]
+        ],
+        "style": "default",
+        "label": "Por parte del establecimiento"
+    }
+]

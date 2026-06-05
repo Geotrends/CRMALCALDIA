@@ -1,0 +1,125 @@
+[
+    {
+        "rows": [
+            [
+                {
+                    "name": "cFechaCaso"
+                },
+                {
+                    "name": "cNumeroRadicado"
+                }
+            ],
+            [
+                {
+                    "name": "cExpediente"
+                },
+                false
+            ],
+            [
+                {
+                    "name": "cPeticionario"
+                },
+                {
+                    "name": "cCedula"
+                }
+            ],
+            [
+                {
+                    "name": "cDireccion",
+                    "fullWidth": true
+                }
+            ],
+            [
+                {
+                    "name": "cTelefono"
+                },
+                {
+                    "name": "cBarrio"
+                }
+            ],
+            [
+                {
+                    "name": "cCorreo"
+                },
+                {
+                    "name": "cCanalDeReporte"
+                }
+            ],
+            [
+                {
+                    "name": "cTipo"
+                },
+                {
+                    "name": "cCategoria"
+                }
+            ]
+        ],
+        "style": "default",
+        "label": "Solicitud de queja"
+    },
+    {
+        "rows": [
+            [
+                {
+                    "name": "cPerjudicante"
+                },
+                {
+                    "name": "cTelefonoPerjudicante"
+                }
+            ],
+            [
+                {
+                    "name": "cDireccionPerjudicante",
+                    "fullWidth": true
+                }
+            ],
+            [
+                {
+                    "name": "cBarrioPerjudicante"
+                },
+                false
+            ]
+        ],
+        "style": "default",
+        "label": "Perjudicante"
+    },
+    {
+        "rows": [
+            [
+                {
+                    "name": "description",
+                    "fullWidth": true
+                }
+            ],
+            [
+                {
+                    "name": "cRespuestaInmediata",
+                    "fullWidth": true
+                }
+            ],
+            [
+                {
+                    "name": "cRecibidaPor"
+                },
+                {
+                    "name": "cRemitidoA"
+                }
+            ]
+        ],
+        "style": "default",
+        "label": "Queja y gestión"
+    },
+    {
+        "name": "gestionPosteriorRadicacion",
+        "rows": [
+            [
+                {
+                    "name": "assignedUser"
+                },
+                false
+            ]
+        ],
+        "style": "default",
+        "label": "Asignación"
+    }
+]

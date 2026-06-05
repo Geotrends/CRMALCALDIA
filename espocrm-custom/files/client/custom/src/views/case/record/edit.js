@@ -74,22 +74,32 @@ define('custom:views/case/record/edit', [
             const user = this.getUser();
             const model = this.model;
             const show = RadicacionFields.shouldShowRadicacionFields(user, model);
-            const readOnly = !RadicacionFields.isRadicacionUser(user);
+            const canEdit = RadicacionFields.isRadicacionUser(user);
 
             RadicacionFields.RADICADO_FIELDS.forEach((field) => {
                 const $cell = this.$el.find('[data-name="' + field + '"]').closest('.cell');
 
                 if ($cell.length) {
-                    $cell.toggle(show);
+                    $cell.show();
                 }
 
                 if (!show) {
+                    if ($cell.length) {
+                        $cell.hide();
+                    }
+
                     return;
                 }
 
                 const view = this.getFieldView(field);
 
-                if (view && readOnly && typeof view.setReadOnly === 'function') {
+                if (!view) {
+                    return;
+                }
+
+                if (canEdit && typeof view.setNotReadOnly === 'function') {
+                    view.setNotReadOnly();
+                } else if (!canEdit && typeof view.setReadOnly === 'function') {
                     view.setReadOnly();
                 }
             });
@@ -115,7 +125,13 @@ define('custom:views/case/record/edit', [
 
             const view = this.getFieldView('assignedUser');
 
-            if (view && !canEdit && typeof view.setReadOnly === 'function') {
+            if (!view) {
+                return;
+            }
+
+            if (canEdit && typeof view.setNotReadOnly === 'function') {
+                view.setNotReadOnly();
+            } else if (!canEdit && typeof view.setReadOnly === 'function') {
                 view.setReadOnly();
             }
         },

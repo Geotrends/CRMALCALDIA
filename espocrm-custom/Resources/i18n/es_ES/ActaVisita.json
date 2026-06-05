@@ -1,0 +1,74 @@
+{
+    "fields": {
+        "name": "Nombre",
+        "case": "Caso vinculado (ID caso)",
+        "expediente": "Expediente",
+        "autorizacionDatos": "Autorización tratamiento de datos personales (Ley 1581 de 2012)",
+        "anio": "Año",
+        "posibleAfectante": "Posible afectante",
+        "numeroRadicado": "Radicado de la solicitud",
+        "direccionAfectacion": "Dirección donde se origina la afectación",
+        "telefono": "Teléfono",
+        "barrio": "Barrio",
+        "zona": "Zona",
+        "fechaVisita": "Fecha de la visita",
+        "objetoVisita": "Objeto de la visita o solicitud",
+        "situacionEncontrada": "Situación encontrada",
+        "analisisSituacion": "Análisis de la situación",
+        "registroFotografico": "Registro fotográfico",
+        "conclusion": "Conclusión",
+        "requerimientos": "Requerimientos",
+        "funcionarioFirma": "Firma del funcionario",
+        "funcionarioNombre": "Nombre del funcionario",
+        "funcionarioCedula": "C.C. del funcionario",
+        "funcionarioCargo": "Cargo del funcionario",
+        "establecimientoFirma": "Firma del establecimiento",
+        "establecimientoNombre": "Nombre (establecimiento)",
+        "establecimientoCedula": "C.C. (establecimiento)",
+        "establecimientoCargo": "Cargo (establecimiento)",
+        "estado": "Estado del acta",
+        "vistoBueno": "Visto bueno",
+        "observacionesRevision": "Observaciones de revisión",
+        "fechaAprobacion": "Fecha de aprobación",
+        "registroOficial": "Registro oficial",
+        "assignedUser": "Funcionario que realizó la visita",
+        "teams": "Equipos",
+        "createdAt": "Creado",
+        "modifiedAt": "Modificado"
+    },
+    "labels": {
+        "Create ActaVisita": "Crear acta de visita",
+        "ActaVisita": "Acta de visita",
+        "ActasVisita": "Actas de visita",
+        "autorizacionDatosTexto": "Declaro que he sido informado por parte del Municipio de Envigado, sobre la Ley de protección de datos personales. Así mismo, autorizo de manera expresa, voluntaria, previa, explícita e irrevocable al Municipio de Envigado, para que de conformidad con la Ley 1581 de 2012 y la Política de Tratamiento de Datos Personales; recolecte, compile, confirme, notifique, emplee, analice, estudie, conserve, reciba y disponga de mis datos personales, los cuales serán utilizados para las diferentes gestiones que son propias en el Municipio. Manifiesto, que los datos aportados son ciertos y que cumplen con los requisitos para acceder a la protección de datos personales, disponible en el portal web www.envigado.gov.co.",
+        "panelInformacionGeneral": "Información general",
+        "panelObjetoVisita": "Objeto de la visita o solicitud",
+        "panelSituacion": "Situación encontrada",
+        "panelAnalisis": "Análisis de la situación",
+        "panelRegistroFotografico": "Registro fotográfico",
+        "panelConclusion": "Conclusión",
+        "panelRequerimientos": "Requerimientos",
+        "panelFuncionario": "Funcionario quien realizó la visita",
+        "panelEstablecimiento": "Por parte del establecimiento",
+        "panelRevision": "Revisión (Inspección)",
+        "footerSecretaria": "Secretaría de Salud — Dirección de Control de Factores de Riesgo — Tel: 339 40 00 Ext 4279 ó 339 41 13",
+        "llenarActaVisita": "Llenar acta de visita",
+        "actaAutoFieldsHelp": "ID, caso, radicado, expediente y nombre se generan automáticamente desde el caso.",
+        "actaVisitaPanelHelp": "Diligencie el acta oficial de visita para este caso.",
+        "actaVisitaPanelUnavailable": "Disponible para el patrullero asignado cuando el caso esté En proceso y tenga radicado y expediente."
+    },
+    "options": {
+        "zona": {
+            "Urbano": "Urbano",
+            "Rural": "Rural"
+        },
+        "estado": {
+            "Pendiente": "Pendiente",
+            "Diligenciada": "Diligenciada",
+            "Aprobada": "Aprobada"
+        }
+    },
+    "links": {
+        "case": "Caso"
+    }
+}
