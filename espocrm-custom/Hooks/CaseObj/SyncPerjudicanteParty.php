@@ -1,0 +1,226 @@
+<?php
+
+namespace Espo\Custom\Hooks\CaseObj;
+
+use Espo\Core\Hook\Hook\BeforeSave;
+use Espo\ORM\Entity;
+use Espo\ORM\EntityManager;
+use Espo\ORM\Repository\Option\SaveOptions;
+
+/**
+ * Sincroniza perjudicante con Contacto (natural) o Cuenta (jurídica).
+ */
+class SyncPerjudicanteParty implements BeforeSave
+{
+    public static int $order = 11;
+
+    private const PERSONA_NATURAL = 'Persona natural';
+    private const PERSONA_JURIDICA = 'Persona jurídica';
+
+    private const SYNC_FIELDS = [
+        'cTipoPersonaPerjudicante',
+        'cPerjudicante',
+        'cDocumentoPerjudicante',
+        'cDireccionPerjudicante',
+        'cTelefonoPerjudicante',
+        'cBarrioPerjudicante',
+    ];
+
+    public function __construct(
+        private EntityManager $entityManager
+    ) {}
+
+    public function beforeSave(Entity $entity, SaveOptions $options): void
+    {
+        if ($options->get('skipPerjudicantePartySync')) {
+            return;
+        }
+
+        if (!$this->shouldSync($entity)) {
+            return;
+        }
+
+        $nombre = trim((string) $entity->get('cPerjudicante'));
+        $documento = trim((string) $entity->get('cDocumentoPerjudicante'));
+
+        if ($nombre === '' && $documento === '') {
+            $entity->set('cPerjudicanteContactId', null);
+            $entity->set('cPerjudicanteContactName', null);
+            $entity->set('cPerjudicanteCuentaId', null);
+            $entity->set('cPerjudicanteCuentaName', null);
+
+            return;
+        }
+
+        $tipo = (string) ($entity->get('cTipoPersonaPerjudicante') ?: self::PERSONA_NATURAL);
+
+        if ($tipo === self::PERSONA_JURIDICA) {
+            $this->syncAccount($entity);
+        } else {
+            $this->syncContact($entity);
+        }
+    }
+
+    private function shouldSync(Entity $entity): bool
+    {
+        if ($entity->isNew()) {
+            return true;
+        }
+
+        foreach (self::SYNC_FIELDS as $field) {
+            if ($entity->isAttributeChanged($field)) {
+                return true;
+            }
+        }
+
+        return !$entity->get('cPerjudicanteContactId') && !$entity->get('cPerjudicanteCuentaId');
+    }
+
+    private function syncContact(Entity $case): void
+    {
+        $case->set('cPerjudicanteCuentaId', null);
+        $case->set('cPerjudicanteCuentaName', null);
+
+        $documento = trim((string) $case->get('cDocumentoPerjudicante'));
+        $contact = $this->resolveContact($case, $documento);
+
+        if (!$contact) {
+            $contact = $this->entityManager->getRDBRepository('Contact')->getNew();
+        }
+
+        $this->applyCaseDataToContact($contact, $case);
+        $this->entityManager->saveEntity($contact);
+
+        $case->set('cPerjudicanteContactId', $contact->getId());
+        $case->set('cPerjudicanteContactName', $contact->get('name'));
+    }
+
+    private function syncAccount(Entity $case): void
+    {
+        $case->set('cPerjudicanteContactId', null);
+        $case->set('cPerjudicanteContactName', null);
+
+        $nit = trim((string) $case->get('cDocumentoPerjudicante'));
+        $account = $this->resolveAccount($case, $nit);
+
+        if (!$account) {
+            $account = $this->entityManager->getRDBRepository('Account')->getNew();
+        }
+
+        $this->applyCaseDataToAccount($account, $case);
+        $this->entityManager->saveEntity($account);
+
+        $case->set('cPerjudicanteCuentaId', $account->getId());
+        $case->set('cPerjudicanteCuentaName', $account->get('name'));
+    }
+
+    private function resolveContact(Entity $case, string $documento): ?Entity
+    {
+        $contactId = $case->get('cPerjudicanteContactId');
+
+        if ($contactId) {
+            $contact = $this->entityManager->getEntityById('Contact', $contactId);
+
+            if ($contact) {
+                return $contact;
+            }
+        }
+
+        if ($documento === '') {
+            return null;
+        }
+
+        return $this->entityManager
+            ->getRDBRepository('Contact')
+            ->where(['cNumeroDeDocumento' => $documento])
+            ->findOne();
+    }
+
+    private function resolveAccount(Entity $case, string $nit): ?Entity
+    {
+        $accountId = $case->get('cPerjudicanteCuentaId');
+
+        if ($accountId) {
+            $account = $this->entityManager->getEntityById('Account', $accountId);
+
+            if ($account) {
+                return $account;
+            }
+        }
+
+        if ($nit === '') {
+            return null;
+        }
+
+        return $this->entityManager
+            ->getRDBRepository('Account')
+            ->where(['cNit' => $nit])
+            ->findOne();
+    }
+
+    private function applyCaseDataToContact(Entity $contact, Entity $case): void
+    {
+        [$firstName, $lastName] = $this->splitName(trim((string) $case->get('cPerjudicante')));
+
+        if ($lastName === '' && $firstName === '') {
+            $lastName = 'Perjudicante';
+        } elseif ($lastName === '') {
+            $lastName = $firstName;
+            $firstName = '';
+        }
+
+        $contact->set('firstName', $firstName);
+        $contact->set('lastName', $lastName);
+
+        $documento = trim((string) $case->get('cDocumentoPerjudicante'));
+
+        if ($documento !== '') {
+            $contact->set('cNumeroDeDocumento', $documento);
+            $contact->set('cTipoDeDocumento', 'CC');
+        }
+
+        $contact->set('addressStreet', trim((string) $case->get('cDireccionPerjudicante')));
+        $contact->set('phoneNumber', trim((string) $case->get('cTelefonoPerjudicante')));
+        $contact->set('cBarrioResidencia', trim((string) $case->get('cBarrioPerjudicante')));
+
+        if (!$contact->get('cMunicipio')) {
+            $contact->set('cMunicipio', 'Envigado');
+        }
+    }
+
+    private function applyCaseDataToAccount(Entity $account, Entity $case): void
+    {
+        $nombre = trim((string) $case->get('cPerjudicante'));
+
+        if ($nombre !== '') {
+            $account->set('name', $nombre);
+        }
+
+        $nit = trim((string) $case->get('cDocumentoPerjudicante'));
+
+        if ($nit !== '') {
+            $account->set('cNit', $nit);
+        }
+
+        $account->set('billingAddressStreet', trim((string) $case->get('cDireccionPerjudicante')));
+        $account->set('phoneNumber', trim((string) $case->get('cTelefonoPerjudicante')));
+    }
+
+    /**
+     * @return array{0: string, 1: string}
+     */
+    private function splitName(string $fullName): array
+    {
+        if ($fullName === '') {
+            return ['', ''];
+        }
+
+        $parts = explode(' ', $fullName, 2);
+
+        if (count($parts) === 1) {
+            return ['', $parts[0]];
+        }
+
+        return [$parts[0], $parts[1]];
+    }
+}

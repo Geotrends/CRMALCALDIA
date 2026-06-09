@@ -27,10 +27,9 @@ define('custom:views/acta-visita/record/detail', [
         },
 
         toggleFormatoGeneradoPanel: function () {
-            const show = FormatoActaVisitaAccess.canDownloadFormatoActaVisita(
-                this.getUser(),
-                this.model
-            );
+            const show = FormatoActaVisitaAccess.canDownloadFormatoActaVisita(this.getUser(), this.model)
+                && FormatoActaVisitaAccess.isFormatoActaHabilitado(this.model)
+                && !!this.model.get('cFormatoActaVisitaPdfId');
 
             this.findPanel('formatoGenerado').toggle(show);
         },

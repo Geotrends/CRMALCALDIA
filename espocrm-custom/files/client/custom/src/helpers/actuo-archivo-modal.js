@@ -65,7 +65,7 @@ define('custom:helpers/actuo-archivo-modal', [
             }
         };
 
-        ActuoArchivoCaseStatus.fetchActuoForCase(caseModel.id).then(function (actuo) {
+        ActuoArchivoCaseStatus.fetchActuoForCase(caseModel.id, user, caseModel).then(function (actuo) {
             if (actuo && actuo.id) {
                 helper.showEdit(host, {
                     entityType: 'ActuoArchivo',

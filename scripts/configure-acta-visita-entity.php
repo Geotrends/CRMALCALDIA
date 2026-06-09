@@ -42,15 +42,15 @@ $roleConfigs = [
         'tabs' => null,
     ],
     'Asignador' => [
-        'scope' => ['create' => 'no', 'read' => 'no', 'edit' => 'no', 'delete' => 'no', 'stream' => 'no'],
+        'scope' => ['create' => 'no', 'read' => 'all', 'edit' => 'no', 'delete' => 'no', 'stream' => 'no'],
         'fieldEdit' => [],
-        'fieldRead' => [],
+        'fieldRead' => $actaFields,
         'tabs' => null,
     ],
     'Radicación' => [
-        'scope' => ['create' => 'no', 'read' => 'no', 'edit' => 'no', 'delete' => 'no', 'stream' => 'no'],
+        'scope' => ['create' => 'no', 'read' => 'all', 'edit' => 'no', 'delete' => 'no', 'stream' => 'no'],
         'fieldEdit' => [],
-        'fieldRead' => [],
+        'fieldRead' => $actaFields,
         'tabs' => null,
     ],
 ];

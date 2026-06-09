@@ -1,4 +1,8 @@
-define('custom:helpers/actuo-archivo-case-status', [], function () {
+define('custom:helpers/actuo-archivo-case-status', [
+    'custom:helpers/silent-ajax',
+    'custom:helpers/formato-actuo-archivo-case-access',
+    'custom:helpers/inspeccion-actuo-archivo',
+], function (SilentAjax, FormatoActuoArchivoCaseAccess, InspeccionActuoArchivo) {
 
     const CONTENT_FIELDS = [
         'referencia',
@@ -49,6 +53,22 @@ define('custom:helpers/actuo-archivo-case-status', [], function () {
         return isActuoDiligenciado(actuo);
     };
 
+    const canFetchActuoForCase = function (user, model) {
+        if (!user || !model || !model.id) {
+            return false;
+        }
+
+        if (user.isAdmin()) {
+            return true;
+        }
+
+        if (FormatoActuoArchivoCaseAccess.canDownloadFormatoActuoArchivoFromCase(user, model)) {
+            return true;
+        }
+
+        return InspeccionActuoArchivo.shouldShowActuoArchivoButton(user, model);
+    };
+
     const ACTUO_SELECT = [
         'id',
         'estado',
@@ -58,41 +78,41 @@ define('custom:helpers/actuo-archivo-case-status', [], function () {
         'modifiedAt',
     ].join(',');
 
-    const fetchActuoForCase = function (caseId) {
-        if (!caseId) {
-            return Promise.resolve(null);
-        }
-
-        return Espo.Ajax.getRequest('Case/' + encodeURIComponent(caseId) + '/actuosArchivo', {
+    const fetchActuoDirect = function (caseId) {
+        return SilentAjax.getRequest('ActuoArchivo', {
+            where: [
+                {
+                    type: 'equals',
+                    attribute: 'caseId',
+                    value: caseId,
+                },
+            ],
             select: ACTUO_SELECT,
             orderBy: 'modifiedAt',
             order: 'desc',
             maxSize: 10,
         }).then(function (response) {
+            if (!response) {
+                return null;
+            }
+
             return pickActuo(response.list || []);
-        }).catch(function () {
-            return Espo.Ajax.getRequest('ActuoArchivo', {
-                where: [
-                    {
-                        type: 'equals',
-                        attribute: 'caseId',
-                        value: caseId,
-                    },
-                ],
-                select: ACTUO_SELECT,
-                orderBy: 'modifiedAt',
-                order: 'desc',
-                maxSize: 10,
-            }).then(function (response) {
-                return pickActuo(response.list || []);
-            });
         });
+    };
+
+    const fetchActuoForCase = function (caseId, user, model) {
+        if (!caseId || !canFetchActuoForCase(user, model)) {
+            return Promise.resolve(null);
+        }
+
+        return fetchActuoDirect(caseId);
     };
 
     return {
         CONTENT_FIELDS: CONTENT_FIELDS,
         isActuoDiligenciado: isActuoDiligenciado,
         isFormatoActuoHabilitado: isFormatoActuoHabilitado,
+        canFetchActuoForCase: canFetchActuoForCase,
         fetchActuoForCase: fetchActuoForCase,
     };
 });

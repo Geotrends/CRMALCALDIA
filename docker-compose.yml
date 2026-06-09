@@ -37,6 +37,7 @@ services:
       ESPOCRM_TIME_ZONE: ${ESPOCRM_TIME_ZONE}
     volumes:
       - espocrm:/var/www/html
+      - ./exports:/var/www/html/data/exports
     restart: always
     depends_on:
       espocrm-db:
@@ -49,6 +50,7 @@ services:
     container_name: espocrm-daemon
     volumes:
       - espocrm:/var/www/html
+      - ./exports:/var/www/html/data/exports
     restart: always
     entrypoint: docker-daemon.sh
     depends_on:
@@ -64,6 +66,7 @@ services:
       ESPOCRM_CONFIG_WEB_SOCKET_ZERO_M_Q_SUBMISSION_DSN: "tcp://espocrm-websocket:7777"
     volumes:
       - espocrm:/var/www/html
+      - ./exports:/var/www/html/data/exports
     restart: always
     entrypoint: docker-websocket.sh
     ports:

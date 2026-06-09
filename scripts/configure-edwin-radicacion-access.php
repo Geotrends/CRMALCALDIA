@@ -99,6 +99,12 @@ $scopes = [
         'edit' => 'no',
         'delete' => 'no',
     ],
+    'User' => [
+        'create' => 'no',
+        'read' => 'all',
+        'edit' => 'no',
+        'delete' => 'no',
+    ],
 ];
 
 foreach ($scopes as $scope => $permissions) {

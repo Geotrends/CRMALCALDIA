@@ -56,17 +56,9 @@ define('custom:views/actuo-archivo/record/panels/formato-actuo-archivo', [
         },
 
         data: function () {
-            const canAccess = this.canAccess();
-            const downloadEnabled = this.isDownloadEnabled();
-
             return {
-                visible: canAccess,
-                downloadEnabled: downloadEnabled,
-                helpText: downloadEnabled
-                    ? this.translate('formatoActuoArchivoHelp', 'ActuoArchivo')
-                    : this.translate('formatoActuoArchivoPending', 'ActuoArchivo'),
-                unavailableText: this.translate('formatoActuoArchivoUnavailable', 'ActuoArchivo'),
-                wordLabel: this.translate('downloadFormatoActuoWord', 'ActuoArchivo'),
+                visible: this.isVisible(),
+                helpText: this.translate('formatoActuoArchivoHelp', 'ActuoArchivo'),
                 pdfLabel: this.translate('downloadFormatoActuoPdf', 'ActuoArchivo'),
             };
         },
@@ -81,7 +73,7 @@ define('custom:views/actuo-archivo/record/panels/formato-actuo-archivo', [
         },
 
         isVisible: function () {
-            return this.canAccess();
+            return this.isDownloadEnabled();
         },
 
         actionDownloadFormatoActuo: function (data) {

@@ -28,6 +28,16 @@
             "options": [],
             "isCustom": true
         },
+        "cTipoPersonaPeticionario": {
+            "type": "enum",
+            "options": [
+                "Persona natural",
+                "Persona jurídica"
+            ],
+            "default": "Persona natural",
+            "required": true,
+            "isCustom": true
+        },
         "cPeticionario": {
             "type": "varchar",
             "required": true,
@@ -90,11 +100,47 @@
             "maxLength": 100,
             "isCustom": true
         },
+        "cTipoPersonaPerjudicante": {
+            "type": "enum",
+            "options": [
+                "Persona natural",
+                "Persona jurídica"
+            ],
+            "default": "Persona natural",
+            "required": true,
+            "isCustom": true
+        },
         "cPerjudicante": {
             "type": "varchar",
             "maxLength": 200,
             "options": [],
             "isCustom": true
+        },
+        "cDocumentoPerjudicante": {
+            "type": "varchar",
+            "maxLength": 100,
+            "options": [],
+            "isCustom": true
+        },
+        "cPerjudicanteContact": {
+            "type": "link",
+            "readOnly": true,
+            "utility": true,
+            "isCustom": true
+        },
+        "cPerjudicanteCuenta": {
+            "type": "link",
+            "readOnly": true,
+            "utility": true,
+            "isCustom": true
+        },
+        "contact": {
+            "readOnly": true,
+            "utility": true
+        },
+        "account": {
+            "readOnly": true,
+            "utility": true
         },
         "cTelefonoPerjudicante": {
             "type": "varchar",
@@ -188,6 +234,9 @@
                 "Proceso cerrado": "default"
             }
         },
+        "assignedUser": {
+            "default": null
+        },
         "cCategoria": {
             "type": "multiEnum",
             "options": [
@@ -240,6 +289,14 @@
             "type": "hasMany",
             "entity": "ActuoArchivo",
             "foreign": "case"
+        },
+        "cPerjudicanteContact": {
+            "type": "belongsTo",
+            "entity": "Contact"
+        },
+        "cPerjudicanteCuenta": {
+            "type": "belongsTo",
+            "entity": "Account"
         }
     }
 }

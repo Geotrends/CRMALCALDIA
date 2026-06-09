@@ -1,0 +1,7 @@
+{
+    "labels": {
+        "downloadFormatoActuoPdf": "Descargar PDF",
+        "formatoActuoArchivoHelp": "El formato está listo. Puede descargar el PDF.",
+        "formatoActuoArchivoPending": "El formato estará disponible cuando guarde el auto de archivo."
+    }
+}

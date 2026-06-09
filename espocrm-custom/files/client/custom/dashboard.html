@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tablero de Control - CRM Alcaldía</title>
+  <link rel="stylesheet" href="/client/custom/dashboard.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <div class="dashboard">
+    <header class="dashboard-header">
+      <h1>Tablero de Control — Secretaría de Medio Ambiente</h1>
+      <span id="fecha-actual" class="fecha"></span>
+    </header>
+    <section class="kpis">
+      <article class="kpi kpi--total"><span class="kpi-label">Total casos</span><span class="kpi-valor" id="kpi-total">–</span></article>
+      <article class="kpi kpi--nuevo"><span class="kpi-label">Pend. radicación</span><span class="kpi-valor" id="kpi-pendiente">–</span></article>
+      <article class="kpi kpi--asignado"><span class="kpi-label">En gestión</span><span class="kpi-valor" id="kpi-gestion">–</span></article>
+      <article class="kpi kpi--cerrado"><span class="kpi-label">Finalizados</span><span class="kpi-valor" id="kpi-finalizados">–</span></article>
+      <article class="kpi kpi--vencido"><span class="kpi-label">Vencidos</span><span class="kpi-valor" id="kpi-vencidos">–</span></article>
+      <article class="kpi kpi--proximo"><span class="kpi-label">Próx. a vencer</span><span class="kpi-valor" id="kpi-proximos">–</span></article>
+    </section>
+    <div id="estado" class="estado">Cargando…</div>
+    <section class="graficas-grid">
+      <div class="grafica-card"><header class="grafica-header"><h2>Embudo por estado</h2></header><div class="grafica-cuerpo grafica-cuerpo--donut"><canvas id="grafica-embudo"></canvas></div></div>
+      <div class="grafica-card"><header class="grafica-header"><h2>Semáforo de vencimiento</h2></header><div class="grafica-cuerpo grafica-cuerpo--donut"><canvas id="grafica-semaforo"></canvas></div></div>
+      <div class="grafica-card grafica-card--wide"><header class="grafica-header"><h2>Casos por tipo</h2><span id="total-casos" class="badge">…</span></header><div class="grafica-cuerpo"><canvas id="grafica-tipos"></canvas></div></div>
+      <div class="grafica-card grafica-card--wide"><header class="grafica-header"><h2>Casos creados por semana</h2></header><div class="grafica-cuerpo"><canvas id="grafica-tiempo"></canvas></div></div>
+    </section>
+  </div>
+  <script src="/client/custom/dashboard.js"></script>
+</body>
+</html>

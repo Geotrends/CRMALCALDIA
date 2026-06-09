@@ -6,12 +6,12 @@
         "name": "formatoSolicitud"
     },
     {
-        "name": "activities"
+        "name": "formatoActaVisita"
     },
     {
-        "name": "history"
+        "name": "actuoArchivoPanel"
     },
     {
-        "name": "tasks"
+        "name": "formatoActuoArchivo"
     }
 ]

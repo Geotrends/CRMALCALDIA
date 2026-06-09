@@ -30,10 +30,33 @@ docker cp "$ROOT/espocrm-custom/files/client/custom/." espocrm:/var/www/html/cli
 echo 'Verificando LibreOffice (generación de formatos)...'
 docker exec espocrm bash -c 'command -v soffice >/dev/null || (apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get install -y -qq libreoffice-writer-nogui python3-uno)'
 
-docker exec espocrm chown -R www-data:www-data /var/www/html/custom/Espo/Custom/
+echo 'Verificando openpyxl (export Excel casos)...'
+docker exec espocrm bash -c 'python3 -c "import openpyxl" 2>/dev/null || (apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get install -y -qq python3-openpyxl)'
+
+docker exec espocrm mkdir -p /var/www/html/data
+docker exec espocrm chown -R www-data:www-data /var/www/html/data /var/www/html/custom/Espo/Custom/
 
 echo 'Rebuild + clear cache...'
 docker exec espocrm php command.php rebuild
 docker exec espocrm php command.php clear-cache
+
+echo 'Actualizando appTimestamp (fuerza recarga del navegador)...'
+docker exec espocrm php -r '
+$path = "/var/www/html/data/state.php";
+$state = include $path;
+$state["appTimestamp"] = time();
+$state["cacheTimestamp"] = time();
+$state["microtimeState"] = microtime(true);
+file_put_contents($path, "<?php\nreturn " . var_export($state, true) . ";\n");
+echo "appTimestamp=" . $state["appTimestamp"] . "\n";
+'
+
+echo 'Generando defaults Recibida por / Remitido a...'
+docker cp "$ROOT/scripts/configure-case-create-defaults.php" espocrm:/tmp/configure-case-create-defaults.php
+docker exec espocrm php /tmp/configure-case-create-defaults.php
+
+echo 'Permisos de asignación (crear caso sin patrullero)...'
+docker cp "$ROOT/scripts/configure-case-assignment-permissions.php" espocrm:/tmp/configure-case-assignment-permissions.php
+docker exec espocrm php /tmp/configure-case-assignment-permissions.php
 
 echo 'Listo. Recarga el navegador con Cmd+Shift+R en http://localhost:8080'

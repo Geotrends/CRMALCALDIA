@@ -1,4 +1,8 @@
-define('custom:helpers/acta-visita-case-status', [], function () {
+define('custom:helpers/acta-visita-case-status', [
+    'custom:helpers/silent-ajax',
+    'custom:helpers/formato-acta-visita-case-access',
+    'custom:helpers/patrullero-acta',
+], function (SilentAjax, FormatoActaVisitaCaseAccess, PatrulleroActa) {
 
     const CONTENT_FIELDS = [
         'objetoVisita',
@@ -35,7 +39,7 @@ define('custom:helpers/acta-visita-case-status', [], function () {
             return true;
         }
 
-        return !!get('id');
+        return hasText(get('cFormatoActaVisitaPdfId'));
     };
 
     const pickActa = function (list) {
@@ -56,6 +60,22 @@ define('custom:helpers/acta-visita-case-status', [], function () {
         return isActaDiligenciada(acta);
     };
 
+    const canFetchActaForCase = function (user, model) {
+        if (!user || !model || !model.id) {
+            return false;
+        }
+
+        if (user.isAdmin()) {
+            return true;
+        }
+
+        if (FormatoActaVisitaCaseAccess.canDownloadFormatoActaVisitaFromCase(user, model)) {
+            return true;
+        }
+
+        return PatrulleroActa.shouldShowLlenarActaButton(user, model);
+    };
+
     const ACTA_SELECT = [
         'id',
         'estado',
@@ -68,41 +88,41 @@ define('custom:helpers/acta-visita-case-status', [], function () {
         'modifiedAt',
     ].join(',');
 
-    const fetchActaForCase = function (caseId) {
-        if (!caseId) {
-            return Promise.resolve(null);
-        }
-
-        return Espo.Ajax.getRequest('Case/' + encodeURIComponent(caseId) + '/actasVisita', {
+    const fetchActaDirect = function (caseId) {
+        return SilentAjax.getRequest('ActaVisita', {
+            where: [
+                {
+                    type: 'equals',
+                    attribute: 'caseId',
+                    value: caseId,
+                },
+            ],
             select: ACTA_SELECT,
             orderBy: 'modifiedAt',
             order: 'desc',
             maxSize: 10,
         }).then(function (response) {
+            if (!response) {
+                return null;
+            }
+
             return pickActa(response.list || []);
-        }).catch(function () {
-            return Espo.Ajax.getRequest('ActaVisita', {
-                where: [
-                    {
-                        type: 'equals',
-                        attribute: 'caseId',
-                        value: caseId,
-                    },
-                ],
-                select: ACTA_SELECT,
-                orderBy: 'modifiedAt',
-                order: 'desc',
-                maxSize: 10,
-            }).then(function (response) {
-                return pickActa(response.list || []);
-            });
         });
+    };
+
+    const fetchActaForCase = function (caseId, user, model) {
+        if (!caseId || !canFetchActaForCase(user, model)) {
+            return Promise.resolve(null);
+        }
+
+        return fetchActaDirect(caseId);
     };
 
     return {
         CONTENT_FIELDS: CONTENT_FIELDS,
         isActaDiligenciada: isActaDiligenciada,
         isFormatoActaHabilitado: isFormatoActaHabilitado,
+        canFetchActaForCase: canFetchActaForCase,
         fetchActaForCase: fetchActaForCase,
     };
 });

@@ -1,11 +1,6 @@
 [
     {
-        "name": ":assignedUser"
-    },
-    {
-        "name": "teams"
-    },
-    {
-        "name": "status"
+        "name": "status",
+        "readOnly": true
     }
 ]

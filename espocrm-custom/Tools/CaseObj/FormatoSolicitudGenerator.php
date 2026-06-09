@@ -33,8 +33,8 @@ class FormatoSolicitudGenerator
     {
         $format = strtolower($format);
 
-        if (!in_array($format, ['doc', 'pdf'], true)) {
-            throw new BadRequest("Formato no válido. Use doc o pdf.");
+        if ($format !== 'pdf') {
+            throw new BadRequest('Formato no válido. Use pdf.');
         }
 
         /** @var ?Entity $case */

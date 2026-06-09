@@ -56,26 +56,10 @@ define('custom:views/acta-visita/record/panels/formato-acta-visita', [
         },
 
         data: function () {
-            const pdfName = this.model.get('cFormatoActaVisitaPdfName');
-            const canAccess = this.canAccess();
-            const downloadEnabled = this.isDownloadEnabled();
-
             return {
-                visible: canAccess,
-                downloadEnabled: downloadEnabled,
-                helpText: downloadEnabled
-                    ? this.translate('formatoActaVisitaHelp', 'ActaVisita')
-                    : this.translate('formatoActaVisitaPending', 'ActaVisita'),
-                unavailableText: this.translate('formatoActaVisitaUnavailable', 'ActaVisita'),
-                hasAutoPdf: downloadEnabled && !!this.model.get('cFormatoActaVisitaPdfId'),
-                autoPdfName: pdfName || this.translate('downloadFormatoActaPdf', 'ActaVisita'),
-                autoPdfUrl: downloadEnabled && this.model.id
-                    ? this.getBasePath()
-                        + '?entryPoint=FormatoActaVisita'
-                        + '&id=' + encodeURIComponent(this.model.id)
-                        + '&format=pdf'
-                    : '',
-                wordLabel: this.translate('downloadFormatoActaWord', 'ActaVisita'),
+                visible: this.isVisible(),
+                helpText: this.translate('formatoActaVisitaHelp', 'ActaVisita'),
+                hasAutoPdf: !!this.model.get('cFormatoActaVisitaPdfId'),
                 pdfLabel: this.translate('downloadFormatoActaPdf', 'ActaVisita'),
             };
         },
@@ -90,7 +74,7 @@ define('custom:views/acta-visita/record/panels/formato-acta-visita', [
         },
 
         isVisible: function () {
-            return this.canAccess();
+            return this.isDownloadEnabled();
         },
 
         actionDownloadFormatoActa: function (data) {

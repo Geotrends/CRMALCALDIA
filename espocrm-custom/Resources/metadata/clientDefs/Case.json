@@ -5,16 +5,22 @@
     },
     "relationshipPanels": {
         "actasVisita": {
-            "create": true,
-            "select": false,
-            "layout": "listSmall",
-            "label": "Actas de visita"
+            "disabled": true
         },
         "actuosArchivo": {
-            "create": false,
-            "select": false,
-            "layout": "listSmall",
-            "label": "Autos de archivo"
+            "disabled": true
+        },
+        "articles": {
+            "disabled": true
+        },
+        "contacts": {
+            "disabled": true
+        },
+        "contact": {
+            "disabled": true
+        },
+        "account": {
+            "disabled": true
         }
     },
     "sidePanels": {
@@ -52,25 +58,64 @@
             },
             {
                 "name": "activities",
-                "reference": "activities",
-                "view": "crm:views/case/record/panels/activities"
+                "disabled": true
             },
             {
                 "name": "history",
-                "reference": "history"
+                "disabled": true
             },
             {
                 "name": "tasks",
-                "reference": "tasks"
+                "disabled": true
+            }
+        ],
+        "detailSmall": [
+            {
+                "name": "activities",
+                "disabled": true
+            },
+            {
+                "name": "history",
+                "disabled": true
+            },
+            {
+                "name": "tasks",
+                "disabled": true
             }
         ]
     },
     "fields": {
         "assignedUser": {
             "view": "custom:views/case/fields/assigned-user"
+        },
+        "cRecibidaPor": {
+            "primaryFilter": "recibidores"
+        },
+        "cRemitidoA": {
+            "primaryFilter": "radicacion"
         }
     },
     "dynamicLogic": {
-        "fields": {}
+        "fields": {
+            "assignedUser": {
+                "visible": {
+                    "conditionGroup": [
+                        {
+                            "type": "and",
+                            "value": [
+                                {
+                                    "type": "isNotEmpty",
+                                    "attribute": "cNumeroRadicado"
+                                },
+                                {
+                                    "type": "isNotEmpty",
+                                    "attribute": "cExpediente"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        }
     }
 }

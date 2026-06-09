@@ -1,9 +1,10 @@
 define('custom:views/case/record/panels/acta-visita', [
     'views/record/panels/side',
     'custom:helpers/patrullero-acta',
+    'custom:helpers/radicacion-fields',
     'custom:helpers/acta-visita-modal',
     'custom:helpers/acta-visita-case-status',
-], function (Dep, PatrulleroActa, ActaVisitaModal, ActaVisitaCaseStatus) {
+], function (Dep, PatrulleroActa, RadicacionFields, ActaVisitaModal, ActaVisitaCaseStatus) {
 
     return Dep.extend({
 
@@ -13,8 +14,13 @@ define('custom:views/case/record/panels/acta-visita', [
             Dep.prototype.setup.call(this);
 
             this.isEditMode = false;
+            this.isInspeccionReview = false;
 
             this.listenTo(this.model, 'change:status change:assignedUserId change:cNumeroRadicado change:cExpediente', function () {
+                this.loadActaState();
+            });
+
+            this.listenTo(this.model, 'sync', function () {
                 this.loadActaState();
             });
 
@@ -28,22 +34,45 @@ define('custom:views/case/record/panels/acta-visita', [
         },
 
         loadActaState: function () {
-            if (!this.model.id) {
+            const user = this.getUser();
+            const isPatrullero = PatrulleroActa.shouldShowLlenarActaButton(user, this.model);
+            const isInspeccion = RadicacionFields.isInspeccionUser(user);
+
+            if (!isPatrullero && !isInspeccion) {
                 this.isEditMode = false;
+                this.isInspeccionReview = false;
 
                 if (this.isRendered()) {
                     this.reRender();
+                    this.togglePanel();
                     this.bindButton();
                 }
 
                 return;
             }
 
-            ActaVisitaCaseStatus.fetchActaForCase(this.model.id).then((acta) => {
-                this.isEditMode = ActaVisitaCaseStatus.isActaDiligenciada(acta);
+            if (!this.model.id) {
+                this.isEditMode = false;
+                this.isInspeccionReview = false;
 
                 if (this.isRendered()) {
                     this.reRender();
+                    this.togglePanel();
+                    this.bindButton();
+                }
+
+                return;
+            }
+
+            ActaVisitaCaseStatus.fetchActaForCase(this.model.id, this.getUser(), this.model).then((acta) => {
+                const diligenciada = ActaVisitaCaseStatus.isActaDiligenciada(acta);
+
+                this.isEditMode = isPatrullero && diligenciada;
+                this.isInspeccionReview = isInspeccion && diligenciada;
+
+                if (this.isRendered()) {
+                    this.reRender();
+                    this.togglePanel();
                     this.bindButton();
                 }
             });
@@ -70,30 +99,38 @@ define('custom:views/case/record/panels/acta-visita', [
             }
 
             const user = this.getUser();
-            const show = PatrulleroActa.isPatrulleroUser(user)
-                || PatrulleroActa.shouldShowLlenarActaButton(user, this.model);
+            const show = PatrulleroActa.shouldShowLlenarActaButton(user, this.model)
+                || this.isInspeccionReview;
 
             $panel.toggle(show);
         },
 
         data: function () {
             const user = this.getUser();
-            const showButton = PatrulleroActa.shouldShowLlenarActaButton(user, this.model);
+            const showPatrulleroButton = PatrulleroActa.shouldShowLlenarActaButton(user, this.model);
+            const showButton = showPatrulleroButton || this.isInspeccionReview;
             let unavailableReason = PatrulleroActa.getUnavailableReason(user, this.model);
 
             if (!unavailableReason) {
                 unavailableReason = 'Disponible cuando el caso esté En proceso, asignado a usted, con radicado y expediente.';
             }
 
+            let helpText = this.translate('actaVisitaPanelHelp', 'Case');
+            let buttonLabel = this.translate('llenarActaVisita', 'Case');
+
+            if (this.isInspeccionReview) {
+                helpText = this.translate('actaVisitaInspeccionHelp', 'Case');
+                buttonLabel = this.translate('revisarActaVisita', 'Case');
+            } else if (this.isEditMode) {
+                helpText = this.translate('actaVisitaEditHelp', 'Case');
+                buttonLabel = this.translate('editarActaVisita', 'Case');
+            }
+
             return {
                 showButton: showButton,
                 unavailableReason: unavailableReason,
-                helpText: this.isEditMode
-                    ? this.translate('actaVisitaEditHelp', 'Case')
-                    : this.translate('actaVisitaPanelHelp', 'Case'),
-                buttonLabel: this.isEditMode
-                    ? this.translate('editarActaVisita', 'Case')
-                    : this.translate('llenarActaVisita', 'Case'),
+                helpText: helpText,
+                buttonLabel: buttonLabel,
             };
         },
     });

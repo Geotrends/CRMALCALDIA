@@ -1,4 +1,11 @@
 {
+    "primaryFilterClassNameMap": {
+        "todos": "Espo\\Custom\\Classes\\Select\\Case\\PrimaryFilters\\Todos",
+        "pendienteRadicacion": "Espo\\Custom\\Classes\\Select\\Case\\PrimaryFilters\\PendienteRadicacion",
+        "pendienteAsignacion": "Espo\\Custom\\Classes\\Select\\Case\\PrimaryFilters\\PendienteAsignacion",
+        "misCasos": "Espo\\Custom\\Classes\\Select\\Case\\PrimaryFilters\\MisCasos",
+        "enSeguimiento": "Espo\\Custom\\Classes\\Select\\Case\\PrimaryFilters\\EnSeguimiento"
+    },
     "accessControlFilterClassNameMap": {
         "mandatory": "Espo\\Custom\\Classes\\Select\\Case\\AccessControlFilters\\Mandatory"
     }

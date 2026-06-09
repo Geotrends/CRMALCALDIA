@@ -25,8 +25,13 @@ define('custom:helpers/formato-solicitud-access', [
         return PostRadicacionFields.isCasePostRadicado(model);
     };
 
+    const requiresActaDiligenciada = function (user) {
+        return RadicacionFields.isInspeccionUser(user);
+    };
+
     return {
         canDownloadFormatoSolicitud: canDownloadFormatoSolicitud,
         isFormatoSolicitudHabilitado: isFormatoSolicitudHabilitado,
+        requiresActaDiligenciada: requiresActaDiligenciada,
     };
 });

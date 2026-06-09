@@ -4,12 +4,30 @@ define('custom:views/case/record/edit', [
     'custom:helpers/inspeccion-acta',
     'custom:helpers/radicacion-fields',
     'custom:helpers/post-radicacion-fields',
-], function (Dep, PatrulleroActa, InspeccionActa, RadicacionFields, PostRadicacionFields) {
+    'custom:helpers/case-create-defaults',
+    'custom:helpers/persona-tipo-fields',
+], function (Dep, PatrulleroActa, InspeccionActa, RadicacionFields, PostRadicacionFields, CaseCreateDefaults, PersonaTipoFields) {
 
     return Dep.extend({
 
         setup: function () {
             Dep.prototype.setup.call(this);
+
+            if (this.model.isNew()) {
+                CaseCreateDefaults.apply(this.model);
+                PersonaTipoFields.applyDefaults(this.model);
+                this.clearAssignedUserOnCreate();
+            }
+
+            this.listenTo(this.model, 'change:cTipoPersonaPeticionario change:cTipoPersonaPerjudicante', function () {
+                PersonaTipoFields.toggle(this);
+            });
+
+            this.listenTo(this.model, 'change:assignedUserId', function () {
+                if (this.model.isNew()) {
+                    this.clearAssignedUserOnCreate();
+                }
+            });
 
             this.listenTo(this.model, 'change:cNumeroRadicado change:cExpediente', function () {
                 this.toggleRadicacionFields();
@@ -20,9 +38,32 @@ define('custom:views/case/record/edit', [
         afterRender: function () {
             Dep.prototype.afterRender.call(this);
 
+            if (this.model.isNew()) {
+                CaseCreateDefaults.apply(this.model);
+                PersonaTipoFields.applyDefaults(this.model);
+                this.clearAssignedUserOnCreate();
+            }
+
+            PersonaTipoFields.toggle(this);
             this.applyFieldModes();
             this.toggleRadicacionFields();
             this.togglePostRadicacionFields();
+        },
+
+        clearAssignedUserOnCreate: function () {
+            if (PostRadicacionFields.shouldShowAsignacion(this.getUser(), this.model)) {
+                return;
+            }
+
+            if (this.model.get('assignedUserId')) {
+                this.model.set({
+                    assignedUserId: null,
+                    assignedUserName: null,
+                }, {silent: true});
+            }
+
+            this.findPanel('gestionPosteriorRadicacion').hide();
+            this.$el.find('[data-name="assignedUser"]').closest('.cell, .field').hide();
         },
 
         applyFieldModes: function () {
@@ -108,7 +149,7 @@ define('custom:views/case/record/edit', [
         togglePostRadicacionFields: function () {
             const user = this.getUser();
             const model = this.model;
-            const show = PostRadicacionFields.shouldShowAsignacion(user, model);
+            const show = !model.isNew() && PostRadicacionFields.shouldShowAsignacion(user, model);
             const canEdit = PostRadicacionFields.canEditAsignacion(user, model);
 
             this.findPanel('gestionPosteriorRadicacion').toggle(show);
@@ -120,6 +161,13 @@ define('custom:views/case/record/edit', [
             }
 
             if (!show) {
+                if (model.isNew() && model.get('assignedUserId')) {
+                    model.set({
+                        assignedUserId: null,
+                        assignedUserName: null,
+                    }, {silent: true});
+                }
+
                 return;
             }
 

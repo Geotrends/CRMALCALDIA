@@ -28,6 +28,19 @@ define('custom:views/case/record/panels/actuo-archivo', [
         },
 
         loadActuoState: function () {
+            const user = this.getUser();
+
+            if (!InspeccionActuoArchivo.shouldShowActuoArchivoButton(user, this.model)) {
+                this.isEditMode = false;
+
+                if (this.isRendered()) {
+                    this.reRender();
+                    this.bindButton();
+                }
+
+                return;
+            }
+
             if (!this.model.id) {
                 this.isEditMode = false;
 
@@ -39,7 +52,7 @@ define('custom:views/case/record/panels/actuo-archivo', [
                 return;
             }
 
-            ActuoArchivoCaseStatus.fetchActuoForCase(this.model.id).then((actuo) => {
+            ActuoArchivoCaseStatus.fetchActuoForCase(this.model.id, this.getUser(), this.model).then((actuo) => {
                 this.isEditMode = ActuoArchivoCaseStatus.isActuoDiligenciado(actuo);
 
                 if (this.isRendered()) {

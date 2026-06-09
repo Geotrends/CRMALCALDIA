@@ -8,14 +8,17 @@ use Espo\ORM\EntityManager;
 use Espo\ORM\Repository\Option\SaveOptions;
 
 /**
- * Al guardar un caso, crea o actualiza el contacto del peticionario
- * y lo vincula al caso.
+ * Sincroniza peticionario con Contacto (natural) o Cuenta (jurídica).
  */
 class SyncPeticionarioToContact implements BeforeSave
 {
     public static int $order = 10;
 
+    private const PERSONA_NATURAL = 'Persona natural';
+    private const PERSONA_JURIDICA = 'Persona jurídica';
+
     private const SYNC_FIELDS = [
+        'cTipoPersonaPeticionario',
         'cPeticionario',
         'cCedula',
         'cDireccion',
@@ -38,24 +41,19 @@ class SyncPeticionarioToContact implements BeforeSave
             return;
         }
 
-        $cedula = trim((string) $entity->get('cCedula'));
-        $peticionario = trim((string) $entity->get('cPeticionario'));
+        $tipo = (string) ($entity->get('cTipoPersonaPeticionario') ?: self::PERSONA_NATURAL);
+        $documento = trim((string) $entity->get('cCedula'));
+        $nombre = trim((string) $entity->get('cPeticionario'));
 
-        if ($cedula === '' && $peticionario === '') {
+        if ($documento === '' && $nombre === '') {
             return;
         }
 
-        $contact = $this->resolveContact($entity, $cedula);
-
-        if (!$contact) {
-            $contact = $this->entityManager->getRDBRepository('Contact')->getNew();
+        if ($tipo === self::PERSONA_JURIDICA) {
+            $this->syncAccount($entity);
+        } else {
+            $this->syncContact($entity);
         }
-
-        $this->applyCaseDataToContact($contact, $entity);
-
-        $this->entityManager->saveEntity($contact);
-
-        $entity->set('contactId', $contact->getId());
     }
 
     private function shouldSync(Entity $entity): bool
@@ -70,7 +68,45 @@ class SyncPeticionarioToContact implements BeforeSave
             }
         }
 
-        return !$entity->get('contactId');
+        return !$entity->get('contactId') && !$entity->get('accountId');
+    }
+
+    private function syncContact(Entity $case): void
+    {
+        $case->set('accountId', null);
+        $case->set('accountName', null);
+
+        $cedula = trim((string) $case->get('cCedula'));
+        $contact = $this->resolveContact($case, $cedula);
+
+        if (!$contact) {
+            $contact = $this->entityManager->getRDBRepository('Contact')->getNew();
+        }
+
+        $this->applyCaseDataToContact($contact, $case);
+        $this->entityManager->saveEntity($contact);
+
+        $case->set('contactId', $contact->getId());
+        $case->set('contactName', $contact->get('name'));
+    }
+
+    private function syncAccount(Entity $case): void
+    {
+        $case->set('contactId', null);
+        $case->set('contactName', null);
+
+        $nit = trim((string) $case->get('cCedula'));
+        $account = $this->resolveAccount($case, $nit);
+
+        if (!$account) {
+            $account = $this->entityManager->getRDBRepository('Account')->getNew();
+        }
+
+        $this->applyCaseDataToAccount($account, $case);
+        $this->entityManager->saveEntity($account);
+
+        $case->set('accountId', $account->getId());
+        $case->set('accountName', $account->get('name'));
     }
 
     private function resolveContact(Entity $case, string $cedula): ?Entity
@@ -95,6 +131,28 @@ class SyncPeticionarioToContact implements BeforeSave
             ->findOne();
     }
 
+    private function resolveAccount(Entity $case, string $nit): ?Entity
+    {
+        $accountId = $case->get('accountId');
+
+        if ($accountId) {
+            $account = $this->entityManager->getEntityById('Account', $accountId);
+
+            if ($account) {
+                return $account;
+            }
+        }
+
+        if ($nit === '') {
+            return null;
+        }
+
+        return $this->entityManager
+            ->getRDBRepository('Account')
+            ->where(['cNit' => $nit])
+            ->findOne();
+    }
+
     private function applyCaseDataToContact(Entity $contact, Entity $case): void
     {
         [$firstName, $lastName] = $this->splitName(trim((string) $case->get('cPeticionario')));
@@ -113,10 +171,7 @@ class SyncPeticionarioToContact implements BeforeSave
 
         if ($cedula !== '') {
             $contact->set('cNumeroDeDocumento', $cedula);
-
-            if (!$contact->get('cTipoDeDocumento')) {
-                $contact->set('cTipoDeDocumento', 'CC');
-            }
+            $contact->set('cTipoDeDocumento', 'CC');
         }
 
         $contact->set('addressStreet', trim((string) $case->get('cDireccion')));
@@ -127,6 +182,25 @@ class SyncPeticionarioToContact implements BeforeSave
         if (!$contact->get('cMunicipio')) {
             $contact->set('cMunicipio', 'Envigado');
         }
+    }
+
+    private function applyCaseDataToAccount(Entity $account, Entity $case): void
+    {
+        $nombre = trim((string) $case->get('cPeticionario'));
+
+        if ($nombre !== '') {
+            $account->set('name', $nombre);
+        }
+
+        $nit = trim((string) $case->get('cCedula'));
+
+        if ($nit !== '') {
+            $account->set('cNit', $nit);
+        }
+
+        $account->set('billingAddressStreet', trim((string) $case->get('cDireccion')));
+        $account->set('phoneNumber', trim((string) $case->get('cTelefono')));
+        $account->set('emailAddress', trim((string) $case->get('cCorreo')));
     }
 
     /**

@@ -31,14 +31,14 @@ define('custom:views/case/record/panels/formato-acta-visita', [
         },
 
         loadFormatoState: function () {
-            if (!this.model.id) {
+            if (!this.model.id || !this.canAccess()) {
                 this.downloadEnabled = false;
                 this.reRenderIfNeeded();
 
                 return;
             }
 
-            ActaVisitaCaseStatus.fetchActaForCase(this.model.id).then((acta) => {
+            ActaVisitaCaseStatus.fetchActaForCase(this.model.id, this.getUser(), this.model).then((acta) => {
                 this.downloadEnabled = ActaVisitaCaseStatus.isFormatoActaHabilitado(acta);
                 this.reRenderIfNeeded();
             });
@@ -85,17 +85,9 @@ define('custom:views/case/record/panels/formato-acta-visita', [
         },
 
         data: function () {
-            const canAccess = this.canAccess();
-            const downloadEnabled = this.isDownloadEnabled();
-
             return {
-                visible: canAccess,
-                downloadEnabled: downloadEnabled,
-                helpText: downloadEnabled
-                    ? this.translate('formatoActaVisitaCaseHelp', 'Case')
-                    : this.translate('formatoActaVisitaCasePending', 'Case'),
-                unavailableText: this.translate('formatoActaVisitaCaseUnavailable', 'Case'),
-                wordLabel: this.translate('downloadFormatoActaWord', 'Case'),
+                visible: this.isVisible(),
+                helpText: this.translate('formatoActaVisitaCaseHelp', 'Case'),
                 pdfLabel: this.translate('downloadFormatoActaPdf', 'Case'),
             };
         },
@@ -112,7 +104,7 @@ define('custom:views/case/record/panels/formato-acta-visita', [
         },
 
         isVisible: function () {
-            return this.canAccess();
+            return this.isDownloadEnabled();
         },
 
         actionDownloadFormatoActaCaso: function (data) {

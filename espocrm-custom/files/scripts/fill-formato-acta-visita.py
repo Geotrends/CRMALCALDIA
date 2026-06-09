@@ -102,8 +102,9 @@ def fill_signature_row(doc, label, left_value, right_value):
         + re.escape(label)
         + r"\s*_+)"
     )
+    # La plantilla usa tabulaciones entre columnas (funcionario | establecimiento).
     replacement = label + " " + (left or "_____________________")
-    replacement += "  " + label + " " + (right or "_____________________")
+    replacement += "\t\t" + label + " " + (right or "_____________________")
     replace_regex(doc, pattern, replacement)
 
 

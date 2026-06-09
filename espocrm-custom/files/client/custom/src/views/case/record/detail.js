@@ -12,7 +12,8 @@ define('custom:views/case/record/detail', [
     'custom:helpers/actuo-archivo-modal',
     'custom:helpers/actuo-archivo-case-status',
     'custom:helpers/formato-actuo-archivo-case-access',
-], function (Dep, PatrulleroActa, InspeccionActa, RadicacionFields, PostRadicacionFields, ActaVisitaModal, ActaVisitaCaseStatus, FormatoSolicitudAccess, FormatoActaVisitaCaseAccess, InspeccionActuoArchivo, ActuoArchivoModal, ActuoArchivoCaseStatus, FormatoActuoArchivoCaseAccess) {
+    'custom:helpers/persona-tipo-fields',
+], function (Dep, PatrulleroActa, InspeccionActa, RadicacionFields, PostRadicacionFields, ActaVisitaModal, ActaVisitaCaseStatus, FormatoSolicitudAccess, FormatoActaVisitaCaseAccess, InspeccionActuoArchivo, ActuoArchivoModal, ActuoArchivoCaseStatus, FormatoActuoArchivoCaseAccess, PersonaTipoFields) {
 
     return Dep.extend({
 
@@ -28,10 +29,11 @@ define('custom:views/case/record/detail', [
                 this.togglePostRadicacionFields();
             });
 
-            this.listenTo(this.model, 'change:cNumeroRadicado change:cExpediente change:assignedUserId', function () {
+            this.listenTo(this.model, 'change:cNumeroRadicado change:cExpediente change:assignedUserId change:cFormatoSolicitudPdfId change:status', function () {
                 this.toggleRadicacionFields();
                 this.togglePostRadicacionFields();
                 this.toggleFormatoGeneradoPanel();
+                this.toggleFormatoSolicitudPanel();
                 this.toggleFormatoActaVisitaPanel();
             });
 
@@ -67,7 +69,7 @@ define('custom:views/case/record/detail', [
                 return;
             }
 
-            ActaVisitaCaseStatus.fetchActaForCase(this.model.id).then((acta) => {
+            ActaVisitaCaseStatus.fetchActaForCase(this.model.id, this.getUser(), this.model).then((acta) => {
                 const isEdit = ActaVisitaCaseStatus.isActaDiligenciada(acta);
                 const label = isEdit
                     ? this.translate('editarActaVisita', 'Case')
@@ -90,7 +92,10 @@ define('custom:views/case/record/detail', [
 
         actionLlenarActaVisita: function () {
             ActaVisitaModal.open(this, this.model, this.getUser(), {
-                onAfterSave: () => this.updateActaVisitaButton(),
+                onAfterSave: () => {
+                    this.updateActaVisitaButton();
+                    this.toggleFormatoActaVisitaPanel();
+                },
             });
         },
 
@@ -110,7 +115,7 @@ define('custom:views/case/record/detail', [
                 return;
             }
 
-            ActuoArchivoCaseStatus.fetchActuoForCase(this.model.id).then((actuo) => {
+            ActuoArchivoCaseStatus.fetchActuoForCase(this.model.id, this.getUser(), this.model).then((actuo) => {
                 const isEdit = ActuoArchivoCaseStatus.isActuoDiligenciado(actuo);
                 const label = isEdit
                     ? this.translate('editarActuoArchivo', 'Case')
@@ -133,13 +138,17 @@ define('custom:views/case/record/detail', [
 
         actionLlenarActuoArchivo: function () {
             ActuoArchivoModal.open(this, this.model, this.getUser(), {
-                onAfterSave: () => this.updateActuoArchivoButton(),
+                onAfterSave: () => {
+                    this.updateActuoArchivoButton();
+                    this.toggleFormatoActuoArchivoPanel();
+                },
             });
         },
 
         afterRender: function () {
             Dep.prototype.afterRender.call(this);
 
+            PersonaTipoFields.toggle(this);
             this.updateActaVisitaButton();
             this.updateActuoArchivoButton();
             this.toggleActaPanels();
@@ -148,6 +157,7 @@ define('custom:views/case/record/detail', [
             this.toggleRadicacionFields();
             this.togglePostRadicacionFields();
             this.toggleFormatoGeneradoPanel();
+            this.toggleFormatoSolicitudPanel();
             this.toggleFormatoActaVisitaPanel();
             this.toggleFormatoActuoArchivoPanel();
         },
@@ -231,21 +241,51 @@ define('custom:views/case/record/detail', [
         },
 
         toggleFormatoGeneradoPanel: function () {
-            const show = FormatoSolicitudAccess.canDownloadFormatoSolicitud(
-                this.getUser(),
-                this.model
-            );
+            const show = FormatoSolicitudAccess.canDownloadFormatoSolicitud(this.getUser(), this.model)
+                && FormatoSolicitudAccess.isFormatoSolicitudHabilitado(this.model)
+                && !!this.model.get('cFormatoSolicitudPdfId');
 
             this.findPanel('formatoGenerado').toggle(show);
         },
 
-        toggleFormatoActaVisitaPanel: function () {
-            const show = FormatoActaVisitaCaseAccess.canDownloadFormatoActaVisitaFromCase(
-                this.getUser(),
-                this.model
-            );
+        toggleFormatoSolicitudPanel: function () {
+            const $panel = this.findPanel('formatoSolicitud');
 
-            this.findPanel('formatoActaVisita').toggle(show);
+            if (!$panel.length) {
+                return;
+            }
+
+            if (!this.model.id
+                || !FormatoSolicitudAccess.canDownloadFormatoSolicitud(this.getUser(), this.model)
+                || !FormatoSolicitudAccess.isFormatoSolicitudHabilitado(this.model)) {
+                $panel.hide();
+
+                return;
+            }
+
+            if (!FormatoSolicitudAccess.requiresActaDiligenciada(this.getUser())) {
+                $panel.show();
+
+                return;
+            }
+
+            ActaVisitaCaseStatus.fetchActaForCase(this.model.id, this.getUser(), this.model).then((acta) => {
+                $panel.toggle(ActaVisitaCaseStatus.isActaDiligenciada(acta));
+            });
+        },
+
+        toggleFormatoActaVisitaPanel: function () {
+            if (!this.model.id || !FormatoActaVisitaCaseAccess.canDownloadFormatoActaVisitaFromCase(this.getUser(), this.model)) {
+                this.findPanel('formatoActaVisita').hide();
+
+                return;
+            }
+
+            ActaVisitaCaseStatus.fetchActaForCase(this.model.id, this.getUser(), this.model).then((acta) => {
+                const show = ActaVisitaCaseStatus.isFormatoActaHabilitado(acta);
+
+                this.findPanel('formatoActaVisita').toggle(show);
+            });
         },
 
         toggleActuoArchivoPanels: function () {
@@ -258,12 +298,17 @@ define('custom:views/case/record/detail', [
         },
 
         toggleFormatoActuoArchivoPanel: function () {
-            const show = FormatoActuoArchivoCaseAccess.canDownloadFormatoActuoArchivoFromCase(
-                this.getUser(),
-                this.model
-            );
+            if (!this.model.id || !FormatoActuoArchivoCaseAccess.canDownloadFormatoActuoArchivoFromCase(this.getUser(), this.model)) {
+                this.findPanel('formatoActuoArchivo').hide();
 
-            this.findPanel('formatoActuoArchivo').toggle(show);
+                return;
+            }
+
+            ActuoArchivoCaseStatus.fetchActuoForCase(this.model.id, this.getUser(), this.model).then((actuo) => {
+                const show = ActuoArchivoCaseStatus.isFormatoActuoHabilitado(actuo);
+
+                this.findPanel('formatoActuoArchivo').toggle(show);
+            });
         },
 
         togglePostRadicacionFields: function () {

@@ -31,14 +31,14 @@ define('custom:views/case/record/panels/formato-actuo-archivo', [
         },
 
         loadFormatoState: function () {
-            if (!this.model.id) {
+            if (!this.model.id || !this.canAccess()) {
                 this.downloadEnabled = false;
                 this.reRenderIfNeeded();
 
                 return;
             }
 
-            ActuoArchivoCaseStatus.fetchActuoForCase(this.model.id).then((actuo) => {
+            ActuoArchivoCaseStatus.fetchActuoForCase(this.model.id, this.getUser(), this.model).then((actuo) => {
                 this.downloadEnabled = ActuoArchivoCaseStatus.isFormatoActuoHabilitado(actuo);
                 this.reRenderIfNeeded();
             });
@@ -85,17 +85,9 @@ define('custom:views/case/record/panels/formato-actuo-archivo', [
         },
 
         data: function () {
-            const canAccess = this.canAccess();
-            const downloadEnabled = this.isDownloadEnabled();
-
             return {
-                visible: canAccess,
-                downloadEnabled: downloadEnabled,
-                helpText: downloadEnabled
-                    ? this.translate('formatoActuoArchivoCaseHelp', 'Case')
-                    : this.translate('formatoActuoArchivoCasePending', 'Case'),
-                unavailableText: this.translate('formatoActuoArchivoCaseUnavailable', 'Case'),
-                wordLabel: this.translate('downloadFormatoActuoWord', 'Case'),
+                visible: this.isVisible(),
+                helpText: this.translate('formatoActuoArchivoCaseHelp', 'Case'),
                 pdfLabel: this.translate('downloadFormatoActuoPdf', 'Case'),
             };
         },
@@ -112,7 +104,7 @@ define('custom:views/case/record/panels/formato-actuo-archivo', [
         },
 
         isVisible: function () {
-            return this.canAccess();
+            return this.isDownloadEnabled();
         },
 
         actionDownloadFormatoActuoCaso: function (data) {

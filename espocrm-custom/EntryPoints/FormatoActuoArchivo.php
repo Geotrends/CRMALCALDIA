@@ -18,7 +18,7 @@ class FormatoActuoArchivo implements EntryPoint
     public function run(Request $request, Response $response): void
     {
         $id = $request->getQueryParam('id');
-        $format = $request->getQueryParam('format') ?? 'pdf';
+        $format = 'pdf';
 
         if (!$id) {
             throw new BadRequest('No id.');

@@ -135,8 +135,8 @@ class FormatoActaVisitaGenerator
     {
         $format = strtolower($format);
 
-        if (!in_array($format, ['docx', 'pdf'], true)) {
-            throw new BadRequest('Formato no válido. Use docx o pdf.');
+        if ($format !== 'pdf') {
+            throw new BadRequest('Formato no válido. Use pdf.');
         }
 
         $templatePath = $this->getTemplatePath();

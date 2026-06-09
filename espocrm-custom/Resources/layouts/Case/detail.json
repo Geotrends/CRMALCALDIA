@@ -17,6 +17,12 @@
             ],
             [
                 {
+                    "name": "cTipoPersonaPeticionario"
+                },
+                false
+            ],
+            [
+                {
                     "name": "cPeticionario"
                 },
                 {
@@ -59,6 +65,14 @@
     },
     {
         "rows": [
+            [
+                {
+                    "name": "cTipoPersonaPerjudicante"
+                },
+                {
+                    "name": "cDocumentoPerjudicante"
+                }
+            ],
             [
                 {
                     "name": "cPerjudicante"
