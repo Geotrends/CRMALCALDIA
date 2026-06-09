@@ -1,5 +1,64 @@
 [
     {
-        "rows": []
+        "rows": [
+            [
+                {
+                    "name": "cFechaCaso"
+                },
+                {
+                    "name": "cNumeroRadicado"
+                }
+            ],
+            [
+                {
+                    "name": "cExpediente"
+                },
+                false
+            ],
+            [
+                {
+                    "name": "cTipoPersonaPeticionario"
+                },
+                false
+            ],
+            [
+                {
+                    "name": "cPeticionario"
+                },
+                {
+                    "name": "cCedula"
+                }
+            ],
+            [
+                {
+                    "name": "cDireccion",
+                    "fullWidth": true
+                }
+            ],
+            [
+                {
+                    "name": "cTelefono"
+                },
+                {
+                    "name": "cBarrio"
+                }
+            ],
+            [
+                {
+                    "name": "cCorreo"
+                },
+                {
+                    "name": "cCanalDeReporte"
+                }
+            ],
+            [
+                {
+                    "name": "cTipo"
+                },
+                {
+                    "name": "cCategoria"
+                }
+            ]
+        ]
     }
 ]

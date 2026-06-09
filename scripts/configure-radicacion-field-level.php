@@ -23,7 +23,7 @@ $app->setupSystemUser();
 $em = $app->getContainer()->getByClass(EntityManager::class);
 $pdo = $em->getPDO();
 
-$exclusiveFields = ['cNumeroRadicado', 'cExpediente'];
+$exclusiveFields = ['cNumeroRadicado', 'cExpediente', 'cRadicadoModo', 'cRadicadoSiglas', 'cRadicadoAnio'];
 $scope = 'Case';
 $roleRadicacion = 'Radicación';
 $legacyFields = ['cNumeroRadicacion'];

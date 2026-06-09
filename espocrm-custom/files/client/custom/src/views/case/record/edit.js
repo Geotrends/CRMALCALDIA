@@ -6,7 +6,9 @@ define('custom:views/case/record/edit', [
     'custom:helpers/post-radicacion-fields',
     'custom:helpers/case-create-defaults',
     'custom:helpers/persona-tipo-fields',
-], function (Dep, PatrulleroActa, InspeccionActa, RadicacionFields, PostRadicacionFields, CaseCreateDefaults, PersonaTipoFields) {
+    'custom:helpers/radicado-generator',
+    'custom:helpers/radicado-assistant-panel',
+], function (Dep, PatrulleroActa, InspeccionActa, RadicacionFields, PostRadicacionFields, CaseCreateDefaults, PersonaTipoFields, RadicadoGenerator, RadicadoAssistantPanel) {
 
     return Dep.extend({
 
@@ -29,10 +31,12 @@ define('custom:views/case/record/edit', [
                 }
             });
 
-            this.listenTo(this.model, 'change:cNumeroRadicado change:cExpediente', function () {
+            this.listenTo(this.model, 'change:cNumeroRadicado change:cExpediente change:cRadicadoModo change:cRadicadoSiglas change:cRadicadoAnio', function () {
                 this.toggleRadicacionFields();
                 this.togglePostRadicacionFields();
             });
+
+            RadicadoGenerator.setup(this);
         },
 
         afterRender: function () {
@@ -48,6 +52,13 @@ define('custom:views/case/record/edit', [
             this.applyFieldModes();
             this.toggleRadicacionFields();
             this.togglePostRadicacionFields();
+
+            if (RadicadoAssistantPanel.canShow(this)) {
+                RadicadoAssistantPanel.mount(this);
+            } else {
+                RadicadoAssistantPanel.unmount(this);
+                RadicadoGenerator.toggle(this);
+            }
         },
 
         clearAssignedUserOnCreate: function () {
@@ -70,7 +81,7 @@ define('custom:views/case/record/edit', [
             const user = this.getUser();
             const model = this.model;
 
-            if (PatrulleroActa.shouldShowActaVisita(user, model)) {
+            if (PatrulleroActa.shouldShowLlenarActaButton(user, model)) {
                 this.setReadOnlyExcept([
                     'cActaFechaVisita',
                     'cActaHoraVisita',
@@ -114,10 +125,17 @@ define('custom:views/case/record/edit', [
         toggleRadicacionFields: function () {
             const user = this.getUser();
             const model = this.model;
+
+            if (RadicadoAssistantPanel.canShow(this)) {
+                RadicadoAssistantPanel.mount(this);
+
+                return;
+            }
+
             const show = RadicacionFields.shouldShowRadicacionFields(user, model);
             const canEdit = RadicacionFields.isRadicacionUser(user);
 
-            RadicacionFields.RADICADO_FIELDS.forEach((field) => {
+            RadicacionFields.RADICADO_FIELDS.concat(RadicadoGenerator.ASSISTANT_FIELDS).forEach((field) => {
                 const $cell = this.$el.find('[data-name="' + field + '"]').closest('.cell');
 
                 if ($cell.length) {
@@ -144,6 +162,10 @@ define('custom:views/case/record/edit', [
                     view.setReadOnly();
                 }
             });
+
+            if (show && canEdit) {
+                RadicadoGenerator.toggle(this);
+            }
         },
 
         togglePostRadicacionFields: function () {

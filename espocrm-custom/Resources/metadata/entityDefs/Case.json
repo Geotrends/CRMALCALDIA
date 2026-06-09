@@ -28,6 +28,39 @@
             "options": [],
             "isCustom": true
         },
+        "cRadicadoModo": {
+            "type": "enum",
+            "options": [
+                "Automático",
+                "Manual"
+            ],
+            "default": "Automático",
+            "isCustom": true
+        },
+        "cRadicadoSiglas": {
+            "type": "enum",
+            "options": [
+                "HID",
+                "SPR",
+                "SUE",
+                "AIR",
+                "FSI",
+                "FLO",
+                "GSO",
+                "SEP",
+                "FDO",
+                "PAI",
+                "MIN",
+                "RSO"
+            ],
+            "isCustom": true
+        },
+        "cRadicadoAnio": {
+            "type": "varchar",
+            "maxLength": 4,
+            "default": "",
+            "isCustom": true
+        },
         "cTipoPersonaPeticionario": {
             "type": "enum",
             "options": [

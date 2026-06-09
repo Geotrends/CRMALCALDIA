@@ -1,8 +1,10 @@
 {
     "recordViews": {
         "edit": "custom:views/case/record/edit",
-        "detail": "custom:views/case/record/detail"
+        "detail": "custom:views/case/record/detail",
+        "editSmall": "custom:views/case/record/edit"
     },
+    "quickEditDisabled": true,
     "relationshipPanels": {
         "actasVisita": {
             "disabled": true
@@ -87,6 +89,12 @@
     "fields": {
         "assignedUser": {
             "view": "custom:views/case/fields/assigned-user"
+        },
+        "cNumeroRadicado": {
+            "view": "custom:views/case/fields/numero-radicado"
+        },
+        "cExpediente": {
+            "view": "custom:views/case/fields/expediente"
         },
         "cRecibidaPor": {
             "primaryFilter": "recibidores"

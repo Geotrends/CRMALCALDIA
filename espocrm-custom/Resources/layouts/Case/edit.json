@@ -6,14 +6,24 @@
                     "name": "cFechaCaso"
                 },
                 {
-                    "name": "cNumeroRadicado"
+                    "name": "cRadicadoModo"
                 }
             ],
             [
                 {
-                    "name": "cExpediente"
+                    "name": "cRadicadoSiglas"
                 },
-                false
+                {
+                    "name": "cRadicadoAnio"
+                }
+            ],
+            [
+                {
+                    "name": "cNumeroRadicado"
+                },
+                {
+                    "name": "cExpediente"
+                }
             ],
             [
                 {

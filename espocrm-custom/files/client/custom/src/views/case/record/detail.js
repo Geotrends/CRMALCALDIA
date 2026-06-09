@@ -13,7 +13,9 @@ define('custom:views/case/record/detail', [
     'custom:helpers/actuo-archivo-case-status',
     'custom:helpers/formato-actuo-archivo-case-access',
     'custom:helpers/persona-tipo-fields',
-], function (Dep, PatrulleroActa, InspeccionActa, RadicacionFields, PostRadicacionFields, ActaVisitaModal, ActaVisitaCaseStatus, FormatoSolicitudAccess, FormatoActaVisitaCaseAccess, InspeccionActuoArchivo, ActuoArchivoModal, ActuoArchivoCaseStatus, FormatoActuoArchivoCaseAccess, PersonaTipoFields) {
+    'custom:helpers/radicado-generator',
+    'custom:helpers/radicado-assistant-panel',
+], function (Dep, PatrulleroActa, InspeccionActa, RadicacionFields, PostRadicacionFields, ActaVisitaModal, ActaVisitaCaseStatus, FormatoSolicitudAccess, FormatoActaVisitaCaseAccess, InspeccionActuoArchivo, ActuoArchivoModal, ActuoArchivoCaseStatus, FormatoActuoArchivoCaseAccess, PersonaTipoFields, RadicadoGenerator, RadicadoAssistantPanel) {
 
     return Dep.extend({
 
@@ -145,10 +147,18 @@ define('custom:views/case/record/detail', [
             });
         },
 
+        actionEdit: function () {
+            this.getRouter().navigate(
+                '#' + this.entityType + '/edit/' + this.model.id,
+                {trigger: true}
+            );
+        },
+
         afterRender: function () {
             Dep.prototype.afterRender.call(this);
 
             PersonaTipoFields.toggle(this);
+            RadicadoGenerator.hideAssistantFields(this);
             this.updateActaVisitaButton();
             this.updateActuoArchivoButton();
             this.toggleActaPanels();

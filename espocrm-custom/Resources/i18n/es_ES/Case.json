@@ -10,6 +10,12 @@
         "cCedula": "Cédula",
         "cPeticionario": "Nombre del peticionario",
         "cPerjudicante": "Nombre del perjudicante",
+        "cNumeroRadicado": "Número de radicado",
+        "cExpediente": "Expediente",
+        "cRadicadoModo": "Modo de radicado",
+        "cRadicadoSiglas": "Siglas de categoría",
+        "cRadicadoAnio": "Año del radicado",
+        "radicadoPreviewHelp": "Formato: ENV-SIGLAS-Nº-AÑO. El expediente se genera como AÑO-Nº.",
         "cPerjudicanteContact": "Contacto (perjudicante)",
         "cPerjudicanteCuenta": "Cuenta (perjudicante)",
         "contact": "Contacto (peticionario)",
@@ -97,6 +103,24 @@
         "cTipoPersonaPerjudicante": {
             "Persona natural": "Persona natural",
             "Persona jurídica": "Persona jurídica"
+        },
+        "cRadicadoModo": {
+            "Automático": "Automático (ENV-SIGLAS-Nº-AÑO)",
+            "Manual": "Manual"
+        },
+        "cRadicadoSiglas": {
+            "HID": "HID — Hídrico",
+            "SPR": "SPR — Suelo de protección",
+            "SUE": "SUE — Suelo",
+            "AIR": "AIR — Aire",
+            "FSI": "FSI — Fauna silvestre",
+            "FLO": "FLO — Flora",
+            "GSO": "GSO — Gestión socioambiental de obra",
+            "SEP": "SEP — Servicios públicos",
+            "FDO": "FDO — Fauna doméstica",
+            "PAI": "PAI — Paisaje",
+            "MIN": "MIN — Minero",
+            "RSO": "RSO — Residuos sólidos"
         }
     }
 }
