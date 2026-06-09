@@ -2,6 +2,7 @@
     "fields": {
         "cTipo": "Tipo",
         "cCategoria": "Categoría",
+        "cFechaVencimiento": "Fecha de vencimiento",
         "assignedUser": "Asignado a",
         "cFormatoSolicitudPdf": "Formato de solicitud (PDF)",
         "cTipoPersonaPeticionario": "Tipo de peticionario",

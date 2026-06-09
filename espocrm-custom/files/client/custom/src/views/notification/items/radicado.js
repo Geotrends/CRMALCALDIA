@@ -68,11 +68,41 @@ define('custom:views/notification/items/radicado', [
                 || (/asignó el caso/i.test(rawMessage)
                     && / a /i.test(rawMessage)
                     && !isPatrulleroAsignacion);
+            var isVencimientoAlert = !!data.isVencimientoAlert
+                || /está vencido|vence en|vence hoy/i.test(rawMessage);
+            var isFinalizadoAlert = !!data.isFinalizadoAlert
+                || /finalizó el caso/i.test(rawMessage);
+            var alertTipo = data.alertTipo || '';
 
             this.userId = data.userId || this.model.get('createdById');
             this.style = data.style || 'text-muted';
 
-            if (isActaVisita) {
+            if (isVencimientoAlert) {
+                var fechaVenc = data.fechaVencimiento || '';
+                var diasRest = data.diasRestantes;
+
+                if (alertTipo === 'vencido' || /está vencido/i.test(rawMessage)) {
+                    this.message = 'El caso <a href="' + href + '">'
+                        + escapeHtml(linkLabel) + '</a> está vencido'
+                        + (fechaVenc ? ' (vencía ' + escapeHtml(fechaVenc) + ')' : '')
+                        + (expediente ? ' · Expediente: ' + escapeHtml(expediente) : '');
+                    this.style = 'text-danger';
+                } else {
+                    var diasText = diasRest === 0 ? 'hoy' : ('en ' + escapeHtml(String(diasRest)) + ' día(s)');
+
+                    this.message = 'El caso <a href="' + href + '">'
+                        + escapeHtml(linkLabel) + '</a> vence ' + diasText
+                        + (fechaVenc ? ' (' + escapeHtml(fechaVenc) + ')' : '')
+                        + (expediente ? ' · Expediente: ' + escapeHtml(expediente) : '');
+                    this.style = 'text-warning';
+                }
+            } else if (isFinalizadoAlert) {
+                this.message = escapeHtml(userName || 'El CRM')
+                    + ' finalizó el caso <a href="' + href + '">'
+                    + escapeHtml(linkLabel) + '</a>'
+                    + (expediente ? ' · Expediente: ' + escapeHtml(expediente) : '');
+                this.style = 'text-success';
+            } else if (isActaVisita) {
                 this.message = escapeHtml(userName)
                     + ' realizó la visita en el caso <a href="' + href + '">'
                     + escapeHtml(entityName || linkLabel) + '</a>'

@@ -279,6 +279,11 @@
                     enGestion++;
                 }
 
+                // Semáforo: casos activos (no finalizados/cerrados).
+                if (ESTADOS_FIN.indexOf(c.status) !== -1) {
+                    return;
+                }
+
                 var sem = semaforo(c);
 
                 if (sem === 'Vencido') {
@@ -312,7 +317,12 @@
                 })
             );
 
-            var porSemaforo = agrupar(casos, semaforo);
+            var porSemaforo = agrupar(
+                casos.filter(function (c) {
+                    return ESTADOS_FIN.indexOf(c.status) === -1;
+                }),
+                semaforo
+            );
             var ds = ordenarDesc(porSemaforo);
 
             dibujarDonut(

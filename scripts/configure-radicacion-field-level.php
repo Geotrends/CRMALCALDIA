@@ -24,8 +24,10 @@ $em = $app->getContainer()->getByClass(EntityManager::class);
 $pdo = $em->getPDO();
 
 $exclusiveFields = ['cNumeroRadicado', 'cExpediente', 'cRadicadoModo', 'cRadicadoSiglas', 'cRadicadoAnio'];
+$fechaVencimientoField = 'cFechaVencimiento';
 $scope = 'Case';
 $roleRadicacion = 'Radicación';
+$roleInspeccion = 'Inspección';
 $legacyFields = ['cNumeroRadicacion'];
 
 $stmt = $pdo->query('SELECT id, name, field_data FROM role WHERE deleted = false');
@@ -53,9 +55,12 @@ while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
     if ($roleName === 'Inspección' || $roleName === 'Inspeccion') {
         $fieldData[$scope]['cTipo'] = ['read' => 'yes', 'edit' => 'yes'];
         $fieldData[$scope]['cCategoria'] = ['read' => 'yes', 'edit' => 'yes'];
+        $fieldData[$scope][$fechaVencimientoField] = ['read' => 'yes', 'edit' => 'yes'];
     } else {
         $fieldData[$scope]['cTipo'] = ['read' => 'yes', 'edit' => 'no'];
         $fieldData[$scope]['cCategoria'] = ['read' => 'yes', 'edit' => 'no'];
+        // Lectura sí (dashboard y alertas); edición solo Inspección.
+        $fieldData[$scope][$fechaVencimientoField] = ['read' => 'yes', 'edit' => 'no'];
     }
 
     foreach ($legacyFields as $legacyField) {
@@ -73,10 +78,12 @@ while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 
     if ($roleName === $roleRadicacion) {
         echo "OK lectura/edición (radicado + expediente): {$roleName}\n";
+    } elseif ($roleName === $roleInspeccion || $roleName === 'Inspeccion') {
+        echo "OK Inspección: tipo/categoría/fecha vencimiento editables: {$roleName}\n";
     } else {
         echo "OK lectura, sin edición (radicado + expediente): {$roleName}\n";
     }
 }
 
 $app->getContainer()->getByClass(DataManager::class)->rebuild();
-echo 'Listo. Todos leen radicado/expediente; solo Radicación edita.' . PHP_EOL;
+echo 'Listo. Fecha de vencimiento: lectura para todos, edición solo Inspección.' . PHP_EOL;

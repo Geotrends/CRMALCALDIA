@@ -3,6 +3,7 @@ define('custom:helpers/radicacion-fields', [], function () {
     const ROLE_RADICACION = 'radicacion';
     const ROLE_INSPECCION = 'inspeccion';
     const RADICADO_FIELDS = ['cNumeroRadicado', 'cExpediente'];
+    const FECHA_VENCIMIENTO_FIELD = 'cFechaVencimiento';
 
     const normalize = function (value) {
         return String(value)
@@ -37,6 +38,10 @@ define('custom:helpers/radicacion-fields', [], function () {
             return false;
         }
 
+        if (user.isAdmin()) {
+            return true;
+        }
+
         if (user.get('userName') === 'juan.inspeccion') {
             return true;
         }
@@ -47,6 +52,10 @@ define('custom:helpers/radicacion-fields', [], function () {
         Object.values(user.get('teamsNames') || {}).forEach((name) => names.push(name));
 
         return names.some((name) => normalize(name).includes(ROLE_INSPECCION));
+    };
+
+    const shouldShowFechaVencimiento = function (user) {
+        return isInspeccionUser(user);
     };
 
     const isCaseRadicado = function (model) {
@@ -81,10 +90,12 @@ define('custom:helpers/radicacion-fields', [], function () {
 
     return {
         RADICADO_FIELDS: RADICADO_FIELDS,
+        FECHA_VENCIMIENTO_FIELD: FECHA_VENCIMIENTO_FIELD,
         isRadicacionUser: isRadicacionUser,
         isInspeccionUser: isInspeccionUser,
         isCaseRadicado: isCaseRadicado,
         isCasePostRadicado: isCasePostRadicado,
         shouldShowRadicacionFields: shouldShowRadicacionFields,
+        shouldShowFechaVencimiento: shouldShowFechaVencimiento,
     };
 });

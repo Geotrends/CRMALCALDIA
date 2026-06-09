@@ -52,6 +52,7 @@ define('custom:views/case/record/edit', [
             this.applyFieldModes();
             this.toggleRadicacionFields();
             this.togglePostRadicacionFields();
+            this.toggleFechaVencimientoField();
 
             if (RadicadoAssistantPanel.canShow(this)) {
                 RadicadoAssistantPanel.mount(this);
@@ -134,8 +135,11 @@ define('custom:views/case/record/edit', [
 
             const show = RadicacionFields.shouldShowRadicacionFields(user, model);
             const canEdit = RadicacionFields.isRadicacionUser(user);
+            const fields = canEdit
+                ? RadicacionFields.RADICADO_FIELDS.concat(RadicadoGenerator.ASSISTANT_FIELDS)
+                : RadicacionFields.RADICADO_FIELDS;
 
-            RadicacionFields.RADICADO_FIELDS.concat(RadicadoGenerator.ASSISTANT_FIELDS).forEach((field) => {
+            fields.forEach((field) => {
                 const $cell = this.$el.find('[data-name="' + field + '"]').closest('.cell');
 
                 if ($cell.length) {
@@ -165,6 +169,16 @@ define('custom:views/case/record/edit', [
 
             if (show && canEdit) {
                 RadicadoGenerator.toggle(this);
+            }
+
+            if (!canEdit) {
+                RadicadoGenerator.ASSISTANT_FIELDS.forEach((field) => {
+                    const $assistantCell = this.$el.find('[data-name="' + field + '"]').closest('.cell');
+
+                    if ($assistantCell.length) {
+                        $assistantCell.hide();
+                    }
+                });
             }
         },
 
@@ -203,6 +217,26 @@ define('custom:views/case/record/edit', [
                 view.setNotReadOnly();
             } else if (!canEdit && typeof view.setReadOnly === 'function') {
                 view.setReadOnly();
+            }
+        },
+
+        toggleFechaVencimientoField: function () {
+            const show = RadicacionFields.shouldShowFechaVencimiento(this.getUser());
+            const field = RadicacionFields.FECHA_VENCIMIENTO_FIELD;
+            const $cell = this.$el.find('[data-name="' + field + '"]').closest('.cell');
+
+            if ($cell.length) {
+                $cell.toggle(show);
+            }
+
+            if (!show) {
+                return;
+            }
+
+            const view = this.getFieldView(field);
+
+            if (view && typeof view.setNotReadOnly === 'function') {
+                view.setNotReadOnly();
             }
         },
 

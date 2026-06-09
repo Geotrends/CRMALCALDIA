@@ -113,6 +113,12 @@
             ],
             [
                 {
+                    "name": "cFechaVencimiento"
+                },
+                false
+            ],
+            [
+                {
                     "name": "cRecibidaPor"
                 },
                 {

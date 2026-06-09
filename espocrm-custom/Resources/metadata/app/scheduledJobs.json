@@ -1,0 +1,8 @@
+{
+    "CheckCaseVencimientoAlerts": {
+        "name": "Alertas de vencimiento de casos",
+        "isSystem": true,
+        "scheduling": "0 7 * * *",
+        "jobClassName": "Espo\\Custom\\Jobs\\CheckCaseVencimientoAlerts"
+    }
+}

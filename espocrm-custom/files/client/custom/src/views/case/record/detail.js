@@ -166,6 +166,7 @@ define('custom:views/case/record/detail', [
             this.setActaFieldsReadOnlyForReview();
             this.toggleRadicacionFields();
             this.togglePostRadicacionFields();
+            this.toggleFechaVencimientoField();
             this.toggleFormatoGeneradoPanel();
             this.toggleFormatoSolicitudPanel();
             this.toggleFormatoActaVisitaPanel();
@@ -248,6 +249,16 @@ define('custom:views/case/record/detail', [
                     $cell.hide();
                 }
             });
+        },
+
+        toggleFechaVencimientoField: function () {
+            const show = RadicacionFields.shouldShowFechaVencimiento(this.getUser());
+            const field = RadicacionFields.FECHA_VENCIMIENTO_FIELD;
+            const $cell = this.$el.find('[data-name="' + field + '"]').closest('.cell');
+
+            if ($cell.length) {
+                $cell.toggle(show);
+            }
         },
 
         toggleFormatoGeneradoPanel: function () {

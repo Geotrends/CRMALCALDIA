@@ -59,4 +59,8 @@ echo 'Permisos de asignación (crear caso sin patrullero)...'
 docker cp "$ROOT/scripts/configure-case-assignment-permissions.php" espocrm:/tmp/configure-case-assignment-permissions.php
 docker exec espocrm php /tmp/configure-case-assignment-permissions.php
 
+echo 'Permisos de campo (radicado, fecha vencimiento)...'
+docker cp "$ROOT/scripts/configure-radicacion-field-level.php" espocrm:/tmp/configure-radicacion-field-level.php
+docker exec espocrm php /tmp/configure-radicacion-field-level.php
+
 echo 'Listo. Recarga el navegador con Cmd+Shift+R en http://localhost:8080'
