@@ -4,7 +4,7 @@
         "case": "Caso vinculado (ID caso)",
         "expediente": "Expediente",
         "autorizacionDatos": "Autorización tratamiento de datos personales (Ley 1581 de 2012)",
-        "anio": "Año",
+        "fecha": "Fecha",
         "posibleAfectante": "Posible afectante",
         "numeroRadicado": "Radicado de la solicitud",
         "direccionAfectacion": "Dirección donde se origina la afectación",

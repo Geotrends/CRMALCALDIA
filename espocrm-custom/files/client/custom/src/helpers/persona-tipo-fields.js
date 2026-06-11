@@ -1,72 +1,110 @@
 define('custom:helpers/persona-tipo-fields', [], function () {
 
-    var PERSONA_NATURAL = 'Persona natural';
-    var PERSONA_JURIDICA = 'Persona jurídica';
+    const PERSONA_JURIDICA = 'Persona jurídica';
+    const PLACEHOLDER = 'Seleccione una opción';
 
-    var documentoLabel = function (tipo) {
-        return tipo === PERSONA_JURIDICA ? 'NIT' : 'Cédula';
+    const PETICIONARIO = {
+        tipo: 'cTipoPersonaPeticionario',
+        nombre: 'cPeticionario',
+        documento: 'cCedula',
     };
 
-    var nombreLabel = function (tipo, rol) {
-        if (tipo === PERSONA_JURIDICA) {
-            return rol === 'peticionario' ? 'Razón social' : 'Nombre de la empresa';
-        }
-
-        return rol === 'peticionario' ? 'Nombre del peticionario' : 'Nombre del perjudicante';
+    const PERJUDICANTE = {
+        tipo: 'cTipoPersonaPerjudicante',
+        nombre: 'cPerjudicante',
+        documento: 'cDocumentoPerjudicante',
     };
 
-    var applyDefaults = function (model) {
-        if (!model.get('cTipoPersonaPeticionario')) {
-            model.set('cTipoPersonaPeticionario', PERSONA_NATURAL, {silent: true});
+    const findCell = function (recordView, field) {
+        const $cell = recordView.$el.find('.cell[data-name="' + field + '"]');
+
+        if ($cell.length) {
+            return $cell;
         }
 
-        if (!model.get('cTipoPersonaPerjudicante')) {
-            model.set('cTipoPersonaPerjudicante', PERSONA_NATURAL, {silent: true});
-        }
+        return recordView.$el.find('[data-name="' + field + '"]').closest('.cell');
     };
 
-    var updateFieldLabel = function (recordView, field, label) {
-        var view = recordView.getFieldView(field);
+    const isJuridica = function (tipo) {
+        const value = String(tipo || '').trim();
 
-        if (view) {
-            view.params = view.params || {};
-            view.params.label = label;
-        }
-
-        var $label = recordView.$el.find('.field[data-name="' + field + '"] .field-label');
-
-        if ($label.length) {
-            $label.text(label);
-        }
+        return value === PERSONA_JURIDICA;
     };
 
-    var hidePartyLinks = function (recordView) {
+    const isTipoSelected = function (tipo) {
+        const value = String(tipo || '').trim();
+
+        return value !== '' && value !== PLACEHOLDER;
+    };
+
+    const setFieldLabel = function (recordView, field, label) {
+        const $cell = findCell(recordView, field);
+
+        if (!$cell.length) {
+            return;
+        }
+
+        $cell.find('label').first().text(label);
+    };
+
+    const applyPartyLabels = function (recordView, config, party) {
+        const tipo = recordView.model.get(config.tipo);
+        const juridica = isJuridica(tipo);
+
+        if (party === 'peticionario') {
+            setFieldLabel(recordView, config.documento, juridica ? 'NIT' : 'Cédula');
+            setFieldLabel(
+                recordView,
+                config.nombre,
+                juridica ? 'Razón social' : 'Nombre del peticionario'
+            );
+
+            return;
+        }
+
+        setFieldLabel(recordView, config.documento, juridica ? 'NIT del infractor' : 'Cédula del infractor');
+        setFieldLabel(
+            recordView,
+            config.nombre,
+            juridica ? 'Razón social del infractor' : 'Nombre del infractor'
+        );
+    };
+
+    const applyLabels = function (recordView) {
+        applyPartyLabels(recordView, PETICIONARIO, 'peticionario');
+        applyPartyLabels(recordView, PERJUDICANTE, 'perjudicante');
+    };
+
+    const hidePartyLinks = function (recordView) {
         [
             'contact',
             'account',
             'cPerjudicanteContact',
             'cPerjudicanteCuenta',
         ].forEach(function (field) {
-            recordView.$el.find('.field[data-name="' + field + '"]').closest('.cell, .field').hide();
+            findCell(recordView, field).hide();
         });
     };
 
-    var toggle = function (recordView) {
-        var model = recordView.model;
-        var tipoPet = model.get('cTipoPersonaPeticionario') || PERSONA_NATURAL;
-        var tipoPerj = model.get('cTipoPersonaPerjudicante') || PERSONA_NATURAL;
+    const setup = function (recordView) {
+        recordView.listenTo(recordView.model, 'change:' + PETICIONARIO.tipo, function () {
+            applyPartyLabels(recordView, PETICIONARIO, 'peticionario');
+        });
 
-        updateFieldLabel(recordView, 'cCedula', documentoLabel(tipoPet));
-        updateFieldLabel(recordView, 'cPeticionario', nombreLabel(tipoPet, 'peticionario'));
-        updateFieldLabel(recordView, 'cDocumentoPerjudicante', documentoLabel(tipoPerj));
-        updateFieldLabel(recordView, 'cPerjudicante', nombreLabel(tipoPerj, 'perjudicante'));
-        hidePartyLinks(recordView);
+        recordView.listenTo(recordView.model, 'change:' + PERJUDICANTE.tipo, function () {
+            applyPartyLabels(recordView, PERJUDICANTE, 'perjudicante');
+        });
     };
 
     return {
-        PERSONA_NATURAL: PERSONA_NATURAL,
+        PETICIONARIO: PETICIONARIO,
+        PERJUDICANTE: PERJUDICANTE,
         PERSONA_JURIDICA: PERSONA_JURIDICA,
-        applyDefaults: applyDefaults,
-        toggle: toggle,
+        PLACEHOLDER: PLACEHOLDER,
+        isJuridica: isJuridica,
+        isTipoSelected: isTipoSelected,
+        setup: setup,
+        applyLabels: applyLabels,
+        hidePartyLinks: hidePartyLinks,
     };
 });

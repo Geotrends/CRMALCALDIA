@@ -33,6 +33,9 @@ docker exec espocrm bash -c 'command -v soffice >/dev/null || (apt-get update -q
 echo 'Verificando openpyxl (export Excel casos)...'
 docker exec espocrm bash -c 'python3 -c "import openpyxl" 2>/dev/null || (apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get install -y -qq python3-openpyxl)'
 
+echo 'Verificando Excel oficial (excelAlcaldia.xlsx)...'
+docker exec espocrm bash -c 'test -f /var/www/html/data/exports/excelAlcaldia.xlsx || echo "AVISO: coloque excelAlcaldia.xlsx en exports/ del proyecto"'
+
 docker exec espocrm mkdir -p /var/www/html/data
 docker exec espocrm chown -R www-data:www-data /var/www/html/data /var/www/html/custom/Espo/Custom/
 
@@ -62,5 +65,17 @@ docker exec espocrm php /tmp/configure-case-assignment-permissions.php
 echo 'Permisos de campo (radicado, fecha vencimiento)...'
 docker cp "$ROOT/scripts/configure-radicacion-field-level.php" espocrm:/tmp/configure-radicacion-field-level.php
 docker exec espocrm php /tmp/configure-radicacion-field-level.php
+
+echo 'Catálogos Excel Alcaldía (desplegables)...'
+docker cp "$ROOT/scripts/configure-excel-alcaldia-case-fields.php" espocrm:/tmp/configure-excel-alcaldia-case-fields.php
+docker exec espocrm php /tmp/configure-excel-alcaldia-case-fields.php
+
+echo 'Placeholder en desplegables Case...'
+docker cp "$ROOT/scripts/configure-case-enum-placeholders.php" espocrm:/tmp/configure-case-enum-placeholders.php
+docker exec espocrm php /tmp/configure-case-enum-placeholders.php
+
+echo 'Eliminando columnas obsoletas c_categoria / c_tipo...'
+docker cp "$ROOT/scripts/migrate-drop-case-categoria-tipo.php" espocrm:/tmp/migrate-drop-case-categoria-tipo.php
+docker exec espocrm php /tmp/migrate-drop-case-categoria-tipo.php
 
 echo 'Listo. Recarga el navegador con Cmd+Shift+R en http://localhost:8080'

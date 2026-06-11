@@ -300,7 +300,7 @@ class FormatoActaVisitaGenerator
     private function buildPayloadFromCase(Entity $case): array
     {
         return [
-            'anio' => (int) date('Y'),
+            'fecha' => date('Y-m-d'),
             'posibleAfectante' => trim((string) ($case->get('cPerjudicante') ?: $case->get('cPeticionario'))),
             'numeroRadicado' => trim((string) $case->get('cNumeroRadicado')),
             'expediente' => trim((string) $case->get('cExpediente')),
@@ -379,7 +379,7 @@ class FormatoActaVisitaGenerator
         }
 
         return [
-            'anio' => $acta->get('anio'),
+            'fecha' => $this->formatDate($acta->get('fecha')),
             'posibleAfectante' => trim((string) $acta->get('posibleAfectante')),
             'numeroRadicado' => trim((string) $acta->get('numeroRadicado')),
             'expediente' => trim((string) $acta->get('expediente')),

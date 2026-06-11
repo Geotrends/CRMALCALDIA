@@ -5,25 +5,7 @@
                 {
                     "name": "cFechaCaso"
                 },
-                {
-                    "name": "cRadicadoModo"
-                }
-            ],
-            [
-                {
-                    "name": "cRadicadoSiglas"
-                },
-                {
-                    "name": "cRadicadoAnio"
-                }
-            ],
-            [
-                {
-                    "name": "cNumeroRadicado"
-                },
-                {
-                    "name": "cExpediente"
-                }
+                false
             ],
             [
                 {
@@ -49,8 +31,14 @@
                 {
                     "name": "cTelefono"
                 },
+                false
+            ],
+            [
                 {
                     "name": "cBarrio"
+                },
+                {
+                    "name": "cZonaAlcaldia"
                 }
             ],
             [
@@ -59,14 +47,6 @@
                 },
                 {
                     "name": "cCanalDeReporte"
-                }
-            ],
-            [
-                {
-                    "name": "cTipo"
-                },
-                {
-                    "name": "cCategoria"
                 }
             ]
         ],
@@ -105,7 +85,36 @@
             ]
         ],
         "style": "default",
-        "label": "Perjudicante"
+        "label": "Infractor"
+    },
+    {
+        "name": "registroExcelAlcaldia",
+        "rows": [
+            [
+                {
+                    "name": "cRecursoTema"
+                },
+                {
+                    "name": "cAsunto"
+                }
+            ],
+            [
+                {
+                    "name": "cFechaVencimiento"
+                },
+                false
+            ],
+            [
+                {
+                    "name": "cUltimaActuacion"
+                },
+                {
+                    "name": "cProximaActuacion"
+                }
+            ]
+        ],
+        "style": "default",
+        "label": "Registro oficial (Excel)"
     },
     {
         "rows": [

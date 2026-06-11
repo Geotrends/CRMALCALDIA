@@ -8,7 +8,8 @@ define('custom:views/case/record/edit', [
     'custom:helpers/persona-tipo-fields',
     'custom:helpers/radicado-generator',
     'custom:helpers/radicado-assistant-panel',
-], function (Dep, PatrulleroActa, InspeccionActa, RadicacionFields, PostRadicacionFields, CaseCreateDefaults, PersonaTipoFields, RadicadoGenerator, RadicadoAssistantPanel) {
+    'custom:helpers/inspeccion-registro-excel',
+], function (Dep, PatrulleroActa, InspeccionActa, RadicacionFields, PostRadicacionFields, CaseCreateDefaults, PersonaTipoFields, RadicadoGenerator, RadicadoAssistantPanel, InspeccionRegistroExcel) {
 
     return Dep.extend({
 
@@ -17,13 +18,8 @@ define('custom:views/case/record/edit', [
 
             if (this.model.isNew()) {
                 CaseCreateDefaults.apply(this.model);
-                PersonaTipoFields.applyDefaults(this.model);
                 this.clearAssignedUserOnCreate();
             }
-
-            this.listenTo(this.model, 'change:cTipoPersonaPeticionario change:cTipoPersonaPerjudicante', function () {
-                PersonaTipoFields.toggle(this);
-            });
 
             this.listenTo(this.model, 'change:assignedUserId', function () {
                 if (this.model.isNew()) {
@@ -37,6 +33,19 @@ define('custom:views/case/record/edit', [
             });
 
             RadicadoGenerator.setup(this);
+            PersonaTipoFields.setup(this);
+        },
+
+        save: function () {
+            this.prepareModelForSave();
+
+            return Dep.prototype.save.apply(this, arguments);
+        },
+
+        actionSave: function () {
+            this.prepareModelForSave();
+
+            return Dep.prototype.actionSave.apply(this, arguments);
         },
 
         afterRender: function () {
@@ -44,15 +53,15 @@ define('custom:views/case/record/edit', [
 
             if (this.model.isNew()) {
                 CaseCreateDefaults.apply(this.model);
-                PersonaTipoFields.applyDefaults(this.model);
                 this.clearAssignedUserOnCreate();
             }
 
-            PersonaTipoFields.toggle(this);
+            PersonaTipoFields.hidePartyLinks(this);
+            PersonaTipoFields.applyLabels(this);
             this.applyFieldModes();
             this.toggleRadicacionFields();
             this.togglePostRadicacionFields();
-            this.toggleFechaVencimientoField();
+            this.toggleRegistroExcelPanel();
 
             if (RadicadoAssistantPanel.canShow(this)) {
                 RadicadoAssistantPanel.mount(this);
@@ -129,56 +138,44 @@ define('custom:views/case/record/edit', [
 
             if (RadicadoAssistantPanel.canShow(this)) {
                 RadicadoAssistantPanel.mount(this);
+                RadicacionFields.RADICADO_ALL_FIELDS.forEach((field) => {
+                    this.$el.find('[data-name="' + field + '"]').closest('.cell').hide();
+                });
 
                 return;
             }
 
-            const show = RadicacionFields.shouldShowRadicacionFields(user, model);
-            const canEdit = RadicacionFields.isRadicacionUser(user);
-            const fields = canEdit
-                ? RadicacionFields.RADICADO_FIELDS.concat(RadicadoGenerator.ASSISTANT_FIELDS)
-                : RadicacionFields.RADICADO_FIELDS;
+            RadicadoAssistantPanel.unmount(this);
+            RadicadoGenerator.hideAssistantFields(this);
 
-            fields.forEach((field) => {
+            const show = RadicacionFields.shouldShowRadicacionFields(user, model);
+
+            RadicacionFields.RADICADO_ALL_FIELDS.forEach((field) => {
                 const $cell = this.$el.find('[data-name="' + field + '"]').closest('.cell');
 
-                if ($cell.length) {
-                    $cell.show();
+                if (!$cell.length) {
+                    return;
                 }
 
                 if (!show) {
-                    if ($cell.length) {
-                        $cell.hide();
-                    }
+                    $cell.hide();
 
                     return;
                 }
+
+                $cell.show();
 
                 const view = this.getFieldView(field);
 
-                if (!view) {
-                    return;
-                }
-
-                if (canEdit && typeof view.setNotReadOnly === 'function') {
-                    view.setNotReadOnly();
-                } else if (!canEdit && typeof view.setReadOnly === 'function') {
+                if (view && typeof view.setReadOnly === 'function') {
                     view.setReadOnly();
                 }
             });
+        },
 
-            if (show && canEdit) {
-                RadicadoGenerator.toggle(this);
-            }
-
-            if (!canEdit) {
-                RadicadoGenerator.ASSISTANT_FIELDS.forEach((field) => {
-                    const $assistantCell = this.$el.find('[data-name="' + field + '"]').closest('.cell');
-
-                    if ($assistantCell.length) {
-                        $assistantCell.hide();
-                    }
-                });
+        prepareModelForSave: function () {
+            if (!RadicacionFields.isRadicacionUser(this.getUser())) {
+                RadicacionFields.stripRadicadoFromModel(this.model);
             }
         },
 
@@ -220,24 +217,8 @@ define('custom:views/case/record/edit', [
             }
         },
 
-        toggleFechaVencimientoField: function () {
-            const show = RadicacionFields.shouldShowFechaVencimiento(this.getUser());
-            const field = RadicacionFields.FECHA_VENCIMIENTO_FIELD;
-            const $cell = this.$el.find('[data-name="' + field + '"]').closest('.cell');
-
-            if ($cell.length) {
-                $cell.toggle(show);
-            }
-
-            if (!show) {
-                return;
-            }
-
-            const view = this.getFieldView(field);
-
-            if (view && typeof view.setNotReadOnly === 'function') {
-                view.setNotReadOnly();
-            }
+        toggleRegistroExcelPanel: function () {
+            InspeccionRegistroExcel.togglePanel(this);
         },
 
         findPanel: function (name) {

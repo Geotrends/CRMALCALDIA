@@ -80,8 +80,7 @@ class FillFromCase implements BeforeSave
     private function buildReferencia(Entity $case): string
     {
         $parts = array_filter([
-            trim((string) $case->get('cTipo')),
-            trim((string) $case->get('cCategoria')),
+            trim((string) $case->get('cRecursoTema')),
         ]);
 
         if ($parts !== []) {

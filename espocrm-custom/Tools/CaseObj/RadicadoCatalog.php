@@ -10,48 +10,49 @@ class RadicadoCatalog
 
     public const MODO_MANUAL = 'Manual';
 
-    /** @var array<string, string> categoría => siglas */
-    private const CATEGORIA_SIGLAS = [
-        'Hídrico' => 'HID',
-        'Suelo de protección' => 'SPR',
-        'Suelo' => 'SUE',
-        'Aire' => 'AIR',
-        'Fauna silvestre' => 'FSI',
-        'Flora' => 'FLO',
-        'Gestión socioambiental de obra' => 'GSO',
-        'Servicios públicos' => 'SEP',
-        'Fauna doméstica' => 'FDO',
-        'Paisaje' => 'PAI',
-        'Minero' => 'MIN',
-        'Residuos sólidos' => 'RSO',
+    /** @var array<string, string> recurso/tema => siglas */
+    private const RECURSO_SIGLAS = [
+        'AIRE' => 'AIR',
+        'ESPACIO PUBLICOS VERDES' => 'EPV',
+        'FAUNA DOMÉSTICA' => 'FDO',
+        'FAUNA SILVESTRE' => 'FSI',
+        'FLORA' => 'FLO',
+        'HÍDRICO' => 'HID',
+        'LOTE-PREDIO' => 'LPR',
+        'RESIDUOS SOLIDOS' => 'RSO',
+        'SUELO' => 'SUE',
     ];
 
     /** @return array<string, string> */
-    public static function getCategoriaSiglasMap(): array
+    public static function getRecursoSiglasMap(): array
     {
-        return self::CATEGORIA_SIGLAS;
+        return self::RECURSO_SIGLAS;
     }
 
     /** @return string[] */
     public static function getSiglasList(): array
     {
-        return array_values(self::CATEGORIA_SIGLAS);
+        return array_values(array_unique(self::RECURSO_SIGLAS));
     }
 
-    public static function getSiglasForCategoria(string $categoria): ?string
+    public static function getSiglasForRecurso(string $recurso): ?string
     {
-        $categoria = trim($categoria);
+        $recurso = trim($recurso);
 
-        return self::CATEGORIA_SIGLAS[$categoria] ?? null;
+        if ($recurso === '' || $recurso === 'Seleccione una opción') {
+            return null;
+        }
+
+        return self::RECURSO_SIGLAS[$recurso] ?? null;
     }
 
-    public static function getCategoriaForSiglas(string $siglas): ?string
+    public static function getRecursoForSiglas(string $siglas): ?string
     {
         $siglas = strtoupper(trim($siglas));
 
-        foreach (self::CATEGORIA_SIGLAS as $categoria => $code) {
+        foreach (self::RECURSO_SIGLAS as $recurso => $code) {
             if ($code === $siglas) {
-                return $categoria;
+                return $recurso;
             }
         }
 

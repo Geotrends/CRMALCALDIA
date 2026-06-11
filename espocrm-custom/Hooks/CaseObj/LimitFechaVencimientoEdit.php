@@ -10,13 +10,26 @@ use Espo\ORM\EntityManager;
 use Espo\ORM\Repository\Option\SaveOptions;
 
 /**
- * Solo Inspección (Juan) puede definir o modificar la fecha de vencimiento.
+ * Campos del registro Excel: solo Inspección edita la mayoría;
+ * Recurso / tema también lo puede definir Radicación (siglas del radicado).
  */
 class LimitFechaVencimientoEdit implements BeforeSave
 {
     private const ROLE_INSPECCION = 'Inspección';
     private const ROLE_INSPECCION_ALT = 'Inspeccion';
+    private const ROLE_RADICACION = 'Radicación';
     private const USER_INSPECCION = 'juan.inspeccion';
+    private const USER_RADICACION = 'edwin.radicacion';
+    private const RECURSO_TEMA_FIELD = 'cRecursoTema';
+
+    /** @var string[] */
+    private const INSPECCION_ONLY_FIELDS = [
+        'cFechaVencimiento',
+        'cAsunto',
+        'cZonaAlcaldia',
+        'cUltimaActuacion',
+        'cProximaActuacion',
+    ];
 
     public function __construct(
         private EntityManager $entityManager,
@@ -25,21 +38,32 @@ class LimitFechaVencimientoEdit implements BeforeSave
 
     public function beforeSave(Entity $entity, SaveOptions $options): void
     {
-        if (!$entity->isAttributeChanged('cFechaVencimiento')) {
-            return;
-        }
-
         if ($this->user->isAdmin() || $this->userHasInspeccionRole()) {
             return;
         }
 
+        foreach (self::INSPECCION_ONLY_FIELDS as $field) {
+            $this->revertFieldChange($entity, $field);
+        }
+
+        if (!$this->userHasRadicacionRole()) {
+            $this->revertFieldChange($entity, self::RECURSO_TEMA_FIELD);
+        }
+    }
+
+    private function revertFieldChange(Entity $entity, string $field): void
+    {
+        if (!$entity->isAttributeChanged($field)) {
+            return;
+        }
+
         if ($entity->isNew()) {
-            $entity->set('cFechaVencimiento', null);
+            $entity->set($field, null);
 
             return;
         }
 
-        $entity->set('cFechaVencimiento', $entity->getFetched('cFechaVencimiento'));
+        $entity->set($field, $entity->getFetched($field));
     }
 
     private function userHasInspeccionRole(): bool
@@ -48,7 +72,21 @@ class LimitFechaVencimientoEdit implements BeforeSave
             return true;
         }
 
-        foreach ([self::ROLE_INSPECCION, self::ROLE_INSPECCION_ALT] as $roleName) {
+        return $this->userHasRole(self::ROLE_INSPECCION, self::ROLE_INSPECCION_ALT);
+    }
+
+    private function userHasRadicacionRole(): bool
+    {
+        if ($this->user->getUserName() === self::USER_RADICACION) {
+            return true;
+        }
+
+        return $this->userHasRole(self::ROLE_RADICACION);
+    }
+
+    private function userHasRole(string ...$roleNames): bool
+    {
+        foreach ($roleNames as $roleName) {
             $role = $this->entityManager
                 ->getRDBRepositoryByClass(Role::class)
                 ->where(['name' => $roleName])

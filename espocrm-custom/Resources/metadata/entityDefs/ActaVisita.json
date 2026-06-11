@@ -18,10 +18,8 @@
             "default": false,
             "isCustom": true
         },
-        "anio": {
-            "type": "int",
-            "min": 2000,
-            "max": 2100,
+        "fecha": {
+            "type": "date",
             "readOnlyAfterCreate": true,
             "isCustom": true
         },

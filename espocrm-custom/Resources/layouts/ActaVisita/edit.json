@@ -25,7 +25,7 @@
                     "name": "fechaVisita"
                 },
                 {
-                    "name": "anio",
+                    "name": "fecha",
                     "readOnly": true
                 }
             ]

@@ -5,7 +5,7 @@ define('custom:helpers/acta-visita-from-case', [], function () {
         'numeroRadicado',
         'expediente',
         'name',
-        'anio',
+        'fecha',
         'estado',
     ];
 
@@ -30,7 +30,7 @@ define('custom:helpers/acta-visita-from-case', [], function () {
             numeroRadicado: radicado,
             expediente: expediente,
             name: nameParts.join(' — '),
-            anio: now.getFullYear(),
+            fecha: now.toISOString().slice(0, 10),
             fechaVisita: now.toISOString().slice(0, 10),
             estado: 'Pendiente',
             autorizacionDatos: false,

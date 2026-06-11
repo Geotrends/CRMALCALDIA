@@ -1,20 +1,25 @@
 {
     "fields": {
-        "cTipo": "Tipo",
-        "cCategoria": "Categoría",
         "cFechaVencimiento": "Fecha de vencimiento",
+        "cRecursoTema": "Recurso / tema",
+        "cAsunto": "Asunto",
+        "cZonaAlcaldia": "Zona",
+        "cUltimaActuacion": "Última actuación",
+        "cProximaActuacion": "Próxima actuación",
+        "cBarrio": "Barrio",
+        "cBarrioPerjudicante": "Barrio del perjudicante",
         "assignedUser": "Asignado a",
         "cFormatoSolicitudPdf": "Formato de solicitud (PDF)",
         "cTipoPersonaPeticionario": "Tipo de peticionario",
         "cTipoPersonaPerjudicante": "Tipo de perjudicante",
-        "cDocumentoPerjudicante": "Cédula del perjudicante",
+        "cDocumentoPerjudicante": "Cédula del infractor",
         "cCedula": "Cédula",
         "cPeticionario": "Nombre del peticionario",
-        "cPerjudicante": "Nombre del perjudicante",
+        "cPerjudicante": "Nombre del infractor",
         "cNumeroRadicado": "Número de radicado",
         "cExpediente": "Expediente",
         "cRadicadoModo": "Modo de radicado",
-        "cRadicadoSiglas": "Siglas de categoría",
+        "cRadicadoSiglas": "Siglas de recurso",
         "cRadicadoAnio": "Año del radicado",
         "radicadoPreviewHelp": "Formato: ENV-SIGLAS-Nº-AÑO. El expediente se genera como AÑO-Nº.",
         "cPerjudicanteContact": "Contacto (perjudicante)",
@@ -61,7 +66,8 @@
         "downloadFormatoActuoPdf": "Descargar auto PDF",
         "formatoActuoArchivoCaseHelp": "El auto de archivo está listo. Puede descargar el formato oficial en PDF.",
         "formatoActuoArchivoCasePending": "El formato estará disponible cuando diligencie y guarde el auto de archivo con referencia y motivo.",
-        "formatoActuoArchivoCaseUnavailable": "Disponible para Inspección cuando el caso esté en estado Finalizado."
+        "formatoActuoArchivoCaseUnavailable": "Disponible para Inspección cuando el caso esté en estado Finalizado.",
+        "Registro oficial (Excel)": "Registro oficial (Excel)"
     },
     "options": {
         "status": {
@@ -74,54 +80,58 @@
             "Finalizado": "Finalizado",
             "Proceso cerrado": "Proceso cerrado"
         },
-        "cTipo": {
-            "Queja / reporte ambiental": "Queja / reporte ambiental",
-            "PQRSD": "PQRSD",
-            "Derecho de petición": "Derecho de petición",
-            "Reclamo": "Reclamo",
-            "Sugerencia": "Sugerencia",
-            "Denuncia": "Denuncia",
-            "Otro": "Otro"
-        },
-        "cCategoria": {
-            "Hídrico": "Hídrico",
-            "Suelo de protección": "Suelo de protección",
-            "Suelo": "Suelo",
-            "Aire": "Aire",
-            "Fauna silvestre": "Fauna silvestre",
-            "Flora": "Flora",
-            "Gestión socioambiental de obra": "Gestión socioambiental de obra",
-            "Servicios públicos": "Servicios públicos",
-            "Fauna doméstica": "Fauna doméstica",
-            "Paisaje": "Paisaje",
-            "Minero": "Minero",
-            "Residuos sólidos": "Residuos sólidos"
-        },
         "cTipoPersonaPeticionario": {
+            "Seleccione una opción": "Seleccione una opción",
             "Persona natural": "Persona natural",
             "Persona jurídica": "Persona jurídica"
         },
         "cTipoPersonaPerjudicante": {
+            "Seleccione una opción": "Seleccione una opción",
             "Persona natural": "Persona natural",
             "Persona jurídica": "Persona jurídica"
+        },
+        "cCanalDeReporte": {
+            "Seleccione una opción": "Seleccione una opción",
+            "Telefono": "Teléfono",
+            "Correo": "Correo",
+            "Personal": "Atención personal"
+        },
+        "cBarrio": {
+            "Seleccione una opción": "Seleccione una opción"
+        },
+        "cBarrioPerjudicante": {
+            "Seleccione una opción": "Seleccione una opción"
+        },
+        "cRecursoTema": {
+            "Seleccione una opción": "Seleccione una opción"
+        },
+        "cAsunto": {
+            "Seleccione una opción": "Seleccione una opción"
+        },
+        "cZonaAlcaldia": {
+            "Seleccione una opción": "Seleccione una opción"
+        },
+        "cUltimaActuacion": {
+            "Seleccione una opción": "Seleccione una opción"
+        },
+        "cProximaActuacion": {
+            "Seleccione una opción": "Seleccione una opción"
         },
         "cRadicadoModo": {
             "Automático": "Automático (ENV-SIGLAS-Nº-AÑO)",
             "Manual": "Manual"
         },
         "cRadicadoSiglas": {
-            "HID": "HID — Hídrico",
-            "SPR": "SPR — Suelo de protección",
-            "SUE": "SUE — Suelo",
-            "AIR": "AIR — Aire",
-            "FSI": "FSI — Fauna silvestre",
-            "FLO": "FLO — Flora",
-            "GSO": "GSO — Gestión socioambiental de obra",
-            "SEP": "SEP — Servicios públicos",
-            "FDO": "FDO — Fauna doméstica",
-            "PAI": "PAI — Paisaje",
-            "MIN": "MIN — Minero",
-            "RSO": "RSO — Residuos sólidos"
+            "Seleccione una opción": "Seleccione una opción",
+            "AIR": "AIR — AIRE",
+            "EPV": "EPV — ESPACIO PUBLICOS VERDES",
+            "FDO": "FDO — FAUNA DOMÉSTICA",
+            "FSI": "FSI — FAUNA SILVESTRE",
+            "FLO": "FLO — FLORA",
+            "HID": "HID — HÍDRICO",
+            "LPR": "LPR — LOTE-PREDIO",
+            "RSO": "RSO — RESIDUOS SOLIDOS",
+            "SUE": "SUE — SUELO"
         }
     }
 }

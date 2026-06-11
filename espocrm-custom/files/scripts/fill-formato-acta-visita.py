@@ -9,6 +9,7 @@ import subprocess
 import sys
 import tempfile
 import time
+import zipfile
 
 import uno
 
@@ -89,23 +90,150 @@ def mark_zona(doc, zona):
         replace_regex(doc, r"Rural\s*\(\s*\)", "Rural  ( X )")
 
 
-def fill_signature_row(doc, label, left_value, right_value):
-    left = (left_value or "").strip()
-    right = (right_value or "").strip()
-    if not left and not right:
-        return
+# Ancho fijo de la columna izquierda (como en la plantilla Word).
+SIGNATURE_LEFT_CHARS = len("Firma: _______________________ ")
+SIGNATURE_RIGHT_BLANK = 23
 
-    pattern = (
-        "("
-        + re.escape(label)
-        + r"\s*_+\s+"
-        + re.escape(label)
-        + r"\s*_+)"
+
+def escape_xml(text):
+    return (
+        str(text)
+        .replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+        .replace('"', "&quot;")
     )
-    # La plantilla usa tabulaciones entre columnas (funcionario | establecimiento).
-    replacement = label + " " + (left or "_____________________")
-    replacement += "\t\t" + label + " " + (right or "_____________________")
-    replace_regex(doc, pattern, replacement)
+
+
+def run_props(bold=False):
+    bold_tag = "<w:b/>" if bold else ""
+    return (
+        "<w:rPr>"
+        '<w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>'
+        f"{bold_tag}"
+        '<w:color w:val="000000"/>'
+        '<w:sz w:val="22"/>'
+        '<w:szCs w:val="22"/>'
+        '<w:lang w:val="es-ES" w:eastAsia="es-ES"/>'
+        "</w:rPr>"
+    )
+
+
+def build_signature_left(label, value):
+    prefix = label + " "
+    content = str(value or "").strip()
+    if content:
+        text = prefix + content
+        if len(text) < SIGNATURE_LEFT_CHARS:
+            text += " " * (SIGNATURE_LEFT_CHARS - len(text))
+        return text[:SIGNATURE_LEFT_CHARS]
+    fill = max(0, SIGNATURE_LEFT_CHARS - len(prefix))
+    return prefix + ("_" * fill)
+
+
+def build_signature_right(label, value):
+    content = str(value or "").strip()
+    if content:
+        return f"{label} {content}"
+    return f"{label} {'_' * SIGNATURE_RIGHT_BLANK}"
+
+
+def signature_paragraph_xml(left_label, left_value, right_label, right_value):
+    left = escape_xml(build_signature_left(left_label, left_value))
+    right = escape_xml(build_signature_right(right_label, right_value))
+    rpr = run_props()
+    return (
+        '<w:p w:rsidR="003E1B93" w:rsidRDefault="003E1B93" w:rsidP="003E1B93">'
+        '<w:pPr><w:pStyle w:val="NormalWeb"/>'
+        '<w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>'
+        '<w:lang w:val="es-ES" w:eastAsia="es-ES"/></w:rPr></w:pPr>'
+        f"<w:r>{rpr}<w:t xml:space=\"preserve\">{left}</w:t></w:r>"
+        f"<w:r>{rpr}<w:tab/></w:r>"
+        f"<w:r>{rpr}<w:tab/></w:r>"
+        f"<w:r>{rpr}<w:t>{right}</w:t></w:r>"
+        "</w:p>"
+    )
+
+
+def fecha_visita_paragraph_xml(fecha):
+    fecha = escape_xml(fecha)
+    return (
+        '<w:p w:rsidR="003E1B93" w:rsidRDefault="003E1B93" w:rsidP="003E1B93">'
+        "<w:pPr>"
+        '<w:pBdr><w:bottom w:val="single" w:sz="4" w:space="0" w:color="auto" w:shadow="1"/></w:pBdr>'
+        '<w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>'
+        '<w:b/><w:sz w:val="22"/><w:szCs w:val="22"/></w:rPr>'
+        "</w:pPr>"
+        f"<w:r>{run_props(bold=True)}<w:t>Fecha de la Visita:</w:t></w:r>"
+        f"<w:r>{run_props()}<w:t xml:space=\"preserve\"> {fecha}</w:t></w:r>"
+        "</w:p>"
+    )
+
+
+def replace_paragraph_containing(xml, marker, new_paragraph):
+    pattern = (
+        r"<w:p[^>]*>(?:(?!</w:p>).)*?"
+        + re.escape(marker)
+        + r"(?:(?!</w:p>).)*?</w:p>"
+    )
+    return re.sub(pattern, new_paragraph, xml, count=1, flags=re.DOTALL)
+
+
+def patch_docx_xml(docx_path, data):
+    with zipfile.ZipFile(docx_path, "r") as zin:
+        xml = zin.read("word/document.xml").decode("utf-8")
+        other_files = {
+            name: zin.read(name)
+            for name in zin.namelist()
+            if name != "word/document.xml"
+        }
+
+    fecha_visita = (data.get("fechaVisita") or "").strip()
+    if fecha_visita:
+        xml = replace_paragraph_containing(
+            xml,
+            "Fecha de la Visita",
+            fecha_visita_paragraph_xml(fecha_visita),
+        )
+
+    signature_rows = [
+        ("Firma:", "", "Firma:", ""),
+        ("Nombre:", data.get("funcionarioNombre"), "Nombre:", data.get("establecimientoNombre")),
+        ("C.C:", data.get("funcionarioCedula"), "C.C:", data.get("establecimientoCedula")),
+        ("Cargo:", data.get("funcionarioCargo"), "Cargo:", data.get("establecimientoCargo")),
+    ]
+
+    for left_label, left_value, right_label, right_value in signature_rows:
+        marker = left_label + " _"
+        xml = replace_paragraph_containing(
+            xml,
+            marker,
+            signature_paragraph_xml(left_label, left_value, right_label, right_value),
+        )
+
+    # Quitar placeholder gris y forzar texto negro en todo el documento.
+    xml = re.sub(
+        r"<w:r[^>]*>(?:(?!</w:r>).)*?<w:color w:val=\"D9D9D9\"/>.*?</w:r>",
+        "",
+        xml,
+        flags=re.DOTALL,
+    )
+    xml = xml.replace('w:val="D9D9D9"', 'w:val="000000"')
+
+    with zipfile.ZipFile(docx_path, "w", zipfile.ZIP_DEFLATED) as zout:
+        zout.writestr("word/document.xml", xml.encode("utf-8"))
+        for name, content in other_files.items():
+            zout.writestr(name, content)
+
+
+def format_signature_date(value):
+    text = (value or "").strip()
+    if not text:
+        return ""
+    if re.match(r"^\d{4}-\d{2}-\d{2}$", text):
+        year, month, day = text.split("-")
+        return f"{day}/{month}/{year}"
+    return text
 
 
 def fill_doc(template_path, output_path, data):
@@ -113,6 +241,7 @@ def fill_doc(template_path, output_path, data):
 
     try:
         shutil.copy2(template_path, output_path)
+        patch_docx_xml(output_path, data)
         ctx = connect(port)
         desktop = ctx.ServiceManager.createInstanceWithContext(
             "com.sun.star.frame.Desktop", ctx
@@ -120,9 +249,10 @@ def fill_doc(template_path, output_path, data):
         url = uno.systemPathToFileUrl(os.path.abspath(output_path))
         doc = desktop.loadComponentFromURL(url, "_blank", 0, ())
 
-        anio = str(data.get("anio") or "").strip()
-        if anio:
-            replace_regex(doc, r"AÑO:\s*", "AÑO: " + anio + " ")
+        fecha = format_signature_date(data.get("fecha"))
+        if fecha:
+            replace_regex(doc, r"AÑO:\s*.*", "FECHA: " + fecha + " ")
+            replace_regex(doc, r"FECHA:\s*[\d/\-]*", "FECHA: " + fecha + " ")
 
         replace_label_underscores(
             doc, "Posible Afectante:", data.get("posibleAfectante", "")
@@ -149,39 +279,12 @@ def fill_doc(template_path, output_path, data):
 
         mark_zona(doc, data.get("zona", ""))
 
-        fecha = (data.get("fechaVisita") or "").strip()
-        if fecha:
-            replace_regex(
-                doc,
-                r"Fecha de la Visita: \(AAAA/MM/DD\)\s*_+",
-                "Fecha de la Visita: (AAAA/MM/DD) " + fecha,
-            )
-
         fill_label_value(doc, "OBJETO DE LA VISITA O SOLICITUD:", data.get("objetoVisita", ""))
         fill_label_value(doc, "SITUACIÓN ENCONTRADA:", data.get("situacionEncontrada", ""))
         fill_label_value(doc, "ANÁLISIS DE LA SITUACIÓN", data.get("analisisSituacion", ""))
         fill_label_value(doc, "REGISTRO FOTOGRAFICO:", data.get("registroFotografico", ""))
         fill_label_value(doc, "CONCLUSIÓN:", data.get("conclusion", ""))
         fill_label_value(doc, "REQUERIMIENTOS", data.get("requerimientos", ""))
-
-        fill_signature_row(
-            doc,
-            "Nombre:",
-            data.get("funcionarioNombre", ""),
-            data.get("establecimientoNombre", ""),
-        )
-        fill_signature_row(
-            doc,
-            "C.C:",
-            data.get("funcionarioCedula", ""),
-            data.get("establecimientoCedula", ""),
-        )
-        fill_signature_row(
-            doc,
-            "Cargo:",
-            data.get("funcionarioCargo", ""),
-            data.get("establecimientoCargo", ""),
-        )
 
         props = (uno.createUnoStruct("com.sun.star.beans.PropertyValue"),)
         props[0].Name = "FilterName"

@@ -44,11 +44,11 @@ class AutoGenerateRadicadoOnSave implements BeforeSave
         $anio = (int) $entity->get('cRadicadoAnio');
 
         if ($siglas === '') {
-            $siglas = $this->resolveSiglasFromCategoria($entity) ?? '';
+            $siglas = $this->resolveSiglasFromRecurso($entity) ?? '';
         }
 
         if ($siglas === '') {
-            throw BadRequest::create('Seleccione las siglas de categoría para generar el radicado.');
+            throw BadRequest::create('Seleccione el recurso/tema para generar el radicado.');
         }
 
         if ($anio < 1900 || $anio > 9999) {
@@ -85,23 +85,15 @@ class AutoGenerateRadicadoOnSave implements BeforeSave
         $entity->set('cExpediente', RadicadoCatalog::buildExpediente($anio, $consecutivo));
     }
 
-    private function resolveSiglasFromCategoria(Entity $entity): ?string
+    private function resolveSiglasFromRecurso(Entity $entity): ?string
     {
-        $categorias = $entity->get('cCategoria');
+        $recurso = trim((string) $entity->get('cRecursoTema'));
 
-        if (!is_array($categorias)) {
-            $categorias = array_filter([trim((string) $categorias)]);
+        if ($recurso === '') {
+            return null;
         }
 
-        foreach ($categorias as $categoria) {
-            $siglas = RadicadoCatalog::getSiglasForCategoria((string) $categoria);
-
-            if ($siglas) {
-                return $siglas;
-            }
-        }
-
-        return null;
+        return RadicadoCatalog::getSiglasForRecurso($recurso);
     }
 
     private function canEditRadicado(User $user): bool

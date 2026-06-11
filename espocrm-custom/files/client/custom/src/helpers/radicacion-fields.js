@@ -12,6 +12,20 @@ define('custom:helpers/radicacion-fields', [], function () {
             .replace(/[\u0300-\u036f]/g, '');
     };
 
+    const RADICADO_ALL_FIELDS = [
+        'cRadicadoModo',
+        'cRadicadoSiglas',
+        'cRadicadoAnio',
+        'cNumeroRadicado',
+        'cExpediente',
+    ];
+
+    const hasRole = function (user, roleKey) {
+        const roles = Object.values(user.get('rolesNames') || {});
+
+        return roles.some((name) => normalize(name) === roleKey);
+    };
+
     const isRadicacionUser = function (user) {
         if (!user) {
             return false;
@@ -25,12 +39,7 @@ define('custom:helpers/radicacion-fields', [], function () {
             return true;
         }
 
-        const names = [];
-
-        Object.values(user.get('rolesNames') || {}).forEach((name) => names.push(name));
-        Object.values(user.get('teamsNames') || {}).forEach((name) => names.push(name));
-
-        return names.some((name) => normalize(name).includes(ROLE_RADICACION));
+        return hasRole(user, ROLE_RADICACION);
     };
 
     const isInspeccionUser = function (user) {
@@ -46,12 +55,7 @@ define('custom:helpers/radicacion-fields', [], function () {
             return true;
         }
 
-        const names = [];
-
-        Object.values(user.get('rolesNames') || {}).forEach((name) => names.push(name));
-        Object.values(user.get('teamsNames') || {}).forEach((name) => names.push(name));
-
-        return names.some((name) => normalize(name).includes(ROLE_INSPECCION));
+        return hasRole(user, ROLE_INSPECCION);
     };
 
     const shouldShowFechaVencimiento = function (user) {
@@ -88,8 +92,21 @@ define('custom:helpers/radicacion-fields', [], function () {
         return isCaseRadicado(model);
     };
 
+    const stripRadicadoFromModel = function (model) {
+        if (!model) {
+            return;
+        }
+
+        RADICADO_ALL_FIELDS.forEach(function (field) {
+            if (model.get(field)) {
+                model.set(field, null, {silent: true});
+            }
+        });
+    };
+
     return {
         RADICADO_FIELDS: RADICADO_FIELDS,
+        RADICADO_ALL_FIELDS: RADICADO_ALL_FIELDS,
         FECHA_VENCIMIENTO_FIELD: FECHA_VENCIMIENTO_FIELD,
         isRadicacionUser: isRadicacionUser,
         isInspeccionUser: isInspeccionUser,
@@ -97,5 +114,6 @@ define('custom:helpers/radicacion-fields', [], function () {
         isCasePostRadicado: isCasePostRadicado,
         shouldShowRadicacionFields: shouldShowRadicacionFields,
         shouldShowFechaVencimiento: shouldShowFechaVencimiento,
+        stripRadicadoFromModel: stripRadicadoFromModel,
     };
 });

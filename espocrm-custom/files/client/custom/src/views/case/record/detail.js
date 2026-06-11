@@ -15,7 +15,8 @@ define('custom:views/case/record/detail', [
     'custom:helpers/persona-tipo-fields',
     'custom:helpers/radicado-generator',
     'custom:helpers/radicado-assistant-panel',
-], function (Dep, PatrulleroActa, InspeccionActa, RadicacionFields, PostRadicacionFields, ActaVisitaModal, ActaVisitaCaseStatus, FormatoSolicitudAccess, FormatoActaVisitaCaseAccess, InspeccionActuoArchivo, ActuoArchivoModal, ActuoArchivoCaseStatus, FormatoActuoArchivoCaseAccess, PersonaTipoFields, RadicadoGenerator, RadicadoAssistantPanel) {
+    'custom:helpers/inspeccion-registro-excel',
+], function (Dep, PatrulleroActa, InspeccionActa, RadicacionFields, PostRadicacionFields, ActaVisitaModal, ActaVisitaCaseStatus, FormatoSolicitudAccess, FormatoActaVisitaCaseAccess, InspeccionActuoArchivo, ActuoArchivoModal, ActuoArchivoCaseStatus, FormatoActuoArchivoCaseAccess, PersonaTipoFields, RadicadoGenerator, RadicadoAssistantPanel, InspeccionRegistroExcel) {
 
     return Dep.extend({
 
@@ -53,6 +54,8 @@ define('custom:views/case/record/detail', [
                     this.updateActaVisitaButton();
                 }
             });
+
+            PersonaTipoFields.setup(this);
         },
 
         updateActaVisitaButton: function () {
@@ -157,7 +160,8 @@ define('custom:views/case/record/detail', [
         afterRender: function () {
             Dep.prototype.afterRender.call(this);
 
-            PersonaTipoFields.toggle(this);
+            PersonaTipoFields.hidePartyLinks(this);
+            PersonaTipoFields.applyLabels(this);
             RadicadoGenerator.hideAssistantFields(this);
             this.updateActaVisitaButton();
             this.updateActuoArchivoButton();
@@ -166,7 +170,7 @@ define('custom:views/case/record/detail', [
             this.setActaFieldsReadOnlyForReview();
             this.toggleRadicacionFields();
             this.togglePostRadicacionFields();
-            this.toggleFechaVencimientoField();
+            this.toggleRegistroExcelPanel();
             this.toggleFormatoGeneradoPanel();
             this.toggleFormatoSolicitudPanel();
             this.toggleFormatoActaVisitaPanel();
@@ -251,14 +255,8 @@ define('custom:views/case/record/detail', [
             });
         },
 
-        toggleFechaVencimientoField: function () {
-            const show = RadicacionFields.shouldShowFechaVencimiento(this.getUser());
-            const field = RadicacionFields.FECHA_VENCIMIENTO_FIELD;
-            const $cell = this.$el.find('[data-name="' + field + '"]').closest('.cell');
-
-            if ($cell.length) {
-                $cell.toggle(show);
-            }
+        toggleRegistroExcelPanel: function () {
+            InspeccionRegistroExcel.togglePanel(this);
         },
 
         toggleFormatoGeneradoPanel: function () {

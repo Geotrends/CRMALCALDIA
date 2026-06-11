@@ -22,7 +22,7 @@ define('custom:helpers/radicado-generator', [
         }
 
         if (!model.get('cRadicadoSiglas')) {
-            const siglas = RadicadoCatalog.getSiglasFromModelCategoria(model);
+            const siglas = RadicadoCatalog.getSiglasFromModelRecurso(model);
 
             if (siglas) {
                 model.set('cRadicadoSiglas', siglas, {silent: true});
@@ -178,13 +178,11 @@ define('custom:helpers/radicado-generator', [
             }
         });
 
-        recordView.listenTo(recordView.model, 'change:cCategoria', function () {
-            if (!recordView.model.get('cRadicadoSiglas')) {
-                const siglas = RadicadoCatalog.getSiglasFromModelCategoria(recordView.model);
+        recordView.listenTo(recordView.model, 'change:cRecursoTema', function () {
+            const siglas = RadicadoCatalog.getSiglasFromModelRecurso(recordView.model);
 
-                if (siglas) {
-                    recordView.model.set('cRadicadoSiglas', siglas);
-                }
+            if (siglas) {
+                recordView.model.set('cRadicadoSiglas', siglas);
             }
         });
     };

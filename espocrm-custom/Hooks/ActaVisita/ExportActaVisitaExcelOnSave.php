@@ -17,7 +17,7 @@ class ExportActaVisitaExcelOnSave implements AfterSave
 
     private const EXPORT_FIELDS = [
         'fechaVisita',
-        'anio',
+        'fecha',
         'autorizacionDatos',
         'posibleAfectante',
         'direccionAfectacion',

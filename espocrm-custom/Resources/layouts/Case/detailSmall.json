@@ -50,14 +50,6 @@
                 {
                     "name": "cCanalDeReporte"
                 }
-            ],
-            [
-                {
-                    "name": "cTipo"
-                },
-                {
-                    "name": "cCategoria"
-                }
             ]
         ]
     }

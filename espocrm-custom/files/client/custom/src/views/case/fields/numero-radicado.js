@@ -19,9 +19,9 @@ define('custom:views/case/fields/numero-radicado', [
 
             this.applyAssistantDefaults();
 
-            this.listenTo(this.model, 'change:cCategoria', function () {
+            this.listenTo(this.model, 'change:cRecursoTema', function () {
                 if (!this.model.get('cRadicadoSiglas')) {
-                    const siglas = RadicadoCatalog.getSiglasFromModelCategoria(this.model);
+                    const siglas = RadicadoCatalog.getSiglasFromModelRecurso(this.model);
 
                     if (siglas) {
                         this.model.set('cRadicadoSiglas', siglas);
@@ -51,7 +51,7 @@ define('custom:views/case/fields/numero-radicado', [
             }
 
             if (!this.model.get('cRadicadoSiglas')) {
-                const siglas = RadicadoCatalog.getSiglasFromModelCategoria(this.model);
+                const siglas = RadicadoCatalog.getSiglasFromModelRecurso(this.model);
 
                 if (siglas) {
                     this.model.set('cRadicadoSiglas', siglas, {silent: true});

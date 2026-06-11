@@ -225,31 +225,13 @@ class FormatoSolicitudGenerator
             'telPerjudicante' => trim((string) $case->get('cTelefonoPerjudicante')),
             'direccionPerjudicante' => trim((string) $case->get('cDireccionPerjudicante')),
             'barrioPerjudicante' => trim((string) $case->get('cBarrioPerjudicante')),
-            'canalDeReporte' => trim((string) $case->get('cCanalDeReporte')),
+            'canalDeReporte' => $this->cleanCanal($case->get('cCanalDeReporte')),
             'descripcion' => trim((string) $case->get('description')),
             'respuestaInmediata' => trim((string) $case->get('cRespuestaInmediata')),
             'recibidaPor' => $recibidaPor,
             'remitidoA' => $remitidoA,
-            'tipo' => trim((string) $case->get('cTipo')),
-            'categoria' => $this->formatCategoria($case->get('cCategoria')),
+            'tipo' => trim((string) $case->get('cRecursoTema')),
         ];
-    }
-
-    private function formatCategoria(mixed $value): string
-    {
-        if (is_array($value)) {
-            return implode(', ', array_filter(array_map('trim', $value)));
-        }
-
-        if (is_string($value) && str_starts_with($value, '[')) {
-            $decoded = json_decode($value, true);
-
-            if (is_array($decoded)) {
-                return implode(', ', array_filter(array_map('trim', $decoded)));
-            }
-        }
-
-        return trim((string) $value);
     }
 
     private function resolveUserName(?string $userId): string
@@ -279,5 +261,16 @@ class FormatoSolicitudGenerator
         } catch (\Exception) {
             return (string) $value;
         }
+    }
+
+    private function cleanCanal(mixed $value): string
+    {
+        $value = trim((string) $value);
+
+        if ($value === '' || $value === 'Seleccione una opción') {
+            return '';
+        }
+
+        return $value;
     }
 }

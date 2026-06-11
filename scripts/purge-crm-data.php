@@ -20,6 +20,26 @@ $app->setupSystemUser();
 $em = $app->getContainer()->getByClass(EntityManager::class);
 $pdo = $em->getPDO();
 
+$crmRadicados = [];
+$crmExpedientes = [];
+
+$caseStmt = $pdo->query('SELECT c_numero_radicado, c_expediente FROM "case"');
+
+while ($row = $caseStmt->fetch(PDO::FETCH_ASSOC)) {
+    $radicado = trim((string) ($row['c_numero_radicado'] ?? ''));
+    $expediente = trim((string) ($row['c_expediente'] ?? ''));
+
+    if ($radicado !== '') {
+        $crmRadicados[] = $radicado;
+    }
+
+    if ($expediente !== '') {
+        $crmExpedientes[] = $expediente;
+    }
+}
+
+echo 'Casos CRM a limpiar en Excel: ' . count($crmRadicados) . PHP_EOL;
+
 $entityTypes = [
     'Case',
     'ActaVisita',
@@ -121,7 +141,51 @@ $excelPath = '/var/www/html/data/exports/casos-solicitud.xlsx';
 
 if (is_file($excelPath)) {
     unlink($excelPath);
-    echo "Excel maestro eliminado.\n";
+    echo "casos-solicitud.xlsx eliminado (se recrea al radicar).\n";
+}
+
+$alcaldiaExcel = '/var/www/html/data/exports/excelAlcaldia.xlsx';
+$removeScript = null;
+
+foreach ([
+    '/var/www/html/custom/Espo/Custom/files/scripts/remove-crm-rows-excel-alcaldia.py',
+    realpath(__DIR__ . '/../espocrm-custom/files/scripts/remove-crm-rows-excel-alcaldia.py') ?: '',
+] as $candidate) {
+    if ($candidate !== '' && is_readable($candidate)) {
+        $removeScript = $candidate;
+        break;
+    }
+}
+
+if (is_file($alcaldiaExcel) && $removeScript && ($crmRadicados !== [] || $crmExpedientes !== [])) {
+    $payload = json_encode([
+        'radicados' => array_values(array_unique($crmRadicados)),
+        'expedientes' => array_values(array_unique($crmExpedientes)),
+    ], JSON_UNESCAPED_UNICODE);
+
+    $process = proc_open(
+        ['python3', $removeScript, $alcaldiaExcel],
+        [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']],
+        $pipes
+    );
+
+    if (is_resource($process)) {
+        fwrite($pipes[0], $payload);
+        fclose($pipes[0]);
+        $stdout = trim((string) stream_get_contents($pipes[1]));
+        fclose($pipes[1]);
+        $stderr = trim((string) stream_get_contents($pipes[2]));
+        fclose($pipes[2]);
+        $exitCode = proc_close($process);
+
+        if ($exitCode === 0) {
+            echo ($stdout !== '' ? $stdout : 'excelAlcaldia.xlsx: filas CRM eliminadas') . PHP_EOL;
+        } else {
+            echo 'AVISO excelAlcaldia: ' . ($stderr ?: $stdout) . PHP_EOL;
+        }
+    }
+} elseif (is_file($alcaldiaExcel)) {
+    echo "excelAlcaldia.xlsx: sin filas CRM que eliminar (histórico conservado).\n";
 }
 
 $uploadDirs = [

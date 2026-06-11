@@ -41,7 +41,12 @@ class SyncPeticionarioToContact implements BeforeSave
             return;
         }
 
-        $tipo = (string) ($entity->get('cTipoPersonaPeticionario') ?: self::PERSONA_NATURAL);
+        $tipo = trim((string) $entity->get('cTipoPersonaPeticionario'));
+
+        if ($tipo === '' || $tipo === 'Seleccione una opción') {
+            return;
+        }
+
         $documento = trim((string) $entity->get('cCedula'));
         $nombre = trim((string) $entity->get('cPeticionario'));
 
@@ -51,7 +56,7 @@ class SyncPeticionarioToContact implements BeforeSave
 
         if ($tipo === self::PERSONA_JURIDICA) {
             $this->syncAccount($entity);
-        } else {
+        } elseif ($tipo === self::PERSONA_NATURAL) {
             $this->syncContact($entity);
         }
     }

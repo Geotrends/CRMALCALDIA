@@ -23,13 +23,18 @@ class ExportCaseSolicitudExcelOnSave implements AfterSave
         'cBarrio',
         'cCorreo',
         'cCanalDeReporte',
+        'cRecursoTema',
+        'cAsunto',
+        'cZonaAlcaldia',
+        'cFechaVencimiento',
+        'cUltimaActuacion',
+        'cProximaActuacion',
         'cPerjudicante',
+        'cDocumentoPerjudicante',
         'cTelefonoPerjudicante',
         'cDireccionPerjudicante',
         'cBarrioPerjudicante',
         'cRespuestaInmediata',
-        'cTipo',
-        'cCategoria',
         'description',
         'cRecibidaPorId',
         'cRemitidoAId',
@@ -61,6 +66,20 @@ class ExportCaseSolicitudExcelOnSave implements AfterSave
             return false;
         }
 
-        return trim((string) $entity->get('cPeticionario')) !== '';
+        if (trim((string) $entity->get('cPeticionario')) === '') {
+            return false;
+        }
+
+        if ($entity->isNew()) {
+            return true;
+        }
+
+        foreach (self::EXPORT_FIELDS as $field) {
+            if ($entity->isAttributeChanged($field)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

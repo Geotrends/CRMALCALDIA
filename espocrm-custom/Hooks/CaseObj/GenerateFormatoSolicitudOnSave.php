@@ -27,12 +27,12 @@ class GenerateFormatoSolicitudOnSave implements AfterSave
         'cCorreo',
         'cCanalDeReporte',
         'cPerjudicante',
+        'cDocumentoPerjudicante',
         'cTelefonoPerjudicante',
         'cDireccionPerjudicante',
         'cBarrioPerjudicante',
         'cRespuestaInmediata',
-        'cTipo',
-        'cCategoria',
+        'cRecursoTema',
         'description',
         'cRecibidaPorId',
         'cRemitidoAId',
@@ -64,6 +64,10 @@ class GenerateFormatoSolicitudOnSave implements AfterSave
 
         if (trim((string) $entity->get('cPeticionario')) === '') {
             return false;
+        }
+
+        if (!$entity->get('cFormatoSolicitudPdfId')) {
+            return true;
         }
 
         foreach (self::FORMATO_FIELDS as $field) {

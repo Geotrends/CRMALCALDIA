@@ -11,15 +11,10 @@ define('custom:helpers/actuo-archivo-from-case', [], function () {
     const buildReferencia = function (caseModel) {
         const parts = [];
 
-        const tipo = String(caseModel.get('cTipo') || '').trim();
-        const categoria = String(caseModel.get('cCategoria') || '').trim();
+        const tipo = String(caseModel.get('cRecursoTema') || '').trim();
 
         if (tipo) {
             parts.push(tipo);
-        }
-
-        if (categoria) {
-            parts.push(categoria);
         }
 
         if (parts.length) {

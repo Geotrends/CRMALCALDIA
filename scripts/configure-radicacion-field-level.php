@@ -25,6 +25,14 @@ $pdo = $em->getPDO();
 
 $exclusiveFields = ['cNumeroRadicado', 'cExpediente', 'cRadicadoModo', 'cRadicadoSiglas', 'cRadicadoAnio'];
 $fechaVencimientoField = 'cFechaVencimiento';
+$recursoTemaField = 'cRecursoTema';
+$registroExcelFields = [
+    'cAsunto',
+    'cZonaAlcaldia',
+    'cUltimaActuacion',
+    'cProximaActuacion',
+    $fechaVencimientoField,
+];
 $scope = 'Case';
 $roleRadicacion = 'Radicación';
 $roleInspeccion = 'Inspección';
@@ -53,14 +61,27 @@ while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
     }
 
     if ($roleName === 'Inspección' || $roleName === 'Inspeccion') {
-        $fieldData[$scope]['cTipo'] = ['read' => 'yes', 'edit' => 'yes'];
-        $fieldData[$scope]['cCategoria'] = ['read' => 'yes', 'edit' => 'yes'];
-        $fieldData[$scope][$fechaVencimientoField] = ['read' => 'yes', 'edit' => 'yes'];
+        $fieldData[$scope][$recursoTemaField] = ['read' => 'yes', 'edit' => 'yes'];
+
+        foreach ($registroExcelFields as $field) {
+            $fieldData[$scope][$field] = ['read' => 'yes', 'edit' => 'yes'];
+        }
+    } elseif ($roleName === $roleRadicacion) {
+        $fieldData[$scope][$recursoTemaField] = ['read' => 'yes', 'edit' => 'yes'];
+
+        foreach ($registroExcelFields as $field) {
+            $fieldData[$scope][$field] = ['read' => 'yes', 'edit' => 'no'];
+        }
     } else {
-        $fieldData[$scope]['cTipo'] = ['read' => 'yes', 'edit' => 'no'];
-        $fieldData[$scope]['cCategoria'] = ['read' => 'yes', 'edit' => 'no'];
-        // Lectura sí (dashboard y alertas); edición solo Inspección.
-        $fieldData[$scope][$fechaVencimientoField] = ['read' => 'yes', 'edit' => 'no'];
+        $fieldData[$scope][$recursoTemaField] = ['read' => 'yes', 'edit' => 'no'];
+
+        foreach ($registroExcelFields as $field) {
+            $fieldData[$scope][$field] = ['read' => 'yes', 'edit' => 'no'];
+        }
+    }
+
+    foreach (['cCategoria', 'cTipo'] as $removedField) {
+        unset($fieldData[$scope][$removedField]);
     }
 
     foreach ($legacyFields as $legacyField) {
@@ -77,13 +98,13 @@ while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
     ]);
 
     if ($roleName === $roleRadicacion) {
-        echo "OK lectura/edición (radicado + expediente): {$roleName}\n";
+        echo "OK lectura/edición (radicado + recurso/tema): {$roleName}\n";
     } elseif ($roleName === $roleInspeccion || $roleName === 'Inspeccion') {
-        echo "OK Inspección: tipo/categoría/fecha vencimiento editables: {$roleName}\n";
+        echo "OK Inspección: registro Excel/fecha vencimiento editables: {$roleName}\n";
     } else {
         echo "OK lectura, sin edición (radicado + expediente): {$roleName}\n";
     }
 }
 
 $app->getContainer()->getByClass(DataManager::class)->rebuild();
-echo 'Listo. Fecha de vencimiento: lectura para todos, edición solo Inspección.' . PHP_EOL;
+echo 'Listo. Recurso/tema: lectura para todos, edición Inspección y Radicación.' . PHP_EOL;

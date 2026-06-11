@@ -13,7 +13,7 @@ class GenerateFormatoActaVisitaOnSave implements AfterSave
     public static int $order = 45;
 
     private const FORMATO_FIELDS = [
-        'anio',
+        'fecha',
         'posibleAfectante',
         'numeroRadicado',
         'expediente',

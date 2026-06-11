@@ -27,9 +27,14 @@ class CrmRegistroExcelExporter
         'cBarrio',
         'cCorreo',
         'cCanalDeReporte',
-        'cTipo',
-        'cCategoria',
+        'cRecursoTema',
+        'cAsunto',
+        'cZonaAlcaldia',
+        'cFechaVencimiento',
+        'cUltimaActuacion',
+        'cProximaActuacion',
         'cPerjudicante',
+        'cDocumentoPerjudicante',
         'cTelefonoPerjudicante',
         'cDireccionPerjudicante',
         'cBarrioPerjudicante',
@@ -42,7 +47,7 @@ class CrmRegistroExcelExporter
 
     private const ACTA_FIELDS = [
         'fechaVisita',
-        'anio',
+        'fecha',
         'autorizacionDatos',
         'posibleAfectante',
         'direccionAfectacion',
@@ -80,7 +85,15 @@ class CrmRegistroExcelExporter
             $fields[$code] = $this->resolveCaseField($case, $code);
         }
 
-        return $this->runUpsert($case->getId(), $fields);
+        $internalOk = $this->runUpsert($case->getId(), $fields);
+
+        $alcaldiaOk = (new ExcelAlcaldiaExporter(
+            $this->entityManager,
+            $this->config,
+            $this->log
+        ))->exportCase($case);
+
+        return $internalOk || $alcaldiaOk;
     }
 
     public function exportActa(Entity $acta): bool
@@ -175,8 +188,9 @@ class CrmRegistroExcelExporter
     {
         return match ($code) {
             'cFechaCaso' => $this->formatDateTime($case->get('cFechaCaso')),
+            'cFechaVencimiento' => $this->formatDate($case->get('cFechaVencimiento')),
             'cRecibidaPor', 'cRemitidoA', 'assignedUser' => $this->resolveCaseUserName($case, $code),
-            'cCategoria' => $this->formatCategoria($case->get('cCategoria')),
+            'cRecursoTema', 'cAsunto', 'cZonaAlcaldia', 'cUltimaActuacion', 'cProximaActuacion', 'cCanalDeReporte', 'cBarrio', 'cBarrioPerjudicante' => $this->cleanEnum($case->get($code)),
             default => trim((string) $case->get($code)),
         };
     }
@@ -185,7 +199,7 @@ class CrmRegistroExcelExporter
     {
         return match ($code) {
             'fechaVisita' => $this->formatDate($acta->get('fechaVisita')),
-            'anio' => (string) ($acta->get('anio') ?? ''),
+            'fecha' => $this->formatDate($acta->get('fecha')),
             'autorizacionDatos' => $acta->get('autorizacionDatos') ? 'Sí' : 'No',
             default => trim((string) $acta->get($code)),
         };
@@ -203,23 +217,6 @@ class CrmRegistroExcelExporter
         $user = $this->entityManager->getEntityById(User::ENTITY_TYPE, $userId);
 
         return $user ? trim((string) $user->get('name')) : '';
-    }
-
-    private function formatCategoria(mixed $value): string
-    {
-        if (is_array($value)) {
-            return implode(', ', array_filter(array_map('trim', $value)));
-        }
-
-        if (is_string($value) && str_starts_with($value, '[')) {
-            $decoded = json_decode($value, true);
-
-            if (is_array($decoded)) {
-                return implode(', ', array_filter(array_map('trim', $decoded)));
-            }
-        }
-
-        return trim((string) $value);
     }
 
     private function formatDateTime(mixed $value): string
@@ -251,5 +248,16 @@ class CrmRegistroExcelExporter
         } catch (\Exception) {
             return (string) $value;
         }
+    }
+
+    private function cleanEnum(mixed $value): string
+    {
+        $value = trim((string) $value);
+
+        if ($value === '' || $value === 'Seleccione una opción') {
+            return '';
+        }
+
+        return $value;
     }
 }

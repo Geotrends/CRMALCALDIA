@@ -41,8 +41,8 @@ class FillFromCase implements BeforeSave
         $entity->set('numeroRadicado', $radicado);
         $entity->set('expediente', $expediente);
 
-        if (!$entity->get('anio')) {
-            $entity->set('anio', (int) date('Y'));
+        if (!$entity->get('fecha')) {
+            $entity->set('fecha', date('Y-m-d'));
         }
 
         if (!$entity->get('name')) {

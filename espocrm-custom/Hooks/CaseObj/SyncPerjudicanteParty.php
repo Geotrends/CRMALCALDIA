@@ -52,11 +52,15 @@ class SyncPerjudicanteParty implements BeforeSave
             return;
         }
 
-        $tipo = (string) ($entity->get('cTipoPersonaPerjudicante') ?: self::PERSONA_NATURAL);
+        $tipo = trim((string) $entity->get('cTipoPersonaPerjudicante'));
+
+        if ($tipo === '' || $tipo === 'Seleccione una opción') {
+            return;
+        }
 
         if ($tipo === self::PERSONA_JURIDICA) {
             $this->syncAccount($entity);
-        } else {
+        } elseif ($tipo === self::PERSONA_NATURAL) {
             $this->syncContact($entity);
         }
     }

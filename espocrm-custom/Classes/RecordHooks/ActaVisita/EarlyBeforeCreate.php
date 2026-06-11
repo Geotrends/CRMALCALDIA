@@ -51,8 +51,8 @@ class EarlyBeforeCreate implements SaveHook
             $entity->set('expediente', $expediente);
         }
 
-        if (!$entity->get('anio')) {
-            $entity->set('anio', (int) date('Y'));
+        if (!$entity->get('fecha')) {
+            $entity->set('fecha', date('Y-m-d'));
         }
 
         if (!trim((string) $entity->get('name'))) {

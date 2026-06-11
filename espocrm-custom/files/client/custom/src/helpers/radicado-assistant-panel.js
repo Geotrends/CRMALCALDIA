@@ -20,7 +20,7 @@ define('custom:helpers/radicado-assistant-panel', [
         }
 
         if (!model.get('cRadicadoSiglas')) {
-            const siglas = RadicadoCatalog.getSiglasFromModelCategoria(model);
+            const siglas = RadicadoCatalog.getSiglasFromModelRecurso(model);
 
             if (siglas) {
                 model.set('cRadicadoSiglas', siglas, {silent: true});
@@ -73,7 +73,7 @@ define('custom:helpers/radicado-assistant-panel', [
             body += ''
                 + '<div class="row">'
                 + '<div class="col-sm-7"><div class="form-group">'
-                + '<label>Siglas de categoría</label>'
+                + '<label>Siglas de recurso</label>'
                 + '<select class="form-control input-sm" data-role="siglas">' + siglasOptionsHtml(siglas) + '</select>'
                 + '</div></div>'
                 + '<div class="col-sm-5"><div class="form-group">'
@@ -209,14 +209,12 @@ define('custom:helpers/radicado-assistant-panel', [
         bindEvents(recordView, $panel);
         refreshPreview(recordView, $panel);
 
-        recordView.listenToOnce(recordView.model, 'change:cCategoria', function () {
-            if (!recordView.model.get('cRadicadoSiglas')) {
-                const siglas = RadicadoCatalog.getSiglasFromModelCategoria(recordView.model);
+        recordView.listenTo(recordView.model, 'change:cRecursoTema', function () {
+            const siglas = RadicadoCatalog.getSiglasFromModelRecurso(recordView.model);
 
-                if (siglas) {
-                    recordView.model.set('cRadicadoSiglas', siglas);
-                    mount(recordView);
-                }
+            if (siglas) {
+                recordView.model.set('cRadicadoSiglas', siglas);
+                mount(recordView);
             }
         });
     };

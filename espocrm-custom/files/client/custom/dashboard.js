@@ -235,7 +235,7 @@
     var params = new URLSearchParams(window.location.search);
     var assignedUserId = params.get('assignedUserId') || '';
 
-    var fetchUrl = '/api/v1/Case?select=cTipo,cCategoria,status,assignedUserId,createdAt,cFechaVencimiento,cNumeroRadicado,cPeticionario'
+    var fetchUrl = '/api/v1/Case?select=cRecursoTema,status,assignedUserId,createdAt,cFechaVencimiento,cNumeroRadicado,cPeticionario'
         + '&maxSize=200&orderBy=createdAt&order=desc';
 
     if (assignedUserId) {
@@ -335,7 +335,7 @@
             );
 
             var porTipo = agrupar(casos, function (c) {
-                return capitalizar(c.cTipo);
+                return capitalizar(c.cRecursoTema || 'Sin recurso');
             });
             var dt = ordenarDesc(porTipo);
 
