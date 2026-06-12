@@ -41,6 +41,12 @@ define('custom:views/case/fields/numero-radicado', [
             return this.isEditMode() && RadicacionFields.isRadicacionUser(this.getUser());
         },
 
+        getDisplayRadicado: function () {
+            const value = String(this.model.get(this.name) || '').trim();
+
+            return value || 'sin radicado';
+        },
+
         applyAssistantDefaults: function () {
             if (!this.model.get('cRadicadoModo')) {
                 this.model.set('cRadicadoModo', RadicadoCatalog.MODO_AUTOMATICO, {silent: true});
@@ -61,6 +67,14 @@ define('custom:views/case/fields/numero-radicado', [
 
         data: function () {
             const data = Dep.prototype.data.call(this);
+            const mode = this.mode;
+
+            if (mode === 'list' || mode === 'listLink') {
+                return _.extend(data, {
+                    value: this.getDisplayRadicado(),
+                });
+            }
+
             const automatico = RadicadoCatalog.isModoAutomatico(this.model.get('cRadicadoModo'));
             const siglas = String(this.model.get('cRadicadoSiglas') || '').trim();
             const siglasOptions = Object.keys(RadicadoCatalog.SIGLAS_LABELS).map(function (code) {
@@ -79,7 +93,6 @@ define('custom:views/case/fields/numero-radicado', [
                 previewRadicado: String(this.model.get('cNumeroRadicado') || '—'),
                 previewExpediente: String(this.model.get('cExpediente') || '—'),
                 manualRadicado: String(this.model.get('cNumeroRadicado') || ''),
-                value: this.model.get(this.name) || this.translate('None'),
             });
         },
 

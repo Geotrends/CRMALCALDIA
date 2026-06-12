@@ -9,6 +9,7 @@ html, body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   background: #f6f7f9;
   color: #2b2f33;
+  overflow-y: auto;
 }
 
 .dashboard {
@@ -136,6 +137,94 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.grafica-card--embudo {
+  grid-row: span 2;
+}
+
+.grafica-cuerpo--embudo {
+  height: 100%;
+  min-height: 420px;
+  overflow-y: auto;
+}
+
+.funnel-chart {
+  height: 100%;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  padding: 4px 0;
+}
+
+.funnel {
+  width: 100%;
+  max-width: 340px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  margin: 0 auto;
+}
+
+.funnel-nivel {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  transition: width 0.25s ease;
+}
+
+.funnel-barra {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  min-height: 34px;
+}
+
+.funnel-etiqueta {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.funnel-valor {
+  font-size: 14px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.funnel-conector {
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-top: 8px solid #d1d5db;
+  margin: 2px 0;
+}
+
+.grafica-cuerpo--alta {
+  height: 260px;
+}
+
+.badge--muted {
+  background: #6b7280;
+}
+
+.badge--azul {
+  background: #1e88e5;
+}
+
+.badge--alerta {
+  background: #e53935;
 }
 
 canvas { max-width: 100%; }

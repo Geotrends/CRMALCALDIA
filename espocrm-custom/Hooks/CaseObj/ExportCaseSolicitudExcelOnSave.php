@@ -62,11 +62,7 @@ class ExportCaseSolicitudExcelOnSave implements AfterSave
     {
         $exporter = $this->injectableFactory->create(CrmRegistroExcelExporter::class);
 
-        if (!$exporter->isPostRadicado($entity)) {
-            return false;
-        }
-
-        if (trim((string) $entity->get('cPeticionario')) === '') {
+        if (!$exporter->hasPeticionario($entity)) {
             return false;
         }
 

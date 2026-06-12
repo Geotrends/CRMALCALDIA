@@ -1,0 +1,20 @@
+[
+    {
+        "name": "cNumeroRadicado",
+        "link": true,
+        "isLarge": true
+    },
+    {
+        "name": "cPeticionario",
+        "isMuted": true
+    },
+    {
+        "name": "cFechaCaso",
+        "align": "right",
+        "isMuted": true
+    },
+    {
+        "name": "assignedUser",
+        "hidden": true
+    }
+]

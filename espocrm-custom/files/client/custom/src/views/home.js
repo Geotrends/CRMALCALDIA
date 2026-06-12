@@ -22,7 +22,7 @@ define('custom:views/home', ['views/dashboard', 'search-manager'], function (Dep
         return 'gestion';
     };
 
-    var profileConfig = function (profile, userId) {
+    var profileConfig = function (profile, userId, appTimestamp) {
         var lists = {
             gestion: [
                 {title: 'Todos los casos', primary: 'todos', limit: 15},
@@ -40,11 +40,12 @@ define('custom:views/home', ['views/dashboard', 'search-manager'], function (Dep
             ],
         };
 
-        var showTablero = profile !== 'radicacion';
-        var iframeUrl = '/client/custom/dashboard.html';
+        var showTablero = true;
+        var cacheBuster = String(appTimestamp || Date.now());
+        var iframeUrl = '/client/custom/dashboard.html?v=' + encodeURIComponent(cacheBuster);
 
         if (profile === 'patrullero') {
-            iframeUrl += '?assignedUserId=' + encodeURIComponent(userId);
+            iframeUrl += '&assignedUserId=' + encodeURIComponent(userId);
         }
 
         return {
@@ -54,10 +55,15 @@ define('custom:views/home', ['views/dashboard', 'search-manager'], function (Dep
         };
     };
 
+    var UNWANTED_DASHLETS = ['Memo', 'Records'];
+
     return Dep.extend({
 
         setup: function () {
-            this.config = profileConfig(detectProfile(this.getUser()), this.getUser().id);
+            var profile = detectProfile(this.getUser());
+            var userId = this.getUser().id;
+            var appTimestamp = this.getConfig().get('appTimestamp');
+            this.config = profileConfig(profile, userId, appTimestamp);
 
             if (!document.getElementById('custom-home-css')) {
                 var link = document.createElement('link');
@@ -67,12 +73,104 @@ define('custom:views/home', ['views/dashboard', 'search-manager'], function (Dep
                 document.head.appendChild(link);
             }
 
+            this.sanitizeDashboardPreferences();
             Dep.prototype.setup.call(this);
         },
 
         afterRender: function () {
             Dep.prototype.afterRender.call(this);
             this.renderCustomPanels();
+            this.removeUnwantedDashlets();
+        },
+
+        sanitizeDashboardPreferences: function () {
+            var prefs = this.getPreferences();
+            var layout = _.clone(prefs.get('dashboardLayout') || []);
+            var options = _.clone(prefs.get('dashletsOptions') || {});
+            var changed = false;
+            var keepIds = {};
+
+            if (!layout.length) {
+                layout = [{name: 'My Espo', layout: []}];
+                changed = true;
+            }
+
+            layout.forEach(function (tab) {
+                if (!Array.isArray(tab.layout)) {
+                    tab.layout = [];
+                    changed = true;
+
+                    return;
+                }
+
+                var filtered = [];
+
+                tab.layout.forEach(function (item) {
+                    if (UNWANTED_DASHLETS.indexOf(item.name) !== -1) {
+                        changed = true;
+
+                        return;
+                    }
+
+                    filtered.push(item);
+
+                    if (item.id) {
+                        keepIds[item.id] = true;
+                    }
+                });
+
+                if (filtered.length !== tab.layout.length) {
+                    tab.layout = filtered;
+                    changed = true;
+                }
+            });
+
+            Object.keys(options).forEach(function (id) {
+                if (!keepIds[id]) {
+                    delete options[id];
+                    changed = true;
+                }
+            });
+
+            if (!changed) {
+                return;
+            }
+
+            prefs.set({
+                dashboardLayout: layout,
+                dashletsOptions: options,
+            }, {silent: true});
+
+            this._dashboardSanitized = true;
+        },
+
+        removeUnwantedDashlets: function () {
+            var self = this;
+            var removed = false;
+
+            this.$el.find('.grid-stack-item').each(function () {
+                var $item = $(this);
+                var title = $item.find('.panel-title, .dashlet-title, h4').first().text().trim();
+
+                if (title === 'Memo' || title === 'Record List' || title.indexOf('Record List') === 0) {
+                    $item.remove();
+                    removed = true;
+                }
+            });
+
+            UNWANTED_DASHLETS.forEach(function (name) {
+                self.$el.find('.dashlet-container[data-name="' + name + '"]')
+                    .closest('.grid-stack-item')
+                    .remove();
+            });
+
+            if (!removed && !this._dashboardSanitized) {
+                return;
+            }
+
+            this._dashboardSanitized = false;
+
+            this.getPreferences().save({patch: true}).catch(function () {});
         },
 
         renderCustomPanels: function () {

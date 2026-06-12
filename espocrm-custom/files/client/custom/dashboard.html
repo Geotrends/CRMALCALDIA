@@ -3,8 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <title>Tablero de Control - CRM Alcaldía</title>
-  <link rel="stylesheet" href="/client/custom/dashboard.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
@@ -23,12 +25,27 @@
     </section>
     <div id="estado" class="estado">Cargando…</div>
     <section class="graficas-grid">
-      <div class="grafica-card"><header class="grafica-header"><h2>Embudo por estado</h2></header><div class="grafica-cuerpo grafica-cuerpo--donut"><canvas id="grafica-embudo"></canvas></div></div>
+      <div class="grafica-card grafica-card--embudo"><header class="grafica-header"><h2>Embudo del proceso</h2></header><div class="grafica-cuerpo grafica-cuerpo--embudo"><div id="grafica-embudo" class="funnel-chart"></div></div></div>
       <div class="grafica-card"><header class="grafica-header"><h2>Semáforo de vencimiento</h2></header><div class="grafica-cuerpo grafica-cuerpo--donut"><canvas id="grafica-semaforo"></canvas></div></div>
-      <div class="grafica-card grafica-card--wide"><header class="grafica-header"><h2>Casos por tipo</h2><span id="total-casos" class="badge">…</span></header><div class="grafica-cuerpo"><canvas id="grafica-tipos"></canvas></div></div>
-      <div class="grafica-card grafica-card--wide"><header class="grafica-header"><h2>Casos creados por semana</h2></header><div class="grafica-cuerpo"><canvas id="grafica-tiempo"></canvas></div></div>
+      <div class="grafica-card"><header class="grafica-header"><h2>Canal de reporte</h2><span class="badge badge--muted">Ingreso</span></header><div class="grafica-cuerpo grafica-cuerpo--donut"><canvas id="grafica-canal"></canvas></div></div>
+      <div class="grafica-card grafica-card--wide"><header class="grafica-header"><h2>Casos por recurso</h2><span id="total-casos" class="badge">…</span></header><div class="grafica-cuerpo"><canvas id="grafica-recurso"></canvas></div></div>
+      <div class="grafica-card grafica-card--wide"><header class="grafica-header"><h2>Ingreso diario de casos</h2><span class="badge">Fecha del caso</span></header><div class="grafica-cuerpo"><canvas id="grafica-tiempo"></canvas></div></div>
+      <div class="grafica-card"><header class="grafica-header"><h2>Casos por barrio</h2><span class="badge badge--muted">Top 8</span></header><div class="grafica-cuerpo grafica-cuerpo--alta"><canvas id="grafica-barrio"></canvas></div></div>
+      <div class="grafica-card"><header class="grafica-header"><h2>Radicados por día</h2><span class="badge badge--azul">Radicación</span></header><div class="grafica-cuerpo"><canvas id="grafica-radicados-dia"></canvas></div></div>
+      <div class="grafica-card"><header class="grafica-header"><h2>Asignación de casos</h2><span id="badge-sin-asignar" class="badge badge--alerta">…</span></header><div class="grafica-cuerpo grafica-cuerpo--donut"><canvas id="grafica-sin-asignar"></canvas></div></div>
     </section>
   </div>
-  <script src="/client/custom/dashboard.js"></script>
+  <script>
+    (function () {
+      var v = new URLSearchParams(window.location.search).get('v') || String(Date.now());
+      var css = document.createElement('link');
+      css.rel = 'stylesheet';
+      css.href = '/client/custom/dashboard.css?v=' + encodeURIComponent(v);
+      document.head.appendChild(css);
+      var js = document.createElement('script');
+      js.src = '/client/custom/dashboard.js?v=' + encodeURIComponent(v);
+      document.body.appendChild(js);
+    })();
+  </script>
 </body>
 </html>

@@ -29,15 +29,113 @@
         'Sin fecha': '#9ca3af',
     };
 
+    var COLORES_CANAL = {
+        'Teléfono': '#1e88e5',
+        'Correo': '#8e24aa',
+        'Personal': '#00897b',
+        'Sin canal': '#9ca3af',
+    };
+
+    var CANAL_CATALOGO = [
+        {valor: 'Telefono', etiqueta: 'Teléfono'},
+        {valor: 'Correo', etiqueta: 'Correo'},
+        {valor: 'Personal', etiqueta: 'Personal'},
+    ];
+
     var ESTADOS_FIN = ['Finalizado', 'Proceso cerrado'];
     var ESTADOS_GESTION = ['Asignado', 'En proceso', 'Visita realizada', 'Visita aprobada'];
 
-    function capitalizar(t) {
-        if (!t) {
-            return 'Sin valor';
+    var EMBUDO_ETAPAS = [
+        {status: 'Pendiente de radicacion', label: 'Pendiente de radicación'},
+        {status: 'Radicado', label: 'Radicado'},
+        {status: 'Asignado', label: 'Asignado'},
+        {status: 'En proceso', label: 'En proceso'},
+        {status: 'Visita realizada', label: 'Visita realizada'},
+        {status: 'Visita aprobada', label: 'Visita aprobada'},
+        {status: 'Finalizado', label: 'Finalizado'},
+        {status: 'Proceso cerrado', label: 'Proceso cerrado'},
+    ];
+
+    var RECURSO_CATALOGO = [
+        {valor: 'AIRE', siglas: 'AIR', etiqueta: 'Aire'},
+        {valor: 'ESPACIO PUBLICOS VERDES', siglas: 'EPV', etiqueta: 'Espacio públicos verdes'},
+        {valor: 'FAUNA DOMÉSTICA', siglas: 'FDO', etiqueta: 'Fauna doméstica'},
+        {valor: 'FAUNA SILVESTRE', siglas: 'FSI', etiqueta: 'Fauna silvestre'},
+        {valor: 'FLORA', siglas: 'FLO', etiqueta: 'Flora'},
+        {valor: 'HÍDRICO', siglas: 'HID', etiqueta: 'Hídrico'},
+        {valor: 'LOTE-PREDIO', siglas: 'LPR', etiqueta: 'Lote-predio'},
+        {valor: 'RESIDUOS SOLIDOS', siglas: 'RSO', etiqueta: 'Residuos sólidos'},
+        {valor: 'SUELO', siglas: 'SUE', etiqueta: 'Suelo'},
+    ];
+
+    function claveRecurso(caso) {
+        var recurso = String(caso.cRecursoTema || '').trim();
+
+        if (!recurso || recurso === 'Seleccione una opción') {
+            return '';
         }
 
-        return t.charAt(0).toUpperCase() + t.slice(1);
+        return recurso;
+    }
+
+    function claveCanal(caso) {
+        var canal = String(caso.cCanalDeReporte || '').trim();
+
+        if (!canal || canal === 'Seleccione una opción') {
+            return '';
+        }
+
+        return canal;
+    }
+
+    function agruparPorCanal(casos) {
+        var conteo = agrupar(casos, claveCanal);
+        var etiquetas = [];
+        var valores = [];
+
+        CANAL_CATALOGO.forEach(function (item) {
+            etiquetas.push(item.etiqueta);
+            valores.push(conteo[item.valor] || 0);
+        });
+
+        var sinCanal = conteo[''] || 0;
+
+        if (sinCanal > 0) {
+            etiquetas.push('Sin canal');
+            valores.push(sinCanal);
+        }
+
+        return {
+            etiquetas: etiquetas,
+            valores: valores,
+        };
+    }
+
+    function agruparPorRecurso(casos) {
+        var conteo = agrupar(casos, claveRecurso);
+        var etiquetas = [];
+        var valores = [];
+        var tooltips = [];
+
+        RECURSO_CATALOGO.forEach(function (item) {
+            etiquetas.push(item.siglas);
+            tooltips.push(item.etiqueta);
+            valores.push(conteo[item.valor] || 0);
+        });
+
+        var sinRecurso = conteo[''] || 0;
+
+        if (sinRecurso > 0) {
+            etiquetas.push('—');
+            tooltips.push('Sin recurso');
+            valores.push(sinRecurso);
+        }
+
+        return {
+            etiquetas: etiquetas,
+            valores: valores,
+            tooltips: tooltips,
+        };
     }
 
     function agrupar(lista, fn) {
@@ -62,6 +160,44 @@
         };
     }
 
+    function topN(conteo, limite) {
+        var ordenado = ordenarDesc(conteo);
+
+        return {
+            etiquetas: ordenado.etiquetas.slice(0, limite),
+            valores: ordenado.valores.slice(0, limite),
+        };
+    }
+
+    function tieneRadicado(caso) {
+        var radicado = String(caso.cNumeroRadicado || '').trim();
+        var expediente = String(caso.cExpediente || '').trim();
+
+        return radicado !== '' && expediente !== '';
+    }
+
+    function etiquetaBarrio(valor) {
+        var texto = String(valor || '').trim();
+
+        if (!texto || texto === 'Seleccione una opción') {
+            return 'Sin barrio';
+        }
+
+        return texto;
+    }
+
+    function mensajeVacio(canvasId, texto) {
+        var canvas = document.getElementById(canvasId);
+
+        if (!canvas || !canvas.parentElement) {
+            return;
+        }
+
+        canvas.parentElement.innerHTML =
+            '<p style="margin:0;padding:48px 16px;text-align:center;color:#6b7280;font-size:13px;">'
+            + texto + '</p>';
+    }
+
     function semaforo(caso) {
         if (!caso.cFechaVencimiento) {
             return 'Sin fecha';
@@ -84,21 +220,47 @@
         return 'Al día';
     }
 
-    function dibujarBarras(canvasId, etiquetas, valores, colores) {
+    function tonosPorValor(valores, rgb) {
+        var base = rgb || {r: 42, g: 89, b: 52};
+        var max = Math.max.apply(null, valores.concat([1]));
+
+        return valores.map(function (valor) {
+            var intensidad = 0.4 + (valor / max) * 0.6;
+
+            return 'rgba(' + base.r + ', ' + base.g + ', ' + base.b + ', ' + intensidad.toFixed(2) + ')';
+        });
+    }
+
+    function dibujarBarras(canvasId, etiquetas, valores, opciones) {
         var canvas = document.getElementById(canvasId);
+        var cfg = opciones || {};
+        var tooltips = cfg.tooltips || etiquetas;
+        var colores = cfg.colores;
+        var unidad = cfg.unidad || 'caso(s)';
+        var borderRadius = cfg.borderRadiusBarra != null ? cfg.borderRadiusBarra : 6;
+
+        if (!colores && cfg.coloresPorValor) {
+            colores = tonosPorValor(valores, cfg.coloresPorValor);
+        }
+
+        if (!colores && cfg.colorBarra) {
+            colores = valores.map(function () {
+                return cfg.colorBarra;
+            });
+        }
 
         return new Chart(canvas, {
             type: 'bar',
             data: {
                 labels: etiquetas,
                 datasets: [{
-                    label: 'Cantidad',
+                    label: cfg.etiquetaDataset || 'Casos por recurso',
                     data: valores,
                     backgroundColor: colores || etiquetas.map(function (_, i) {
                         return PALETA[i % PALETA.length];
                     }),
-                    borderRadius: 6,
-                    maxBarThickness: 60,
+                    borderRadius: borderRadius,
+                    maxBarThickness: cfg.maxBarThickness != null ? cfg.maxBarThickness : 60,
                 }],
             },
             options: {
@@ -108,18 +270,102 @@
                     legend: {display: false},
                     tooltip: {
                         callbacks: {
+                            title: function (items) {
+                                var idx = items[0] && items[0].dataIndex;
+
+                                return tooltips[idx] || items[0].label;
+                            },
                             label: function (ctx) {
-                                return ' ' + ctx.parsed.y + ' caso(s)';
+                                return ' ' + ctx.parsed.y + ' ' + unidad;
                             },
                         },
                     },
                 },
                 scales: {
-                    x: {grid: {display: false}, ticks: {color: '#4b5563', font: {size: 12}}},
+                    x: {
+                        grid: {display: false},
+                        ticks: {
+                            color: '#4b5563',
+                            font: {size: cfg.ticksX || 12},
+                            maxRotation: cfg.rotacionX != null ? cfg.rotacionX : 0,
+                        },
+                    },
                     y: {beginAtZero: true, ticks: {precision: 0, color: '#6b7280'}, grid: {color: '#eef0f3'}},
                 },
             },
         });
+    }
+
+    function dibujarEmbudo(containerId, conteoPorEstado) {
+        var container = document.getElementById(containerId);
+
+        if (!container) {
+            return;
+        }
+
+        var pasos = EMBUDO_ETAPAS.map(function (etapa) {
+            return {
+                status: etapa.status,
+                label: etapa.label,
+                valor: conteoPorEstado[etapa.status] || 0,
+                color: COLORES_ESTADO[etapa.status] || '#9ca3af',
+            };
+        });
+
+        var maxValor = 0;
+
+        pasos.forEach(function (paso) {
+            if (paso.valor > maxValor) {
+                maxValor = paso.valor;
+            }
+        });
+
+        if (!maxValor) {
+            maxValor = 1;
+        }
+
+        container.innerHTML = '';
+        container.className = 'funnel-chart';
+
+        var wrap = document.createElement('div');
+        wrap.className = 'funnel';
+
+        pasos.forEach(function (paso, index) {
+            var nivel = document.createElement('div');
+            nivel.className = 'funnel-nivel';
+            var ancho = Math.max(38, Math.round((paso.valor / maxValor) * 100));
+            nivel.style.width = ancho + '%';
+
+            var barra = document.createElement('div');
+            barra.className = 'funnel-barra';
+            barra.style.backgroundColor = paso.color;
+
+            if (paso.status === 'Finalizado' || paso.status === 'Proceso cerrado') {
+                barra.style.color = '#f9fafb';
+            }
+
+            var etiqueta = document.createElement('span');
+            etiqueta.className = 'funnel-etiqueta';
+            etiqueta.textContent = paso.label;
+            etiqueta.title = paso.label;
+
+            var valor = document.createElement('span');
+            valor.className = 'funnel-valor';
+            valor.textContent = String(paso.valor);
+
+            barra.appendChild(etiqueta);
+            barra.appendChild(valor);
+            nivel.appendChild(barra);
+            wrap.appendChild(nivel);
+
+            if (index < pasos.length - 1) {
+                var conector = document.createElement('div');
+                conector.className = 'funnel-conector';
+                wrap.appendChild(conector);
+            }
+        });
+
+        container.appendChild(wrap);
     }
 
     function dibujarDonut(canvasId, etiquetas, valores, colores) {
@@ -162,22 +408,23 @@
         });
     }
 
-    function dibujarLinea(canvasId, etiquetas, valores) {
+    function dibujarLinea(canvasId, etiquetas, valores, opciones) {
         var canvas = document.getElementById(canvasId);
+        var cfg = opciones || {};
 
         return new Chart(canvas, {
             type: 'line',
             data: {
                 labels: etiquetas,
                 datasets: [{
-                    label: 'Casos creados',
+                    label: cfg.label || 'Casos',
                     data: valores,
-                    borderColor: '#2a5934',
-                    backgroundColor: 'rgba(42, 89, 52, 0.1)',
+                    borderColor: cfg.color || '#2a5934',
+                    backgroundColor: cfg.fill || 'rgba(42, 89, 52, 0.12)',
                     fill: true,
-                    tension: 0.3,
+                    tension: 0.35,
                     pointRadius: 4,
-                    pointBackgroundColor: '#2a5934',
+                    pointBackgroundColor: cfg.color || '#2a5934',
                 }],
             },
             options: {
@@ -201,33 +448,176 @@
         });
     }
 
-    function agruparPorSemana(casos) {
-        var semanas = {};
+    function dibujarBarrasHorizontales(canvasId, etiquetas, valores) {
+        var canvas = document.getElementById(canvasId);
+
+        return new Chart(canvas, {
+            type: 'bar',
+            data: {
+                labels: etiquetas,
+                datasets: [{
+                    label: 'Casos',
+                    data: valores,
+                    backgroundColor: etiquetas.map(function (_, i) {
+                        return PALETA[i % PALETA.length];
+                    }),
+                    borderRadius: 6,
+                    barThickness: 18,
+                }],
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {display: false},
+                    tooltip: {
+                        callbacks: {
+                            label: function (ctx) {
+                                return ' ' + ctx.parsed.x + ' caso(s)';
+                            },
+                        },
+                    },
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        ticks: {precision: 0, color: '#6b7280'},
+                        grid: {color: '#eef0f3'},
+                    },
+                    y: {
+                        grid: {display: false},
+                        ticks: {color: '#4b5563', font: {size: 11}},
+                    },
+                },
+            },
+        });
+    }
+
+    function dibujarPolar(canvasId, etiquetas, valores, colores) {
+        var canvas = document.getElementById(canvasId);
+
+        return new Chart(canvas, {
+            type: 'polarArea',
+            data: {
+                labels: etiquetas,
+                datasets: [{
+                    data: valores,
+                    backgroundColor: colores,
+                    borderWidth: 2,
+                    borderColor: '#fff',
+                }],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {padding: 10, font: {size: 12}, usePointStyle: true},
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function (ctx) {
+                                return ' ' + ctx.label + ': ' + ctx.parsed.r + ' caso(s)';
+                            },
+                        },
+                    },
+                },
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        ticks: {precision: 0, backdropColor: 'transparent'},
+                        grid: {color: '#e5e7eb'},
+                    },
+                },
+            },
+        });
+    }
+
+    function parseFechaCaso(caso) {
+        // Fecha del caso (la que diligencia Inspección), no createdAt del sistema.
+        var raw = caso.cFechaCaso || caso.createdAt;
+
+        if (!raw) {
+            return null;
+        }
+
+        var texto = String(raw).trim();
+        var partes = texto.split(/[T ]/)[0].split('-');
+
+        if (partes.length !== 3) {
+            return null;
+        }
+
+        var anio = parseInt(partes[0], 10);
+        var mes = parseInt(partes[1], 10) - 1;
+        var dia = parseInt(partes[2], 10);
+        var d = new Date(anio, mes, dia);
+
+        if (isNaN(d.getTime())) {
+            return null;
+        }
+
+        return d;
+    }
+
+    function claveDia(d) {
+        var mes = String(d.getMonth() + 1);
+        var dia = String(d.getDate());
+
+        if (mes.length < 2) {
+            mes = '0' + mes;
+        }
+
+        if (dia.length < 2) {
+            dia = '0' + dia;
+        }
+
+        return d.getFullYear() + '-' + mes + '-' + dia;
+    }
+
+    function etiquetaDia(clave) {
+        var p = clave.split('-');
+
+        return p[2] + '/' + p[1];
+    }
+
+    function agruparPorDia(casos) {
+        var dias = {};
 
         casos.forEach(function (c) {
-            if (!c.createdAt) {
+            var d = parseFechaCaso(c);
+
+            if (!d) {
                 return;
             }
 
-            var d = new Date(c.createdAt);
-            var dia = d.getDay();
-            var diff = d.getDate() - dia + (dia === 0 ? -6 : 1);
-            var lunes = new Date(d.setDate(diff));
-            var clave = lunes.toISOString().slice(0, 10);
+            var clave = claveDia(d);
 
-            semanas[clave] = (semanas[clave] || 0) + 1;
+            dias[clave] = (dias[clave] || 0) + 1;
         });
 
-        var keys = Object.keys(semanas).sort();
+        var keys = Object.keys(dias).sort();
+
+        if (!keys.length) {
+            return {etiquetas: [], valores: []};
+        }
+
+        var inicio = new Date(keys[0] + 'T00:00:00');
+        var fin = new Date(keys[keys.length - 1] + 'T00:00:00');
+        var cursor = new Date(inicio);
+        var rango = [];
+
+        while (cursor <= fin) {
+            rango.push(claveDia(cursor));
+            cursor.setDate(cursor.getDate() + 1);
+        }
 
         return {
-            etiquetas: keys.map(function (k) {
-                var p = k.split('-');
-
-                return p[2] + '/' + p[1];
-            }),
-            valores: keys.map(function (k) {
-                return semanas[k];
+            etiquetas: rango.map(etiquetaDia),
+            valores: rango.map(function (k) {
+                return dias[k] || 0;
             }),
         };
     }
@@ -235,8 +625,8 @@
     var params = new URLSearchParams(window.location.search);
     var assignedUserId = params.get('assignedUserId') || '';
 
-    var fetchUrl = '/api/v1/Case?select=cRecursoTema,status,assignedUserId,createdAt,cFechaVencimiento,cNumeroRadicado,cPeticionario'
-        + '&maxSize=200&orderBy=createdAt&order=desc';
+    var fetchUrl = '/api/v1/Case?select=cRecursoTema,cCanalDeReporte,status,assignedUserId,createdAt,cFechaCaso,cFechaVencimiento,cNumeroRadicado,cExpediente,cPeticionario,cBarrio'
+        + '&maxSize=200&orderBy=cFechaCaso&order=desc';
 
     if (assignedUserId) {
         fetchUrl += '&where[0][type]=equals&where[0][attribute]=assignedUserId&where[0][value]='
@@ -306,16 +696,8 @@
             var porEstado = agrupar(casos, function (c) {
                 return c.status || 'Sin estado';
             });
-            var de = ordenarDesc(porEstado);
 
-            dibujarDonut(
-                'grafica-embudo',
-                de.etiquetas,
-                de.valores,
-                de.etiquetas.map(function (e) {
-                    return COLORES_ESTADO[e] || PALETA[de.etiquetas.indexOf(e) % PALETA.length];
-                })
-            );
+            dibujarEmbudo('grafica-embudo', porEstado);
 
             var porSemaforo = agrupar(
                 casos.filter(function (c) {
@@ -334,16 +716,103 @@
                 })
             );
 
-            var porTipo = agrupar(casos, function (c) {
-                return capitalizar(c.cRecursoTema || 'Sin recurso');
+            var porCanal = agruparPorCanal(casos);
+            var totalCanal = porCanal.valores.reduce(function (sum, n) {
+                return sum + n;
+            }, 0);
+
+            if (!totalCanal) {
+                mensajeVacio('grafica-canal', 'Sin datos de canal de reporte.');
+            } else {
+                dibujarDonut(
+                    'grafica-canal',
+                    porCanal.etiquetas,
+                    porCanal.valores,
+                    porCanal.etiquetas.map(function (e) {
+                        return COLORES_CANAL[e] || '#9ca3af';
+                    })
+                );
+            }
+
+            var porRecurso = agruparPorRecurso(casos);
+
+            dibujarBarras('grafica-recurso', porRecurso.etiquetas, porRecurso.valores, {
+                tooltips: porRecurso.tooltips,
+                etiquetaDataset: 'Casos por recurso',
             });
-            var dt = ordenarDesc(porTipo);
 
-            dibujarBarras('grafica-tipos', dt.etiquetas, dt.valores);
+            var porDia = agruparPorDia(casos);
 
-            var semanas = agruparPorSemana(casos);
+            if (!porDia.etiquetas.length) {
+                mensajeVacio('grafica-tiempo', 'Sin fechas de caso para mostrar.');
+            } else {
+                dibujarBarras('grafica-tiempo', porDia.etiquetas, porDia.valores, {
+                    etiquetaDataset: 'Ingreso diario',
+                    coloresPorValor: {r: 42, g: 89, b: 52},
+                    borderRadiusBarra: {topLeft: 8, topRight: 8, bottomLeft: 2, bottomRight: 2},
+                    maxBarThickness: 48,
+                    unidad: 'caso(s)',
+                    ticksX: 11,
+                    rotacionX: 45,
+                });
+            }
 
-            dibujarLinea('grafica-tiempo', semanas.etiquetas, semanas.valores);
+            var porBarrio = topN(agrupar(casos, function (c) {
+                return etiquetaBarrio(c.cBarrio);
+            }), 8);
+
+            if (!porBarrio.etiquetas.length) {
+                mensajeVacio('grafica-barrio', 'Sin datos de barrio.');
+            } else {
+                dibujarBarrasHorizontales('grafica-barrio', porBarrio.etiquetas, porBarrio.valores);
+            }
+
+            var casosRadicados = casos.filter(tieneRadicado);
+            var porDiaRadicados = agruparPorDia(casosRadicados);
+
+            if (!porDiaRadicados.etiquetas.length) {
+                mensajeVacio('grafica-radicados-dia', 'Aún no hay casos radicados.');
+            } else {
+                dibujarBarras(
+                    'grafica-radicados-dia',
+                    porDiaRadicados.etiquetas,
+                    porDiaRadicados.valores,
+                    {
+                        etiquetaDataset: 'Radicados por día',
+                        colorBarra: '#1e88e5',
+                        unidad: 'radicado(s)',
+                        ticksX: 11,
+                        rotacionX: 45,
+                    }
+                );
+            }
+
+            var radicadosActivos = casosRadicados.filter(function (c) {
+                return ESTADOS_FIN.indexOf(c.status) === -1;
+            });
+            var asignados = radicadosActivos.filter(function (c) {
+                return !!c.assignedUserId;
+            }).length;
+            var sinAsignar = radicadosActivos.length - asignados;
+            var badgeSinAsignar = document.getElementById('badge-sin-asignar');
+
+            if (badgeSinAsignar) {
+                badgeSinAsignar.textContent = sinAsignar > 0
+                    ? sinAsignar + ' sin asignar'
+                    : 'Todos asignados';
+                badgeSinAsignar.className = 'badge ' + (sinAsignar > 0 ? 'badge--alerta' : 'badge--azul');
+            }
+
+            if (!radicadosActivos.length) {
+                mensajeVacio('grafica-sin-asignar', 'No hay casos radicados activos.');
+            } else {
+                dibujarPolar(
+                    'grafica-sin-asignar',
+                    ['Con patrullero', 'Sin asignar'],
+                    [asignados, sinAsignar],
+                    ['rgba(46, 125, 79, 0.75)', 'rgba(229, 57, 53, 0.75)']
+                );
+            }
         })
         .catch(function (err) {
             console.error('Dashboard error:', err);

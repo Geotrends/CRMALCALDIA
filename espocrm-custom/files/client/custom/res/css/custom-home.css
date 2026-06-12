@@ -4,7 +4,7 @@
 }
 
 .custom-home + .dashlets {
-    margin-top: 4px;
+    margin-top: 16px;
 }
 
 .custom-home-tablero-body {
@@ -13,7 +13,7 @@
 
 .custom-home-iframe {
     width: 100%;
-    height: 520px;
+    height: 1180px;
     border: 0;
     display: block;
     background: #f8faf9;

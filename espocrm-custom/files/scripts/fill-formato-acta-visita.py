@@ -90,9 +90,9 @@ def mark_zona(doc, zona):
         replace_regex(doc, r"Rural\s*\(\s*\)", "Rural  ( X )")
 
 
-# Ancho fijo de la columna izquierda (como en la plantilla Word).
-SIGNATURE_LEFT_CHARS = len("Firma: _______________________ ")
-SIGNATURE_RIGHT_BLANK = 23
+# Posiciones de tabulación en twips (definidas en ActaVisita2.docx).
+SIGNATURE_TAB_LEFT = 5620
+SIGNATURE_TAB_RIGHT = 6493
 
 
 def escape_xml(text):
@@ -119,38 +119,33 @@ def run_props(bold=False):
     )
 
 
-def build_signature_left(label, value):
-    prefix = label + " "
-    content = str(value or "").strip()
-    if content:
-        text = prefix + content
-        if len(text) < SIGNATURE_LEFT_CHARS:
-            text += " " * (SIGNATURE_LEFT_CHARS - len(text))
-        return text[:SIGNATURE_LEFT_CHARS]
-    fill = max(0, SIGNATURE_LEFT_CHARS - len(prefix))
-    return prefix + ("_" * fill)
-
-
-def build_signature_right(label, value):
+def build_signature_cell(label, value):
     content = str(value or "").strip()
     if content:
         return f"{label} {content}"
-    return f"{label} {'_' * SIGNATURE_RIGHT_BLANK}"
+    return f"{label} "
 
 
 def signature_paragraph_xml(left_label, left_value, right_label, right_value):
-    left = escape_xml(build_signature_left(left_label, left_value))
-    right = escape_xml(build_signature_right(right_label, right_value))
+    left = escape_xml(build_signature_cell(left_label, left_value))
+    right = escape_xml(build_signature_cell(right_label, right_value))
     rpr = run_props()
+    tabs = (
+        "<w:tabs>"
+        f'<w:tab w:val="left" w:pos="{SIGNATURE_TAB_LEFT}"/>'
+        f'<w:tab w:val="left" w:pos="{SIGNATURE_TAB_RIGHT}"/>'
+        "</w:tabs>"
+    )
     return (
         '<w:p w:rsidR="003E1B93" w:rsidRDefault="003E1B93" w:rsidP="003E1B93">'
         '<w:pPr><w:pStyle w:val="NormalWeb"/>'
+        f"{tabs}"
         '<w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>'
         '<w:lang w:val="es-ES" w:eastAsia="es-ES"/></w:rPr></w:pPr>'
         f"<w:r>{rpr}<w:t xml:space=\"preserve\">{left}</w:t></w:r>"
         f"<w:r>{rpr}<w:tab/></w:r>"
         f"<w:r>{rpr}<w:tab/></w:r>"
-        f"<w:r>{rpr}<w:t>{right}</w:t></w:r>"
+        f"<w:r>{rpr}<w:t xml:space=\"preserve\">{right}</w:t></w:r>"
         "</w:p>"
     )
 

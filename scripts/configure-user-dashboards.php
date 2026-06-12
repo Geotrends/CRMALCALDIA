@@ -58,11 +58,14 @@ function casesOptions(string $title, string $primaryFilter, int $displayRecords 
     ];
 }
 
-function iframeOptions(string $title, string $url): array
+function iframeOptions(string $title, string $url, ?int $cacheBuster = null): array
 {
+    $v = $cacheBuster ?? time();
+    $separator = str_contains($url, '?') ? '&' : '?';
+
     return [
         'title' => $title,
-        'url' => $url,
+        'url' => $url . $separator . 'v=' . $v,
         'autorefreshInterval' => 0,
     ];
 }
@@ -124,6 +127,12 @@ function profileWidgets(string $profile, string $userId): array
     return match ($profile) {
         'radicacion' => [
             [
+                'prefix' => 'tablero',
+                'name' => 'Iframe',
+                'height' => 9,
+                'options' => iframeOptions('Tablero de control', '/client/custom/dashboard.html'),
+            ],
+            [
                 'prefix' => 'casos',
                 'name' => 'Cases',
                 'height' => 4,
@@ -134,7 +143,7 @@ function profileWidgets(string $profile, string $userId): array
             [
                 'prefix' => 'tablero',
                 'name' => 'Iframe',
-                'height' => 5,
+                'height' => 9,
                 'options' => iframeOptions('Tablero de control', '/client/custom/dashboard.html'),
             ],
             [
@@ -171,7 +180,7 @@ function profileWidgets(string $profile, string $userId): array
             [
                 'prefix' => 'tablero',
                 'name' => 'Iframe',
-                'height' => 5,
+                'height' => 9,
                 'options' => iframeOptions('Tablero de control', '/client/custom/dashboard.html'),
             ],
             [
@@ -198,12 +207,42 @@ $users = $em->getRDBRepository('User')
     ])
     ->find();
 
-$emptyLayout = [
-    [
-        'name' => 'My Espo',
-        'layout' => [],
-    ],
-];
+$unwantedDashlets = ['Memo', 'Records'];
+
+$sanitizeDashboard = static function (array $dashboardLayout) use ($unwantedDashlets): array {
+    foreach ($dashboardLayout as &$tab) {
+        if (!isset($tab['layout']) || !is_array($tab['layout'])) {
+            $tab['layout'] = [];
+            continue;
+        }
+
+        $tab['layout'] = array_values(array_filter(
+            $tab['layout'],
+            static function ($item) use ($unwantedDashlets): bool {
+                $name = is_array($item) ? ($item['name'] ?? '') : '';
+
+                return !in_array($name, $unwantedDashlets, true);
+            }
+        ));
+    }
+    unset($tab);
+
+    return $dashboardLayout;
+};
+
+$sanitizeDashletsOptions = static function (array $dashboardLayout, array $dashletsOptions): array {
+    $allowedIds = [];
+
+    foreach ($dashboardLayout as $tab) {
+        foreach ($tab['layout'] ?? [] as $item) {
+            if (!empty($item['id'])) {
+                $allowedIds[$item['id']] = true;
+            }
+        }
+    }
+
+    return array_intersect_key($dashletsOptions, $allowedIds);
+};
 
 foreach ($users as $user) {
     $userName = (string) $user->get('userName');
@@ -216,12 +255,32 @@ foreach ($users as $user) {
         continue;
     }
 
-    // El contenido principal lo inyecta custom:views/home; la grilla queda para dashlets extra.
-    $prefs->set('dashboardLayout', $emptyLayout);
+    $layout = json_decode(json_encode($prefs->get('dashboardLayout') ?: []), true);
+
+    if (!is_array($layout) || $layout === []) {
+        $layout = [
+            [
+                'name' => 'My Espo',
+                'layout' => [],
+            ],
+        ];
+    }
+
+    $options = json_decode(json_encode($prefs->get('dashletsOptions') ?: new stdClass()), true);
+
+    if (!is_array($options)) {
+        $options = [];
+    }
+
+    $layout = $sanitizeDashboard($layout);
+    $options = $sanitizeDashletsOptions($layout, $options);
+
+    $prefs->set('dashboardLayout', $layout);
+    $prefs->set('dashletsOptions', $options);
     $prefs->set('dashboardLocked', false);
     $em->saveEntity($prefs);
 
-    echo "{$userName} → perfil {$profile} (tablero fijo + grilla libre)\n";
+    echo "{$userName} → perfil {$profile} (sin Memo/Record List)\n";
 }
 
 $statePath = '/var/www/html/data/state.php';

@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 """
 Escribe/actualiza una fila en excelAlcaldia.xlsx (hoja 2026).
-Busca por Radicado (col B) o Consecutivo (col A); si no existe, agrega fila nueva.
+
+Casos del CRM (radicado ENV-…):
+  - Se ubican en bloque al final del histórico (justo debajo de las filas existentes).
+  - Cada caso nuevo se apila consecutivamente en ese bloque.
+  - Si ya existe el radicado, se actualiza la misma fila.
 """
 
 from __future__ import annotations
@@ -20,6 +24,9 @@ except ImportError:
 SHEET_NAME = "2026"
 HEADER_ROW = 1
 DATA_START_ROW = 2
+CRM_RADICADO_PREFIX = "ENV-"
+# Filas vacías seguidas → fin del bloque histórico contiguo (evita saltar a fila 900+).
+HISTORICAL_GAP_THRESHOLD = 3
 
 # clave payload -> (encabezado, ocurrencia).
 # El Excel repite encabezados (quejoso / infractor); occurrence=1 es la 1ª columna.
@@ -97,30 +104,108 @@ def find_row(ws, headers: dict[str, int], radicado: str, consecutivo: str) -> in
     rad_col = find_column(headers, "Radicado")
     con_col = find_column(headers, "Consecutivo")
 
-    for row in range(DATA_START_ROW, ws.max_row + 1):
-        rad_val = ""
-        con_val = ""
-        if rad_col:
+    if radicado and rad_col:
+        for row in range(DATA_START_ROW, ws.max_row + 1):
             rad_val = str(ws.cell(row=row, column=rad_col).value or "").strip()
-        if con_col:
-            con_val = str(ws.cell(row=row, column=con_col).value or "").strip()
+            if rad_val == radicado:
+                return row
 
-        if radicado and rad_val == radicado:
-            return row
-        if consecutivo and con_val == consecutivo:
-            return row
+    if consecutivo and con_col and not radicado:
+        for row in range(DATA_START_ROW, ws.max_row + 1):
+            con_val = str(ws.cell(row=row, column=con_col).value or "").strip()
+            if con_val == consecutivo:
+                return row
 
     return None
 
 
-def next_empty_row(ws, headers: dict[str, int]) -> int:
-    rad_col = find_column(headers, "Radicado") or 1
-    row = DATA_START_ROW
-    while row <= ws.max_row:
-        if ws.cell(row=row, column=rad_col).value in (None, ""):
-            return row
-        row += 1
-    return max(ws.max_row + 1, DATA_START_ROW)
+def is_crm_radicado(radicado: str) -> bool:
+    return str(radicado or "").strip().startswith(CRM_RADICADO_PREFIX)
+
+
+def row_has_data(ws, headers: dict[str, list[int]], row: int) -> bool:
+    for name in ("Radicado", "Consecutivo", "Solicitante"):
+        col = find_column(headers, name)
+        if not col:
+            continue
+        value = ws.cell(row=row, column=col).value
+        if value is not None and str(value).strip() != "":
+            return True
+    return False
+
+
+def last_historical_row(ws, headers: dict[str, list[int]]) -> int:
+    """Última fila con datos contiguos al inicio (sin saltar huecos vacíos al final)."""
+    rad_col = find_column(headers, "Radicado")
+    last = DATA_START_ROW - 1
+    empty_streak = 0
+
+    for row in range(DATA_START_ROW, ws.max_row + 1):
+        if rad_col:
+            rad = str(ws.cell(row=row, column=rad_col).value or "").strip()
+            if rad.startswith(CRM_RADICADO_PREFIX):
+                break
+
+        if row_has_data(ws, headers, row):
+            last = row
+            empty_streak = 0
+            continue
+
+        if last < DATA_START_ROW:
+            continue
+
+        empty_streak += 1
+        if empty_streak >= HISTORICAL_GAP_THRESHOLD:
+            break
+
+    return last
+
+
+def last_crm_row(ws, headers: dict[str, list[int]]) -> int | None:
+    rad_col = find_column(headers, "Radicado")
+    if not rad_col:
+        return None
+
+    last = None
+    for row in range(DATA_START_ROW, ws.max_row + 1):
+        rad = str(ws.cell(row=row, column=rad_col).value or "").strip()
+        if rad.startswith(CRM_RADICADO_PREFIX):
+            last = row
+
+    return last
+
+
+def next_crm_row(ws, headers: dict[str, list[int]]) -> int:
+    """Primera fila libre del bloque CRM: debajo del histórico o del último ENV-."""
+    crm_last = last_crm_row(ws, headers)
+    if crm_last is not None:
+        return crm_last + 1
+    return last_historical_row(ws, headers) + 1
+
+
+def last_data_row(ws, headers: dict[str, list[int]]) -> int:
+    key_cols: list[int] = []
+    for name in ("Radicado", "Consecutivo", "Solicitante"):
+        col = find_column(headers, name)
+        if col:
+            key_cols.append(col)
+
+    if not key_cols:
+        return DATA_START_ROW - 1
+
+    last = DATA_START_ROW - 1
+    for row in range(DATA_START_ROW, ws.max_row + 1):
+        for col in key_cols:
+            value = ws.cell(row=row, column=col).value
+            if value is not None and str(value).strip() != "":
+                last = row
+                break
+
+    return last
+
+
+def next_empty_row(ws, headers: dict[str, list[int]]) -> int:
+    return last_data_row(ws, headers) + 1
 
 
 def merge_observaciones(existing: str, parts: list[str]) -> str:
@@ -151,7 +236,10 @@ def upsert(excel_path: Path, payload: dict) -> None:
 
     row = find_row(ws, headers, radicado, consecutivo)
     if row is None:
-        row = next_empty_row(ws, headers)
+        if is_crm_radicado(radicado):
+            row = next_crm_row(ws, headers)
+        else:
+            row = next_empty_row(ws, headers)
 
     observaciones_parts = []
     if payload.get("descripcion"):

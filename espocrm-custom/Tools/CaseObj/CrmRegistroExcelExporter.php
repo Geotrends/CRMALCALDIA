@@ -75,7 +75,7 @@ class CrmRegistroExcelExporter
 
     public function exportCase(Entity $case): bool
     {
-        if (!$case->getId() || !$this->isPostRadicado($case)) {
+        if (!$case->getId() || !$this->hasPeticionario($case)) {
             return false;
         }
 
@@ -87,13 +87,22 @@ class CrmRegistroExcelExporter
 
         $internalOk = $this->runUpsert($case->getId(), $fields);
 
-        $alcaldiaOk = (new ExcelAlcaldiaExporter(
-            $this->entityManager,
-            $this->config,
-            $this->log
-        ))->exportCase($case);
+        $alcaldiaOk = false;
+
+        if ($this->isPostRadicado($case)) {
+            $alcaldiaOk = (new ExcelAlcaldiaExporter(
+                $this->entityManager,
+                $this->config,
+                $this->log
+            ))->exportCase($case);
+        }
 
         return $internalOk || $alcaldiaOk;
+    }
+
+    public function hasPeticionario(Entity $case): bool
+    {
+        return trim((string) $case->get('cPeticionario')) !== '';
     }
 
     public function exportActa(Entity $acta): bool

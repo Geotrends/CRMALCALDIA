@@ -74,6 +74,10 @@ echo 'Placeholder en desplegables Case...'
 docker cp "$ROOT/scripts/configure-case-enum-placeholders.php" espocrm:/tmp/configure-case-enum-placeholders.php
 docker exec espocrm php /tmp/configure-case-enum-placeholders.php
 
+echo 'Home: tablero custom + dashlets editables...'
+docker cp "$ROOT/scripts/configure-user-dashboards.php" espocrm:/tmp/configure-user-dashboards.php
+docker exec espocrm php /tmp/configure-user-dashboards.php
+
 echo 'Eliminando columnas obsoletas c_categoria / c_tipo...'
 docker cp "$ROOT/scripts/migrate-drop-case-categoria-tipo.php" espocrm:/tmp/migrate-drop-case-categoria-tipo.php
 docker exec espocrm php /tmp/migrate-drop-case-categoria-tipo.php
