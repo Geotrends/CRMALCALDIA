@@ -1,0 +1,72 @@
+/**
+ * CRM Alcaldía — tokens de diseño
+ * Referencia: UI limpia tipo SaaS (cards, sombras suaves, acentos verdes).
+ */
+:root {
+  /* Marca — Secretaría de Medio Ambiente */
+  --crm-primary: #1d6b4f;
+  --crm-primary-dark: #145a40;
+  --crm-primary-light: #e6f4ee;
+  --crm-primary-muted: #3d9970;
+  --crm-accent: #2e7d4f;
+
+  /* Gradientes (tarjetas destacadas) */
+  --crm-gradient-hero: linear-gradient(135deg, #1d6b4f 0%, #3d9970 55%, #52b788 100%);
+  --crm-gradient-soft: linear-gradient(180deg, #ffffff 0%, #f8faf9 100%);
+
+  /* Fondos y superficies */
+  --crm-bg-page: #f4f6f8;
+  --crm-bg-elevated: #ffffff;
+  --crm-bg-subtle: #f8faf9;
+  --crm-border: #e5e9ef;
+  --crm-border-light: #eef1f5;
+
+  /* Texto */
+  --crm-text: #1f2937;
+  --crm-text-secondary: #6b7280;
+  --crm-text-muted: #9ca3af;
+  --crm-text-inverse: #ffffff;
+
+  /* Estados */
+  --crm-info: #1e88e5;
+  --crm-warning: #f59e0b;
+  --crm-danger: #e53935;
+  --crm-success: #2e7d4f;
+
+  /* Pills / badges */
+  --crm-pill-success-bg: #dcfce7;
+  --crm-pill-success-text: #166534;
+  --crm-pill-warning-bg: #fef3c7;
+  --crm-pill-warning-text: #92400e;
+  --crm-pill-danger-bg: #fee2e2;
+  --crm-pill-danger-text: #991b1b;
+  --crm-pill-info-bg: #dbeafe;
+  --crm-pill-info-text: #1e40af;
+
+  /* Forma y profundidad */
+  --crm-radius-sm: 8px;
+  --crm-radius-md: 12px;
+  --crm-radius-lg: 16px;
+  --crm-radius-pill: 999px;
+  --crm-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+  --crm-shadow-md: 0 4px 16px rgba(15, 23, 42, 0.06);
+  --crm-shadow-lg: 0 8px 28px rgba(15, 23, 42, 0.08);
+
+  /* Tipografía */
+  --crm-font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --crm-font-size-xs: 11px;
+  --crm-font-size-sm: 13px;
+  --crm-font-size-md: 15px;
+  --crm-font-size-lg: 20px;
+  --crm-font-size-xl: 28px;
+
+  /* Espaciado */
+  --crm-space-xs: 6px;
+  --crm-space-sm: 10px;
+  --crm-space-md: 16px;
+  --crm-space-lg: 24px;
+  --crm-space-xl: 32px;
+
+  /* Transiciones */
+  --crm-transition: 0.2s ease;
+}

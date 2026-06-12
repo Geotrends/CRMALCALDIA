@@ -6,34 +6,35 @@
             weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
         });
 
+    /* Paleta institucional — verdes, slate y tonos apagados */
     var PALETA = [
-        '#2e7d4f', '#1e88e5', '#fb8c00', '#8e24aa',
-        '#e53935', '#00897b', '#6d4c41', '#3949ab',
+        '#2a5934', '#3d6b47', '#4a7c59', '#5c8d6a',
+        '#64748b', '#475569', '#52667a', '#1d8a6e',
     ];
 
     var COLORES_ESTADO = {
-        'Pendiente de radicacion': '#f59e0b',
-        'Radicado': '#1e88e5',
-        'Asignado': '#8e24aa',
-        'En proceso': '#fb8c00',
-        'Visita realizada': '#00897b',
-        'Visita aprobada': '#2e7d4f',
-        'Finalizado': '#374151',
-        'Proceso cerrado': '#6b7280',
+        'Pendiente de radicacion': '#a16207',
+        'Radicado': '#52667a',
+        'Asignado': '#3d6b47',
+        'En proceso': '#2a5934',
+        'Visita realizada': '#1d8a6e',
+        'Visita aprobada': '#166534',
+        'Finalizado': '#64748b',
+        'Proceso cerrado': '#94a3b8',
     };
 
     var COLORES_SEMAFORO = {
-        'Al día': '#2e7d4f',
-        'Próximo a vencer': '#f59e0b',
-        'Vencido': '#e53935',
-        'Sin fecha': '#9ca3af',
+        'Al día': '#4a7c59',
+        'Próximo a vencer': '#a16207',
+        'Vencido': '#b91c1c',
+        'Sin fecha': '#cbd5e1',
     };
 
     var COLORES_CANAL = {
-        'Teléfono': '#1e88e5',
-        'Correo': '#8e24aa',
-        'Personal': '#00897b',
-        'Sin canal': '#9ca3af',
+        'Teléfono': '#52667a',
+        'Correo': '#475569',
+        'Personal': '#2a5934',
+        'Sin canal': '#cbd5e1',
     };
 
     var CANAL_CATALOGO = [
@@ -285,12 +286,12 @@
                     x: {
                         grid: {display: false},
                         ticks: {
-                            color: '#4b5563',
-                            font: {size: cfg.ticksX || 12},
+                            color: '#64748b',
+                            font: {size: cfg.ticksX || 12, family: 'Inter, sans-serif'},
                             maxRotation: cfg.rotacionX != null ? cfg.rotacionX : 0,
                         },
                     },
-                    y: {beginAtZero: true, ticks: {precision: 0, color: '#6b7280'}, grid: {color: '#eef0f3'}},
+                    y: {beginAtZero: true, ticks: {precision: 0, color: '#94a3b8', font: {family: 'Inter, sans-serif'}}, grid: {color: '#f1f5f9'}},
                 },
             },
         });
@@ -389,7 +390,12 @@
                 plugins: {
                     legend: {
                         position: 'bottom',
-                        labels: {padding: 12, font: {size: 12}, usePointStyle: true},
+                        labels: {
+                            padding: 12,
+                            font: {size: 12, family: 'Inter, sans-serif'},
+                            color: '#64748b',
+                            usePointStyle: true,
+                        },
                     },
                     tooltip: {
                         callbacks: {
@@ -779,7 +785,7 @@
                     porDiaRadicados.valores,
                     {
                         etiquetaDataset: 'Radicados por día',
-                        colorBarra: '#1e88e5',
+                        colorBarra: '#52667a',
                         unidad: 'radicado(s)',
                         ticksX: 11,
                         rotacionX: 45,
@@ -810,7 +816,7 @@
                     'grafica-sin-asignar',
                     ['Con patrullero', 'Sin asignar'],
                     [asignados, sinAsignar],
-                    ['rgba(46, 125, 79, 0.75)', 'rgba(229, 57, 53, 0.75)']
+                    ['rgba(42, 89, 52, 0.72)', 'rgba(148, 163, 184, 0.78)']
                 );
             }
         })

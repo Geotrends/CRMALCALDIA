@@ -1,0 +1,127 @@
+/**
+ * Pantalla de inicio — tablero embebido y listas de casos
+ */
+
+/* Contenedor principal a ancho completo */
+body:has(.custom-home) #content,
+body:has(.custom-home) #content > .content,
+body:has(.custom-home) #content #main {
+  max-width: none !important;
+  width: 100% !important;
+}
+
+#content #main:has(.custom-home) {
+  padding: 6px 4px 20px !important;
+}
+
+.custom-home {
+  padding: 0;
+  margin: 0;
+  width: 100%;
+}
+
+.custom-home + .dashlets {
+  margin-top: 20px;
+}
+
+.custom-home-tablero {
+  border: 1px solid var(--crm-border-light) !important;
+  box-shadow: var(--crm-shadow-sm) !important;
+  border-radius: var(--crm-radius-md) !important;
+  overflow: hidden;
+  width: 100%;
+  margin: 0;
+}
+
+/* Sin barra verde — header neutro del panel */
+.custom-home-tablero > .panel-heading {
+  background: var(--crm-surface) !important;
+  border-bottom: 1px solid var(--crm-border-light) !important;
+  padding: 12px 16px !important;
+}
+
+.custom-home-tablero > .panel-heading .panel-title {
+  color: var(--crm-text) !important;
+  font-size: var(--crm-font-size-base) !important;
+  font-weight: 700 !important;
+}
+
+.custom-home-tablero-body {
+  padding: 0 !important;
+  background: var(--crm-bg) !important;
+}
+
+.custom-home-iframe {
+  width: 100%;
+  height: 1420px;
+  border: 0;
+  display: block;
+  background: var(--crm-bg);
+}
+
+.custom-home-lista {
+  border: 1px solid var(--crm-border-light) !important;
+  border-radius: var(--crm-radius-lg) !important;
+  box-shadow: var(--crm-shadow-card) !important;
+  margin-top: 18px !important;
+  transition: box-shadow var(--crm-transition);
+}
+
+.custom-home-lista:hover {
+  box-shadow: var(--crm-shadow-md) !important;
+}
+
+.custom-home-lista > .panel-heading {
+  display: flex;
+  align-items: center;
+  padding: 14px 20px !important;
+  background: var(--crm-surface) !important;
+  border-bottom: 1px solid var(--crm-border-light) !important;
+}
+
+.custom-home-lista > .panel-heading .panel-title {
+  font-size: var(--crm-font-size-base) !important;
+  color: var(--crm-text) !important;
+}
+
+.custom-home-lista > .panel-heading::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 18px;
+  background: #64748b;
+  border-radius: 2px;
+  margin-right: 12px;
+}
+
+.custom-home-lista .panel-body {
+  padding: 0 !important;
+}
+
+.custom-home-lista-cuerpo {
+  min-height: 48px;
+  padding: 4px 8px 12px;
+}
+
+.custom-home-lista .table {
+  margin-bottom: 0 !important;
+}
+
+.custom-home-lista .table > tbody > tr:first-child > td {
+  border-top: none !important;
+}
+
+.custom-home-lista .table a {
+  color: var(--crm-primary) !important;
+  font-weight: 600 !important;
+}
+
+.custom-home-lista .table a:hover {
+  color: var(--crm-primary-dark) !important;
+  text-decoration: none !important;
+}
+
+.custom-home-lista .text-muted {
+  padding: 16px 20px;
+  color: var(--crm-text-muted) !important;
+}

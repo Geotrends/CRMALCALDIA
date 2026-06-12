@@ -1,0 +1,44 @@
+/**
+ * Paneles custom — radicación, formatos, actas
+ */
+
+.radicado-assistant-panel,
+.panel.radicado-assistant-panel {
+  border: 1px solid var(--crm-primary-soft) !important;
+  background: linear-gradient(180deg, var(--crm-primary-light) 0%, var(--crm-surface) 40%) !important;
+  border-radius: var(--crm-radius-lg) !important;
+}
+
+.radicado-assistant-panel .panel-heading {
+  background: transparent !important;
+  border-bottom: 1px solid var(--crm-primary-soft) !important;
+}
+
+.radicado-assistant-panel .well {
+  background: var(--crm-surface) !important;
+  border: 1px dashed var(--crm-primary-soft) !important;
+}
+
+/* Paneles de descarga de formatos */
+.panel[data-panel-name="formatoSolicitud"],
+.panel[data-panel-name="formatoActaVisita"],
+.panel[data-panel-name="formatoActuoArchivo"],
+.panel[data-panel-name="actaVisitaPanel"],
+.panel[data-panel-name="actuoArchivoPanel"] {
+  border-radius: var(--crm-radius-md) !important;
+}
+
+.side .panel .btn-default .fas,
+.side .panel .btn-default .far {
+  color: var(--crm-danger) !important;
+}
+
+.side .panel .btn-primary .fas {
+  color: var(--crm-text-inverse) !important;
+}
+
+/* Modales acta / auto */
+.modal .panel {
+  box-shadow: none !important;
+  border: 1px solid var(--crm-border-light) !important;
+}

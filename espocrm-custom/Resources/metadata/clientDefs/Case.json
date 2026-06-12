@@ -1,4 +1,6 @@
 {
+    "iconClass": "fas fa-scale-balanced",
+    "color": "#1d8a6e",
     "recordViews": {
         "edit": "custom:views/case/record/edit",
         "detail": "custom:views/case/record/detail",

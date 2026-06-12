@@ -1,0 +1,108 @@
+/**
+ * Shell EspoCRM — listas, kanban (navbar en 09-navbar.css)
+ */
+
+/* list-container → estilos en 10-page-headers.css (.list unificado) */
+
+.pagination > .active > a,
+.pagination > .active > span {
+  background: var(--crm-primary) !important;
+  border-color: var(--crm-primary) !important;
+}
+
+.pagination > li > a {
+  border-radius: var(--crm-radius-sm) !important;
+  color: var(--crm-text-secondary) !important;
+}
+
+/* ── Detalle de registro ── */
+.record .middle {
+  padding-top: 8px;
+}
+
+.record .panel.panel-default {
+  margin-bottom: 16px !important;
+}
+
+.side-panel {
+  background: transparent !important;
+}
+
+.side-panel .panel {
+  margin-bottom: 14px !important;
+}
+
+/* ── Kanban ── */
+.kanban-row .group-column {
+  background: var(--crm-bg-elevated) !important;
+  border-radius: var(--crm-radius-md) !important;
+  border: 1px solid var(--crm-border-light) !important;
+}
+
+.kanban-row .group-column .group-column-header {
+  background: var(--crm-surface) !important;
+  border-bottom: 1px solid var(--crm-border-light) !important;
+  font-weight: 700 !important;
+  color: var(--crm-text) !important;
+  border-radius: var(--crm-radius-md) var(--crm-radius-md) 0 0 !important;
+}
+
+.kanban-row .item {
+  border-radius: var(--crm-radius-md) !important;
+  border: 1px solid var(--crm-border-light) !important;
+  box-shadow: var(--crm-shadow-xs) !important;
+  transition: box-shadow var(--crm-transition), transform var(--crm-transition) !important;
+}
+
+.kanban-row .item:hover {
+  box-shadow: var(--crm-shadow-md) !important;
+  transform: translateY(-2px);
+}
+
+/* ── Login ── */
+body.login-page {
+  background: linear-gradient(135deg, var(--crm-primary-dark) 0%, var(--crm-primary) 50%, #0d9488 100%) !important;
+}
+
+body.login-page .panel {
+  border-radius: var(--crm-radius-xl) !important;
+  box-shadow: var(--crm-shadow-lg) !important;
+}
+
+/* ── Notificaciones dropdown ── */
+.dropdown-menu {
+  border-radius: var(--crm-radius-md) !important;
+  border: 1px solid var(--crm-border-light) !important;
+  box-shadow: var(--crm-shadow-md) !important;
+  padding: 6px !important;
+}
+
+.dropdown-menu > li > a {
+  border-radius: var(--crm-radius-sm) !important;
+  padding: 8px 14px !important;
+}
+
+.dropdown-menu > li > a:hover {
+  background: var(--crm-primary-light) !important;
+  color: var(--crm-primary-dark) !important;
+}
+
+/* ── Tabs en detalle ── */
+.nav-tabs {
+  border-bottom: 1px solid var(--crm-border) !important;
+}
+
+.nav-tabs > li > a {
+  border-radius: var(--crm-radius-sm) var(--crm-radius-sm) 0 0 !important;
+  color: var(--crm-text-muted) !important;
+  font-weight: 600 !important;
+  border: none !important;
+  margin-bottom: -1px !important;
+}
+
+.nav-tabs > li.active > a,
+.nav-tabs > li.active > a:hover {
+  color: var(--crm-primary) !important;
+  border-bottom: 2px solid var(--crm-primary) !important;
+  background: transparent !important;
+}

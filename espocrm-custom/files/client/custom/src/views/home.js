@@ -65,14 +65,6 @@ define('custom:views/home', ['views/dashboard', 'search-manager'], function (Dep
             var appTimestamp = this.getConfig().get('appTimestamp');
             this.config = profileConfig(profile, userId, appTimestamp);
 
-            if (!document.getElementById('custom-home-css')) {
-                var link = document.createElement('link');
-                link.id = 'custom-home-css';
-                link.rel = 'stylesheet';
-                link.href = 'client/custom/res/css/custom-home.css';
-                document.head.appendChild(link);
-            }
-
             this.sanitizeDashboardPreferences();
             Dep.prototype.setup.call(this);
         },

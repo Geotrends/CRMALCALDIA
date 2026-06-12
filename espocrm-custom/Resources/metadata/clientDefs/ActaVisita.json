@@ -1,7 +1,7 @@
 {
     "controller": "controllers/record",
-    "iconClass": "fas fa-clipboard-check",
-    "color": "#3d85c6",
+    "iconClass": "fas fa-clipboard-list",
+    "color": "#0d9488",
     "recordViews": {
         "detail": "custom:views/acta-visita/record/detail",
         "edit": "views/record/edit",

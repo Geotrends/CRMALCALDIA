@@ -1,0 +1,243 @@
+/**
+ * Componentes reutilizables — botones, badges, cards, tablas
+ */
+
+/* ── Botones ── */
+.btn {
+  border-radius: var(--crm-radius-sm) !important;
+  font-weight: 600 !important;
+  font-size: var(--crm-font-size-sm) !important;
+  transition: all var(--crm-transition) !important;
+  border: 1px solid transparent !important;
+}
+
+.btn-primary,
+.btn.btn-primary {
+  background: var(--crm-primary) !important;
+  border-color: var(--crm-primary) !important;
+  color: var(--crm-text-inverse) !important;
+  box-shadow: 0 2px 8px rgba(29, 138, 110, 0.25) !important;
+}
+
+.btn-primary:hover,
+.btn-primary:focus,
+.btn.btn-primary:hover {
+  background: var(--crm-primary-dark) !important;
+  border-color: var(--crm-primary-dark) !important;
+  box-shadow: 0 4px 12px rgba(29, 138, 110, 0.35) !important;
+  transform: translateY(-1px);
+}
+
+.btn-default,
+.btn.btn-default {
+  background: var(--crm-surface) !important;
+  border-color: var(--crm-border) !important;
+  color: var(--crm-text-secondary) !important;
+}
+
+.btn-default:hover {
+  background: var(--crm-surface-hover) !important;
+  border-color: var(--crm-primary-soft) !important;
+  color: var(--crm-primary) !important;
+}
+
+.btn-link {
+  color: var(--crm-primary) !important;
+  font-weight: 600 !important;
+}
+
+.btn-success {
+  background: var(--crm-success) !important;
+  border-color: var(--crm-success) !important;
+}
+
+.btn-danger {
+  background: var(--crm-danger) !important;
+  border-color: var(--crm-danger) !important;
+}
+
+.btn-group .btn {
+  box-shadow: none !important;
+}
+
+/* ── Paneles / Cards ── */
+.panel {
+  border: 1px solid var(--crm-border-light) !important;
+  border-radius: var(--crm-radius-lg) !important;
+  box-shadow: var(--crm-shadow-card) !important;
+  background: var(--crm-surface) !important;
+  overflow: hidden;
+}
+
+.panel-default > .panel-heading {
+  background: var(--crm-surface) !important;
+  border-bottom: 1px solid var(--crm-border-light) !important;
+  padding: 14px 20px !important;
+}
+
+.panel-heading .panel-title,
+.panel-heading h4 {
+  font-size: var(--crm-font-size-base) !important;
+  font-weight: 700 !important;
+  color: var(--crm-text) !important;
+  letter-spacing: -0.01em;
+}
+
+.panel-body {
+  padding: 18px 20px !important;
+}
+
+.well {
+  background: var(--crm-bg-elevated) !important;
+  border: 1px solid var(--crm-border-light) !important;
+  border-radius: var(--crm-radius-md) !important;
+  box-shadow: none !important;
+}
+
+/* ── Badges / Pills ── */
+.badge,
+.label {
+  border-radius: var(--crm-radius-full) !important;
+  font-weight: 600 !important;
+  font-size: var(--crm-font-size-xs) !important;
+  padding: 3px 10px !important;
+  letter-spacing: 0.02em;
+}
+
+.label-success,
+.badge-success {
+  background: var(--crm-success-soft) !important;
+  color: var(--crm-success) !important;
+}
+
+.label-warning,
+.badge-warning {
+  background: var(--crm-warning-soft) !important;
+  color: #b45309 !important;
+}
+
+.label-danger,
+.badge-danger {
+  background: var(--crm-danger-soft) !important;
+  color: var(--crm-danger) !important;
+}
+
+.label-info,
+.badge-info {
+  background: var(--crm-info-soft) !important;
+  color: var(--crm-info) !important;
+}
+
+.label-primary {
+  background: var(--crm-primary-light) !important;
+  color: var(--crm-primary-dark) !important;
+}
+
+/* ── Tablas ── */
+.table {
+  border-collapse: separate !important;
+  border-spacing: 0;
+}
+
+.table > thead > tr > th {
+  background: var(--crm-bg-elevated) !important;
+  border-bottom: 1px solid var(--crm-border) !important;
+  color: var(--crm-text-muted) !important;
+  font-size: var(--crm-font-size-xs) !important;
+  font-weight: 600 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 10px 14px !important;
+}
+
+.table > tbody > tr > td {
+  border-top: 1px solid var(--crm-border-light) !important;
+  padding: 12px 14px !important;
+  color: var(--crm-text-secondary);
+  vertical-align: middle !important;
+}
+
+.table-hover > tbody > tr:hover {
+  background: var(--crm-primary-light) !important;
+}
+
+.table-hover > tbody > tr:hover > td {
+  color: var(--crm-text);
+}
+
+/* ── Formularios ── */
+.form-control,
+.input-group-addon {
+  border-radius: var(--crm-radius-sm) !important;
+  border-color: var(--crm-border) !important;
+  font-size: var(--crm-font-size-sm) !important;
+  transition: border-color var(--crm-transition), box-shadow var(--crm-transition) !important;
+}
+
+.form-control:focus {
+  border-color: var(--crm-primary) !important;
+  box-shadow: 0 0 0 3px rgba(29, 138, 110, 0.15) !important;
+}
+
+.field label {
+  color: var(--crm-text-secondary) !important;
+  font-weight: 600 !important;
+  font-size: var(--crm-font-size-xs) !important;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* ── Modales ── */
+.modal-content {
+  border-radius: var(--crm-radius-lg) !important;
+  border: none !important;
+  box-shadow: var(--crm-shadow-lg) !important;
+  overflow: hidden;
+}
+
+.modal-header {
+  background: var(--crm-surface) !important;
+  border-bottom: 1px solid var(--crm-border-light) !important;
+  padding: 18px 24px !important;
+}
+
+.modal-title {
+  font-weight: 700 !important;
+  color: var(--crm-text) !important;
+}
+
+.modal-body {
+  padding: 20px 24px !important;
+}
+
+.modal-footer {
+  background: var(--crm-bg-elevated) !important;
+  border-top: 1px solid var(--crm-border-light) !important;
+  padding: 14px 24px !important;
+}
+
+/* ── Alerts ── */
+.alert {
+  border-radius: var(--crm-radius-md) !important;
+  border: none !important;
+}
+
+.alert-success {
+  background: var(--crm-success-soft) !important;
+  color: #166534 !important;
+}
+
+.alert-warning {
+  background: var(--crm-warning-soft) !important;
+  color: #92400e !important;
+}
+
+.alert-danger {
+  background: var(--crm-danger-soft) !important;
+  color: #991b1b !important;
+}
+
+.alert-info {
+  background: var(--crm-info-soft) !important;
+  color: #1e40af !important;
+}

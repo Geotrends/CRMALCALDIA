@@ -1,7 +1,7 @@
 {
     "controller": "controllers/record",
-    "iconClass": "fas fa-archive",
-    "color": "#6c757d",
+    "iconClass": "fas fa-box-archive",
+    "color": "#64748b",
     "recordViews": {
         "detail": "views/record/detail",
         "edit": "views/record/edit",

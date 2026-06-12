@@ -1,0 +1,8 @@
+{
+    "cssList": [
+        "client/custom/res/css/main.css"
+    ],
+    "scriptList": [
+        "client/custom/src/loader/theme-navbar.js"
+    ]
+}

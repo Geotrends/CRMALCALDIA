@@ -1,0 +1,356 @@
+/**
+ * Encabezados y listas — título + búsqueda + tabla en un solo bloque
+ */
+
+/* ══════════════════════════════════════════
+   LISTAS: un solo card (Casos, Contactos…)
+   Grid: título arriba | búsqueda + Crear misma fila | tabla
+   ══════════════════════════════════════════ */
+.list {
+  background: var(--crm-surface) !important;
+  border: 1px solid var(--crm-border-light) !important;
+  border-radius: var(--crm-radius-lg) !important;
+  box-shadow: var(--crm-shadow-card) !important;
+  overflow: hidden !important;
+  margin: 0 0 16px !important;
+  display: grid !important;
+  grid-template-columns: 1fr auto !important;
+  grid-template-areas:
+    "title title"
+    "search actions"
+    "table table" !important;
+}
+
+/* Título (parte superior del card) */
+.list > .page-header {
+  display: contents !important;
+}
+
+.list > .page-header .page-header-row {
+  display: contents !important;
+}
+
+.list > .page-header .page-header-column-1 {
+  grid-area: title !important;
+  padding: 18px 20px 4px !important;
+}
+
+.list > .page-header .page-header-column-2 {
+  grid-area: actions !important;
+  align-self: center !important;
+  justify-self: end !important;
+  padding: 0 20px 0 12px !important;
+  margin: 0 !important;
+  float: none !important;
+}
+
+/* Título grande, sin barra verde */
+.list > .page-header .header-title,
+.list > .page-header h3.header-title {
+  font-size: 34px !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.04em !important;
+  gap: 0 !important;
+  line-height: 1.15 !important;
+}
+
+.list > .page-header .header-title .color-icon,
+.list > .page-header .header-title .color-icon.fas,
+.list > .page-header .header-title .color-icon.fas.fa-square,
+.list > .page-header .header-title .fas.fa-square.color-icon {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+.list > .page-header .page-header-column-2 {
+  flex: unset !important;
+  max-width: none !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  margin-top: 0 !important;
+}
+
+.list > .page-header .header-buttons {
+  display: flex !important;
+  justify-content: flex-end !important;
+  width: auto !important;
+  float: none !important;
+}
+
+.list > .page-header .header-buttons a.action[data-action="create"],
+.list > .page-header .header-buttons a[data-name="create"],
+.list > .page-header .header-buttons a[href*="/create"] {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  line-height: 1 !important;
+  min-height: 40px !important;
+  height: 40px !important;
+  padding: 0 22px !important;
+  text-align: center !important;
+  vertical-align: middle !important;
+  white-space: nowrap !important;
+}
+
+.list > .page-header .header-buttons a[data-action="create"] span,
+.list > .page-header .header-buttons a[data-name="create"] span {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+}
+
+.list > .page-header .header-buttons a[data-action="create"] .fas,
+.list > .page-header .header-buttons a[data-name="create"] .fas {
+  margin: 0 !important;
+  line-height: 1 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+
+/* Búsqueda / filtros — misma fila que el botón Crear */
+.list > .search-container {
+  grid-area: search !important;
+  background: var(--crm-bg-elevated) !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: 10px 12px 14px 20px !important;
+  margin: 0 !important;
+  border-bottom: 1px solid var(--crm-border-light) !important;
+  align-self: center !important;
+}
+
+.list > .search-container .row {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+}
+
+.list > .search-container .form-group {
+  margin-bottom: 0 !important;
+}
+
+.list > .search-container .form-control {
+  border-radius: var(--crm-radius-sm) !important;
+  border-color: var(--crm-border) !important;
+  min-height: 36px;
+}
+
+.list > .search-container .form-control:focus {
+  border-color: var(--crm-primary) !important;
+  box-shadow: 0 0 0 3px rgba(29, 138, 110, 0.12) !important;
+}
+
+.list > .search-container .btn {
+  border-radius: var(--crm-radius-sm) !important;
+  font-weight: 600 !important;
+}
+
+/* Tabla — misma tarjeta, sin borde propio */
+.list > .list-container {
+  grid-area: table !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+  overflow: visible !important;
+}
+
+/* Listas con categorías (columna lateral) */
+.list > .row {
+  margin: 0 !important;
+  border-top: none !important;
+}
+
+.list > .row > .list-main-column > .list-container,
+.list > .row > .col-md-12 > .list-container {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* ── Filas internas de la tabla ── */
+.list-container > .list {
+  margin: 0 !important;
+}
+
+.list-container .table {
+  margin-bottom: 0 !important;
+}
+
+.list-container .table thead > tr > th:first-child,
+.list-container .table tbody > tr > td:first-child {
+  width: 44px !important;
+  min-width: 44px !important;
+  max-width: 44px !important;
+  text-align: center !important;
+  vertical-align: middle !important;
+  padding-left: 14px !important;
+  padding-right: 6px !important;
+}
+
+.list-container .table thead > tr > th:first-child .btn-group,
+.list-container .table tbody > tr > td:first-child input[type="checkbox"] {
+  margin: 0 auto !important;
+  float: none !important;
+}
+
+.list-container .table thead > tr > th:first-child .btn-group {
+  display: inline-flex !important;
+  justify-content: center !important;
+}
+
+.list-container .table > thead > tr > th:nth-child(2),
+.list-container .table > tbody > tr > td:nth-child(2) {
+  padding-left: 10px !important;
+}
+
+/* Barra de acciones masivas dentro de la tabla */
+.list-container .list-buttons-panel {
+  background: var(--crm-bg-elevated) !important;
+  border: none !important;
+  border-bottom: 1px solid var(--crm-border-light) !important;
+  border-radius: 0 !important;
+  padding: 8px 20px !important;
+  margin: 0 !important;
+}
+
+/* ══════════════════════════════════════════
+   DETALLE / EDICIÓN: header suelto en card
+   ══════════════════════════════════════════ */
+.record > .page-header,
+.modal .page-header {
+  background: var(--crm-surface) !important;
+  border: 1px solid var(--crm-border-light) !important;
+  border-radius: var(--crm-radius-lg) !important;
+  box-shadow: var(--crm-shadow-card) !important;
+  padding: 18px 22px 16px !important;
+  margin: 0 0 14px !important;
+}
+
+.page-header-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 16px !important;
+  margin: 0 !important;
+}
+
+.page-header-column-1 {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+}
+
+.page-header-column-2 {
+  flex: 0 0 auto !important;
+}
+
+/* ── Título ── */
+.page-header h3.header-title,
+.page-header .header-title {
+  margin: 0 !important;
+  padding: 0 !important;
+  font-size: 22px !important;
+  font-weight: 800 !important;
+  color: var(--crm-text) !important;
+  letter-spacing: -0.03em !important;
+  line-height: 1.2 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+.page-header .header-title a,
+.page-header h3 a {
+  color: var(--crm-text) !important;
+  font-weight: 800 !important;
+  text-decoration: none !important;
+}
+
+.page-header .header-title a:hover {
+  color: var(--crm-primary) !important;
+}
+
+.page-header .header-title .color-icon.fas.fa-square {
+  display: none !important;
+}
+
+.page-header .header-title .fas:not(.fa-square),
+.page-header .header-title .far:not(.fa-square) {
+  font-size: 18px !important;
+  color: var(--crm-primary) !important;
+}
+
+/* ── Botón Crear ── */
+.page-header .header-buttons a.action[data-action="create"],
+.page-header .header-buttons a.main-header-manu-action[data-action="create"],
+.page-header .header-buttons a[data-name="create"],
+.page-header .header-buttons a[href*="/create"],
+.page-header .header-buttons a[href$="create"] {
+  background: linear-gradient(135deg, var(--crm-primary) 0%, var(--crm-primary-dark) 100%) !important;
+  border: none !important;
+  color: #fff !important;
+  font-weight: 700 !important;
+  font-size: var(--crm-font-size-sm) !important;
+  padding: 10px 20px !important;
+  border-radius: var(--crm-radius-md) !important;
+  box-shadow: 0 4px 14px rgba(29, 138, 110, 0.35) !important;
+  transition: transform var(--crm-transition), box-shadow var(--crm-transition) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  line-height: 1.2 !important;
+  text-align: center !important;
+}
+
+.page-header .header-buttons a.action[data-action="create"]:hover,
+.page-header .header-buttons a[data-name="create"]:hover,
+.page-header .header-buttons a[href*="/create"]:hover {
+  background: linear-gradient(135deg, #22a07f 0%, var(--crm-primary-dark) 100%) !important;
+  color: #fff !important;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(29, 138, 110, 0.45) !important;
+}
+
+.page-header .header-buttons a.action[data-action="create"] .fas,
+.page-header .header-buttons a[data-name="create"] .fas {
+  color: #fff !important;
+  margin-right: 4px;
+}
+
+.page-header .header-buttons .btn-default:not([data-action="create"]):not([data-name="create"]) {
+  background: var(--crm-surface) !important;
+  border: 1px solid var(--crm-border) !important;
+  color: var(--crm-text-secondary) !important;
+  font-weight: 600 !important;
+  border-radius: var(--crm-radius-sm) !important;
+  padding: 8px 14px !important;
+}
+
+/* ── Breadcrumb ── */
+.breadcrumb {
+  background: transparent !important;
+  padding: 8px 0 0 !important;
+  margin: 0 !important;
+  font-size: var(--crm-font-size-sm) !important;
+}
+
+.breadcrumb a {
+  color: var(--crm-primary) !important;
+  font-weight: 500;
+}
+
+/* ── Contenido principal ── */
+#content #main {
+  padding: 16px 20px 24px !important;
+}

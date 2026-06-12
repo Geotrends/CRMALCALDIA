@@ -1,0 +1,13 @@
+/**
+ * CRM Alcaldía — hoja de estilos principal (EspoCRM shell)
+ * Carga global vía Resources/metadata/app/client.json
+ */
+@import url('01-variables.css');
+@import url('02-base.css');
+@import url('03-components.css');
+@import url('04-espo-shell.css');
+@import url('05-home.css');
+@import url('06-case.css');
+@import url('07-panels.css');
+@import url('09-navbar.css');
+@import url('10-page-headers.css');

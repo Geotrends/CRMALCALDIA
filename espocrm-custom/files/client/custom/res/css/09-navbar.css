@@ -1,0 +1,435 @@
+/**
+ * Navbar lateral — glassmorphism, colapsable, sin solapamiento
+ */
+
+body[data-navbar=side] {
+  --navbar-width: 248px;
+  --navbar-minimized-width: 72px;
+  --crm-nav-icon-size: 34px;
+  --crm-nav-collapsed-slot: 52px;
+  --crm-nav-collapsed-gap: 4px;
+}
+
+/* ── Panel cristal ── */
+body[data-navbar=side] #header {
+  z-index: 1040;
+}
+
+body[data-navbar=side] #navbar > .navbar .navbar-left-container::after {
+  display: none !important;
+  pointer-events: none !important;
+  content: none !important;
+}
+
+body[data-navbar=side] #navbar > .navbar .navbar-left-container {
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+body[data-navbar=side] #navbar .navbar-header {
+  position: relative !important;
+  z-index: 30 !important;
+  flex-shrink: 0 !important;
+}
+
+body[data-navbar=side] #navbar > .navbar {
+  background: rgba(255, 255, 255, 0.78) !important;
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  border-right: 1px solid rgba(226, 232, 240, 0.85) !important;
+  box-shadow: 4px 0 24px rgba(15, 23, 42, 0.06) !important;
+  transition: width 0.28s ease, background 0.28s ease;
+}
+
+body[data-navbar=side].minimized:not(.side-menu-opened) #navbar > .navbar {
+  background: rgba(248, 250, 252, 0.88) !important;
+}
+
+body[data-navbar=side].minimized.side-menu-opened #navbar > .navbar {
+  background: rgba(255, 255, 255, 0.92) !important;
+  backdrop-filter: blur(22px) saturate(180%);
+  box-shadow: 8px 0 32px rgba(15, 23, 42, 0.12) !important;
+}
+
+body[data-navbar=side] .side-menu-backdrop {
+  background: rgba(15, 23, 42, 0.16) !important;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+/* ── Logo Alcaldía de Envigado (CSS + img de respaldo) ── */
+body[data-navbar=side] #navbar .navbar-logo-container {
+  position: relative;
+  padding: 10px 12px 8px !important;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.75);
+  margin-bottom: 2px;
+  text-align: center;
+  min-height: 96px;
+}
+
+body[data-navbar=side] #navbar .navbar-logo-container .navbar-brand {
+  display: block !important;
+  width: 100% !important;
+  min-height: 82px !important;
+  padding: 0 28px 0 0 !important;
+  margin: 0 !important;
+  text-decoration: none !important;
+  background: url('/client/custom/res/img/logo-envigado.png') center center / contain no-repeat !important;
+  background-size: contain !important;
+}
+
+body[data-navbar=side] #navbar .navbar-logo-container .navbar-brand img.logo {
+  opacity: 0 !important;
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
+}
+
+body[data-navbar=side] #navbar .navbar-brand::after {
+  content: none !important;
+  display: none !important;
+}
+
+body[data-navbar=side].minimized:not(.side-menu-opened) #navbar .navbar-logo-container {
+  display: none !important;
+}
+
+/* ── Botón colapsar (arriba a la derecha del logo) ── */
+body[data-navbar=side] #navbar a.minimizer {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  position: absolute !important;
+  top: 16px !important;
+  right: 10px !important;
+  width: 30px !important;
+  height: 30px !important;
+  margin: 0 !important;
+  float: none !important;
+  border-radius: var(--crm-radius-full) !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  border: 1px solid var(--crm-border) !important;
+  color: var(--crm-text-muted) !important;
+  box-shadow: var(--crm-shadow-sm);
+  z-index: 5;
+  cursor: pointer;
+  transition: all var(--crm-transition) !important;
+}
+
+body[data-navbar=side] #navbar a.minimizer:hover {
+  background: var(--crm-primary-light) !important;
+  color: var(--crm-primary) !important;
+  border-color: var(--crm-primary-soft) !important;
+}
+
+body[data-navbar=side].minimized:not(.side-menu-opened) #navbar a.minimizer {
+  position: static !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: var(--crm-nav-collapsed-slot) !important;
+  height: var(--crm-nav-collapsed-slot) !important;
+  min-width: var(--crm-nav-collapsed-slot) !important;
+  margin: 8px auto 10px !important;
+  float: none !important;
+  order: 99 !important;
+  flex-shrink: 0 !important;
+}
+
+body[data-navbar=side] #navbar a.minimizer > span {
+  font-size: 11px !important;
+}
+
+/* ── Modo colapsado: cabecera + hamburguesa alineados con iconos ── */
+body[data-navbar=side].minimized:not(.side-menu-opened) #navbar .navbar-header {
+  width: var(--navbar-minimized-width) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 10px 0 6px !important;
+  margin: 0 !important;
+  float: none !important;
+  position: relative !important;
+  z-index: 30 !important;
+  background: transparent !important;
+}
+
+body[data-navbar=side].minimized:not(.side-menu-opened) #navbar a.side-menu-button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: var(--crm-nav-collapsed-slot) !important;
+  height: var(--crm-nav-collapsed-slot) !important;
+  min-width: var(--crm-nav-collapsed-slot) !important;
+  margin: 0 auto var(--crm-nav-collapsed-gap) !important;
+  padding: 0 !important;
+  border: none !important;
+  border-right: none !important;
+  border-radius: 10px !important;
+  color: var(--crm-text-secondary) !important;
+  background: rgba(241, 245, 249, 0.95) !important;
+  box-shadow: none !important;
+  text-align: center !important;
+  float: none !important;
+  position: relative !important;
+  z-index: 31 !important;
+}
+
+body[data-navbar=side].minimized:not(.side-menu-opened) #navbar a.side-menu-button > span {
+  width: auto !important;
+  font-size: 15px !important;
+  line-height: 1 !important;
+}
+
+body[data-navbar=side].minimized:not(.side-menu-opened) #navbar a.side-menu-button:hover {
+  background: var(--crm-primary-light) !important;
+  color: var(--crm-primary) !important;
+}
+
+body[data-navbar=side].minimized:not(.side-menu-opened) #navbar .navbar-left-container {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  width: var(--navbar-minimized-width) !important;
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+  overflow: visible !important;
+}
+
+body[data-navbar=side].minimized:not(.side-menu-opened) #navbar .navbar ul.tabs {
+  width: var(--navbar-minimized-width) !important;
+  padding: 4px 0 0 !important;
+  margin: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+body[data-navbar=side].minimized:not(.side-menu-opened) #navbar .navbar ul.tabs > li.tab:first-child,
+body[data-navbar=side].minimized:not(.side-menu-opened) #navbar .navbar ul.tabs > li.more:first-child {
+  margin-top: 2px !important;
+}
+
+/* ── FIX solapamiento: anular position:absolute de EspoCRM ── */
+body[data-navbar=side] #navbar ul.tabs > li.tab > a,
+body[data-navbar=side] #navbar ul.tabs > li.more > a,
+body[data-navbar=side] #navbar ul.tabs > li.more > ul > li > a {
+  position: relative !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 10px !important;
+  height: auto !important;
+  min-height: 42px !important;
+  padding: 7px 10px !important;
+  margin: 2px 8px !important;
+  border-radius: var(--crm-radius-md) !important;
+  color: var(--crm-text-secondary) !important;
+  font-weight: 500 !important;
+  font-size: var(--crm-font-size-sm) !important;
+  text-decoration: none !important;
+  transition: background var(--crm-transition), color var(--crm-transition) !important;
+}
+
+body[data-navbar=side] #navbar ul.tabs > li.tab > a > span.short-label,
+body[data-navbar=side] #navbar ul.tabs > li.more > ul > li > a > span.short-label {
+  position: static !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+  width: var(--crm-nav-icon-size) !important;
+  min-width: var(--crm-nav-icon-size) !important;
+  height: var(--crm-nav-icon-size) !important;
+  margin: 0 !important;
+  border-radius: 10px !important;
+  background: rgba(241, 245, 249, 0.95) !important;
+}
+
+body[data-navbar=side] #navbar ul.tabs > li > a > span.full-label {
+  position: static !important;
+  padding-left: 0 !important;
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  line-height: 1.3 !important;
+}
+
+body[data-navbar=side] #navbar ul.tabs > li > a > span.short-label > .short-label-text {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+body[data-navbar=side] #navbar ul.tabs > li > a > span.short-label .fas,
+body[data-navbar=side] #navbar ul.tabs > li > a > span.short-label .far {
+  font-size: 14px !important;
+  color: var(--crm-text-secondary) !important;
+}
+
+/* Hover y activo */
+body[data-navbar=side] #navbar ul.tabs > li.tab > a:hover,
+body[data-navbar=side] #navbar ul.tabs > li.tab.active > a {
+  background: rgba(29, 138, 110, 0.08) !important;
+  color: var(--crm-primary-dark) !important;
+}
+
+body[data-navbar=side] #navbar ul.tabs > li.tab.active > a {
+  font-weight: 600 !important;
+}
+
+body[data-navbar=side] #navbar ul.tabs > li.tab > a:hover > span.short-label,
+body[data-navbar=side] #navbar ul.tabs > li.tab.active > a > span.short-label {
+  background: var(--crm-primary) !important;
+}
+
+body[data-navbar=side] #navbar ul.tabs > li.tab > a:hover > span.short-label .fas,
+body[data-navbar=side] #navbar ul.tabs > li.tab > a:hover > span.short-label .far,
+body[data-navbar=side] #navbar ul.tabs > li.tab.active > a > span.short-label .fas,
+body[data-navbar=side] #navbar ul.tabs > li.tab.active > a > span.short-label .far {
+  color: #fff !important;
+}
+
+/* More (⋯) */
+body[data-navbar=side] #navbar ul.tabs > li.more > a {
+  justify-content: flex-start !important;
+}
+
+body[data-navbar=side] #navbar ul.tabs > li.more > a .more-icon {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  width: var(--crm-nav-icon-size) !important;
+  height: var(--crm-nav-icon-size) !important;
+  border-radius: 10px;
+  background: rgba(241, 245, 249, 0.95);
+}
+
+/* ── Modo colapsado: cada ítem mismo slot centrado ── */
+body[data-navbar=side].minimized:not(.side-menu-opened) #navbar ul.tabs > li.tab,
+body[data-navbar=side].minimized:not(.side-menu-opened) #navbar ul.tabs > li.more {
+  width: 100% !important;
+  display: flex !important;
+  justify-content: center !important;
+}
+
+body[data-navbar=side].minimized:not(.side-menu-opened) #navbar ul.tabs > li.tab > a,
+body[data-navbar=side].minimized:not(.side-menu-opened) #navbar ul.tabs > li.more > a {
+  justify-content: center !important;
+  align-items: center !important;
+  width: var(--crm-nav-collapsed-slot) !important;
+  min-width: var(--crm-nav-collapsed-slot) !important;
+  height: var(--crm-nav-collapsed-slot) !important;
+  min-height: var(--crm-nav-collapsed-slot) !important;
+  padding: 0 !important;
+  margin: var(--crm-nav-collapsed-gap) auto !important;
+}
+
+body[data-navbar=side].minimized:not(.side-menu-opened) #navbar ul.tabs > li.tab > a > span.short-label,
+body[data-navbar=side].minimized:not(.side-menu-opened) #navbar ul.tabs > li.more > a .more-icon {
+  width: var(--crm-nav-icon-size) !important;
+  min-width: var(--crm-nav-icon-size) !important;
+  height: var(--crm-nav-icon-size) !important;
+  margin: 0 auto !important;
+}
+
+body[data-navbar=side].minimized:not(.side-menu-opened) #navbar ul.tabs > li.tab-divider {
+  display: none !important;
+}
+
+body[data-navbar=side].minimized:not(.side-menu-opened) #navbar ul.tabs > li > a > span.full-label {
+  display: none !important;
+}
+
+body[data-navbar=side].minimized:not(.side-menu-opened) #navbar ul.tabs > li > a > span.short-label > .short-label-text {
+  display: none !important;
+}
+
+/* Zona inferior colapsada — iconos centrados */
+body[data-navbar=side].minimized:not(.side-menu-opened) #navbar .navbar-right-container {
+  width: var(--navbar-minimized-width) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  padding: 8px 0 !important;
+}
+
+body[data-navbar=side].minimized:not(.side-menu-opened) #navbar .navbar-nav.navbar-right {
+  width: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  float: none !important;
+  margin: 0 !important;
+}
+
+body[data-navbar=side].minimized:not(.side-menu-opened) #navbar .navbar-nav.navbar-right > li {
+  width: 100% !important;
+  display: flex !important;
+  justify-content: center !important;
+}
+
+body[data-navbar=side].minimized:not(.side-menu-opened) #navbar .navbar-nav.navbar-right > li > a {
+  width: var(--crm-nav-collapsed-slot) !important;
+  height: var(--crm-nav-collapsed-slot) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  margin: var(--crm-nav-collapsed-gap) auto !important;
+}
+
+/* ── Separadores de sección ── */
+body[data-navbar=side] #navbar ul.tabs > li.tab-divider > div {
+  padding: 14px 14px 6px !important;
+  color: var(--crm-text-muted) !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+/* ── Zona inferior (usuario, notificaciones) ── */
+body[data-navbar=side] #navbar .navbar-right-container {
+  border-top: 1px solid rgba(226, 232, 240, 0.75);
+  padding: 8px !important;
+  background: rgba(255, 255, 255, 0.35);
+}
+
+body[data-navbar=side] #navbar .navbar-nav.navbar-right > li > a {
+  border-radius: var(--crm-radius-md) !important;
+  padding: 8px 10px !important;
+  color: var(--crm-text-secondary) !important;
+}
+
+body[data-navbar=side] #navbar .navbar-nav.navbar-right > li > a:hover {
+  background: var(--crm-primary-light) !important;
+  color: var(--crm-primary) !important;
+}
+
+/* Dropdowns */
+body[data-navbar=side] #navbar .dropdown-menu {
+  background: rgba(255, 255, 255, 0.96) !important;
+  backdrop-filter: blur(12px);
+  border-radius: var(--crm-radius-md) !important;
+  box-shadow: var(--crm-shadow-lg) !important;
+}
+
+body[data-navbar=side] #content {
+  transition: margin-left 0.28s ease;
+}
+
+/* Navbar horizontal (fallback) */
+body:not([data-navbar=side]) #navbar {
+  background: rgba(255, 255, 255, 0.9) !important;
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--crm-border) !important;
+}

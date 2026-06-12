@@ -1,0 +1,44 @@
+/**
+ * Casos — detalle, edición, listas
+ */
+
+/* Campo radicado destacado */
+.field[data-name="cNumeroRadicado"] .field-value,
+.field[data-name="cNumeroRadicado"] input {
+  font-weight: 700 !important;
+  color: var(--crm-primary-dark) !important;
+}
+
+.field[data-name="cExpediente"] .field-value {
+  font-weight: 600 !important;
+}
+
+/* Estado del caso */
+.field[data-name="status"] .label {
+  font-size: var(--crm-font-size-sm) !important;
+  padding: 4px 12px !important;
+}
+
+/* Side panels de formatos */
+.record[data-scope="Case"] .side .panel {
+  border-left: 3px solid var(--crm-primary) !important;
+}
+
+.record[data-scope="Case"] .side .panel-heading {
+  background: var(--crm-bg-elevated) !important;
+}
+
+/* Lista de casos — filas más legibles */
+.list[data-scope="Case"] .table .link {
+  font-weight: 600 !important;
+  color: var(--crm-text) !important;
+}
+
+.list[data-scope="Case"] .table .link:hover {
+  color: var(--crm-primary) !important;
+}
+
+/* Kanban Case */
+.kanban[data-scope="Case"] .kanban-row {
+  gap: 12px;
+}

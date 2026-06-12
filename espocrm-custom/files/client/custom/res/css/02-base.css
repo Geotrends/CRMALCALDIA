@@ -1,0 +1,23 @@
+/**
+ * Base — tipografía y fondo global (EspoCRM shell)
+ */
+
+body {
+  font-family: var(--crm-font) !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#content,
+#main,
+.page-header,
+.panel,
+.modal-content {
+  font-family: var(--crm-font);
+}
+
+.content {
+  background: var(--crm-bg) !important;
+}
+
+/* page-header → ver 10-page-headers.css */
