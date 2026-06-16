@@ -1,8 +1,9 @@
 define('custom:helpers/actuo-archivo-case-status', [
     'custom:helpers/silent-ajax',
+    'custom:helpers/case-fetch-cache',
     'custom:helpers/formato-actuo-archivo-case-access',
     'custom:helpers/inspeccion-actuo-archivo',
-], function (SilentAjax, FormatoActuoArchivoCaseAccess, InspeccionActuoArchivo) {
+], function (SilentAjax, CaseFetchCache, FormatoActuoArchivoCaseAccess, InspeccionActuoArchivo) {
 
     const CONTENT_FIELDS = [
         'referencia',
@@ -101,12 +102,16 @@ define('custom:helpers/actuo-archivo-case-status', [
         });
     };
 
-    const fetchActuoForCase = function (caseId, user, model) {
+    const fetchActuoForCase = function (caseId, user, model, options) {
         if (!caseId || !canFetchActuoForCase(user, model)) {
             return Promise.resolve(null);
         }
 
-        return fetchActuoDirect(caseId);
+        if (options && options.bypassCache) {
+            CaseFetchCache.invalidateActuo(caseId);
+        }
+
+        return CaseFetchCache.fetchActuo(caseId, fetchActuoDirect);
     };
 
     return {
@@ -115,5 +120,6 @@ define('custom:helpers/actuo-archivo-case-status', [
         isFormatoActuoHabilitado: isFormatoActuoHabilitado,
         canFetchActuoForCase: canFetchActuoForCase,
         fetchActuoForCase: fetchActuoForCase,
+        invalidateCache: CaseFetchCache.invalidateActuo,
     };
 });

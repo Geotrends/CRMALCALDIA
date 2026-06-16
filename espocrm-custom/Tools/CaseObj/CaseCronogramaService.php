@@ -20,9 +20,10 @@ class CaseCronogramaService
     /**
      * @return array<string, mixed>
      */
-    public function build(Entity $case): array
+    public function build(Entity $case, ?array $statusDates = null): array
     {
-        $statusDates = (new CaseTimelineService($this->entityManager))->getActualStatusDates($case);
+        $statusDates = $statusDates ?? (new CaseTimelineService($this->entityManager))
+            ->getActualStatusDates($case);
         $currentStatus = (string) $case->get('status');
         $acta = $this->findActaForCase($case->getId());
         $actuo = $this->findActuoForCase($case->getId());

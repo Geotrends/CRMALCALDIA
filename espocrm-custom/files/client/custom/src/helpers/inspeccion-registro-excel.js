@@ -44,11 +44,11 @@ define('custom:helpers/inspeccion-registro-excel', [
             }
         });
 
-        if (!recordView.isEditMode || !recordView.isEditMode()) {
+        if (!recordView.isEditMode || typeof recordView.isEditMode !== 'function' || !recordView.isEditMode()) {
             return;
         }
 
-        const recursoView = recordView.getFieldView(REcurso_TEMA_FIELD);
+        const recursoView = recordView.getFieldView(RECURSO_TEMA_FIELD);
 
         if (!recursoView) {
             return;

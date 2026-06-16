@@ -12,7 +12,7 @@ define('custom:views/case/fields/acta-visita-action', [
         setup: function () {
             Dep.prototype.setup.call(this);
 
-            this.isEditMode = false;
+            this.actaIsEditMode = false;
             this.showButton = false;
 
             this.listenTo(this.model, 'change:status change:assignedUserId change:cNumeroRadicado change:cExpediente sync', function () {
@@ -26,7 +26,7 @@ define('custom:views/case/fields/acta-visita-action', [
             let helpText = this.translate('actaVisitaPanelHelp', 'Case');
             let buttonLabel = this.translate('llenarActaVisita', 'Case');
 
-            if (this.isEditMode) {
+            if (this.actaIsEditMode) {
                 helpText = this.translate('actaVisitaEditHelp', 'Case');
                 buttonLabel = this.translate('editarActaVisita', 'Case');
             }
@@ -48,7 +48,7 @@ define('custom:views/case/fields/acta-visita-action', [
             const isPatrullero = PatrulleroActa.shouldShowLlenarActaButton(user, this.model);
 
             if (!isPatrullero || !this.model.id) {
-                this.isEditMode = false;
+                this.actaIsEditMode = false;
                 this.showButton = false;
                 this.updatePanelVisibility(false);
                 this.reRenderIfNeeded();
@@ -57,7 +57,7 @@ define('custom:views/case/fields/acta-visita-action', [
             }
 
             ActaVisitaCaseStatus.fetchActaForCase(this.model.id, user, this.model).then((acta) => {
-                this.isEditMode = ActaVisitaCaseStatus.isActaDiligenciada(acta);
+                this.actaIsEditMode = ActaVisitaCaseStatus.isActaDiligenciada(acta);
                 this.showButton = true;
                 this.updatePanelVisibility(true);
                 this.reRenderIfNeeded();

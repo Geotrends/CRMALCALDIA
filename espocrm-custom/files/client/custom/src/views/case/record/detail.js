@@ -14,7 +14,8 @@ define('custom:views/case/record/detail', [
     'custom:helpers/radicado-assistant-panel',
     'custom:helpers/inspeccion-registro-excel',
     'custom:helpers/case-documentos',
-], function (Dep, PatrulleroActa, InspeccionActa, RadicacionFields, PostRadicacionFields, ActaVisitaModal, ActaVisitaCaseStatus, InspeccionActuoArchivo, ActuoArchivoModal, ActuoArchivoCaseStatus, PersonaTipoFields, RadicadoGenerator, RadicadoAssistantPanel, InspeccionRegistroExcel, CaseDocumentos) {
+    'custom:helpers/case-detail-panels',
+], function (Dep, PatrulleroActa, InspeccionActa, RadicacionFields, PostRadicacionFields, ActaVisitaModal, ActaVisitaCaseStatus, InspeccionActuoArchivo, ActuoArchivoModal, ActuoArchivoCaseStatus, PersonaTipoFields, RadicadoGenerator, RadicadoAssistantPanel, InspeccionRegistroExcel, CaseDocumentos, CaseDetailPanels) {
 
     return Dep.extend({
 
@@ -35,13 +36,13 @@ define('custom:views/case/record/detail', [
             this.listenTo(this.model, 'change:cNumeroRadicado change:cExpediente change:assignedUserId change:cFormatoSolicitudPdfId change:status', function () {
                 this.toggleRadicacionFields();
                 this.togglePostRadicacionFields();
-                this.refreshActaVisitaPanel();
-                this.refreshFormatoGeneradoDocs();
+                this.scheduleRefreshActaVisitaPanel();
+                this.scheduleRefreshFormatoGeneradoDocs();
             });
 
             this.listenTo(this.model, 'change:status', function () {
                 this.toggleActuoArchivoPanels();
-                this.refreshFormatoGeneradoDocs();
+                this.scheduleRefreshFormatoGeneradoDocs();
 
                 if (this.isRendered()) {
                     this.updateActuoArchivoButton();
@@ -51,6 +52,14 @@ define('custom:views/case/record/detail', [
             this.listenTo(this.model, 'change:status change:assignedUserId change:cNumeroRadicado change:cExpediente', function () {
                 if (this.isRendered()) {
                     this.updateActaVisitaButton();
+                }
+            });
+
+            this.listenTo(this.model, 'sync', function () {
+                if (this.model.id) {
+                    CaseDetailPanels.invalidate(this.model.id);
+                    ActaVisitaCaseStatus.invalidateCache(this.model.id);
+                    ActuoArchivoCaseStatus.invalidateCache(this.model.id);
                 }
             });
 
@@ -97,6 +106,10 @@ define('custom:views/case/record/detail', [
         actionLlenarActaVisita: function () {
             ActaVisitaModal.open(this, this.model, this.getUser(), {
                 onAfterSave: () => {
+                    if (this.model.id) {
+                        ActaVisitaCaseStatus.invalidateCache(this.model.id);
+                    }
+
                     this.updateActaVisitaButton();
                     this.refreshActaVisitaPanel();
                     this.refreshFormatoGeneradoDocs();
@@ -144,6 +157,10 @@ define('custom:views/case/record/detail', [
         actionLlenarActuoArchivo: function () {
             ActuoArchivoModal.open(this, this.model, this.getUser(), {
                 onAfterSave: () => {
+                    if (this.model.id) {
+                        ActuoArchivoCaseStatus.invalidateCache(this.model.id);
+                    }
+
                     this.updateActuoArchivoButton();
                     this.refreshFormatoGeneradoDocs();
                 },
@@ -155,6 +172,29 @@ define('custom:views/case/record/detail', [
                 '#' + this.entityType + '/edit/' + this.model.id,
                 {trigger: true}
             );
+        },
+
+        actionDelete: function (data) {
+            return this.confirm({
+                message: this.translate('removeRecordConfirmation', 'messages')
+                    .replace('{entityType}', this.translateEntityType(this.entityType, 'singular')),
+            }).then((confirmed) => {
+                if (!confirmed) {
+                    return false;
+                }
+
+                Espo.Ui.notify(this.translate('pleaseWait', 'messages'));
+
+                return this.model.destroy({wait: true}).then(() => {
+                    Espo.Ui.notify(false);
+                    Espo.Ui.success(this.translate('caseDeletedSuccess', 'labels', 'Case'));
+                    this.exit('delete');
+                }).catch((error) => {
+                    Espo.Ui.notify(false);
+
+                    return Promise.reject(error);
+                });
+            });
         },
 
         afterRender: function () {
@@ -171,8 +211,30 @@ define('custom:views/case/record/detail', [
             this.toggleRadicacionFields();
             this.togglePostRadicacionFields();
             this.toggleRegistroExcelPanel();
-            this.refreshActaVisitaPanel();
-            this.refreshFormatoGeneradoDocs();
+            this.scheduleRefreshActaVisitaPanel();
+            this.scheduleRefreshFormatoGeneradoDocs();
+        },
+
+        scheduleRefreshFormatoGeneradoDocs: function () {
+            if (this._refreshDocsTimer) {
+                clearTimeout(this._refreshDocsTimer);
+            }
+
+            this._refreshDocsTimer = setTimeout(() => {
+                this._refreshDocsTimer = null;
+                this.refreshFormatoGeneradoDocs();
+            }, 80);
+        },
+
+        scheduleRefreshActaVisitaPanel: function () {
+            if (this._refreshActaTimer) {
+                clearTimeout(this._refreshActaTimer);
+            }
+
+            this._refreshActaTimer = setTimeout(() => {
+                this._refreshActaTimer = null;
+                this.refreshActaVisitaPanel();
+            }, 80);
         },
 
         findPanel: function (name) {
@@ -263,6 +325,14 @@ define('custom:views/case/record/detail', [
                 return;
             }
 
+            const fieldView = this.getFieldView('cFormatoSolicitudPdf');
+
+            if (fieldView && Array.isArray(fieldView.documentos)) {
+                this.findPanel('formatoGenerado').toggle(fieldView.documentos.length > 0);
+
+                return;
+            }
+
             CaseDocumentos.hasVisibleDocumentos(this.model, this.getUser(), this.getBasePath()).then((show) => {
                 this.findPanel('formatoGenerado').toggle(show);
             });
@@ -271,11 +341,15 @@ define('custom:views/case/record/detail', [
         refreshFormatoGeneradoDocs: function () {
             const fieldView = this.getFieldView('cFormatoSolicitudPdf');
 
-            if (fieldView && typeof fieldView.loadDocumentos === 'function') {
-                fieldView.loadDocumentos();
+            if (!fieldView || typeof fieldView.loadDocumentos !== 'function') {
+                this.toggleFormatoGeneradoPanel();
+
+                return;
             }
 
-            this.toggleFormatoGeneradoPanel();
+            fieldView.loadDocumentos().then(() => {
+                this.toggleFormatoGeneradoPanel();
+            });
         },
 
         refreshActaVisitaPanel: function () {

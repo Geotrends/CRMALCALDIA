@@ -173,6 +173,38 @@ class CaseObj extends BaseCaseObj
         return (new CaseCronogramaService($this->entityManager))->build($case);
     }
 
+    /**
+     * GET Case/action/panelesDetalle?id=...
+     *
+     * @return array<string, mixed>
+     */
+    public function getActionPanelesDetalle(Request $request): array
+    {
+        $id = trim((string) $request->getQueryParam('id'));
+
+        if ($id === '') {
+            throw new BadRequest('ID requerido.');
+        }
+
+        $case = $this->entityManager->getEntityById('Case', $id);
+
+        if (!$case) {
+            throw new NotFound();
+        }
+
+        if (!$this->acl->checkEntityRead($case)) {
+            throw new Forbidden();
+        }
+
+        $timelineService = new CaseTimelineService($this->entityManager);
+        $statusDates = $timelineService->getActualStatusDates($case);
+
+        return [
+            'timeline' => $timelineService->build($case, $statusDates),
+            'cronograma' => (new CaseCronogramaService($this->entityManager))->build($case, $statusDates),
+        ];
+    }
+
     private function canUseRadicadoAssistant(User $user): bool
     {
         if ($user->isAdmin()) {

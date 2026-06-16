@@ -108,6 +108,7 @@ define('custom:helpers/case-status-timeline', [
 
     return {
         createPlaceholder: createPlaceholder,
+        buildFromRaw: buildFromRaw,
         fetch: fetch,
     };
 });

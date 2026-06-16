@@ -26,7 +26,7 @@ class CaseTimelineService
     /**
      * @return array<string, mixed>
      */
-    public function build(Entity $case): array
+    public function build(Entity $case, ?array $statusDates = null): array
     {
         $currentStatus = (string) $case->get('status');
         $currentIndex = array_search($currentStatus, self::STATUS_FLOW, true);
@@ -35,7 +35,7 @@ class CaseTimelineService
             $currentIndex = 0;
         }
 
-        $statusDates = $this->resolveStatusDates($case);
+        $statusDates = $statusDates ?? $this->resolveStatusDates($case);
         $statusDates = $this->fillMissingDatesForCompletedSteps($statusDates, $currentIndex);
         $total = count(self::STATUS_FLOW);
         $progress = $total > 1 ? (int) round(($currentIndex / ($total - 1)) * 100) : 0;
@@ -88,11 +88,13 @@ class CaseTimelineService
 
         $collection = $this->entityManager
             ->getRDBRepository('Note')
+            ->select(['id', 'type', 'data', 'createdAt'])
             ->where([
                 'parentType' => 'Case',
                 'parentId' => $caseId,
             ])
             ->order('createdAt', 'ASC')
+            ->limit(0, 200)
             ->find();
 
         foreach ($collection as $note) {

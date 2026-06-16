@@ -209,14 +209,18 @@ define('custom:helpers/radicado-assistant-panel', [
         bindEvents(recordView, $panel);
         refreshPreview(recordView, $panel);
 
-        recordView.listenTo(recordView.model, 'change:cRecursoTema', function () {
-            const siglas = RadicadoCatalog.getSiglasFromModelRecurso(recordView.model);
+        if (!recordView._radicadoPanelRecursoBound) {
+            recordView._radicadoPanelRecursoBound = true;
 
-            if (siglas) {
-                recordView.model.set('cRadicadoSiglas', siglas);
-                mount(recordView);
-            }
-        });
+            recordView.listenTo(recordView.model, 'change:cRecursoTema', function () {
+                const siglas = RadicadoCatalog.getSiglasFromModelRecurso(recordView.model);
+
+                if (siglas) {
+                    recordView.model.set('cRadicadoSiglas', siglas);
+                    mount(recordView);
+                }
+            });
+        }
     };
 
     const unmount = function (recordView) {

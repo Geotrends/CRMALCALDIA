@@ -1,8 +1,9 @@
 define('custom:helpers/acta-visita-case-status', [
     'custom:helpers/silent-ajax',
+    'custom:helpers/case-fetch-cache',
     'custom:helpers/formato-acta-visita-case-access',
     'custom:helpers/patrullero-acta',
-], function (SilentAjax, FormatoActaVisitaCaseAccess, PatrulleroActa) {
+], function (SilentAjax, CaseFetchCache, FormatoActaVisitaCaseAccess, PatrulleroActa) {
 
     const CONTENT_FIELDS = [
         'objetoVisita',
@@ -111,12 +112,16 @@ define('custom:helpers/acta-visita-case-status', [
         });
     };
 
-    const fetchActaForCase = function (caseId, user, model) {
+    const fetchActaForCase = function (caseId, user, model, options) {
         if (!caseId || !canFetchActaForCase(user, model)) {
             return Promise.resolve(null);
         }
 
-        return fetchActaDirect(caseId);
+        if (options && options.bypassCache) {
+            CaseFetchCache.invalidateActa(caseId);
+        }
+
+        return CaseFetchCache.fetchActa(caseId, fetchActaDirect);
     };
 
     return {
@@ -125,5 +130,6 @@ define('custom:helpers/acta-visita-case-status', [
         isFormatoActaHabilitado: isFormatoActaHabilitado,
         canFetchActaForCase: canFetchActaForCase,
         fetchActaForCase: fetchActaForCase,
+        invalidateCache: CaseFetchCache.invalidateActa,
     };
 });

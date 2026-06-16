@@ -11,12 +11,13 @@ define('custom:views/case/fields/formato-generado-docs', [
             Dep.prototype.setup.call(this);
 
             this.documentos = [];
+            this._loadTimer = null;
 
             this.listenTo(this.model, 'change:cFormatoSolicitudPdfId change:status change:cNumeroRadicado change:cExpediente sync', function () {
-                this.loadDocumentos();
+                this.scheduleLoadDocumentos();
             });
 
-            this.loadDocumentos();
+            this.scheduleLoadDocumentos();
         },
 
         data: function () {
@@ -37,8 +38,19 @@ define('custom:views/case/fields/formato-generado-docs', [
             }
         },
 
+        scheduleLoadDocumentos: function () {
+            if (this._loadTimer) {
+                clearTimeout(this._loadTimer);
+            }
+
+            this._loadTimer = setTimeout(() => {
+                this._loadTimer = null;
+                this.loadDocumentos();
+            }, 80);
+        },
+
         loadDocumentos: function () {
-            CaseDocumentos.fetchDocumentos(
+            return CaseDocumentos.fetchDocumentos(
                 this.model,
                 this.getUser(),
                 this.getBasePath()
@@ -56,6 +68,8 @@ define('custom:views/case/fields/formato-generado-docs', [
                 if (this.isRendered()) {
                     this.reRender();
                 }
+
+                return this.documentos;
             });
         },
     });

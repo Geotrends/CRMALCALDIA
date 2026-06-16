@@ -45,10 +45,46 @@ define('custom:views/case/record/edit', [
             return Dep.prototype.save.apply(this, arguments);
         },
 
-        actionSave: function () {
+        actionSave: function (data) {
             this.prepareModelForSave();
 
-            return Dep.prototype.actionSave.apply(this, arguments);
+            data = data || {};
+            const wasNew = this.model.isNew();
+
+            return this.save(data.options).then(() => {
+                Espo.Ui.notify(false);
+
+                if (wasNew) {
+                    Espo.Ui.success(this.translate('caseCreatedSuccess', 'labels', 'Case'));
+                } else {
+                    Espo.Ui.success(this.translate('caseEditedSuccess', 'labels', 'Case'));
+                }
+
+                if (this.options.duplicateSourceId) {
+                    this.returnUrl = null;
+                }
+
+                this.exit(wasNew ? 'create' : 'save');
+            }).catch((error) => {
+                Espo.Ui.notify(false);
+
+                return Promise.reject(error);
+            });
+        },
+
+        actionSaveAndContinueEditing: function (data) {
+            this.prepareModelForSave();
+
+            data = data || {};
+
+            return this.save(data.options).then(() => {
+                Espo.Ui.notify(false);
+                Espo.Ui.success(this.translate('caseSavedSuccess', 'labels', 'Case'));
+            }).catch((error) => {
+                Espo.Ui.notify(false);
+
+                return Promise.reject(error);
+            });
         },
 
         afterRender: function () {
@@ -178,7 +214,7 @@ define('custom:views/case/record/edit', [
         },
 
         prepareModelForSave: function () {
-            if (!RadicacionFields.isRadicacionUser(this.getUser())) {
+            if (this.model.isNew() && !RadicacionFields.isRadicacionUser(this.getUser())) {
                 RadicacionFields.stripRadicadoFromModel(this.model);
             }
         },

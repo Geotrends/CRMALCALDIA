@@ -95,7 +95,11 @@
     "formatoGeneradoSolicitud": "Formato de solicitud",
     "formatoGeneradoActa": "Acta de visita",
     "formatoGeneradoActuo": "Auto de archivo",
-    "formatoGeneradoEmpty": "Aún no hay documentos generados para este caso."
+    "formatoGeneradoEmpty": "Aún no hay documentos generados para este caso.",
+    "caseCreatedSuccess": "Caso creado exitosamente.",
+    "caseEditedSuccess": "Caso editado exitosamente.",
+    "caseSavedSuccess": "Guardado exitosamente.",
+    "caseDeletedSuccess": "Caso eliminado exitosamente."
   },
   "caseTimelineShort": {
     "Pendiente de radicacion": "Pend. radicación",

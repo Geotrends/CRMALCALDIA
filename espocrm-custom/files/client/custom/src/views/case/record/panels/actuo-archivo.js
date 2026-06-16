@@ -12,7 +12,7 @@ define('custom:views/case/record/panels/actuo-archivo', [
         setup: function () {
             Dep.prototype.setup.call(this);
 
-            this.isEditMode = false;
+            this.actuoIsEditMode = false;
 
             this.listenTo(this.model, 'change:status', function () {
                 this.loadActuoState();
@@ -31,7 +31,7 @@ define('custom:views/case/record/panels/actuo-archivo', [
             const user = this.getUser();
 
             if (!InspeccionActuoArchivo.shouldShowActuoArchivoButton(user, this.model)) {
-                this.isEditMode = false;
+                this.actuoIsEditMode = false;
 
                 if (this.isRendered()) {
                     this.reRender();
@@ -42,7 +42,7 @@ define('custom:views/case/record/panels/actuo-archivo', [
             }
 
             if (!this.model.id) {
-                this.isEditMode = false;
+                this.actuoIsEditMode = false;
 
                 if (this.isRendered()) {
                     this.reRender();
@@ -53,7 +53,7 @@ define('custom:views/case/record/panels/actuo-archivo', [
             }
 
             ActuoArchivoCaseStatus.fetchActuoForCase(this.model.id, this.getUser(), this.model).then((actuo) => {
-                this.isEditMode = ActuoArchivoCaseStatus.isActuoDiligenciado(actuo);
+                this.actuoIsEditMode = ActuoArchivoCaseStatus.isActuoDiligenciado(actuo);
 
                 if (this.isRendered()) {
                     this.reRender();
@@ -102,10 +102,10 @@ define('custom:views/case/record/panels/actuo-archivo', [
             return {
                 showButton: showButton,
                 unavailableReason: unavailableReason,
-                helpText: this.isEditMode
+                helpText: this.actuoIsEditMode
                     ? this.translate('actuoArchivoEditHelp', 'Case')
                     : this.translate('actuoArchivoPanelHelp', 'Case'),
-                buttonLabel: this.isEditMode
+                buttonLabel: this.actuoIsEditMode
                     ? this.translate('editarActuoArchivo', 'Case')
                     : this.translate('llenarActuoArchivo', 'Case'),
             };

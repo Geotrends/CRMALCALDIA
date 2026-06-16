@@ -84,6 +84,7 @@ define('custom:helpers/case-cronograma', [
 
     return {
         createPlaceholder: createPlaceholder,
+        buildFromRaw: buildFromRaw,
         fetch: fetch,
     };
 });
