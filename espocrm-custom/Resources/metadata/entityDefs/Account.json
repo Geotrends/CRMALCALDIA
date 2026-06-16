@@ -1,9 +1,9 @@
 {
-    "fields": {
-        "cNit": {
-            "type": "varchar",
-            "maxLength": 50,
-            "isCustom": true
-        }
+  "fields": {
+    "cNit": {
+      "type": "varchar",
+      "maxLength": 50,
+      "isCustom": true
     }
+  }
 }

@@ -1,12 +1,9 @@
 {
   "scopeNames": {
-    "ActaVisita": "Acta de visita",
-    "ActaVisitaPlural": "Actas de visita",
     "Account": "Persona jurídica",
     "Contact": "Persona natural"
   },
   "scopeNamesPlural": {
-    "ActaVisita": "Actas de visita",
     "Account": "Personas jurídicas",
     "Contact": "Personas naturales"
   },

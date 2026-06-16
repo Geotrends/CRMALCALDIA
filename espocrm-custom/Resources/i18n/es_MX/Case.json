@@ -1,41 +1,51 @@
 {
-    "fields": {
-        "cCanalDeReporte": "Canal de reporte",
-        "cNombreDelPeticionario": "Nombre del peticionario",
-        "cApellido": "Apellido",
-        "cTipoDeDocumento": "Tipo de documento",
-        "cNumeroDeDocumento": "Numero de documento",
-        "cTelefono": "Telefono",
-        "cCorreo": "Correo",
-        "cBarrioResidencia": "Barrio residencia",
-        "cDireccion": "Direccion",
-        "cMunicipio": "Municipio"
+  "fields": {
+    "cCanalDeReporte": "Canal de reporte",
+    "cNombreDelPeticionario": "Nombre del peticionario",
+    "cApellido": "Apellido",
+    "cTipoDeDocumento": "Tipo de documento",
+    "cNumeroDeDocumento": "Numero de documento",
+    "cTelefono": "Telefono",
+    "cCorreo": "Correo",
+    "cBarrioResidencia": "Barrio residencia",
+    "cDireccion": "Direccion",
+    "cMunicipio": "Municipio",
+    "cNumeroRadicado": "Número de radicado",
+    "contact": "Persona natural (peticionario)",
+    "account": "Persona jurídica (peticionario)",
+    "cPerjudicanteContact": "Persona natural (perjudicante)",
+    "cPerjudicanteCuenta": "Persona jurídica (perjudicante)"
+  },
+  "links": {
+    "contact": "Persona natural (peticionario)",
+    "account": "Persona jurídica (peticionario)",
+    "Contacts": "Personas naturales"
+  },
+  "options": {
+    "cCanalDeReporte": {
+      "Correo": "Correo",
+      "Telefono": "Telefono",
+      "Presencial": "Presencial"
     },
-    "options": {
-        "cCanalDeReporte": {
-            "Correo": "Correo",
-            "Telefono": "Telefono",
-            "Presencial": "Presencial"
-        },
-        "cTipoDeDocumento": {
-            "CC": "CC",
-            "CE": "CE",
-            "NIT": "NIT",
-            "Pasaporte": "Pasaporte",
-            "Otro": "Otro"
-        },
-        "cMunicipio": {
-            "Envigado": "Envigado"
-        },
-        "status": {
-            "Pendiente de radicacion": "Pendiente de radicacion",
-            "Radicado": "Radicado",
-            "Asignado": "Asignado",
-            "En proceso": "En proceso",
-            "Visita realizada": "Visita realizada",
-            "Visita aprobada": "Visita aprobada",
-            "Finalizado": "Finalizado",
-            "Proceso cerrado": "Proceso cerrado"
-        }
+    "cTipoDeDocumento": {
+      "CC": "CC",
+      "CE": "CE",
+      "NIT": "NIT",
+      "Pasaporte": "Pasaporte",
+      "Otro": "Otro"
+    },
+    "cMunicipio": {
+      "Envigado": "Envigado"
+    },
+    "status": {
+      "Pendiente de radicacion": "Pendiente de radicacion",
+      "Radicado": "Radicado",
+      "Asignado": "Asignado",
+      "En proceso": "En proceso",
+      "Visita realizada": "Visita realizada",
+      "Visita aprobada": "Visita aprobada",
+      "Finalizado": "Finalizado",
+      "Proceso cerrado": "Proceso cerrado"
     }
+  }
 }

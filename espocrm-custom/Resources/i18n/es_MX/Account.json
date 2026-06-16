@@ -1,0 +1,9 @@
+{
+  "labels": {
+    "Create Account": "Crear persona jurídica"
+  },
+  "links": {
+    "contacts": "Personas naturales",
+    "contactsPrimary": "Personas naturales (primario)"
+  }
+}

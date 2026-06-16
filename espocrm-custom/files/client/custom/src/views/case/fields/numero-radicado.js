@@ -2,11 +2,14 @@ define('custom:views/case/fields/numero-radicado', [
     'views/fields/varchar',
     'custom:helpers/radicacion-fields',
     'custom:helpers/radicado-catalog',
-], function (Dep, RadicacionFields, RadicadoCatalog) {
+    'custom:helpers/case-radicado-label',
+], function (Dep, RadicacionFields, RadicadoCatalog, CaseRadicadoLabel) {
 
     return Dep.extend({
 
         editTemplate: 'custom:case/fields/numero-radicado/edit',
+        listTemplate: 'custom:case/fields/numero-radicado/list',
+        listLinkTemplate: 'custom:case/fields/numero-radicado/list-link',
 
         setup: function () {
             Dep.prototype.setup.call(this);
@@ -42,9 +45,26 @@ define('custom:views/case/fields/numero-radicado', [
         },
 
         getDisplayRadicado: function () {
-            const value = String(this.model.get(this.name) || '').trim();
+            return CaseRadicadoLabel.getLabel(this.model, this.name);
+        },
 
-            return value || 'sin radicado';
+        getValueForDisplay: function () {
+            if (this.isListMode() || this.mode === this.MODE_DETAIL) {
+                return this.getDisplayRadicado();
+            }
+
+            return Dep.prototype.getValueForDisplay.call(this);
+        },
+
+        getListDisplayData: function () {
+            var displayValue = this.getDisplayRadicado();
+
+            return {
+                value: displayValue,
+                displayValue: displayValue,
+                isNotEmpty: true,
+                valueIsSet: true,
+            };
         },
 
         applyAssistantDefaults: function () {
@@ -70,9 +90,11 @@ define('custom:views/case/fields/numero-radicado', [
             const mode = this.mode;
 
             if (mode === 'list' || mode === 'listLink') {
-                return _.extend(data, {
-                    value: this.getDisplayRadicado(),
-                });
+                return _.extend(data, this.getListDisplayData());
+            }
+
+            if (mode === 'detail') {
+                return _.extend(data, this.getListDisplayData());
             }
 
             const automatico = RadicadoCatalog.isModoAutomatico(this.model.get('cRadicadoModo'));

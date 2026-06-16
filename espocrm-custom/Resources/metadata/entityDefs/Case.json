@@ -23,7 +23,8 @@
             "type": "varchar",
             "maxLength": 100,
             "options": [],
-            "isCustom": true
+            "isCustom": true,
+            "view": "custom:views/case/fields/numero-radicado"
         },
         "cExpediente": {
             "type": "varchar",
