@@ -5,7 +5,6 @@
     "scriptList": [
         "client/custom/src/loader/i18n-personas.js",
         "client/custom/src/loader/case-list-radicado-fix.js",
-        "client/custom/src/loader/theme-navbar.js",
-        "client/custom/src/loader/case-select-fix.js"
+        "client/custom/src/loader/theme-navbar.js"
     ]
 }
