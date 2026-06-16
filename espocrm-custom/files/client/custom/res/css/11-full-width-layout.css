@@ -1,0 +1,76 @@
+/**
+ * Ancho completo en todas las secciones (listas, detalle, edición).
+ * Misma sensación amplia que el tablero de Inicio.
+ */
+
+body[data-navbar=side] {
+  --container-max-width: 100%;
+  --record-grid-max-width: 100%;
+}
+
+body[data-navbar=side] #content,
+body[data-navbar=side] #content > .content,
+body[data-navbar=side] #content #main,
+body[data-navbar=side] > .content {
+  max-width: none !important;
+  width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  box-sizing: border-box !important;
+}
+
+@media (min-width: 1200px) {
+  body[data-navbar=side] .container,
+  body[data-navbar=side] #main .container,
+  body[data-navbar=side] #content .container {
+    max-width: none !important;
+    width: 100% !important;
+  }
+}
+
+body[data-navbar=side] #main > .page,
+body[data-navbar=side] #main > .list,
+body[data-navbar=side] #main > .record,
+body[data-navbar=side] #main > .edit,
+body[data-navbar=side] #main > .list-container,
+body[data-navbar=side] #main > .dashlets {
+  max-width: none !important;
+  width: 100% !important;
+}
+
+.list,
+.list-container,
+.record,
+.edit,
+.record-container,
+.dashlets,
+.dashlet-container {
+  max-width: none !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.record .record-grid,
+.record .record-grid.record-grid-wide,
+.edit .record-grid,
+.edit .record-grid.record-grid-wide {
+  max-width: none !important;
+  width: 100% !important;
+}
+
+.record > .middle,
+.record > .bottom,
+.edit > .middle,
+.edit > .bottom {
+  max-width: none !important;
+  width: 100% !important;
+}
+
+.stick-sub > .sub-container {
+  max-width: none !important;
+  width: 100% !important;
+}
+
+#content #main:not(:has(.custom-home)) {
+  padding: 16px 20px 24px !important;
+}
