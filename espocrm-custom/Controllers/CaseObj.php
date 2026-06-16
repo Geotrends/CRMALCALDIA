@@ -7,6 +7,7 @@ use Espo\Core\Exceptions\BadRequest;
 use Espo\Core\Exceptions\Forbidden;
 use Espo\Custom\Tools\CaseObj\RadicadoCatalog;
 use Espo\Custom\Tools\CaseObj\RadicadoConsecutivoService;
+use Espo\Custom\Tools\Party\PartyRegistryService;
 use Espo\Entities\Role;
 use Espo\Entities\User;
 use Espo\Modules\Crm\Controllers\CaseObj as BaseCaseObj;
@@ -43,6 +44,78 @@ class CaseObj extends BaseCaseObj
         $service = new RadicadoConsecutivoService($this->entityManager);
 
         return $service->buildPreview($siglas, $anio, $caseId !== '' ? $caseId : null);
+    }
+
+    /**
+     * GET Case/action/buscarParte?party=peticionario|perjudicante&tipo=...&documento=...
+     *
+     * @return array<string, mixed>
+     */
+    public function getActionBuscarParte(Request $request): array
+    {
+        if (!$this->acl->check('Case', 'create') && !$this->acl->check('Case', 'edit')) {
+            throw new Forbidden();
+        }
+
+        $party = strtolower(trim((string) $request->getQueryParam('party')));
+        $tipo = trim((string) $request->getQueryParam('tipo'));
+        $documento = trim((string) $request->getQueryParam('documento'));
+
+        if (!in_array($party, ['peticionario', 'perjudicante'], true)) {
+            throw new BadRequest('Parte no válida.');
+        }
+
+        if ($documento === '') {
+            return ['found' => false];
+        }
+
+        if (!in_array($tipo, [PartyRegistryService::PERSONA_NATURAL, PartyRegistryService::PERSONA_JURIDICA], true)) {
+            return ['found' => false];
+        }
+
+        $service = new PartyRegistryService($this->entityManager);
+
+        if ($tipo === PartyRegistryService::PERSONA_JURIDICA) {
+            $account = $service->findAccountByNit($documento);
+
+            if (!$account) {
+                return ['found' => false];
+            }
+
+            $data = $party === 'peticionario'
+                ? $service->mapAccountToPeticionarioFields($account)
+                : $service->mapAccountToPerjudicanteFields($account);
+
+            return [
+                'found' => true,
+                'entityType' => 'Account',
+                'id' => $account->getId(),
+                'message' => $party === 'peticionario'
+                    ? 'Ya existe una persona jurídica con este NIT. Se cargaron los datos registrados; el caso se vinculará a ese registro.'
+                    : 'Ya existe una persona jurídica (infractor) con este NIT. Se cargaron los datos registrados; el caso se vinculará a ese registro.',
+                'data' => $data,
+            ];
+        }
+
+        $contact = $service->findContactByDocument($documento);
+
+        if (!$contact) {
+            return ['found' => false];
+        }
+
+        $data = $party === 'peticionario'
+            ? $service->mapContactToPeticionarioFields($contact)
+            : $service->mapContactToPerjudicanteFields($contact);
+
+        return [
+            'found' => true,
+            'entityType' => 'Contact',
+            'id' => $contact->getId(),
+            'message' => $party === 'peticionario'
+                ? 'Ya existe una persona natural con esta cédula. Se cargaron los datos registrados; el caso se vinculará a ese registro.'
+                : 'Ya existe una persona natural (infractor) con esta cédula. Se cargaron los datos registrados; el caso se vinculará a ese registro.',
+            'data' => $data,
+        ];
     }
 
     private function canUseRadicadoAssistant(User $user): bool

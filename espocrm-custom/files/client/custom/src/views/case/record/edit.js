@@ -6,10 +6,11 @@ define('custom:views/case/record/edit', [
     'custom:helpers/post-radicacion-fields',
     'custom:helpers/case-create-defaults',
     'custom:helpers/persona-tipo-fields',
+    'custom:helpers/party-document-lookup',
     'custom:helpers/radicado-generator',
     'custom:helpers/radicado-assistant-panel',
     'custom:helpers/inspeccion-registro-excel',
-], function (Dep, PatrulleroActa, InspeccionActa, RadicacionFields, PostRadicacionFields, CaseCreateDefaults, PersonaTipoFields, RadicadoGenerator, RadicadoAssistantPanel, InspeccionRegistroExcel) {
+], function (Dep, PatrulleroActa, InspeccionActa, RadicacionFields, PostRadicacionFields, CaseCreateDefaults, PersonaTipoFields, PartyDocumentLookup, RadicadoGenerator, RadicadoAssistantPanel, InspeccionRegistroExcel) {
 
     return Dep.extend({
 
@@ -34,6 +35,7 @@ define('custom:views/case/record/edit', [
 
             RadicadoGenerator.setup(this);
             PersonaTipoFields.setup(this);
+            PartyDocumentLookup.setup(this);
         },
 
         save: function () {
@@ -58,6 +60,7 @@ define('custom:views/case/record/edit', [
 
             PersonaTipoFields.hidePartyLinks(this);
             PersonaTipoFields.applyLabels(this);
+            PartyDocumentLookup.bindDom(this);
             this.applyFieldModes();
             this.toggleRadicacionFields();
             this.togglePostRadicacionFields();

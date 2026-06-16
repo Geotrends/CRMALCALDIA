@@ -3,12 +3,15 @@
 namespace Espo\Custom\Hooks\CaseObj;
 
 use Espo\Core\Hook\Hook\BeforeSave;
+use Espo\Custom\Tools\Party\DocumentNormalizer;
+use Espo\Custom\Tools\Party\PartyRegistryService;
 use Espo\ORM\Entity;
 use Espo\ORM\EntityManager;
 use Espo\ORM\Repository\Option\SaveOptions;
 
 /**
  * Sincroniza peticionario con Contacto (natural) o Cuenta (jurídica).
+ * Reutiliza registros existentes por cédula/NIT sin crear duplicados.
  */
 class SyncPeticionarioToContact implements BeforeSave
 {
@@ -27,9 +30,13 @@ class SyncPeticionarioToContact implements BeforeSave
         'cCorreo',
     ];
 
+    private PartyRegistryService $partyRegistry;
+
     public function __construct(
         private EntityManager $entityManager
-    ) {}
+    ) {
+        $this->partyRegistry = new PartyRegistryService($entityManager);
+    }
 
     public function beforeSave(Entity $entity, SaveOptions $options): void
     {
@@ -86,10 +93,11 @@ class SyncPeticionarioToContact implements BeforeSave
 
         if (!$contact) {
             $contact = $this->entityManager->getRDBRepository('Contact')->getNew();
+            $this->applyCaseDataToContact($contact, $case);
+            $this->entityManager->saveEntity($contact, [
+                'skipDuplicateDocumentCheck' => true,
+            ]);
         }
-
-        $this->applyCaseDataToContact($contact, $case);
-        $this->entityManager->saveEntity($contact);
 
         $case->set('contactId', $contact->getId());
         $case->set('contactName', $contact->get('name'));
@@ -105,10 +113,11 @@ class SyncPeticionarioToContact implements BeforeSave
 
         if (!$account) {
             $account = $this->entityManager->getRDBRepository('Account')->getNew();
+            $this->applyCaseDataToAccount($account, $case);
+            $this->entityManager->saveEntity($account, [
+                'skipDuplicateNitCheck' => true,
+            ]);
         }
-
-        $this->applyCaseDataToAccount($account, $case);
-        $this->entityManager->saveEntity($account);
 
         $case->set('accountId', $account->getId());
         $case->set('accountName', $account->get('name'));
@@ -130,10 +139,7 @@ class SyncPeticionarioToContact implements BeforeSave
             return null;
         }
 
-        return $this->entityManager
-            ->getRDBRepository('Contact')
-            ->where(['cNumeroDeDocumento' => $cedula])
-            ->findOne();
+        return $this->partyRegistry->findContactByDocument($cedula);
     }
 
     private function resolveAccount(Entity $case, string $nit): ?Entity
@@ -152,10 +158,7 @@ class SyncPeticionarioToContact implements BeforeSave
             return null;
         }
 
-        return $this->entityManager
-            ->getRDBRepository('Account')
-            ->where(['cNit' => $nit])
-            ->findOne();
+        return $this->partyRegistry->findAccountByNit($nit);
     }
 
     private function applyCaseDataToContact(Entity $contact, Entity $case): void
@@ -175,7 +178,7 @@ class SyncPeticionarioToContact implements BeforeSave
         $cedula = trim((string) $case->get('cCedula'));
 
         if ($cedula !== '') {
-            $contact->set('cNumeroDeDocumento', $cedula);
+            $contact->set('cNumeroDeDocumento', DocumentNormalizer::normalize($cedula) ?: $cedula);
             $contact->set('cTipoDeDocumento', 'CC');
         }
 
@@ -200,7 +203,7 @@ class SyncPeticionarioToContact implements BeforeSave
         $nit = trim((string) $case->get('cCedula'));
 
         if ($nit !== '') {
-            $account->set('cNit', $nit);
+            $account->set('cNit', DocumentNormalizer::normalize($nit) ?: $nit);
         }
 
         $account->set('billingAddressStreet', trim((string) $case->get('cDireccion')));
