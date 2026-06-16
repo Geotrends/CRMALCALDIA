@@ -2,6 +2,15 @@
  * Flujo (stream) en columna derecha del detalle de Caso
  */
 
+.detail[data-scope="Case"] .side .panel[data-name="caseStream"] {
+  border-left: 1px solid var(--crm-border) !important;
+  border: 1px solid var(--crm-border) !important;
+}
+
+.detail[data-scope="Case"] .side .panel[data-name="caseStream"] .panel-heading {
+  border-bottom: 2px solid var(--crm-border) !important;
+}
+
 .detail[data-scope="Case"] .side .panel[data-name="caseStream"] .panel-body {
   padding: 0 !important;
 }
@@ -35,7 +44,7 @@
 }
 
 .detail[data-scope="Case"] .panel[data-name="formatoGenerado"] .case-formato-generado-doc:hover {
-  border-color: var(--crm-primary, #1d8a6e);
+  border-color: var(--crm-border, #dce3eb);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   text-decoration: none;
 }
@@ -64,7 +73,7 @@
 }
 
 .detail[data-scope="Case"] .panel[data-name="formatoGenerado"] .case-formato-generado-doc-action {
-  color: var(--crm-primary, #1d8a6e);
+  color: var(--crm-text-secondary, #475569);
   flex-shrink: 0;
 }
 

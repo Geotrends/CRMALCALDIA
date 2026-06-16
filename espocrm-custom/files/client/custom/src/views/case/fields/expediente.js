@@ -20,5 +20,21 @@ define('custom:views/case/fields/expediente', [
 
             this.$el.closest('.cell').toggle(show);
         },
+
+        fetch: function () {
+            if (
+                this.isEditMode()
+                && RadicacionFields.isRadicacionUser(this.getUser())
+                && RadicadoCatalog.isModoAutomatico(this.model.get('cRadicadoModo'))
+            ) {
+                const data = {};
+
+                data[this.name] = this.model.get(this.name) || null;
+
+                return data;
+            }
+
+            return Dep.prototype.fetch.call(this);
+        },
     });
 });

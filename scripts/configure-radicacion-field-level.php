@@ -70,7 +70,7 @@ while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         $fieldData[$scope][$recursoTemaField] = ['read' => 'yes', 'edit' => 'yes'];
 
         foreach ($registroExcelFields as $field) {
-            $fieldData[$scope][$field] = ['read' => 'yes', 'edit' => 'no'];
+            $fieldData[$scope][$field] = ['read' => 'yes', 'edit' => 'yes'];
         }
     } else {
         $fieldData[$scope][$recursoTemaField] = ['read' => 'yes', 'edit' => 'no'];

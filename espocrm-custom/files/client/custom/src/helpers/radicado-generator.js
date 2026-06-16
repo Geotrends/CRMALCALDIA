@@ -102,6 +102,10 @@ define('custom:helpers/radicado-generator', [
             return;
         }
 
+        if (!RadicacionFields.shouldMutateRadicadoPreview(recordView)) {
+            return;
+        }
+
         recordView.model.set({
             cNumeroRadicado: preview.radicado,
             cExpediente: preview.expediente,

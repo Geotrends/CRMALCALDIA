@@ -7,6 +7,10 @@
     "enSeguimiento": "En seguimiento"
   },
   "labels": {
+    "caseCreatedSuccess": "Case created successfully.",
+    "caseEditedSuccess": "Case edited successfully.",
+    "caseSavedSuccess": "Saved successfully.",
+    "caseDeletedSuccess": "Case deleted successfully.",
     "downloadFormatoPdf": "Descargar PDF",
     "formatoSolicitudHelp": "El formato está listo. Puede descargar el PDF.",
     "formatoSolicitudPending": "El formato estará disponible cuando el caso tenga radicado y expediente.",

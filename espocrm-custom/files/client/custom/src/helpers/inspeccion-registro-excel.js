@@ -19,7 +19,8 @@ define('custom:helpers/inspeccion-registro-excel', [
 
     const togglePanel = function (recordView) {
         const user = recordView.getUser();
-        const showInspectorFields = RadicacionFields.isInspeccionUser(user);
+        const showInspectorFields = RadicacionFields.isInspeccionUser(user)
+            || RadicacionFields.isRadicacionUser(user);
         const $panel = recordView.$el.find(
             '.panel[data-name="' + PANEL_NAME + '"], ' +
             '.record-panel[data-name="' + PANEL_NAME + '"], ' +

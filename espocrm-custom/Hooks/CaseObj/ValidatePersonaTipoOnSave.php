@@ -4,7 +4,10 @@ namespace Espo\Custom\Hooks\CaseObj;
 
 use Espo\Core\Exceptions\BadRequest;
 use Espo\Core\Hook\Hook\BeforeSave;
+use Espo\Entities\Role;
+use Espo\Entities\User;
 use Espo\ORM\Entity;
+use Espo\ORM\EntityManager;
 use Espo\ORM\Repository\Option\SaveOptions;
 
 /**
@@ -17,11 +20,27 @@ class ValidatePersonaTipoOnSave implements BeforeSave
     private const PERSONA_NATURAL = 'Persona natural';
     private const PERSONA_JURIDICA = 'Persona jurídica';
     private const PLACEHOLDER = 'Seleccione una opción';
+    private const ROLE_INSPECCION = 'Inspección';
+    private const ROLE_INSPECCION_ALT = 'Inspeccion';
+    private const USER_INSPECCION = 'juan.inspeccion';
+
+    public function __construct(
+        private User $user,
+        private EntityManager $entityManager
+    ) {}
 
     public function beforeSave(Entity $entity, SaveOptions $options): void
     {
-        $this->validatePeticionario($entity);
-        $this->validatePerjudicante($entity);
+        if ($this->isInspeccionUser() || $this->user->isAdmin()) {
+            $this->validatePeticionario($entity);
+            $this->validatePerjudicante($entity);
+
+            return;
+        }
+
+        if (!$this->needsFullSolicitud($entity)) {
+            return;
+        }
     }
 
     private function validatePeticionario(Entity $entity): void
@@ -88,5 +107,31 @@ class ValidatePersonaTipoOnSave implements BeforeSave
         $expediente = trim((string) $entity->get('cExpediente'));
 
         return $numero === '' || $expediente === '';
+    }
+
+    private function isInspeccionUser(): bool
+    {
+        if ($this->user->getUserName() === self::USER_INSPECCION) {
+            return true;
+        }
+
+        foreach ([self::ROLE_INSPECCION, self::ROLE_INSPECCION_ALT] as $roleName) {
+            $role = $this->entityManager
+                ->getRDBRepositoryByClass(Role::class)
+                ->where(['name' => $roleName])
+                ->findOne();
+
+            if (!$role) {
+                continue;
+            }
+
+            $roles = $this->user->getLinkMultipleIdList('roles') ?? [];
+
+            if (in_array($role->getId(), $roles, true)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

@@ -138,6 +138,13 @@ define('custom:helpers/radicado-assistant-panel', [
             return;
         }
 
+        if (!RadicacionFields.shouldMutateRadicadoPreview(recordView)) {
+            $panel.find('[data-role="preview-radicado"]').text(String(model.get('cNumeroRadicado') || '—'));
+            $panel.find('[data-role="preview-expediente"]').text(String(model.get('cExpediente') || '—'));
+
+            return;
+        }
+
         fetchPreview(model).then(function (response) {
             if (!response || !$panel.closest('body').length) {
                 return;

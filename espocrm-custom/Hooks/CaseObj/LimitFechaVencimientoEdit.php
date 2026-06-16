@@ -42,13 +42,15 @@ class LimitFechaVencimientoEdit implements BeforeSave
             return;
         }
 
+        if ($this->userHasRadicacionRole()) {
+            return;
+        }
+
         foreach (self::INSPECCION_ONLY_FIELDS as $field) {
             $this->revertFieldChange($entity, $field);
         }
 
-        if (!$this->userHasRadicacionRole()) {
-            $this->revertFieldChange($entity, self::RECURSO_TEMA_FIELD);
-        }
+        $this->revertFieldChange($entity, self::RECURSO_TEMA_FIELD);
     }
 
     private function revertFieldChange(Entity $entity, string $field): void

@@ -4,18 +4,25 @@ namespace Espo\Custom\Hooks\CaseObj;
 
 use Espo\Core\Exceptions\BadRequest;
 use Espo\Core\Hook\Hook\BeforeSave;
+use Espo\Entities\Role;
+use Espo\Entities\User;
 use Espo\ORM\Entity;
+use Espo\ORM\EntityManager;
 use Espo\ORM\Repository\Option\SaveOptions;
 
 /**
- * Exige todos los campos del formato de solicitud antes de radicar
- * (misma información que los casos ya registrados).
+ * Exige todos los campos del formato de solicitud antes de radicar.
+ * Solo aplica a Inspección: Edwin (Radicación) radica sin revalidar todo el formulario.
  */
 class ValidateSolicitudCompletaOnSave implements BeforeSave
 {
     public static int $order = 6;
 
     private const PLACEHOLDER = 'Seleccione una opción';
+
+    private const ROLE_INSPECCION = 'Inspección';
+    private const ROLE_INSPECCION_ALT = 'Inspeccion';
+    private const USER_INSPECCION = 'juan.inspeccion';
 
     /** @var array<string, string> */
     private const TEXT_FIELDS = [
@@ -48,6 +55,11 @@ class ValidateSolicitudCompletaOnSave implements BeforeSave
         'cRemitidoAId' => 'Indique a quién se remitió la solicitud.',
     ];
 
+    public function __construct(
+        private User $user,
+        private EntityManager $entityManager
+    ) {}
+
     public function beforeSave(Entity $entity, SaveOptions $options): void
     {
         if ($options->get('skipSolicitudValidation')) {
@@ -55,6 +67,10 @@ class ValidateSolicitudCompletaOnSave implements BeforeSave
         }
 
         if (!$this->needsFullSolicitud($entity)) {
+            return;
+        }
+
+        if (!$this->isInspeccionUser()) {
             return;
         }
 
@@ -79,6 +95,36 @@ class ValidateSolicitudCompletaOnSave implements BeforeSave
         $expediente = trim((string) $entity->get('cExpediente'));
 
         return $numero === '' || $expediente === '';
+    }
+
+    private function isInspeccionUser(): bool
+    {
+        if ($this->user->isAdmin()) {
+            return false;
+        }
+
+        if ($this->user->getUserName() === self::USER_INSPECCION) {
+            return true;
+        }
+
+        foreach ([self::ROLE_INSPECCION, self::ROLE_INSPECCION_ALT] as $roleName) {
+            $role = $this->entityManager
+                ->getRDBRepositoryByClass(Role::class)
+                ->where(['name' => $roleName])
+                ->findOne();
+
+            if (!$role) {
+                continue;
+            }
+
+            $roles = $this->user->getLinkMultipleIdList('roles') ?? [];
+
+            if (in_array($role->getId(), $roles, true)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function requireNonEmpty(Entity $entity, string $field, string $message): void

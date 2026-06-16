@@ -19,10 +19,10 @@
   padding: 4px 12px !important;
 }
 
-/* Side panels de formatos */
+/* Side panels — borde neutro (sin franja verde) */
 .detail[data-scope="Case"] .side .panel,
 .edit[data-scope="Case"] .side .panel {
-  border-left: 3px solid var(--crm-primary) !important;
+  border-left: 1px solid var(--crm-border) !important;
 }
 
 .detail[data-scope="Case"] .side .panel-heading,

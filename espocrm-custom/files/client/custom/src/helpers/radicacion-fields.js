@@ -84,6 +84,26 @@ define('custom:helpers/radicacion-fields', [], function () {
         return numero !== '' && expediente !== '';
     };
 
+    const hasRadicadoMetadataChanged = function (model, baseline) {
+        if (!model || !baseline) {
+            return false;
+        }
+
+        return ['cRadicadoModo', 'cRadicadoSiglas', 'cRadicadoAnio'].some(function (field) {
+            return String(model.get(field) || '').trim() !== String(baseline[field] || '').trim();
+        });
+    };
+
+    const shouldMutateRadicadoPreview = function (recordView) {
+        const model = recordView.model;
+
+        if (!model || model.isNew()) {
+            return true;
+        }
+
+        return hasRadicadoMetadataChanged(model, recordView._lockedRadicadoValues);
+    };
+
     const shouldShowRadicacionFields = function (user, model) {
         if (isRadicacionUser(user)) {
             return true;
@@ -114,6 +134,8 @@ define('custom:helpers/radicacion-fields', [], function () {
         isCasePostRadicado: isCasePostRadicado,
         shouldShowRadicacionFields: shouldShowRadicacionFields,
         shouldShowFechaVencimiento: shouldShowFechaVencimiento,
+        hasRadicadoMetadataChanged: hasRadicadoMetadataChanged,
+        shouldMutateRadicadoPreview: shouldMutateRadicadoPreview,
         stripRadicadoFromModel: stripRadicadoFromModel,
     };
 });

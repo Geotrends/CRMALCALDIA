@@ -4,19 +4,19 @@
 
 .radicado-assistant-panel,
 .panel.radicado-assistant-panel {
-  border: 1px solid var(--crm-primary-soft) !important;
-  background: linear-gradient(180deg, var(--crm-primary-light) 0%, var(--crm-surface) 40%) !important;
+  border: 1px solid var(--crm-border) !important;
+  background: linear-gradient(180deg, var(--crm-bg-elevated) 0%, var(--crm-surface) 40%) !important;
   border-radius: var(--crm-radius-lg) !important;
 }
 
 .radicado-assistant-panel .panel-heading {
   background: transparent !important;
-  border-bottom: 1px solid var(--crm-primary-soft) !important;
+  border-bottom: 1px solid var(--crm-border-light) !important;
 }
 
 .radicado-assistant-panel .well {
   background: var(--crm-surface) !important;
-  border: 1px dashed var(--crm-primary-soft) !important;
+  border: 1px dashed var(--crm-border) !important;
 }
 
 /* Paneles de descarga de formatos */

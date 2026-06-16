@@ -56,6 +56,25 @@ class RadicadoConsecutivoService
      */
     public function buildPreview(string $siglas, int $anio, ?string $excludeCaseId = null): array
     {
+        $siglas = strtoupper(trim($siglas));
+        $anio = max(1900, min(9999, $anio));
+
+        if ($excludeCaseId) {
+            $case = $this->entityManager->getEntityById('Case', $excludeCaseId);
+
+            if ($case) {
+                $parsed = RadicadoCatalog::parseRadicado((string) $case->get('cNumeroRadicado'));
+
+                if ($parsed && $parsed['siglas'] === $siglas && $parsed['anio'] === $anio) {
+                    return [
+                        'consecutivo' => $parsed['consecutivo'],
+                        'radicado' => (string) $case->get('cNumeroRadicado'),
+                        'expediente' => (string) $case->get('cExpediente'),
+                    ];
+                }
+            }
+        }
+
         $consecutivo = $this->getNextConsecutivo($siglas, $anio, $excludeCaseId);
 
         return [

@@ -15,7 +15,7 @@ use Espo\ORM\Repository\Option\SaveOptions;
 
 class AutoGenerateRadicadoOnSave implements BeforeSave
 {
-    public static int $order = 5;
+    public static int $order = 0;
 
     public function __construct(
         private EntityManager $entityManager,
@@ -27,6 +27,20 @@ class AutoGenerateRadicadoOnSave implements BeforeSave
     {
         if (!$this->canEditRadicado($this->user)) {
             return;
+        }
+
+        if (!$entity->isNew()) {
+            $existingRadicado = trim((string) $entity->getFetched('cNumeroRadicado'));
+
+            if ($existingRadicado !== '') {
+                $metadataChanged = $entity->isAttributeChanged('cRadicadoSiglas')
+                    || $entity->isAttributeChanged('cRadicadoAnio')
+                    || $entity->isAttributeChanged('cRadicadoModo');
+
+                if (!$metadataChanged) {
+                    return;
+                }
+            }
         }
 
         $modo = trim((string) $entity->get('cRadicadoModo'));
