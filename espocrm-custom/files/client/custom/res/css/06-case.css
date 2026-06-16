@@ -42,3 +42,57 @@
 .kanban[data-scope="Case"] .kanban-row {
   gap: 12px;
 }
+
+/* ── Selects / enums: lista desplegable visible fuera del panel ── */
+.edit[data-scope="Case"] .panel-group-accordion > .panel,
+.edit[data-scope="Case"] .panel-group-accordion .panel-collapse,
+.edit[data-scope="Case"] .panel-group-accordion .panel-body,
+.edit[data-scope="Case"] .panel,
+.edit[data-scope="Case"] .panel-body,
+.edit[data-scope="Case"] .middle,
+.edit[data-scope="Case"] .bottom,
+.edit[data-scope="Case"] .left,
+.edit[data-scope="Case"] .record-grid,
+.edit[data-scope="Case"] .row,
+.edit[data-scope="Case"] .field,
+.edit[data-scope="Case"] .cell,
+.modal .edit[data-scope="Case"] .panel,
+.modal .edit[data-scope="Case"] .panel-body,
+.modal-body .edit[data-scope="Case"] .panel,
+.modal-body .edit[data-scope="Case"] .panel-body,
+.record[data-scope="Case"] .panel,
+.record[data-scope="Case"] .panel-body {
+  overflow: visible !important;
+  max-height: none !important;
+}
+
+.edit[data-scope="Case"] .panel-body,
+.record[data-scope="Case"] .panel-body {
+  overflow-y: visible !important;
+  overflow-x: visible !important;
+}
+
+.selectize-dropdown.case-select-dropdown-floating {
+  position: fixed !important;
+  z-index: 10050 !important;
+  display: block !important;
+  visibility: visible !important;
+  overflow: visible !important;
+  height: auto !important;
+  max-height: none !important;
+}
+
+.case-select-dropdown-floating .selectize-dropdown-content {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  max-height: min(280px, 45vh) !important;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  pointer-events: auto !important;
+  touch-action: pan-y;
+}
+
+.edit[data-scope="Case"] .selectize-dropdown,
+.modal .edit[data-scope="Case"] .selectize-dropdown {
+  z-index: 10050 !important;
+}

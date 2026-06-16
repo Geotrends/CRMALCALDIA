@@ -68,7 +68,7 @@ class ValidateSolicitudCompletaOnSave implements BeforeSave
 
         foreach (self::LINK_FIELDS as $field => $message) {
             if (!$entity->get($field)) {
-                throw BadRequest::create($message);
+                throw new BadRequest($message);
             }
         }
     }
@@ -84,7 +84,7 @@ class ValidateSolicitudCompletaOnSave implements BeforeSave
     private function requireNonEmpty(Entity $entity, string $field, string $message): void
     {
         if (trim((string) $entity->get($field)) === '') {
-            throw BadRequest::create($message);
+            throw new BadRequest($message);
         }
     }
 
@@ -93,7 +93,7 @@ class ValidateSolicitudCompletaOnSave implements BeforeSave
         $value = trim((string) $entity->get($field));
 
         if ($value === '' || $value === self::PLACEHOLDER) {
-            throw BadRequest::create($message);
+            throw new BadRequest($message);
         }
     }
 }

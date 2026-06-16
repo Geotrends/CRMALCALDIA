@@ -57,7 +57,7 @@ class NormalizeCaseEnumPlaceholders implements BeforeSave
             }
 
             if ($value === '' && isset(self::REQUIRED_MESSAGES[$field]) && $this->needsFullSolicitud($entity)) {
-                throw BadRequest::create(self::REQUIRED_MESSAGES[$field]);
+                throw new BadRequest(self::REQUIRED_MESSAGES[$field]);
             }
         }
     }

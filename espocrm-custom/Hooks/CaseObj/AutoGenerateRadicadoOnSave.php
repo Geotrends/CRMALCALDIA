@@ -48,7 +48,7 @@ class AutoGenerateRadicadoOnSave implements BeforeSave
         }
 
         if ($siglas === '') {
-            throw BadRequest::create('Seleccione el recurso/tema para generar el radicado.');
+            throw new BadRequest('Seleccione el recurso/tema para generar el radicado.');
         }
 
         if ($anio < 1900 || $anio > 9999) {
@@ -57,7 +57,7 @@ class AutoGenerateRadicadoOnSave implements BeforeSave
         }
 
         if (!in_array($siglas, RadicadoCatalog::getSiglasList(), true)) {
-            throw BadRequest::create('Siglas de radicado no válidas.');
+            throw new BadRequest('Siglas de radicado no válidas.');
         }
 
         $entity->set('cRadicadoSiglas', $siglas);

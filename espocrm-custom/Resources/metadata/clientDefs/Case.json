@@ -103,6 +103,42 @@
         },
         "cRemitidoA": {
             "primaryFilter": "radicacion"
+        },
+        "cRadicadoModo": {
+            "view": "custom:views/case/fields/enum"
+        },
+        "cRadicadoSiglas": {
+            "view": "custom:views/case/fields/enum"
+        },
+        "cTipoPersonaPeticionario": {
+            "view": "custom:views/case/fields/enum"
+        },
+        "cBarrio": {
+            "view": "custom:views/case/fields/enum"
+        },
+        "cCanalDeReporte": {
+            "view": "custom:views/case/fields/enum"
+        },
+        "cTipoPersonaPerjudicante": {
+            "view": "custom:views/case/fields/enum"
+        },
+        "cBarrioPerjudicante": {
+            "view": "custom:views/case/fields/enum"
+        },
+        "cRecursoTema": {
+            "view": "custom:views/case/fields/enum"
+        },
+        "cAsunto": {
+            "view": "custom:views/case/fields/enum"
+        },
+        "cZonaAlcaldia": {
+            "view": "custom:views/case/fields/enum"
+        },
+        "cUltimaActuacion": {
+            "view": "custom:views/case/fields/enum"
+        },
+        "cProximaActuacion": {
+            "view": "custom:views/case/fields/enum"
         }
     },
     "dynamicLogic": {
