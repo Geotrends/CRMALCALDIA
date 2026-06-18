@@ -28,6 +28,12 @@
                     "name": "fecha",
                     "readOnly": true
                 }
+            ],
+            [
+                {
+                    "name": "modoDiligenciamiento"
+                },
+                false
             ]
         ],
         "style": "default",

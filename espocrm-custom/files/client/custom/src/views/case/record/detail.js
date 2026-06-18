@@ -274,7 +274,8 @@ define('custom:views/case/record/detail', [
             }
 
             ActaVisitaCaseStatus.fetchActaForCase(model.id, user, model, { bypassCache: true }).then((acta) => {
-                const showActa = PatrulleroActa.shouldShowActaVisitaButton(user, model, acta);
+                const showActa = PatrulleroActa.shouldShowActaVisitaButton(user, model, acta)
+                    || PatrulleroActa.canPrintManualActa(user, model);
 
                 $acta.toggle(showActa);
             });

@@ -34,6 +34,8 @@ class GenerateFormatoActaVisitaOnSave implements AfterSave
         'establecimientoNombre',
         'establecimientoCedula',
         'establecimientoCargo',
+        'modoDiligenciamiento',
+        'formatoManoAdjuntoIds',
     ];
 
     public function __construct(
@@ -46,12 +48,33 @@ class GenerateFormatoActaVisitaOnSave implements AfterSave
             return;
         }
 
+        if ($this->isManualModeWithoutDigitalContent($entity)) {
+            return;
+        }
+
         if (!$this->shouldGenerate($entity)) {
             return;
         }
 
         $attacher = $this->injectableFactory->create(FormatoActaVisitaAttacher::class);
         $attacher->attachToActa($entity);
+    }
+
+    private function isManualModeWithoutDigitalContent(Entity $entity): bool
+    {
+        $modo = trim((string) $entity->get('modoDiligenciamiento'));
+
+        if (strcasecmp($modo, 'Manual') !== 0) {
+            return false;
+        }
+
+        foreach (['objetoVisita', 'situacionEncontrada', 'analisisSituacion', 'conclusion', 'requerimientos'] as $field) {
+            if (trim((string) $entity->get($field)) !== '') {
+                return false;
+            }
+        }
+
+        return trim((string) $entity->get('formatoManoAdjuntoIds')) === '';
     }
 
     private function shouldGenerate(Entity $entity): bool

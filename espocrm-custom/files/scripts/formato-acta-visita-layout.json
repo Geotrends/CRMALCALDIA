@@ -3,10 +3,42 @@
   "fontSize": 9,
   "minFontSize": 6,
   "textColor": [0, 0, 0],
+  "autoFields": [
+    "fecha",
+    "radicado",
+    "posibleAfectante",
+    "direccionAfectacion",
+    "telefono",
+    "barrio",
+    "fechaVisita",
+    "funcionarioNombre"
+  ],
+  "manualFields": [
+    "objetoVisita",
+    "situacionEncontrada",
+    "analisisSituacion",
+    "registroFotografico",
+    "conclusion",
+    "requerimientos",
+    "funcionarioCedula",
+    "funcionarioCargo",
+    "establecimientoNombre",
+    "establecimientoCedula",
+    "establecimientoCargo"
+  ],
   "pages": [
     {
       "fields": {
-        "fecha": { "rect": [455, 200, 555, 215] },
+        "fecha": {
+          "coverRect": [481, 198, 534, 216],
+          "coverMode": "redact",
+          "label": "FECHA:",
+          "labelRect": [418, 199, 485, 216],
+          "labelFontName": "hebo",
+          "labelFontSize": 9,
+          "rect": [488, 199, 555, 216],
+          "align": "left"
+        },
         "posibleAfectante": { "rect": [172, 238, 555, 253] },
         "radicado": { "rect": [222, 263, 555, 278] },
         "direccionAfectacion": { "rect": [322, 289, 555, 304] },

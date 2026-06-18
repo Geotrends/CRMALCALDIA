@@ -60,7 +60,8 @@ define('custom:helpers/acta-visita-modal', [
         };
 
         ActaVisitaCaseStatus.fetchActaForCase(caseModel.id, user, caseModel).then(function (acta) {
-            if (!PatrulleroActa.canOpenActaVisitaModal(user, caseModel, acta)) {
+            if (!PatrulleroActa.canOpenActaVisitaModal(user, caseModel, acta)
+                && !PatrulleroActa.canPrintManualActa(user, caseModel)) {
                 Espo.Ui.warning('No puede diligenciar el acta en este caso.');
 
                 return;
@@ -83,6 +84,7 @@ define('custom:helpers/acta-visita-modal', [
             }
 
             const attributes = ActaFromCase.buildDefaultsFromCase(caseModel, user);
+            attributes.modoDiligenciamiento = options.modoDiligenciamiento || 'Digital';
 
             helper.showCreate(host, {
                 entityType: 'ActaVisita',

@@ -95,12 +95,29 @@ define('custom:helpers/patrullero-acta', [
         return 'Disponible cuando el caso tenga radicado, expediente y acta de visita.';
     };
 
+    const canPrintManualActa = function (user, model) {
+        if (!user || !model) {
+            return false;
+        }
+
+        if (user.isAdmin()) {
+            return isCasePostRadicado(model);
+        }
+
+        if (isPatrulleroUser(user) && model.get('assignedUserId') === user.id) {
+            return isCasePostRadicado(model);
+        }
+
+        return false;
+    };
+
     return {
         isPatrulleroUser: isPatrulleroUser,
         isCasePostRadicado: isCasePostRadicado,
         shouldShowActaVisitaButton: shouldShowActaVisitaButton,
         canOpenActaVisitaModal: canOpenActaVisitaModal,
         shouldShowLlenarActaButton: shouldShowLlenarActaButton,
+        canPrintManualActa: canPrintManualActa,
         getUnavailableReason: getUnavailableReason,
     };
 });

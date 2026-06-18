@@ -97,6 +97,25 @@ def load_layout():
         return json.load(handle)
 
 
+def format_fecha_display(value):
+    value = str(value or "").strip()
+    if not value:
+        return ""
+
+    if " " in value:
+        value = value.split(" ", 1)[0]
+
+    parts = value.split("-")
+    if len(parts) == 3 and len(parts[0]) == 4:
+        return f"{parts[2]}/{parts[1]}/{parts[0]}"
+
+    parts = value.split("/")
+    if len(parts) == 3 and len(parts[2]) == 4:
+        return value
+
+    return value
+
+
 def build_field_values(data):
     radicado = str(data.get("numeroRadicado") or "").strip()
     expediente = str(data.get("expediente") or "").strip()
@@ -104,21 +123,19 @@ def build_field_values(data):
     if expediente:
         radicado_text = f"{radicado} / Exp: {expediente}" if radicado else expediente
 
-    fecha = (
-        data.get("fechaVisita")
-        or data.get("fechaHora")
-        or data.get("fecha")
-        or ""
+    fecha_doc = format_fecha_display(data.get("fecha"))
+    fecha_visita = format_fecha_display(
+        data.get("fechaVisita") or data.get("fechaHora")
     )
 
     return {
-        "fecha": fecha,
+        "fecha": fecha_doc or fecha_visita,
         "posibleAfectante": data.get("posibleAfectante"),
         "radicado": radicado_text,
         "direccionAfectacion": data.get("direccionAfectacion"),
         "telefono": data.get("telefono"),
         "barrio": data.get("barrio"),
-        "fechaVisita": fecha,
+        "fechaVisita": fecha_visita or fecha_doc,
         "objetoVisita": data.get("objetoVisita"),
         "situacionEncontrada": data.get("situacionEncontrada"),
         "analisisSituacion": data.get("analisisSituacion"),
@@ -134,10 +151,26 @@ def build_field_values(data):
     }
 
 
+def apply_modo(values, data, layout):
+    modo = str(data.get("modoDiligenciamiento") or data.get("modo") or "digital").strip().lower()
+
+    if modo != "manual":
+        return values
+
+    manual_fields = set(layout.get("manualFields", []))
+    auto_fields = set(layout.get("autoFields", []))
+
+    for key in list(values.keys()):
+        if key in manual_fields or key not in auto_fields:
+            values[key] = ""
+
+    return values
+
+
 def fill_pdf(template_path, output_path, data):
     layout = load_layout()
     doc = fitz.open(template_path)
-    values = build_field_values(data)
+    values = apply_modo(build_field_values(data), data, layout)
     pages = layout.get("pages", [])
 
     for index, page_layout in enumerate(pages):
@@ -147,9 +180,17 @@ def fill_pdf(template_path, output_path, data):
         page = doc[index]
 
         for key, field_def in page_layout.get("fields", {}).items():
+            if key in layout.get("manualFields", []) and str(
+                data.get("modoDiligenciamiento") or data.get("modo") or ""
+            ).strip().lower() == "manual" and key not in layout.get("autoFields", []):
+                continue
             overlay.put_fitted_field(page, field_def, values.get(key), layout)
 
         for key, rect in page_layout.get("textBoxes", {}).items():
+            if key in layout.get("manualFields", []) and str(
+                data.get("modoDiligenciamiento") or data.get("modo") or ""
+            ).strip().lower() == "manual":
+                continue
             overlay.put_fitted_textbox(page, rect, values.get(key), layout)
 
         marks = page_layout.get("marks", {})

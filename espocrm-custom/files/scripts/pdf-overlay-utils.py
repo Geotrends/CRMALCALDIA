@@ -7,8 +7,9 @@ def text_color(layout):
     return tuple(layout.get("textColor", [0, 0, 0]))
 
 
-def font_name(layout):
-    return layout.get("fontName", "helv")
+def font_name(layout, field_def=None):
+    field_def = field_def or {}
+    return field_def.get("fontName", layout.get("fontName", "helv"))
 
 
 def font_limits(layout):
@@ -30,7 +31,20 @@ def field_rect(field_def):
     return fitz.Rect(x, y - height + 2, x + width, y + 2)
 
 
-def text_fits_in_rect(text, rect, fontname, fontsize):
+def text_align(field_def=None, layout=None):
+    field_def = field_def or {}
+    layout = layout or {}
+    align = field_def.get("align", layout.get("align", "left"))
+
+    if align == "right":
+        return fitz.TEXT_ALIGN_RIGHT
+    if align == "center":
+        return fitz.TEXT_ALIGN_CENTER
+
+    return fitz.TEXT_ALIGN_LEFT
+
+
+def text_fits_in_rect(text, rect, fontname, fontsize, align=fitz.TEXT_ALIGN_LEFT):
     scratch = fitz.open()
     try:
         page = scratch.new_page(width=rect.width + 20, height=rect.height + 20)
@@ -39,47 +53,79 @@ def text_fits_in_rect(text, rect, fontname, fontsize):
             text,
             fontsize=fontsize,
             fontname=fontname,
-            align=fitz.TEXT_ALIGN_LEFT,
+            align=align,
         )
         return remaining >= 0
     finally:
         scratch.close()
 
 
-def fit_font_size(text, rect, layout):
+def fit_font_size(text, rect, layout, field_def=None):
     max_size, min_size = font_limits(layout)
-    fontname = font_name(layout)
+    fontname = font_name(layout, field_def)
     step = float(layout.get("fontSizeStep", 0.5))
+    align = text_align(field_def, layout)
 
     size = max_size
     while size >= min_size:
-        if text_fits_in_rect(text, rect, fontname, size):
+        if text_fits_in_rect(text, rect, fontname, size, align):
             return size
         size -= step
 
     return min_size
 
 
-def put_fitted_textbox(page, rect, text, layout):
+def put_fitted_textbox(page, rect, text, layout, field_def=None):
     value = str(text or "").strip()
     if not value:
         return
 
     box = fitz.Rect(*rect) if not isinstance(rect, fitz.Rect) else rect
-    fontsize = fit_font_size(value, box, layout)
+    fontsize = fit_font_size(value, box, layout, field_def)
+    align = text_align(field_def, layout)
 
     page.insert_textbox(
         box,
         value,
         fontsize=fontsize,
-        fontname=font_name(layout),
+        fontname=font_name(layout, field_def),
         color=text_color(layout),
-        align=fitz.TEXT_ALIGN_LEFT,
+        align=align,
     )
 
 
+def cover_rect(page, rect, field_def=None):
+    field_def = field_def or {}
+    box = fitz.Rect(*rect)
+    mode = field_def.get("coverMode", "fill")
+
+    if mode == "redact":
+        page.add_redact_annot(box, fill=(1, 1, 1))
+        page.apply_redactions()
+        return
+
+    page.draw_rect(box, color=(1, 1, 1), fill=(1, 1, 1), overlay=True)
+
+
 def put_fitted_field(page, field_def, text, layout):
-    put_fitted_textbox(page, field_rect(field_def), text, layout)
+    cover = field_def.get("coverRect")
+    if cover:
+        cover_rect(page, cover, field_def)
+
+    label = field_def.get("label")
+    label_rect = field_def.get("labelRect")
+    if label and label_rect:
+        label_def = {
+            "rect": label_rect,
+            "align": field_def.get("labelAlign", "left"),
+            "fontName": field_def.get("labelFontName", "hebo"),
+        }
+        label_layout = dict(layout)
+        label_layout["fontSize"] = float(field_def.get("labelFontSize", layout.get("fontSize", 9)))
+        label_layout["minFontSize"] = label_layout["fontSize"]
+        put_fitted_textbox(page, label_rect, label, label_layout, label_def)
+
+    put_fitted_textbox(page, field_rect(field_def), text, layout, field_def)
 
 
 def put_mark(page, point, layout, label="X"):

@@ -33,6 +33,7 @@ define('custom:helpers/acta-visita-from-case', [], function () {
             fecha: now.toISOString().slice(0, 10),
             fechaVisita: now.toISOString().slice(0, 10),
             estado: 'Pendiente',
+            modoDiligenciamiento: 'Digital',
             autorizacionDatos: false,
             direccionAfectacion: caseModel.get('cDireccion') || '',
             telefono: caseModel.get('cTelefono') || '',

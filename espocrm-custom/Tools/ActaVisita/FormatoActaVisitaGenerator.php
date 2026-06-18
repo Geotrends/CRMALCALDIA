@@ -66,11 +66,53 @@ class FormatoActaVisitaGenerator
     }
 
     /**
+     * @return array<string, mixed>
+     */
+    private function buildPayloadManualFromCase(Entity $case): array
+    {
+        $payload = $this->buildPayloadFromCase($case);
+        $payload['modoDiligenciamiento'] = 'manual';
+        $payload['modo'] = 'manual';
+        $payload['fecha'] = date('Y-m-d');
+        $payload['fechaVisita'] = date('d/m/Y');
+        $payload['fechaHora'] = date('d/m/Y H:i');
+        $payload['funcionarioNombre'] = $this->resolveFuncionarioNombre($case);
+        $payload['objetoVisita'] = '';
+        $payload['situacionEncontrada'] = '';
+        $payload['analisisSituacion'] = '';
+        $payload['registroFotografico'] = '';
+        $payload['conclusion'] = '';
+        $payload['requerimientos'] = '';
+        $payload['funcionarioCedula'] = '';
+        $payload['funcionarioCargo'] = '';
+        $payload['establecimientoNombre'] = '';
+        $payload['establecimientoCedula'] = '';
+        $payload['establecimientoCargo'] = '';
+
+        return $payload;
+    }
+
+    private function resolveFuncionarioNombre(Entity $case): string
+    {
+        $assignedUserId = $case->get('assignedUserId');
+
+        if ($assignedUserId) {
+            $user = $this->entityManager->getEntityById(User::ENTITY_TYPE, $assignedUserId);
+
+            if ($user) {
+                return trim((string) $user->get('name'));
+            }
+        }
+
+        return trim((string) $this->user->get('name'));
+    }
+
+    /**
      * Genera el acta desde el caso (panel lateral del Case).
      *
      * @return array{path: string, name: string, type: string}
      */
-    public function generateForCase(string $caseId, string $format, bool $internal = false): array
+    public function generateForCase(string $caseId, string $format, bool $internal = false, string $modo = 'digital'): array
     {
         /** @var ?Entity $case */
         $case = $this->entityManager->getEntityById('Case', $caseId);
@@ -87,19 +129,29 @@ class FormatoActaVisitaGenerator
             throw new Forbidden();
         }
 
+        $modo = strtolower($modo) === 'manual' ? 'manual' : 'digital';
         $acta = $this->resolveActaForCase($caseId);
 
-        if (!$internal && !$this->isFormatoActaHabilitadoForCase($case, $acta)) {
+        if (!$internal && $modo === 'digital' && !$this->isFormatoActaHabilitadoForCase($case, $acta)) {
             throw new Forbidden('El formato de acta de visita aún no está habilitado.');
         }
 
-        $payload = $this->enrichPayloadWithCase($this->buildPayloadForCase($case), $case);
+        if ($modo === 'manual') {
+            $payload = $this->buildPayloadManualFromCase($case);
+        } else {
+            $payload = $this->enrichPayloadWithCase($this->buildPayloadForCase($case), $case);
+            $payload['modoDiligenciamiento'] = 'digital';
+        }
 
         $slug = preg_replace(
             '/[^\w\-]+/u',
             '_',
             trim((string) $case->get('cNumeroRadicado')) ?: $caseId
         ) ?: 'caso';
+
+        if ($modo === 'manual') {
+            $slug .= '-manual';
+        }
 
         return $this->runGenerator($format, $payload, $slug);
     }
@@ -339,14 +391,14 @@ class FormatoActaVisitaGenerator
             'barrio' => trim((string) $case->get('cBarrio')),
             'zona' => '',
             'coordenadas' => '',
-            'objetoVisita' => trim((string) $case->get('description')),
+            'objetoVisita' => '',
             'situacionEncontrada' => '',
             'descripcionHecho' => '',
             'analisisSituacion' => '',
             'registroFotografico' => '',
             'conclusion' => '',
             'procedimiento' => '',
-            'requerimientos' => trim((string) $case->get('cRespuestaInmediata')),
+            'requerimientos' => '',
             'observaciones' => '',
             'accionesRecomendadas' => ['Verificación'],
             'funcionarioNombre' => '',
@@ -489,6 +541,10 @@ class FormatoActaVisitaGenerator
             'fecha' => $this->formatDate($acta->get('fecha')),
             'fechaVisita' => $this->formatDateTime($acta->get('fechaVisita')),
             'fechaHora' => $this->formatDateTime($acta->get('fechaVisita')),
+            'modoDiligenciamiento' => trim((string) $acta->get('modoDiligenciamiento')) ?: 'Digital',
+            'modo' => strtolower(trim((string) $acta->get('modoDiligenciamiento')) ?: 'digital') === 'manual'
+                ? 'manual'
+                : 'digital',
             'posibleAfectante' => trim((string) $acta->get('posibleAfectante')),
             'acompanante' => trim((string) $acta->get('posibleAfectante')),
             'acompananteCedula' => '',

@@ -134,6 +134,12 @@
             "readOnlyAfterCreate": true,
             "isCustom": true
         },
+        "modoDiligenciamiento": {
+            "type": "enum",
+            "options": ["Digital", "Manual"],
+            "default": "Digital",
+            "isCustom": true
+        },
         "vistoBueno": {
             "type": "bool",
             "default": false,
