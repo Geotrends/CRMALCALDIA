@@ -15,6 +15,9 @@ if [ -d "$ROOT/formatos" ]; then
     if [ "$base" = "FormatoSolicitud.doc" ] || [ "$base" = "FormatoSolicitud.docx" ]; then
       docker cp "$f" "espocrm:/var/www/html/custom/Espo/Custom/files/templates/FormatoSolicitud.doc"
     fi
+    if [ "$base" = "ActaVisita.xlsx" ]; then
+      docker cp "$f" "espocrm:/var/www/html/custom/Espo/Custom/files/templates/ActaVisita.xlsx"
+    fi
     if [ "$base" = "ActaVisita2.docx" ]; then
       docker cp "$f" "espocrm:/var/www/html/custom/Espo/Custom/files/templates/ActaVisita2.docx"
     fi
@@ -28,7 +31,23 @@ echo 'Copiando frontend client/custom...'
 docker cp "$ROOT/espocrm-custom/files/client/custom/." espocrm:/var/www/html/client/custom/
 
 echo 'Verificando LibreOffice (generación de formatos)...'
-docker exec espocrm bash -c 'command -v soffice >/dev/null || (apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get install -y -qq libreoffice-writer-nogui python3-uno)'
+docker exec espocrm bash -c 'dpkg -s libreoffice-writer-nogui >/dev/null 2>&1 || (apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get install -y -qq libreoffice-writer-nogui python3-uno); dpkg -s libreoffice-calc-nogui >/dev/null 2>&1 || (apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get install -y -qq libreoffice-calc-nogui)'
+
+echo 'Verificando PyMuPDF (superposición PDF solicitud)...'
+docker exec espocrm bash -c 'python3 -c "import pymupdf" 2>/dev/null || (apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get install -y -qq python3-pymupdf)'
+
+echo 'Generando PDF plantilla FormatoSolicitud (si falta)...'
+docker exec espocrm bash -c '
+  tpl="/var/www/html/custom/Espo/Custom/files/templates"
+  pdf="$tpl/FormatoSolicitud-template.pdf"
+  doc="$tpl/FormatoSolicitud.doc"
+  if [ ! -f "$pdf" ] && [ -f "$doc" ]; then
+    soffice --headless --invisible --nologo --convert-to pdf --outdir "$tpl" "$doc" 2>/dev/null || true
+    if [ -f "$tpl/FormatoSolicitud.pdf" ]; then
+      mv "$tpl/FormatoSolicitud.pdf" "$pdf"
+    fi
+  fi
+'
 
 echo 'Verificando openpyxl (export Excel casos)...'
 docker exec espocrm bash -c 'python3 -c "import openpyxl" 2>/dev/null || (apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get install -y -qq python3-openpyxl)'

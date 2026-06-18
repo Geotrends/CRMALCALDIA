@@ -28,12 +28,6 @@ define('custom:helpers/case-documentos', [
         return String(value || '').trim() !== '';
     };
 
-    const buildAttachmentUrl = function (basePath, attachmentId) {
-        return basePath
-            + '?entryPoint=attachment'
-            + '&id=' + encodeURIComponent(attachmentId);
-    };
-
     const buildEntryPointUrl = function (basePath, entryPoint, caseId, format) {
         return basePath
             + '?entryPoint=' + encodeURIComponent(entryPoint)
@@ -52,15 +46,11 @@ define('custom:helpers/case-documentos', [
             return;
         }
 
-        const pdfId = model.get('cFormatoSolicitudPdfId');
-
         docs.push({
             key: 'solicitud',
             labelKey: 'formatoGeneradoSolicitud',
             name: model.get('cFormatoSolicitudPdfName') || 'FormatoSolicitud.pdf',
-            url: hasText(pdfId)
-                ? buildAttachmentUrl(basePath, pdfId)
-                : buildEntryPointUrl(basePath, 'FormatoSolicitud', model.id, 'pdf'),
+            url: buildEntryPointUrl(basePath, 'FormatoSolicitud', model.id, 'pdf'),
             icon: 'fas fa-file-pdf text-danger',
         });
     };
@@ -71,16 +61,13 @@ define('custom:helpers/case-documentos', [
             return;
         }
 
-        const pdfId = getValue(acta, 'cFormatoActaVisitaPdfId');
         const fileName = getValue(acta, 'cFormatoActaVisitaPdfName') || 'ActaVisita.pdf';
 
         docs.push({
             key: 'acta',
             labelKey: 'formatoGeneradoActa',
             name: fileName,
-            url: hasText(pdfId)
-                ? buildAttachmentUrl(basePath, pdfId)
-                : buildEntryPointUrl(basePath, 'FormatoActaVisitaCaso', model.id, 'pdf'),
+            url: buildEntryPointUrl(basePath, 'FormatoActaVisitaCaso', model.id, 'pdf'),
             icon: 'fas fa-file-pdf text-danger',
         });
     };
@@ -92,16 +79,13 @@ define('custom:helpers/case-documentos', [
             return;
         }
 
-        const pdfId = getValue(actuo, 'cFormatoActuoArchivoPdfId');
         const fileName = getValue(actuo, 'cFormatoActuoArchivoPdfName') || 'AutoArchivo.pdf';
 
         docs.push({
             key: 'actuo',
             labelKey: 'formatoGeneradoActuo',
             name: fileName,
-            url: hasText(pdfId)
-                ? buildAttachmentUrl(basePath, pdfId)
-                : buildEntryPointUrl(basePath, 'FormatoActuoArchivoCaso', model.id, 'pdf'),
+            url: buildEntryPointUrl(basePath, 'FormatoActuoArchivoCaso', model.id, 'pdf'),
             icon: 'fas fa-file-pdf text-danger',
         });
     };

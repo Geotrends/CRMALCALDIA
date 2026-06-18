@@ -1,0 +1,30 @@
+{
+  "pageSize": [595.0, 842.0],
+  "fontSize": 11,
+  "textColor": [0, 0, 0.55],
+  "fields": {
+    "fecha": { "x": 170, "y": 180 },
+    "radicado": { "x": 448, "y": 180 },
+    "peticionario": { "x": 218, "y": 211 },
+    "cedula": { "x": 415, "y": 211 },
+    "direccion": { "x": 198, "y": 226 },
+    "telefono": { "x": 186, "y": 241 },
+    "barrio": { "x": 408, "y": 241 },
+    "correo": { "x": 265, "y": 256 },
+    "perjudicante": { "x": 220, "y": 315 },
+    "telPerjudicante": { "x": 392, "y": 315 },
+    "direccionPerjudicante": { "x": 198, "y": 330 },
+    "barrioPerjudicante": { "x": 416, "y": 330 },
+    "recibidaPor": { "x": 210, "y": 646 },
+    "remitidoA": { "x": 210, "y": 702 }
+  },
+  "textBoxes": {
+    "descripcion": [116, 418, 524, 492],
+    "respuestaInmediata": [113.5, 518, 521.5, 592]
+  },
+  "marks": {
+    "aceptaCorreo": { "x": 505, "y": 286 },
+    "atencionPersonal": { "x": 268, "y": 372 },
+    "atencionTelefonica": { "x": 472, "y": 372 }
+  }
+}

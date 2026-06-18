@@ -60,7 +60,7 @@ class FormatoSolicitudGenerator
         $scriptPath = $this->getScriptPath();
 
         if (!is_readable($templatePath)) {
-            throw new Error('No se encontró la plantilla FormatoSolicitud.doc.');
+            throw new Error('No se encontró la plantilla FormatoSolicitud (PDF o DOC).');
         }
 
         if (!is_readable($scriptPath)) {
@@ -184,6 +184,11 @@ class FormatoSolicitudGenerator
 
     private function getTemplatePath(): string
     {
+        $pdf = realpath(__DIR__ . '/../../files/templates/FormatoSolicitud-template.pdf');
+        if ($pdf) {
+            return $pdf;
+        }
+
         return realpath(__DIR__ . '/../../files/templates/FormatoSolicitud.doc') ?: '';
     }
 

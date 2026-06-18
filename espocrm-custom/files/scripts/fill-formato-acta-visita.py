@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Rellena ActaVisita2.docx conservando el diseño de la plantilla."""
+"""Rellena ActaVisita.xlsx conservando diseño, bordes, imágenes y celdas combinadas."""
 
 import json
 import os
@@ -9,9 +9,40 @@ import subprocess
 import sys
 import tempfile
 import time
-import zipfile
+import unicodedata
 
 import uno
+
+
+RECURSO_CELLS = {
+    "HIDRICO": "A13",
+    "FAUNA SILVESTRE": "H13",
+    "FAUNA DOMESTICA": "Q13",
+    "SUELO DE PROTECCION": "A14",
+    "FLORA": "H14",
+    "PAISAJE": "Q14",
+    "SUELO": "A15",
+    "GESTION SOCIOAMBIENTAL DE OBRA": "H15",
+    "MINERO": "Q15",
+    "AIRE": "A16",
+    "SERVICIOS PUBLICOS": "H16",
+    "RESIDUOS SOLIDOS": "Q16",
+}
+
+ACCION_CELLS = {
+    "REMISION": "A34",
+    "SUSPENSION DE ACTIVIDAD": "G34",
+    "CONCILIACION": "Q34",
+    "VERIFICACION": "A35",
+    "MEDIDA PREVENTIVA": "G35",
+    "CITACION": "Q35",
+    "INFORME TECNICO": "A36",
+    "GESTION INTERINSTITUCIONAL": "G36",
+    "PROCEDIMIENTO VERBAL ABREVADO": "Q36",
+    "VISITA TECNICOS": "A37",
+    "ARCHIVO": "G37",
+    "OTRO": "Q37",
+}
 
 
 def get_lo_profile():
@@ -45,9 +76,9 @@ def start_soffice():
 
 
 def connect(port):
-    localContext = uno.getComponentContext()
-    resolver = localContext.ServiceManager.createInstanceWithContext(
-        "com.sun.star.bridge.UnoUrlResolver", localContext
+    local_context = uno.getComponentContext()
+    resolver = local_context.ServiceManager.createInstanceWithContext(
+        "com.sun.star.bridge.UnoUrlResolver", local_context
     )
     endpoint = f"uno:socket,host=127.0.0.1,port={port};urp;StarOffice.ComponentContext"
     for _ in range(50):
@@ -58,240 +89,151 @@ def connect(port):
     raise RuntimeError("No se pudo conectar a LibreOffice")
 
 
-def replace_regex(doc, pattern, replacement):
-    sd = doc.createSearchDescriptor()
-    sd.SearchRegularExpression = True
-    sd.SearchString = pattern
-    sd.ReplaceString = replacement
-    doc.replaceAll(sd)
+def normalize_key(value):
+    text = unicodedata.normalize("NFD", str(value or ""))
+    text = "".join(ch for ch in text if unicodedata.category(ch) != "Mn")
+    return re.sub(r"\s+", " ", text).strip().upper()
 
 
-def replace_label_underscores(doc, label, value):
-    text = (value or "").strip()
-    if not text:
-        return
-    pattern = re.escape(label) + r"\s*_+"
-    replace_regex(doc, pattern, label + " " + text)
+def join_parts(parts):
+    chunks = [str(part).strip() for part in parts if str(part or "").strip()]
+    return "\n\n".join(chunks)
 
 
-def fill_label_value(doc, label, value):
-    text = (value or "").strip()
-    if not text:
-        return
-    pattern = re.escape(label) + r"\s*"
-    replace_regex(doc, pattern, label + " " + text)
+class CalcFiller:
+    def __init__(self, sheet):
+        self.sheet = sheet
 
+    def write_cell(self, coord, value):
+        text = str(value or "").strip()
+        if not text:
+            return
+        self.sheet.getCellRangeByName(coord).setString(text)
 
-def mark_zona(doc, zona):
-    zona = (zona or "").strip()
-    if zona == "Urbano":
-        replace_regex(doc, r"Urbano \(\s*\)", "Urbano ( X )")
-    elif zona == "Rural":
-        replace_regex(doc, r"Rural\s*\(\s*\)", "Rural  ( X )")
+    def write_block(self, row_start, row_end, col, value):
+        text = str(value or "").strip()
+        if not text:
+            return
+        col_letter = chr(ord("A") + col - 1)
+        self.sheet.getCellRangeByName(f"{col_letter}{row_start}").setString(text)
 
+    def mark_option(self, coord):
+        cell = self.sheet.getCellRangeByName(coord)
+        current = str(cell.getString() or "").strip()
+        if not current:
+            return
+        if current.startswith("(X)") or current.startswith("X "):
+            return
+        cell.setString(f"(X) {current}")
 
-# Posiciones de tabulación en twips (definidas en ActaVisita2.docx).
-SIGNATURE_TAB_LEFT = 5620
-SIGNATURE_TAB_RIGHT = 6493
+    def mark_recurso(self, recurso):
+        coord = RECURSO_CELLS.get(normalize_key(recurso))
+        if coord:
+            self.mark_option(coord)
 
+    def mark_zona(self, zona):
+        zona_key = normalize_key(zona)
+        if zona_key == "URBANO":
+            self.mark_option("R24")
+        elif zona_key == "RURAL":
+            self.mark_option("V24")
 
-def escape_xml(text):
-    return (
-        str(text)
-        .replace("&", "&amp;")
-        .replace("<", "&lt;")
-        .replace(">", "&gt;")
-        .replace('"', "&quot;")
-    )
+    def mark_acciones(self, acciones):
+        if not acciones:
+            self.mark_option("A35")
+            return
+        items = acciones if isinstance(acciones, list) else [acciones]
+        marked = False
+        for item in items:
+            coord = ACCION_CELLS.get(normalize_key(item))
+            if coord:
+                self.mark_option(coord)
+                marked = True
+        if not marked:
+            self.mark_option("A35")
 
+    def fill(self, data):
+        radicado = str(data.get("numeroRadicado") or "").strip()
+        expediente = str(data.get("expediente") or "").strip()
+        radicado_exp = radicado
+        if expediente:
+            radicado_exp = f"{radicado} / Exp. {expediente}" if radicado else expediente
 
-def run_props(bold=False):
-    bold_tag = "<w:b/>" if bold else ""
-    return (
-        "<w:rPr>"
-        '<w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>'
-        f"{bold_tag}"
-        '<w:color w:val="000000"/>'
-        '<w:sz w:val="22"/>'
-        '<w:szCs w:val="22"/>'
-        '<w:lang w:val="es-ES" w:eastAsia="es-ES"/>'
-        "</w:rPr>"
-    )
+        self.write_cell("F5", radicado_exp)
+        self.write_cell("R5", data.get("fechaHora") or data.get("fechaVisita") or data.get("fecha"))
 
+        self.write_cell("E6", data.get("acompanante") or data.get("posibleAfectante"))
+        self.write_cell("T6", data.get("acompananteCedula"))
+        self.write_cell("D7", data.get("acompananteCorreo"))
+        self.write_cell("T7", data.get("acompananteTelefono") or data.get("telefono"))
+        self.write_cell("D8", data.get("acompananteDireccion") or data.get("direccionAfectacion"))
 
-def build_signature_cell(label, value):
-    content = str(value or "").strip()
-    if content:
-        return f"{label} {content}"
-    return f"{label} "
+        self.write_cell("F9", data.get("infractor"))
+        self.write_cell("T9", data.get("infractorDocumento"))
+        self.write_cell("D10", data.get("infractorCorreo"))
+        self.write_cell("T10", data.get("infractorTelefono"))
+        self.write_cell("D11", data.get("infractorDireccion"))
 
+        self.mark_recurso(data.get("recursoTema"))
 
-def signature_paragraph_xml(left_label, left_value, right_label, right_value):
-    left = escape_xml(build_signature_cell(left_label, left_value))
-    right = escape_xml(build_signature_cell(right_label, right_value))
-    rpr = run_props()
-    tabs = (
-        "<w:tabs>"
-        f'<w:tab w:val="left" w:pos="{SIGNATURE_TAB_LEFT}"/>'
-        f'<w:tab w:val="left" w:pos="{SIGNATURE_TAB_RIGHT}"/>'
-        "</w:tabs>"
-    )
-    return (
-        '<w:p w:rsidR="003E1B93" w:rsidRDefault="003E1B93" w:rsidP="003E1B93">'
-        '<w:pPr><w:pStyle w:val="NormalWeb"/>'
-        f"{tabs}"
-        '<w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>'
-        '<w:lang w:val="es-ES" w:eastAsia="es-ES"/></w:rPr></w:pPr>'
-        f"<w:r>{rpr}<w:t xml:space=\"preserve\">{left}</w:t></w:r>"
-        f"<w:r>{rpr}<w:tab/></w:r>"
-        f"<w:r>{rpr}<w:tab/></w:r>"
-        f"<w:r>{rpr}<w:t xml:space=\"preserve\">{right}</w:t></w:r>"
-        "</w:p>"
-    )
-
-
-def fecha_visita_paragraph_xml(fecha):
-    fecha = escape_xml(fecha)
-    return (
-        '<w:p w:rsidR="003E1B93" w:rsidRDefault="003E1B93" w:rsidP="003E1B93">'
-        "<w:pPr>"
-        '<w:pBdr><w:bottom w:val="single" w:sz="4" w:space="0" w:color="auto" w:shadow="1"/></w:pBdr>'
-        '<w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>'
-        '<w:b/><w:sz w:val="22"/><w:szCs w:val="22"/></w:rPr>'
-        "</w:pPr>"
-        f"<w:r>{run_props(bold=True)}<w:t>Fecha de la Visita:</w:t></w:r>"
-        f"<w:r>{run_props()}<w:t xml:space=\"preserve\"> {fecha}</w:t></w:r>"
-        "</w:p>"
-    )
-
-
-def replace_paragraph_containing(xml, marker, new_paragraph):
-    pattern = (
-        r"<w:p[^>]*>(?:(?!</w:p>).)*?"
-        + re.escape(marker)
-        + r"(?:(?!</w:p>).)*?</w:p>"
-    )
-    return re.sub(pattern, new_paragraph, xml, count=1, flags=re.DOTALL)
-
-
-def patch_docx_xml(docx_path, data):
-    with zipfile.ZipFile(docx_path, "r") as zin:
-        xml = zin.read("word/document.xml").decode("utf-8")
-        other_files = {
-            name: zin.read(name)
-            for name in zin.namelist()
-            if name != "word/document.xml"
-        }
-
-    fecha_visita = (data.get("fechaVisita") or "").strip()
-    if fecha_visita:
-        xml = replace_paragraph_containing(
-            xml,
-            "Fecha de la Visita",
-            fecha_visita_paragraph_xml(fecha_visita),
+        descripcion = data.get("descripcionHecho") or join_parts(
+            [data.get("objetoVisita"), data.get("situacionEncontrada")]
         )
+        self.write_block(18, 21, 1, descripcion)
 
-    signature_rows = [
-        ("Firma:", "", "Firma:", ""),
-        ("Nombre:", data.get("funcionarioNombre"), "Nombre:", data.get("establecimientoNombre")),
-        ("C.C:", data.get("funcionarioCedula"), "C.C:", data.get("establecimientoCedula")),
-        ("Cargo:", data.get("funcionarioCargo"), "Cargo:", data.get("establecimientoCargo")),
-    ]
+        ubicacion = data.get("ubicacionHechos") or data.get("direccionAfectacion")
+        self.write_cell("A23", ubicacion)
 
-    for left_label, left_value, right_label, right_value in signature_rows:
-        marker = left_label + " _"
-        xml = replace_paragraph_containing(
-            xml,
-            marker,
-            signature_paragraph_xml(left_label, left_value, right_label, right_value),
+        self.write_cell("F24", data.get("barrio"))
+        self.mark_zona(data.get("zona"))
+
+        coords = str(data.get("coordenadas") or "").strip()
+        if coords:
+            self.write_cell("F25", coords)
+
+        procedimiento = data.get("procedimiento") or join_parts(
+            [
+                data.get("analisisSituacion"),
+                data.get("registroFotografico"),
+                data.get("conclusion"),
+            ]
         )
+        self.write_block(28, 31, 1, procedimiento)
 
-    # Quitar placeholder gris y forzar texto negro en todo el documento.
-    xml = re.sub(
-        r"<w:r[^>]*>(?:(?!</w:r>).)*?<w:color w:val=\"D9D9D9\"/>.*?</w:r>",
-        "",
-        xml,
-        flags=re.DOTALL,
-    )
-    xml = xml.replace('w:val="D9D9D9"', 'w:val="000000"')
+        self.mark_acciones(data.get("accionesRecomendadas"))
 
-    with zipfile.ZipFile(docx_path, "w", zipfile.ZIP_DEFLATED) as zout:
-        zout.writestr("word/document.xml", xml.encode("utf-8"))
-        for name, content in other_files.items():
-            zout.writestr(name, content)
+        observaciones = data.get("observaciones") or data.get("requerimientos")
+        self.write_block(39, 42, 1, observaciones)
 
-
-def format_signature_date(value):
-    text = (value or "").strip()
-    if not text:
-        return ""
-    if re.match(r"^\d{4}-\d{2}-\d{2}$", text):
-        year, month, day = text.split("-")
-        return f"{day}/{month}/{year}"
-    return text
+        self.write_cell("A46", data.get("funcionarioNombre"))
+        self.write_cell("A47", data.get("funcionarioCedula"))
+        self.write_cell("A48", data.get("funcionarioCargo"))
+        self.write_cell("L46", data.get("acompananteNombre") or data.get("establecimientoNombre"))
+        self.write_cell("L47", data.get("acompananteCedulaFirma") or data.get("establecimientoCedula"))
+        self.write_cell("L48", data.get("acompananteCargo") or data.get("establecimientoCargo"))
 
 
-def fill_doc(template_path, output_path, data):
+def fill_xlsx(template_path, output_path, data):
     proc, port = start_soffice()
 
     try:
         shutil.copy2(template_path, output_path)
-        patch_docx_xml(output_path, data)
         ctx = connect(port)
         desktop = ctx.ServiceManager.createInstanceWithContext(
             "com.sun.star.frame.Desktop", ctx
         )
         url = uno.systemPathToFileUrl(os.path.abspath(output_path))
         doc = desktop.loadComponentFromURL(url, "_blank", 0, ())
-
-        fecha = format_signature_date(data.get("fecha"))
-        if fecha:
-            replace_regex(doc, r"AÑO:\s*.*", "FECHA: " + fecha + " ")
-            replace_regex(doc, r"FECHA:\s*[\d/\-]*", "FECHA: " + fecha + " ")
-
-        replace_label_underscores(
-            doc, "Posible Afectante:", data.get("posibleAfectante", "")
-        )
-
-        radicado = (data.get("numeroRadicado") or "").strip()
-        expediente = (data.get("expediente") or "").strip()
-        radicado_text = radicado
-        if expediente:
-            radicado_text = (radicado + " / Exp: " + expediente).strip(" /")
-        replace_label_underscores(doc, "Radicado de la solicitud:", radicado_text)
-
-        replace_label_underscores(
-            doc,
-            "Dirección donde se origina la afectación:",
-            data.get("direccionAfectacion", ""),
-        )
-        replace_label_underscores(doc, "Teléfono:", data.get("telefono", ""))
-
-        barrio = (data.get("barrio") or "").strip()
-        if barrio:
-            pattern = re.escape("Barrio:") + r"\s*_+"
-            replace_regex(doc, pattern, "Barrio: " + barrio + " ")
-
-        mark_zona(doc, data.get("zona", ""))
-
-        fill_label_value(doc, "OBJETO DE LA VISITA O SOLICITUD:", data.get("objetoVisita", ""))
-        fill_label_value(doc, "SITUACIÓN ENCONTRADA:", data.get("situacionEncontrada", ""))
-        fill_label_value(doc, "ANÁLISIS DE LA SITUACIÓN", data.get("analisisSituacion", ""))
-        fill_label_value(doc, "REGISTRO FOTOGRAFICO:", data.get("registroFotografico", ""))
-        fill_label_value(doc, "CONCLUSIÓN:", data.get("conclusion", ""))
-        fill_label_value(doc, "REQUERIMIENTOS", data.get("requerimientos", ""))
-
-        props = (uno.createUnoStruct("com.sun.star.beans.PropertyValue"),)
-        props[0].Name = "FilterName"
-        props[0].Value = "Office Open XML Text"
-        doc.storeToURL(url, tuple(props))
+        sheet = doc.getSheets().getByIndex(0)
+        CalcFiller(sheet).fill(data)
+        doc.storeToURL(url, ())
         doc.close(True)
     finally:
         proc.terminate()
         proc.wait()
 
 
-def convert_to_pdf(doc_path, pdf_path):
+def convert_to_pdf(xlsx_path, pdf_path):
     profile = get_lo_profile()
     profile_url = "file://" + profile.replace(" ", "%20")
     subprocess.run(
@@ -303,10 +245,10 @@ def convert_to_pdf(doc_path, pdf_path):
             "--nofirststartwizard",
             f"-env:UserInstallation={profile_url}",
             "--convert-to",
-            "pdf:writer_pdf_Export",
+            "pdf",
             "--outdir",
             os.path.dirname(pdf_path) or ".",
-            doc_path,
+            xlsx_path,
         ],
         check=True,
         stdout=subprocess.DEVNULL,
@@ -315,7 +257,7 @@ def convert_to_pdf(doc_path, pdf_path):
     )
     generated = os.path.join(
         os.path.dirname(pdf_path) or ".",
-        os.path.splitext(os.path.basename(doc_path))[0] + ".pdf",
+        os.path.splitext(os.path.basename(xlsx_path))[0] + ".pdf",
     )
     if generated != pdf_path and os.path.exists(generated):
         shutil.move(generated, pdf_path)
@@ -324,25 +266,23 @@ def convert_to_pdf(doc_path, pdf_path):
 def main():
     if len(sys.argv) < 3:
         print(
-            "Uso: fill-formato-acta-visita.py <plantilla.docx> <salida> [docx|pdf]",
+            "Uso: fill-formato-acta-visita.py <plantilla.xlsx> <salida> [xlsx|pdf]",
             file=sys.stderr,
         )
         sys.exit(1)
 
     template_path = sys.argv[1]
     output_path = sys.argv[2]
-    output_format = (sys.argv[3] if len(sys.argv) > 3 else "docx").lower()
+    output_format = (sys.argv[3] if len(sys.argv) > 3 else "pdf").lower()
     payload = json.load(sys.stdin)
 
-    doc_out = output_path
     if output_format == "pdf":
-        doc_out = output_path + ".docx.tmp"
-
-    fill_doc(template_path, doc_out, payload)
-
-    if output_format == "pdf":
-        convert_to_pdf(doc_out, output_path)
-        os.remove(doc_out)
+        xlsx_out = os.path.splitext(output_path)[0] + ".xlsx"
+        fill_xlsx(template_path, xlsx_out, payload)
+        convert_to_pdf(xlsx_out, output_path)
+        os.remove(xlsx_out)
+    else:
+        fill_xlsx(template_path, output_path, payload)
 
     print(output_path)
 

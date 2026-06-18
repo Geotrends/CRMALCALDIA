@@ -56,7 +56,13 @@ class FormatoActaVisitaGenerator
             trim((string) $acta->get('numeroRadicado')) ?: $actaId
         ) ?: 'acta';
 
-        return $this->runGenerator($format, $this->buildPayload($acta), $slug);
+        $case = $this->resolveCaseForActa($acta);
+
+        return $this->runGenerator(
+            $format,
+            $case ? $this->enrichPayloadWithCase($this->buildPayload($acta), $case) : $this->buildPayload($acta),
+            $slug
+        );
     }
 
     /**
@@ -87,7 +93,7 @@ class FormatoActaVisitaGenerator
             throw new Forbidden('El formato de acta de visita aún no está habilitado.');
         }
 
-        $payload = $this->buildPayloadForCase($case);
+        $payload = $this->enrichPayloadWithCase($this->buildPayloadForCase($case), $case);
 
         $slug = preg_replace(
             '/[^\w\-]+/u',
@@ -153,7 +159,7 @@ class FormatoActaVisitaGenerator
         $scriptPath = $this->getScriptPath();
 
         if (!is_readable($templatePath)) {
-            throw new Error('No se encontró la plantilla ActaVisita2.docx.');
+            throw new Error('No se encontró la plantilla ActaVisita.xlsx.');
         }
 
         if (!is_readable($scriptPath)) {
@@ -225,7 +231,7 @@ class FormatoActaVisitaGenerator
             'name' => basename($outputPath),
             'type' => $format === 'pdf'
                 ? 'application/pdf'
-                : 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         ];
     }
 
@@ -311,26 +317,47 @@ class FormatoActaVisitaGenerator
     {
         return [
             'fecha' => date('Y-m-d'),
+            'fechaVisita' => '',
+            'fechaHora' => '',
             'posibleAfectante' => trim((string) ($case->get('cPerjudicante') ?: $case->get('cPeticionario'))),
+            'acompanante' => trim((string) $case->get('cPeticionario')),
+            'acompananteCedula' => trim((string) $case->get('cCedula')),
+            'acompananteCorreo' => trim((string) $case->get('cCorreo')),
+            'acompananteTelefono' => trim((string) $case->get('cTelefono')),
+            'acompananteDireccion' => trim((string) $case->get('cDireccion')),
+            'infractor' => trim((string) $case->get('cPerjudicante')),
+            'infractorDocumento' => trim((string) $case->get('cDocumentoPerjudicante')),
+            'infractorCorreo' => '',
+            'infractorTelefono' => trim((string) $case->get('cTelefonoPerjudicante')),
+            'infractorDireccion' => trim((string) $case->get('cDireccionPerjudicante')),
+            'recursoTema' => trim((string) $case->get('cRecursoTema')),
             'numeroRadicado' => trim((string) $case->get('cNumeroRadicado')),
             'expediente' => trim((string) $case->get('cExpediente')),
             'direccionAfectacion' => trim((string) $case->get('cDireccion')),
+            'ubicacionHechos' => trim((string) $case->get('cDireccion')),
             'telefono' => trim((string) $case->get('cTelefono')),
             'barrio' => trim((string) $case->get('cBarrio')),
             'zona' => '',
-            'fechaVisita' => '',
+            'coordenadas' => '',
             'objetoVisita' => trim((string) $case->get('description')),
             'situacionEncontrada' => '',
+            'descripcionHecho' => '',
             'analisisSituacion' => '',
             'registroFotografico' => '',
             'conclusion' => '',
+            'procedimiento' => '',
             'requerimientos' => trim((string) $case->get('cRespuestaInmediata')),
+            'observaciones' => '',
+            'accionesRecomendadas' => ['Verificación'],
             'funcionarioNombre' => '',
             'funcionarioCedula' => '',
             'funcionarioCargo' => '',
             'establecimientoNombre' => '',
             'establecimientoCedula' => '',
             'establecimientoCargo' => '',
+            'acompananteNombre' => '',
+            'acompananteCedulaFirma' => '',
+            'acompananteCargo' => '',
         ];
     }
 
@@ -357,7 +384,84 @@ class FormatoActaVisitaGenerator
 
     private function getTemplatePath(): string
     {
-        return realpath(__DIR__ . '/../../files/templates/ActaVisita2.docx') ?: '';
+        return realpath(__DIR__ . '/../../files/templates/ActaVisita.xlsx') ?: '';
+    }
+
+    private function resolveCaseForActa(Entity $acta): ?Entity
+    {
+        $caseId = $acta->get('caseId');
+
+        if (!$caseId) {
+            return null;
+        }
+
+        /** @var ?Entity $case */
+        $case = $this->entityManager->getEntityById('Case', $caseId);
+
+        return $case;
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     * @return array<string, mixed>
+     */
+    private function enrichPayloadWithCase(array $payload, Entity $case): array
+    {
+        $payload['recursoTema'] = trim((string) $case->get('cRecursoTema'));
+
+        if (trim((string) ($payload['acompanante'] ?? '')) === '') {
+            $payload['acompanante'] = trim((string) $case->get('cPeticionario'));
+        }
+
+        if (trim((string) ($payload['acompananteCedula'] ?? '')) === '') {
+            $payload['acompananteCedula'] = trim((string) $case->get('cCedula'));
+        }
+
+        if (trim((string) ($payload['acompananteCorreo'] ?? '')) === '') {
+            $payload['acompananteCorreo'] = trim((string) $case->get('cCorreo'));
+        }
+
+        if (trim((string) ($payload['acompananteTelefono'] ?? '')) === '') {
+            $payload['acompananteTelefono'] = trim((string) $case->get('cTelefono'));
+        }
+
+        if (trim((string) ($payload['acompananteDireccion'] ?? '')) === '') {
+            $payload['acompananteDireccion'] = trim((string) $case->get('cDireccion'));
+        }
+
+        if (trim((string) ($payload['infractor'] ?? '')) === '') {
+            $payload['infractor'] = trim((string) $case->get('cPerjudicante'));
+        }
+
+        if (trim((string) ($payload['infractorDocumento'] ?? '')) === '') {
+            $payload['infractorDocumento'] = trim((string) $case->get('cDocumentoPerjudicante'));
+        }
+
+        if (trim((string) ($payload['infractorTelefono'] ?? '')) === '') {
+            $payload['infractorTelefono'] = trim((string) $case->get('cTelefonoPerjudicante'));
+        }
+
+        if (trim((string) ($payload['infractorDireccion'] ?? '')) === '') {
+            $payload['infractorDireccion'] = trim((string) $case->get('cDireccionPerjudicante'));
+        }
+
+        if (trim((string) ($payload['barrio'] ?? '')) === '') {
+            $payload['barrio'] = trim((string) $case->get('cBarrio'));
+        }
+
+        if (trim((string) ($payload['numeroRadicado'] ?? '')) === '') {
+            $payload['numeroRadicado'] = trim((string) $case->get('cNumeroRadicado'));
+        }
+
+        if (trim((string) ($payload['expediente'] ?? '')) === '') {
+            $payload['expediente'] = trim((string) $case->get('cExpediente'));
+        }
+
+        if (trim((string) ($payload['ubicacionHechos'] ?? '')) === '') {
+            $payload['ubicacionHechos'] = trim((string) $case->get('cDireccion'));
+        }
+
+        return $payload;
     }
 
     private function getScriptPath(): string
@@ -378,26 +482,47 @@ class FormatoActaVisitaGenerator
 
         return [
             'fecha' => $this->formatDate($acta->get('fecha')),
+            'fechaVisita' => $this->formatDateTime($acta->get('fechaVisita')),
+            'fechaHora' => $this->formatDateTime($acta->get('fechaVisita')),
             'posibleAfectante' => trim((string) $acta->get('posibleAfectante')),
+            'acompanante' => trim((string) $acta->get('posibleAfectante')),
+            'acompananteCedula' => '',
+            'acompananteCorreo' => '',
+            'acompananteTelefono' => trim((string) $acta->get('telefono')),
+            'acompananteDireccion' => trim((string) $acta->get('direccionAfectacion')),
+            'infractor' => '',
+            'infractorDocumento' => '',
+            'infractorCorreo' => '',
+            'infractorTelefono' => '',
+            'infractorDireccion' => '',
+            'recursoTema' => '',
             'numeroRadicado' => trim((string) $acta->get('numeroRadicado')),
             'expediente' => trim((string) $acta->get('expediente')),
             'direccionAfectacion' => trim((string) $acta->get('direccionAfectacion')),
+            'ubicacionHechos' => trim((string) $acta->get('direccionAfectacion')),
             'telefono' => trim((string) $acta->get('telefono')),
             'barrio' => trim((string) $acta->get('barrio')),
             'zona' => trim((string) $acta->get('zona')),
-            'fechaVisita' => $this->formatDate($acta->get('fechaVisita')),
+            'coordenadas' => '',
             'objetoVisita' => trim((string) $acta->get('objetoVisita')),
             'situacionEncontrada' => trim((string) $acta->get('situacionEncontrada')),
+            'descripcionHecho' => '',
             'analisisSituacion' => trim((string) $acta->get('analisisSituacion')),
             'registroFotografico' => $registroFotografico,
             'conclusion' => trim((string) $acta->get('conclusion')),
+            'procedimiento' => '',
             'requerimientos' => trim((string) $acta->get('requerimientos')),
+            'observaciones' => '',
+            'accionesRecomendadas' => ['Verificación'],
             'funcionarioNombre' => trim((string) $acta->get('funcionarioNombre')),
             'funcionarioCedula' => trim((string) $acta->get('funcionarioCedula')),
             'funcionarioCargo' => trim((string) $acta->get('funcionarioCargo')),
             'establecimientoNombre' => trim((string) $acta->get('establecimientoNombre')),
             'establecimientoCedula' => trim((string) $acta->get('establecimientoCedula')),
             'establecimientoCargo' => trim((string) $acta->get('establecimientoCargo')),
+            'acompananteNombre' => trim((string) $acta->get('establecimientoNombre')),
+            'acompananteCedulaFirma' => trim((string) $acta->get('establecimientoCedula')),
+            'acompananteCargo' => trim((string) $acta->get('establecimientoCargo')),
         ];
     }
 
@@ -411,6 +536,21 @@ class FormatoActaVisitaGenerator
             $dateTime = new \DateTime($value);
 
             return $dateTime->format('Y-m-d');
+        } catch (\Exception) {
+            return (string) $value;
+        }
+    }
+
+    private function formatDateTime(mixed $value): string
+    {
+        if (!$value) {
+            return '';
+        }
+
+        try {
+            $dateTime = new \DateTime($value);
+
+            return $dateTime->format('d/m/Y H:i');
         } catch (\Exception) {
             return (string) $value;
         }
