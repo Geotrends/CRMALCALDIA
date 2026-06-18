@@ -4,6 +4,7 @@ Superpone datos sobre FormatoSolicitud-template.pdf sin modificar la plantilla.
 La plantilla original (líneas, bordes, guiones) queda intacta debajo.
 """
 
+import importlib.util
 import json
 import os
 import shutil
@@ -16,6 +17,17 @@ import pymupdf as fitz
 
 def script_dir():
     return os.path.dirname(os.path.abspath(__file__))
+
+
+def load_overlay_utils():
+    path = os.path.join(script_dir(), "pdf-overlay-utils.py")
+    spec = importlib.util.spec_from_file_location("pdf_overlay_utils", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+overlay = load_overlay_utils()
 
 
 def layout_path():
@@ -85,45 +97,6 @@ def load_layout():
         return json.load(handle)
 
 
-def put_text(page, x, y, text, layout):
-    value = str(text or "").strip()
-    if not value:
-        return
-
-    page.insert_text(
-        (float(x), float(y)),
-        value,
-        fontsize=float(layout.get("fontSize", 11)),
-        fontname="helv",
-        color=tuple(layout.get("textColor", [0, 0, 0.55])),
-    )
-
-
-def put_textbox(page, rect, text, layout):
-    value = str(text or "").strip()
-    if not value:
-        return
-
-    page.insert_textbox(
-        fitz.Rect(*rect),
-        value,
-        fontsize=float(layout.get("fontSize", 11)),
-        fontname="helv",
-        color=tuple(layout.get("textColor", [0, 0, 0.55])),
-        align=fitz.TEXT_ALIGN_LEFT,
-    )
-
-
-def put_mark(page, point, layout, label="X"):
-    page.insert_text(
-        (float(point["x"]), float(point["y"])),
-        label,
-        fontsize=float(layout.get("fontSize", 11)),
-        fontname="helv",
-        color=tuple(layout.get("textColor", [0, 0, 0.55])),
-    )
-
-
 def fill_pdf(template_path, output_path, data):
     layout = load_layout()
     doc = fitz.open(template_path)
@@ -146,24 +119,24 @@ def fill_pdf(template_path, output_path, data):
         "remitidoA": data.get("remitidoA"),
     }
 
-    for key, point in layout.get("fields", {}).items():
-        put_text(page, point["x"], point["y"], field_map.get(key), layout)
+    for key, field_def in layout.get("fields", {}).items():
+        overlay.put_fitted_field(page, field_def, field_map.get(key), layout)
 
     for key, rect in layout.get("textBoxes", {}).items():
-        put_textbox(page, rect, data.get(key), layout)
+        overlay.put_fitted_textbox(page, rect, data.get(key), layout)
 
     marks = layout.get("marks", {})
     canal = str(data.get("canalDeReporte") or "").strip()
 
     if data.get("aceptaCorreo") and "aceptaCorreo" in marks:
-        put_mark(page, marks["aceptaCorreo"], layout)
+        overlay.put_mark(page, marks["aceptaCorreo"], layout)
 
     if canal == "Personal" and "atencionPersonal" in marks:
-        put_mark(page, marks["atencionPersonal"], layout)
+        overlay.put_mark(page, marks["atencionPersonal"], layout)
     elif canal == "Telefono" and "atencionTelefonica" in marks:
-        put_mark(page, marks["atencionTelefonica"], layout)
+        overlay.put_mark(page, marks["atencionTelefonica"], layout)
     elif canal == "Correo" and data.get("correo") and "aceptaCorreo" in marks:
-        put_mark(page, marks["aceptaCorreo"], layout)
+        overlay.put_mark(page, marks["aceptaCorreo"], layout)
 
     doc.save(output_path)
     doc.close()
