@@ -30,6 +30,8 @@
   background: var(--crm-surface) !important;
 }
 
+
+
 .case-cronograma.is-loading {
   opacity: 0.5;
 }

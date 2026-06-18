@@ -2,6 +2,7 @@
     "iconClass": "fas fa-scale-balanced",
     "color": "#1d8a6e",
     "nameAttribute": "cNumeroRadicado",
+    "kanbanViewMode": true,
     "views": {
         "detail": "custom:views/case/detail",
         "edit": "custom:views/case/edit"

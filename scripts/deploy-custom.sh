@@ -114,6 +114,10 @@ echo 'Menú lateral (tabList global)...'
 docker cp "$ROOT/scripts/configure-global-tablist.php" espocrm:/tmp/configure-global-tablist.php
 docker exec espocrm php /tmp/configure-global-tablist.php
 
+echo 'Kanban de Casos (todos los usuarios)...'
+docker cp "$ROOT/scripts/configure-case-kanban.php" espocrm:/tmp/configure-case-kanban.php
+docker exec espocrm php /tmp/configure-case-kanban.php
+
 echo 'Permisos ActaVisita por rol (Inspección edita acta)...'
 docker cp "$ROOT/scripts/configure-acta-visita-entity.php" espocrm:/tmp/configure-acta-visita-entity.php
 docker exec espocrm php /tmp/configure-acta-visita-entity.php

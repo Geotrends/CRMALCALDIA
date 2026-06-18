@@ -102,6 +102,11 @@ def fill_pdf(template_path, output_path, data):
     doc = fitz.open(template_path)
     page = doc[0]
 
+    overlay.restyle_template_borders(page, layout)
+
+    for line_def in layout.get("lines", []):
+        overlay.put_line(page, line_def, layout)
+
     field_map = {
         "fecha": data.get("fecha"),
         "radicado": data.get("radicado"),
@@ -122,8 +127,15 @@ def fill_pdf(template_path, output_path, data):
     for key, field_def in layout.get("fields", {}).items():
         overlay.put_fitted_field(page, field_def, field_map.get(key), layout)
 
-    for key, rect in layout.get("textBoxes", {}).items():
-        overlay.put_fitted_textbox(page, rect, data.get(key), layout)
+    for key, rect_def in layout.get("textBoxes", {}).items():
+        if isinstance(rect_def, dict):
+            rect = rect_def.get("rect")
+            field_def = rect_def
+        else:
+            rect = rect_def
+            field_def = {"align": "left", "singleLine": False}
+
+        overlay.put_fitted_textbox(page, rect, data.get(key), layout, field_def)
 
     marks = layout.get("marks", {})
     canal = str(data.get("canalDeReporte") or "").strip()
