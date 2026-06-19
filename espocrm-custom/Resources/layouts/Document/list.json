@@ -1,0 +1,26 @@
+[
+    {
+        "name": "name",
+        "link": true
+    },
+    {
+        "name": "cCategoria",
+        "width": 18
+    },
+    {
+        "name": "status",
+        "width": 12
+    },
+    {
+        "name": "publishDate",
+        "width": 12
+    },
+    {
+        "name": "file",
+        "width": 16
+    },
+    {
+        "name": "modifiedAt",
+        "width": 12
+    }
+]

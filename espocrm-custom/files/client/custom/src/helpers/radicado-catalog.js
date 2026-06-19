@@ -28,6 +28,32 @@ define('custom:helpers/radicado-catalog', [], function () {
         SUE: 'SUE — SUELO',
     };
 
+    const PLACEHOLDER = 'Seleccione una opción';
+
+    const isEmptySiglas = function (siglas) {
+        siglas = String(siglas || '').trim();
+
+        return siglas === '' || siglas === PLACEHOLDER;
+    };
+
+    const isValidSiglas = function (siglas) {
+        siglas = String(siglas || '').trim().toUpperCase();
+
+        return Object.prototype.hasOwnProperty.call(SIGLAS_LABELS, siglas);
+    };
+
+    const normalizeSiglas = function (model) {
+        let siglas = String(model.get('cRadicadoSiglas') || '').trim();
+
+        if (isEmptySiglas(siglas)) {
+            siglas = getSiglasFromModelRecurso(model) || '';
+        }
+
+        siglas = siglas.toUpperCase();
+
+        return isValidSiglas(siglas) ? siglas : '';
+    };
+
     const getSiglasForRecurso = function (recurso) {
         return RECURSO_SIGLAS[recurso] || null;
     };
@@ -62,6 +88,9 @@ define('custom:helpers/radicado-catalog', [], function () {
         SIGLAS_LABELS: SIGLAS_LABELS,
         getSiglasForRecurso: getSiglasForRecurso,
         getSiglasFromModelRecurso: getSiglasFromModelRecurso,
+        isEmptySiglas: isEmptySiglas,
+        isValidSiglas: isValidSiglas,
+        normalizeSiglas: normalizeSiglas,
         isModoAutomatico: isModoAutomatico,
         buildRadicado: buildRadicado,
         buildExpediente: buildExpediente,

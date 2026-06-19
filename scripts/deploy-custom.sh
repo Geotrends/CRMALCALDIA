@@ -134,6 +134,10 @@ echo 'Acceso completo — menú y permisos para todos los roles...'
 docker cp "$ROOT/scripts/configure-full-access-all-roles.php" espocrm:/tmp/configure-full-access-all-roles.php
 docker exec espocrm php /tmp/configure-full-access-all-roles.php
 
+echo 'Documentos: plantillas oficiales (solicitud, acta, actuo)...'
+docker cp "$ROOT/scripts/configure-document-plantillas.php" espocrm:/tmp/configure-document-plantillas.php
+docker exec espocrm php /tmp/configure-document-plantillas.php
+
 echo 'Eliminando columnas obsoletas c_categoria / c_tipo...'
 docker cp "$ROOT/scripts/migrate-drop-case-categoria-tipo.php" espocrm:/tmp/migrate-drop-case-categoria-tipo.php
 docker exec espocrm php /tmp/migrate-drop-case-categoria-tipo.php

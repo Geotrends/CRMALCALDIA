@@ -1,0 +1,23 @@
+{
+    "fields": {
+        "cCategoria": "Categoría"
+    },
+    "labels": {
+        "Create Document": "Crear documento",
+        "Documents": "Documentos",
+        "Document": "Documento"
+    },
+    "options": {
+        "cCategoria": {
+            "Formato solicitud": "Formato solicitud",
+            "Acta de visita": "Acta de visita",
+            "Actuo archivo": "Actuo archivo"
+        }
+    },
+    "presetFilters": {
+        "todosPlantillas": "Todas las plantillas",
+        "formatoSolicitud": "Formato solicitud",
+        "actaVisita": "Acta de visita",
+        "actuoArchivo": "Actuo archivo"
+    }
+}

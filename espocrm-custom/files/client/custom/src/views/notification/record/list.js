@@ -1,5 +1,10 @@
 define('custom:views/notification/record/list', ['views/notification/record/list'], function (Dep) {
 
+    const hideNavbarBadge = function () {
+        $('.notifications-button .number-badge').addClass('hidden').html('');
+        $('.notifications-badge-container .badge-circle-warning').remove();
+    };
+
     return Dep.extend({
 
         setup: function () {
@@ -11,6 +16,9 @@ define('custom:views/notification/record/list', ['views/notification/record/list
                         this.collection.models.forEach((model) => {
                             model.set('read', true, {sync: true});
                         });
+
+                        hideNavbarBadge();
+                        this.trigger('all-read');
                     });
             });
         },

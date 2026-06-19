@@ -1,0 +1,13 @@
+{
+    "filterList": [
+        "todosPlantillas",
+        "formatoSolicitud",
+        "actaVisita",
+        "actuoArchivo"
+    ],
+    "selectDefaultFilters": {
+        "filter": "todosPlantillas"
+    },
+    "defaultSortBy": "cCategoria",
+    "defaultOrder": "asc"
+}

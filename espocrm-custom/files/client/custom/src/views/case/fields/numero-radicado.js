@@ -41,7 +41,15 @@ define('custom:views/case/fields/numero-radicado', [
         },
 
         useAssistant: function () {
-            return this.isEditMode() && RadicacionFields.isRadicacionUser(this.getUser());
+            if (!this.isEditMode() || !RadicacionFields.isRadicacionUser(this.getUser())) {
+                return false;
+            }
+
+            if (this.model.isNew() && RadicacionFields.isInspeccionUser(this.getUser()) && !this.getUser().isAdmin()) {
+                return false;
+            }
+
+            return true;
         },
 
         getDisplayRadicado: function () {
@@ -76,12 +84,12 @@ define('custom:views/case/fields/numero-radicado', [
                 this.model.set('cRadicadoAnio', RadicadoCatalog.getCurrentYear(), {silent: true});
             }
 
-            if (!this.model.get('cRadicadoSiglas')) {
-                const siglas = RadicadoCatalog.getSiglasFromModelRecurso(this.model);
+            const siglas = RadicadoCatalog.normalizeSiglas(this.model);
 
-                if (siglas) {
-                    this.model.set('cRadicadoSiglas', siglas, {silent: true});
-                }
+            if (siglas) {
+                this.model.set('cRadicadoSiglas', siglas, {silent: true});
+            } else if (RadicadoCatalog.isEmptySiglas(this.model.get('cRadicadoSiglas'))) {
+                this.model.set('cRadicadoSiglas', null, {silent: true});
             }
         },
 
@@ -216,7 +224,7 @@ define('custom:views/case/fields/numero-radicado', [
                 return;
             }
 
-            const siglas = String(this.model.get('cRadicadoSiglas') || '').trim();
+            const siglas = RadicadoCatalog.normalizeSiglas(this.model);
             const anio = String(this.model.get('cRadicadoAnio') || RadicadoCatalog.getCurrentYear()).trim();
 
             if (!siglas || !anio) {

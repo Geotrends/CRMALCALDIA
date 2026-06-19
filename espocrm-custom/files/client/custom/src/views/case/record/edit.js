@@ -396,12 +396,10 @@ define('custom:views/case/record/edit', [
 
             RadicadoGenerator.applyDefaults(this.model);
 
-            if (!this.model.get('cRadicadoSiglas')) {
-                const siglas = RadicadoCatalog.getSiglasFromModelRecurso(this.model);
+            const siglas = RadicadoCatalog.normalizeSiglas(this.model);
 
-                if (siglas) {
-                    this.model.set('cRadicadoSiglas', siglas, {silent: true});
-                }
+            if (siglas) {
+                this.model.set('cRadicadoSiglas', siglas, {silent: true});
             }
 
             if (

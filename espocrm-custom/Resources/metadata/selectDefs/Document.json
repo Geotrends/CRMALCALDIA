@@ -1,0 +1,8 @@
+{
+    "primaryFilterClassNameMap": {
+        "todosPlantillas": "Espo\\Custom\\Classes\\Select\\Document\\PrimaryFilters\\TodosPlantillas",
+        "formatoSolicitud": "Espo\\Custom\\Classes\\Select\\Document\\PrimaryFilters\\FormatoSolicitud",
+        "actaVisita": "Espo\\Custom\\Classes\\Select\\Document\\PrimaryFilters\\ActaVisita",
+        "actuoArchivo": "Espo\\Custom\\Classes\\Select\\Document\\PrimaryFilters\\ActuoArchivo"
+    }
+}

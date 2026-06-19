@@ -385,11 +385,27 @@ define('custom:views/home', ['views/dashboard', 'search-manager'], function (Dep
 
         loadMeetingList: function () {
             var $container = this.$el.find('[data-agenda-list="meetings"]');
+            var userId = this.getUser().id;
 
             this.getCollectionFactory().create('Meeting', function (collection) {
                 collection.maxSize = 15;
                 collection.orderBy = 'dateStart';
                 collection.order = 'desc';
+                collection.where = [{
+                    type: 'or',
+                    value: [
+                        {
+                            type: 'equals',
+                            attribute: 'assignedUserId',
+                            value: userId,
+                        },
+                        {
+                            type: 'linkedWith',
+                            attribute: 'users',
+                            value: userId,
+                        },
+                    ],
+                }];
 
                 collection.fetch({main: true})
                     .then(function () {
@@ -403,11 +419,17 @@ define('custom:views/home', ['views/dashboard', 'search-manager'], function (Dep
 
         loadTaskList: function () {
             var $container = this.$el.find('[data-agenda-list="tasks"]');
+            var userId = this.getUser().id;
 
             this.getCollectionFactory().create('Task', function (collection) {
                 collection.maxSize = 15;
                 collection.orderBy = 'dateEnd';
                 collection.order = 'desc';
+                collection.where = [{
+                    type: 'equals',
+                    attribute: 'assignedUserId',
+                    value: userId,
+                }];
 
                 collection.fetch({main: true})
                     .then(function () {

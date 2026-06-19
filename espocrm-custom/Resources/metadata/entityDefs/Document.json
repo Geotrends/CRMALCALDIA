@@ -1,0 +1,30 @@
+{
+    "fields": {
+        "cCategoria": {
+            "type": "enum",
+            "options": [
+                "Formato solicitud",
+                "Acta de visita",
+                "Actuo archivo"
+            ],
+            "required": true,
+            "default": "Formato solicitud",
+            "isCustom": true,
+            "audited": true,
+            "displayAsLabel": true,
+            "style": {
+                "Formato solicitud": "primary",
+                "Acta de visita": "success",
+                "Actuo archivo": "warning"
+            }
+        }
+    },
+    "collection": {
+        "orderBy": "cCategoria",
+        "order": "asc",
+        "textFilterFields": [
+            "name",
+            "description"
+        ]
+    }
+}

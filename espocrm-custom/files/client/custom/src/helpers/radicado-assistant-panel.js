@@ -7,7 +7,17 @@ define('custom:helpers/radicado-assistant-panel', [
     let fetchRequest = null;
 
     const canShow = function (recordView) {
-        return RadicacionFields.isRadicacionUser(recordView.getUser());
+        if (!RadicacionFields.isRadicacionUser(recordView.getUser())) {
+            return false;
+        }
+
+        if (recordView.model.isNew() && RadicacionFields.isInspeccionUser(recordView.getUser())) {
+            if (!recordView.getUser().isAdmin()) {
+                return false;
+            }
+        }
+
+        return true;
     };
 
     const applyDefaults = function (model) {
@@ -19,12 +29,12 @@ define('custom:helpers/radicado-assistant-panel', [
             model.set('cRadicadoAnio', RadicadoCatalog.getCurrentYear(), {silent: true});
         }
 
-        if (!model.get('cRadicadoSiglas')) {
-            const siglas = RadicadoCatalog.getSiglasFromModelRecurso(model);
+        const siglas = RadicadoCatalog.normalizeSiglas(model);
 
-            if (siglas) {
-                model.set('cRadicadoSiglas', siglas, {silent: true});
-            }
+        if (siglas) {
+            model.set('cRadicadoSiglas', siglas, {silent: true});
+        } else if (RadicadoCatalog.isEmptySiglas(model.get('cRadicadoSiglas'))) {
+            model.set('cRadicadoSiglas', null, {silent: true});
         }
     };
 
@@ -111,7 +121,7 @@ define('custom:helpers/radicado-assistant-panel', [
     };
 
     const fetchPreview = function (model) {
-        const siglas = String(model.get('cRadicadoSiglas') || '').trim();
+        const siglas = RadicadoCatalog.normalizeSiglas(model);
         const anio = String(model.get('cRadicadoAnio') || RadicadoCatalog.getCurrentYear()).trim();
 
         if (!siglas || !anio) {

@@ -21,12 +21,12 @@ define('custom:helpers/radicado-generator', [
             model.set('cRadicadoAnio', RadicadoCatalog.getCurrentYear(), {silent: true});
         }
 
-        if (!model.get('cRadicadoSiglas')) {
-            const siglas = RadicadoCatalog.getSiglasFromModelRecurso(model);
+        const siglas = RadicadoCatalog.normalizeSiglas(model);
 
-            if (siglas) {
-                model.set('cRadicadoSiglas', siglas, {silent: true});
-            }
+        if (siglas) {
+            model.set('cRadicadoSiglas', siglas, {silent: true});
+        } else if (RadicadoCatalog.isEmptySiglas(model.get('cRadicadoSiglas'))) {
+            model.set('cRadicadoSiglas', null, {silent: true});
         }
     };
 
@@ -72,7 +72,7 @@ define('custom:helpers/radicado-generator', [
 
     const fetchPreview = function (recordView) {
         const model = recordView.model;
-        const siglas = String(model.get('cRadicadoSiglas') || '').trim();
+        const siglas = RadicadoCatalog.normalizeSiglas(model);
         const anio = String(model.get('cRadicadoAnio') || RadicadoCatalog.getCurrentYear()).trim();
 
         if (!siglas || !anio) {
