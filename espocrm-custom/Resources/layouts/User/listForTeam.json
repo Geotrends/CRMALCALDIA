@@ -1,0 +1,10 @@
+[
+    {"name": "name", "link": true},
+    {"name": "userName", "hidden": true},
+    {"name": "title", "hidden": true},
+    {"name": "emailAddress", "hidden": true},
+    {"name": "phoneNumber", "hidden": true},
+    {"name": "teamRole", "hidden": true},
+    {"name": "isActive", "hidden": true},
+    {"name": "createdAt", "hidden": true}
+]

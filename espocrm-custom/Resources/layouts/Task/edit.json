@@ -1,0 +1,22 @@
+[
+    {
+        "label": "",
+        "rows": [
+            [
+                {"name": "name"},
+                {"name": "assignedUser"}
+            ],
+            [
+                {"name": "status"},
+                {"name": "priority"}
+            ],
+            [
+                {"name": "dateStart"},
+                {"name": "dateEnd"}
+            ],
+            [
+                {"name": "description", "fullWidth": true}
+            ]
+        ]
+    }
+]

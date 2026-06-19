@@ -1,0 +1,25 @@
+{
+    "fields": {
+        "name": "Nombre de la reunión",
+        "status": "Estado",
+        "dateStart": "Fecha de inicio",
+        "dateEnd": "Fecha de finalización",
+        "duration": "Duración",
+        "description": "Descripción",
+        "assignedUser": "Usuario asignado",
+        "joinUrl": "Enlace de la reunión",
+        "users": "Usuarios invitados"
+    },
+    "options": {
+        "status": {
+            "Planned": "Planeada",
+            "Held": "Realizada",
+            "Not Held": "No realizada"
+        }
+    },
+    "labels": {
+        "Create Meeting": "Crear reunión",
+        "Meetings": "Reuniones",
+        "Meeting": "Reunión"
+    }
+}

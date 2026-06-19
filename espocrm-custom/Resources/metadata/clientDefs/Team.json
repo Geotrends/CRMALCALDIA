@@ -1,10 +1,15 @@
 {
+    "recordViews": {
+        "list": "custom:views/team/record/list"
+    },
     "relationshipPanels": {
         "users": {
-            "label": "Patrulleros en este equipo",
+            "label": "Miembros del equipo",
+            "view": "custom:views/team/record/panels/users-cards",
             "createDisabled": true,
             "editDisabled": true,
             "removeDisabled": false,
+            "viewDisabled": true,
             "layout": "listForTeam",
             "selectPrimaryFilterName": "active",
             "filterList": ["all", "active"],
@@ -13,7 +18,8 @@
             ],
             "selectMandatoryAttributeList": [
                 "teamRole"
-            ]
+            ],
+            "recordsPerPage": 100
         }
     }
 }

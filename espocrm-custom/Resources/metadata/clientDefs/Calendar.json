@@ -1,0 +1,7 @@
+{
+    "scopeList": ["Meeting"],
+    "calendarView": "custom:views/calendar/calendar",
+    "colors": {
+        "Meeting": "#558BBD"
+    }
+}

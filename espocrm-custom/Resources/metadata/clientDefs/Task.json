@@ -1,0 +1,12 @@
+{
+    "kanbanViewMode": true,
+    "defaultSidePanelDisabled": true,
+    "relationshipPanels": {
+        "account": {
+            "disabled": true
+        },
+        "contact": {
+            "disabled": true
+        }
+    }
+}

@@ -1,5 +1,5 @@
 {
-    "iconClass": "fas fa-chart-pie",
+    "iconClass": "fas fa-home",
     "color": "#1d8a6e",
     "view": "custom:views/home"
 }

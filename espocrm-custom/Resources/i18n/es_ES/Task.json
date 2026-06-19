@@ -1,0 +1,30 @@
+{
+    "fields": {
+        "assignedUser": "Usuario asignado",
+        "name": "Nombre de la tarea",
+        "status": "Estado",
+        "priority": "Prioridad",
+        "dateStart": "Fecha de inicio",
+        "dateEnd": "Fecha de vencimiento",
+        "description": "Descripción"
+    },
+    "options": {
+        "status": {
+            "Not Started": "Sin empezar",
+            "Started": "En progreso",
+            "Completed": "Completada",
+            "Canceled": "Cancelada",
+            "Deferred": "Diferida"
+        },
+        "priority": {
+            "Low": "Baja",
+            "Normal": "Normal",
+            "High": "Alta",
+            "Urgent": "Urgente"
+        }
+    },
+    "labels": {
+        "Create Task": "Crear tarea",
+        "Tasks": "Tareas"
+    }
+}

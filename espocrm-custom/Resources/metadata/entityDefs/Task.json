@@ -1,0 +1,16 @@
+{
+    "fields": {
+        "parent": {
+            "disabled": true
+        },
+        "account": {
+            "disabled": true
+        },
+        "contact": {
+            "disabled": true
+        },
+        "teams": {
+            "disabled": true
+        }
+    }
+}

@@ -1,0 +1,17 @@
+{
+    "fields": {
+        "parent": {
+            "disabled": true
+        },
+        "account": {
+            "disabled": true
+        },
+        "teams": {
+            "disabled": true
+        },
+        "joinUrl": {
+            "readOnly": false,
+            "customizationReadOnlyDisabled": true
+        }
+    }
+}

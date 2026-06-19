@@ -114,6 +114,10 @@ echo 'Menú lateral (tabList global)...'
 docker cp "$ROOT/scripts/configure-global-tablist.php" espocrm:/tmp/configure-global-tablist.php
 docker exec espocrm php /tmp/configure-global-tablist.php
 
+echo 'Calendario: solo reuniones...'
+docker cp "$ROOT/scripts/configure-calendar-meetings-only.php" espocrm:/tmp/configure-calendar-meetings-only.php
+docker exec espocrm php /tmp/configure-calendar-meetings-only.php
+
 echo 'Kanban de Casos (todos los usuarios)...'
 docker cp "$ROOT/scripts/configure-case-kanban.php" espocrm:/tmp/configure-case-kanban.php
 docker exec espocrm php /tmp/configure-case-kanban.php
@@ -125,6 +129,10 @@ docker exec espocrm php /tmp/configure-acta-visita-entity.php
 echo 'Home: tablero custom + dashlets editables...'
 docker cp "$ROOT/scripts/configure-user-dashboards.php" espocrm:/tmp/configure-user-dashboards.php
 docker exec espocrm php /tmp/configure-user-dashboards.php
+
+echo 'Acceso completo — menú y permisos para todos los roles...'
+docker cp "$ROOT/scripts/configure-full-access-all-roles.php" espocrm:/tmp/configure-full-access-all-roles.php
+docker exec espocrm php /tmp/configure-full-access-all-roles.php
 
 echo 'Eliminando columnas obsoletas c_categoria / c_tipo...'
 docker cp "$ROOT/scripts/migrate-drop-case-categoria-tipo.php" espocrm:/tmp/migrate-drop-case-categoria-tipo.php

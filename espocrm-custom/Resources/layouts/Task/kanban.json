@@ -1,0 +1,20 @@
+[
+    {
+        "name": "name",
+        "link": true,
+        "isLarge": true
+    },
+    {
+        "name": "assignedUser",
+        "isMuted": true
+    },
+    {
+        "name": "priority",
+        "isMuted": true
+    },
+    {
+        "name": "dateEnd",
+        "align": "right",
+        "isMuted": true
+    }
+]

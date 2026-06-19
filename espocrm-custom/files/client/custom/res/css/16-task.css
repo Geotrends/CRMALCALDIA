@@ -1,0 +1,38 @@
+/**
+ * Tareas — kanban y listas
+ */
+
+.kanban[data-scope="Task"] .kanban-row {
+  gap: 12px;
+}
+
+.kanban[data-scope="Task"] .group-column {
+  border-radius: var(--crm-radius-md);
+  background: var(--crm-bg-elevated);
+}
+
+.kanban[data-scope="Task"] .group-column .group-column-header {
+  font-weight: 700;
+  color: var(--crm-text);
+  border-bottom: 2px solid var(--crm-border-light);
+}
+
+.kanban[data-scope="Task"] .item {
+  border-radius: var(--crm-radius-sm);
+  border: 1px solid var(--crm-border-light);
+  box-shadow: var(--crm-shadow-xs);
+}
+
+.kanban[data-scope="Task"] .item:hover {
+  border-color: var(--crm-primary-soft);
+  box-shadow: var(--crm-shadow-sm);
+}
+
+.list[data-scope="Task"] .table .link {
+  font-weight: 600 !important;
+  color: var(--crm-text) !important;
+}
+
+.list[data-scope="Task"] .table .link:hover {
+  color: var(--crm-primary) !important;
+}

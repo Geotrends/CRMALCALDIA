@@ -1,0 +1,6 @@
+[
+    {
+        "name": "users",
+        "view": "custom:views/team/record/panels/users-cards"
+    }
+]

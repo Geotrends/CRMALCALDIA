@@ -17,16 +17,19 @@ $tabList = [
         'id' => 'alcaldia-gestion',
     ],
     'Case',
+    'User',
     'Contact',
     'Account',
+    'Document',
+    'Template',
     [
         'type' => 'divider',
         'text' => 'Actividades',
         'id' => 'alcaldia-actividades',
     ],
-    'Email',
     'Calendar',
     'Task',
+    'Team',
 ];
 
 $config->set('tabList', $tabList);

@@ -1,0 +1,33 @@
+[
+    {
+        "label": "",
+        "rows": [
+            [
+                {"name": "name", "fullWidth": true}
+            ],
+            [
+                {"name": "status"},
+                false
+            ],
+            [
+                {"name": "dateStart"}
+            ],
+            [
+                {"name": "duration"},
+                false
+            ],
+            [
+                {"name": "dateEnd"}
+            ],
+            [
+                {"name": "joinUrl", "fullWidth": true}
+            ],
+            [
+                {"name": "assignedUser"}
+            ],
+            [
+                {"name": "description", "fullWidth": true}
+            ]
+        ]
+    }
+]

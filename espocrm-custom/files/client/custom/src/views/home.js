@@ -275,11 +275,9 @@ define('custom:views/home', ['views/dashboard', 'search-manager'], function (Dep
             this.bindHomeTabs();
             this._activeHomeTab = activeTab;
 
-            cfg.lists.forEach(function (listCfg, index) {
-                this.loadList(index, listCfg);
-            }, this);
-
-            if (activeTab === 'agenda') {
+            if (activeTab === 'gestion') {
+                this.loadGestionLists();
+            } else if (activeTab === 'agenda') {
                 this.loadAgendaLists();
             } else if (activeTab === 'dashboard') {
                 this.refreshDashboardIframeHeight();
@@ -325,6 +323,10 @@ define('custom:views/home', ['views/dashboard', 'search-manager'], function (Dep
             this.$el.find('.custom-home-panel[data-panel="' + tab + '"]')
                 .addClass('is-active');
 
+            if (tab === 'gestion') {
+                this.loadGestionLists();
+            }
+
             if (tab === 'agenda') {
                 this.loadAgendaLists();
             }
@@ -359,6 +361,18 @@ define('custom:views/home', ['views/dashboard', 'search-manager'], function (Dep
             }, 120);
         },
 
+        loadGestionLists: function () {
+            if (this._gestionLoaded) {
+                return;
+            }
+
+            this._gestionLoaded = true;
+
+            this.config.lists.forEach(function (listCfg, index) {
+                this.loadList(index, listCfg);
+            }, this);
+        },
+
         loadAgendaLists: function () {
             if (this._agendaLoaded) {
                 return;
@@ -377,7 +391,7 @@ define('custom:views/home', ['views/dashboard', 'search-manager'], function (Dep
                 collection.orderBy = 'dateStart';
                 collection.order = 'desc';
 
-                collection.fetch()
+                collection.fetch({main: true})
                     .then(function () {
                         this.renderMeetingList($container, collection);
                     }.bind(this))
@@ -395,7 +409,7 @@ define('custom:views/home', ['views/dashboard', 'search-manager'], function (Dep
                 collection.orderBy = 'dateEnd';
                 collection.order = 'desc';
 
-                collection.fetch()
+                collection.fetch({main: true})
                     .then(function () {
                         this.renderTaskList($container, collection);
                     }.bind(this))
@@ -496,7 +510,7 @@ define('custom:views/home', ['views/dashboard', 'search-manager'], function (Dep
 
                 collection.where = searchManager.getWhere();
 
-                collection.fetch()
+                collection.fetch({main: true})
                     .then(function () {
                         this.renderList($container, collection);
                     }.bind(this))

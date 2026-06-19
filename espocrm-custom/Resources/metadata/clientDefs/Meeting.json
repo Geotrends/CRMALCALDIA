@@ -1,0 +1,64 @@
+{
+    "relationshipPanels": {
+        "contacts": {
+            "disabled": true
+        },
+        "leads": {
+            "disabled": true
+        }
+    },
+    "sidePanels": {
+        "detail": [
+            {
+                "name": "attendees",
+                "label": "Asistentes",
+                "view": "crm:views/meeting/record/panels/attendees",
+                "options": {
+                    "fieldList": ["users"]
+                },
+                "sticked": true,
+                "isForm": true,
+                "notRefreshable": true
+            }
+        ],
+        "detailSmall": [
+            {
+                "name": "attendees",
+                "label": "Asistentes",
+                "view": "crm:views/meeting/record/panels/attendees",
+                "options": {
+                    "fieldList": ["users"]
+                },
+                "sticked": true,
+                "isForm": true,
+                "notRefreshable": true
+            }
+        ],
+        "edit": [
+            {
+                "name": "attendees",
+                "label": "Asistentes",
+                "view": "crm:views/meeting/record/panels/attendees",
+                "options": {
+                    "fieldList": ["users"]
+                },
+                "sticked": true,
+                "isForm": true,
+                "notRefreshable": true
+            }
+        ],
+        "editSmall": [
+            {
+                "name": "attendees",
+                "label": "Asistentes",
+                "view": "crm:views/meeting/record/panels/attendees",
+                "options": {
+                    "fieldList": ["users"]
+                },
+                "sticked": true,
+                "isForm": true,
+                "notRefreshable": true
+            }
+        ]
+    }
+}
