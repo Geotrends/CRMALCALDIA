@@ -1,16 +1,26 @@
 /**
- * Navbar — minimizador visible + reflow suave (sin forzar expandir).
+ * Navbar — minimizador en la parte superior + reflow suave (sin forzar expandir).
  */
 (function () {
     var observerStarted = false;
+    var bodyObserverStarted = false;
 
-    function ensureMinimizerVisible() {
+    function setupMinimizerButton() {
         var minimizer = document.querySelector('#navbar a.minimizer');
+        var header = document.querySelector('#navbar .navbar-header');
 
-        if (minimizer) {
-            minimizer.classList.remove('hidden');
-            minimizer.title = minimizer.title || 'Colapsar menú';
+        if (!minimizer) {
+            return;
         }
+
+        if (header && minimizer.parentElement !== header) {
+            header.insertBefore(minimizer, header.firstChild);
+        }
+
+        minimizer.classList.remove('hidden');
+        minimizer.title = document.body.classList.contains('minimized')
+            ? 'Expandir menú'
+            : 'Colapsar menú';
     }
 
     function triggerReflow() {
@@ -65,10 +75,11 @@
 
     function init() {
         flattenMoreMenu();
-        ensureMinimizerVisible();
+        setupMinimizerButton();
         triggerReflow();
         setTimeout(function () {
             flattenMoreMenu();
+            setupMinimizerButton();
             triggerReflow();
         }, 600);
     }
@@ -81,7 +92,7 @@
         observerStarted = true;
 
         var observer = new MutationObserver(function () {
-            ensureMinimizerVisible();
+            setupMinimizerButton();
             flattenMoreMenu();
         });
 
@@ -92,9 +103,27 @@
         }
     }
 
+    function startBodyObserver() {
+        if (bodyObserverStarted || !document.body) {
+            return;
+        }
+
+        bodyObserverStarted = true;
+
+        var bodyObserver = new MutationObserver(function () {
+            setupMinimizerButton();
+        });
+
+        bodyObserver.observe(document.body, {
+            attributes: true,
+            attributeFilter: ['class'],
+        });
+    }
+
     function boot() {
         init();
         startObserver();
+        startBodyObserver();
     }
 
     if (document.readyState === 'loading') {
