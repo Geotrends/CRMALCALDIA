@@ -41,7 +41,7 @@ define('custom:views/home', ['views/dashboard', 'search-manager'], function (Dep
         };
 
         var showTablero = true;
-        var cacheBuster = String(appTimestamp || Date.now());
+        var cacheBuster = String(appTimestamp || Date.now()) + '-dash4';
         var iframeUrl = '/client/custom/dashboard.html?v=' + encodeURIComponent(cacheBuster);
 
         if (profile === 'patrullero') {

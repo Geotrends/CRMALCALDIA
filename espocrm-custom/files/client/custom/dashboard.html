@@ -8,20 +8,125 @@
   <meta http-equiv="Expires" content="0" />
   <title>Tablero de Control — CRM Alcaldía</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    /* Botones export — embebidos para que no queden atrapados en caché del @import */
+    .dashboard-header__actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .dashboard-report-btn {
+      appearance: none;
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      width: 56px;
+      height: 56px;
+      padding: 0;
+      margin: 0;
+      border: none;
+      background: #fff;
+      color: #2a5934;
+      border-radius: 18px;
+      cursor: pointer;
+      box-shadow:
+        0 1px 2px rgba(15, 23, 42, 0.05),
+        0 4px 16px rgba(15, 23, 42, 0.1);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .dashboard-report-btn__icon-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+    }
+
+    .dashboard-report-btn__icon {
+      width: 22px;
+      height: 22px;
+      flex-shrink: 0;
+      stroke: #2a5934;
+    }
+
+    .dashboard-report-btn__text {
+      font-family: Inter, system-ui, sans-serif;
+      font-size: 10px;
+      font-weight: 600;
+      line-height: 1;
+      letter-spacing: 0.02em;
+      color: #64748b;
+    }
+
+    .dashboard-report-btn:hover {
+      transform: translateY(-1px);
+      box-shadow:
+        0 2px 4px rgba(15, 23, 42, 0.06),
+        0 8px 22px rgba(15, 23, 42, 0.12);
+    }
+
+    .dashboard-report-btn:active {
+      transform: translateY(0);
+      box-shadow:
+        0 1px 2px rgba(15, 23, 42, 0.04),
+        0 2px 8px rgba(15, 23, 42, 0.06);
+    }
+
+    .dashboard-report-btn--excel .dashboard-report-btn__icon {
+      stroke: #1d8a6e;
+    }
+
+    .dashboard-report-btn--excel .dashboard-report-btn__text {
+      color: #1d8a6e;
+    }
+  </style>
+  <script>
+    (function () {
+      var v = new URLSearchParams(window.location.search).get('v') || String(Date.now());
+      ['01-variables.css', '08-dashboard.css'].forEach(function (file) {
+        var link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = '/client/custom/res/css/' + file + '?v=' + encodeURIComponent(v);
+        document.head.appendChild(link);
+      });
+    })();
+  </script>
 </head>
 <body>
   <div class="dashboard">
     <header class="dashboard-header">
       <div class="dashboard-header__brand">
-        <div class="dashboard-header__logo" aria-hidden="true">M</div>
+        <div class="dashboard-header__logo">
+          <img src="/client/custom/res/img/logo-envigado.png" alt="Alcaldía de Envigado" class="dashboard-header__logo-img" width="56" height="56" />
+        </div>
         <div>
           <h1>Tablero de Control</h1>
           <p class="dashboard-header__sub">Secretaría de Medio Ambiente — Gestión de Casos</p>
         </div>
       </div>
       <div class="dashboard-header__meta">
-        <span class="dashboard-header__badge">En vivo</span>
-        <span id="fecha-actual" class="fecha"></span>
+        <div class="dashboard-header__actions" role="group" aria-label="Exportar reporte gerencial">
+          <button type="button" class="dashboard-report-btn" id="btn-reporte-pdf" title="Descargar reporte gerencial en PDF">
+            <span class="dashboard-report-btn__icon-wrap" aria-hidden="true">
+              <svg class="dashboard-report-btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 4h8l4 4v12a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z"/><path d="M16 4v4h4"/><path d="M9 13h6M9 17h4"/></svg>
+            </span>
+            <span class="dashboard-report-btn__text">PDF</span>
+          </button>
+          <button type="button" class="dashboard-report-btn dashboard-report-btn--excel" id="btn-reporte-excel" title="Descargar reporte gerencial en Excel">
+            <span class="dashboard-report-btn__icon-wrap" aria-hidden="true">
+              <svg class="dashboard-report-btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 9l6 6M15 9l-6 6"/></svg>
+            </span>
+            <span class="dashboard-report-btn__text">Excel</span>
+          </button>
+        </div>
+        <div class="dashboard-header__status">
+          <span class="dashboard-header__badge">En vivo</span>
+          <span id="fecha-actual" class="fecha"></span>
+        </div>
       </div>
     </header>
 
@@ -133,10 +238,6 @@
   <script>
     (function () {
       var v = new URLSearchParams(window.location.search).get('v') || String(Date.now());
-      var css = document.createElement('link');
-      css.rel = 'stylesheet';
-      css.href = '/client/custom/res/css/dashboard-bundle.css?v=' + encodeURIComponent(v);
-      document.head.appendChild(css);
       var js = document.createElement('script');
       js.src = '/client/custom/dashboard.js?v=' + encodeURIComponent(v);
       document.body.appendChild(js);

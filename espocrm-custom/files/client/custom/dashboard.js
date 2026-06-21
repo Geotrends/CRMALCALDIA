@@ -675,6 +675,35 @@
     var params = new URLSearchParams(window.location.search);
     var assignedUserId = params.get('assignedUserId') || '';
 
+    function buildReporteUrl(format) {
+        var url = '/?entryPoint=ReporteGerencial&format=' + encodeURIComponent(format);
+
+        if (assignedUserId) {
+            url += '&assignedUserId=' + encodeURIComponent(assignedUserId);
+        }
+
+        return url;
+    }
+
+    function bindReporteButtons() {
+        var btnPdf = document.getElementById('btn-reporte-pdf');
+        var btnExcel = document.getElementById('btn-reporte-excel');
+
+        if (btnPdf) {
+            btnPdf.addEventListener('click', function () {
+                window.open(buildReporteUrl('pdf'), '_blank');
+            });
+        }
+
+        if (btnExcel) {
+            btnExcel.addEventListener('click', function () {
+                window.open(buildReporteUrl('xlsx'), '_blank');
+            });
+        }
+    }
+
+    bindReporteButtons();
+
     var fetchUrl = '/api/v1/Case?select=cRecursoTema,cCanalDeReporte,status,assignedUserId,createdAt,cFechaCaso,cFechaVencimiento,cNumeroRadicado,cExpediente,cPeticionario,cBarrio'
         + '&maxSize=200&orderBy=cFechaCaso&order=desc';
 
