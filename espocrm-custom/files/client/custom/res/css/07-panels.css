@@ -42,3 +42,200 @@
   box-shadow: none !important;
   border: 1px solid var(--crm-border-light) !important;
 }
+
+/* Expediente único del tercero */
+.panel-partyExpediente .panel-body {
+  padding: 14px 16px 18px !important;
+}
+
+.party-expediente.is-loading {
+  opacity: 0.6;
+}
+
+.party-expediente-kpis {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.party-expediente-kpi {
+  border: 1px solid var(--crm-border-light);
+  border-radius: var(--crm-radius-md);
+  background: var(--crm-bg-elevated);
+  padding: 10px 12px;
+  text-align: center;
+}
+
+.party-expediente-kpi__value {
+  display: block;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--crm-primary);
+  line-height: 1.1;
+}
+
+.party-expediente-kpi__label {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--crm-text-secondary);
+}
+
+.party-expediente-section + .party-expediente-section {
+  margin-top: 18px;
+}
+
+.party-expediente-section__title {
+  margin: 0 0 10px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--crm-text);
+}
+
+.party-expediente-casos {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.party-expediente-caso {
+  border: 1px solid var(--crm-border-light);
+  border-radius: var(--crm-radius-md);
+  padding: 10px 12px;
+  background: var(--crm-surface);
+}
+
+.party-expediente-caso__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.party-expediente-caso__meta {
+  margin-top: 4px;
+  font-size: 12px;
+}
+
+.party-expediente-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.party-expediente-item {
+  display: grid;
+  grid-template-columns: 14px 1fr;
+  gap: 10px;
+  padding-bottom: 14px;
+  position: relative;
+}
+
+.party-expediente-item:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 16px;
+  bottom: 0;
+  width: 2px;
+  background: var(--crm-border-light);
+}
+
+.party-expediente-item__marker {
+  width: 12px;
+  height: 12px;
+  margin-top: 4px;
+  border-radius: 999px;
+  background: var(--crm-primary);
+  border: 2px solid var(--crm-surface);
+  box-shadow: 0 0 0 1px var(--crm-border);
+}
+
+.party-expediente-item--acta .party-expediente-item__marker {
+  background: #1d8a6e;
+}
+
+.party-expediente-item--comunicacion .party-expediente-item__marker {
+  background: #52667a;
+}
+
+.party-expediente-item--actuo .party-expediente-item__marker {
+  background: #64748b;
+}
+
+.party-expediente-item__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.party-expediente-item__titulo {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--crm-text);
+}
+
+.party-expediente-item__desc,
+.party-expediente-item__links,
+.party-expediente-item__fecha,
+.party-expediente-item__rol {
+  font-size: 12px;
+}
+
+.party-expediente-item__links {
+  margin-top: 6px;
+}
+
+.party-expediente-link {
+  font-weight: 600;
+}
+
+.party-expediente-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.party-expediente-badge--rol {
+  background: #eef2ff;
+  color: #4338ca;
+}
+
+.party-expediente-badge--caso {
+  background: #ecfdf5;
+  color: #166534;
+}
+
+.party-expediente-badge--acta {
+  background: #ecfdf5;
+  color: #1d8a6e;
+}
+
+.party-expediente-badge--comunicacion {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.party-expediente-badge--actuo {
+  background: #f8fafc;
+  color: #64748b;
+}
+
+.party-expediente-empty {
+  padding: 12px 0;
+  font-size: 13px;
+}
+
+@media (max-width: 900px) {
+  .party-expediente-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
