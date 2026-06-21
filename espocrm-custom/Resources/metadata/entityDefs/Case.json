@@ -90,7 +90,8 @@
             "required": true,
             "maxLength": 100,
             "options": [],
-            "isCustom": true
+            "isCustom": true,
+            "view": "custom:views/fields/numeric-only"
         },
         "cDireccion": {
             "type": "varchar",
@@ -104,7 +105,8 @@
             "maxLength": 100,
             "required": true,
             "options": [],
-            "isCustom": true
+            "isCustom": true,
+            "view": "custom:views/fields/numeric-only"
         },
         "cBarrio": {
             "type": "enum",
@@ -261,7 +263,8 @@
             "maxLength": 100,
             "required": false,
             "options": [],
-            "isCustom": true
+            "isCustom": true,
+            "view": "custom:views/fields/numeric-only"
         },
         "cPerjudicanteContact": {
             "type": "link",
@@ -288,7 +291,8 @@
             "maxLength": 100,
             "required": false,
             "options": [],
-            "isCustom": true
+            "isCustom": true,
+            "view": "custom:views/fields/numeric-only"
         },
         "cDireccionPerjudicante": {
             "type": "varchar",

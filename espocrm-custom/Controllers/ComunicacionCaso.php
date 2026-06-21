@@ -55,6 +55,58 @@ class ComunicacionCaso extends Record
         return ['list' => $list];
     }
 
+    /**
+     * GET ComunicacionCaso/action/agendaUsuario
+     *
+     * Comunicaciones registradas por el usuario autenticado.
+     *
+     * @return array<string, mixed>
+     */
+    public function getActionAgendaUsuario(Request $request): array
+    {
+        if (!$this->acl->check('ComunicacionCaso', 'read')) {
+            throw new Forbidden();
+        }
+
+        $userId = $this->user->getId();
+
+        $maxSize = (int) ($request->getQueryParam('maxSize') ?? 200);
+        $maxSize = min(200, max(1, $maxSize));
+
+        $list = [];
+
+        $collection = $this->entityManager
+            ->getRDBRepository('ComunicacionCaso')
+            ->where(['createdById' => $userId])
+            ->order('fecha', 'DESC')
+            ->limit(0, $maxSize)
+            ->find();
+
+        foreach ($collection as $entity) {
+            if (!$this->acl->checkEntityRead($entity)) {
+                continue;
+            }
+
+            $list[] = [
+                'id' => $entity->getId(),
+                'fecha' => $entity->get('fecha'),
+                'tipo' => $entity->get('tipo'),
+                'numeroRadicado' => $entity->get('numeroRadicado'),
+                'caseId' => $entity->get('caseId'),
+                'caseName' => $entity->get('caseName'),
+                'destinatario' => $entity->get('destinatario'),
+                'asunto' => $entity->get('asunto'),
+                'createdById' => $entity->get('createdById'),
+                'createdByName' => $entity->get('createdByName'),
+            ];
+        }
+
+        return [
+            'total' => count($list),
+            'list' => $list,
+        ];
+    }
+
     /** @return ?array<string, mixed> */
     private function buildPeticionarioParte(Entity $case): ?array
     {

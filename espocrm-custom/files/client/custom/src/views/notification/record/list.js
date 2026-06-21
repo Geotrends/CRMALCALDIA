@@ -1,10 +1,5 @@
 define('custom:views/notification/record/list', ['views/notification/record/list'], function (Dep) {
 
-    const hideNavbarBadge = function () {
-        $('.notifications-button .number-badge').addClass('hidden').html('');
-        $('.notifications-badge-container .badge-circle-warning').remove();
-    };
-
     return Dep.extend({
 
         setup: function () {
@@ -12,14 +7,13 @@ define('custom:views/notification/record/list', ['views/notification/record/list
 
             this.listenToOnce(this.collection, 'sync', function () {
                 Espo.Ajax.postRequest('Notification/action/markAllRead')
-                    .then(() => {
-                        this.collection.models.forEach((model) => {
+                    .then(function () {
+                        this.collection.models.forEach(function (model) {
                             model.set('read', true, {sync: true});
                         });
 
-                        hideNavbarBadge();
                         this.trigger('all-read');
-                    });
+                    }.bind(this));
             });
         },
     });

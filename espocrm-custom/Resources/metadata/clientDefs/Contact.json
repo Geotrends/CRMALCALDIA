@@ -53,5 +53,10 @@
             "rowActionsView": "views/record/row-actions/view-only",
             "unlinkDisabled": true
         }
+    },
+    "fields": {
+        "phoneNumber": {
+            "view": "custom:views/fields/phone-numeric"
+        }
     }
 }

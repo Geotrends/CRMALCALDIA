@@ -3,7 +3,8 @@
     "cNit": {
       "type": "varchar",
       "maxLength": 50,
-      "isCustom": true
+      "isCustom": true,
+      "view": "custom:views/fields/numeric-only"
     },
     "cCasoRecursoTema": {
       "type": "enum",

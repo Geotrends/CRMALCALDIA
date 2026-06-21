@@ -41,7 +41,7 @@ define('custom:views/home', ['views/dashboard', 'search-manager'], function (Dep
         };
 
         var showTablero = true;
-        var cacheBuster = String(appTimestamp || Date.now()) + '-dash4';
+        var cacheBuster = String(appTimestamp || Date.now()) + '-dash5';
         var iframeUrl = '/client/custom/dashboard.html?v=' + encodeURIComponent(cacheBuster);
 
         if (profile === 'patrullero') {
@@ -272,6 +272,12 @@ define('custom:views/home', ['views/dashboard', 'search-manager'], function (Dep
                 '<div class="custom-home-lista-cuerpo" data-agenda-list="tasks">' +
                 '<p class="text-muted">Cargando tareas…</p>' +
                 '</div></div></div>' +
+                '<div class="panel panel-default custom-home-lista">' +
+                '<div class="panel-heading"><h4 class="panel-title">Comunicaciones</h4></div>' +
+                '<div class="panel-body">' +
+                '<div class="custom-home-lista-cuerpo" data-agenda-list="comunicaciones">' +
+                '<p class="text-muted">Cargando comunicaciones…</p>' +
+                '</div></div></div>' +
                 '</div>';
 
             if (cfg.showHistorialAsignaciones) {
@@ -412,6 +418,7 @@ define('custom:views/home', ['views/dashboard', 'search-manager'], function (Dep
             this._agendaLoaded = true;
             this.loadMeetingList();
             this.loadTaskList();
+            this.loadComunicacionList();
         },
 
         loadMeetingList: function () {
@@ -468,6 +475,30 @@ define('custom:views/home', ['views/dashboard', 'search-manager'], function (Dep
                     }.bind(this))
                     .catch(function () {
                         $container.html('<p class="text-danger">No se pudo cargar las tareas.</p>');
+                    });
+            }.bind(this));
+        },
+
+        loadComunicacionList: function () {
+            var $container = this.$el.find('[data-agenda-list="comunicaciones"]');
+            var userId = this.getUser().id;
+
+            this.getCollectionFactory().create('ComunicacionCaso', function (collection) {
+                collection.maxSize = 200;
+                collection.orderBy = 'fecha';
+                collection.order = 'desc';
+                collection.where = [{
+                    type: 'equals',
+                    attribute: 'createdById',
+                    value: userId,
+                }];
+
+                collection.fetch({main: true})
+                    .then(function () {
+                        this.renderComunicacionList($container, collection);
+                    }.bind(this))
+                    .catch(function () {
+                        $container.html('<p class="text-danger">No se pudo cargar las comunicaciones.</p>');
                     });
             }.bind(this));
         },
@@ -539,6 +570,52 @@ define('custom:views/home', ['views/dashboard', 'search-manager'], function (Dep
                         '<thead><tr>' +
                             '<th>Tarea</th><th>Estado</th><th>Prioridad</th>' +
                             '<th>Vencimiento</th><th>Asignado</th>' +
+                        '</tr></thead>' +
+                        '<tbody>' + rows + '</tbody>' +
+                    '</table>' +
+                '</div>'
+            );
+        },
+
+        renderComunicacionList: function ($container, collection) {
+            if (!collection.length) {
+                $container.html('<p class="text-muted">Sin comunicaciones registradas.</p>');
+
+                return;
+            }
+
+            var rows = collection.models.map(function (model) {
+                var id = model.id;
+                var fecha = model.get('fecha') || '—';
+                var tipo = model.get('tipo') || '—';
+                var radicado = model.get('numeroRadicado') || model.get('caseName') || '—';
+                var caseId = model.get('caseId');
+                var destinatario = model.get('destinatario') || '—';
+                var asunto = model.get('asunto') || '—';
+                var createdBy = model.get('createdByName') || '—';
+                var casoCell = caseId
+                    ? '<a href="#Case/view/' + caseId + '">' + _.escape(radicado) + '</a>'
+                    : _.escape(radicado);
+                var asuntoCell = id
+                    ? '<a href="#ComunicacionCaso/view/' + id + '">' + _.escape(asunto) + '</a>'
+                    : _.escape(asunto);
+
+                return '<tr>' +
+                    '<td>' + casoCell + '</td>' +
+                    '<td>' + _.escape(fecha) + '</td>' +
+                    '<td>' + _.escape(tipo) + '</td>' +
+                    '<td>' + _.escape(destinatario) + '</td>' +
+                    '<td>' + asuntoCell + '</td>' +
+                    '<td>' + _.escape(createdBy) + '</td>' +
+                    '</tr>';
+            }).join('');
+
+            $container.html(
+                '<div class="table-responsive">' +
+                    '<table class="table table-condensed table-striped">' +
+                        '<thead><tr>' +
+                            '<th>Caso</th><th>Fecha</th><th>Tipo</th>' +
+                            '<th>Destinatario</th><th>Asunto</th><th>Registrado por</th>' +
                         '</tr></thead>' +
                         '<tbody>' + rows + '</tbody>' +
                     '</table>' +

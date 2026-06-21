@@ -48,7 +48,8 @@
         "telefono": {
             "type": "varchar",
             "maxLength": 50,
-            "isCustom": true
+            "isCustom": true,
+            "view": "custom:views/fields/numeric-only"
         },
         "barrio": {
             "type": "varchar",
@@ -105,7 +106,8 @@
         "funcionarioCedula": {
             "type": "varchar",
             "maxLength": 50,
-            "isCustom": true
+            "isCustom": true,
+            "view": "custom:views/fields/numeric-only"
         },
         "funcionarioCargo": {
             "type": "varchar",
@@ -120,7 +122,8 @@
         "establecimientoCedula": {
             "type": "varchar",
             "maxLength": 50,
-            "isCustom": true
+            "isCustom": true,
+            "view": "custom:views/fields/numeric-only"
         },
         "establecimientoCargo": {
             "type": "varchar",
