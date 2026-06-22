@@ -12,6 +12,10 @@ define('custom:helpers/party-document-lookup', [
             ($input.length ? $input.val() : null) || recordView.model.get(config.documento) || ''
         ).trim();
 
+        if (party === 'perjudicante' && !PersonaTipoFields.isInfractorKnown(tipo)) {
+            return;
+        }
+
         if (!PersonaTipoFields.isTipoSelected(tipo)) {
             Espo.Ui.notify(
                 party === 'peticionario'

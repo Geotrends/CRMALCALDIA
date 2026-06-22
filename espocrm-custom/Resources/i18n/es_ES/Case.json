@@ -136,7 +136,8 @@
     "cTipoPersonaPerjudicante": {
       "Seleccione una opción": "Seleccione una opción",
       "Persona natural": "Persona natural",
-      "Persona jurídica": "Persona jurídica"
+      "Persona jurídica": "Persona jurídica",
+      "No se conoce": "No se conoce"
     },
     "cCanalDeReporte": {
       "Seleccione una opción": "Seleccione una opción",

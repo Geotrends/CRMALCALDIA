@@ -11,7 +11,8 @@ define('custom:views/case/record/edit', [
     'custom:helpers/radicado-catalog',
     'custom:helpers/radicado-assistant-panel',
     'custom:helpers/inspeccion-registro-excel',
-], function (Dep, PatrulleroActa, InspeccionActa, RadicacionFields, PostRadicacionFields, CaseCreateDefaults, PersonaTipoFields, PartyDocumentLookup, RadicadoGenerator, RadicadoCatalog, RadicadoAssistantPanel, InspeccionRegistroExcel) {
+    'custom:helpers/direccion-estructurada',
+], function (Dep, PatrulleroActa, InspeccionActa, RadicacionFields, PostRadicacionFields, CaseCreateDefaults, PersonaTipoFields, PartyDocumentLookup, RadicadoGenerator, RadicadoCatalog, RadicadoAssistantPanel, InspeccionRegistroExcel, DireccionEstructurada) {
 
     return Dep.extend({
 
@@ -44,6 +45,7 @@ define('custom:views/case/record/edit', [
 
             PersonaTipoFields.setup(this);
             PartyDocumentLookup.setup(this);
+            DireccionEstructurada.setup(this);
         },
 
         save: function (options) {
@@ -207,6 +209,7 @@ define('custom:views/case/record/edit', [
 
             PersonaTipoFields.hidePartyLinks(this);
             PersonaTipoFields.applyLabels(this);
+            PersonaTipoFields.toggleInfractorFields(this);
             PartyDocumentLookup.bindDom(this);
             this.applyFieldModes();
             this.toggleRadicacionFields();
@@ -302,7 +305,6 @@ define('custom:views/case/record/edit', [
                 'cRecursoTema',
                 'cPeticionario',
                 'cCedula',
-                'cDireccion',
                 'cTelefono',
                 'cCorreo',
                 'cBarrio',
@@ -310,7 +312,6 @@ define('custom:views/case/record/edit', [
                 'cPerjudicante',
                 'cDocumentoPerjudicante',
                 'cTelefonoPerjudicante',
-                'cDireccionPerjudicante',
                 'cBarrioPerjudicante',
                 'description',
                 'cRespuestaInmediata',
@@ -318,7 +319,7 @@ define('custom:views/case/record/edit', [
                 'cRemitidoA',
                 'cTipoPersonaPeticionario',
                 'cTipoPersonaPerjudicante',
-            ];
+            ].concat(DireccionEstructurada.allComponentFields());
 
             unlockFields.forEach((field) => {
                 const view = this.getFieldView(field);

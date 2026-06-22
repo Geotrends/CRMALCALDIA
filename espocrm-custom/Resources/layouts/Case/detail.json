@@ -34,6 +34,44 @@
             ],
             [
                 {
+                    "name": "cViaPrincipal"
+                },
+                {
+                    "name": "cNumViaPrincipal"
+                },
+                {
+                    "name": "cLetraViaPrincipal"
+                },
+                {
+                    "name": "cCuadranteViaPrincipal"
+                }
+            ],
+            [
+                {
+                    "name": "cGeneradora"
+                },
+                {
+                    "name": "cLetraGeneradora"
+                },
+                {
+                    "name": "cCuadranteGeneradora"
+                },
+                {
+                    "name": "cPlaca"
+                }
+            ],
+            [
+                {
+                    "name": "cBloque"
+                },
+                {
+                    "name": "cInterior"
+                },
+                false,
+                false
+            ],
+            [
+                {
                     "name": "cDireccion",
                     "fullWidth": true
                 }
@@ -84,6 +122,44 @@
                 {
                     "name": "cTelefonoPerjudicante"
                 },
+                false
+            ],
+            [
+                {
+                    "name": "cViaPrincipalPerjudicante"
+                },
+                {
+                    "name": "cNumViaPrincipalPerjudicante"
+                },
+                {
+                    "name": "cLetraViaPrincipalPerjudicante"
+                },
+                {
+                    "name": "cCuadranteViaPrincipalPerjudicante"
+                }
+            ],
+            [
+                {
+                    "name": "cGeneradoraPerjudicante"
+                },
+                {
+                    "name": "cLetraGeneradoraPerjudicante"
+                },
+                {
+                    "name": "cCuadranteGeneradoraPerjudicante"
+                },
+                {
+                    "name": "cPlacaPerjudicante"
+                }
+            ],
+            [
+                {
+                    "name": "cBloquePerjudicante"
+                },
+                {
+                    "name": "cInteriorPerjudicante"
+                },
+                false,
                 false
             ],
             [

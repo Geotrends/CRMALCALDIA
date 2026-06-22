@@ -61,7 +61,12 @@ class SyncPerjudicanteParty implements BeforeSave
 
         $tipo = trim((string) $entity->get('cTipoPersonaPerjudicante'));
 
-        if ($tipo === '' || $tipo === 'Seleccione una opción') {
+        if ($tipo === '' || $tipo === 'Seleccione una opción' || $tipo === 'No se conoce') {
+            $entity->set('cPerjudicanteContactId', null);
+            $entity->set('cPerjudicanteContactName', null);
+            $entity->set('cPerjudicanteCuentaId', null);
+            $entity->set('cPerjudicanteCuentaName', null);
+
             return;
         }
 

@@ -16,6 +16,7 @@ class ValidatePersonaTipoOnSave implements BeforeSave
 
     private const PERSONA_NATURAL = 'Persona natural';
     private const PERSONA_JURIDICA = 'Persona jurídica';
+    private const NO_SE_CONOCE = 'No se conoce';
     private const PLACEHOLDER = 'Seleccione una opción';
 
     public function beforeSave(Entity $entity, SaveOptions $options): void
@@ -51,9 +52,14 @@ class ValidatePersonaTipoOnSave implements BeforeSave
 
     private function validatePerjudicante(Entity $entity): void
     {
+        $tipo = trim((string) $entity->get('cTipoPersonaPerjudicante'));
+
+        if ($tipo === self::NO_SE_CONOCE) {
+            return;
+        }
+
         $nombre = trim((string) $entity->get('cPerjudicante'));
         $documento = trim((string) $entity->get('cDocumentoPerjudicante'));
-        $tipo = trim((string) $entity->get('cTipoPersonaPerjudicante'));
         $telefono = trim((string) $entity->get('cTelefonoPerjudicante'));
         $direccion = trim((string) $entity->get('cDireccionPerjudicante'));
         $barrio = trim((string) $entity->get('cBarrioPerjudicante'));

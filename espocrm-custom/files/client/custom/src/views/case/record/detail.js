@@ -207,6 +207,7 @@ define('custom:views/case/record/detail', [
 
             PersonaTipoFields.hidePartyLinks(this);
             PersonaTipoFields.applyLabels(this);
+            PersonaTipoFields.toggleInfractorFields(this);
             RadicadoGenerator.hideAssistantFields(this);
             this.updateActaVisitaButton();
             this.updateActuoArchivoButton();

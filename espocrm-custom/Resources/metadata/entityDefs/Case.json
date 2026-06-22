@@ -93,10 +93,66 @@
             "isCustom": true,
             "view": "custom:views/fields/numeric-only"
         },
-        "cDireccion": {
+        "cViaPrincipal": {
+            "type": "varchar",
+            "maxLength": 10,
+            "isCustom": true
+        },
+        "cNumViaPrincipal": {
+            "type": "varchar",
+            "maxLength": 20,
+            "isCustom": true,
+            "view": "custom:views/fields/numeric-only"
+        },
+        "cLetraViaPrincipal": {
+            "type": "enum",
+            "options": ["", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"],
+            "default": "",
+            "isCustom": true
+        },
+        "cCuadranteViaPrincipal": {
+            "type": "varchar",
+            "maxLength": 20,
+            "isCustom": true
+        },
+        "cGeneradora": {
+            "type": "varchar",
+            "maxLength": 20,
+            "isCustom": true,
+            "view": "custom:views/fields/numeric-only"
+        },
+        "cLetraGeneradora": {
+            "type": "enum",
+            "options": ["", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"],
+            "default": "",
+            "isCustom": true
+        },
+        "cCuadranteGeneradora": {
+            "type": "varchar",
+            "maxLength": 20,
+            "isCustom": true
+        },
+        "cPlaca": {
+            "type": "varchar",
+            "maxLength": 20,
+            "isCustom": true,
+            "view": "custom:views/fields/numeric-only"
+        },
+        "cBloque": {
             "type": "varchar",
             "maxLength": 100,
+            "isCustom": true
+        },
+        "cInterior": {
+            "type": "varchar",
+            "maxLength": 50,
+            "isCustom": true
+        },
+        "cDireccion": {
+            "type": "varchar",
+            "maxLength": 255,
             "required": false,
+            "readOnly": true,
             "options": [],
             "isCustom": true
         },
@@ -240,12 +296,14 @@
             "options": [
                 "Seleccione una opción",
                 "Persona natural",
-                "Persona jurídica"
+                "Persona jurídica",
+                "No se conoce"
             ],
             "style": {
                 "Seleccione una opción": null,
                 "Persona natural": null,
-                "Persona jurídica": null
+                "Persona jurídica": null,
+                "No se conoce": null
             },
             "default": "Seleccione una opción",
             "required": false,
@@ -294,10 +352,66 @@
             "isCustom": true,
             "view": "custom:views/fields/numeric-only"
         },
-        "cDireccionPerjudicante": {
+        "cViaPrincipalPerjudicante": {
+            "type": "varchar",
+            "maxLength": 10,
+            "isCustom": true
+        },
+        "cNumViaPrincipalPerjudicante": {
+            "type": "varchar",
+            "maxLength": 20,
+            "isCustom": true,
+            "view": "custom:views/fields/numeric-only"
+        },
+        "cLetraViaPrincipalPerjudicante": {
+            "type": "enum",
+            "options": ["", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"],
+            "default": "",
+            "isCustom": true
+        },
+        "cCuadranteViaPrincipalPerjudicante": {
+            "type": "varchar",
+            "maxLength": 20,
+            "isCustom": true
+        },
+        "cGeneradoraPerjudicante": {
+            "type": "varchar",
+            "maxLength": 20,
+            "isCustom": true,
+            "view": "custom:views/fields/numeric-only"
+        },
+        "cLetraGeneradoraPerjudicante": {
+            "type": "enum",
+            "options": ["", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"],
+            "default": "",
+            "isCustom": true
+        },
+        "cCuadranteGeneradoraPerjudicante": {
+            "type": "varchar",
+            "maxLength": 20,
+            "isCustom": true
+        },
+        "cPlacaPerjudicante": {
+            "type": "varchar",
+            "maxLength": 20,
+            "isCustom": true,
+            "view": "custom:views/fields/numeric-only"
+        },
+        "cBloquePerjudicante": {
             "type": "varchar",
             "maxLength": 100,
+            "isCustom": true
+        },
+        "cInteriorPerjudicante": {
+            "type": "varchar",
+            "maxLength": 50,
+            "isCustom": true
+        },
+        "cDireccionPerjudicante": {
+            "type": "varchar",
+            "maxLength": 255,
             "required": false,
+            "readOnly": true,
             "options": [],
             "isCustom": true
         },

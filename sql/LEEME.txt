@@ -1,0 +1,6 @@
+sql/esquema.sql — estructura completa de la BD (sin datos).
+
+  psql -U espocrm -d espocrm -f sql/esquema.sql
+  bash scripts/deploy-custom.sh
+
+Para copiar datos y archivos: scripts/backup-for-migration.sh

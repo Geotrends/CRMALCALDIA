@@ -19,6 +19,7 @@ class ValidateSolicitudCompletaOnSave implements BeforeSave
     public static int $order = 6;
 
     private const PLACEHOLDER = 'Seleccione una opción';
+    private const NO_SE_CONOCE = 'No se conoce';
 
     private const ROLE_INSPECCION = 'Inspección';
     private const ROLE_INSPECCION_ALT = 'Inspeccion';
@@ -72,10 +73,18 @@ class ValidateSolicitudCompletaOnSave implements BeforeSave
         }
 
         foreach (self::TEXT_FIELDS as $field => $message) {
+            if ($this->shouldSkipInfractorField($entity, $field)) {
+                continue;
+            }
+
             $this->requireNonEmpty($entity, $field, $message);
         }
 
         foreach (self::ENUM_FIELDS as $field => $message) {
+            if ($this->shouldSkipInfractorField($entity, $field)) {
+                continue;
+            }
+
             $this->requireEnum($entity, $field, $message);
         }
 
@@ -84,6 +93,20 @@ class ValidateSolicitudCompletaOnSave implements BeforeSave
                 throw new BadRequest($message);
             }
         }
+    }
+
+    private function shouldSkipInfractorField(Entity $entity, string $field): bool
+    {
+        if (trim((string) $entity->get('cTipoPersonaPerjudicante')) !== self::NO_SE_CONOCE) {
+            return false;
+        }
+
+        return in_array($field, [
+            'cPerjudicante',
+            'cDocumentoPerjudicante',
+            'cTelefonoPerjudicante',
+            'cBarrioPerjudicante',
+        ], true);
     }
 
     private function needsFullSolicitud(Entity $entity): bool
