@@ -100,7 +100,11 @@ file_put_contents($path, "<?php\nreturn " . var_export($state, true) . ";\n");
 echo "appTimestamp=" . $state["appTimestamp"] . "\n";
 '
 
-run_php_script seed-roles.php
+echo 'Roles y equipos base (despliegue desde cero)...'
+docker cp "$ROOT/scripts/seed-roles.php" espocrm:/tmp/seed-roles.php
+docker exec espocrm php /tmp/seed-roles.php
+
+echo 'Asignar roles a usuarios conocidos (juan, edwin...)...'
 docker cp "$ROOT/scripts/assign-default-user-roles.php" espocrm:/tmp/assign-default-user-roles.php
 docker exec espocrm php /tmp/assign-default-user-roles.php
 
