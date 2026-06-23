@@ -5,6 +5,10 @@ define('custom:helpers/radicacion-fields', [], function () {
     const RADICADO_FIELDS = ['cNumeroRadicado', 'cExpediente'];
     const FECHA_VENCIMIENTO_FIELD = 'cFechaVencimiento';
 
+    let serverProfile = null;
+    let profilePromise = null;
+    const profileListeners = [];
+
     const normalize = function (value) {
         return String(value)
             .toLowerCase()
@@ -19,6 +23,57 @@ define('custom:helpers/radicacion-fields', [], function () {
         'cNumeroRadicado',
         'cExpediente',
     ];
+
+    const notifyProfileReady = function () {
+        while (profileListeners.length) {
+            const callback = profileListeners.shift();
+
+            if (typeof callback === 'function') {
+                callback();
+            }
+        }
+    };
+
+    const ensureProfile = function () {
+        if (serverProfile) {
+            return Promise.resolve(serverProfile);
+        }
+
+        if (profilePromise) {
+            return profilePromise;
+        }
+
+        if (typeof Espo === 'undefined' || !Espo.Ajax) {
+            return Promise.resolve({});
+        }
+
+        profilePromise = Espo.Ajax.getRequest('Alcaldia/action/profile')
+            .then(function (data) {
+                serverProfile = data || {};
+                notifyProfileReady();
+
+                return serverProfile;
+            })
+            .catch(function () {
+                serverProfile = {};
+                notifyProfileReady();
+
+                return serverProfile;
+            });
+
+        return profilePromise;
+    };
+
+    const onProfileReady = function (callback) {
+        if (serverProfile) {
+            callback();
+
+            return;
+        }
+
+        profileListeners.push(callback);
+        ensureProfile();
+    };
 
     const getProfileNames = function (user) {
         const names = [];
@@ -42,6 +97,10 @@ define('custom:helpers/radicacion-fields', [], function () {
             return true;
         }
 
+        if (serverProfile && serverProfile.isRadicacion) {
+            return true;
+        }
+
         return hasRole(user, ROLE_RADICACION);
     };
 
@@ -51,6 +110,10 @@ define('custom:helpers/radicacion-fields', [], function () {
         }
 
         if (user.isAdmin()) {
+            return true;
+        }
+
+        if (serverProfile && serverProfile.isInspeccion) {
             return true;
         }
 
@@ -123,10 +186,14 @@ define('custom:helpers/radicacion-fields', [], function () {
         });
     };
 
+    ensureProfile();
+
     return {
         RADICADO_FIELDS: RADICADO_FIELDS,
         RADICADO_ALL_FIELDS: RADICADO_ALL_FIELDS,
         FECHA_VENCIMIENTO_FIELD: FECHA_VENCIMIENTO_FIELD,
+        ensureProfile: ensureProfile,
+        onProfileReady: onProfileReady,
         isRadicacionUser: isRadicacionUser,
         isInspeccionUser: isInspeccionUser,
         isCaseRadicado: isCaseRadicado,

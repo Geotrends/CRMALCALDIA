@@ -46,6 +46,17 @@ define('custom:views/case/record/edit', [
             PersonaTipoFields.setup(this);
             PartyDocumentLookup.setup(this);
             DireccionEstructurada.setup(this);
+
+            RadicacionFields.onProfileReady(() => {
+                if (!this.isRendered()) {
+                    return;
+                }
+
+                this.toggleRadicacionFields();
+                this.togglePostRadicacionFields();
+                this.toggleRegistroExcelPanel();
+                this.ensureRadicacionEditAccess();
+            });
         },
 
         save: function (options) {

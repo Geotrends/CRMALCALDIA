@@ -64,6 +64,16 @@ define('custom:views/case/record/detail', [
             });
 
             PersonaTipoFields.setup(this);
+
+            RadicacionFields.onProfileReady(() => {
+                if (!this.isRendered()) {
+                    return;
+                }
+
+                this.toggleRadicacionFields();
+                this.togglePostRadicacionFields();
+                this.toggleRegistroExcelPanel();
+            });
         },
 
         updateActaVisitaButton: function () {
