@@ -3,6 +3,10 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 
+if [ -f /var/www/html/command.php ] && ! command -v docker >/dev/null 2>&1; then
+  exec bash "$ROOT/scripts/deploy-custom-dokploy.sh"
+fi
+
 echo 'Copiando backend custom...'
 docker cp "$ROOT/espocrm-custom/." espocrm:/var/www/html/custom/Espo/Custom/
 
