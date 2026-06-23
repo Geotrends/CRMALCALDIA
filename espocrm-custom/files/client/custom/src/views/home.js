@@ -2,23 +2,64 @@ define('custom:views/home', ['views/dashboard', 'search-manager'], function (Dep
 
     var PAGE_SIZE = 5;
 
-    var detectProfile = function (user) {
+    var normalize = function (value) {
+        return String(value || '')
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '');
+    };
+
+    var detectProfileFromTeams = function (user) {
         if (user.isAdmin()) {
             return 'gestion';
         }
 
-        var userName = user.get('userName') || '';
+        var names = [];
 
-        if (userName.indexOf('patrullero') === 0) {
-            return 'patrullero';
-        }
+        Object.values(user.get('teamsNames') || {}).forEach(function (name) {
+            names.push(normalize(name));
+        });
 
-        if (userName === 'edwin.radicacion') {
+        if (names.indexOf('radicacion') !== -1) {
             return 'radicacion';
         }
 
-        if (userName === 'julian.asignador') {
+        if (names.indexOf('asignador') !== -1) {
             return 'asignador';
+        }
+
+        if (names.some(function (name) {
+            return name.indexOf('patrullero') !== -1;
+        })) {
+            return 'patrullero';
+        }
+
+        if (names.indexOf('inspeccion') !== -1) {
+            return 'gestion';
+        }
+
+        return 'gestion';
+    };
+
+    var detectProfileFromApi = function (data) {
+        if (!data) {
+            return null;
+        }
+
+        if (data.homeProfile) {
+            return data.homeProfile;
+        }
+
+        if (data.isRadicacion) {
+            return 'radicacion';
+        }
+
+        if (data.isAsignador) {
+            return 'asignador';
+        }
+
+        if (data.isPatrullero) {
+            return 'patrullero';
         }
 
         return 'gestion';
@@ -44,13 +85,15 @@ define('custom:views/home', ['views/dashboard', 'search-manager'], function (Dep
 
         var showTablero = true;
         var cacheBuster = String(appTimestamp || Date.now()) + '-dash5';
-        var iframeUrl = '/client/custom/dashboard.html?v=' + encodeURIComponent(cacheBuster);
+        var iframeUrl = '/client/custom/dashboard.html?v=' + encodeURIComponent(cacheBuster)
+            + '&profile=' + encodeURIComponent(profile);
 
         if (profile === 'patrullero') {
             iframeUrl += '&assignedUserId=' + encodeURIComponent(userId);
         }
 
         return {
+            profile: profile,
             showTablero: showTablero,
             showHistorialAsignaciones: profile === 'asignador',
             iframeUrl: iframeUrl,
@@ -63,11 +106,28 @@ define('custom:views/home', ['views/dashboard', 'search-manager'], function (Dep
     return Dep.extend({
 
         setup: function () {
-            var profile = detectProfile(this.getUser());
-            var userId = this.getUser().id;
+            var self = this;
+            var user = this.getUser();
+            var userId = user.id;
             var appTimestamp = this.getConfig().get('appTimestamp');
+            var profile = detectProfileFromTeams(user);
+
             this.config = profileConfig(profile, userId, appTimestamp);
             this._pageState = {};
+
+            Espo.Ajax.getRequest('Case/action/alcaldiaProfile').then(function (data) {
+                var apiProfile = detectProfileFromApi(data);
+
+                if (!apiProfile || apiProfile === self.config.profile) {
+                    return;
+                }
+
+                self.config = profileConfig(apiProfile, userId, appTimestamp);
+
+                if (self.isRendered()) {
+                    self.renderCustomPanels();
+                }
+            });
 
             this.sanitizeDashboardPreferences();
             Dep.prototype.setup.call(this);

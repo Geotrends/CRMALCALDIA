@@ -103,6 +103,15 @@ http://localhost:8080 — usuario y contraseña del `.env` (`ESPOCRM_ADMIN_USERN
 
 En **Administración → Usuarios**: crea cada persona y asígnale el rol (Inspección, Radicación, Patrullero o Asignador). El deploy sincroniza el equipo homónimo automáticamente (el navegador usa equipos para saber el perfil). Tras asignar rol, el usuario debe **cerrar sesión y volver a entrar**.
 
+| Rol | Qué ve | Qué hace |
+|-----|--------|----------|
+| **Inspección** | Todos los casos, panel Excel completo | Crea solicitudes, llena registro Excel |
+| **Radicación** | Pendientes de radicación, tablero filtrado | Asigna número de radicado y expediente |
+| **Asignador** | Casos ya radicados | Asigna patrullero al caso |
+| **Patrullero** | Solo sus casos asignados | Diligencia acta de visita |
+
+Si aparece **API 403** en el tablero, el usuario no tiene rol asignado o no cerró sesión tras asignarlo.
+
 En Dokploy, `espocrm-init` ejecuta `deploy-custom-dokploy.sh` solo al levantar el stack.
 
 ---

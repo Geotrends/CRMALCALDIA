@@ -182,6 +182,8 @@ run_php_script configure-asignacion-historial.php
 run_php_script configure-comunicacion-caso-entity.php
 run_php_script configure-case-create-defaults.php
 
+run_php_script audit-users-roles.php
+
 echo "Rebuild final..."
 (cd "$APP_ROOT" && "$PHP_BIN" command.php rebuild)
 (cd "$APP_ROOT" && "$PHP_BIN" command.php clear-cache)

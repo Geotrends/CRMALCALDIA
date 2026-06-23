@@ -674,6 +674,7 @@
 
     var params = new URLSearchParams(window.location.search);
     var assignedUserId = params.get('assignedUserId') || '';
+    var dashboardProfile = params.get('profile') || 'gestion';
 
     function buildReporteUrl(format) {
         var url = '/?entryPoint=ReporteGerencial&format=' + encodeURIComponent(format);
@@ -710,11 +711,18 @@
     if (assignedUserId) {
         fetchUrl += '&where[0][type]=equals&where[0][attribute]=assignedUserId&where[0][value]='
             + encodeURIComponent(assignedUserId);
+    } else if (dashboardProfile === 'radicacion') {
+        fetchUrl += '&where[0][type]=equals&where[0][attribute]=status&where[0][value]='
+            + encodeURIComponent('Pendiente de radicacion');
     }
 
     fetch(fetchUrl, {credentials: 'include'})
         .then(function (res) {
             if (!res.ok) {
+                if (res.status === 403) {
+                    throw new Error('API 403 — sin permiso para leer casos. Asigne rol (Inspección, Radicación, etc.) en Administración → Usuarios.');
+                }
+
                 throw new Error('API ' + res.status);
             }
 

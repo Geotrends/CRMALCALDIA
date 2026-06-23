@@ -10,6 +10,8 @@
 require_once '/var/www/html/bootstrap.php';
 
 use Espo\Core\Application;
+use Espo\Custom\Tools\User\AlcaldiaUserProfile;
+use Espo\Entities\User;
 use Espo\ORM\EntityManager;
 
 $app = new Application();
@@ -105,22 +107,9 @@ function buildDashboard(array $widgets): array
     ];
 }
 
-function detectProfile(string $userName, bool $isAdmin, string $userType): string
+function detectProfile(EntityManager $em, User $user): string
 {
-    if ($isAdmin || $userType === 'admin') {
-        return 'gestion';
-    }
-
-    if (str_starts_with($userName, 'patrullero')) {
-        return 'patrullero';
-    }
-
-    return match ($userName) {
-        'edwin.radicacion' => 'radicacion',
-        'julian.asignador' => 'asignador',
-        'juan.inspeccion' => 'gestion',
-        default => 'gestion',
-    };
+    return (new AlcaldiaUserProfile($em))->resolveHomeProfile($user);
 }
 
 function profileWidgets(string $profile, string $userId): array
@@ -247,7 +236,7 @@ $sanitizeDashletsOptions = static function (array $dashboardLayout, array $dashl
 
 foreach ($users as $user) {
     $userName = (string) $user->get('userName');
-    $profile = detectProfile($userName, (bool) $user->get('isAdmin'), (string) $user->get('type'));
+    $profile = detectProfile($em, $user);
 
     $prefs = $em->getEntityById('Preferences', $user->getId());
 

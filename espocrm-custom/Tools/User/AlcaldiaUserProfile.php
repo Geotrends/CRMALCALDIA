@@ -29,10 +29,68 @@ class AlcaldiaUserProfile
      *   isInspeccion: bool,
      *   isRadicacion: bool,
      *   isPatrullero: bool,
-     *   isAsignador: bool
+     *   isAsignador: bool,
+     *   homeProfile: string
      * }
      */
     public function build(User $user): array
+    {
+        $flags = [
+            'isInspeccion' => $user->isAdmin() || $this->hasAnyRole($user, self::ROLE_INSPECCION),
+            'isRadicacion' => $user->isAdmin() || $this->hasAnyRole($user, self::ROLE_RADICACION),
+            'isPatrullero' => $this->hasAnyRole($user, self::ROLE_PATRULLERO),
+            'isAsignador' => $user->isAdmin() || $this->hasAnyRole($user, self::ROLE_ASIGNADOR),
+        ];
+
+        $flags['homeProfile'] = $this->resolveHomeProfile($user, $flags);
+
+        return $flags;
+    }
+
+    /**
+     * @param array{isInspeccion: bool, isRadicacion: bool, isPatrullero: bool, isAsignador: bool} $flags
+     */
+    public function resolveHomeProfile(User $user, ?array $flags = null): string
+    {
+        if ($user->isAdmin()) {
+            return 'gestion';
+        }
+
+        $flags ??= [
+            'isInspeccion' => $this->hasAnyRole($user, self::ROLE_INSPECCION),
+            'isRadicacion' => $this->hasAnyRole($user, self::ROLE_RADICACION),
+            'isPatrullero' => $this->hasAnyRole($user, self::ROLE_PATRULLERO),
+            'isAsignador' => $this->hasAnyRole($user, self::ROLE_ASIGNADOR),
+        ];
+
+        if ($flags['isRadicacion']) {
+            return 'radicacion';
+        }
+
+        if ($flags['isAsignador']) {
+            return 'asignador';
+        }
+
+        if ($flags['isPatrullero']) {
+            return 'patrullero';
+        }
+
+        if ($flags['isInspeccion']) {
+            return 'gestion';
+        }
+
+        return 'gestion';
+    }
+
+    /**
+     * @return array{
+     *   isInspeccion: bool,
+     *   isRadicacion: bool,
+     *   isPatrullero: bool,
+     *   isAsignador: bool
+     * }
+     */
+    public function buildFlags(User $user): array
     {
         return [
             'isInspeccion' => $user->isAdmin() || $this->hasAnyRole($user, self::ROLE_INSPECCION),
