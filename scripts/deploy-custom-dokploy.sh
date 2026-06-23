@@ -2,7 +2,7 @@
 # Runs inside the espocrm container. The repository must be mounted in Dokploy.
 set -euo pipefail
 
-REPO_ROOT="${REPO_ROOT:-/tmp/repo}"
+REPO_ROOT="${REPO_ROOT:-/opt/bootstrap/repo}"
 APP_ROOT="${APP_ROOT:-/var/www/html}"
 PHP_BIN="${PHP_BIN:-php}"
 RUN_APT_CHECKS="${RUN_APT_CHECKS:-1}"

@@ -1,0 +1,11 @@
+.git
+.DS_Store
+.env
+backups
+exports
+tmp_*.sql
+dump-espocrm-*.sql
+Untitled
+*.log
+*.md
+*.drawio
