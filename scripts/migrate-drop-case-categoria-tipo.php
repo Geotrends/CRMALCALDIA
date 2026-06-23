@@ -75,5 +75,7 @@ while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
     echo "Permisos limpiados en rol: {$row['name']}\n";
 }
 
-$app->getContainer()->getByClass(DataManager::class)->rebuild();
+require_once __DIR__ . '/includes/deploy-rebuild.php';
+
+deploy_maybe_rebuild($app);
 echo "Rebuild completado.\n";

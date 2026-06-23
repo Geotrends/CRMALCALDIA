@@ -94,6 +94,8 @@ file_put_contents(
     json_encode($i18n, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . "\n"
 );
 
-$app->getContainer()->getByClass(DataManager::class)->rebuild();
+require_once __DIR__ . '/includes/deploy-rebuild.php';
+
+deploy_maybe_rebuild($app);
 
 echo "OK placeholders en desplegables Case\n";

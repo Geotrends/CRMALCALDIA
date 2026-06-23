@@ -104,5 +104,7 @@ while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
     ]);
 }
 
-$app->getContainer()->getByClass(DataManager::class)->rebuild();
+require_once __DIR__ . '/includes/deploy-rebuild.php';
+
+deploy_maybe_rebuild($app);
 echo "Listo.\n";

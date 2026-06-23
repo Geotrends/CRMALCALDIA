@@ -6,6 +6,7 @@ REPO_ROOT="${REPO_ROOT:-/opt/bootstrap/repo}"
 APP_ROOT="${APP_ROOT:-/var/www/html}"
 PHP_BIN="${PHP_BIN:-php}"
 RUN_APT_CHECKS="${RUN_APT_CHECKS:-1}"
+export ESPO_DEPLOY_BATCH=1
 
 CUSTOM_SOURCE="$REPO_ROOT/espocrm-custom"
 CLIENT_SOURCE="$REPO_ROOT/espocrm-custom/files/client/custom"
@@ -173,5 +174,11 @@ run_php_script configure-case-party-field-access.php
 run_php_script configure-radicacion-field-level.php
 run_php_script configure-asignacion-historial.php
 run_php_script configure-comunicacion-caso-entity.php
+
+echo "Rebuild final..."
+(cd "$APP_ROOT" && "$PHP_BIN" command.php rebuild)
+(cd "$APP_ROOT" && "$PHP_BIN" command.php clear-cache)
+
+unset ESPO_DEPLOY_BATCH
 
 echo "Dokploy custom deployment completed."

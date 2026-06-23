@@ -126,7 +126,11 @@ foreach ($em->getRDBRepository('User')->where(['isActive' => true])->find() as $
     echo "Usuario {$user->get('userName')}: usa menú global.\n";
 }
 
+require_once __DIR__ . '/includes/deploy-rebuild.php';
+
 echo "Listo. Cierra sesión y vuelve a entrar con cada usuario.\n";
 
-chdir('/var/www/html');
-passthru('php command.php rebuild');
+if (getenv('ESPO_DEPLOY_BATCH') !== '1') {
+    chdir('/var/www/html');
+    passthru('php command.php rebuild');
+}
