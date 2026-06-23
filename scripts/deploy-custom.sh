@@ -6,6 +6,12 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 echo 'Copiando backend custom...'
 docker cp "$ROOT/espocrm-custom/." espocrm:/var/www/html/custom/Espo/Custom/
 
+echo 'Eliminando hooks y clases obsoletas (no presentes en el repo)...'
+docker exec espocrm rm -f \
+  /var/www/html/custom/Espo/Custom/Hooks/CaseObj/SyncCasePartyFullNamesOnSave.php \
+  /var/www/html/custom/Espo/Custom/Hooks/CaseObj/SyncLegacyCaseFieldsOnSave.php \
+  /var/www/html/custom/Espo/Custom/Tools/CaseObj/LegacyCaseFieldMirror.php
+
 if [ -d "$ROOT/formatos" ]; then
   echo 'Copiando plantillas desde formatos/...'
   docker exec espocrm mkdir -p /var/www/html/custom/Espo/Custom/files/templates
