@@ -5,7 +5,11 @@
         "isLarge": true
     },
     {
-        "name": "cPeticionario",
+        "name": "cNombrePeticionario",
+        "isMuted": true
+    },
+    {
+        "name": "cApellidoPeticionario",
         "isMuted": true
     },
     {

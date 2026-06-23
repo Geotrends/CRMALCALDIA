@@ -69,7 +69,7 @@ $makeEnum = static function (array $list) use ($enumStyle): array {
 
 $defs['fields']['cRecursoTema'] = $makeEnum($options['recursoTema'] ?? []);
 $defs['fields']['cAsunto'] = $makeEnum($options['asunto'] ?? []);
-$defs['fields']['cZonaAlcaldia'] = $makeEnum($options['zona'] ?? []);
+$defs['fields']['cZonaAlcaldiaPeticionario'] = $makeEnum($options['zona'] ?? []);
 $defs['fields']['cUltimaActuacion'] = $makeEnum($options['ultimaActuacion'] ?? []);
 $defs['fields']['cProximaActuacion'] = $makeEnum($options['proximaActuacion'] ?? []);
 
@@ -94,7 +94,7 @@ if (is_array($recursoSiglas) && $recursoSiglas !== []) {
 
 $barrios = $options['barrio'] ?? [];
 
-foreach (['cBarrio', 'cBarrioPerjudicante'] as $field) {
+foreach (['cBarrioPeticionario', 'cBarrioPerjudicante'] as $field) {
     $barrioOptions = array_values(array_filter($barrios, static function ($item) {
         return $item !== '' && $item !== PLACEHOLDER_OPTION;
     }));

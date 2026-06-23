@@ -3,6 +3,7 @@
 namespace Espo\Custom\Hooks\CaseObj;
 
 use Espo\Core\Hook\Hook\BeforeSave;
+use Espo\Custom\Tools\CaseObj\CasePartyNameHelper;
 use Espo\Custom\Tools\Party\DocumentNormalizer;
 use Espo\Custom\Tools\Party\PartyRegistryService;
 use Espo\ORM\Entity;
@@ -22,7 +23,8 @@ class SyncPerjudicanteParty implements BeforeSave
 
     private const SYNC_FIELDS = [
         'cTipoPersonaPerjudicante',
-        'cPerjudicante',
+        'cNombrePerjudicante',
+        'cApellidoPerjudicante',
         'cDocumentoPerjudicante',
         'cDireccionPerjudicante',
         'cTelefonoPerjudicante',
@@ -47,10 +49,9 @@ class SyncPerjudicanteParty implements BeforeSave
             return;
         }
 
-        $nombre = trim((string) $entity->get('cPerjudicante'));
         $documento = trim((string) $entity->get('cDocumentoPerjudicante'));
 
-        if ($nombre === '' && $documento === '') {
+        if (!CasePartyNameHelper::hasPerjudicanteName($entity) && $documento === '') {
             $entity->set('cPerjudicanteContactId', null);
             $entity->set('cPerjudicanteContactName', null);
             $entity->set('cPerjudicanteCuentaId', null);
@@ -172,7 +173,8 @@ class SyncPerjudicanteParty implements BeforeSave
 
     private function applyCaseDataToContact(Entity $contact, Entity $case): void
     {
-        [$firstName, $lastName] = $this->splitName(trim((string) $case->get('cPerjudicante')));
+        $firstName = trim((string) $case->get('cNombrePerjudicante'));
+        $lastName = trim((string) $case->get('cApellidoPerjudicante'));
 
         if ($lastName === '' && $firstName === '') {
             $lastName = 'Perjudicante';
@@ -202,7 +204,7 @@ class SyncPerjudicanteParty implements BeforeSave
 
     private function applyCaseDataToAccount(Entity $account, Entity $case): void
     {
-        $nombre = trim((string) $case->get('cPerjudicante'));
+        $nombre = trim((string) $case->get('cNombrePerjudicante'));
 
         if ($nombre !== '') {
             $account->set('name', $nombre);
@@ -216,23 +218,5 @@ class SyncPerjudicanteParty implements BeforeSave
 
         $account->set('billingAddressStreet', trim((string) $case->get('cDireccionPerjudicante')));
         $account->set('phoneNumber', trim((string) $case->get('cTelefonoPerjudicante')));
-    }
-
-    /**
-     * @return array{0: string, 1: string}
-     */
-    private function splitName(string $fullName): array
-    {
-        if ($fullName === '') {
-            return ['', ''];
-        }
-
-        $parts = explode(' ', $fullName, 2);
-
-        if (count($parts) === 1) {
-            return ['', $parts[0]];
-        }
-
-        return [$parts[0], $parts[1]];
     }
 }

@@ -142,6 +142,26 @@ echo 'Eliminando columnas obsoletas c_categoria / c_tipo...'
 docker cp "$ROOT/scripts/migrate-drop-case-categoria-tipo.php" espocrm:/tmp/migrate-drop-case-categoria-tipo.php
 docker exec espocrm php /tmp/migrate-drop-case-categoria-tipo.php
 
+echo 'Campos documento del Case (c_documento_peticionario)...'
+docker cp "$ROOT/scripts/migrate-case-documento-fields.php" espocrm:/tmp/migrate-case-documento-fields.php
+docker exec espocrm php /tmp/migrate-case-documento-fields.php
+
+echo 'Campos canónicos del Case (sin duplicados en BD)...'
+docker cp "$ROOT/scripts/migrate-case-canonical-fields.php" espocrm:/tmp/migrate-case-canonical-fields.php
+docker exec espocrm php /tmp/migrate-case-canonical-fields.php
+
+echo 'Columnas peticionario en BD (_peticionario)...'
+docker cp "$ROOT/scripts/migrate-case-peticionario-db-columns.php" espocrm:/tmp/migrate-case-peticionario-db-columns.php
+docker exec espocrm php /tmp/migrate-case-peticionario-db-columns.php
+
+echo 'Renombrar columnas peticionario (simetría con perjudicante)...'
+docker cp "$ROOT/scripts/migrate-case-party-field-names.php" espocrm:/tmp/migrate-case-party-field-names.php
+docker exec espocrm php /tmp/migrate-case-party-field-names.php
+
+echo 'Permisos campos peticionario y perjudicante...'
+docker cp "$ROOT/scripts/configure-case-party-field-access.php" espocrm:/tmp/configure-case-party-field-access.php
+docker exec espocrm php /tmp/configure-case-party-field-access.php
+
 echo 'Historial de asignaciones (permisos por rol)...'
 docker cp "$ROOT/scripts/configure-asignacion-historial.php" espocrm:/tmp/configure-asignacion-historial.php
 docker exec espocrm php /tmp/configure-asignacion-historial.php

@@ -29,7 +29,8 @@ function casesLayout(): array
         'rows' => [
             [
                 ['name' => 'cNumeroRadicado', 'link' => true],
-                ['name' => 'cPeticionario'],
+                ['name' => 'cNombrePeticionario'],
+                ['name' => 'cApellidoPeticionario'],
                 ['name' => 'status'],
             ],
             [

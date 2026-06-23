@@ -21,21 +21,41 @@ class CrmRegistroExcelExporter
         'cNumeroRadicado',
         'cExpediente',
         'cPeticionario',
-        'cCedula',
-        'cDireccion',
-        'cTelefono',
-        'cBarrio',
-        'cCorreo',
-        'cCanalDeReporte',
+        'cDocumentoPeticionario',
+        'cViaPrincipalPeticionario',
+        'cNumViaPrincipalPeticionario',
+        'cLetraViaPrincipalPeticionario',
+        'cCuadranteViaPrincipalPeticionario',
+        'cGeneradoraPeticionario',
+        'cLetraGeneradoraPeticionario',
+        'cCuadranteGeneradoraPeticionario',
+        'cPlacaPeticionario',
+        'cBloquePeticionario',
+        'cInteriorPeticionario',
+        'cDireccionPeticionario',
+        'cTelefonoPeticionario',
+        'cBarrioPeticionario',
+        'cCorreoPeticionario',
+        'cCanalDeReportePeticionario',
         'cRecursoTema',
         'cAsunto',
-        'cZonaAlcaldia',
+        'cZonaAlcaldiaPeticionario',
         'cFechaVencimiento',
         'cUltimaActuacion',
         'cProximaActuacion',
         'cPerjudicante',
         'cDocumentoPerjudicante',
         'cTelefonoPerjudicante',
+        'cViaPrincipalPerjudicante',
+        'cNumViaPrincipalPerjudicante',
+        'cLetraViaPrincipalPerjudicante',
+        'cCuadranteViaPrincipalPerjudicante',
+        'cGeneradoraPerjudicante',
+        'cLetraGeneradoraPerjudicante',
+        'cCuadranteGeneradoraPerjudicante',
+        'cPlacaPerjudicante',
+        'cBloquePerjudicante',
+        'cInteriorPerjudicante',
         'cDireccionPerjudicante',
         'cBarrioPerjudicante',
         'description',
@@ -102,7 +122,7 @@ class CrmRegistroExcelExporter
 
     public function hasPeticionario(Entity $case): bool
     {
-        return trim((string) $case->get('cPeticionario')) !== '';
+        return CasePartyNameHelper::hasPeticionarioName($case);
     }
 
     public function exportActa(Entity $acta): bool
@@ -196,10 +216,14 @@ class CrmRegistroExcelExporter
     private function resolveCaseField(Entity $case, string $code): string
     {
         return match ($code) {
+            'cPeticionario' => CasePartyNameHelper::getPeticionarioFullName($case),
+            'cPerjudicante' => CasePartyNameHelper::getPerjudicanteFullName($case),
             'cFechaCaso' => $this->formatDateTime($case->get('cFechaCaso')),
             'cFechaVencimiento' => $this->formatDate($case->get('cFechaVencimiento')),
             'cRecibidaPor', 'cRemitidoA', 'assignedUser' => $this->resolveCaseUserName($case, $code),
-            'cRecursoTema', 'cAsunto', 'cZonaAlcaldia', 'cUltimaActuacion', 'cProximaActuacion', 'cCanalDeReporte', 'cBarrio', 'cBarrioPerjudicante' => $this->cleanEnum($case->get($code)),
+            'cRecursoTema', 'cAsunto', 'cZonaAlcaldiaPeticionario', 'cUltimaActuacion', 'cProximaActuacion', 'cCanalDeReportePeticionario', 'cBarrioPeticionario', 'cBarrioPerjudicante',
+            'cViaPrincipalPeticionario', 'cNumViaPrincipalPeticionario', 'cLetraViaPrincipalPeticionario', 'cCuadranteViaPrincipalPeticionario', 'cGeneradoraPeticionario', 'cLetraGeneradoraPeticionario', 'cCuadranteGeneradoraPeticionario', 'cPlacaPeticionario', 'cBloquePeticionario', 'cInteriorPeticionario',
+            'cViaPrincipalPerjudicante', 'cNumViaPrincipalPerjudicante', 'cLetraViaPrincipalPerjudicante', 'cCuadranteViaPrincipalPerjudicante', 'cGeneradoraPerjudicante', 'cLetraGeneradoraPerjudicante', 'cCuadranteGeneradoraPerjudicante', 'cPlacaPerjudicante', 'cBloquePerjudicante', 'cInteriorPerjudicante' => $this->cleanEnum($case->get($code)),
             default => trim((string) $case->get($code)),
         };
     }

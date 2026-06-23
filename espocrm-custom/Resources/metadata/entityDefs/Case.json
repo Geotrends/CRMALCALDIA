@@ -78,14 +78,7 @@
             "required": true,
             "isCustom": true
         },
-        "cPeticionario": {
-            "type": "varchar",
-            "required": true,
-            "maxLength": 100,
-            "options": [],
-            "isCustom": true
-        },
-        "cCedula": {
+        "cDocumentoPeticionario": {
             "type": "varchar",
             "required": true,
             "maxLength": 100,
@@ -93,62 +86,77 @@
             "isCustom": true,
             "view": "custom:views/fields/numeric-only"
         },
-        "cViaPrincipal": {
+        "cNombrePeticionario": {
             "type": "varchar",
-            "maxLength": 10,
+            "required": true,
+            "maxLength": 100,
             "isCustom": true
         },
-        "cNumViaPrincipal": {
+        "cApellidoPeticionario": {
+            "type": "varchar",
+            "required": false,
+            "maxLength": 150,
+            "isCustom": true
+        },
+        "cViaPrincipalPeticionario": {
+            "type": "enum",
+            "options": ["", "CL", "DG", "KR", "TR"],
+            "default": "",
+            "isCustom": true
+        },
+        "cNumViaPrincipalPeticionario": {
             "type": "varchar",
             "maxLength": 20,
             "isCustom": true,
             "view": "custom:views/fields/numeric-only"
         },
-        "cLetraViaPrincipal": {
+        "cLetraViaPrincipalPeticionario": {
             "type": "enum",
             "options": ["", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"],
             "default": "",
             "isCustom": true
         },
-        "cCuadranteViaPrincipal": {
-            "type": "varchar",
-            "maxLength": 20,
+        "cCuadranteViaPrincipalPeticionario": {
+            "type": "enum",
+            "options": ["", "Sur", "Norte", "Este", "Oeste"],
+            "default": "",
             "isCustom": true
         },
-        "cGeneradora": {
+        "cGeneradoraPeticionario": {
             "type": "varchar",
             "maxLength": 20,
             "isCustom": true,
             "view": "custom:views/fields/numeric-only"
         },
-        "cLetraGeneradora": {
+        "cLetraGeneradoraPeticionario": {
             "type": "enum",
             "options": ["", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"],
             "default": "",
             "isCustom": true
         },
-        "cCuadranteGeneradora": {
-            "type": "varchar",
-            "maxLength": 20,
+        "cCuadranteGeneradoraPeticionario": {
+            "type": "enum",
+            "options": ["", "Sur", "Norte", "Este", "Oeste"],
+            "default": "",
             "isCustom": true
         },
-        "cPlaca": {
+        "cPlacaPeticionario": {
             "type": "varchar",
             "maxLength": 20,
             "isCustom": true,
             "view": "custom:views/fields/numeric-only"
         },
-        "cBloque": {
+        "cBloquePeticionario": {
             "type": "varchar",
             "maxLength": 100,
             "isCustom": true
         },
-        "cInterior": {
+        "cInteriorPeticionario": {
             "type": "varchar",
             "maxLength": 50,
             "isCustom": true
         },
-        "cDireccion": {
+        "cDireccionPeticionario": {
             "type": "varchar",
             "maxLength": 255,
             "required": false,
@@ -156,7 +164,7 @@
             "options": [],
             "isCustom": true
         },
-        "cTelefono": {
+        "cTelefonoPeticionario": {
             "type": "varchar",
             "maxLength": 100,
             "required": true,
@@ -164,7 +172,15 @@
             "isCustom": true,
             "view": "custom:views/fields/numeric-only"
         },
-        "cBarrio": {
+        "cMunicipioPeticionario": {
+            "type": "varchar",
+            "maxLength": 100,
+            "default": "Envigado",
+            "readOnly": true,
+            "utility": true,
+            "isCustom": true
+        },
+        "cBarrioPeticionario": {
             "type": "enum",
             "required": false,
             "options": [
@@ -265,14 +281,14 @@
             "required": false,
             "isCustom": true
         },
-        "cCorreo": {
+        "cCorreoPeticionario": {
             "type": "varchar",
             "maxLength": 200,
             "required": false,
             "options": [],
             "isCustom": true
         },
-        "cCanalDeReporte": {
+        "cCanalDeReportePeticionario": {
             "type": "enum",
             "options": [
                 "Seleccione una opción",
@@ -309,13 +325,6 @@
             "required": false,
             "isCustom": true
         },
-        "cPerjudicante": {
-            "type": "varchar",
-            "maxLength": 200,
-            "required": false,
-            "options": [],
-            "isCustom": true
-        },
         "cDocumentoPerjudicante": {
             "type": "varchar",
             "maxLength": 100,
@@ -323,6 +332,18 @@
             "options": [],
             "isCustom": true,
             "view": "custom:views/fields/numeric-only"
+        },
+        "cNombrePerjudicante": {
+            "type": "varchar",
+            "maxLength": 100,
+            "required": false,
+            "isCustom": true
+        },
+        "cApellidoPerjudicante": {
+            "type": "varchar",
+            "maxLength": 150,
+            "required": false,
+            "isCustom": true
         },
         "cPerjudicanteContact": {
             "type": "link",
@@ -353,8 +374,9 @@
             "view": "custom:views/fields/numeric-only"
         },
         "cViaPrincipalPerjudicante": {
-            "type": "varchar",
-            "maxLength": 10,
+            "type": "enum",
+            "options": ["", "CL", "DG", "KR", "TR"],
+            "default": "",
             "isCustom": true
         },
         "cNumViaPrincipalPerjudicante": {
@@ -370,8 +392,9 @@
             "isCustom": true
         },
         "cCuadranteViaPrincipalPerjudicante": {
-            "type": "varchar",
-            "maxLength": 20,
+            "type": "enum",
+            "options": ["", "Sur", "Norte", "Este", "Oeste"],
+            "default": "",
             "isCustom": true
         },
         "cGeneradoraPerjudicante": {
@@ -387,8 +410,9 @@
             "isCustom": true
         },
         "cCuadranteGeneradoraPerjudicante": {
-            "type": "varchar",
-            "maxLength": 20,
+            "type": "enum",
+            "options": ["", "Sur", "Norte", "Este", "Oeste"],
+            "default": "",
             "isCustom": true
         },
         "cPlacaPerjudicante": {
@@ -651,7 +675,7 @@
             },
             "isCustom": true
         },
-        "cZonaAlcaldia": {
+        "cZonaAlcaldiaPeticionario": {
             "type": "enum",
             "required": false,
             "options": [

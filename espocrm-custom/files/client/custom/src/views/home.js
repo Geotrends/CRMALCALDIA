@@ -889,7 +889,10 @@ define('custom:views/home', ['views/dashboard', 'search-manager'], function (Dep
             var rows = collection.models.map(function (model) {
                 var id = model.id;
                 var radicado = model.get('cNumeroRadicado') || '—';
-                var peticionario = model.get('cPeticionario') || '—';
+                var peticionario = [model.get('cNombrePeticionario'), model.get('cApellidoPeticionario')]
+                    .filter(Boolean)
+                    .join(' ')
+                    .trim() || '—';
                 var status = model.get('status') || '—';
                 var expediente = model.get('cExpediente') || '—';
                 var assigned = model.get('assignedUserName') || '—';

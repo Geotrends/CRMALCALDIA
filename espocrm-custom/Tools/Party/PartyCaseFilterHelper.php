@@ -135,8 +135,8 @@ class PartyCaseFilterHelper
 
         $caseField = match ($filterAttribute) {
             'cCasoRecursoTema' => 'cRecursoTema',
-            'cCasoZonaAlcaldia' => 'cZonaAlcaldia',
-            'cCasoCanalDeReporte' => 'cCanalDeReporte',
+            'cCasoZonaAlcaldia' => 'cZonaAlcaldiaPeticionario',
+            'cCasoCanalDeReporte' => 'cCanalDeReportePeticionario',
             'cCasoEstado' => 'status',
             default => '',
         };
@@ -162,7 +162,7 @@ class PartyCaseFilterHelper
 
             return [
                 'OR' => [
-                    ['cBarrio*' => $pattern],
+                    ['cBarrioPeticionario*' => $pattern],
                     ['cBarrioPerjudicante*' => $pattern],
                 ],
             ];
@@ -170,7 +170,7 @@ class PartyCaseFilterHelper
 
         return [
             'OR' => [
-                ['cBarrio' => $value],
+                ['cBarrioPeticionario' => $value],
                 ['cBarrioPerjudicante' => $value],
             ],
         ];

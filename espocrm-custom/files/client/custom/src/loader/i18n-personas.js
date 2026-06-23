@@ -2,7 +2,7 @@
  * Fuerza etiquetas Persona natural / Persona jurídica en toda la UI.
  */
 (function () {
-    var PATCH_VERSION = '4';
+    var PATCH_VERSION = '7';
     var STORAGE_KEY = 'espo-personas-i18n-version';
 
     var PATCH = {
@@ -50,7 +50,28 @@
                 contact: 'Persona natural (peticionario)',
                 account: 'Persona jurídica (peticionario)',
                 cPerjudicanteContact: 'Persona natural (perjudicante)',
-                cPerjudicanteCuenta: 'Persona jurídica (perjudicante)'
+                cPerjudicanteCuenta: 'Persona jurídica (perjudicante)',
+                cTipoPersonaPeticionario: 'Tipo de peticionario',
+                cDocumentoPeticionario: 'Documento del peticionario',
+                cNombrePeticionario: 'Nombre(s) del peticionario',
+                cApellidoPeticionario: 'Apellido(s) del peticionario',
+                cTelefonoPeticionario: 'Teléfono del peticionario',
+                cCorreoPeticionario: 'Correo del peticionario',
+                cCanalDeReportePeticionario: 'Canal de reporte del peticionario',
+                cMunicipioPeticionario: 'Municipio del peticionario',
+                cDireccionPeticionario: 'Dirección del peticionario',
+                cBarrioPeticionario: 'Barrio del peticionario',
+                cZonaAlcaldiaPeticionario: 'Zona del peticionario',
+                cViaPrincipalPeticionario: 'Vía principal del peticionario',
+                cNumViaPrincipalPeticionario: 'N° vía principal del peticionario',
+                cLetraViaPrincipalPeticionario: 'Letra del peticionario',
+                cCuadranteViaPrincipalPeticionario: 'Cuadrante del peticionario',
+                cGeneradoraPeticionario: 'Generadora del peticionario',
+                cLetraGeneradoraPeticionario: 'Letra generadora del peticionario',
+                cCuadranteGeneradoraPeticionario: 'Cuadrante del peticionario',
+                cPlacaPeticionario: 'Placa del peticionario',
+                cBloquePeticionario: 'Bloque del peticionario',
+                cInteriorPeticionario: 'Interior del peticionario'
             },
             links: {
                 contact: 'Persona natural (peticionario)',
@@ -118,29 +139,14 @@
 
     function init(app) {
         var language = app.getLanguage && app.getLanguage();
-        var needsReload = localStorage.getItem(STORAGE_KEY) !== PATCH_VERSION;
 
         if (!language) {
             return;
         }
 
-        if (needsReload && language.clearCache) {
-            language.clearCache();
-            localStorage.setItem(STORAGE_KEY, PATCH_VERSION);
-
-            var loadPromise = language.load ? language.load() : Promise.resolve();
-
-            Promise.resolve(loadPromise).then(function () {
-                applyLanguagePatch(language);
-                patchDomLabels();
-                refreshNavbar(app);
-            });
-
-            return;
-        }
-
         applyLanguagePatch(language);
         patchDomLabels();
+        localStorage.setItem(STORAGE_KEY, PATCH_VERSION);
     }
 
     function waitForApp() {

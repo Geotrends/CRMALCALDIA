@@ -1,5 +1,15 @@
 {
     "earlyBeforeCreateHookClassNameList": [
-        "Espo\\Custom\\Classes\\RecordHooks\\CaseObj\\EarlyBeforeCreate"
+        "Espo\\Custom\\Classes\\RecordHooks\\CaseObj\\EarlyBeforeCreate",
+        "Espo\\Custom\\Classes\\RecordHooks\\CaseObj\\EarlyClearInfractorWhenUnknown"
+    ],
+    "earlyBeforeUpdateHookClassNameList": [
+        "Espo\\Custom\\Classes\\RecordHooks\\CaseObj\\EarlyClearInfractorWhenUnknown"
+    ],
+    "createInputFilterClassNameList": [
+        "Espo\\Custom\\Classes\\Record\\CaseObj\\CreateInputFilter"
+    ],
+    "updateInputFilterClassNameList": [
+        "Espo\\Custom\\Classes\\Record\\CaseObj\\UpdateInputFilter"
     ]
 }

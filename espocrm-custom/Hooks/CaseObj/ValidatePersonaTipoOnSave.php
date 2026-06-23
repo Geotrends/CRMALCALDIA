@@ -8,7 +8,7 @@ use Espo\ORM\Entity;
 use Espo\ORM\Repository\Option\SaveOptions;
 
 /**
- * Valida campos del formato de solicitud (peticionario e infractor).
+ * Valida campos del formato de solicitud (peticionario y perjudicante).
  */
 class ValidatePersonaTipoOnSave implements BeforeSave
 {
@@ -28,8 +28,9 @@ class ValidatePersonaTipoOnSave implements BeforeSave
     private function validatePeticionario(Entity $entity): void
     {
         $tipo = trim((string) $entity->get('cTipoPersonaPeticionario'));
-        $nombre = trim((string) $entity->get('cPeticionario'));
-        $documento = trim((string) $entity->get('cCedula'));
+        $nombre = trim((string) $entity->get('cNombrePeticionario'));
+        $apellido = trim((string) $entity->get('cApellidoPeticionario'));
+        $documento = trim((string) $entity->get('cDocumentoPeticionario'));
 
         if ($tipo === '' || $tipo === self::PLACEHOLDER) {
             throw new BadRequest('Seleccione el tipo de peticionario (persona natural o jurídica).');
@@ -39,14 +40,16 @@ class ValidatePersonaTipoOnSave implements BeforeSave
             throw new BadRequest('Tipo de peticionario no válido.');
         }
 
-        if ($nombre === '') {
-            throw new BadRequest('Indique el nombre o la razón social del peticionario.');
+        if ($tipo === self::PERSONA_JURIDICA) {
+            if ($nombre === '') {
+                throw new BadRequest('Indique la razón social del peticionario.');
+            }
+        } elseif ($nombre === '' || $apellido === '') {
+            throw new BadRequest('Indique nombre y apellido del peticionario.');
         }
 
         if ($documento === '') {
-            $label = $tipo === self::PERSONA_JURIDICA ? 'NIT' : 'cédula';
-
-            throw new BadRequest('Indique la ' . $label . ' del peticionario.');
+            throw new BadRequest('Indique el documento del peticionario.');
         }
     }
 
@@ -58,13 +61,15 @@ class ValidatePersonaTipoOnSave implements BeforeSave
             return;
         }
 
-        $nombre = trim((string) $entity->get('cPerjudicante'));
+        $nombre = trim((string) $entity->get('cNombrePerjudicante'));
+        $apellido = trim((string) $entity->get('cApellidoPerjudicante'));
         $documento = trim((string) $entity->get('cDocumentoPerjudicante'));
         $telefono = trim((string) $entity->get('cTelefonoPerjudicante'));
         $direccion = trim((string) $entity->get('cDireccionPerjudicante'));
         $barrio = trim((string) $entity->get('cBarrioPerjudicante'));
 
         $hasAny = $nombre !== ''
+            || $apellido !== ''
             || $documento !== ''
             || $telefono !== ''
             || $direccion !== ''
@@ -75,15 +80,19 @@ class ValidatePersonaTipoOnSave implements BeforeSave
         }
 
         if ($tipo === '' || $tipo === self::PLACEHOLDER) {
-            throw new BadRequest('Seleccione el tipo de infractor (persona natural o jurídica).');
+            throw new BadRequest('Seleccione el tipo de perjudicante (persona natural o jurídica).');
         }
 
         if (!in_array($tipo, [self::PERSONA_NATURAL, self::PERSONA_JURIDICA], true)) {
-            throw new BadRequest('Tipo de infractor no válido.');
+            throw new BadRequest('Tipo de perjudicante no válido.');
         }
 
-        if ($nombre === '') {
-            throw new BadRequest('Si registra datos del infractor, indique al menos el nombre o la razón social.');
+        if ($tipo === self::PERSONA_JURIDICA) {
+            if ($nombre === '') {
+                throw new BadRequest('Si registra datos del perjudicante, indique al menos la razón social.');
+            }
+        } elseif ($nombre === '' && $apellido === '') {
+            throw new BadRequest('Si registra datos del perjudicante, indique al menos nombre y apellido.');
         }
     }
 }

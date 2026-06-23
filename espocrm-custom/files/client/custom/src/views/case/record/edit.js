@@ -152,9 +152,16 @@ define('custom:views/case/record/edit', [
 
         fetch: function () {
             const data = {};
+            const skipInfractor = PersonaTipoFields.isInfractorDesconocido(
+                this.model.get('cTipoPersonaPerjudicante')
+            );
             const fieldViews = this.getFieldViews();
 
             _.each(fieldViews, function (view) {
+                if (skipInfractor && PersonaTipoFields.INFRACTOR_DETAIL_FIELDS.indexOf(view.name) !== -1) {
+                    return;
+                }
+
                 if (!view.isEditMode() || view.disabled || view.readOnly || !view.isFullyRendered()) {
                     return;
                 }
@@ -303,13 +310,15 @@ define('custom:views/case/record/edit', [
             const unlockFields = [
                 'cFechaCaso',
                 'cRecursoTema',
-                'cPeticionario',
-                'cCedula',
-                'cTelefono',
-                'cCorreo',
-                'cBarrio',
-                'cCanalDeReporte',
-                'cPerjudicante',
+                'cNombrePeticionario',
+                'cApellidoPeticionario',
+                'cDocumentoPeticionario',
+                'cTelefonoPeticionario',
+                'cCorreoPeticionario',
+                'cBarrioPeticionario',
+                'cCanalDeReportePeticionario',
+                'cNombrePerjudicante',
+                'cApellidoPerjudicante',
                 'cDocumentoPerjudicante',
                 'cTelefonoPerjudicante',
                 'cBarrioPerjudicante',
@@ -385,6 +394,10 @@ define('custom:views/case/record/edit', [
         },
 
         prepareModelForSave: function () {
+            if (PersonaTipoFields.isInfractorDesconocido(this.model.get('cTipoPersonaPerjudicante'))) {
+                PersonaTipoFields.clearInfractorFields(this);
+            }
+
             if (this.model.isNew() && !RadicacionFields.isRadicacionUser(this.getUser())) {
                 RadicacionFields.stripRadicadoFromModel(this.model);
 

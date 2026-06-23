@@ -2,6 +2,7 @@
 
 namespace Espo\Custom\Controllers;
 
+use Espo\Custom\Tools\CaseObj\CasePartyNameHelper;
 use Espo\Core\Api\Request;
 use Espo\Core\Controllers\Record;
 use Espo\Core\Exceptions\BadRequest;
@@ -130,7 +131,7 @@ class ComunicacionCaso extends Record
             );
         }
 
-        $name = trim((string) $case->get('cPeticionario'));
+        $name = CasePartyNameHelper::getPeticionarioFullName($case);
 
         if ($name === '') {
             return null;
@@ -162,7 +163,7 @@ class ComunicacionCaso extends Record
             );
         }
 
-        $name = trim((string) $case->get('cPerjudicante'));
+        $name = CasePartyNameHelper::getPerjudicanteFullName($case);
 
         if ($name === '') {
             return null;

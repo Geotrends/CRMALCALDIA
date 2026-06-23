@@ -94,33 +94,77 @@ class ExcelAlcaldiaExporter
      */
     private function buildPayload(Entity $case): array
     {
-        $barrio = trim((string) ($case->get('cBarrioPerjudicante') ?: $case->get('cBarrio')));
+        $barrio = trim((string) ($case->get('cBarrioPerjudicante') ?: $case->get('cBarrioPeticionario')));
 
-        return [
+        return array_merge(
+            $this->buildAddressPayload($case, 'quejoso', ''),
+            $this->buildAddressPayload($case, 'infractor', 'Perjudicante'),
+            [
             'consecutivo' => trim((string) $case->get('cExpediente')),
             'radicado' => trim((string) $case->get('cNumeroRadicado')),
-            'solicitante' => trim((string) $case->get('cPeticionario')),
-            'direccion_quejoso' => trim((string) $case->get('cDireccion')),
-            'cedula_quejoso' => trim((string) $case->get('cCedula')),
-            'telefono_quejoso' => trim((string) $case->get('cTelefono')),
-            'correo_quejoso' => trim((string) $case->get('cCorreo')),
-            'infractor' => trim((string) $case->get('cPerjudicante')),
-            'direccion_infractor' => trim((string) $case->get('cDireccionPerjudicante')),
+            'solicitante' => CasePartyNameHelper::getPeticionarioFullName($case),
+            'cedula_quejoso' => trim((string) $case->get('cDocumentoPeticionario')),
+            'telefono_quejoso' => trim((string) $case->get('cTelefonoPeticionario')),
+            'correo_quejoso' => trim((string) $case->get('cCorreoPeticionario')),
+            'infractor' => CasePartyNameHelper::getPerjudicanteFullName($case),
             'cedula_infractor' => trim((string) $case->get('cDocumentoPerjudicante')),
             'telefono_infractor' => trim((string) $case->get('cTelefonoPerjudicante')),
             'correo_infractor' => '',
             'recurso_tema' => $this->cleanEnum($case->get('cRecursoTema')),
             'asunto' => $this->cleanEnum($case->get('cAsunto')),
             'barrio' => $this->cleanEnum($barrio),
-            'zona' => $this->cleanEnum($case->get('cZonaAlcaldia')),
+            'zona' => $this->cleanEnum($case->get('cZonaAlcaldiaPeticionario')),
             'fecha_ingreso' => $this->formatDate($case->get('cFechaCaso')),
             'fecha_vencimiento' => $this->formatDate($case->get('cFechaVencimiento')),
             'ultima_actuacion' => $this->cleanEnum($case->get('cUltimaActuacion')),
             'inspector' => $this->resolveUserName($case->get('assignedUserId')),
             'proxima_actuacion' => $this->cleanEnum($case->get('cProximaActuacion')),
             'descripcion' => trim((string) $case->get('description')),
-            'canal_reporte' => $this->cleanEnum($case->get('cCanalDeReporte')),
-        ];
+            'canal_reporte' => $this->cleanEnum($case->get('cCanalDeReportePeticionario')),
+            ]
+        );
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function buildAddressPayload(Entity $case, string $prefix, string $suffix): array
+    {
+        $map = $suffix === ''
+            ? [
+                'via_principal' => 'cViaPrincipalPeticionario',
+                'num_via_principal' => 'cNumViaPrincipalPeticionario',
+                'letra_via' => 'cLetraViaPrincipalPeticionario',
+                'cuadrante_via' => 'cCuadranteViaPrincipalPeticionario',
+                'generadora' => 'cGeneradoraPeticionario',
+                'letra_generadora' => 'cLetraGeneradoraPeticionario',
+                'cuadrante_generadora' => 'cCuadranteGeneradoraPeticionario',
+                'placa' => 'cPlacaPeticionario',
+                'bloque' => 'cBloquePeticionario',
+                'interior' => 'cInteriorPeticionario',
+                'direccion' => 'cDireccionPeticionario',
+            ]
+            : [
+                'via_principal' => 'cViaPrincipalPerjudicante',
+                'num_via_principal' => 'cNumViaPrincipalPerjudicante',
+                'letra_via' => 'cLetraViaPrincipalPerjudicante',
+                'cuadrante_via' => 'cCuadranteViaPrincipalPerjudicante',
+                'generadora' => 'cGeneradoraPerjudicante',
+                'letra_generadora' => 'cLetraGeneradoraPerjudicante',
+                'cuadrante_generadora' => 'cCuadranteGeneradoraPerjudicante',
+                'placa' => 'cPlacaPerjudicante',
+                'bloque' => 'cBloquePerjudicante',
+                'interior' => 'cInteriorPerjudicante',
+                'direccion' => 'cDireccionPerjudicante',
+            ];
+
+        $payload = [];
+
+        foreach ($map as $key => $field) {
+            $payload[$key . '_' . $prefix] = $this->cleanEnum($case->get($field));
+        }
+
+        return $payload;
     }
 
     private function cleanEnum(mixed $value): string

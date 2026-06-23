@@ -2,6 +2,7 @@
 
 namespace Espo\Custom\Tools\Party;
 
+use Espo\Custom\Tools\CaseObj\CasePartyNameHelper;
 use Espo\ORM\Entity;
 use Espo\ORM\EntityManager;
 
@@ -111,13 +112,21 @@ class PartyRegistryService
      */
     public function mapContactToPeticionarioFields(Entity $contact): array
     {
+        $firstName = trim((string) $contact->get('firstName'));
+        $lastName = trim((string) $contact->get('lastName'));
+
+        if ($firstName === '' && $lastName === '') {
+            [$firstName, $lastName] = CasePartyNameHelper::splitName($this->getContactDisplayName($contact));
+        }
+
         return [
-            'cPeticionario' => $this->getContactDisplayName($contact),
-            'cCedula' => (string) $contact->get('cNumeroDeDocumento'),
-            'cDireccion' => (string) $contact->get('addressStreet'),
-            'cTelefono' => (string) $contact->get('phoneNumber'),
-            'cBarrio' => (string) $contact->get('cBarrioResidencia'),
-            'cCorreo' => (string) $contact->get('emailAddress'),
+            'cNombrePeticionario' => $firstName !== '' ? $firstName : null,
+            'cApellidoPeticionario' => $lastName !== '' ? $lastName : null,
+            'cDocumentoPeticionario' => (string) $contact->get('cNumeroDeDocumento'),
+            'cDireccionPeticionario' => (string) $contact->get('addressStreet'),
+            'cTelefonoPeticionario' => (string) $contact->get('phoneNumber'),
+            'cBarrioPeticionario' => (string) $contact->get('cBarrioResidencia'),
+            'cCorreoPeticionario' => (string) $contact->get('emailAddress'),
             'contactId' => $contact->getId(),
             'contactName' => $contact->get('name'),
             'accountId' => null,
@@ -131,11 +140,12 @@ class PartyRegistryService
     public function mapAccountToPeticionarioFields(Entity $account): array
     {
         return [
-            'cPeticionario' => (string) $account->get('name'),
-            'cCedula' => (string) $account->get('cNit'),
-            'cDireccion' => (string) $account->get('billingAddressStreet'),
-            'cTelefono' => (string) $account->get('phoneNumber'),
-            'cCorreo' => (string) $account->get('emailAddress'),
+            'cNombrePeticionario' => (string) $account->get('name'),
+            'cApellidoPeticionario' => null,
+            'cDocumentoPeticionario' => (string) $account->get('cNit'),
+            'cDireccionPeticionario' => (string) $account->get('billingAddressStreet'),
+            'cTelefonoPeticionario' => (string) $account->get('phoneNumber'),
+            'cCorreoPeticionario' => (string) $account->get('emailAddress'),
             'accountId' => $account->getId(),
             'accountName' => $account->get('name'),
             'contactId' => null,
@@ -148,8 +158,16 @@ class PartyRegistryService
      */
     public function mapContactToPerjudicanteFields(Entity $contact): array
     {
+        $firstName = trim((string) $contact->get('firstName'));
+        $lastName = trim((string) $contact->get('lastName'));
+
+        if ($firstName === '' && $lastName === '') {
+            [$firstName, $lastName] = CasePartyNameHelper::splitName($this->getContactDisplayName($contact));
+        }
+
         return [
-            'cPerjudicante' => $this->getContactDisplayName($contact),
+            'cNombrePerjudicante' => $firstName !== '' ? $firstName : null,
+            'cApellidoPerjudicante' => $lastName !== '' ? $lastName : null,
             'cDocumentoPerjudicante' => (string) $contact->get('cNumeroDeDocumento'),
             'cDireccionPerjudicante' => (string) $contact->get('addressStreet'),
             'cTelefonoPerjudicante' => (string) $contact->get('phoneNumber'),
@@ -167,7 +185,8 @@ class PartyRegistryService
     public function mapAccountToPerjudicanteFields(Entity $account): array
     {
         return [
-            'cPerjudicante' => (string) $account->get('name'),
+            'cNombrePerjudicante' => (string) $account->get('name'),
+            'cApellidoPerjudicante' => null,
             'cDocumentoPerjudicante' => (string) $account->get('cNit'),
             'cDireccionPerjudicante' => (string) $account->get('billingAddressStreet'),
             'cTelefonoPerjudicante' => (string) $account->get('phoneNumber'),

@@ -26,19 +26,19 @@
     "formatoActuoArchivoCasePending": "El formato estará disponible cuando diligencie y guarde el auto de archivo."
   },
   "fields": {
-    "cCanalDeReporte": "Canal de reporte",
-    "cNombreDelPeticionario": "Nombre del peticionario",
-    "cApellido": "Apellido",
+    "cCanalDeReportePeticionario": "Canal de reporte",
+    "cNombrePeticionario": "Nombre del peticionario",
+    "cApellidoPeticionario": "Apellido",
     "cTipoDeDocumento": "Tipo de documento",
     "cNumeroDeDocumento": "Numero de documento",
-    "cTelefono": "Telefono",
-    "cCorreo": "Correo",
+    "cTelefonoPeticionario": "Telefono",
+    "cCorreoPeticionario": "Correo",
     "cBarrioResidencia": "Barrio residencia",
-    "cDireccion": "Direccion",
-    "cMunicipio": "Municipio"
+    "cDireccionPeticionario": "Direccion",
+    "cMunicipioPeticionario": "Municipio"
   },
   "options": {
-    "cCanalDeReporte": {
+    "cCanalDeReportePeticionario": {
       "Correo": "Correo",
       "Telefono": "Telefono",
       "Presencial": "Presencial"
@@ -50,7 +50,7 @@
       "Pasaporte": "Pasaporte",
       "Otro": "Otro"
     },
-    "cMunicipio": {
+    "cMunicipioPeticionario": {
       "Envigado": "Envigado"
     }
   }

@@ -4,6 +4,7 @@ namespace Espo\Custom\Tools\Party;
 
 use Espo\ORM\Collection;
 use Espo\ORM\Entity;
+use Espo\Custom\Tools\CaseObj\CasePartyNameHelper;
 use Espo\ORM\EntityManager;
 
 class PartyCasosService
@@ -99,8 +100,8 @@ class PartyCasosService
             'cExpediente' => (string) $case->get('cExpediente'),
             'cFechaCaso' => (string) $case->get('cFechaCaso'),
             'status' => (string) $case->get('status'),
-            'cPeticionario' => (string) $case->get('cPeticionario'),
-            'cPerjudicante' => (string) $case->get('cPerjudicante'),
+            'cPeticionario' => CasePartyNameHelper::getPeticionarioFullName($case),
+            'cPerjudicante' => CasePartyNameHelper::getPerjudicanteFullName($case),
             'rol' => $rol,
         ];
     }

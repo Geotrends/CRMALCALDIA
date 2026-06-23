@@ -2,6 +2,7 @@
 
 namespace Espo\Custom\Tools\Calendar;
 
+use Espo\Custom\Tools\CaseObj\CasePartyNameHelper;
 use Espo\Core\Select\SelectBuilderFactory;
 use Espo\Custom\Tools\CaseObj\CaseTimelineService;
 use Espo\ORM\Entity;
@@ -34,7 +35,8 @@ class CaseCalendarEventService
             ->select([
                 'id',
                 'cNumeroRadicado',
-                'cPeticionario',
+                'cNombrePeticionario',
+                'cApellidoPeticionario',
                 'status',
                 'cFechaCaso',
                 'cFechaVencimiento',
@@ -173,7 +175,7 @@ class CaseCalendarEventService
     private function caseLabel(Entity $case): string
     {
         $radicado = trim((string) $case->get('cNumeroRadicado'));
-        $peticionario = trim((string) $case->get('cPeticionario'));
+        $peticionario = CasePartyNameHelper::getPeticionarioFullName($case);
 
         if ($radicado !== '' && $peticionario !== '') {
             return $radicado . ' · ' . $peticionario;

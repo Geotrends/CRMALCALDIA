@@ -4,6 +4,7 @@ namespace Espo\Custom\Hooks\ActaVisita;
 
 use Espo\Core\Hook\Hook\BeforeSave;
 use Espo\Entities\User;
+use Espo\Custom\Tools\CaseObj\CasePartyNameHelper;
 use Espo\ORM\Entity;
 use Espo\ORM\EntityManager;
 use Espo\ORM\Repository\Option\SaveOptions;
@@ -57,10 +58,14 @@ class FillFromCase implements BeforeSave
             $entity->set('assignedUserId', $this->user->getId());
         }
 
-        $this->fillIfEmpty($entity, 'direccionAfectacion', $case->get('cDireccion'));
-        $this->fillIfEmpty($entity, 'telefono', $case->get('cTelefono'));
-        $this->fillIfEmpty($entity, 'barrio', $case->get('cBarrio'));
-        $this->fillIfEmpty($entity, 'posibleAfectante', $case->get('cPerjudicante') ?: $case->get('cPeticionario'));
+        $this->fillIfEmpty($entity, 'direccionAfectacion', $case->get('cDireccionPeticionario'));
+        $this->fillIfEmpty($entity, 'telefono', $case->get('cTelefonoPeticionario'));
+        $this->fillIfEmpty($entity, 'barrio', $case->get('cBarrioPeticionario'));
+        $this->fillIfEmpty(
+            $entity,
+            'posibleAfectante',
+            CasePartyNameHelper::getPerjudicanteFullName($case) ?: CasePartyNameHelper::getPeticionarioFullName($case)
+        );
 
         if (!$entity->get('funcionarioNombre')) {
             $entity->set('funcionarioNombre', trim((string) $this->user->get('name')));

@@ -1,4 +1,4 @@
-define('custom:helpers/acta-visita-from-case', [], function () {
+define('custom:helpers/acta-visita-from-case', ['custom:helpers/case-party-name'], function (CasePartyName) {
 
     const AUTO_READONLY_FIELDS = [
         'case',
@@ -24,6 +24,9 @@ define('custom:helpers/acta-visita-from-case', [], function () {
             nameParts.push('Exp. ' + expediente);
         }
 
+        const perjudicante = CasePartyName.perjudicanteFromModel(caseModel);
+        const peticionario = CasePartyName.peticionarioFromModel(caseModel);
+
         return {
             caseId: caseModel.id,
             caseName: caseModel.get('name'),
@@ -35,10 +38,10 @@ define('custom:helpers/acta-visita-from-case', [], function () {
             estado: 'Pendiente',
             modoDiligenciamiento: 'Digital',
             autorizacionDatos: false,
-            direccionAfectacion: caseModel.get('cDireccion') || '',
-            telefono: caseModel.get('cTelefono') || '',
-            barrio: caseModel.get('cBarrio') || '',
-            posibleAfectante: caseModel.get('cPerjudicante') || caseModel.get('cPeticionario') || '',
+            direccionAfectacion: caseModel.get('cDireccionPeticionario') || '',
+            telefono: caseModel.get('cTelefonoPeticionario') || '',
+            barrio: caseModel.get('cBarrioPeticionario') || '',
+            posibleAfectante: perjudicante || peticionario || '',
             funcionarioNombre: user ? user.get('name') : '',
         };
     };

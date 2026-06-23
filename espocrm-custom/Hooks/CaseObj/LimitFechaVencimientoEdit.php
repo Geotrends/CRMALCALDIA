@@ -26,7 +26,7 @@ class LimitFechaVencimientoEdit implements BeforeSave
     private const INSPECCION_ONLY_FIELDS = [
         'cFechaVencimiento',
         'cAsunto',
-        'cZonaAlcaldia',
+        'cZonaAlcaldiaPeticionario',
         'cUltimaActuacion',
         'cProximaActuacion',
     ];

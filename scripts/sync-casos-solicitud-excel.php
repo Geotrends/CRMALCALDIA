@@ -13,6 +13,7 @@ require_once '/var/www/html/bootstrap.php';
 
 use Espo\Core\Application;
 use Espo\Core\InjectableFactory;
+use Espo\Custom\Tools\CaseObj\CasePartyNameHelper;
 use Espo\Custom\Tools\CaseObj\CrmRegistroExcelExporter;
 use Espo\Custom\Tools\CaseObj\ExcelAlcaldiaExporter;
 use Espo\ORM\EntityManager;
@@ -155,13 +156,13 @@ foreach ($cases as $case) {
     if ($exporter->exportCase($case)) {
         $exported++;
         $radicado = trim((string) $case->get('cNumeroRadicado')) ?: 'sin radicado';
-        echo "Exportado: {$case->getId()} — {$case->get('cPeticionario')} ({$radicado})\n";
+        echo 'Exportado: ' . $case->getId() . ' — ' . CasePartyNameHelper::getPeticionarioFullName($case) . " ({$radicado})\n";
 
         if ($exporter->isPostRadicado($case)) {
             $exportedAlcaldia++;
         }
     } else {
-        echo "Error exportando: {$case->getId()} — {$case->get('cPeticionario')}\n";
+        echo 'Error exportando: ' . $case->getId() . ' — ' . CasePartyNameHelper::getPeticionarioFullName($case) . "\n";
     }
 }
 

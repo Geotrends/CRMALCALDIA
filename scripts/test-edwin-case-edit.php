@@ -42,9 +42,9 @@ $fields = [
     'cNumeroRadicado',
     'cExpediente',
     'cRecursoTema',
-    'cNombreDelPeticionario',
-    'cDireccion',
-    'cZonaAlcaldia',
+    'cNombrePeticionario',
+    'cDireccionPeticionario',
+    'cZonaAlcaldiaPeticionario',
     'status',
     'description',
 ];

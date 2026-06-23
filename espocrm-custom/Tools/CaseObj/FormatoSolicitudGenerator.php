@@ -81,7 +81,7 @@ class FormatoSolicitudGenerator
         }
 
         $radicado = trim((string) $case->get('cNumeroRadicado'));
-        $peticionario = trim((string) $case->get('cPeticionario'));
+        $peticionario = CasePartyNameHelper::getPeticionarioFullName($case);
         $slugSource = $radicado !== '' ? $radicado : $peticionario;
         $safeRadicado = preg_replace('/[^\w\-]+/u', '_', $slugSource) ?: 'caso';
         $outputPath = $workDir . '/FormatoSolicitud-' . $safeRadicado . '.' . $format;
@@ -204,23 +204,23 @@ class FormatoSolicitudGenerator
     {
         $recibidaPor = $this->resolveUserName($case->get('cRecibidaPorId'));
         $remitidoA = $this->resolveUserName($case->get('cRemitidoAId'));
-        $correo = trim((string) $case->get('cCorreo'));
+        $correo = trim((string) $case->get('cCorreoPeticionario'));
 
         return [
             'fecha' => $this->formatFechaCaso($case->get('cFechaCaso')),
             'radicado' => trim((string) $case->get('cNumeroRadicado')),
-            'peticionario' => trim((string) $case->get('cPeticionario')),
-            'cedula' => trim((string) $case->get('cCedula')),
-            'direccion' => trim((string) $case->get('cDireccion')),
-            'telefono' => trim((string) $case->get('cTelefono')),
-            'barrio' => trim((string) $case->get('cBarrio')),
+            'peticionario' => CasePartyNameHelper::getPeticionarioFullName($case),
+            'cedula' => trim((string) $case->get('cDocumentoPeticionario')),
+            'direccion' => trim((string) $case->get('cDireccionPeticionario')),
+            'telefono' => trim((string) $case->get('cTelefonoPeticionario')),
+            'barrio' => trim((string) $case->get('cBarrioPeticionario')),
             'correo' => $correo,
             'aceptaCorreo' => $correo !== '',
-            'perjudicante' => trim((string) $case->get('cPerjudicante')),
+            'perjudicante' => CasePartyNameHelper::getPerjudicanteFullName($case),
             'telPerjudicante' => trim((string) $case->get('cTelefonoPerjudicante')),
             'direccionPerjudicante' => trim((string) $case->get('cDireccionPerjudicante')),
             'barrioPerjudicante' => trim((string) $case->get('cBarrioPerjudicante')),
-            'canalDeReporte' => $this->cleanCanal($case->get('cCanalDeReporte')),
+            'canalDeReporte' => $this->cleanCanal($case->get('cCanalDeReportePeticionario')),
             'descripcion' => trim((string) $case->get('description')),
             'respuestaInmediata' => trim((string) $case->get('cRespuestaInmediata')),
             'recibidaPor' => $recibidaPor,

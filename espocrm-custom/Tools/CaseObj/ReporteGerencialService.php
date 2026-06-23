@@ -63,7 +63,7 @@ class ReporteGerencialService
       $recursoLabel = $recurso !== '' ? $recurso : 'Sin recurso';
       $porRecurso[$recursoLabel] = ($porRecurso[$recursoLabel] ?? 0) + 1;
 
-      $canal = $this->cleanEnum((string) $case->get('cCanalDeReporte'));
+      $canal = $this->cleanEnum((string) $case->get('cCanalDeReportePeticionario'));
       $canalLabel = $this->mapCanal($canal);
       $porCanal[$canalLabel] = ($porCanal[$canalLabel] ?? 0) + 1;
 
@@ -84,7 +84,7 @@ class ReporteGerencialService
       $detalle[] = [
         'radicado' => trim((string) $case->get('cNumeroRadicado')) ?: '—',
         'expediente' => trim((string) $case->get('cExpediente')) ?: '—',
-        'peticionario' => trim((string) $case->get('cPeticionario')) ?: '—',
+        'peticionario' => CasePartyNameHelper::getPeticionarioFullName($case) ?: '—',
         'estado' => $status !== '' ? $status : '—',
         'recurso' => $recursoLabel,
         'canal' => $canalLabel,
@@ -92,7 +92,7 @@ class ReporteGerencialService
         'fechaCaso' => $this->formatDate($case->get('cFechaCaso')),
         'fechaVencimiento' => $this->formatDate($case->get('cFechaVencimiento')),
         'semaforo' => $semaforo,
-        'barrio' => $this->cleanEnum((string) $case->get('cBarrio')) ?: '—',
+        'barrio' => $this->cleanEnum((string) $case->get('cBarrioPeticionario')) ?: '—',
       ];
     }
 
@@ -126,13 +126,14 @@ class ReporteGerencialService
         'status',
         'cNumeroRadicado',
         'cExpediente',
-        'cPeticionario',
+                'cNombrePeticionario',
+                'cApellidoPeticionario',
         'cRecursoTema',
-        'cCanalDeReporte',
+        'cCanalDeReportePeticionario',
         'assignedUserName',
         'cFechaCaso',
         'cFechaVencimiento',
-        'cBarrio',
+        'cBarrioPeticionario',
         'assignedUserId',
       ])
       ->order('cFechaCaso', 'DESC')

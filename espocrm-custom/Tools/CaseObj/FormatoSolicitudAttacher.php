@@ -94,7 +94,7 @@ class FormatoSolicitudAttacher
     private function buildFileName(Entity $case): string
     {
         $radicado = trim((string) $case->get('cNumeroRadicado'));
-        $peticionario = trim((string) $case->get('cPeticionario'));
+        $peticionario = CasePartyNameHelper::getPeticionarioFullName($case);
         $slug = preg_replace('/[^\w\-]+/u', '_', $radicado !== '' ? $radicado : $peticionario) ?: 'caso';
 
         return 'FormatoSolicitud-' . $slug . '.pdf';

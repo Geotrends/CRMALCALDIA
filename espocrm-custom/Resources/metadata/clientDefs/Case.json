@@ -158,6 +158,12 @@
         "cExpediente": {
             "view": "custom:views/case/fields/expediente"
         },
+        "cDireccionPeticionario": {
+            "view": "custom:views/case/fields/direccion-computada"
+        },
+        "cDireccionPerjudicante": {
+            "view": "custom:views/case/fields/direccion-computada"
+        },
         "cRecibidaPor": {
             "primaryFilter": "recibidores"
         },

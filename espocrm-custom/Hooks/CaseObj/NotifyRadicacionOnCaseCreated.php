@@ -9,6 +9,7 @@ use Espo\Entities\Email;
 use Espo\Entities\Notification;
 use Espo\Entities\Role;
 use Espo\Entities\User;
+use Espo\Custom\Tools\CaseObj\CasePartyNameHelper;
 use Espo\ORM\Entity;
 use Espo\ORM\EntityManager;
 use Espo\ORM\Repository\Option\SaveOptions;
@@ -135,7 +136,7 @@ class NotifyRadicacionOnCaseCreated implements AfterSave
 
     private function buildCaseLabel(Entity $entity): string
     {
-        $peticionario = trim((string) $entity->get('cPeticionario'));
+        $peticionario = CasePartyNameHelper::getPeticionarioFullName($entity);
 
         if ($peticionario !== '') {
             return $peticionario;

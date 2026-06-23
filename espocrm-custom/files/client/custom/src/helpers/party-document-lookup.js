@@ -20,7 +20,7 @@ define('custom:helpers/party-document-lookup', [
             Espo.Ui.notify(
                 party === 'peticionario'
                     ? 'Seleccione primero el tipo de peticionario (persona natural o jurídica).'
-                    : 'Seleccione primero el tipo de infractor (persona natural o jurídica).',
+                    : 'Seleccione primero el tipo de perjudicante (persona natural o jurídica).',
                 'warning',
                 3500
             );
@@ -130,9 +130,9 @@ define('custom:helpers/party-document-lookup', [
         };
 
         recordView.$el
-            .off('blur.partyLookup change.partyLookup', '[data-name="cCedula"] input, [data-name="cCedula"] textarea')
+            .off('blur.partyLookup change.partyLookup', '[data-name="cDocumentoPeticionario"] input, [data-name="cDocumentoPeticionario"] textarea')
             .off('blur.partyLookup change.partyLookup', '[data-name="cDocumentoPerjudicante"] input, [data-name="cDocumentoPerjudicante"] textarea')
-            .on('blur.partyLookup change.partyLookup', '[data-name="cCedula"] input, [data-name="cCedula"] textarea', handler)
+            .on('blur.partyLookup change.partyLookup', '[data-name="cDocumentoPeticionario"] input, [data-name="cDocumentoPeticionario"] textarea', handler)
             .on('blur.partyLookup change.partyLookup', '[data-name="cDocumentoPerjudicante"] input, [data-name="cDocumentoPerjudicante"] textarea', handler);
     };
 

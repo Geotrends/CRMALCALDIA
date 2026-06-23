@@ -9,11 +9,15 @@
         "width": 12
     },
     {
-        "name": "cPeticionario",
-        "width": 16
+        "name": "cNombrePeticionario",
+        "width": 10
     },
     {
-        "name": "cCanalDeReporte",
+        "name": "cApellidoPeticionario",
+        "width": 10
+    },
+    {
+        "name": "cCanalDeReportePeticionario",
         "width": 12
     },
     {

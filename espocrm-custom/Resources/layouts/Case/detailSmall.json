@@ -26,32 +26,66 @@
             ],
             [
                 {
-                    "name": "cCedula"
+                    "name": "cDocumentoPeticionario"
                 },
                 {
-                    "name": "cPeticionario"
+                    "name": "cNombrePeticionario"
+                },
+                {
+                    "name": "cApellidoPeticionario"
                 }
             ],
             [
                 {
-                    "name": "cDireccion",
+                    "name": "cDireccionPeticionario",
                     "fullWidth": true
                 }
             ],
             [
                 {
-                    "name": "cTelefono"
+                    "name": "cTelefonoPeticionario"
                 },
                 {
-                    "name": "cBarrio"
+                    "name": "cBarrioPeticionario"
                 }
             ],
             [
                 {
-                    "name": "cCorreo"
+                    "name": "cCorreoPeticionario"
                 },
                 {
-                    "name": "cCanalDeReporte"
+                    "name": "cCanalDeReportePeticionario"
+                }
+            ],
+            [
+                {
+                    "name": "cTipoPersonaPerjudicante"
+                },
+                false
+            ],
+            [
+                {
+                    "name": "cDocumentoPerjudicante"
+                },
+                {
+                    "name": "cNombrePerjudicante"
+                },
+                {
+                    "name": "cApellidoPerjudicante"
+                }
+            ],
+            [
+                {
+                    "name": "cTelefonoPerjudicante"
+                },
+                {
+                    "name": "cBarrioPerjudicante"
+                }
+            ],
+            [
+                {
+                    "name": "cDireccionPerjudicante",
+                    "fullWidth": true
                 }
             ]
         ]

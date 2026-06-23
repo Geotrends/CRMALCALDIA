@@ -80,7 +80,7 @@
     }
 
     function claveCanal(caso) {
-        var canal = String(caso.cCanalDeReporte || '').trim();
+        var canal = String(caso.cCanalDeReportePeticionario || '').trim();
 
         if (!canal || canal === 'Seleccione una opción') {
             return '';
@@ -704,7 +704,7 @@
 
     bindReporteButtons();
 
-    var fetchUrl = '/api/v1/Case?select=cRecursoTema,cCanalDeReporte,status,assignedUserId,createdAt,cFechaCaso,cFechaVencimiento,cNumeroRadicado,cExpediente,cPeticionario,cBarrio'
+    var fetchUrl = '/api/v1/Case?select=cRecursoTema,cCanalDeReportePeticionario,status,assignedUserId,createdAt,cFechaCaso,cFechaVencimiento,cNumeroRadicado,cExpediente,cNombrePeticionario,cApellidoPeticionario,cBarrioPeticionario'
         + '&maxSize=200&orderBy=cFechaCaso&order=desc';
 
     if (assignedUserId) {
@@ -838,7 +838,7 @@
             }
 
             var porBarrio = topN(agrupar(casos, function (c) {
-                return etiquetaBarrio(c.cBarrio);
+                return etiquetaBarrio(c.cBarrioPeticionario);
             }), 8);
 
             if (!porBarrio.etiquetas.length) {

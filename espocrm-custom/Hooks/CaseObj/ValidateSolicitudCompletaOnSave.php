@@ -4,6 +4,8 @@ namespace Espo\Custom\Hooks\CaseObj;
 
 use Espo\Core\Exceptions\BadRequest;
 use Espo\Core\Hook\Hook\BeforeSave;
+use Espo\Custom\Tools\CaseObj\CasePartyNameHelper;
+use Espo\Custom\Tools\CaseObj\InfractorUnknownHelper;
 use Espo\Entities\Role;
 use Espo\Entities\User;
 use Espo\ORM\Entity;
@@ -19,7 +21,6 @@ class ValidateSolicitudCompletaOnSave implements BeforeSave
     public static int $order = 6;
 
     private const PLACEHOLDER = 'Seleccione una opción';
-    private const NO_SE_CONOCE = 'No se conoce';
 
     private const ROLE_INSPECCION = 'Inspección';
     private const ROLE_INSPECCION_ALT = 'Inspeccion';
@@ -27,20 +28,19 @@ class ValidateSolicitudCompletaOnSave implements BeforeSave
 
     /** @var array<string, string> */
     private const TEXT_FIELDS = [
-        'cTelefono' => 'Indique el teléfono del peticionario.',
-        'cPerjudicante' => 'Indique el nombre o razón social del infractor.',
-        'cDocumentoPerjudicante' => 'Indique la cédula o NIT del infractor.',
-        'cTelefonoPerjudicante' => 'Indique el teléfono del infractor.',
+        'cTelefonoPeticionario' => 'Indique el teléfono del peticionario.',
+        'cDocumentoPerjudicante' => 'Indique el documento del perjudicante.',
+        'cTelefonoPerjudicante' => 'Indique el teléfono del perjudicante.',
         'cRespuestaInmediata' => 'Indique la respuesta inmediata.',
         'description' => 'Indique la descripción de la queja.',
     ];
 
     /** @var array<string, string> */
     private const ENUM_FIELDS = [
-        'cBarrio' => 'Seleccione el barrio del peticionario.',
-        'cZonaAlcaldia' => 'Seleccione la zona del peticionario.',
-        'cCanalDeReporte' => 'Seleccione el canal de reporte.',
-        'cBarrioPerjudicante' => 'Seleccione el barrio del infractor.',
+        'cBarrioPeticionario' => 'Seleccione el barrio del peticionario.',
+        'cZonaAlcaldiaPeticionario' => 'Seleccione la zona del peticionario.',
+        'cCanalDeReportePeticionario' => 'Seleccione el canal de reporte.',
+        'cBarrioPerjudicante' => 'Seleccione el barrio del perjudicante.',
         'cRecursoTema' => 'Seleccione el recurso / tema.',
         'cAsunto' => 'Seleccione el asunto.',
         'cUltimaActuacion' => 'Seleccione la última actuación.',
@@ -93,20 +93,19 @@ class ValidateSolicitudCompletaOnSave implements BeforeSave
                 throw new BadRequest($message);
             }
         }
+
+        if (!InfractorUnknownHelper::isUnknown($entity) && !CasePartyNameHelper::hasPerjudicanteName($entity)) {
+            throw new BadRequest('Indique el nombre o la razón social del perjudicante.');
+        }
     }
 
     private function shouldSkipInfractorField(Entity $entity, string $field): bool
     {
-        if (trim((string) $entity->get('cTipoPersonaPerjudicante')) !== self::NO_SE_CONOCE) {
+        if (!InfractorUnknownHelper::isUnknown($entity)) {
             return false;
         }
 
-        return in_array($field, [
-            'cPerjudicante',
-            'cDocumentoPerjudicante',
-            'cTelefonoPerjudicante',
-            'cBarrioPerjudicante',
-        ], true);
+        return in_array($field, InfractorUnknownHelper::SKIP_VALIDATION_FIELDS, true);
     }
 
     private function needsFullSolicitud(Entity $entity): bool

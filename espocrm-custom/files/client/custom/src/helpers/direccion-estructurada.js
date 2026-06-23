@@ -4,18 +4,18 @@ define('custom:helpers/direccion-estructurada', [], function () {
 
     const PETICIONARIO = {
         componentFields: [
-            'cViaPrincipal',
-            'cNumViaPrincipal',
-            'cLetraViaPrincipal',
-            'cCuadranteViaPrincipal',
-            'cGeneradora',
-            'cLetraGeneradora',
-            'cCuadranteGeneradora',
-            'cPlaca',
-            'cBloque',
-            'cInterior',
+            'cViaPrincipalPeticionario',
+            'cNumViaPrincipalPeticionario',
+            'cLetraViaPrincipalPeticionario',
+            'cCuadranteViaPrincipalPeticionario',
+            'cGeneradoraPeticionario',
+            'cLetraGeneradoraPeticionario',
+            'cCuadranteGeneradoraPeticionario',
+            'cPlacaPeticionario',
+            'cBloquePeticionario',
+            'cInteriorPeticionario',
         ],
-        target: 'cDireccion',
+        target: 'cDireccionPeticionario',
     };
 
     const PERJUDICANTE = {
@@ -34,22 +34,69 @@ define('custom:helpers/direccion-estructurada', [], function () {
         target: 'cDireccionPerjudicante',
     };
 
+    const getTrimmed = function (model, field) {
+        return String(model.get(field) || '').trim();
+    };
+
+    const joinParts = function (parts) {
+        return parts.filter(function (part) {
+            return part !== '';
+        }).join(' ');
+    };
+
     const buildFromModel = function (model, config) {
-        const parts = [];
+        const fields = config.componentFields;
+        const via = joinParts([
+            getTrimmed(model, fields[0]),
+            getTrimmed(model, fields[1]),
+            getTrimmed(model, fields[2]),
+            getTrimmed(model, fields[3]),
+        ]);
+        const generadora = joinParts([
+            getTrimmed(model, fields[4]),
+            getTrimmed(model, fields[5]),
+            getTrimmed(model, fields[6]),
+        ]);
+        const placa = getTrimmed(model, fields[7]);
+        const bloque = getTrimmed(model, fields[8]);
+        const interior = getTrimmed(model, fields[9]);
+        const extras = joinParts([bloque, interior]);
 
-        config.componentFields.forEach(function (field) {
-            const value = String(model.get(field) || '').trim();
+        let result = via;
 
-            if (value !== '') {
-                parts.push(value);
+        if (generadora !== '') {
+            result = result !== '' ? result + ' # ' + generadora : generadora;
+        }
+
+        if (placa !== '') {
+            if (result !== '') {
+                result += ' - ' + placa;
+            } else {
+                result = placa;
             }
-        });
+        }
 
-        return parts.join(' ');
+        if (extras !== '') {
+            result = result !== '' ? result + ' ' + extras : extras;
+        }
+
+        return result;
     };
 
     const applyToModel = function (model, config) {
         model.set(config.target, buildFromModel(model, config), {silent: true});
+    };
+
+    const refreshTargetField = function (recordView, target) {
+        if (!recordView.isRendered || !recordView.isRendered()) {
+            return;
+        }
+
+        const fieldView = recordView.getFieldView(target);
+
+        if (fieldView && typeof fieldView.reRender === 'function') {
+            fieldView.reRender();
+        }
     };
 
     const setup = function (recordView) {
@@ -59,11 +106,18 @@ define('custom:helpers/direccion-estructurada', [], function () {
             config.componentFields.forEach(function (field) {
                 recordView.listenTo(model, 'change:' + field, function () {
                     applyToModel(model, config);
-                    recordView.reRenderField(config.target);
+                    refreshTargetField(recordView, config.target);
                 });
             });
 
             applyToModel(model, config);
+        });
+
+        recordView.once('after:render', function () {
+            [PETICIONARIO, PERJUDICANTE].forEach(function (config) {
+                applyToModel(model, config);
+                refreshTargetField(recordView, config.target);
+            });
         });
     };
 

@@ -26,76 +26,79 @@
             ],
             [
                 {
-                    "name": "cCedula"
+                    "name": "cDocumentoPeticionario"
                 },
                 {
-                    "name": "cPeticionario"
+                    "name": "cNombrePeticionario"
+                },
+                {
+                    "name": "cApellidoPeticionario"
                 }
             ],
             [
                 {
-                    "name": "cViaPrincipal"
+                    "name": "cViaPrincipalPeticionario"
                 },
                 {
-                    "name": "cNumViaPrincipal"
+                    "name": "cNumViaPrincipalPeticionario"
                 },
                 {
-                    "name": "cLetraViaPrincipal"
+                    "name": "cLetraViaPrincipalPeticionario"
                 },
                 {
-                    "name": "cCuadranteViaPrincipal"
+                    "name": "cCuadranteViaPrincipalPeticionario"
                 }
             ],
             [
                 {
-                    "name": "cGeneradora"
+                    "name": "cGeneradoraPeticionario"
                 },
                 {
-                    "name": "cLetraGeneradora"
+                    "name": "cLetraGeneradoraPeticionario"
                 },
                 {
-                    "name": "cCuadranteGeneradora"
+                    "name": "cCuadranteGeneradoraPeticionario"
                 },
                 {
-                    "name": "cPlaca"
+                    "name": "cPlacaPeticionario"
                 }
             ],
             [
                 {
-                    "name": "cBloque"
+                    "name": "cBloquePeticionario"
                 },
                 {
-                    "name": "cInterior"
+                    "name": "cInteriorPeticionario"
                 },
                 false,
                 false
             ],
             [
                 {
-                    "name": "cDireccion",
+                    "name": "cDireccionPeticionario",
                     "fullWidth": true
                 }
             ],
             [
                 {
-                    "name": "cTelefono"
+                    "name": "cTelefonoPeticionario"
                 },
                 false
             ],
             [
                 {
-                    "name": "cBarrio"
+                    "name": "cBarrioPeticionario"
                 },
                 {
-                    "name": "cZonaAlcaldia"
+                    "name": "cZonaAlcaldiaPeticionario"
                 }
             ],
             [
                 {
-                    "name": "cCorreo"
+                    "name": "cCorreoPeticionario"
                 },
                 {
-                    "name": "cCanalDeReporte"
+                    "name": "cCanalDeReportePeticionario"
                 }
             ]
         ],
@@ -115,7 +118,10 @@
                     "name": "cDocumentoPerjudicante"
                 },
                 {
-                    "name": "cPerjudicante"
+                    "name": "cNombrePerjudicante"
+                },
+                {
+                    "name": "cApellidoPerjudicante"
                 }
             ],
             [
@@ -176,7 +182,7 @@
             ]
         ],
         "style": "default",
-        "label": "Infractor"
+        "label": "Perjudicante"
     },
     {
         "name": "registroExcelAlcaldia",

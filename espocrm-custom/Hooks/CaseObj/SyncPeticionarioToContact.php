@@ -3,6 +3,7 @@
 namespace Espo\Custom\Hooks\CaseObj;
 
 use Espo\Core\Hook\Hook\BeforeSave;
+use Espo\Custom\Tools\CaseObj\CasePartyNameHelper;
 use Espo\Custom\Tools\Party\DocumentNormalizer;
 use Espo\Custom\Tools\Party\PartyRegistryService;
 use Espo\ORM\Entity;
@@ -22,12 +23,13 @@ class SyncPeticionarioToContact implements BeforeSave
 
     private const SYNC_FIELDS = [
         'cTipoPersonaPeticionario',
-        'cPeticionario',
-        'cCedula',
-        'cDireccion',
-        'cTelefono',
-        'cBarrio',
-        'cCorreo',
+        'cNombrePeticionario',
+        'cApellidoPeticionario',
+        'cDocumentoPeticionario',
+        'cDireccionPeticionario',
+        'cTelefonoPeticionario',
+        'cBarrioPeticionario',
+        'cCorreoPeticionario',
     ];
 
     private PartyRegistryService $partyRegistry;
@@ -54,10 +56,9 @@ class SyncPeticionarioToContact implements BeforeSave
             return;
         }
 
-        $documento = trim((string) $entity->get('cCedula'));
-        $nombre = trim((string) $entity->get('cPeticionario'));
+        $documento = trim((string) $entity->get('cDocumentoPeticionario'));
 
-        if ($documento === '' && $nombre === '') {
+        if ($documento === '' && !CasePartyNameHelper::hasPeticionarioName($entity)) {
             return;
         }
 
@@ -88,7 +89,7 @@ class SyncPeticionarioToContact implements BeforeSave
         $case->set('accountId', null);
         $case->set('accountName', null);
 
-        $cedula = trim((string) $case->get('cCedula'));
+        $cedula = trim((string) $case->get('cDocumentoPeticionario'));
         $contact = $this->resolveContact($case, $cedula);
 
         if (!$contact) {
@@ -108,7 +109,7 @@ class SyncPeticionarioToContact implements BeforeSave
         $case->set('contactId', null);
         $case->set('contactName', null);
 
-        $nit = trim((string) $case->get('cCedula'));
+        $nit = trim((string) $case->get('cDocumentoPeticionario'));
         $account = $this->resolveAccount($case, $nit);
 
         if (!$account) {
@@ -163,7 +164,8 @@ class SyncPeticionarioToContact implements BeforeSave
 
     private function applyCaseDataToContact(Entity $contact, Entity $case): void
     {
-        [$firstName, $lastName] = $this->splitName(trim((string) $case->get('cPeticionario')));
+        $firstName = trim((string) $case->get('cNombrePeticionario'));
+        $lastName = trim((string) $case->get('cApellidoPeticionario'));
 
         if ($lastName === '' && $firstName === '') {
             $lastName = 'Peticionario';
@@ -175,17 +177,17 @@ class SyncPeticionarioToContact implements BeforeSave
         $contact->set('firstName', $firstName);
         $contact->set('lastName', $lastName);
 
-        $cedula = trim((string) $case->get('cCedula'));
+        $cedula = trim((string) $case->get('cDocumentoPeticionario'));
 
         if ($cedula !== '') {
             $contact->set('cNumeroDeDocumento', DocumentNormalizer::normalize($cedula) ?: $cedula);
             $contact->set('cTipoDeDocumento', 'CC');
         }
 
-        $contact->set('addressStreet', trim((string) $case->get('cDireccion')));
-        $contact->set('phoneNumber', trim((string) $case->get('cTelefono')));
-        $contact->set('cBarrioResidencia', trim((string) $case->get('cBarrio')));
-        $contact->set('emailAddress', trim((string) $case->get('cCorreo')));
+        $contact->set('addressStreet', trim((string) $case->get('cDireccionPeticionario')));
+        $contact->set('phoneNumber', trim((string) $case->get('cTelefonoPeticionario')));
+        $contact->set('cBarrioResidencia', trim((string) $case->get('cBarrioPeticionario')));
+        $contact->set('emailAddress', trim((string) $case->get('cCorreoPeticionario')));
 
         if (!$contact->get('cMunicipio')) {
             $contact->set('cMunicipio', 'Envigado');
@@ -194,38 +196,20 @@ class SyncPeticionarioToContact implements BeforeSave
 
     private function applyCaseDataToAccount(Entity $account, Entity $case): void
     {
-        $nombre = trim((string) $case->get('cPeticionario'));
+        $nombre = trim((string) $case->get('cNombrePeticionario'));
 
         if ($nombre !== '') {
             $account->set('name', $nombre);
         }
 
-        $nit = trim((string) $case->get('cCedula'));
+        $nit = trim((string) $case->get('cDocumentoPeticionario'));
 
         if ($nit !== '') {
             $account->set('cNit', DocumentNormalizer::normalize($nit) ?: $nit);
         }
 
-        $account->set('billingAddressStreet', trim((string) $case->get('cDireccion')));
-        $account->set('phoneNumber', trim((string) $case->get('cTelefono')));
-        $account->set('emailAddress', trim((string) $case->get('cCorreo')));
-    }
-
-    /**
-     * @return array{0: string, 1: string}
-     */
-    private function splitName(string $fullName): array
-    {
-        if ($fullName === '') {
-            return ['', ''];
-        }
-
-        $parts = explode(' ', $fullName, 2);
-
-        if (count($parts) === 1) {
-            return ['', $parts[0]];
-        }
-
-        return [$parts[0], $parts[1]];
+        $account->set('billingAddressStreet', trim((string) $case->get('cDireccionPeticionario')));
+        $account->set('phoneNumber', trim((string) $case->get('cTelefonoPeticionario')));
+        $account->set('emailAddress', trim((string) $case->get('cCorreoPeticionario')));
     }
 }

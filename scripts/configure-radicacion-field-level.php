@@ -28,7 +28,7 @@ $fechaVencimientoField = 'cFechaVencimiento';
 $recursoTemaField = 'cRecursoTema';
 $registroExcelFields = [
     'cAsunto',
-    'cZonaAlcaldia',
+    'cZonaAlcaldiaPeticionario',
     'cUltimaActuacion',
     'cProximaActuacion',
     $fechaVencimientoField,

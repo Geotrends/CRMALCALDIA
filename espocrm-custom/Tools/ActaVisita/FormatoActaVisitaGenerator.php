@@ -2,6 +2,7 @@
 
 namespace Espo\Custom\Tools\ActaVisita;
 
+use Espo\Custom\Tools\CaseObj\CasePartyNameHelper;
 use Espo\Core\Acl;
 use Espo\Core\Exceptions\BadRequest;
 use Espo\Core\Exceptions\Error;
@@ -371,13 +372,13 @@ class FormatoActaVisitaGenerator
             'fecha' => date('Y-m-d'),
             'fechaVisita' => '',
             'fechaHora' => '',
-            'posibleAfectante' => trim((string) ($case->get('cPerjudicante') ?: $case->get('cPeticionario'))),
-            'acompanante' => trim((string) $case->get('cPeticionario')),
-            'acompananteCedula' => trim((string) $case->get('cCedula')),
-            'acompananteCorreo' => trim((string) $case->get('cCorreo')),
-            'acompananteTelefono' => trim((string) $case->get('cTelefono')),
-            'acompananteDireccion' => trim((string) $case->get('cDireccion')),
-            'infractor' => trim((string) $case->get('cPerjudicante')),
+            'posibleAfectante' => CasePartyNameHelper::getPerjudicanteFullName($case) ?: CasePartyNameHelper::getPeticionarioFullName($case),
+            'acompanante' => CasePartyNameHelper::getPeticionarioFullName($case),
+            'acompananteCedula' => trim((string) $case->get('cDocumentoPeticionario')),
+            'acompananteCorreo' => trim((string) $case->get('cCorreoPeticionario')),
+            'acompananteTelefono' => trim((string) $case->get('cTelefonoPeticionario')),
+            'acompananteDireccion' => trim((string) $case->get('cDireccionPeticionario')),
+            'infractor' => CasePartyNameHelper::getPerjudicanteFullName($case),
             'infractorDocumento' => trim((string) $case->get('cDocumentoPerjudicante')),
             'infractorCorreo' => '',
             'infractorTelefono' => trim((string) $case->get('cTelefonoPerjudicante')),
@@ -385,10 +386,10 @@ class FormatoActaVisitaGenerator
             'recursoTema' => trim((string) $case->get('cRecursoTema')),
             'numeroRadicado' => trim((string) $case->get('cNumeroRadicado')),
             'expediente' => trim((string) $case->get('cExpediente')),
-            'direccionAfectacion' => trim((string) $case->get('cDireccion')),
-            'ubicacionHechos' => trim((string) $case->get('cDireccion')),
-            'telefono' => trim((string) $case->get('cTelefono')),
-            'barrio' => trim((string) $case->get('cBarrio')),
+            'direccionAfectacion' => trim((string) $case->get('cDireccionPeticionario')),
+            'ubicacionHechos' => trim((string) $case->get('cDireccionPeticionario')),
+            'telefono' => trim((string) $case->get('cTelefonoPeticionario')),
+            'barrio' => trim((string) $case->get('cBarrioPeticionario')),
             'zona' => '',
             'coordenadas' => '',
             'objetoVisita' => '',
@@ -467,27 +468,27 @@ class FormatoActaVisitaGenerator
         $payload['recursoTema'] = trim((string) $case->get('cRecursoTema'));
 
         if (trim((string) ($payload['acompanante'] ?? '')) === '') {
-            $payload['acompanante'] = trim((string) $case->get('cPeticionario'));
+            $payload['acompanante'] = CasePartyNameHelper::getPeticionarioFullName($case);
         }
 
         if (trim((string) ($payload['acompananteCedula'] ?? '')) === '') {
-            $payload['acompananteCedula'] = trim((string) $case->get('cCedula'));
+            $payload['acompananteCedula'] = trim((string) $case->get('cDocumentoPeticionario'));
         }
 
         if (trim((string) ($payload['acompananteCorreo'] ?? '')) === '') {
-            $payload['acompananteCorreo'] = trim((string) $case->get('cCorreo'));
+            $payload['acompananteCorreo'] = trim((string) $case->get('cCorreoPeticionario'));
         }
 
         if (trim((string) ($payload['acompananteTelefono'] ?? '')) === '') {
-            $payload['acompananteTelefono'] = trim((string) $case->get('cTelefono'));
+            $payload['acompananteTelefono'] = trim((string) $case->get('cTelefonoPeticionario'));
         }
 
         if (trim((string) ($payload['acompananteDireccion'] ?? '')) === '') {
-            $payload['acompananteDireccion'] = trim((string) $case->get('cDireccion'));
+            $payload['acompananteDireccion'] = trim((string) $case->get('cDireccionPeticionario'));
         }
 
         if (trim((string) ($payload['infractor'] ?? '')) === '') {
-            $payload['infractor'] = trim((string) $case->get('cPerjudicante'));
+            $payload['infractor'] = CasePartyNameHelper::getPerjudicanteFullName($case);
         }
 
         if (trim((string) ($payload['infractorDocumento'] ?? '')) === '') {
@@ -503,7 +504,7 @@ class FormatoActaVisitaGenerator
         }
 
         if (trim((string) ($payload['barrio'] ?? '')) === '') {
-            $payload['barrio'] = trim((string) $case->get('cBarrio'));
+            $payload['barrio'] = trim((string) $case->get('cBarrioPeticionario'));
         }
 
         if (trim((string) ($payload['numeroRadicado'] ?? '')) === '') {
@@ -515,7 +516,7 @@ class FormatoActaVisitaGenerator
         }
 
         if (trim((string) ($payload['ubicacionHechos'] ?? '')) === '') {
-            $payload['ubicacionHechos'] = trim((string) $case->get('cDireccion'));
+            $payload['ubicacionHechos'] = trim((string) $case->get('cDireccionPeticionario'));
         }
 
         return $payload;

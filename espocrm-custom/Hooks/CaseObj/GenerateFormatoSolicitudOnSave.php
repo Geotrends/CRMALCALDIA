@@ -4,6 +4,7 @@ namespace Espo\Custom\Hooks\CaseObj;
 
 use Espo\Core\Hook\Hook\AfterSave;
 use Espo\Core\InjectableFactory;
+use Espo\Custom\Tools\CaseObj\CasePartyNameHelper;
 use Espo\Custom\Tools\CaseObj\FormatoSolicitudAttacher;
 use Espo\ORM\Entity;
 use Espo\ORM\Repository\Option\SaveOptions;
@@ -19,14 +20,16 @@ class GenerateFormatoSolicitudOnSave implements AfterSave
         'cFechaCaso',
         'cNumeroRadicado',
         'cExpediente',
-        'cPeticionario',
-        'cCedula',
-        'cDireccion',
-        'cTelefono',
-        'cBarrio',
-        'cCorreo',
-        'cCanalDeReporte',
-        'cPerjudicante',
+        'cNombrePeticionario',
+        'cApellidoPeticionario',
+        'cDocumentoPeticionario',
+        'cDireccionPeticionario',
+        'cTelefonoPeticionario',
+        'cBarrioPeticionario',
+        'cCorreoPeticionario',
+        'cCanalDeReportePeticionario',
+        'cNombrePerjudicante',
+        'cApellidoPerjudicante',
         'cDocumentoPerjudicante',
         'cTelefonoPerjudicante',
         'cDireccionPerjudicante',
@@ -62,7 +65,7 @@ class GenerateFormatoSolicitudOnSave implements AfterSave
             return false;
         }
 
-        if (trim((string) $entity->get('cPeticionario')) === '') {
+        if (!CasePartyNameHelper::hasPeticionarioName($entity)) {
             return false;
         }
 

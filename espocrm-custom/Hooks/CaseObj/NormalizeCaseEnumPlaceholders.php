@@ -4,6 +4,7 @@ namespace Espo\Custom\Hooks\CaseObj;
 
 use Espo\Core\Exceptions\BadRequest;
 use Espo\Core\Hook\Hook\BeforeSave;
+use Espo\Custom\Tools\CaseObj\InfractorUnknownHelper;
 use Espo\Entities\Role;
 use Espo\Entities\User;
 use Espo\ORM\Entity;
@@ -22,12 +23,12 @@ class NormalizeCaseEnumPlaceholders implements BeforeSave
     private const ENUM_FIELDS = [
         'cTipoPersonaPeticionario',
         'cTipoPersonaPerjudicante',
-        'cCanalDeReporte',
-        'cBarrio',
+        'cCanalDeReportePeticionario',
+        'cBarrioPeticionario',
         'cBarrioPerjudicante',
         'cRecursoTema',
         'cAsunto',
-        'cZonaAlcaldia',
+        'cZonaAlcaldiaPeticionario',
         'cUltimaActuacion',
         'cProximaActuacion',
         'cRadicadoSiglas',
@@ -36,11 +37,11 @@ class NormalizeCaseEnumPlaceholders implements BeforeSave
     /** @var array<string, string> */
     private const REQUIRED_MESSAGES = [
         'cTipoPersonaPeticionario' => 'Seleccione el tipo de peticionario.',
-        'cTipoPersonaPerjudicante' => 'Seleccione el tipo de infractor.',
-        'cCanalDeReporte' => 'Seleccione el canal de reporte.',
-        'cBarrio' => 'Seleccione el barrio del peticionario.',
-        'cZonaAlcaldia' => 'Seleccione la zona del peticionario.',
-        'cBarrioPerjudicante' => 'Seleccione el barrio del infractor.',
+        'cTipoPersonaPerjudicante' => 'Seleccione el tipo de perjudicante.',
+        'cCanalDeReportePeticionario' => 'Seleccione el canal de reporte.',
+        'cBarrioPeticionario' => 'Seleccione el barrio del peticionario.',
+        'cZonaAlcaldiaPeticionario' => 'Seleccione la zona del peticionario.',
+        'cBarrioPerjudicante' => 'Seleccione el barrio del perjudicante.',
         'cRecursoTema' => 'Seleccione el recurso / tema.',
         'cAsunto' => 'Seleccione el asunto.',
         'cUltimaActuacion' => 'Seleccione la última actuación.',
@@ -70,6 +71,11 @@ class NormalizeCaseEnumPlaceholders implements BeforeSave
 
             if ($value === '' && isset(self::REQUIRED_MESSAGES[$field]) && $this->needsFullSolicitud($entity)) {
                 if (!$this->isInspeccionUser()) {
+                    continue;
+                }
+
+                if (InfractorUnknownHelper::isUnknown($entity)
+                    && in_array($field, InfractorUnknownHelper::SKIP_VALIDATION_FIELDS, true)) {
                     continue;
                 }
 

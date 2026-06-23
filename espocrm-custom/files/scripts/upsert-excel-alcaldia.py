@@ -29,16 +29,36 @@ CRM_RADICADO_PREFIX = "ENV-"
 HISTORICAL_GAP_THRESHOLD = 3
 
 # clave payload -> (encabezado, ocurrencia).
-# El Excel repite encabezados (quejoso / infractor); occurrence=1 es la 1ª columna.
+# El Excel repite encabezados (quejoso / infractor); occurrence indica la columna.
 PAYLOAD_TO_HEADER = {
     "consecutivo": ("Consecutivo", 1),
     "radicado": ("Radicado", 1),
     "solicitante": ("Solicitante", 1),
+    "via_principal_quejoso": ("Vía principal", 1),
+    "num_via_principal_quejoso": ("N° vía principal", 1),
+    "letra_via_quejoso": ("letra", 1),
+    "cuadrante_via_quejoso": ("Cuadrante", 1),
+    "generadora_quejoso": ("Generadora", 1),
+    "letra_generadora_quejoso": ("Letra", 1),
+    "cuadrante_generadora_quejoso": ("Cuadrante", 2),
+    "placa_quejoso": ("Placa", 1),
+    "bloque_quejoso": ("Bloque", 1),
+    "interior_quejoso": ("Interior", 1),
     "direccion_quejoso": ("Dirección", 1),
     "cedula_quejoso": ("Cedula quejoso", 1),
     "telefono_quejoso": ("Teléfono quejoso", 1),
     "correo_quejoso": ("Correo electrónico", 1),
     "infractor": ("Infractor", 1),
+    "via_principal_infractor": ("Vía principal", 2),
+    "num_via_principal_infractor": ("N° vía principal", 2),
+    "letra_via_infractor": ("letra", 3),
+    "cuadrante_via_infractor": ("Cuadrante", 3),
+    "generadora_infractor": ("Generadora", 2),
+    "letra_generadora_infractor": ("Letra", 2),
+    "cuadrante_generadora_infractor": ("Cuadrante", 4),
+    "placa_infractor": ("Placa", 2),
+    "bloque_infractor": ("Bloque", 2),
+    "interior_infractor": ("Interior", 2),
     "direccion_infractor": ("Direccion", 1),
     "cedula_infractor": ("Cedula Infractor", 1),
     "telefono_infractor": ("Teléfono Infractor", 1),
@@ -259,7 +279,7 @@ def upsert(excel_path: Path, payload: dict) -> None:
         value = payload.get(key)
         if value is None:
             continue
-        ws.cell(row=row, column=col, value=str(value).strip())
+        ws.cell(row=row, column=col, value=str(value).strip() if value != "" else "")
 
     obs_col = find_column(headers, "Observaciones")
     if obs_col and observaciones_parts:
