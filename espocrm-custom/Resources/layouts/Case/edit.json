@@ -1,231 +1,231 @@
 [
-    {
-        "rows": [
-            [
-                {
-                    "name": "cFechaCaso"
-                },
-                false
-            ],
-            [
-                {
-                    "name": "cTipoPersonaPeticionario"
-                },
-                false
-            ],
-            [
-                {
-                    "name": "cDocumentoPeticionario"
-                },
-                {
-                    "name": "cNombrePeticionario"
-                },
-                {
-                    "name": "cApellidoPeticionario"
-                }
-            ],
-            [
-                {
-                    "name": "cViaPrincipalPeticionario"
-                },
-                {
-                    "name": "cNumViaPrincipalPeticionario"
-                },
-                {
-                    "name": "cLetraViaPrincipalPeticionario"
-                },
-                {
-                    "name": "cCuadranteViaPrincipalPeticionario"
-                }
-            ],
-            [
-                {
-                    "name": "cGeneradoraPeticionario"
-                },
-                {
-                    "name": "cLetraGeneradoraPeticionario"
-                },
-                {
-                    "name": "cCuadranteGeneradoraPeticionario"
-                },
-                {
-                    "name": "cPlacaPeticionario"
-                }
-            ],
-            [
-                {
-                    "name": "cBloquePeticionario"
-                },
-                {
-                    "name": "cInteriorPeticionario"
-                },
-                false,
-                false
-            ],
-            [
-                {
-                    "name": "cDireccionPeticionario",
-                    "fullWidth": true
-                }
-            ],
-            [
-                {
-                    "name": "cTelefonoPeticionario"
-                },
-                false
-            ],
-            [
-                {
-                    "name": "cBarrioPeticionario"
-                },
-                {
-                    "name": "cZonaAlcaldiaPeticionario"
-                }
-            ],
-            [
-                {
-                    "name": "cCorreoPeticionario"
-                },
-                {
-                    "name": "cCanalDeReportePeticionario"
-                }
-            ]
-        ],
-        "style": "default",
-        "label": "Solicitud de queja"
-    },
-    {
-        "rows": [
-            [
-                {
-                    "name": "cTipoPersonaPerjudicante"
-                },
-                false
-            ],
-            [
-                {
-                    "name": "cDocumentoPerjudicante"
-                },
-                {
-                    "name": "cNombrePerjudicante"
-                },
-                {
-                    "name": "cApellidoPerjudicante"
-                }
-            ],
-            [
-                {
-                    "name": "cTelefonoPerjudicante"
-                },
-                false
-            ],
-            [
-                {
-                    "name": "cViaPrincipalPerjudicante"
-                },
-                {
-                    "name": "cNumViaPrincipalPerjudicante"
-                },
-                {
-                    "name": "cLetraViaPrincipalPerjudicante"
-                },
-                {
-                    "name": "cCuadranteViaPrincipalPerjudicante"
-                }
-            ],
-            [
-                {
-                    "name": "cGeneradoraPerjudicante"
-                },
-                {
-                    "name": "cLetraGeneradoraPerjudicante"
-                },
-                {
-                    "name": "cCuadranteGeneradoraPerjudicante"
-                },
-                {
-                    "name": "cPlacaPerjudicante"
-                }
-            ],
-            [
-                {
-                    "name": "cBloquePerjudicante"
-                },
-                {
-                    "name": "cInteriorPerjudicante"
-                },
-                false,
-                false
-            ],
-            [
-                {
-                    "name": "cDireccionPerjudicante",
-                    "fullWidth": true
-                }
-            ],
-            [
-                {
-                    "name": "cBarrioPerjudicante"
-                },
-                false
-            ]
-        ],
-        "style": "default",
-        "label": "Perjudicante"
-    },
-    {
-        "name": "registroExcelAlcaldia",
-        "rows": [
-            [
-                {
-                    "name": "cRecursoTema"
-                },
-                {
-                    "name": "cAsunto"
-                }
-            ],
-            [
-                {
-                    "name": "cFechaVencimiento"
-                },
-                false
-            ],
-            [
-                {
-                    "name": "cUltimaActuacion"
-                },
-                {
-                    "name": "cProximaActuacion"
-                }
-            ]
-        ],
-        "style": "default",
-        "label": "Registro oficial (Excel)"
-    },
-    {
-        "rows": [
-            [
-                {
-                    "name": "description",
-                    "fullWidth": true
-                }
-            ],
-            [
-                {
-                    "name": "cRespuestaInmediata",
-                    "fullWidth": true
-                }
-            ],
-            [
-                {
-                    "name": "cRecibidaPor"
-                },
-                {
-                    "name": "cRemitidoA"
-                }
-            ]
-        ],
-        "style": "default",
-        "label": "Queja y gestion"
-    }
+  {
+    "rows": [
+      [
+        {
+          "name": "cFechaCaso"
+        },
+        false
+      ],
+      [
+        {
+          "name": "cTipoPersonaPeticionario"
+        },
+        false
+      ],
+      [
+        {
+          "name": "cDocumentoPeticionario"
+        },
+        {
+          "name": "cNombrePeticionario"
+        },
+        {
+          "name": "cApellidoPeticionario"
+        }
+      ],
+      [
+        {
+          "name": "cViaPrincipalPeticionario"
+        },
+        {
+          "name": "cNumViaPrincipalPeticionario"
+        },
+        {
+          "name": "cLetraViaPrincipalPeticionario"
+        },
+        {
+          "name": "cCuadranteViaPrincipalPeticionario"
+        }
+      ],
+      [
+        {
+          "name": "cGeneradoraPeticionario"
+        },
+        {
+          "name": "cLetraGeneradoraPeticionario"
+        },
+        {
+          "name": "cCuadranteGeneradoraPeticionario"
+        },
+        {
+          "name": "cPlacaPeticionario"
+        }
+      ],
+      [
+        {
+          "name": "cBloquePeticionario"
+        },
+        {
+          "name": "cInteriorPeticionario"
+        },
+        false,
+        false
+      ],
+      [
+        {
+          "name": "cDireccionPeticionario",
+          "fullWidth": true
+        }
+      ],
+      [
+        {
+          "name": "cTelefonoPeticionario"
+        },
+        false
+      ],
+      [
+        {
+          "name": "cBarrioPeticionario"
+        },
+        {
+          "name": "cZonaAlcaldiaPeticionario"
+        }
+      ],
+      [
+        {
+          "name": "cCorreoPeticionario"
+        },
+        {
+          "name": "cCanalDeReportePeticionario"
+        }
+      ]
+    ],
+    "style": "default",
+    "label": "Solicitud de queja"
+  },
+  {
+    "rows": [
+      [
+        {
+          "name": "cTipoPersonaPerjudicante"
+        },
+        false
+      ],
+      [
+        {
+          "name": "cDocumentoPerjudicante"
+        },
+        {
+          "name": "cNombrePerjudicante"
+        },
+        {
+          "name": "cApellidoPerjudicante"
+        }
+      ],
+      [
+        {
+          "name": "cTelefonoPerjudicante"
+        },
+        false
+      ],
+      [
+        {
+          "name": "cViaPrincipalPerjudicante"
+        },
+        {
+          "name": "cNumViaPrincipalPerjudicante"
+        },
+        {
+          "name": "cLetraViaPrincipalPerjudicante"
+        },
+        {
+          "name": "cCuadranteViaPrincipalPerjudicante"
+        }
+      ],
+      [
+        {
+          "name": "cGeneradoraPerjudicante"
+        },
+        {
+          "name": "cLetraGeneradoraPerjudicante"
+        },
+        {
+          "name": "cCuadranteGeneradoraPerjudicante"
+        },
+        {
+          "name": "cPlacaPerjudicante"
+        }
+      ],
+      [
+        {
+          "name": "cBloquePerjudicante"
+        },
+        {
+          "name": "cInteriorPerjudicante"
+        },
+        false,
+        false
+      ],
+      [
+        {
+          "name": "cDireccionPerjudicante",
+          "fullWidth": true
+        }
+      ],
+      [
+        {
+          "name": "cBarrioPerjudicante"
+        },
+        false
+      ]
+    ],
+    "style": "default",
+    "label": "Perjudicante"
+  },
+  {
+    "name": "registroExcelAlcaldia",
+    "rows": [
+      [
+        {
+          "name": "cRecursoTema"
+        },
+        {
+          "name": "cAsunto"
+        }
+      ],
+      [
+        {
+          "name": "cFechaVencimiento"
+        },
+        false
+      ],
+      [
+        {
+          "name": "cUltimaActuacion"
+        },
+        {
+          "name": "cProximaActuacion"
+        }
+      ]
+    ],
+    "style": "default",
+    "label": "Registro oficial (Excel)"
+  },
+  {
+    "rows": [
+      [
+        {
+          "name": "description",
+          "fullWidth": true
+        }
+      ],
+      [
+        {
+          "name": "cRespuestaInmediata",
+          "fullWidth": true
+        }
+      ],
+      [
+        {
+          "name": "cRecibidaPor"
+        },
+        {
+          "name": "cRemitidoA"
+        }
+      ]
+    ],
+    "style": "default",
+    "label": "Queja y gestion"
+  }
 ]

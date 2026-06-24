@@ -54,7 +54,7 @@ echo "==> Desplegando código custom..."
 chmod +x "$ROOT/scripts/deploy-custom.sh" 2>/dev/null || true
 "$ROOT/scripts/deploy-custom.sh"
 
-for script in merge-radicacion-field-metadata.php configure-radicacion-field-level.php configure-edwin-radicacion-access.php configure-acta-visita-entity.php; do
+for script in merge-radicacion-field-metadata.php configure-radicacion-field-level.php configure-acta-visita-entity.php; do
   if [[ -f "$ROOT/scripts/$script" ]]; then
     docker cp "$ROOT/scripts/$script" "espocrm:/tmp/$script"
     docker exec espocrm php "/tmp/$script" || true

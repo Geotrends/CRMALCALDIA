@@ -7,9 +7,9 @@ use Espo\Core\Hook\Hook\AfterSave;
 use Espo\Core\Mail\EmailSender;
 use Espo\Entities\Email;
 use Espo\Entities\Notification;
-use Espo\Entities\Role;
 use Espo\Entities\User;
 use Espo\Custom\Tools\CaseObj\CasePartyNameHelper;
+use Espo\Custom\Tools\User\AlcaldiaUserProfile;
 use Espo\ORM\Entity;
 use Espo\ORM\EntityManager;
 use Espo\ORM\Repository\Option\SaveOptions;
@@ -30,7 +30,8 @@ class NotifyRadicacionOnCaseCreated implements AfterSave
         private EntityManager $entityManager,
         private User $user,
         private EmailSender $emailSender,
-        private Config $config
+        private Config $config,
+        private AlcaldiaUserProfile $profile
     ) {}
 
     public function afterSave(Entity $entity, SaveOptions $options): void
@@ -39,7 +40,7 @@ class NotifyRadicacionOnCaseCreated implements AfterSave
             return;
         }
 
-        if (!$this->userHasRole(self::ROLE_INSPECCION)) {
+        if (!$this->profile->isInspeccion($this->user)) {
             return;
         }
 
@@ -78,25 +79,6 @@ class NotifyRadicacionOnCaseCreated implements AfterSave
         return $createdAt && $modifiedAt && $createdAt === $modifiedAt;
     }
 
-    private function userHasRole(string $roleName): bool
-    {
-        $role = $this->entityManager
-            ->getRDBRepositoryByClass(Role::class)
-            ->where(['name' => $roleName])
-            ->findOne();
-
-        if (!$role) {
-            return false;
-        }
-
-        $roles = $this->user->getLinkMultipleIdList('roles') ?? [];
-
-        return in_array($role->getId(), $roles, true);
-    }
-
-    /**
-     * @return string[]
-     */
     private function resolveNotifyUserIds(Entity $entity): array
     {
         $ids = [];
@@ -107,29 +89,10 @@ class NotifyRadicacionOnCaseCreated implements AfterSave
             $ids[] = $remitidoAId;
         }
 
-        $role = $this->entityManager
-            ->getRDBRepositoryByClass(Role::class)
-            ->where(['name' => self::ROLE_RADICACION])
-            ->findOne();
-
-        if (!$role) {
-            return array_values(array_unique($ids));
-        }
-
-        $roleId = $role->getId();
-
-        foreach (
-            $this->entityManager
-                ->getRDBRepositoryByClass(User::class)
-                ->where(['isActive' => true, 'type' => User::TYPE_REGULAR])
-                ->find() as $user
-        ) {
-            $roles = $user->getLinkMultipleIdList('roles') ?? [];
-
-            if (in_array($roleId, $roles, true)) {
-                $ids[] = $user->getId();
-            }
-        }
+        $ids = array_merge(
+            $ids,
+            $this->profile->findActiveUserIdsByRoleName(self::ROLE_RADICACION)
+        );
 
         return array_values(array_unique($ids));
     }

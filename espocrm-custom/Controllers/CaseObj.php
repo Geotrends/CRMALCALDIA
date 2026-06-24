@@ -13,7 +13,7 @@ use Espo\Custom\Tools\CaseObj\RadicadoCatalog;
 use Espo\Custom\Tools\CaseObj\RadicadoConsecutivoService;
 use Espo\Custom\Tools\Party\PartyRegistryService;
 use Espo\Custom\Tools\User\AlcaldiaUserProfile;
-use Espo\Entities\Role;
+use Espo\Custom\Tools\User\AlcaldiaUserProfile;
 use Espo\Entities\User;
 use Espo\Modules\Crm\Controllers\CaseObj as BaseCaseObj;
 
@@ -242,25 +242,6 @@ class CaseObj extends BaseCaseObj
 
     private function canUseRadicadoAssistant(User $user): bool
     {
-        if ($user->isAdmin()) {
-            return true;
-        }
-
-        if ($user->getUserName() === 'edwin.radicacion') {
-            return true;
-        }
-
-        $role = $this->entityManager
-            ->getRDBRepositoryByClass(Role::class)
-            ->where(['name' => 'Radicación'])
-            ->findOne();
-
-        if (!$role) {
-            return false;
-        }
-
-        $roles = $user->getLinkMultipleIdList('roles') ?? [];
-
-        return in_array($role->getId(), $roles, true);
+        return (new AlcaldiaUserProfile($this->entityManager))->canEditRadicado($user);
     }
 }

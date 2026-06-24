@@ -3,23 +3,16 @@
 namespace Espo\Custom\Hooks\CaseObj;
 
 use Espo\Core\Hook\Hook\BeforeSave;
-use Espo\Entities\Role;
+use Espo\Custom\Tools\User\AlcaldiaUserProfile;
 use Espo\Entities\User;
 use Espo\ORM\Entity;
-use Espo\ORM\EntityManager;
 use Espo\ORM\Repository\Option\SaveOptions;
 
 /**
- * Campos del registro Excel: solo Inspección edita la mayoría;
- * Recurso / tema también lo puede definir Radicación (siglas del radicado).
+ * Registro Excel: Inspección y Radicación editan; el resto solo lectura.
  */
 class LimitFechaVencimientoEdit implements BeforeSave
 {
-    private const ROLE_INSPECCION = 'Inspección';
-    private const ROLE_INSPECCION_ALT = 'Inspeccion';
-    private const ROLE_RADICACION = 'Radicación';
-    private const USER_INSPECCION = 'juan.inspeccion';
-    private const USER_RADICACION = 'edwin.radicacion';
     private const RECURSO_TEMA_FIELD = 'cRecursoTema';
 
     /** @var string[] */
@@ -32,17 +25,20 @@ class LimitFechaVencimientoEdit implements BeforeSave
     ];
 
     public function __construct(
-        private EntityManager $entityManager,
-        private User $user
+        private User $user,
+        private AlcaldiaUserProfile $profile
     ) {}
 
     public function beforeSave(Entity $entity, SaveOptions $options): void
     {
-        if ($this->user->isAdmin() || $this->userHasInspeccionRole()) {
+        if ($this->user->isAdmin() || $this->profile->isInspeccion($this->user)) {
             return;
         }
 
-        if ($this->userHasRadicacionRole()) {
+        if ($this->profile->hasAnyRole($this->user, [
+            AlcaldiaUserProfile::ROLE_RADICACION,
+            AlcaldiaUserProfile::ROLE_RADICACION_ALT,
+        ])) {
             return;
         }
 
@@ -66,45 +62,5 @@ class LimitFechaVencimientoEdit implements BeforeSave
         }
 
         $entity->set($field, $entity->getFetched($field));
-    }
-
-    private function userHasInspeccionRole(): bool
-    {
-        if ($this->user->getUserName() === self::USER_INSPECCION) {
-            return true;
-        }
-
-        return $this->userHasRole(self::ROLE_INSPECCION, self::ROLE_INSPECCION_ALT);
-    }
-
-    private function userHasRadicacionRole(): bool
-    {
-        if ($this->user->getUserName() === self::USER_RADICACION) {
-            return true;
-        }
-
-        return $this->userHasRole(self::ROLE_RADICACION);
-    }
-
-    private function userHasRole(string ...$roleNames): bool
-    {
-        foreach ($roleNames as $roleName) {
-            $role = $this->entityManager
-                ->getRDBRepositoryByClass(Role::class)
-                ->where(['name' => $roleName])
-                ->findOne();
-
-            if (!$role) {
-                continue;
-            }
-
-            $roles = $this->user->getLinkMultipleIdList('roles') ?? [];
-
-            if (in_array($role->getId(), $roles, true)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

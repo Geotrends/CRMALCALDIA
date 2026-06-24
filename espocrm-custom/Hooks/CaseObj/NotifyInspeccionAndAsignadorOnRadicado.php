@@ -9,6 +9,7 @@ use Espo\Entities\Email;
 use Espo\Entities\Notification;
 use Espo\Entities\Role;
 use Espo\Entities\User;
+use Espo\Custom\Tools\User\AlcaldiaUserProfile;
 use Espo\ORM\Entity;
 use Espo\ORM\EntityManager;
 use Espo\ORM\Repository\Option\SaveOptions;
@@ -30,7 +31,8 @@ class NotifyInspeccionAndAsignadorOnRadicado implements AfterSave
         private EntityManager $entityManager,
         private User $user,
         private EmailSender $emailSender,
-        private Config $config
+        private Config $config,
+        private AlcaldiaUserProfile $profile
     ) {}
 
     public function afterSave(Entity $entity, SaveOptions $options): void
@@ -39,7 +41,7 @@ class NotifyInspeccionAndAsignadorOnRadicado implements AfterSave
             return;
         }
 
-        if (!$this->userHasRole(self::ROLE_RADICACION)) {
+        if (!$this->profile->hasAnyRole($this->user, [self::ROLE_RADICACION])) {
             return;
         }
 

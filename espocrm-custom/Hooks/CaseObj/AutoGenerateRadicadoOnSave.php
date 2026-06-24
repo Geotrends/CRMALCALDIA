@@ -7,7 +7,7 @@ use Espo\Core\Hook\Hook\BeforeSave;
 use Espo\Core\InjectableFactory;
 use Espo\Custom\Tools\CaseObj\RadicadoCatalog;
 use Espo\Custom\Tools\CaseObj\RadicadoConsecutivoService;
-use Espo\Entities\Role;
+use Espo\Custom\Tools\User\AlcaldiaUserProfile;
 use Espo\Entities\User;
 use Espo\ORM\Entity;
 use Espo\ORM\EntityManager;
@@ -20,7 +20,8 @@ class AutoGenerateRadicadoOnSave implements BeforeSave
     public function __construct(
         private EntityManager $entityManager,
         private InjectableFactory $injectableFactory,
-        private User $user
+        private User $user,
+        private AlcaldiaUserProfile $profile
     ) {}
 
     public function beforeSave(Entity $entity, SaveOptions $options): void
@@ -135,25 +136,6 @@ class AutoGenerateRadicadoOnSave implements BeforeSave
 
     private function canEditRadicado(User $user): bool
     {
-        if ($user->isAdmin()) {
-            return true;
-        }
-
-        if ($user->getUserName() === 'edwin.radicacion') {
-            return true;
-        }
-
-        $role = $this->entityManager
-            ->getRDBRepositoryByClass(Role::class)
-            ->where(['name' => 'Radicación'])
-            ->findOne();
-
-        if (!$role) {
-            return false;
-        }
-
-        $roles = $user->getLinkMultipleIdList('roles') ?? [];
-
-        return in_array($role->getId(), $roles, true);
+        return $this->profile->canEditRadicado($user);
     }
 }

@@ -7,6 +7,7 @@
 require_once '/var/www/html/bootstrap.php';
 
 use Espo\Core\Application;
+use Espo\Custom\Tools\User\AlcaldiaUserProfile;
 use Espo\ORM\EntityManager;
 
 $app = new Application();
@@ -15,47 +16,33 @@ $app->setupSystemUser();
 /** @var EntityManager $em */
 $em = $app->getContainer()->getByClass(EntityManager::class);
 
-$findUserByRole = static function (string $roleName) use ($em) {
-    $role = $em->getRDBRepository('Role')->where(['name' => $roleName])->findOne();
-
-    if (!$role) {
-        return null;
-    }
-
-    $roleUser = $em->getRDBRepository('RoleUser')
-        ->join('user')
-        ->where([
-            'roleId' => $role->getId(),
-            'user.isActive' => true,
-        ])
-        ->order('user.createdAt', 'ASC')
-        ->findOne();
-
-    if (!$roleUser) {
-        return null;
-    }
-
-    return $em->getEntityById('User', $roleUser->get('userId'));
-};
+$profile = new AlcaldiaUserProfile($em);
 
 $map = [
-    'cRecibidaPor' => 'Inspección',
-    'cRemitidoA' => 'Radicación',
+    'cRecibidaPor' => [
+        AlcaldiaUserProfile::ROLE_INSPECCION,
+        AlcaldiaUserProfile::ROLE_INSPECCION_ALT,
+    ],
+    'cRemitidoA' => [
+        AlcaldiaUserProfile::ROLE_RADICACION,
+        AlcaldiaUserProfile::ROLE_RADICACION_ALT,
+    ],
 ];
 
 $defaults = [];
 
-foreach ($map as $field => $roleName) {
-    $user = $findUserByRole($roleName);
+foreach ($map as $field => $roleNames) {
+    $userId = $profile->findFirstActiveUserIdByRoleNames($roleNames);
 
-    if (!$user) {
-        echo "Sin usuario activo con rol {$roleName} (se omite {$field}).\n";
+    if (!$userId) {
+        echo "Sin usuario activo con rol " . implode('/', $roleNames) . " (se omite {$field}).\n";
         continue;
     }
 
-    $defaults[$field . 'Id'] = $user->getId();
-    $defaults[$field . 'Name'] = $user->getName();
-    echo "{$field} → {$user->get('userName')} ({$roleName})\n";
+    $user = $em->getEntityById('User', $userId);
+    $defaults[$field . 'Id'] = $userId;
+    $defaults[$field . 'Name'] = $user?->getName();
+    echo "{$field} → {$user?->get('userName')} (" . implode('/', $roleNames) . ")\n";
 }
 
 $outPaths = [

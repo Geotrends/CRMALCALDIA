@@ -224,9 +224,16 @@ define('custom:views/case/record/detail', [
             this.toggleActaPanels();
             this.toggleActuoArchivoPanels();
             this.setActaFieldsReadOnlyForReview();
-            this.toggleRadicacionFields();
-            this.togglePostRadicacionFields();
-            this.toggleRegistroExcelPanel();
+
+            const self = this;
+            const applyRoleUi = function () {
+                self.toggleRadicacionFields();
+                self.togglePostRadicacionFields();
+                self.toggleRegistroExcelPanel();
+            };
+
+            RadicacionFields.ensureProfile().then(applyRoleUi);
+
             this.scheduleRefreshActaVisitaPanel();
             this.scheduleRefreshFormatoGeneradoDocs();
         },

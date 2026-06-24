@@ -3,26 +3,25 @@
 namespace Espo\Custom\Classes\RecordHooks\CaseObj;
 
 use Espo\Core\Record\Hook\SaveHook;
-use Espo\Entities\User;
+use Espo\Custom\Tools\User\AlcaldiaUserProfile;
 use Espo\ORM\Entity;
-use Espo\ORM\EntityManager;
 
 /**
- * Al crear un caso: Recibida por → Juan, Remitido a → Edwin, Asignado a → vacío.
+ * Al crear un caso: Recibida por / Remitido a por rol; sin patrullero asignado.
  */
 class EarlyBeforeCreate implements SaveHook
 {
-    private const USER_RECIBIDA_POR = 'juan.inspeccion';
-    private const USER_REMITIDO_A = 'edwin.radicacion';
-
     public function __construct(
-        private EntityManager $entityManager
+        private AlcaldiaUserProfile $profile
     ) {}
 
     public function process(Entity $entity): void
     {
         if (!$entity->get('cRecibidaPorId')) {
-            $userId = $this->resolveUserId(self::USER_RECIBIDA_POR);
+            $userId = $this->profile->findFirstActiveUserIdByRoleNames([
+                AlcaldiaUserProfile::ROLE_INSPECCION,
+                AlcaldiaUserProfile::ROLE_INSPECCION_ALT,
+            ]);
 
             if ($userId) {
                 $entity->set('cRecibidaPorId', $userId);
@@ -30,7 +29,10 @@ class EarlyBeforeCreate implements SaveHook
         }
 
         if (!$entity->get('cRemitidoAId')) {
-            $userId = $this->resolveUserId(self::USER_REMITIDO_A);
+            $userId = $this->profile->findFirstActiveUserIdByRoleNames([
+                AlcaldiaUserProfile::ROLE_RADICACION,
+                AlcaldiaUserProfile::ROLE_RADICACION_ALT,
+            ]);
 
             if ($userId) {
                 $entity->set('cRemitidoAId', $userId);
@@ -40,18 +42,5 @@ class EarlyBeforeCreate implements SaveHook
         $entity->set('assignedUserId', null);
         $entity->set('assignedUserName', null);
         $entity->setLinkMultipleIdList('teams', []);
-    }
-
-    private function resolveUserId(string $userName): ?string
-    {
-        $user = $this->entityManager
-            ->getRDBRepositoryByClass(User::class)
-            ->where([
-                'userName' => $userName,
-                'isActive' => true,
-            ])
-            ->findOne();
-
-        return $user?->getId();
     }
 }

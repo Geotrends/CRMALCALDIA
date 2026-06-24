@@ -229,21 +229,27 @@ define('custom:views/case/record/edit', [
             PersonaTipoFields.applyLabels(this);
             PersonaTipoFields.toggleInfractorFields(this);
             PartyDocumentLookup.bindDom(this);
-            this.applyFieldModes();
-            this.toggleRadicacionFields();
-            this.togglePostRadicacionFields();
-            this.toggleRegistroExcelPanel();
 
-            if (RadicadoAssistantPanel.canShow(this)) {
-                if (!this.$el.find('.radicado-assistant-panel-mount').length) {
-                    RadicadoAssistantPanel.mount(this);
+            const self = this;
+            const applyRoleUi = function () {
+                self.applyFieldModes();
+                self.toggleRadicacionFields();
+                self.togglePostRadicacionFields();
+                self.toggleRegistroExcelPanel();
+
+                if (RadicadoAssistantPanel.canShow(self)) {
+                    if (!self.$el.find('.radicado-assistant-panel-mount').length) {
+                        RadicadoAssistantPanel.mount(self);
+                    }
+                } else {
+                    RadicadoAssistantPanel.unmount(self);
+                    RadicadoGenerator.toggle(self);
                 }
-            } else {
-                RadicadoAssistantPanel.unmount(this);
-                RadicadoGenerator.toggle(this);
-            }
 
-            this.ensureRadicacionEditAccess();
+                self.ensureRadicacionEditAccess();
+            };
+
+            RadicacionFields.ensureProfile().then(applyRoleUi);
         },
 
         clearAssignedUserOnCreate: function () {

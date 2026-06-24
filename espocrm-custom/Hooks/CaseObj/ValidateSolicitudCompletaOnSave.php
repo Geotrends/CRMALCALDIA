@@ -6,10 +6,9 @@ use Espo\Core\Exceptions\BadRequest;
 use Espo\Core\Hook\Hook\BeforeSave;
 use Espo\Custom\Tools\CaseObj\CasePartyNameHelper;
 use Espo\Custom\Tools\CaseObj\InfractorUnknownHelper;
-use Espo\Entities\Role;
+use Espo\Custom\Tools\User\AlcaldiaUserProfile;
 use Espo\Entities\User;
 use Espo\ORM\Entity;
-use Espo\ORM\EntityManager;
 use Espo\ORM\Repository\Option\SaveOptions;
 
 /**
@@ -21,10 +20,6 @@ class ValidateSolicitudCompletaOnSave implements BeforeSave
     public static int $order = 6;
 
     private const PLACEHOLDER = 'Seleccione una opción';
-
-    private const ROLE_INSPECCION = 'Inspección';
-    private const ROLE_INSPECCION_ALT = 'Inspeccion';
-    private const USER_INSPECCION = 'juan.inspeccion';
 
     /** @var array<string, string> */
     private const TEXT_FIELDS = [
@@ -55,7 +50,7 @@ class ValidateSolicitudCompletaOnSave implements BeforeSave
 
     public function __construct(
         private User $user,
-        private EntityManager $entityManager
+        private AlcaldiaUserProfile $profile
     ) {}
 
     public function beforeSave(Entity $entity, SaveOptions $options): void
@@ -118,32 +113,7 @@ class ValidateSolicitudCompletaOnSave implements BeforeSave
 
     private function isInspeccionUser(): bool
     {
-        if ($this->user->isAdmin()) {
-            return false;
-        }
-
-        if ($this->user->getUserName() === self::USER_INSPECCION) {
-            return true;
-        }
-
-        foreach ([self::ROLE_INSPECCION, self::ROLE_INSPECCION_ALT] as $roleName) {
-            $role = $this->entityManager
-                ->getRDBRepositoryByClass(Role::class)
-                ->where(['name' => $roleName])
-                ->findOne();
-
-            if (!$role) {
-                continue;
-            }
-
-            $roles = $this->user->getLinkMultipleIdList('roles') ?? [];
-
-            if (in_array($role->getId(), $roles, true)) {
-                return true;
-            }
-        }
-
-        return false;
+        return $this->profile->isInspeccion($this->user);
     }
 
     private function requireNonEmpty(Entity $entity, string $field, string $message): void
