@@ -1,6 +1,7 @@
 {
     "filterList": [
         "todosPlantillas",
+        "excelOficial",
         "formatoSolicitud",
         "actaVisita",
         "actuoArchivo"

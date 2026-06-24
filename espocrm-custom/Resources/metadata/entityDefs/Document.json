@@ -5,7 +5,8 @@
             "options": [
                 "Formato solicitud",
                 "Acta de visita",
-                "Actuo archivo"
+                "Actuo archivo",
+                "Excel oficial"
             ],
             "required": true,
             "default": "Formato solicitud",
@@ -15,7 +16,8 @@
             "style": {
                 "Formato solicitud": "primary",
                 "Acta de visita": "success",
-                "Actuo archivo": "warning"
+                "Actuo archivo": "warning",
+                "Excel oficial": "info"
             }
         }
     },

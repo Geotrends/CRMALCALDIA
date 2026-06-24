@@ -45,6 +45,7 @@ class AlcaldiaUserProfile
      *   isRadicacion: bool,
      *   isPatrullero: bool,
      *   isAsignador: bool,
+     *   canDownloadExcelAlcaldia: bool,
      *   homeProfile: string
      * }
      */
@@ -55,11 +56,19 @@ class AlcaldiaUserProfile
             'isRadicacion' => $this->isRadicacion($user),
             'isPatrullero' => $this->hasAnyRole($user, self::NAMES_PATRULLERO),
             'isAsignador' => $this->isAsignador($user),
+            'canDownloadExcelAlcaldia' => $this->canDownloadExcelAlcaldia($user),
         ];
 
         $flags['homeProfile'] = $this->resolveHomeProfile($user, $flags);
 
         return $flags;
+    }
+
+    public function canDownloadExcelAlcaldia(User $user): bool
+    {
+        return $user->isAdmin()
+            || $this->hasAnyRole($user, self::NAMES_INSPECCION)
+            || $this->hasAnyRole($user, self::NAMES_RADICACION);
     }
 
     /**

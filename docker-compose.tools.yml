@@ -1,0 +1,17 @@
+# Herramientas opcionales en el navegador (pgAdmin). No obligatorio en producción.
+# Local:
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml -f docker-compose.tools.yml up -d
+services:
+  pgadmin:
+    image: dpage/pgadmin4:8
+    container_name: espocrm-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@local.test}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-cambiar_pgadmin}
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+    depends_on:
+      espocrm-db:
+        condition: service_healthy
+    restart: unless-stopped

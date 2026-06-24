@@ -11,11 +11,13 @@
         "cCategoria": {
             "Formato solicitud": "Formato solicitud",
             "Acta de visita": "Acta de visita",
-            "Actuo archivo": "Actuo archivo"
+            "Actuo archivo": "Actuo archivo",
+            "Excel oficial": "Excel oficial"
         }
     },
     "presetFilters": {
         "todosPlantillas": "Todas las plantillas",
+        "excelOficial": "Excel oficial",
         "formatoSolicitud": "Formato solicitud",
         "actaVisita": "Acta de visita",
         "actuoArchivo": "Actuo archivo"

@@ -4,20 +4,14 @@ namespace Espo\Custom\Classes\Select\Document\PrimaryFilters;
 
 use Espo\Core\Select\Primary\Filter;
 use Espo\ORM\Query\SelectBuilder as QueryBuilder;
+use Espo\Custom\Tools\CaseObj\ExcelAlcaldiaDocumentSync;
 
-class TodosPlantillas implements Filter
+class ExcelOficial implements Filter
 {
-    private const CATEGORIAS = [
-        'Formato solicitud',
-        'Acta de visita',
-        'Actuo archivo',
-        'Excel oficial',
-    ];
-
     public function apply(QueryBuilder $queryBuilder): void
     {
         $queryBuilder->where([
-            'cCategoria' => self::CATEGORIAS,
+            'cCategoria' => ExcelAlcaldiaDocumentSync::CATEGORIA,
         ]);
     }
 }

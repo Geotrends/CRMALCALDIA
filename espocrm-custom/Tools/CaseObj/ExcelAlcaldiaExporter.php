@@ -2,6 +2,7 @@
 
 namespace Espo\Custom\Tools\CaseObj;
 
+use Espo\Core\InjectableFactory;
 use Espo\Core\Utils\Config;
 use Espo\Core\Utils\DateTime as DateTimeUtil;
 use Espo\Core\Utils\Log;
@@ -16,7 +17,8 @@ class ExcelAlcaldiaExporter
     public function __construct(
         private EntityManager $entityManager,
         private Config $config,
-        private Log $log
+        private Log $log,
+        private InjectableFactory $injectableFactory
     ) {}
 
     public function exportCase(Entity $case): bool
@@ -70,6 +72,10 @@ class ExcelAlcaldiaExporter
             }
 
             @chmod($excelPath, 0660);
+
+            $this->injectableFactory
+                ->create(ExcelAlcaldiaDocumentSync::class)
+                ->syncFromExportFile();
 
             return true;
         } catch (\Throwable $e) {

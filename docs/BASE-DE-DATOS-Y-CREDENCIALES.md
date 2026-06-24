@@ -25,6 +25,8 @@ El CRM (contenedor `espocrm`) se conecta a PostgreSQL por la red interna de Dock
 
 La contraseña está en `.env` → `POSTGRES_PASSWORD`.
 
+**Sin consola:** ver [ACCESO-BD-Y-EXCEL.md](ACCESO-BD-Y-EXCEL.md) (DBeaver, pgAdmin en navegador y descarga del Excel desde el CRM).
+
 ## ¿De dónde salen las contraseñas?
 
 **No las trae EspoCRM ni PostgreSQL.** Se definen al montar el entorno:

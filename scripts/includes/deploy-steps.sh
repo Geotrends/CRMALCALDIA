@@ -18,6 +18,7 @@ DEPLOY_SETUP_STEPS=(
   "Permisos ActaVisita por rol (Inspección edita acta)|configure-acta-visita-entity.php"
   "Permisos ActuoArchivo por rol|configure-actuo-archivo-entity.php"
   "Documentos: plantillas oficiales (solicitud, acta, actuo)|configure-document-plantillas.php"
+  "Documentos: Excel oficial (excelAlcaldia.xlsx)|configure-excel-alcaldia-document.php"
 )
 
 DEPLOY_LEGACY_MIGRATION_SCRIPTS=(
