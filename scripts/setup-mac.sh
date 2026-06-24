@@ -22,7 +22,7 @@ if docker ps --format '{{.Names}}' | grep -qx 'espocrm-db'; then
   echo "==> Contenedores ya en marcha, se reutilizan."
 else
   echo "==> Levantando base de datos..."
-  docker compose up -d espocrm-db
+  docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d espocrm-db
 fi
 
 echo "==> Esperando PostgreSQL..."
@@ -44,7 +44,7 @@ if docker ps --format '{{.Names}}' | grep -qx 'espocrm'; then
   echo "==> EspoCRM ya está arriba."
 else
   echo "==> Levantando EspoCRM (app, daemon, websocket)..."
-  docker compose up -d
+  docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
 fi
 
 echo "==> Esperando contenedor espocrm..."
