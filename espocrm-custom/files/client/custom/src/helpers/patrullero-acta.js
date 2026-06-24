@@ -18,6 +18,18 @@ define('custom:helpers/patrullero-acta', [
         return radicado !== '' && expediente !== '';
     };
 
+    const isCaseReadyForActa = function (model) {
+        if (!model) {
+            return false;
+        }
+
+        if (isCasePostRadicado(model)) {
+            return true;
+        }
+
+        return !!String(model.get('assignedUserId') || '').trim();
+    };
+
     const resolveActaId = function (acta) {
         if (!acta) {
             return null;
@@ -31,7 +43,7 @@ define('custom:helpers/patrullero-acta', [
     };
 
     const canUseActaVisitaTools = function (user, model) {
-        if (!user || !model || !isCasePostRadicado(model)) {
+        if (!user || !model || !model.id || !isCaseReadyForActa(model)) {
             return false;
         }
 
@@ -75,8 +87,8 @@ define('custom:helpers/patrullero-acta', [
             return 'El caso no está asignado a usted.';
         }
 
-        if (!isCasePostRadicado(model)) {
-            return 'El caso debe tener radicado y expediente.';
+        if (!isCaseReadyForActa(model)) {
+            return 'El caso debe tener patrullero asignado o estar radicado con expediente.';
         }
 
         return '';
@@ -86,6 +98,7 @@ define('custom:helpers/patrullero-acta', [
         isPatrulleroUser: isPatrulleroUser,
         isInspeccionUser: isInspeccionUser,
         isCasePostRadicado: isCasePostRadicado,
+        isCaseReadyForActa: isCaseReadyForActa,
         shouldShowActaVisitaButton: shouldShowActaVisitaButton,
         canOpenActaVisitaModal: canOpenActaVisitaModal,
         shouldShowLlenarActaButton: shouldShowLlenarActaButton,

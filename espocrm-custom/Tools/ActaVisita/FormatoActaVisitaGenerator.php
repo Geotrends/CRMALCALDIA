@@ -172,7 +172,23 @@ class FormatoActaVisitaGenerator
 
     public function canDownloadFormatoFromCase(Entity $case): bool
     {
-        return $this->isCasePostRadicado($case);
+        if (!$this->isCaseReadyForActa($case)) {
+            return false;
+        }
+
+        if ($this->user->isAdmin()) {
+            return true;
+        }
+
+        if ($this->userHasRole(self::ROLE_INSPECCION) || $this->userHasRole('Inspeccion')) {
+            return true;
+        }
+
+        if ($this->userHasRole(self::ROLE_PATRULLERO)) {
+            return (string) $case->get('assignedUserId') === (string) $this->user->getId();
+        }
+
+        return false;
     }
 
     private function isFormatoActaHabilitadoForCase(Entity $case, ?Entity $acta): bool
@@ -361,6 +377,15 @@ class FormatoActaVisitaGenerator
         $expediente = trim((string) $case->get('cExpediente'));
 
         return $numero !== '' && $expediente !== '';
+    }
+
+    private function isCaseReadyForActa(Entity $case): bool
+    {
+        if ($this->isCasePostRadicado($case)) {
+            return true;
+        }
+
+        return trim((string) $case->get('assignedUserId')) !== '';
     }
 
     /**

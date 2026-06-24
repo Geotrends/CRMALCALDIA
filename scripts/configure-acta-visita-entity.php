@@ -36,7 +36,7 @@ $roleConfigs = [
         'tabs' => ['Case', 'Notification'],
     ],
     'Inspección' => [
-        'scope' => ['create' => 'no', 'read' => 'all', 'edit' => 'all', 'delete' => 'no', 'stream' => 'no'],
+        'scope' => ['create' => 'yes', 'read' => 'all', 'edit' => 'all', 'delete' => 'no', 'stream' => 'no'],
         'fieldEdit' => $actaFields,
         'fieldRead' => $actaFields,
         'tabs' => null,
