@@ -419,10 +419,13 @@ define('custom:views/case/record/detail', [
                 $cell.toggle(show);
             }
 
+            const motivo = String(model.get('cMotivoReasignacion') || '').trim();
+            const showMotivo = show && motivo !== '';
+
             const $motivoCell = this.$el.find('[data-name="cMotivoReasignacion"]').closest('.cell');
 
             if ($motivoCell.length) {
-                $motivoCell.hide();
+                $motivoCell.toggle(showMotivo);
             }
         },
     });

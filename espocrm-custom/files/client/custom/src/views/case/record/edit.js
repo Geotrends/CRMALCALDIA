@@ -23,6 +23,8 @@ define('custom:views/case/record/edit', [
                 this.isWide = true;
                 CaseCreateDefaults.apply(this.model);
                 this.clearAssignedUserOnCreate();
+            } else {
+                this._initialAssignedUserId = this.model.get('assignedUserId') || null;
             }
 
             this.listenTo(this.model, 'change:assignedUserId', function () {
@@ -350,7 +352,6 @@ define('custom:views/case/record/edit', [
                 'cRecibidaPor',
                 'cRemitidoA',
                 'assignedUser',
-                'cMotivoReasignacion',
                 'cTipoPersonaPeticionario',
                 'cTipoPersonaPerjudicante',
             ].concat(DireccionEstructurada.allComponentFields());
@@ -541,10 +542,20 @@ define('custom:views/case/record/edit', [
                 $cell.toggle(show);
             }
 
+            const showMotivo = show && PostRadicacionFields.shouldShowMotivoReasignacion(
+                user,
+                model,
+                this._initialAssignedUserId
+            );
+
             const $motivoCell = this.$el.find('[data-name="cMotivoReasignacion"]').closest('.cell');
 
             if ($motivoCell.length) {
-                $motivoCell.toggle(show);
+                $motivoCell.toggle(showMotivo);
+            }
+
+            if (!showMotivo && model.get('cMotivoReasignacion')) {
+                model.set('cMotivoReasignacion', null, {silent: true});
             }
 
             if (!show) {
@@ -572,7 +583,7 @@ define('custom:views/case/record/edit', [
 
             const motivoView = this.getFieldView('cMotivoReasignacion');
 
-            if (motivoView) {
+            if (motivoView && showMotivo) {
                 if (canEdit && typeof motivoView.setNotReadOnly === 'function') {
                     motivoView.setNotReadOnly();
                 } else if (!canEdit && typeof motivoView.setReadOnly === 'function') {

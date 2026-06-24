@@ -32,6 +32,22 @@ define('custom:helpers/post-radicacion-fields', [
         return shouldShowAsignacion(user, model);
     };
 
+    const hadPreviousAssignee = function (initialAssignedUserId) {
+        return !!String(initialAssignedUserId || '').trim();
+    };
+
+    const shouldShowMotivoReasignacion = function (user, model, initialAssignedUserId) {
+        if (!isAsignadorUser(user)) {
+            return false;
+        }
+
+        if (!isCasePostRadicado(model)) {
+            return false;
+        }
+
+        return hadPreviousAssignee(initialAssignedUserId);
+    };
+
     return {
         ASIGNACION_FIELD: ASIGNACION_FIELD,
         isAsignadorUser: isAsignadorUser,
@@ -40,5 +56,7 @@ define('custom:helpers/post-radicacion-fields', [
         isCasePostRadicado: isCasePostRadicado,
         shouldShowAsignacion: shouldShowAsignacion,
         canEditAsignacion: canEditAsignacion,
+        hadPreviousAssignee: hadPreviousAssignee,
+        shouldShowMotivoReasignacion: shouldShowMotivoReasignacion,
     };
 });
