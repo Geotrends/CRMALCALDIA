@@ -1,5 +1,5 @@
-# Solo desarrollo local (Docker Compose lo fusiona automáticamente).
-# Dokploy usa docker-compose.yml sin este archivo.
+# Desarrollo local únicamente. Dokploy NO debe usar este archivo.
+# Uso: docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
 services:
   espocrm:
     entrypoint: ["/usr/local/bin/entrypoint-with-deploy.sh"]

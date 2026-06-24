@@ -7,10 +7,10 @@ Sistema de gestión de quejas ambientales para la Alcaldía, basado en EspoCRM +
 ```bash
 cd CRMALCALDIA          # directorio raíz del repo (este README)
 cp backups/despliegue-inicial/env.txt .env   # ajustar valores
-docker compose up -d --build
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
 ```
 
-El contenedor `espocrm` (local) fusiona `docker-compose.override.yml`: auto-deploy y código montado en vivo.
+El archivo `docker-compose.dev.yml` activa auto-deploy y monta el código en vivo (solo Mac/local).
 
 Abrir: http://localhost:8080 (recarga forzada: Cmd+Shift+R)
 
@@ -40,8 +40,8 @@ CRMALCALDIA/
 
 ## Despliegue
 
-- **Local (Docker):** `docker compose up -d --build` — usa `docker-compose.override.yml` (auto-deploy)
-- **Dokploy:** push + redeploy; solo `docker-compose.yml` (entrypoint estándar + `espocrm-init`)
+- **Local (Docker):** `docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build`
+- **Dokploy:** push + redeploy; solo `docker-compose.yml` (sin `docker-compose.dev.yml`)
 - **Manual (opcional):** `./scripts/deploy-custom.sh` si necesitas forzar sin reiniciar
 
 Ambos flujos automáticos comparten el manifiesto en `scripts/includes/deploy-steps.sh`.

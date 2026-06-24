@@ -41,7 +41,7 @@ cd CRMALCALDIA
 Arranca el CRM y PostgreSQL. La BD queda vacía hasta el paso 4.
 
 ```bash
-docker compose up -d --build
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
 ```
 
 **4. Restaurar datos**
@@ -79,7 +79,7 @@ cp backups/despliegue-inicial/env.txt .env
 **3. Levantar contenedores**
 
 ```bash
-docker compose up -d --build
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
 ```
 
 **4. Cargar estructura de BD**
@@ -117,7 +117,7 @@ En Dokploy **no** uses `ESPO_RUN_AUTO_DEPLOY` (solo aplica en local). Tras cada 
 
 ```bash
 git pull
-docker compose up -d --build
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
 ```
 
 Si el contenedor ya estaba en marcha y solo cambiaste archivos locales:
