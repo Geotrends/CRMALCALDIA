@@ -32,6 +32,7 @@ class CaseTimelineService
         $currentIndex = $this->resolveCurrentIndex($case, $currentStatus);
 
         $statusDates = $statusDates ?? $this->resolveStatusDates($case);
+        $actualDates = $statusDates;
         $statusDates = $this->fillMissingDatesForCompletedSteps($statusDates, $currentIndex);
         $total = count(self::STATUS_FLOW);
         $progress = $total > 1 ? (int) round(($currentIndex / ($total - 1)) * 100) : 0;
@@ -47,10 +48,19 @@ class CaseTimelineService
                 $state = 'current';
             }
 
+            $startedAt = $actualDates[$status] ?? null;
+            $endedAt = $this->resolveEndedAt($index, $actualDates);
+
+            if ($state === 'current') {
+                $endedAt = null;
+            }
+
             $steps[] = [
                 'status' => $status,
                 'state' => $state,
                 'date' => $statusDates[$status] ?? null,
+                'startedAt' => $startedAt,
+                'endedAt' => $endedAt,
             ];
         }
 
@@ -99,8 +109,18 @@ class CaseTimelineService
                 $note->get('data')
             );
 
-            if ($status && !isset($dates[$status])) {
-                $dates[$status] = (string) $note->get('createdAt');
+            if (!$status) {
+                continue;
+            }
+
+            $at = (string) $note->get('createdAt');
+
+            if ($at === '') {
+                continue;
+            }
+
+            if (!isset($dates[$status]) || $at < $dates[$status]) {
+                $dates[$status] = $at;
             }
         }
 
@@ -148,18 +168,44 @@ class CaseTimelineService
             $attributes = get_object_vars($attributes);
         }
 
-        if (!is_array($attributes)) {
-            return null;
+        if (is_array($attributes)) {
+            $became = $attributes['became'] ?? null;
+
+            if ($became instanceof \stdClass) {
+                $became = get_object_vars($became);
+            }
+
+            if (is_array($became) && !empty($became['status'])) {
+                $status = $this->normalizeStatus((string) $became['status']);
+
+                if ($this->isValidFlowStatus($status)) {
+                    return $status;
+                }
+            }
         }
 
-        $became = $attributes['became'] ?? null;
+        if ($type === 'Update' || $type === 'Post') {
+            $fields = $data['fields'] ?? [];
 
-        if ($became instanceof \stdClass) {
-            $became = get_object_vars($became);
-        }
+            if ($fields instanceof \stdClass) {
+                $fields = get_object_vars($fields);
+            }
 
-        if (is_array($became) && !empty($became['status']) && $this->isValidFlowStatus((string) $became['status'])) {
-            return (string) $became['status'];
+            if (is_array($fields) && in_array('status', $fields, true) && is_array($attributes)) {
+                $became = $attributes['became'] ?? null;
+
+                if ($became instanceof \stdClass) {
+                    $became = get_object_vars($became);
+                }
+
+                if (is_array($became) && !empty($became['status'])) {
+                    $status = $this->normalizeStatus((string) $became['status']);
+
+                    if ($this->isValidFlowStatus($status)) {
+                        return $status;
+                    }
+                }
+            }
         }
 
         return null;
@@ -315,6 +361,22 @@ class CaseTimelineService
 
         return trim((string) $actuo->get('motivoArchivo')) !== ''
             || (bool) $actuo->get('cFormatoActuoArchivoPdfId');
+    }
+
+    /**
+     * @param array<string, string> $actualDates
+     */
+    private function resolveEndedAt(int $statusIndex, array $actualDates): ?string
+    {
+        for ($i = $statusIndex + 1, $count = count(self::STATUS_FLOW); $i < $count; $i++) {
+            $nextStatus = self::STATUS_FLOW[$i];
+
+            if (isset($actualDates[$nextStatus])) {
+                return $actualDates[$nextStatus];
+            }
+        }
+
+        return null;
     }
 
     /**

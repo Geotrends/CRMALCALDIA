@@ -44,7 +44,26 @@
             <div class="case-timeline-dates">
                 {{#each timeline.steps}}
                 <div class="case-timeline-block-date is-{{state}}{{#unless hasDate}} is-placeholder{{/unless}}">
-                    {{dateFormatted}}
+                    {{#if startedAtFormatted}}
+                    <div class="case-timeline-date-line">
+                        <span class="case-timeline-date-label">{{startedAtLabel}}</span>
+                        <span class="case-timeline-date-value">{{startedAtFormatted}}</span>
+                    </div>
+                    {{/if}}
+                    {{#if endedAtFormatted}}
+                    <div class="case-timeline-date-line">
+                        <span class="case-timeline-date-label">{{endedAtLabel}}</span>
+                        <span class="case-timeline-date-value">{{endedAtFormatted}}</span>
+                    </div>
+                    {{else}}
+                        {{#if showInProgress}}
+                        <div class="case-timeline-date-line case-timeline-date-current">{{inProgressLabel}}</div>
+                        {{else}}
+                            {{#unless startedAtFormatted}}
+                            <div class="case-timeline-date-line">{{dateFormatted}}</div>
+                            {{/unless}}
+                        {{/if}}
+                    {{/if}}
                 </div>
                 {{/each}}
             </div>

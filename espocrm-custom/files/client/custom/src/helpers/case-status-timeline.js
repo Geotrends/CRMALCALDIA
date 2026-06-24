@@ -90,9 +90,12 @@ define('custom:helpers/case-status-timeline', [
         return moment.format('DD.MM.YYYY HH:mm');
     };
 
-    const buildSteps = function (view, currentIndex, statusDates) {
+    const buildSteps = function (view, currentIndex, statusDates, statusIntervals) {
         const dateTime = view.getDateTime();
         const pendingDateLabel = view.translate('caseTimelinePendingDate', 'labels', 'Case');
+        const startedAtLabel = view.translate('caseTimelineStartedAt', 'labels', 'Case');
+        const endedAtLabel = view.translate('caseTimelineEndedAt', 'labels', 'Case');
+        const inProgressLabel = view.translate('caseTimelineInProgress', 'labels', 'Case');
 
         return STATUS_FLOW.map(function (status, index) {
             const label = view.translate(status, 'options', 'Case', 'status');
@@ -105,14 +108,26 @@ define('custom:helpers/case-status-timeline', [
                 state = 'current';
             }
 
-            const date = statusDates ? statusDates[status] : null;
-            let dateFormatted = '';
+            const interval = statusIntervals ? statusIntervals[status] : null;
+            const startedAt = interval
+                ? interval.startedAt
+                : (statusDates ? statusDates[status] : null);
+            const endedAt = interval ? interval.endedAt : null;
 
-            if (date) {
-                dateFormatted = formatDateTime(dateTime, date);
-            } else if (state === 'pending') {
-                dateFormatted = pendingDateLabel;
-            } else {
+            let startedAtFormatted = '';
+            let endedAtFormatted = '';
+
+            if (startedAt) {
+                startedAtFormatted = formatDateTime(dateTime, startedAt);
+            }
+
+            if (endedAt) {
+                endedAtFormatted = formatDateTime(dateTime, endedAt);
+            }
+
+            let dateFormatted = startedAtFormatted;
+
+            if (!dateFormatted) {
                 dateFormatted = pendingDateLabel;
             }
 
@@ -126,7 +141,14 @@ define('custom:helpers/case-status-timeline', [
                 isCurrent: state === 'current',
                 isPending: state === 'pending',
                 dateFormatted: dateFormatted,
-                hasDate: !!date,
+                startedAtFormatted: startedAtFormatted,
+                endedAtFormatted: endedAtFormatted,
+                startedAtLabel: startedAtLabel,
+                endedAtLabel: endedAtLabel,
+                inProgressLabel: inProgressLabel,
+                hasDate: !!startedAt,
+                hasEndedAt: !!endedAt,
+                showInProgress: state === 'current' && !endedAt,
             };
         });
     };
@@ -148,14 +170,22 @@ define('custom:helpers/case-status-timeline', [
             : 0;
 
         const statusDates = {};
+        const statusIntervals = {};
 
         (raw.steps || []).forEach(function (step) {
-            if (step.date) {
-                statusDates[step.status] = step.date;
+            if (step.startedAt || step.date) {
+                statusIntervals[step.status] = {
+                    startedAt: step.startedAt || step.date,
+                    endedAt: step.endedAt || null,
+                };
+            }
+
+            if (step.date || step.startedAt) {
+                statusDates[step.status] = step.startedAt || step.date;
             }
         });
 
-        const steps = buildSteps(view, currentIndex, statusDates);
+        const steps = buildSteps(view, currentIndex, statusDates, statusIntervals);
 
         let progressLabel = view.translate('caseTimelineStepOf', 'labels', 'Case');
 
@@ -194,11 +224,13 @@ define('custom:helpers/case-status-timeline', [
             currentIndex: currentIndex,
             totalSteps: totalSteps,
             progress: progress,
-            steps: buildSteps(view, currentIndex, {}).map(function (step) {
+            steps: buildSteps(view, currentIndex, {}, {}).map(function (step) {
                 return {
                     status: step.status,
                     state: step.state,
                     date: null,
+                    startedAt: null,
+                    endedAt: null,
                 };
             }),
         });

@@ -13,6 +13,8 @@
     "caseTimelineInProgress": "En curso",
     "caseTimelineCurrentStep": "Paso actual",
     "caseTimelinePendingDate": "Pendiente",
+    "caseTimelineStartedAt": "Desde",
+    "caseTimelineEndedAt": "Hasta",
     "caseCronogramaTimeZone": "Zona horaria",
     "caseCronogramaCurrentStatus": "Estado actual",
     "caseCronogramaDeadline": "Plazo del trámite",
