@@ -36,7 +36,7 @@ define('custom:views/calendar/modals/day-events', ['views/modal'], function (Dep
         },
 
         isTimedEvent: function (event) {
-            if (!event || !event.dateStart) {
+            if (!event || event.scope !== 'Meeting' || !event.dateStart) {
                 return false;
             }
 
@@ -80,7 +80,7 @@ define('custom:views/calendar/modals/day-events', ['views/modal'], function (Dep
                 return this.getDateTime().toMoment(event.dateStart).format(this.getDateTime().getTimeFormat());
             }
 
-            if (event.dateStartDate) {
+            if (event.dateStartDate || event.scope === 'Case') {
                 return this.translate('allDay', 'labels', 'Calendar');
             }
 

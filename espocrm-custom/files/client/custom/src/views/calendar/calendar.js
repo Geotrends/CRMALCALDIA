@@ -56,7 +56,7 @@ define('custom:views/calendar/calendar', [
         },
 
         isTimedEvent: function (event) {
-            if (!event || !event.dateStart) {
+            if (!event || event.scope !== 'Meeting' || !event.dateStart) {
                 return false;
             }
 
