@@ -1,23 +1,23 @@
 <div class="case-cronograma{{#if cronograma.isLoading}} is-loading{{/if}}">
     <div class="case-cronograma-meta">
         <div class="case-cronograma-meta-row">
-            <span class="case-cronograma-meta-label">{{translate 'caseCronogramaTimeZone' category='labels' scope='Case'}}</span>
+            <span class="case-cronograma-meta-label">{{cronograma.timeZoneMetaLabel}}</span>
             <span class="case-cronograma-meta-value">{{cronograma.timeZoneLabel}}</span>
         </div>
         <div class="case-cronograma-meta-row">
-            <span class="case-cronograma-meta-label">{{translate 'caseCronogramaCurrentStatus' category='labels' scope='Case'}}</span>
+            <span class="case-cronograma-meta-label">{{cronograma.currentStatusMetaLabel}}</span>
             <span class="case-cronograma-meta-value is-status">{{cronograma.currentStatusLabel}}</span>
         </div>
         <div class="case-cronograma-meta-row">
-            <span class="case-cronograma-meta-label">{{translate 'caseCronogramaDeadline' category='labels' scope='Case'}}</span>
+            <span class="case-cronograma-meta-label">{{cronograma.deadlineMetaLabel}}</span>
             <span class="case-cronograma-meta-value">{{cronograma.vencimientoSummary}}</span>
         </div>
     </div>
 
     <div class="case-cronograma-table" role="table">
         <div class="case-cronograma-head" role="row">
-            <div class="case-cronograma-col-label" role="columnheader">{{translate 'caseCronogramaMilestone' category='labels' scope='Case'}}</div>
-            <div class="case-cronograma-col-value" role="columnheader">{{translate 'caseCronogramaStatus' category='labels' scope='Case'}}</div>
+            <div class="case-cronograma-col-label" role="columnheader">{{cronograma.milestoneMetaLabel}}</div>
+            <div class="case-cronograma-col-value" role="columnheader">{{cronograma.statusMetaLabel}}</div>
         </div>
 
         {{#each cronograma.entries}}

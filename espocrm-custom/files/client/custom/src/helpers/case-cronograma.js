@@ -52,6 +52,11 @@ define('custom:helpers/case-cronograma', [
 
         return {
             timeZoneLabel: raw.timeZoneLabel || '',
+            timeZoneMetaLabel: view.translate('caseCronogramaTimeZone', 'labels', 'Case'),
+            currentStatusMetaLabel: view.translate('caseCronogramaCurrentStatus', 'labels', 'Case'),
+            deadlineMetaLabel: view.translate('caseCronogramaDeadline', 'labels', 'Case'),
+            milestoneMetaLabel: view.translate('caseCronogramaMilestone', 'labels', 'Case'),
+            statusMetaLabel: view.translate('caseCronogramaStatus', 'labels', 'Case'),
             currentStatusLabel: currentStatusLabel,
             vencimientoSummary: vencimientoSummary,
             entries: entries,

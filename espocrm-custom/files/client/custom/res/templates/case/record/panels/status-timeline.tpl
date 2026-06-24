@@ -1,7 +1,7 @@
 <div class="case-timeline case-timeline--horizontal{{#if timeline.isLoading}} is-loading{{/if}}">
     <div class="case-timeline-header">
         <div class="case-timeline-header-top">
-            <span class="case-timeline-header-label">{{translate 'caseTimelineProgress' category='labels' scope='Case'}}</span>
+            <span class="case-timeline-header-label">{{timeline.progressHeaderLabel}}</span>
             <span class="case-timeline-header-percent">{{timeline.progress}}%</span>
         </div>
         <div class="case-timeline-step-count text-muted">{{timeline.progressLabel}}</div>

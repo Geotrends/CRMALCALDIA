@@ -3,14 +3,14 @@
 namespace Espo\Custom\Hooks\CaseObj;
 
 use Espo\Core\Hook\Hook\BeforeSave;
-use Espo\Entities\Team;
+use Espo\Custom\Tools\User\AlcaldiaUserProfile;
 use Espo\Entities\User;
 use Espo\ORM\Entity;
 use Espo\ORM\EntityManager;
 use Espo\ORM\Repository\Option\SaveOptions;
 
 /**
- * Cuando Julian asigna un patrullero en un caso ya radicado,
+ * Cuando el asignador asigna un patrullero en un caso ya radicado,
  * el estado pasa a Asignado.
  */
 class SetEnProcesoOnPatrulleroAssignment implements BeforeSave
@@ -18,7 +18,6 @@ class SetEnProcesoOnPatrulleroAssignment implements BeforeSave
     public static int $order = 99;
 
     private const STATUS_ASIGNADO = 'Asignado';
-    private const TEAM_PATRULLEROS = 'Patrulleros';
 
     /** @var string[] */
     private const ADVANCE_FROM = [
@@ -31,12 +30,13 @@ class SetEnProcesoOnPatrulleroAssignment implements BeforeSave
     ];
 
     public function __construct(
-        private EntityManager $entityManager
+        private EntityManager $entityManager,
+        private AlcaldiaUserProfile $profile
     ) {}
 
     public function beforeSave(Entity $entity, SaveOptions $options): void
     {
-        if ($entity->isNew() || !$entity->isAttributeChanged('assignedUserId')) {
+        if ($entity->isNew()) {
             return;
         }
 
@@ -56,6 +56,10 @@ class SetEnProcesoOnPatrulleroAssignment implements BeforeSave
             return;
         }
 
+        if ($current === self::STATUS_ASIGNADO) {
+            return;
+        }
+
         $entity->set('status', self::STATUS_ASIGNADO);
     }
 
@@ -69,23 +73,12 @@ class SetEnProcesoOnPatrulleroAssignment implements BeforeSave
 
     private function isPatrulleroUserId(string $userId): bool
     {
-        $team = $this->entityManager
-            ->getRDBRepositoryByClass(Team::class)
-            ->where(['name' => self::TEAM_PATRULLEROS])
-            ->findOne();
-
-        if (!$team) {
-            return false;
-        }
-
         $assignedUser = $this->entityManager->getEntityById(User::ENTITY_TYPE, $userId);
 
         if (!$assignedUser) {
             return false;
         }
 
-        $teams = $assignedUser->getLinkMultipleIdList('teams') ?? [];
-
-        return in_array($team->getId(), $teams, true);
+        return $this->profile->isPatrullero($assignedUser);
     }
 }

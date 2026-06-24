@@ -28,12 +28,8 @@ class CaseTimelineService
      */
     public function build(Entity $case, ?array $statusDates = null): array
     {
-        $currentStatus = (string) $case->get('status');
-        $currentIndex = array_search($currentStatus, self::STATUS_FLOW, true);
-
-        if ($currentIndex === false) {
-            $currentIndex = 0;
-        }
+        $currentStatus = $this->normalizeStatus((string) $case->get('status'));
+        $currentIndex = $this->resolveCurrentIndex($case, $currentStatus);
 
         $statusDates = $statusDates ?? $this->resolveStatusDates($case);
         $statusDates = $this->fillMissingDatesForCompletedSteps($statusDates, $currentIndex);
@@ -108,7 +104,7 @@ class CaseTimelineService
             }
         }
 
-        $currentStatus = (string) $case->get('status');
+        $currentStatus = $this->normalizeStatus((string) $case->get('status'));
 
         if ($currentStatus !== '' && !isset($dates[$currentStatus])) {
             $modifiedAt = $case->get('modifiedAt');
@@ -187,16 +183,138 @@ class CaseTimelineService
      */
     public function getResolvedStatusDates(Entity $case): array
     {
-        $currentStatus = (string) $case->get('status');
-        $currentIndex = array_search($currentStatus, self::STATUS_FLOW, true);
-
-        if ($currentIndex === false) {
-            $currentIndex = 0;
-        }
+        $currentStatus = $this->normalizeStatus((string) $case->get('status'));
+        $currentIndex = $this->resolveCurrentIndex($case, $currentStatus);
 
         $statusDates = $this->resolveStatusDates($case);
 
         return $this->fillMissingDatesForCompletedSteps($statusDates, $currentIndex);
+    }
+
+    private function normalizeStatus(string $status): string
+    {
+        $status = trim($status);
+
+        /** @var array<string, string> $aliases */
+        $aliases = [
+            'New' => self::STATUS_FLOW[0],
+            'Pending' => self::STATUS_FLOW[0],
+            'Assigned' => 'Asignado',
+            'In Progress' => 'En proceso',
+            'Closed' => 'Proceso cerrado',
+            'Rejected' => 'Finalizado',
+        ];
+
+        return $aliases[$status] ?? $status;
+    }
+
+    private function resolveCurrentIndex(Entity $case, string $currentStatus): int
+    {
+        $statusIndex = array_search($currentStatus, self::STATUS_FLOW, true);
+
+        if ($statusIndex === false) {
+            $statusIndex = 0;
+        }
+
+        return max($statusIndex, $this->inferIndexFromCaseData($case));
+    }
+
+    private function inferIndexFromCaseData(Entity $case): int
+    {
+        $index = 0;
+
+        if ($this->isPostRadicado($case)) {
+            $index = 1;
+        }
+
+        if ($case->get('assignedUserId')) {
+            $index = max($index, 2);
+        }
+
+        $acta = $this->findActaForCase($case->getId());
+
+        if ($acta && $this->isActaWithContent($acta)) {
+            $index = max($index, 3);
+
+            $estado = trim((string) $acta->get('estado'));
+
+            if (in_array($estado, ['Diligenciada', 'Aprobada'], true)) {
+                $index = max($index, 4);
+            }
+
+            if ($estado === 'Aprobada') {
+                $index = max($index, 5);
+            }
+        }
+
+        $actuo = $this->findActuoForCase($case->getId());
+
+        if ($actuo && $this->isActuoWithContent($actuo)) {
+            $index = max($index, 7);
+        }
+
+        return $index;
+    }
+
+    private function isPostRadicado(Entity $case): bool
+    {
+        $numero = trim((string) $case->get('cNumeroRadicado'));
+        $expediente = trim((string) $case->get('cExpediente'));
+
+        return $numero !== '' && $expediente !== '';
+    }
+
+    private function findActaForCase(?string $caseId): ?Entity
+    {
+        if (!$caseId) {
+            return null;
+        }
+
+        return $this->entityManager
+            ->getRDBRepository('ActaVisita')
+            ->where(['caseId' => $caseId])
+            ->order('modifiedAt', 'DESC')
+            ->findOne();
+    }
+
+    private function findActuoForCase(?string $caseId): ?Entity
+    {
+        if (!$caseId) {
+            return null;
+        }
+
+        return $this->entityManager
+            ->getRDBRepository('ActuoArchivo')
+            ->where(['caseId' => $caseId])
+            ->order('modifiedAt', 'DESC')
+            ->findOne();
+    }
+
+    private function isActaWithContent(Entity $acta): bool
+    {
+        $estado = trim((string) $acta->get('estado'));
+
+        if (in_array($estado, ['Diligenciada', 'Aprobada'], true)) {
+            return true;
+        }
+
+        foreach (['objetoVisita', 'situacionEncontrada', 'conclusion'] as $field) {
+            if (trim((string) $acta->get($field)) !== '') {
+                return true;
+            }
+        }
+
+        return (bool) $acta->get('cFormatoActaVisitaPdfId');
+    }
+
+    private function isActuoWithContent(Entity $actuo): bool
+    {
+        if (trim((string) $actuo->get('estado')) === 'Diligenciada') {
+            return true;
+        }
+
+        return trim((string) $actuo->get('motivoArchivo')) !== ''
+            || (bool) $actuo->get('cFormatoActuoArchivoPdfId');
     }
 
     /**
