@@ -24,7 +24,7 @@ body:not(.has-navbar):has(#login)::before {
   position: fixed;
   inset: -28px;
   z-index: 0;
-  background: url('../img/login-hero.png') center / cover no-repeat;
+  background: url('../img/login-hero.jpg') center / cover no-repeat;
   filter: blur(20px);
   -webkit-filter: blur(20px);
   transform: scale(1.08);
@@ -87,7 +87,7 @@ body:not(.has-navbar) .container-centering {
   grid-column: 2;
   grid-row: 1 / span 2;
   min-height: 520px;
-  background: url('../img/login-hero.png') center center / cover no-repeat;
+  background: url('../img/login-hero.jpg') center center / cover no-repeat;
 }
 
 #login .panel-heading {
