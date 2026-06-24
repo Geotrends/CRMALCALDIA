@@ -1,25 +1,14 @@
 define('custom:helpers/patrullero-acta', [
     'custom:helpers/inspeccion-acta',
-], function (InspeccionActa) {
-
-    const normalize = function (value) {
-        return String(value)
-            .toLowerCase()
-            .normalize('NFD')
-            .replace(/[\u0300-\u036f]/g, '');
-    };
+    'custom:helpers/radicacion-fields',
+], function (InspeccionActa, RadicacionFields) {
 
     const isPatrulleroUser = function (user) {
-        if (!user || user.isAdmin()) {
-            return false;
-        }
+        return RadicacionFields.isPatrulleroUser(user);
+    };
 
-        const names = [];
-
-        Object.values(user.get('teamsNames') || {}).forEach((name) => names.push(name));
-        Object.values(user.get('rolesNames') || {}).forEach((name) => names.push(name));
-
-        return names.some((name) => normalize(name).includes('patrullero'));
+    const isInspeccionUser = function (user) {
+        return InspeccionActa.isInspeccionUser(user);
     };
 
     const isCasePostRadicado = function (model) {
@@ -41,7 +30,7 @@ define('custom:helpers/patrullero-acta', [
         return acta.id || null;
     };
 
-    const shouldShowActaVisitaButton = function (user, model, acta) {
+    const canUseActaVisitaTools = function (user, model) {
         if (!user || !model || !isCasePostRadicado(model)) {
             return false;
         }
@@ -50,43 +39,39 @@ define('custom:helpers/patrullero-acta', [
             return true;
         }
 
-        if (isPatrulleroUser(user) && model.get('assignedUserId') === user.id) {
+        if (isInspeccionUser(user)) {
             return true;
         }
 
-        if (InspeccionActa.isInspeccionUser(user) && resolveActaId(acta)) {
-            return true;
-        }
+        return isPatrulleroUser(user) && model.get('assignedUserId') === user.id;
+    };
 
-        return false;
+    const shouldShowActaVisitaButton = function (user, model, acta) {
+        return canUseActaVisitaTools(user, model);
     };
 
     const canOpenActaVisitaModal = function (user, model, acta) {
-        if (!shouldShowActaVisitaButton(user, model, acta)) {
-            return false;
-        }
-
-        if (InspeccionActa.isInspeccionUser(user) && !isPatrulleroUser(user)) {
-            return !!resolveActaId(acta);
-        }
-
-        return true;
+        return canUseActaVisitaTools(user, model);
     };
 
     const shouldShowLlenarActaButton = function (user, model, acta) {
-        return shouldShowActaVisitaButton(user, model, acta);
+        return canUseActaVisitaTools(user, model);
+    };
+
+    const canPrintManualActa = function (user, model) {
+        return canUseActaVisitaTools(user, model);
     };
 
     const getUnavailableReason = function (user, model, acta) {
-        if (InspeccionActa.isInspeccionUser(user) && !resolveActaId(acta)) {
-            return 'El acta aún no ha sido diligenciada por el patrullero.';
+        if (!user) {
+            return 'Debe iniciar sesión.';
         }
 
-        if (!isPatrulleroUser(user) && !InspeccionActa.isInspeccionUser(user)) {
-            return 'Solo patrulleros e inspección ven este panel.';
+        if (!isInspeccionUser(user) && !isPatrulleroUser(user) && !user.isAdmin()) {
+            return 'Disponible para Inspección y el patrullero asignado al caso.';
         }
 
-        if (isPatrulleroUser(user) && model.get('assignedUserId') !== user.id) {
+        if (isPatrulleroUser(user) && !isInspeccionUser(user) && model.get('assignedUserId') !== user.id) {
             return 'El caso no está asignado a usted.';
         }
 
@@ -94,27 +79,12 @@ define('custom:helpers/patrullero-acta', [
             return 'El caso debe tener radicado y expediente.';
         }
 
-        return 'Disponible cuando el caso tenga radicado, expediente y acta de visita.';
-    };
-
-    const canPrintManualActa = function (user, model) {
-        if (!user || !model) {
-            return false;
-        }
-
-        if (user.isAdmin()) {
-            return isCasePostRadicado(model);
-        }
-
-        if (isPatrulleroUser(user) && model.get('assignedUserId') === user.id) {
-            return isCasePostRadicado(model);
-        }
-
-        return false;
+        return '';
     };
 
     return {
         isPatrulleroUser: isPatrulleroUser,
+        isInspeccionUser: isInspeccionUser,
         isCasePostRadicado: isCasePostRadicado,
         shouldShowActaVisitaButton: shouldShowActaVisitaButton,
         canOpenActaVisitaModal: canOpenActaVisitaModal,

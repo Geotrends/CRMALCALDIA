@@ -90,8 +90,8 @@ define('custom:views/case/record/panels/acta-visita', [
                 null
             );
 
-            if (!unavailableReason) {
-                unavailableReason = 'Disponible cuando el caso esté En proceso, asignado a usted, con radicado y expediente.';
+            if (!this.showButton && !unavailableReason) {
+                unavailableReason = this.translate('actaVisitaPanelUnavailable', 'Case');
             }
 
             let helpText = this.translate('actaVisitaPanelHelp', 'Case');
