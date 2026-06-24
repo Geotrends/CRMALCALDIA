@@ -3,7 +3,7 @@
 /**
  * Radicación (Edwin) edita radicado/expediente; el resto de roles los lee
  * cuando el caso ya fue radicado (visibilidad vacía en UI vía client custom).
- * Usa SQL directo (evita hooks rotos en custom/Hooks/_disabled).
+ * Usa SQL directo para permisos de campo por rol.
  *
  * docker cp scripts/configure-radicacion-field-level.php espocrm:/tmp/
  * docker exec espocrm php /tmp/configure-radicacion-field-level.php

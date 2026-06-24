@@ -4,6 +4,9 @@ Repo: https://github.com/isabelasring/CRMALCALDIA.git
 
 **Requisitos:** Docker Desktop, Git. En Windows usar Git Bash.
 
+> **Estructura del repo:** ver [README.md](../README.md) y [docs/README.md](README.md).  
+> El directorio de trabajo es la carpeta que contiene `docker-compose.yml`.
+
 ---
 
 ## Qué es cada cosa

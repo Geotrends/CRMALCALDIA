@@ -100,109 +100,11 @@ file_put_contents($path, "<?php\nreturn " . var_export($state, true) . ";\n");
 echo "appTimestamp=" . $state["appTimestamp"] . "\n";
 '
 
-echo 'Roles y equipos base (despliegue desde cero)...'
-docker cp "$ROOT/scripts/seed-roles.php" espocrm:/tmp/seed-roles.php
-docker exec espocrm php /tmp/seed-roles.php
+# shellcheck source=includes/deploy-steps.sh
+source "$ROOT/scripts/includes/deploy-steps.sh"
 
-echo 'Sincronizar equipos desde roles (sesión cliente usa teamsNames)...'
-docker cp "$ROOT/scripts/sync-user-teams-from-roles.php" espocrm:/tmp/sync-user-teams-from-roles.php
-docker exec espocrm php /tmp/sync-user-teams-from-roles.php
-
-echo 'Catálogos Excel Alcaldía (desplegables)...'
-docker cp "$ROOT/scripts/configure-excel-alcaldia-case-fields.php" espocrm:/tmp/configure-excel-alcaldia-case-fields.php
-docker exec espocrm php /tmp/configure-excel-alcaldia-case-fields.php
-
-echo 'Placeholder en desplegables Case...'
-docker cp "$ROOT/scripts/configure-case-enum-placeholders.php" espocrm:/tmp/configure-case-enum-placeholders.php
-docker exec espocrm php /tmp/configure-case-enum-placeholders.php
-
-echo 'Menú lateral (tabList global)...'
-docker cp "$ROOT/scripts/configure-global-tablist.php" espocrm:/tmp/configure-global-tablist.php
-docker exec espocrm php /tmp/configure-global-tablist.php
-
-echo 'Idioma español (menú Personas naturales / jurídicas)...'
-docker cp "$ROOT/scripts/configure-default-locale.php" espocrm:/tmp/configure-default-locale.php
-docker exec espocrm php /tmp/configure-default-locale.php
-
-echo 'Calendario: reuniones, tareas y casos...'
-docker cp "$ROOT/scripts/configure-calendar-meetings-only.php" espocrm:/tmp/configure-calendar-meetings-only.php
-docker exec espocrm php /tmp/configure-calendar-meetings-only.php
-
-echo 'Kanban de Casos (todos los usuarios)...'
-docker cp "$ROOT/scripts/configure-case-kanban.php" espocrm:/tmp/configure-case-kanban.php
-docker exec espocrm php /tmp/configure-case-kanban.php
-
-echo 'Home: tablero custom + dashlets editables...'
-docker cp "$ROOT/scripts/configure-user-dashboards.php" espocrm:/tmp/configure-user-dashboards.php
-docker exec espocrm php /tmp/configure-user-dashboards.php
-
-echo 'Acceso completo — menú y permisos para todos los roles...'
-docker cp "$ROOT/scripts/configure-full-access-all-roles.php" espocrm:/tmp/configure-full-access-all-roles.php
-docker exec espocrm php /tmp/configure-full-access-all-roles.php
-
-echo 'Permisos de asignación (crear caso sin patrullero)...'
-docker cp "$ROOT/scripts/configure-case-assignment-permissions.php" espocrm:/tmp/configure-case-assignment-permissions.php
-docker exec espocrm php /tmp/configure-case-assignment-permissions.php
-
-echo 'Permisos ActaVisita por rol (Inspección edita acta)...'
-docker cp "$ROOT/scripts/configure-acta-visita-entity.php" espocrm:/tmp/configure-acta-visita-entity.php
-docker exec espocrm php /tmp/configure-acta-visita-entity.php
-
-echo 'Permisos ActuoArchivo por rol...'
-docker cp "$ROOT/scripts/configure-actuo-archivo-entity.php" espocrm:/tmp/configure-actuo-archivo-entity.php
-docker exec espocrm php /tmp/configure-actuo-archivo-entity.php
-
-echo 'Documentos: plantillas oficiales (solicitud, acta, actuo)...'
-docker cp "$ROOT/scripts/configure-document-plantillas.php" espocrm:/tmp/configure-document-plantillas.php
-docker exec espocrm php /tmp/configure-document-plantillas.php
-
-echo 'Eliminando columnas obsoletas / migraciones legacy (si aplica)...'
-docker cp "$ROOT/scripts/needs-legacy-db-migrations.php" espocrm:/tmp/needs-legacy-db-migrations.php
-if docker exec espocrm php /tmp/needs-legacy-db-migrations.php; then
-  docker cp "$ROOT/scripts/migrate-drop-case-categoria-tipo.php" espocrm:/tmp/migrate-drop-case-categoria-tipo.php
-  docker exec espocrm php /tmp/migrate-drop-case-categoria-tipo.php
-  docker cp "$ROOT/scripts/migrate-case-documento-fields.php" espocrm:/tmp/migrate-case-documento-fields.php
-  docker exec espocrm php /tmp/migrate-case-documento-fields.php
-  docker cp "$ROOT/scripts/migrate-case-canonical-fields.php" espocrm:/tmp/migrate-case-canonical-fields.php
-  docker exec espocrm php /tmp/migrate-case-canonical-fields.php
-  docker cp "$ROOT/scripts/migrate-case-peticionario-db-columns.php" espocrm:/tmp/migrate-case-peticionario-db-columns.php
-  docker exec espocrm php /tmp/migrate-case-peticionario-db-columns.php
-  docker cp "$ROOT/scripts/migrate-case-party-field-names.php" espocrm:/tmp/migrate-case-party-field-names.php
-  docker exec espocrm php /tmp/migrate-case-party-field-names.php
-else
-  echo 'BD nueva — migraciones legacy omitidas.'
-fi
-
-echo 'Permisos campos peticionario y perjudicante...'
-docker cp "$ROOT/scripts/configure-case-party-field-access.php" espocrm:/tmp/configure-case-party-field-access.php
-docker exec espocrm php /tmp/configure-case-party-field-access.php
-
-echo 'Permisos de campo (radicado, registro Excel, fecha vencimiento)...'
-docker cp "$ROOT/scripts/configure-radicacion-field-level.php" espocrm:/tmp/configure-radicacion-field-level.php
-docker exec espocrm php /tmp/configure-radicacion-field-level.php
-
-echo 'Job alertas de vencimiento (campana)...'
-docker cp "$ROOT/scripts/configure-case-vencimiento-alerts.php" espocrm:/tmp/configure-case-vencimiento-alerts.php
-docker exec espocrm php /tmp/configure-case-vencimiento-alerts.php
-
-echo 'Historial de asignaciones (permisos por rol)...'
-docker cp "$ROOT/scripts/configure-asignacion-historial.php" espocrm:/tmp/configure-asignacion-historial.php
-docker exec espocrm php /tmp/configure-asignacion-historial.php
-
-echo 'Comunicaciones por caso (permisos por rol)...'
-docker cp "$ROOT/scripts/configure-comunicacion-caso-entity.php" espocrm:/tmp/configure-comunicacion-caso-entity.php
-docker exec espocrm php /tmp/configure-comunicacion-caso-entity.php
-
-echo 'Defaults Recibida por / Remitido a (por rol)...'
-docker cp "$ROOT/scripts/configure-case-create-defaults.php" espocrm:/tmp/configure-case-create-defaults.php
-docker exec espocrm php /tmp/configure-case-create-defaults.php
-
-echo 'Vínculos caso ↔ tercero (peticionario / infractor)...'
-docker cp "$ROOT/scripts/sync-case-party-links.php" espocrm:/tmp/sync-case-party-links.php
-docker exec espocrm php /tmp/sync-case-party-links.php
-
-echo 'Auditoría usuarios y roles...'
-docker cp "$ROOT/scripts/audit-users-roles.php" espocrm:/tmp/audit-users-roles.php
-docker exec espocrm php /tmp/audit-users-roles.php
+deploy_run_steps_docker "$ROOT" "${DEPLOY_SETUP_STEPS[@]}"
+deploy_run_legacy_migrations_docker "$ROOT" "${DEPLOY_LEGACY_MIGRATION_SCRIPTS[@]}"
+deploy_run_steps_docker "$ROOT" "${DEPLOY_POST_LEGACY_STEPS[@]}"
 
 echo 'Listo. Recarga el navegador con Cmd+Shift+R en http://localhost:8080'

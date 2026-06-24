@@ -9,6 +9,21 @@ Thumbs.db
 tmp_*.sql
 dump-espocrm-*.sql
 Untitled
-*.md
-!docs/GUIA-DESPLIEGUE.md
 *.drawio
+
+# Documentación: versionar README e índices; ignorar notas sueltas en raíz
+*.md
+!README.md
+!docs/**/*.md
+!scripts/README.md
+!espocrm-custom/README.md
+
+# Artefactos de desarrollo / runtime
+__pycache__/
+*.pyc
+.venv-excel/
+test-formato-*.pdf
+*.docx
+!formatos/**
+espocrm-custom/files/templates/*-template.pdf
+espocrm-custom/files/templates/*.pdf
