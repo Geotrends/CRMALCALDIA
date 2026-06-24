@@ -41,6 +41,22 @@ define('custom:views/calendar/calendar', [
                     this.extendedProps.push(prop);
                 }
             }, this);
+
+            this.enabledScopeList = this.syncEnabledScopeList(this.enabledScopeList, this.scopeList);
+        },
+
+        syncEnabledScopeList: function (enabled, available) {
+            var result = Espo.Utils.clone(enabled || []);
+
+            available.forEach(function (scope) {
+                if (result.indexOf(scope) < 0) {
+                    result.push(scope);
+                }
+            });
+
+            return result.filter(function (scope) {
+                return available.indexOf(scope) >= 0;
+            });
         },
 
         getEventDateKey: function (event) {
@@ -56,7 +72,11 @@ define('custom:views/calendar/calendar', [
         },
 
         isTimedEvent: function (event) {
-            if (!event || event.scope !== 'Meeting' || !event.dateStart) {
+            if (!event || !event.dateStart) {
+                return false;
+            }
+
+            if (event.scope !== 'Meeting' && event.scope !== 'Task') {
                 return false;
             }
 

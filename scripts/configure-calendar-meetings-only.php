@@ -21,5 +21,31 @@ $config = $app->getContainer()->getByClass(Config::class);
 $config->set('calendarEntityList', ['Meeting', 'Task', 'Case']);
 $config->save();
 
+$em = $app->getContainer()->getByClass(Espo\ORM\EntityManager::class);
+
+foreach ($em->getRDBRepository('Role')->find() as $role) {
+    $data = $role->get('data');
+
+    if ($data instanceof stdClass) {
+        $data = json_decode(json_encode($data), true);
+    }
+
+    if (!is_array($data)) {
+        $data = [];
+    }
+
+    if (!isset($data['Task']) || !is_array($data['Task'])) {
+        $data['Task'] = [];
+    }
+
+    $data['Task']['read'] = $data['Task']['read'] ?? 'all';
+    $data['Task']['create'] = $data['Task']['create'] ?? 'yes';
+    $data['Task']['edit'] = $data['Task']['edit'] ?? 'all';
+
+    $role->set('data', $data);
+    $em->saveEntity($role);
+}
+
 echo "calendarEntityList = [Meeting, Task, Case]\n";
+echo "Permisos Task en roles verificados.\n";
 echo "Listo. Recarga con Cmd+Shift+R.\n";
