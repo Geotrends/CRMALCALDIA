@@ -89,9 +89,7 @@
                 {
                     "name": "cBarrioPeticionario"
                 },
-                {
-                    "name": "cZonaAlcaldiaPeticionario"
-                }
+                false
             ],
             [
                 {
@@ -197,9 +195,11 @@
             ],
             [
                 {
-                    "name": "cFechaVencimiento"
+                    "name": "cZonaAlcaldiaPeticionario"
                 },
-                false
+                {
+                    "name": "cFechaVencimiento"
+                }
             ],
             [
                 {

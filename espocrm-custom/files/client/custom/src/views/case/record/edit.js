@@ -247,6 +247,7 @@ define('custom:views/case/record/edit', [
                 }
 
                 self.ensureRadicacionEditAccess();
+                self.ensureInspeccionEditAccess();
             };
 
             RadicacionFields.ensureProfile().then(applyRoleUi);
@@ -327,6 +328,11 @@ define('custom:views/case/record/edit', [
             const unlockFields = [
                 'cFechaCaso',
                 'cRecursoTema',
+                'cAsunto',
+                'cZonaAlcaldiaPeticionario',
+                RadicacionFields.FECHA_VENCIMIENTO_FIELD,
+                'cUltimaActuacion',
+                'cProximaActuacion',
                 'cNombrePeticionario',
                 'cApellidoPeticionario',
                 'cDocumentoPeticionario',
@@ -346,6 +352,29 @@ define('custom:views/case/record/edit', [
                 'cTipoPersonaPeticionario',
                 'cTipoPersonaPerjudicante',
             ].concat(DireccionEstructurada.allComponentFields());
+
+            unlockFields.forEach((field) => {
+                const view = this.getFieldView(field);
+
+                if (view && typeof view.setNotReadOnly === 'function') {
+                    view.setNotReadOnly();
+                }
+            });
+        },
+
+        ensureInspeccionEditAccess: function () {
+            if (!RadicacionFields.isInspeccionUser(this.getUser())) {
+                return;
+            }
+
+            const unlockFields = [
+                'cRecursoTema',
+                'cAsunto',
+                'cZonaAlcaldiaPeticionario',
+                RadicacionFields.FECHA_VENCIMIENTO_FIELD,
+                'cUltimaActuacion',
+                'cProximaActuacion',
+            ];
 
             unlockFields.forEach((field) => {
                 const view = this.getFieldView(field);

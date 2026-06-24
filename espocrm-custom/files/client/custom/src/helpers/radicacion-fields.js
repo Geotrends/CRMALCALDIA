@@ -155,7 +155,9 @@ define('custom:helpers/radicacion-fields', [], function () {
     };
 
     const shouldShowFechaVencimiento = function (user) {
-        return isInspeccionUser(user);
+        return isInspeccionUser(user)
+            || isRadicacionUser(user)
+            || isAsignadorUser(user);
     };
 
     const isCaseRadicado = function (model) {

@@ -3,33 +3,55 @@ define('custom:helpers/inspeccion-registro-excel', [
 ], function (RadicacionFields) {
 
     const PANEL_NAME = 'registroExcelAlcaldia';
-    const RECURSO_TEMA_FIELD = 'cRecursoTema';
 
-    const INSPECTOR_ONLY_FIELDS = [
+    const REGISTRO_EXCEL_FIELDS = [
+        'cRecursoTema',
         'cAsunto',
+        'cZonaAlcaldiaPeticionario',
+        RadicacionFields.FECHA_VENCIMIENTO_FIELD,
         'cUltimaActuacion',
         'cProximaActuacion',
-        RadicacionFields.FECHA_VENCIMIENTO_FIELD,
     ];
 
-    const canEditInspectorFields = function (user) {
+    const canEditRegistroExcelFields = function (user) {
         return RadicacionFields.isInspeccionUser(user)
             || RadicacionFields.isRadicacionUser(user);
     };
 
-    const canViewInspectorFields = function (user) {
-        return canEditInspectorFields(user)
-            || RadicacionFields.isAsignadorUser(user);
+    const canViewRegistroExcelFields = function () {
+        return true;
     };
 
-    const canEditRecursoTema = function (user) {
-        return canEditInspectorFields(user);
+    const applyFieldVisibility = function (recordView, showFields) {
+        REGISTRO_EXCEL_FIELDS.forEach(function (field) {
+            const $cell = recordView.$el.find('[data-name="' + field + '"]').closest('.cell');
+
+            if ($cell.length) {
+                $cell.toggle(showFields);
+            }
+        });
+    };
+
+    const applyEditAccess = function (recordView, editFields) {
+        REGISTRO_EXCEL_FIELDS.forEach(function (field) {
+            const fieldView = recordView.getFieldView(field);
+
+            if (!fieldView) {
+                return;
+            }
+
+            if (editFields && typeof fieldView.setNotReadOnly === 'function') {
+                fieldView.setNotReadOnly();
+            } else if (typeof fieldView.setReadOnly === 'function') {
+                fieldView.setReadOnly();
+            }
+        });
     };
 
     const togglePanel = function (recordView) {
         const user = recordView.getUser();
-        const showInspectorFields = canViewInspectorFields(user);
-        const editInspectorFields = canEditInspectorFields(user);
+        const showFields = canViewRegistroExcelFields(user);
+        const editFields = canEditRegistroExcelFields(user);
         const $panel = recordView.$el.find(
             '.panel[data-name="' + PANEL_NAME + '"], ' +
             '.record-panel[data-name="' + PANEL_NAME + '"], ' +
@@ -40,54 +62,37 @@ define('custom:helpers/inspeccion-registro-excel', [
             $panel.show();
         }
 
-        const $recursoCell = recordView.$el.find('[data-name="' + RECURSO_TEMA_FIELD + '"]').closest('.cell');
+        applyFieldVisibility(recordView, showFields);
 
-        if ($recursoCell.length) {
-            $recursoCell.show();
-        }
+        const isEditMode = recordView.isEditMode
+            && typeof recordView.isEditMode === 'function'
+            && recordView.isEditMode();
 
-        INSPECTOR_ONLY_FIELDS.forEach(function (field) {
-            const $cell = recordView.$el.find('[data-name="' + field + '"]').closest('.cell');
-
-            if ($cell.length) {
-                $cell.toggle(showInspectorFields);
-            }
-        });
-
-        if (!recordView.isEditMode || typeof recordView.isEditMode !== 'function' || !recordView.isEditMode()) {
+        if (!isEditMode) {
             return;
         }
 
-        const recursoView = recordView.getFieldView(RECURSO_TEMA_FIELD);
+        applyEditAccess(recordView, editFields);
 
-        if (recursoView) {
-            if (canEditRecursoTema(user) && typeof recursoView.setNotReadOnly === 'function') {
-                recursoView.setNotReadOnly();
-            } else if (typeof recursoView.setReadOnly === 'function') {
-                recursoView.setReadOnly();
-            }
-        }
-
-        INSPECTOR_ONLY_FIELDS.forEach(function (field) {
-            const fieldView = recordView.getFieldView(field);
-
-            if (!fieldView) {
+        window.setTimeout(function () {
+            if (
+                !recordView.isEditMode
+                || typeof recordView.isEditMode !== 'function'
+                || !recordView.isEditMode()
+            ) {
                 return;
             }
 
-            if (editInspectorFields && typeof fieldView.setNotReadOnly === 'function') {
-                fieldView.setNotReadOnly();
-            } else if (typeof fieldView.setReadOnly === 'function') {
-                fieldView.setReadOnly();
-            }
-        });
+            applyEditAccess(recordView, editFields);
+        }, 100);
     };
 
     return {
         PANEL_NAME: PANEL_NAME,
-        RECURSO_TEMA_FIELD: RECURSO_TEMA_FIELD,
-        INSPECTOR_ONLY_FIELDS: INSPECTOR_ONLY_FIELDS,
-        canEditRecursoTema: canEditRecursoTema,
+        REGISTRO_EXCEL_FIELDS: REGISTRO_EXCEL_FIELDS,
+        INSPECTOR_ONLY_FIELDS: REGISTRO_EXCEL_FIELDS,
+        RECURSO_TEMA_FIELD: 'cRecursoTema',
+        canEditRecursoTema: canEditRegistroExcelFields,
         togglePanel: togglePanel,
     };
 });
