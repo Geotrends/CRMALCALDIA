@@ -59,7 +59,7 @@
         "editarActaVisita": "Editar acta",
         "actaAutoFieldsHelp": "ID, caso, radicado, expediente y nombre se generan automáticamente desde el caso.",
         "actaVisitaPanelHelp": "Diligencie el acta oficial de visita para este caso.",
-        "actaVisitaPanelUnavailable": "Disponible para Inspección y el patrullero asignado cuando el caso tenga radicado y expediente.",
+        "actaVisitaPanelUnavailable": "Disponible para Inspección y el patrullero asignado al caso.",
         "Formato acta de visita": "Formato acta de visita",
         "downloadFormatoActaPdf": "Descargar PDF",
         "formatoActaVisitaHelp": "El formato está listo. Puede descargar el PDF.",

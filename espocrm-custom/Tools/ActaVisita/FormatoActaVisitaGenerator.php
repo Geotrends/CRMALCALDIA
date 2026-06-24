@@ -172,16 +172,16 @@ class FormatoActaVisitaGenerator
 
     public function canDownloadFormatoFromCase(Entity $case): bool
     {
-        if (!$this->isCaseReadyForActa($case)) {
-            return false;
-        }
-
         if ($this->user->isAdmin()) {
             return true;
         }
 
         if ($this->userHasRole(self::ROLE_INSPECCION) || $this->userHasRole('Inspeccion')) {
             return true;
+        }
+
+        if (!$this->isCaseReadyForActa($case)) {
+            return false;
         }
 
         if ($this->userHasRole(self::ROLE_PATRULLERO)) {

@@ -230,6 +230,9 @@ define('custom:views/case/record/detail', [
                 self.toggleRadicacionFields();
                 self.togglePostRadicacionFields();
                 self.toggleRegistroExcelPanel();
+                self.toggleActaPanels();
+                self.updateActaVisitaButton();
+                self.refreshActaVisitaPanel();
             };
 
             RadicacionFields.ensureProfile().then(applyRoleUi);

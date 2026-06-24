@@ -1,13 +1,13 @@
 define('custom:helpers/formato-acta-visita-case-access', [
-    'custom:helpers/post-radicacion-fields',
-], function (PostRadicacionFields) {
+    'custom:helpers/patrullero-acta',
+], function (PatrulleroActa) {
 
     const canDownloadFormatoActaVisitaFromCase = function (user, model) {
         if (!user || !model) {
             return false;
         }
 
-        return PostRadicacionFields.isCasePostRadicado(model);
+        return PatrulleroActa.canPrintManualActa(user, model);
     };
 
     return {

@@ -34,8 +34,6 @@ define('custom:views/case/fields/acta-visita-action', [
                     ? this.translate('actaVisitaInspeccionHelp', 'Case')
                     : this.translate('actaVisitaEditHelp', 'Case');
                 buttonLabelDigital = this.translate('editarActaVisita', 'Case');
-            } else if (this.showPrintManual && PatrulleroActa.isInspeccionUser(user)) {
-                helpText = this.translate('actaVisitaInspeccionHelp', 'Case');
             } else if (this.showPrintManual) {
                 helpText = this.translate('actaVisitaManualHelp', 'Case');
             }

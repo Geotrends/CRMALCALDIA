@@ -43,7 +43,7 @@ define('custom:helpers/patrullero-acta', [
     };
 
     const canUseActaVisitaTools = function (user, model) {
-        if (!user || !model || !model.id || !isCaseReadyForActa(model)) {
+        if (!user || !model || !model.id) {
             return false;
         }
 
@@ -55,7 +55,15 @@ define('custom:helpers/patrullero-acta', [
             return true;
         }
 
-        return isPatrulleroUser(user) && model.get('assignedUserId') === user.id;
+        if (!isPatrulleroUser(user)) {
+            return false;
+        }
+
+        if (!isCaseReadyForActa(model)) {
+            return false;
+        }
+
+        return model.get('assignedUserId') === user.id;
     };
 
     const shouldShowActaVisitaButton = function (user, model, acta) {

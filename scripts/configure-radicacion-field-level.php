@@ -28,6 +28,7 @@ $fechaVencimientoField = 'cFechaVencimiento';
 $recursoTemaField = 'cRecursoTema';
 $asignacionFields = ['assignedUser'];
 $motivoReasignacionField = 'cMotivoReasignacion';
+$actaVisitaPanelFields = ['cPanelActaVisita'];
 $registroExcelFields = [
     'cAsunto',
     'cZonaAlcaldiaPeticionario',
@@ -74,6 +75,10 @@ while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         }
 
         $fieldData[$scope][$motivoReasignacionField] = ['read' => 'yes', 'edit' => 'no'];
+
+        foreach ($actaVisitaPanelFields as $field) {
+            $fieldData[$scope][$field] = ['read' => 'yes', 'edit' => 'no'];
+        }
     } elseif ($roleName === $roleRadicacion) {
         $fieldData[$scope][$recursoTemaField] = ['read' => 'yes', 'edit' => 'yes'];
 
@@ -92,6 +97,22 @@ while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         }
 
         $fieldData[$scope][$motivoReasignacionField] = ['read' => 'yes', 'edit' => 'yes'];
+    } elseif ($roleName === 'Patrullero') {
+        $fieldData[$scope][$recursoTemaField] = ['read' => 'yes', 'edit' => 'no'];
+
+        foreach ($registroExcelFields as $field) {
+            $fieldData[$scope][$field] = ['read' => 'yes', 'edit' => 'no'];
+        }
+
+        foreach ($asignacionFields as $field) {
+            $fieldData[$scope][$field] = ['read' => 'yes', 'edit' => 'no'];
+        }
+
+        $fieldData[$scope][$motivoReasignacionField] = ['read' => 'yes', 'edit' => 'no'];
+
+        foreach ($actaVisitaPanelFields as $field) {
+            $fieldData[$scope][$field] = ['read' => 'yes', 'edit' => 'no'];
+        }
     } else {
         $fieldData[$scope][$recursoTemaField] = ['read' => 'yes', 'edit' => 'no'];
 
