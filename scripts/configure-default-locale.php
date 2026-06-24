@@ -6,7 +6,9 @@
 require_once '/var/www/html/bootstrap.php';
 
 use Espo\Core\Application;
+use Espo\Core\InjectableFactory;
 use Espo\Core\Utils\Config;
+use Espo\Custom\Tools\App\AlcaldiaLocaleDefaults;
 use Espo\ORM\EntityManager;
 
 $app = new Application();
@@ -15,33 +17,20 @@ $app->setupSystemUser();
 /** @var Config $config */
 $config = $app->getContainer()->getByClass(Config::class);
 
-$timeZone = 'America/Bogota';
-$dateFormat = 'DD.MM.YYYY';
-$timeFormat = 'HH:mm';
+/** @var InjectableFactory $injectableFactory */
+$injectableFactory = $app->getContainer()->getByClass(InjectableFactory::class);
 
-$config->set('language', 'es_ES');
-$config->set('defaultLanguage', 'es_ES');
-$config->set('timeZone', $timeZone);
-$config->set('dateFormat', $dateFormat);
-$config->set('timeFormat', $timeFormat);
-$config->save();
+/** @var EntityManager $entityManager */
+$entityManager = $app->getContainer()->getByClass(EntityManager::class);
 
-/** @var EntityManager $em */
-$em = $app->getContainer()->getByClass(EntityManager::class);
+$localeDefaults = $injectableFactory->create(AlcaldiaLocaleDefaults::class);
+$localeDefaults->applyToConfig($config);
 
-foreach ($em->getRDBRepository('User')->where(['isActive' => true])->find() as $user) {
-    $prefs = $em->getEntityById('Preferences', $user->getId());
+$count = $localeDefaults->syncAllActiveUsers($entityManager);
 
-    if (!$prefs) {
-        continue;
-    }
-
-    $prefs->set('language', 'es_ES');
-    $prefs->set('timeZone', $timeZone);
-    $prefs->set('dateFormat', $dateFormat);
-    $prefs->set('timeFormat', $timeFormat);
-    $em->saveEntity($prefs);
-    echo $user->get('userName') . " → es_ES, {$timeZone}, {$dateFormat}, {$timeFormat}\n";
-}
-
-echo "Configuración global: es_ES, {$timeZone}, {$dateFormat}, {$timeFormat}\n";
+echo 'Configuración global: '
+    . AlcaldiaLocaleDefaults::LANGUAGE . ', '
+    . AlcaldiaLocaleDefaults::TIME_ZONE . ', '
+    . AlcaldiaLocaleDefaults::DATE_FORMAT . ', '
+    . AlcaldiaLocaleDefaults::TIME_FORMAT . PHP_EOL;
+echo "Preferencias actualizadas para {$count} usuario(s) activo(s).\n";

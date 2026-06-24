@@ -50,9 +50,12 @@ fi
 echo "==> Esperando contenedor espocrm..."
 sleep 15
 
-echo "==> Desplegando código custom..."
-chmod +x "$ROOT/scripts/deploy-custom.sh" 2>/dev/null || true
-"$ROOT/scripts/deploy-custom.sh"
+echo "==> Aplicando custom (reinicio con auto-deploy)..."
+docker compose restart espocrm
+
+# shellcheck source=includes/wait-for-espocrm.sh
+source "$ROOT/scripts/includes/wait-for-espocrm.sh"
+wait_for_espocrm_ready "http://localhost:8080"
 
 if [[ -f "$ROOT/scripts/fix-custom-permissions.sh" ]]; then
   chmod +x "$ROOT/scripts/fix-custom-permissions.sh" 2>/dev/null || true

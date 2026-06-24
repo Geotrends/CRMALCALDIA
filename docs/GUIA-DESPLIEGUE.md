@@ -18,7 +18,7 @@ Repo: https://github.com/isabelasring/CRMALCALDIA.git
 | **`backups/despliegue-inicial/`** | Plantilla de `.env` para despliegue desde cero (sin datos) |
 | **`backups/migration-FECHA/`** | Respaldo con datos. No sube a GitHub |
 | **`sql/esquema.sql`** | Estructura de la BD sin datos. Ya viene en el repo |
-| **`deploy-custom.sh`** | Crea roles, aplica personalizaciones, permisos y configuración |
+| **`deploy-custom.sh`** | Despliegue manual opcional (el auto-deploy al arrancar `espocrm` ya aplica todo) |
 
 ---
 
@@ -54,7 +54,7 @@ bash scripts/restore-from-migration.sh backups/migration-20260623-1458
 
 **5. Acceder**
 
-http://localhost:8080 — usuarios del respaldo.
+http://localhost:8080 — usuarios del respaldo. El reinicio tras la restauración aplica el custom automáticamente.
 
 ---
 
@@ -90,21 +90,15 @@ Crea las tablas vacías.
 docker exec -i espocrm-db psql -U espocrm -d espocrm < sql/esquema.sql
 ```
 
-**5. Aplicar configuración**
-
-Crea roles base, menús, permisos y campos custom.
-
-```bash
-bash scripts/deploy-custom.sh
-```
-
-**6. Acceder**
+**5. Acceder**
 
 http://localhost:8080 — usuario y contraseña del `.env` (`ESPOCRM_ADMIN_USERNAME` / `ESPOCRM_ADMIN_PASSWORD`).
 
-**7. Crear usuarios y asignar roles**
+El servicio `espocrm-init` espera la instalación y aplica roles, permisos, locale (Bogotá, 24 h) y el resto del custom sin comandos adicionales.
 
-En **Administración → Usuarios**: crea cada persona y asígnale el rol (Inspección, Radicación, Patrullero o Asignador). El deploy sincroniza el equipo homónimo automáticamente (el navegador usa equipos para saber el perfil). Tras asignar rol, el usuario debe **cerrar sesión y volver a entrar**.
+**6. Crear usuarios y asignar roles**
+
+En **Administración → Usuarios**: crea cada persona y asígnale el rol (Inspección, Radicación, Patrullero o Asignador). El deploy sincroniza el equipo homónimo automáticamente. Tras asignar rol, el usuario debe **cerrar sesión y volver a entrar**.
 
 | Rol | Qué ve | Qué hace |
 |-----|--------|----------|
@@ -115,7 +109,7 @@ En **Administración → Usuarios**: crea cada persona y asígnale el rol (Inspe
 
 Si aparece **API 403** en el tablero, el usuario no tiene rol asignado o no cerró sesión tras asignarlo.
 
-En Dokploy, `espocrm-init` ejecuta `deploy-custom-dokploy.sh` solo al levantar el stack.
+En Dokploy, define `ESPO_RUN_AUTO_DEPLOY=1` en el servicio `espocrm` y reconstruye la imagen al publicar cambios. El contenedor aplica el custom al arrancar.
 
 ---
 
@@ -123,5 +117,13 @@ En Dokploy, `espocrm-init` ejecuta `deploy-custom-dokploy.sh` solo al levantar e
 
 ```bash
 git pull
-bash scripts/deploy-custom.sh
+docker compose up -d --build
 ```
+
+Si el contenedor ya estaba en marcha y solo cambiaste archivos locales:
+
+```bash
+docker compose restart espocrm
+```
+
+Opcional (sin reiniciar): `bash scripts/deploy-custom.sh`

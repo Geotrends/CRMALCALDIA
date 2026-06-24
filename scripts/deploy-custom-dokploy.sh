@@ -181,4 +181,8 @@ echo "Rebuild final..."
 
 unset ESPO_DEPLOY_BATCH
 
+# shellcheck source=includes/deploy-stamp.sh
+source "$SCRIPTS_SOURCE/includes/deploy-stamp.sh"
+deploy_stamp_write "$APP_ROOT/data/.custom-deploy-stamp"
+
 echo "Dokploy custom deployment completed."

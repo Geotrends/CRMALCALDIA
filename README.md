@@ -7,11 +7,12 @@ Sistema de gestión de quejas ambientales para la Alcaldía, basado en EspoCRM +
 ```bash
 cd CRMALCALDIA          # directorio raíz del repo (este README)
 cp backups/despliegue-inicial/env.txt .env   # ajustar valores
-docker compose up -d
-./scripts/deploy-custom.sh
+docker compose up -d --build
 ```
 
-Abrir: http://localhost:8080
+El contenedor `espocrm` aplica solo el código custom, roles, permisos y locale (Bogotá, 24 h) al arrancar. No hace falta ejecutar scripts a mano.
+
+Abrir: http://localhost:8080 (recarga forzada: Cmd+Shift+R)
 
 ## Documentación
 
@@ -39,10 +40,11 @@ CRMALCALDIA/
 
 ## Despliegue
 
-- **Local (Docker):** `./scripts/deploy-custom.sh`
-- **Dokploy / contenedor:** `./scripts/deploy-custom-dokploy.sh`
+- **Local (Docker):** `docker compose up -d --build` — el auto-deploy corre al iniciar `espocrm`
+- **Dokploy / contenedor:** rebuild + reinicio del servicio `espocrm` (mismo auto-deploy)
+- **Manual (opcional):** `./scripts/deploy-custom.sh` si necesitas forzar sin reiniciar
 
-Ambos comparten el mismo manifiesto de pasos en `scripts/includes/deploy-steps.sh`.
+Ambos flujos automáticos comparten el manifiesto en `scripts/includes/deploy-steps.sh`.
 
 ## Roles operativos
 

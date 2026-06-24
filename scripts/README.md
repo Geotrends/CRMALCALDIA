@@ -6,7 +6,7 @@ Scripts que usa el CRM en despliegue y operación diaria.
 
 | Script | Uso |
 |--------|-----|
-| `deploy-custom.sh` | Despliegue local (Docker) |
+| `deploy-custom.sh` | Despliegue manual opcional (local); el auto-deploy al arrancar `espocrm` ya aplica todo |
 | `deploy-custom-dokploy.sh` | Despliegue en Dokploy |
 | `includes/deploy-steps.sh` | Manifiesto compartido de pasos post-rebuild |
 | `includes/deploy-rebuild.php` | Rebuild condicional (batch Dokploy) |

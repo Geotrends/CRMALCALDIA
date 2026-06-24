@@ -35,8 +35,13 @@ services:
       ESPOCRM_ADMIN_PASSWORD: ${ESPOCRM_ADMIN_PASSWORD}
       ESPOCRM_SITE_URL: ${ESPOCRM_SITE_URL}
       ESPOCRM_TIME_ZONE: ${ESPOCRM_TIME_ZONE}
+      ESPO_RUN_AUTO_DEPLOY: "1"
     volumes:
       - espocrm:/var/www/html
+      - ./espocrm-custom:/opt/bootstrap/repo/espocrm-custom:ro
+      - ./scripts:/opt/bootstrap/repo/scripts:ro
+      - ./formatos:/opt/bootstrap/repo/formatos:ro
+      - ./exports:/opt/bootstrap/repo/exports:ro
     restart: always
     depends_on:
       espocrm-db:
@@ -76,6 +81,10 @@ services:
     container_name: espocrm-init
     volumes:
       - espocrm:/var/www/html
+      - ./espocrm-custom:/opt/bootstrap/repo/espocrm-custom:ro
+      - ./scripts:/opt/bootstrap/repo/scripts:ro
+      - ./formatos:/opt/bootstrap/repo/formatos:ro
+      - ./exports:/opt/bootstrap/repo/exports:ro
     restart: "no"
     entrypoint:
       - run-custom-init.sh

@@ -64,8 +64,12 @@ for i in $(seq 1 60); do
   sleep 3
 done
 
-echo "==> Desplegando custom + permisos..."
-bash "$ROOT/scripts/deploy-custom.sh"
+echo "==> Aplicando custom (reinicio con auto-deploy)..."
+docker compose restart espocrm
+
+# shellcheck source=includes/wait-for-espocrm.sh
+source "$ROOT/scripts/includes/wait-for-espocrm.sh"
+wait_for_espocrm_ready "http://localhost:8080"
 
 echo ""
 echo "Restauración completa. Abre http://localhost:8080 y recarga con Ctrl+Shift+R."
