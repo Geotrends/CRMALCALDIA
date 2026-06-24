@@ -24,6 +24,7 @@ services:
       dockerfile: docker/espocrm/Dockerfile
     image: crm-alcaldia/espocrm
     container_name: espocrm
+    entrypoint: ["/usr/local/bin/entrypoint-with-deploy.sh"]
     environment:
       ESPOCRM_DATABASE_PLATFORM: Postgresql
       ESPOCRM_DATABASE_HOST: espocrm-db

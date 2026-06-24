@@ -25,5 +25,3 @@ COPY docker/espocrm/run-custom-init.sh /usr/local/bin/run-custom-init.sh
 COPY docker/espocrm/entrypoint-with-deploy.sh /usr/local/bin/entrypoint-with-deploy.sh
 
 RUN chmod +x /usr/local/bin/run-custom-init.sh /usr/local/bin/entrypoint-with-deploy.sh
-
-ENTRYPOINT ["entrypoint-with-deploy.sh"]

@@ -41,7 +41,7 @@ CRMALCALDIA/
 ## Despliegue
 
 - **Local (Docker):** `docker compose up -d --build` — el auto-deploy corre al iniciar `espocrm`
-- **Dokploy / contenedor:** rebuild + reinicio del servicio `espocrm` (mismo auto-deploy)
+- **Dokploy / contenedor:** push a Git + redeploy; `espocrm-init` aplica el custom (no uses `ESPO_RUN_AUTO_DEPLOY` en producción)
 - **Manual (opcional):** `./scripts/deploy-custom.sh` si necesitas forzar sin reiniciar
 
 Ambos flujos automáticos comparten el manifiesto en `scripts/includes/deploy-steps.sh`.

@@ -1,12 +1,16 @@
 #!/bin/bash
-set -euo pipefail
+# Auto-deploy opcional (solo local). Nunca debe impedir que Apache arranque.
+set -uo pipefail
 
 REPO_ROOT="${REPO_ROOT:-/opt/bootstrap/repo}"
 STAMP_FILE="/var/www/html/data/.custom-deploy-stamp"
 DEPLOY_SCRIPT="$REPO_ROOT/scripts/deploy-custom-dokploy.sh"
+STAMP_SCRIPT="$REPO_ROOT/scripts/includes/deploy-stamp.sh"
 
-# shellcheck source=../../scripts/includes/deploy-stamp.sh
-source "$REPO_ROOT/scripts/includes/deploy-stamp.sh"
+if [ -f "$STAMP_SCRIPT" ]; then
+  # shellcheck source=/dev/null
+  source "$STAMP_SCRIPT"
+fi
 
 is_espocrm_installed() {
   php -r '
@@ -21,45 +25,51 @@ is_espocrm_installed() {
       }
     }
     echo "0";
-  '
+  ' 2>/dev/null || echo "0"
 }
 
-run_auto_deploy() {
+run_auto_deploy_background() {
   if [ "${ESPO_RUN_AUTO_DEPLOY:-0}" != "1" ]; then
     return 0
   fi
 
-  if [ ! -f "$DEPLOY_SCRIPT" ]; then
-    echo "Auto-deploy: no se encontró $DEPLOY_SCRIPT"
-    return 0
-  fi
-
-  if [ "$(is_espocrm_installed)" != "1" ]; then
-    echo "Auto-deploy: EspoCRM aún no está instalado."
-    return 0
-  fi
-
-  if [ "${ESPO_FORCE_AUTO_DEPLOY:-0}" != "1" ]; then
-    local new_stamp current_stamp
-    new_stamp="$(deploy_stamp_compute)"
-    current_stamp=""
-
-    if [ -f "$STAMP_FILE" ]; then
-      current_stamp="$(cat "$STAMP_FILE")"
+  (
+    if [ ! -f "$DEPLOY_SCRIPT" ]; then
+      echo "Auto-deploy: no se encontró $DEPLOY_SCRIPT"
+      exit 0
     fi
 
-    if [ -n "$new_stamp" ] && [ "$new_stamp" = "$current_stamp" ]; then
-      echo "Auto-deploy: sin cambios en custom/scripts (omitido)."
-      return 0
+    if [ "$(is_espocrm_installed)" != "1" ]; then
+      echo "Auto-deploy: EspoCRM aún no está instalado."
+      exit 0
     fi
-  fi
 
-  echo "==> Auto-deploy CRM Alcaldía..."
-  bash "$DEPLOY_SCRIPT"
-  deploy_stamp_write "$STAMP_FILE"
-  echo "==> Auto-deploy completado."
+    if [ "${ESPO_FORCE_AUTO_DEPLOY:-0}" != "1" ] && command -v deploy_stamp_compute >/dev/null 2>&1; then
+      new_stamp="$(deploy_stamp_compute)"
+      current_stamp=""
+
+      if [ -f "$STAMP_FILE" ]; then
+        current_stamp="$(cat "$STAMP_FILE")"
+      fi
+
+      if [ -n "$new_stamp" ] && [ "$new_stamp" = "$current_stamp" ]; then
+        echo "Auto-deploy: sin cambios (omitido)."
+        exit 0
+      fi
+    fi
+
+    echo "==> Auto-deploy CRM Alcaldía (en segundo plano)..."
+    if bash "$DEPLOY_SCRIPT"; then
+      if command -v deploy_stamp_write >/dev/null 2>&1; then
+        deploy_stamp_write "$STAMP_FILE"
+      fi
+      echo "==> Auto-deploy completado."
+    else
+      echo "AVISO: auto-deploy falló; el CRM sigue en línea con la versión anterior."
+    fi
+  ) &
 }
 
-run_auto_deploy
+run_auto_deploy_background
 
 exec docker-entrypoint.sh "$@"

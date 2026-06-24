@@ -18,7 +18,13 @@ for i in {1..120}; do
   ')"
 
   if [ "$is_installed" = "1" ]; then
-    exec bash /opt/bootstrap/repo/scripts/deploy-custom-dokploy.sh
+    echo "==> EspoCRM instalado. Aplicando custom (espocrm-init)..."
+    if bash /opt/bootstrap/repo/scripts/deploy-custom-dokploy.sh; then
+      echo "==> Custom aplicado."
+      exit 0
+    fi
+    echo "AVISO: deploy-custom falló; el CRM puede seguir en línea con versión anterior."
+    exit 0
   fi
 
   echo "Waiting for EspoCRM installation to finish ($i/120)..."
