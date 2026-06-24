@@ -8,6 +8,14 @@ define('custom:helpers/post-radicacion-fields', [
         return RadicacionFields.isAsignadorUser(user);
     };
 
+    const isRadicacionUser = function (user) {
+        return RadicacionFields.isRadicacionUser(user);
+    };
+
+    const canAssignPatrullero = function (user) {
+        return isAsignadorUser(user) || isRadicacionUser(user);
+    };
+
     const isCasePostRadicado = function (model) {
         return RadicacionFields.isCasePostRadicado(model);
     };
@@ -17,7 +25,7 @@ define('custom:helpers/post-radicacion-fields', [
             return false;
         }
 
-        return isAsignadorUser(user);
+        return canAssignPatrullero(user);
     };
 
     const canEditAsignacion = function (user, model) {
@@ -27,6 +35,8 @@ define('custom:helpers/post-radicacion-fields', [
     return {
         ASIGNACION_FIELD: ASIGNACION_FIELD,
         isAsignadorUser: isAsignadorUser,
+        isRadicacionUser: isRadicacionUser,
+        canAssignPatrullero: canAssignPatrullero,
         isCasePostRadicado: isCasePostRadicado,
         shouldShowAsignacion: shouldShowAsignacion,
         canEditAsignacion: canEditAsignacion,

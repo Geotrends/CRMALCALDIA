@@ -7,6 +7,7 @@ use Espo\Core\Exceptions\BadRequest;
 use Espo\Core\Exceptions\Forbidden;
 use Espo\Core\Exceptions\NotFound;
 use Espo\Custom\Tools\Calendar\CaseCalendarEventService;
+use Espo\Custom\Tools\CaseObj\CaseCreateDefaultsService;
 use Espo\Custom\Tools\CaseObj\CaseCronogramaService;
 use Espo\Custom\Tools\CaseObj\CaseTimelineService;
 use Espo\Custom\Tools\CaseObj\RadicadoCatalog;
@@ -26,6 +27,22 @@ class CaseObj extends BaseCaseObj
     public function getActionAlcaldiaProfile(Request $request): array
     {
         return (new AlcaldiaUserProfile($this->entityManager))->build($this->getUser());
+    }
+
+    /**
+     * GET Case/action/createDefaults
+     *
+     * @return array<string, string>
+     */
+    public function getActionCreateDefaults(Request $request): array
+    {
+        if (!$this->acl->check('Case', 'create')) {
+            throw new Forbidden();
+        }
+
+        return $this->injectableFactory
+            ->create(CaseCreateDefaultsService::class)
+            ->build();
     }
 
     /**

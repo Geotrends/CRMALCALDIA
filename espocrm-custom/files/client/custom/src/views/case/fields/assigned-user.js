@@ -47,9 +47,13 @@ define('custom:views/case/fields/assigned-user', [
 
             if (
                 PostRadicacionFields.isCasePostRadicado(this.model)
-                && PostRadicacionFields.isAsignadorUser(user)
+                && PostRadicacionFields.canAssignPatrullero(user)
             ) {
-                return null;
+                if (PostRadicacionFields.isAsignadorUser(user)) {
+                    return null;
+                }
+
+                return 'patrulleros';
             }
 
             if (PostRadicacionFields.isCasePostRadicado(this.model)) {

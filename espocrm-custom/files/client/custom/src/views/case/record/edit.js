@@ -349,6 +349,8 @@ define('custom:views/case/record/edit', [
                 'cRespuestaInmediata',
                 'cRecibidaPor',
                 'cRemitidoA',
+                'assignedUser',
+                'cMotivoReasignacion',
                 'cTipoPersonaPeticionario',
                 'cTipoPersonaPerjudicante',
             ].concat(DireccionEstructurada.allComponentFields());

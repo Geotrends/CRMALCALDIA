@@ -1,48 +1,33 @@
 <?php
 
 /**
- * Genera case-create-users.js con defaults según rol (Inspección / Radicación).
+ * Genera case-create-users.js (respaldo estático) y documenta defaults por rol.
+ * La UI usa Case/action/createDefaults en tiempo real.
  */
 
 require_once '/var/www/html/bootstrap.php';
 
 use Espo\Core\Application;
-use Espo\Custom\Tools\User\AlcaldiaUserProfile;
-use Espo\ORM\EntityManager;
+use Espo\Core\InjectableFactory;
+use Espo\Custom\Tools\CaseObj\CaseCreateDefaultsService;
 
 $app = new Application();
 $app->setupSystemUser();
 
-/** @var EntityManager $em */
-$em = $app->getContainer()->getByClass(EntityManager::class);
+/** @var InjectableFactory $injectableFactory */
+$injectableFactory = $app->getContainer()->getByClass(InjectableFactory::class);
 
-$profile = new AlcaldiaUserProfile($em);
+$defaults = $injectableFactory->create(CaseCreateDefaultsService::class)->build();
 
-$map = [
-    'cRecibidaPor' => [
-        AlcaldiaUserProfile::ROLE_INSPECCION,
-        AlcaldiaUserProfile::ROLE_INSPECCION_ALT,
-    ],
-    'cRemitidoA' => [
-        AlcaldiaUserProfile::ROLE_RADICACION,
-        AlcaldiaUserProfile::ROLE_RADICACION_ALT,
-    ],
-];
+foreach (['cRecibidaPor', 'cRemitidoA'] as $prefix) {
+    $idKey = $prefix . 'Id';
+    $nameKey = $prefix . 'Name';
 
-$defaults = [];
-
-foreach ($map as $field => $roleNames) {
-    $userId = $profile->findFirstActiveUserIdByRoleNames($roleNames);
-
-    if (!$userId) {
-        echo "Sin usuario activo con rol " . implode('/', $roleNames) . " (se omite {$field}).\n";
-        continue;
+    if (!empty($defaults[$idKey])) {
+        echo "{$prefix} → {$defaults[$nameKey]} ({$defaults[$idKey]})\n";
+    } else {
+        echo "{$prefix} → sin usuario activo con el rol esperado\n";
     }
-
-    $user = $em->getEntityById('User', $userId);
-    $defaults[$field . 'Id'] = $userId;
-    $defaults[$field . 'Name'] = $user?->getName();
-    echo "{$field} → {$user?->get('userName')} (" . implode('/', $roleNames) . ")\n";
 }
 
 $outPaths = [
@@ -62,3 +47,5 @@ $localPath = dirname(__DIR__) . '/espocrm-custom/files/client/custom/src/config/
 if (is_dir(dirname($localPath))) {
     file_put_contents($localPath, $js);
 }
+
+echo "Defaults activos vía API: Case/action/createDefaults\n";

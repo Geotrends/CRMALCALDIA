@@ -1,9 +1,5 @@
 define('custom:config/case-create-users', [], function () {
 
-    return {
-    "cRecibidaPorId": "6a203cd287a11952f",
-    "cRecibidaPorName": "Juan Carlos Sanchez",
-    "cRemitidoAId": "6a1fb17006839cf98",
-    "cRemitidoAName": "Edwin radica"
-};
+    // Obsoleto: los defaults vienen de Case/action/createDefaults (usuarios por rol en BD).
+    return {};
 });
