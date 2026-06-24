@@ -55,6 +55,46 @@ define('custom:views/calendar/calendar', [
             return '';
         },
 
+        isTimedEvent: function (event) {
+            if (!event || !event.dateStart) {
+                return false;
+            }
+
+            var value = String(event.dateStart).trim();
+
+            return value.length > 10 && value.indexOf(' ') > 0;
+        },
+
+        getEventSortTime: function (event) {
+            if (this.isTimedEvent(event)) {
+                return String(event.dateStart);
+            }
+
+            if (event.dateStartDate) {
+                return event.dateStartDate + 'T00:00:00';
+            }
+
+            return '9999-12-31T23:59:59';
+        },
+
+        compareEvents: function (a, b) {
+            var aTimed = this.isTimedEvent(a);
+            var bTimed = this.isTimedEvent(b);
+
+            if (aTimed !== bTimed) {
+                return aTimed ? -1 : 1;
+            }
+
+            var aTime = this.getEventSortTime(a);
+            var bTime = this.getEventSortTime(b);
+
+            if (aTime !== bTime) {
+                return aTime < bTime ? -1 : 1;
+            }
+
+            return String(a.name || '').localeCompare(String(b.name || ''));
+        },
+
         applyDayEventLimit: function (events) {
             var self = this;
             var byDate = {};
@@ -78,7 +118,7 @@ define('custom:views/calendar/calendar', [
 
             Object.keys(byDate).sort().forEach(function (dateKey) {
                 var list = byDate[dateKey].slice().sort(function (a, b) {
-                    return String(a.name || '').localeCompare(String(b.name || ''));
+                    return self.compareEvents(a, b);
                 });
 
                 self._dayEventsByDate[dateKey] = list;
@@ -89,9 +129,26 @@ define('custom:views/calendar/calendar', [
                     return;
                 }
 
-                limited = limited.concat(list.slice(0, MAX_EVENTS_PER_DAY));
+                var timed = [];
+                var allDay = [];
 
-                var hiddenCount = list.length - MAX_EVENTS_PER_DAY;
+                list.forEach(function (event) {
+                    if (self.isTimedEvent(event)) {
+                        timed.push(event);
+                    } else {
+                        allDay.push(event);
+                    }
+                });
+
+                var visibleAllDayCount = Math.max(0, MAX_EVENTS_PER_DAY - timed.length);
+                var visible = timed.concat(allDay.slice(0, visibleAllDayCount));
+                var hiddenCount = list.length - visible.length;
+
+                limited = limited.concat(visible);
+
+                if (hiddenCount <= 0) {
+                    return;
+                }
 
                 limited.push({
                     scope: 'CaseMore',

@@ -1,6 +1,7 @@
 {
     "labels": {
         "dayEventsTitle": "Actividades del día",
-        "dayEventsEmpty": "No hay actividades para mostrar en este día."
+        "dayEventsEmpty": "No hay actividades para mostrar en este día.",
+        "allDay": "Todo el día"
     }
 }

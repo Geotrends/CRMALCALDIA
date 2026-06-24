@@ -93,8 +93,8 @@ class CaseCalendarEventService
 
         $creacion = $this->resolveCreationDate($case);
 
-        if ($creacion && $this->dateInRange($creacion, $fromDate, $toDate)) {
-            $events[] = $this->allDayEvent(
+        if ($creacion && $this->dateTimeInRange($creacion, $fromDate, $toDate)) {
+            $events[] = $this->buildCalendarEvent(
                 $caseId,
                 'creacion',
                 $creacion,
@@ -105,8 +105,8 @@ class CaseCalendarEventService
 
         $vencimiento = trim((string) $case->get('cFechaVencimiento'));
 
-        if ($vencimiento !== '' && $this->dateInRange($vencimiento, $fromDate, $toDate)) {
-            $events[] = $this->allDayEvent(
+        if ($vencimiento !== '' && $this->dateTimeInRange($vencimiento, $fromDate, $toDate)) {
+            $events[] = $this->buildCalendarEvent(
                 $caseId,
                 'vencimiento',
                 $vencimiento,
@@ -122,18 +122,18 @@ class CaseCalendarEventService
                 continue;
             }
 
-            $dateKey = substr($statusDates[$status], 0, 10);
+            $statusDateTime = trim((string) $statusDates[$status]);
 
-            if (!$this->dateInRange($dateKey, $fromDate, $toDate)) {
+            if ($statusDateTime === '' || !$this->dateTimeInRange($statusDateTime, $fromDate, $toDate)) {
                 continue;
             }
 
             $statusKey = $this->slug($status);
 
-            $events[] = $this->allDayEvent(
+            $events[] = $this->buildCalendarEvent(
                 $caseId,
                 'estado-' . $statusKey,
-                $dateKey,
+                $statusDateTime,
                 $this->statusEventLabel($status, $label),
                 self::COLOR_ESTADO,
                 $status
@@ -141,6 +141,69 @@ class CaseCalendarEventService
         }
 
         return $events;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function buildCalendarEvent(
+        string $caseId,
+        string $suffix,
+        string $dateTime,
+        string $name,
+        string $color,
+        ?string $status = null
+    ): array {
+        $dateTime = $this->normalizeDateTime($dateTime);
+
+        if ($this->isDateOnly($dateTime)) {
+            return $this->allDayEvent(
+                $caseId,
+                $suffix,
+                substr($dateTime, 0, 10),
+                $name,
+                $color,
+                $status
+            );
+        }
+
+        return $this->timedEvent(
+            $caseId,
+            $suffix,
+            $dateTime,
+            $name,
+            $color,
+            $status
+        );
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function timedEvent(
+        string $caseId,
+        string $suffix,
+        string $dateStart,
+        string $name,
+        string $color,
+        ?string $status = null
+    ): array {
+        $dateStart = $this->normalizeDateTime($dateStart);
+
+        return [
+            'scope' => 'Case',
+            'uid' => $caseId . '-' . $suffix,
+            'recordId' => $caseId,
+            'id' => $caseId,
+            'name' => $name,
+            'dateStart' => $dateStart,
+            'dateEnd' => $this->addMinutes($dateStart, 30),
+            'dateStartDate' => null,
+            'dateEndDate' => null,
+            'color' => $color,
+            'caseEventType' => explode('-', $suffix)[0],
+            'status' => $status,
+        ];
     }
 
     /**
@@ -210,24 +273,89 @@ class CaseCalendarEventService
 
     private function resolveCreationDate(Entity $case): ?string
     {
+        return $this->resolveCreationDateTime($case);
+    }
+
+    private function resolveCreationDateTime(Entity $case): ?string
+    {
         $fechaCaso = $case->get('cFechaCaso');
 
+        if ($fechaCaso instanceof \DateTimeInterface) {
+            return $fechaCaso->format('Y-m-d H:i:s');
+        }
+
         if (is_string($fechaCaso) && trim($fechaCaso) !== '') {
-            return substr(trim($fechaCaso), 0, 10);
+            return $this->normalizeDateTime(trim($fechaCaso));
         }
 
         $createdAt = $case->get('createdAt');
 
+        if ($createdAt instanceof \DateTimeInterface) {
+            return $createdAt->format('Y-m-d H:i:s');
+        }
+
         if (is_string($createdAt) && trim($createdAt) !== '') {
-            return substr(trim($createdAt), 0, 10);
+            return $this->normalizeDateTime(trim($createdAt));
         }
 
         return null;
     }
 
+    private function normalizeDateTime(string $value): string
+    {
+        $value = trim($value);
+
+        if ($value === '') {
+            return $value;
+        }
+
+        if ($this->isDateOnly($value)) {
+            return substr($value, 0, 10);
+        }
+
+        $value = str_replace('T', ' ', $value);
+
+        if (preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/', $value) === 1) {
+            return $value . ':00';
+        }
+
+        return substr($value, 0, 19);
+    }
+
+    private function isDateOnly(string $value): bool
+    {
+        return strlen(trim($value)) <= 10;
+    }
+
+    private function addMinutes(string $dateTime, int $minutes): string
+    {
+        $dateTime = $this->normalizeDateTime($dateTime);
+
+        if ($dateTime === '' || $this->isDateOnly($dateTime)) {
+            return $dateTime;
+        }
+
+        $dt = new \DateTimeImmutable($dateTime);
+
+        return $dt->modify('+' . $minutes . ' minutes')->format('Y-m-d H:i:s');
+    }
+
+    private function dateTimeInRange(string $dateTime, string $fromDate, string $toDate): bool
+    {
+        $dateTime = $this->normalizeDateTime($dateTime);
+
+        if ($dateTime === '') {
+            return false;
+        }
+
+        $dateKey = substr($dateTime, 0, 10);
+
+        return $dateKey >= $fromDate && $dateKey <= $toDate;
+    }
+
     private function dateInRange(string $date, string $fromDate, string $toDate): bool
     {
-        return $date >= $fromDate && $date <= $toDate;
+        return $this->dateTimeInRange($date, $fromDate, $toDate);
     }
 
     private function slug(string $value): string

@@ -30,6 +30,20 @@
     cursor: pointer;
 }
 
+.calendar-day-events__content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+}
+
+.calendar-day-events__time {
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
 .calendar-day-events__dot {
     flex-shrink: 0;
     width: 10px;

@@ -27,12 +27,64 @@ define('custom:views/calendar/modals/day-events', ['views/modal'], function (Dep
 
         setup: function () {
             this.headerText = this.translate('dayEventsTitle', 'labels', 'Calendar');
-            this.eventsList = this.options.events || [];
+            this.eventsList = (this.options.events || []).slice().sort(this.compareEvents.bind(this));
 
             this.buttonList = [{
                 name: 'close',
                 label: this.translate('Close'),
             }];
+        },
+
+        isTimedEvent: function (event) {
+            if (!event || !event.dateStart) {
+                return false;
+            }
+
+            var value = String(event.dateStart).trim();
+
+            return value.length > 10 && value.indexOf(' ') > 0;
+        },
+
+        getEventSortTime: function (event) {
+            if (this.isTimedEvent(event)) {
+                return String(event.dateStart);
+            }
+
+            if (event.dateStartDate) {
+                return event.dateStartDate + 'T00:00:00';
+            }
+
+            return '9999-12-31T23:59:59';
+        },
+
+        compareEvents: function (a, b) {
+            var aTimed = this.isTimedEvent(a);
+            var bTimed = this.isTimedEvent(b);
+
+            if (aTimed !== bTimed) {
+                return aTimed ? -1 : 1;
+            }
+
+            var aTime = this.getEventSortTime(a);
+            var bTime = this.getEventSortTime(b);
+
+            if (aTime !== bTime) {
+                return aTime < bTime ? -1 : 1;
+            }
+
+            return String(a.name || '').localeCompare(String(b.name || ''));
+        },
+
+        formatEventTime: function (event) {
+            if (this.isTimedEvent(event)) {
+                return this.getDateTime().toMoment(event.dateStart).format(this.getDateTime().getTimeFormat());
+            }
+
+            if (event.dateStartDate) {
+                return this.translate('allDay', 'labels', 'Calendar');
+            }
+
+            return '';
         },
 
         data: function () {
@@ -41,6 +93,7 @@ define('custom:views/calendar/modals/day-events', ['views/modal'], function (Dep
             var dateLabel = momentDate.isValid()
                 ? momentDate.format('dddd, D MMMM YYYY')
                 : date;
+            var self = this;
 
             return {
                 dateLabel: dateLabel,
@@ -55,6 +108,7 @@ define('custom:views/calendar/modals/day-events', ['views/modal'], function (Dep
                         recordId: event.recordId || event.id,
                         name: event.name || '',
                         color: event.color || '#1d8a6e',
+                        timeLabel: self.formatEventTime(event),
                     };
                 }).filter(function (item) {
                     return item && item.scope && item.recordId;
