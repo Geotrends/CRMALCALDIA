@@ -10,7 +10,7 @@ cp backups/despliegue-inicial/env.txt .env   # ajustar valores
 docker compose up -d --build
 ```
 
-El contenedor `espocrm` aplica solo el código custom, roles, permisos y locale (Bogotá, 24 h) al arrancar. No hace falta ejecutar scripts a mano.
+El contenedor `espocrm` (local) fusiona `docker-compose.override.yml`: auto-deploy y código montado en vivo.
 
 Abrir: http://localhost:8080 (recarga forzada: Cmd+Shift+R)
 
@@ -40,8 +40,8 @@ CRMALCALDIA/
 
 ## Despliegue
 
-- **Local (Docker):** `docker compose up -d --build` — el auto-deploy corre al iniciar `espocrm`
-- **Dokploy / contenedor:** push a Git + redeploy; `espocrm-init` aplica el custom (no uses `ESPO_RUN_AUTO_DEPLOY` en producción)
+- **Local (Docker):** `docker compose up -d --build` — usa `docker-compose.override.yml` (auto-deploy)
+- **Dokploy:** push + redeploy; solo `docker-compose.yml` (entrypoint estándar + `espocrm-init`)
 - **Manual (opcional):** `./scripts/deploy-custom.sh` si necesitas forzar sin reiniciar
 
 Ambos flujos automáticos comparten el manifiesto en `scripts/includes/deploy-steps.sh`.

@@ -1,0 +1,19 @@
+# Solo desarrollo local (Docker Compose lo fusiona automáticamente).
+# Dokploy usa docker-compose.yml sin este archivo.
+services:
+  espocrm:
+    entrypoint: ["/usr/local/bin/entrypoint-with-deploy.sh"]
+    environment:
+      ESPO_RUN_AUTO_DEPLOY: "1"
+    volumes:
+      - ./espocrm-custom:/opt/bootstrap/repo/espocrm-custom:ro
+      - ./scripts:/opt/bootstrap/repo/scripts:ro
+      - ./formatos:/opt/bootstrap/repo/formatos:ro
+      - ./exports:/opt/bootstrap/repo/exports:ro
+
+  espocrm-init:
+    volumes:
+      - ./espocrm-custom:/opt/bootstrap/repo/espocrm-custom:ro
+      - ./scripts:/opt/bootstrap/repo/scripts:ro
+      - ./formatos:/opt/bootstrap/repo/formatos:ro
+      - ./exports:/opt/bootstrap/repo/exports:ro
