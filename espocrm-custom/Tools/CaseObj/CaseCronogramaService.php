@@ -340,7 +340,7 @@ class CaseCronogramaService
 
     private function formatActionDate(DateTimeImmutable $dt): string
     {
-        return $dt->format('d/m/Y h:i:s A') . ' (UTC-05:00) Bogotá, Lima, Quito';
+        return $dt->format('d/m/Y H:i:s') . ' (UTC-05:00) Bogotá, Lima, Quito';
     }
 
     private function formatElapsedLabel(int $days): string
@@ -358,7 +358,7 @@ class CaseCronogramaService
 
     private function formatTimestamp(DateTimeImmutable $dt): string
     {
-        return '(' . $dt->format('d/m/Y h:i:s A') . ' (UTC-05:00) Bogotá, Lima, Quito)';
+        return '(' . $dt->format('d/m/Y H:i:s') . ' (UTC-05:00) Bogotá, Lima, Quito)';
     }
 
     private function toBogota(string $at): DateTimeImmutable

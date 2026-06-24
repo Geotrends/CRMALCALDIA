@@ -4,6 +4,7 @@
     document.getElementById('fecha-actual').textContent =
         new Date().toLocaleDateString('es-CO', {
             weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+            timeZone: 'America/Bogota',
         });
 
     /* Paleta institucional — verdes, slate y tonos apagados */

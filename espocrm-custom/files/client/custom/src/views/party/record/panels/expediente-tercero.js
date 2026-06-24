@@ -1,43 +1,5 @@
 define('custom:views/party/record/panels/expediente-tercero', ['views/fields/base'], function (Dep) {
 
-    var formatDate = function (value) {
-        if (!value) {
-            return '—';
-        }
-
-        var date = new Date(String(value).replace(' ', 'T'));
-
-        if (isNaN(date.getTime())) {
-            return String(value).substring(0, 10);
-        }
-
-        return date.toLocaleDateString('es-CO', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-        });
-    };
-
-    var formatDateTime = function (value) {
-        if (!value) {
-            return '—';
-        }
-
-        var date = new Date(String(value).replace(' ', 'T'));
-
-        if (isNaN(date.getTime())) {
-            return String(value).substring(0, 16).replace('T', ' ');
-        }
-
-        return date.toLocaleString('es-CO', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-        });
-    };
-
     var tipoLabel = function (tipo) {
         var labels = {
             caso: 'Caso',
@@ -94,6 +56,22 @@ define('custom:views/party/record/panels/expediente-tercero', ['views/fields/bas
             this.bindActions();
         },
 
+        formatDate: function (value) {
+            if (!value) {
+                return '—';
+            }
+
+            return this.getDateTime().toDisplayDate(value) || '—';
+        },
+
+        formatDateTime: function (value) {
+            if (!value) {
+                return '—';
+            }
+
+            return this.getDateTime().toDisplay(value) || '—';
+        },
+
         loadExpediente: function () {
             if (!this.model.id) {
                 return;
@@ -121,7 +99,7 @@ define('custom:views/party/record/panels/expediente-tercero', ['views/fields/bas
                                 status: item.status || '—',
                                 rol: item.rol || '—',
                                 expediente: item.expediente || '—',
-                                fechaCaso: formatDate(item.fechaCaso),
+                                fechaCaso: self.formatDate(item.fechaCaso),
                                 href: '#Case/view/' + item.id,
                             };
                         }),
@@ -129,7 +107,7 @@ define('custom:views/party/record/panels/expediente-tercero', ['views/fields/bas
                             return {
                                 tipo: item.tipo,
                                 tipoLabel: tipoLabel(item.tipo),
-                                fecha: formatDateTime(item.fecha),
+                                fecha: self.formatDateTime(item.fecha),
                                 titulo: item.titulo || '—',
                                 descripcion: item.descripcion || '',
                                 caseId: item.caseId,

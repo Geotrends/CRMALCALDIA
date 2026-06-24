@@ -228,14 +228,10 @@ class ReporteGerencialService
 
     try {
       if (strlen($value) > 10) {
-        $date = new \DateTimeImmutable($value);
-
-        return $date->format('d/m/Y H:i');
+        return $this->dateTime->convertSystemDateTimeToGlobal($value);
       }
 
-      $date = new \DateTimeImmutable($value);
-
-      return $date->format('d/m/Y');
+      return $this->dateTime->convertSystemDateToGlobal($value);
     } catch (\Throwable) {
       return $value;
     }

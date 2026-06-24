@@ -246,7 +246,7 @@ class FormatoSolicitudGenerator
             return '';
         }
 
-        $timezone = $this->config->get('timeZone') ?? 'UTC';
+        $timezone = $this->config->get('timeZone') ?? 'America/Bogota';
 
         try {
             $dateTime = new \DateTime($value, new \DateTimeZone('UTC'));

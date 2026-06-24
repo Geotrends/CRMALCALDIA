@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Idioma español por defecto (menú Personas naturales / jurídicas, Casos, etc.).
+ * Idioma español, zona horaria Bogotá y formato de hora militar (24 h) para todo el sistema.
  */
 require_once '/var/www/html/bootstrap.php';
 
@@ -15,8 +15,15 @@ $app->setupSystemUser();
 /** @var Config $config */
 $config = $app->getContainer()->getByClass(Config::class);
 
+$timeZone = 'America/Bogota';
+$dateFormat = 'DD.MM.YYYY';
+$timeFormat = 'HH:mm';
+
 $config->set('language', 'es_ES');
 $config->set('defaultLanguage', 'es_ES');
+$config->set('timeZone', $timeZone);
+$config->set('dateFormat', $dateFormat);
+$config->set('timeFormat', $timeFormat);
 $config->save();
 
 /** @var EntityManager $em */
@@ -30,8 +37,11 @@ foreach ($em->getRDBRepository('User')->where(['isActive' => true])->find() as $
     }
 
     $prefs->set('language', 'es_ES');
+    $prefs->set('timeZone', $timeZone);
+    $prefs->set('dateFormat', $dateFormat);
+    $prefs->set('timeFormat', $timeFormat);
     $em->saveEntity($prefs);
-    echo $user->get('userName') . " → idioma es_ES\n";
+    echo $user->get('userName') . " → es_ES, {$timeZone}, {$dateFormat}, {$timeFormat}\n";
 }
 
-echo "Idioma global: es_ES\n";
+echo "Configuración global: es_ES, {$timeZone}, {$dateFormat}, {$timeFormat}\n";

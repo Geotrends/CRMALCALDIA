@@ -9,7 +9,7 @@ DEPLOY_SETUP_STEPS=(
   "Catálogos Excel Alcaldía (desplegables)|configure-excel-alcaldia-case-fields.php"
   "Placeholder en desplegables Case|configure-case-enum-placeholders.php"
   "Menú lateral (tabList global)|configure-global-tablist.php"
-  "Idioma español (menú Personas naturales / jurídicas)|configure-default-locale.php"
+  "Idioma, zona horaria Bogotá y hora 24 h|configure-default-locale.php"
   "Calendario: reuniones, tareas y casos|configure-calendar-meetings-only.php"
   "Kanban de Casos (todos los usuarios)|configure-case-kanban.php"
   "Home: tablero custom + dashlets editables|configure-user-dashboards.php"

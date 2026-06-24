@@ -609,8 +609,11 @@ class FormatoActaVisitaGenerator
             return '';
         }
 
+        $timezone = $this->config->get('timeZone') ?? 'America/Bogota';
+
         try {
-            $dateTime = new \DateTime($value);
+            $dateTime = new \DateTime($value, new \DateTimeZone('UTC'));
+            $dateTime->setTimezone(new \DateTimeZone($timezone));
 
             return $dateTime->format('d/m/Y H:i');
         } catch (\Exception) {

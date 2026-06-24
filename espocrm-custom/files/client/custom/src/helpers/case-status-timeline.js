@@ -79,11 +79,15 @@ define('custom:helpers/case-status-timeline', [
 
         const format = dateTime.getDateTimeFormat && dateTime.getDateTimeFormat();
 
-        if (format && format.indexOf('H') === -1 && format.indexOf('h') === -1) {
-            return moment.format(format + ' HH:mm');
+        if (format) {
+            if (format.indexOf('H') === -1 && format.indexOf('h') === -1) {
+                return moment.format(format + ' HH:mm');
+            }
+
+            return moment.format(format);
         }
 
-        return moment.format(format || 'DD/MM/YYYY HH:mm');
+        return moment.format('DD.MM.YYYY HH:mm');
     };
 
     const buildSteps = function (view, currentIndex, statusDates) {
