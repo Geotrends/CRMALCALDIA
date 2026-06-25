@@ -14,8 +14,11 @@ define('custom:helpers/asignador-edit-mode', [
             return false;
         }
 
-        return !RadicacionFields.isInspeccionUser(user)
-            && !RadicacionFields.isRadicacionUser(user);
+        if (RadicacionFields.isRadicacionUser(user)) {
+            return false;
+        }
+
+        return !RadicacionFields.isInspeccionUser(user);
     };
 
     const activateAsignarMode = function (caseId) {

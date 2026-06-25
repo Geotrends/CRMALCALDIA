@@ -496,20 +496,20 @@ define('custom:views/case/record/edit', [
                 return;
             }
 
-            if (AsignadorEditMode.isPureAsignadorUser(this.getUser())) {
-                AsignadorEditMode.applyRestrictedEdit(this);
+            if (RadicacionEditMode.isPureRadicacionUser(this.getUser())) {
+                RadicacionEditMode.applyRestrictedEdit(this);
 
-                if (this.isAsignarMode()) {
+                if (this.isRadicarMode()) {
                     return;
                 }
 
                 return;
             }
 
-            if (RadicacionEditMode.isPureRadicacionUser(this.getUser())) {
-                RadicacionEditMode.applyRestrictedEdit(this);
+            if (AsignadorEditMode.isPureAsignadorUser(this.getUser())) {
+                AsignadorEditMode.applyRestrictedEdit(this);
 
-                if (this.isRadicarMode()) {
+                if (this.isAsignarMode()) {
                     return;
                 }
 

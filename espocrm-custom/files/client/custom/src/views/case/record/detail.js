@@ -76,8 +76,7 @@ define('custom:views/case/record/detail', [
             this.listenTo(this.model, 'change:cNumeroRadicado change:cExpediente change:assignedUserId change:cFormatoSolicitudPdfId change:status', function () {
                 this.toggleRadicacionFields();
                 this.togglePostRadicacionFields();
-                this.updateRadicacionDetailActions();
-                this.updateAsignadorDetailActions();
+                this.updateDetailActionLabels();
                 this.updatePatrulleroDetailActions();
                 this.scheduleRefreshActaVisitaPanel();
                 this.scheduleRefreshFormatoGeneradoDocs();
@@ -116,8 +115,7 @@ define('custom:views/case/record/detail', [
                 this.toggleRadicacionFields();
                 this.togglePostRadicacionFields();
                 this.toggleRegistroExcelPanel();
-                this.updateRadicacionDetailActions();
-                this.updateAsignadorDetailActions();
+                this.updateDetailActionLabels();
                 this.updatePatrulleroDetailActions();
             });
         },
@@ -237,14 +235,14 @@ define('custom:views/case/record/detail', [
                 return;
             }
 
-            if (AsignadorEditMode.isPureAsignadorUser(this.getUser())) {
-                AsignadorEditMode.openAsignadoEdit(this);
+            if (RadicacionEditMode.isPureRadicacionUser(this.getUser())) {
+                RadicacionEditMode.openRadicadoEdit(this);
 
                 return;
             }
 
-            if (RadicacionEditMode.isPureRadicacionUser(this.getUser())) {
-                RadicacionEditMode.openRadicadoEdit(this);
+            if (AsignadorEditMode.isPureAsignadorUser(this.getUser())) {
+                AsignadorEditMode.openAsignadoEdit(this);
 
                 return;
             }
@@ -263,20 +261,52 @@ define('custom:views/case/record/detail', [
             AsignadorEditMode.openAsignadoEdit(this);
         },
 
-        updateAsignadorDetailActions: function () {
+        updateDetailActionLabels: function () {
             const user = this.getUser();
             const model = this.model;
             const $editBtn = this.findPrimaryActionButton('edit');
 
-            if (!AsignadorEditMode.isPureAsignadorUser(user) || !model || !model.id) {
+            if (!model || !model.id) {
                 return;
             }
 
-            $editBtn.show();
-            this.setPrimaryActionButtonLabel(
-                $editBtn,
-                this.translate('asignarCaso', 'labels', 'Case')
-            );
+            if (RadicacionEditMode.isPureRadicacionUser(user)) {
+                $editBtn.show();
+
+                if (RadicacionEditMode.shouldShowRadicarButton(user, model)) {
+                    this.setPrimaryActionButtonLabel(
+                        $editBtn,
+                        this.translate('radicarCaso', 'labels', 'Case')
+                    );
+
+                    return;
+                }
+
+                if (RadicacionEditMode.shouldShowEditRadicadoButton(user, model)) {
+                    this.setPrimaryActionButtonLabel(
+                        $editBtn,
+                        this.translate('Edit', 'labels', 'Global')
+                    );
+
+                    return;
+                }
+
+                $editBtn.hide();
+
+                return;
+            }
+
+            if (AsignadorEditMode.isPureAsignadorUser(user)) {
+                $editBtn.show();
+                this.setPrimaryActionButtonLabel(
+                    $editBtn,
+                    this.translate('asignarCaso', 'labels', 'Case')
+                );
+            }
+        },
+
+        updateAsignadorDetailActions: function () {
+            this.updateDetailActionLabels();
         },
 
         updatePatrulleroDetailActions: function () {
@@ -326,42 +356,13 @@ define('custom:views/case/record/detail', [
                         return;
                     }
 
-                    self.updateRadicacionDetailActions();
-                    self.updateAsignadorDetailActions();
+                    self.updateDetailActionLabels();
                 }, delay);
             });
         },
 
         updateRadicacionDetailActions: function () {
-            const user = this.getUser();
-            const model = this.model;
-            const $editBtn = this.findPrimaryActionButton('edit');
-
-            if (!RadicacionEditMode.isPureRadicacionUser(user) || !model || !model.id) {
-                return;
-            }
-
-            $editBtn.show();
-
-            if (RadicacionEditMode.shouldShowRadicarButton(user, model)) {
-                this.setPrimaryActionButtonLabel(
-                    $editBtn,
-                    this.translate('radicarCaso', 'labels', 'Case')
-                );
-
-                return;
-            }
-
-            if (RadicacionEditMode.shouldShowEditRadicadoButton(user, model)) {
-                this.setPrimaryActionButtonLabel(
-                    $editBtn,
-                    this.translate('Edit', 'labels', 'Global')
-                );
-
-                return;
-            }
-
-            $editBtn.hide();
+            this.updateDetailActionLabels();
         },
 
         actionDelete: function (data) {
@@ -402,9 +403,8 @@ define('custom:views/case/record/detail', [
             RadicadoGenerator.hideAssistantFields(this);
             this.updateActaVisitaButton();
             this.updateActuoArchivoButton();
-            this.updateRadicacionDetailActions();
+            this.updateDetailActionLabels();
             this.scheduleDetailActionLabels();
-            this.updateAsignadorDetailActions();
             this.updatePatrulleroDetailActions();
             this.toggleActaPanels();
             this.toggleActuoArchivoPanels();
@@ -417,9 +417,8 @@ define('custom:views/case/record/detail', [
                 self.toggleRegistroExcelPanel();
                 self.toggleActaPanels();
                 self.updateActaVisitaButton();
-                self.updateRadicacionDetailActions();
+                self.updateDetailActionLabels();
                 self.scheduleDetailActionLabels();
-                self.updateAsignadorDetailActions();
                 self.updatePatrulleroDetailActions();
                 self.refreshActaVisitaPanel();
             };
