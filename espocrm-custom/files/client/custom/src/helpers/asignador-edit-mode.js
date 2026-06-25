@@ -67,7 +67,7 @@ define('custom:helpers/asignador-edit-mode', [
     };
 
     const shouldShowAsignarButton = function (user, model) {
-        return isPureAsignadorUser(user) && !!model && !!model.id && isCasePostRadicado(model);
+        return isPureAsignadorUser(user) && !!model && !!model.id;
     };
 
     const openAsignadoEdit = function (recordView) {
@@ -78,7 +78,7 @@ define('custom:helpers/asignador-edit-mode', [
         activateAsignarMode(recordView.model.id);
 
         recordView.getRouter().navigate(
-            '#' + recordView.entityType + '/edit/' + recordView.model.id,
+            '#' + recordView.entityType + '/edit/' + recordView.model.id + '?asignar=1',
             {trigger: true}
         );
     };
@@ -105,11 +105,23 @@ define('custom:helpers/asignador-edit-mode', [
                     view.setNotReadOnly();
                 }
 
+                if (view.$el) {
+                    view.$el.find(
+                        '[data-action="editLink"], [data-action="selectLink"], [data-action="quickCreate"]'
+                    ).closest('.btn, a, .input-group-btn').show();
+                }
+
                 return;
             }
 
             if (typeof view.setReadOnly === 'function') {
                 view.setReadOnly();
+            }
+
+            if (view.$el) {
+                view.$el.find(
+                    '[data-action="editLink"], [data-action="selectLink"], [data-action="quickCreate"]'
+                ).closest('.btn, a, .input-group-btn').hide();
             }
         });
     };
@@ -150,9 +162,7 @@ define('custom:helpers/asignador-edit-mode', [
 
         lockAllFieldViewsExcept(recordView, getEditableFields());
 
-        recordView.$el.find(
-            '[data-action="editLink"], [data-action="selectLink"], [data-action="quickCreate"]'
-        ).closest('.btn, a, .input-group-btn').hide();
+        return;
     };
 
     const scheduleRestrictedEdit = function (recordView) {

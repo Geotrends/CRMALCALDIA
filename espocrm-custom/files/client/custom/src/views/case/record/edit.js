@@ -175,6 +175,12 @@ define('custom:views/case/record/edit', [
 
             this.$el.find('.panel[data-name], .panel[data-panel-name], .record-panel[data-name]').show();
             AsignadorEditMode.scheduleRestrictedEdit(this);
+
+            const assignedView = this.getFieldView('assignedUser');
+
+            if (assignedView && assignedView.isRendered && assignedView.isRendered()) {
+                assignedView.reRender();
+            }
         },
 
         hideRadicacionSaveActions: function () {

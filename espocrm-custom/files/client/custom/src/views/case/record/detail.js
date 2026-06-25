@@ -238,31 +238,13 @@ define('custom:views/case/record/detail', [
             }
 
             if (AsignadorEditMode.isPureAsignadorUser(this.getUser())) {
-                if (!AsignadorEditMode.shouldShowAsignarButton(this.getUser(), this.model)) {
-                    Espo.Ui.warning(this.translate('asignarUseButton', 'messages', 'Case'));
-
-                    return;
-                }
-
                 AsignadorEditMode.openAsignadoEdit(this);
 
                 return;
             }
 
             if (RadicacionEditMode.isPureRadicacionUser(this.getUser())) {
-                if (RadicacionEditMode.shouldShowRadicarButton(this.getUser(), this.model)) {
-                    RadicacionEditMode.openRadicadoEdit(this);
-
-                    return;
-                }
-
-                if (RadicacionEditMode.shouldShowEditRadicadoButton(this.getUser(), this.model)) {
-                    RadicacionEditMode.openRadicadoEdit(this);
-
-                    return;
-                }
-
-                Espo.Ui.warning(this.translate('radicarUseButton', 'messages', 'Case'));
+                RadicacionEditMode.openRadicadoEdit(this);
 
                 return;
             }
@@ -284,31 +266,17 @@ define('custom:views/case/record/detail', [
         updateAsignadorDetailActions: function () {
             const user = this.getUser();
             const model = this.model;
-            const $editBtn = this.$el.find('[data-action="edit"]').closest('.btn, .dropdown-item, li');
+            const $editBtn = this.findPrimaryActionButton('edit');
 
-            if (this._asignarButtonAdded) {
-                this.safeRemoveMenuItem('asignarCaso');
-                this._asignarButtonAdded = false;
-            }
-
-            if (!AsignadorEditMode.isPureAsignadorUser(user)) {
-                return;
-            }
-
-            if (!AsignadorEditMode.shouldShowAsignarButton(user, model)) {
-                $editBtn.hide();
-
+            if (!AsignadorEditMode.isPureAsignadorUser(user) || !model || !model.id) {
                 return;
             }
 
             $editBtn.show();
-
-            const editLabel = this.translate('Edit', 'labels', 'Global');
-
-            $editBtn.find('.title, .btn-text').text(editLabel);
-            $editBtn.contents().filter(function () {
-                return this.nodeType === 3;
-            }).first().replaceWith(editLabel);
+            this.setPrimaryActionButtonLabel(
+                $editBtn,
+                this.translate('asignarCaso', 'labels', 'Case')
+            );
         },
 
         updatePatrulleroDetailActions: function () {
@@ -349,57 +317,7 @@ define('custom:views/case/record/detail', [
             }).first().replaceWith(label);
         },
 
-        ensureRadicarActionButton: function () {
-            const label = this.translate('radicarCaso', 'labels', 'Case');
-            let $radicarBtn = this.findPrimaryActionButton('radicarCaso');
-
-            if (!$radicarBtn.length) {
-                const $editBtn = this.findPrimaryActionButton('edit');
-
-                if ($editBtn.length) {
-                    $radicarBtn = $editBtn.clone(true);
-                    $radicarBtn.attr('data-action', 'radicarCaso');
-                    $radicarBtn.find('[data-action]').attr('data-action', 'radicarCaso');
-                    $editBtn.after($radicarBtn);
-                } else {
-                    $radicarBtn = $('<a role="button" tabindex="0" class="btn btn-primary btn-xs-wide" data-action="radicarCaso"></a>');
-                    const $host = this.getDetailActionElements()
-                        .find('.page-header-row .btn-group, .header-buttons, .button-container')
-                        .first();
-
-                    if ($host.length) {
-                        $host.append($radicarBtn);
-                    } else if (!this.safeAddMenuItem({
-                        label: label,
-                        name: 'radicarCaso',
-                        action: 'radicarCaso',
-                        style: 'primary',
-                    })) {
-                        return null;
-                    } else {
-                        this._radicarButtonAdded = true;
-
-                        return this.findPrimaryActionButton('radicarCaso');
-                    }
-                }
-            }
-
-            this.setPrimaryActionButtonLabel($radicarBtn, label);
-            $radicarBtn.show();
-
-            return $radicarBtn;
-        },
-
-        hideRadicarActionButton: function () {
-            if (this._radicarButtonAdded) {
-                this.safeRemoveMenuItem('radicarCaso');
-                this._radicarButtonAdded = false;
-            }
-
-            this.findPrimaryActionButton('radicarCaso').hide();
-        },
-
-        scheduleRadicacionDetailActions: function () {
+        scheduleDetailActionLabels: function () {
             const self = this;
 
             [0, 120, 400].forEach(function (delay) {
@@ -409,6 +327,7 @@ define('custom:views/case/record/detail', [
                     }
 
                     self.updateRadicacionDetailActions();
+                    self.updateAsignadorDetailActions();
                 }, delay);
             });
         },
@@ -418,23 +337,22 @@ define('custom:views/case/record/detail', [
             const model = this.model;
             const $editBtn = this.findPrimaryActionButton('edit');
 
-            if (!RadicacionEditMode.isPureRadicacionUser(user)) {
-                this.hideRadicarActionButton();
-
+            if (!RadicacionEditMode.isPureRadicacionUser(user) || !model || !model.id) {
                 return;
             }
+
+            $editBtn.show();
 
             if (RadicacionEditMode.shouldShowRadicarButton(user, model)) {
-                $editBtn.hide();
-                this.ensureRadicarActionButton();
+                this.setPrimaryActionButtonLabel(
+                    $editBtn,
+                    this.translate('radicarCaso', 'labels', 'Case')
+                );
 
                 return;
             }
 
-            this.hideRadicarActionButton();
-
             if (RadicacionEditMode.shouldShowEditRadicadoButton(user, model)) {
-                $editBtn.show();
                 this.setPrimaryActionButtonLabel(
                     $editBtn,
                     this.translate('Edit', 'labels', 'Global')
@@ -485,7 +403,7 @@ define('custom:views/case/record/detail', [
             this.updateActaVisitaButton();
             this.updateActuoArchivoButton();
             this.updateRadicacionDetailActions();
-            this.scheduleRadicacionDetailActions();
+            this.scheduleDetailActionLabels();
             this.updateAsignadorDetailActions();
             this.updatePatrulleroDetailActions();
             this.toggleActaPanels();
@@ -500,7 +418,7 @@ define('custom:views/case/record/detail', [
                 self.toggleActaPanels();
                 self.updateActaVisitaButton();
                 self.updateRadicacionDetailActions();
-                self.scheduleRadicacionDetailActions();
+                self.scheduleDetailActionLabels();
                 self.updateAsignadorDetailActions();
                 self.updatePatrulleroDetailActions();
                 self.refreshActaVisitaPanel();

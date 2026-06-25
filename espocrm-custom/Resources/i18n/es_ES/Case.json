@@ -263,7 +263,7 @@
   "messages": {
     "radicarUseButton": "Use el botón Radicar para registrar el radicado y el expediente por primera vez.",
     "radicacionCannotCreateCase": "El rol de radicación no puede crear casos nuevos.",
-    "asignarUseButton": "Use el botón Editar para asignar el patrullero al caso.",
+    "asignarUseButton": "Use el botón Asignar para asignar el patrullero al caso.",
     "asignadorCannotCreateCase": "El rol de asignación no puede crear casos nuevos.",
     "asignadorCaseNotReady": "Solo puede asignar casos que ya tengan radicado y expediente.",
     "patrulleroReadOnlyCase": "Solo puede consultar el caso. Use «Llenar acta de visita» o imprimir el acta desde el panel del caso.",

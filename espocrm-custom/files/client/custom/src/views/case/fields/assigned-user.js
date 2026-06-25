@@ -43,19 +43,6 @@ define('custom:views/case/fields/assigned-user', [
         },
 
         getSelectPrimaryFilterName: function () {
-            const user = this.getUser();
-
-            if (
-                PostRadicacionFields.isCasePostRadicado(this.model)
-                && PostRadicacionFields.canAssignPatrullero(user)
-            ) {
-                if (PostRadicacionFields.isAsignadorUser(user)) {
-                    return null;
-                }
-
-                return 'patrulleros';
-            }
-
             if (PostRadicacionFields.isCasePostRadicado(this.model)) {
                 return 'patrulleros';
             }
