@@ -100,7 +100,7 @@ define('custom:views/home', ['views/dashboard', 'search-manager'], function (Dep
         };
 
         var showTablero = true;
-        var cacheBuster = String(appTimestamp || Date.now()) + '-dash5';
+        var cacheBuster = String(appTimestamp || Date.now()) + '-dash6';
         var iframeUrl = '/client/custom/dashboard.html?v=' + encodeURIComponent(cacheBuster)
             + '&profile=' + encodeURIComponent(profile);
 

@@ -1,6 +1,7 @@
 define('custom:helpers/inspeccion-registro-excel', [
     'custom:helpers/radicacion-fields',
-], function (RadicacionFields) {
+    'custom:helpers/radicacion-edit-mode',
+], function (RadicacionFields, RadicacionEditMode) {
 
     const PANEL_NAME = 'registroExcelAlcaldia';
 
@@ -13,7 +14,11 @@ define('custom:helpers/inspeccion-registro-excel', [
         'cProximaActuacion',
     ];
 
-    const canEditRegistroExcelFields = function (user) {
+    const canEditRegistroExcelFields = function (user, recordView) {
+        if (recordView && RadicacionEditMode.isPureRadicacionUser(user)) {
+            return false;
+        }
+
         return RadicacionFields.isInspeccionUser(user);
     };
 
@@ -50,7 +55,7 @@ define('custom:helpers/inspeccion-registro-excel', [
     const togglePanel = function (recordView) {
         const user = recordView.getUser();
         const showFields = canViewRegistroExcelFields(user);
-        const editFields = canEditRegistroExcelFields(user);
+        const editFields = canEditRegistroExcelFields(user, recordView);
         const $panel = recordView.$el.find(
             '.panel[data-name="' + PANEL_NAME + '"], ' +
             '.record-panel[data-name="' + PANEL_NAME + '"], ' +

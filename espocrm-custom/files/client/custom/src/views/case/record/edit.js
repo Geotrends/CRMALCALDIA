@@ -98,16 +98,7 @@ define('custom:views/case/record/edit', [
             }
 
             this.ensureCasePanelsVisible();
-
-            const self = this;
-
-            window.setTimeout(function () {
-                if (!self.isRadicarMode || !self.isRadicarMode()) {
-                    return;
-                }
-
-                RadicacionEditMode.applyRestrictedEdit(self);
-            }, 150);
+            RadicacionEditMode.scheduleRestrictedEdit(this);
         },
 
         ensureCasePanelsVisible: function () {
@@ -441,6 +432,10 @@ define('custom:views/case/record/edit', [
         },
 
         ensureInspeccionEditAccess: function () {
+            if (RadicacionEditMode.isPureRadicacionUser(this.getUser())) {
+                return;
+            }
+
             if (!RadicacionFields.isInspeccionUser(this.getUser())) {
                 return;
             }
@@ -511,7 +506,7 @@ define('custom:views/case/record/edit', [
 
                 $cell.show();
 
-                if (isRadicacion) {
+                if (isRadicacion && !isPureRadicacion) {
                     const view = this.getFieldView(field);
 
                     if (view && typeof view.setNotReadOnly === 'function') {
@@ -634,6 +629,16 @@ define('custom:views/case/record/edit', [
         togglePostRadicacionFields: function () {
             const user = this.getUser();
             const model = this.model;
+
+            if (RadicacionEditMode.isPureRadicacionUser(user) && this.isRadicarMode()) {
+                this.findPanel('gestionPosteriorRadicacion').hide();
+                this.$el.find('[data-name="assignedUser"], [data-name="cMotivoReasignacion"]')
+                    .closest('.cell')
+                    .hide();
+
+                return;
+            }
+
             const show = !model.isNew() && PostRadicacionFields.shouldShowAsignacion(user, model);
             const canEdit = PostRadicacionFields.canEditAsignacion(user, model);
 
@@ -709,8 +714,33 @@ define('custom:views/case/record/edit', [
         },
 
         setReadOnlyExcept: function (editableFields) {
+            const editable = editableFields.slice();
+            const fieldViews = typeof this.getFieldViews === 'function'
+                ? this.getFieldViews()
+                : {};
+
+            Object.keys(fieldViews).forEach((field) => {
+                const view = fieldViews[field];
+
+                if (!view) {
+                    return;
+                }
+
+                if (editable.indexOf(field) !== -1) {
+                    if (typeof view.setNotReadOnly === 'function') {
+                        view.setNotReadOnly();
+                    }
+
+                    return;
+                }
+
+                if (typeof view.setReadOnly === 'function') {
+                    view.setReadOnly();
+                }
+            });
+
             Object.keys(this.getFieldList()).forEach((field) => {
-                if (editableFields.includes(field)) {
+                if (editable.indexOf(field) !== -1) {
                     return;
                 }
 

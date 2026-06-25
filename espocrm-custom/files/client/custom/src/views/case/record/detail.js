@@ -283,6 +283,13 @@ define('custom:views/case/record/detail', [
 
             if (RadicacionEditMode.shouldShowEditRadicadoButton(user, model)) {
                 $editBtn.show();
+
+                const editLabel = this.translate('Edit', 'labels', 'Global');
+
+                $editBtn.find('.title, .btn-text').text(editLabel);
+                $editBtn.contents().filter(function () {
+                    return this.nodeType === 3;
+                }).first().replaceWith(editLabel);
             }
         },
 

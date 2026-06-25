@@ -706,15 +706,24 @@
 
     bindReporteButtons();
 
+    var profileSubtitles = {
+        radicacion: 'Secretaría de Medio Ambiente — Radicación',
+        asignador: 'Secretaría de Medio Ambiente — Asignación de casos',
+        patrullero: 'Secretaría de Medio Ambiente — Mis casos asignados',
+        gestion: 'Secretaría de Medio Ambiente — Gestión de Casos',
+    };
+    var subtitleEl = document.querySelector('.dashboard-header__sub');
+
+    if (subtitleEl) {
+        subtitleEl.textContent = profileSubtitles[dashboardProfile] || profileSubtitles.gestion;
+    }
+
     var fetchUrl = '/api/v1/Case?select=cRecursoTema,cCanalDeReportePeticionario,status,assignedUserId,createdAt,cFechaCaso,cFechaVencimiento,cNumeroRadicado,cExpediente,cNombrePeticionario,cApellidoPeticionario,cBarrioPeticionario'
         + '&maxSize=200&orderBy=cFechaCaso&order=desc';
 
     if (assignedUserId) {
         fetchUrl += '&where[0][type]=equals&where[0][attribute]=assignedUserId&where[0][value]='
             + encodeURIComponent(assignedUserId);
-    } else if (dashboardProfile === 'radicacion') {
-        fetchUrl += '&where[0][type]=equals&where[0][attribute]=status&where[0][value]='
-            + encodeURIComponent('Pendiente de radicacion');
     }
 
     fetch(fetchUrl, {credentials: 'include'})
@@ -734,7 +743,9 @@
             var total = data.total != null ? data.total : casos.length;
 
             if (!casos.length) {
-                estado.textContent = 'Aún no hay casos registrados.';
+                estado.textContent = dashboardProfile === 'radicacion'
+                    ? 'Aún no hay casos visibles para su perfil de radicación.'
+                    : 'Aún no hay casos registrados.';
                 ajustarAlturaIframe();
                 return;
             }

@@ -90,7 +90,34 @@ define('custom:helpers/radicacion-edit-mode', [
     };
 
     const getEditableFields = function () {
-        return RadicacionFields.RADICADO_ALL_FIELDS.slice();
+        return ['cNumeroRadicado', 'cExpediente'];
+    };
+
+    const lockAllFieldViewsExcept = function (recordView, editableFields) {
+        const editable = editableFields.slice();
+        const fieldViews = typeof recordView.getFieldViews === 'function'
+            ? recordView.getFieldViews()
+            : {};
+
+        Object.keys(fieldViews).forEach(function (field) {
+            const view = fieldViews[field];
+
+            if (!view) {
+                return;
+            }
+
+            if (editable.indexOf(field) !== -1) {
+                if (typeof view.setNotReadOnly === 'function') {
+                    view.setNotReadOnly();
+                }
+
+                return;
+            }
+
+            if (typeof view.setReadOnly === 'function') {
+                view.setReadOnly();
+            }
+        });
     };
 
     const applyRestrictedEdit = function (recordView) {
@@ -98,22 +125,53 @@ define('custom:helpers/radicacion-edit-mode', [
             return;
         }
 
-        if (typeof recordView.setReadOnlyExcept !== 'function') {
-            return;
-        }
-
         if (isRadicarMode(recordView)) {
             recordView._radicarMode = true;
-            recordView.setReadOnlyExcept(getEditableFields());
+
+            if (typeof recordView.setReadOnlyExcept === 'function') {
+                recordView.setReadOnlyExcept(getEditableFields());
+            }
+
+            lockAllFieldViewsExcept(recordView, getEditableFields());
+
+            recordView.$el.find(
+                '[data-action="editLink"], [data-action="selectLink"], [data-action="quickCreate"]'
+            ).closest('.btn, a, .input-group-btn').hide();
 
             return;
         }
 
-        recordView.setReadOnly();
+        if (typeof recordView.setReadOnly === 'function') {
+            recordView.setReadOnly();
+        }
+
+        lockAllFieldViewsExcept(recordView, []);
 
         if (typeof recordView.hideRadicacionSaveActions === 'function') {
             recordView.hideRadicacionSaveActions();
         }
+    };
+
+    const scheduleRestrictedEdit = function (recordView) {
+        if (!isPureRadicacionUser(recordView.getUser()) || !isRadicarMode(recordView)) {
+            return;
+        }
+
+        applyRestrictedEdit(recordView);
+
+        [150, 400, 900].forEach(function (delay) {
+            window.setTimeout(function () {
+                if (!recordView.isEditMode || !recordView.isEditMode()) {
+                    return;
+                }
+
+                if (!isRadicarMode(recordView)) {
+                    return;
+                }
+
+                applyRestrictedEdit(recordView);
+            }, delay);
+        });
     };
 
     return {
@@ -127,5 +185,6 @@ define('custom:helpers/radicacion-edit-mode', [
         openRadicadoEdit: openRadicadoEdit,
         getEditableFields: getEditableFields,
         applyRestrictedEdit: applyRestrictedEdit,
+        scheduleRestrictedEdit: scheduleRestrictedEdit,
     };
 });
