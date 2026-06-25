@@ -1,9 +1,18 @@
 /**
- * Formularios — secciones tipo tarjeta (solo estilos visuales).
- * No modifica layouts, JS ni visibilidad de campos por rol.
+ * Formularios — secciones en gris (sin verde). Solo CSS visual.
  */
 
-/* Espacio entre bloques del formulario */
+:root {
+  --crm-form-accent: #475569;
+  --crm-form-accent-dark: #1e293b;
+  --crm-form-heading-bg: #f1f5f9;
+  --crm-form-heading-bg-end: #ffffff;
+  --crm-form-value-bg: #f8fafc;
+  --crm-form-value-border: #e2e8f0;
+  --crm-form-focus: #64748b;
+}
+
+/* ── Tarjetas de sección (editar + detalle) ── */
 .edit .middle > .panel,
 .detail .middle > .panel,
 .edit .bottom > .panel,
@@ -11,7 +20,7 @@
 .modal-body .edit .panel.panel-default,
 .modal-body .detail .panel.panel-default {
   margin-bottom: var(--crm-space-lg) !important;
-  border: 1px solid var(--crm-border) !important;
+  border: 1px solid var(--crm-form-value-border) !important;
   border-radius: var(--crm-radius-lg) !important;
   box-shadow: var(--crm-shadow-sm) !important;
   background: var(--crm-surface) !important;
@@ -25,7 +34,7 @@
   margin-bottom: 0 !important;
 }
 
-/* Encabezado de sección */
+/* Encabezado gris */
 .edit .middle > .panel > .panel-heading,
 .detail .middle > .panel > .panel-heading,
 .edit .bottom > .panel > .panel-heading,
@@ -34,11 +43,11 @@
 .modal-body .detail .panel > .panel-heading {
   background: linear-gradient(
     90deg,
-    var(--crm-primary-light) 0%,
-    var(--crm-surface) 72%
+    var(--crm-form-heading-bg) 0%,
+    var(--crm-form-heading-bg-end) 78%
   ) !important;
-  border-bottom: 1px solid var(--crm-border-light) !important;
-  border-left: 4px solid var(--crm-primary) !important;
+  border-bottom: 1px solid var(--crm-form-value-border) !important;
+  border-left: 4px solid var(--crm-form-accent) !important;
   border-radius: var(--crm-radius-lg) var(--crm-radius-lg) 0 0 !important;
   padding: 14px 20px 14px 16px !important;
 }
@@ -51,11 +60,10 @@
 .modal-body .detail .panel > .panel-heading .panel-title {
   font-size: var(--crm-font-size-lg) !important;
   font-weight: 700 !important;
-  color: var(--crm-primary-deep) !important;
+  color: var(--crm-form-accent-dark) !important;
   letter-spacing: -0.02em;
 }
 
-/* Cuerpo de sección */
 .edit .middle > .panel > .panel-body,
 .detail .middle > .panel > .panel-body,
 .edit .bottom > .panel > .panel-body,
@@ -63,9 +71,10 @@
 .modal-body .edit .panel > .panel-body,
 .modal-body .detail .panel > .panel-body {
   padding: 20px 22px 22px !important;
+  background: var(--crm-surface) !important;
 }
 
-/* Filas de campos más aireadas */
+/* ── Edición: campos ── */
 .edit .middle .panel-body .row,
 .detail .middle .panel-body .row,
 .edit .bottom .panel-body .row,
@@ -76,73 +85,179 @@
 }
 
 .edit .middle .panel-body .cell,
-.detail .middle .panel-body .cell,
 .edit .bottom .panel-body .cell,
-.detail .bottom .panel-body .cell,
-.modal-body .edit .panel-body .cell,
-.modal-body .detail .panel-body .cell {
+.modal-body .edit .panel-body .cell {
   margin-bottom: 14px;
 }
 
-/* Labels */
 .edit .panel-body label.control-label,
-.detail .panel-body label.control-label,
-.modal-body .edit label.control-label,
-.modal-body .detail label.control-label {
+.modal-body .edit label.control-label {
   font-size: var(--crm-font-size-sm) !important;
   font-weight: 600 !important;
   color: var(--crm-text-secondary) !important;
   margin-bottom: 6px !important;
 }
 
-/* Inputs */
 .edit .panel-body .form-control,
-.detail .panel-body .form-control,
-.modal-body .edit .form-control,
-.modal-body .detail .form-control {
+.modal-body .edit .form-control {
   border-radius: var(--crm-radius-sm) !important;
-  border-color: var(--crm-border) !important;
+  border-color: var(--crm-form-value-border) !important;
+  background: var(--crm-form-value-bg) !important;
   min-height: 38px;
   box-shadow: none !important;
   transition: border-color var(--crm-transition), box-shadow var(--crm-transition) !important;
 }
 
 .edit .panel-body .form-control:focus,
-.detail .panel-body .form-control:focus,
-.modal-body .edit .form-control:focus,
-.modal-body .detail .form-control:focus {
-  border-color: var(--crm-primary) !important;
-  box-shadow: 0 0 0 3px rgba(29, 138, 110, 0.12) !important;
+.modal-body .edit .form-control:focus {
+  border-color: var(--crm-form-focus) !important;
+  background: var(--crm-surface) !important;
+  box-shadow: 0 0 0 3px rgba(100, 116, 139, 0.15) !important;
 }
 
-/* Acordeón de secciones (si Espo lo usa) */
+/* ── Lectura (detalle): tablitas por campo ── */
+.detail .middle > .panel:not(.panel-caseTimeline):not(.panel-caseCronograma) > .panel-body .cell,
+.detail .bottom > .panel > .panel-body .cell {
+  margin-bottom: 12px;
+}
+
+.detail .middle > .panel:not(.panel-caseTimeline):not(.panel-caseCronograma) > .panel-body .cell > .field,
+.detail .bottom > .panel > .panel-body .cell > .field {
+  background: var(--crm-form-value-bg) !important;
+  border: 1px solid var(--crm-form-value-border) !important;
+  border-radius: var(--crm-radius-md) !important;
+  padding: 12px 14px 14px !important;
+  min-height: 72px;
+  box-shadow: var(--crm-shadow-xs);
+  transition: border-color var(--crm-transition), box-shadow var(--crm-transition);
+}
+
+.detail .middle > .panel:not(.panel-caseTimeline):not(.panel-caseCronograma) > .panel-body .cell > .field:hover,
+.detail .bottom > .panel > .panel-body .cell > .field:hover {
+  border-color: #cbd5e1 !important;
+  box-shadow: var(--crm-shadow-sm);
+}
+
+/* Sin caja en paneles con botones / documentos custom */
+.detail .panel[data-name="actaVisita"] .field[data-name="cPanelActaVisita"],
+.detail .panel[data-name="formatoGenerado"] .field[data-name="cFormatoSolicitudPdf"],
+.detail .panel[data-name="actuoArchivoPanel"] .field,
+.detail .field[data-name="cPanelExpediente"] {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  min-height: 0 !important;
+}
+
+.detail .panel-body label.control-label {
+  display: block;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--crm-text-muted) !important;
+  margin-bottom: 8px !important;
+  padding-bottom: 0 !important;
+  border: none !important;
+}
+
+.detail .panel-body .field .field-value,
+.detail .panel-body .field .complex-text,
+.detail .panel-body .field .link-container {
+  font-size: var(--crm-font-size-base) !important;
+  font-weight: 600 !important;
+  color: var(--crm-form-accent-dark) !important;
+  line-height: 1.45;
+}
+
+.detail .panel-body .field .field-value a.link,
+.detail .panel-body .field .link-container a {
+  color: var(--crm-form-accent) !important;
+  font-weight: 600 !important;
+}
+
+/* Filas del detalle: rejilla más pareja */
+.detail[data-scope="Case"] .left .middle > .panel:not(.panel-caseTimeline):not(.panel-caseCronograma) > .panel-body > .row {
+  margin-left: -6px;
+  margin-right: -6px;
+}
+
+.detail[data-scope="Case"] .left .middle > .panel:not(.panel-caseTimeline):not(.panel-caseCronograma) > .panel-body > .row > .cell {
+  padding-left: 6px;
+  padding-right: 6px;
+}
+
+/* Campos ancho completo */
+.detail .panel-body .cell.col-sm-12 > .field,
+.detail .panel-body .field[data-name="description"] .field-value,
+.detail .panel-body .field[data-name="cRespuestaInmediata"] .field-value {
+  min-height: auto;
+}
+
+.detail .panel-body .field[data-name="description"] .field-value,
+.detail .panel-body .field[data-name="cRespuestaInmediata"] .field-value {
+  font-weight: 500 !important;
+  white-space: pre-wrap;
+}
+
+/* Estado del caso en tablita */
+.detail .field[data-name="status"] .label {
+  font-size: var(--crm-font-size-sm) !important;
+  padding: 5px 12px !important;
+  border-radius: var(--crm-radius-full) !important;
+}
+
+/* Radicado en lectura */
+.detail .field[data-name="cNumeroRadicado"] .field-value,
+.detail .field[data-name="cExpediente"] .field-value {
+  font-size: var(--crm-font-size-lg) !important;
+  color: var(--crm-form-accent-dark) !important;
+}
+
+/* Acordeón */
 .panel-group-accordion > .panel {
   margin-bottom: var(--crm-space-md) !important;
 }
 
 .panel-group-accordion > .panel > .panel-heading {
-  border-left: 4px solid var(--crm-primary) !important;
+  border-left: 4px solid var(--crm-form-accent) !important;
   background: linear-gradient(
     90deg,
-    var(--crm-primary-light) 0%,
-    var(--crm-surface) 72%
+    var(--crm-form-heading-bg) 0%,
+    var(--crm-form-heading-bg-end) 78%
   ) !important;
 }
 
 .panel-group-accordion > .panel > .panel-heading a {
-  color: var(--crm-primary-deep) !important;
+  color: var(--crm-form-accent-dark) !important;
   font-weight: 700 !important;
 }
 
-/* Side panels: conservar estilo existente, solo un poco más de aire */
 .detail .side .panel,
 .edit .side .panel {
   margin-bottom: var(--crm-space-md) !important;
+}
+
+/* Side del caso: encabezado gris (sin verde) */
+.detail[data-scope="Case"] .side .panel-heading,
+.edit[data-scope="Case"] .side .panel-heading {
+  background: var(--crm-form-heading-bg) !important;
+  border-left: 3px solid var(--crm-form-accent) !important;
+}
+
+.detail[data-scope="Case"] .side .panel,
+.edit[data-scope="Case"] .side .panel {
+  border-left: 1px solid var(--crm-form-value-border) !important;
 }
 
 @media (max-width: 767px) {
   .edit .middle > .panel > .panel-body,
   .detail .middle > .panel > .panel-body {
     padding: 16px !important;
+  }
+
+  .detail .middle > .panel > .panel-body .cell > .field {
+    min-height: 64px;
   }
 }
