@@ -40,11 +40,6 @@
   color: var(--crm-primary) !important;
 }
 
-/* Kanban Case */
-.kanban[data-scope="Case"] .kanban-row {
-  gap: 12px;
-}
-
 /* Detalle: columna derecha (timeline) más amplia que la izquierda */
 .detail[data-scope="Case"] .record-grid,
 .detail[data-scope="Case"] .record-grid.record-grid-wide {

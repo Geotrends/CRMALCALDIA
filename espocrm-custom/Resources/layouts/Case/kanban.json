@@ -13,12 +13,14 @@
         "isMuted": true
     },
     {
-        "name": "cFechaCaso",
-        "align": "right",
+        "name": "cExpediente",
         "isMuted": true
     },
     {
-        "name": "assignedUser",
-        "hidden": true
+        "name": "cFechaCaso",
+        "isMuted": true
+    },
+    {
+        "name": "assignedUser"
     }
 ]
