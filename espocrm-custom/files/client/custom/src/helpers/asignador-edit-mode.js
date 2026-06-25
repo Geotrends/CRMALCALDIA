@@ -10,6 +10,10 @@ define('custom:helpers/asignador-edit-mode', [
             return false;
         }
 
+        if (RadicacionFields.isInspeccionUser(user)) {
+            return false;
+        }
+
         if (!RadicacionFields.isAsignadorUser(user)) {
             return false;
         }
@@ -18,7 +22,11 @@ define('custom:helpers/asignador-edit-mode', [
             return false;
         }
 
-        return !RadicacionFields.isInspeccionUser(user);
+        if (!RadicacionFields.isProfileLoaded()) {
+            return false;
+        }
+
+        return true;
     };
 
     const activateAsignarMode = function (caseId) {

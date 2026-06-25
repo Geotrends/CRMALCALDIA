@@ -235,6 +235,15 @@ define('custom:views/case/record/detail', [
                 return;
             }
 
+            if (RadicacionFields.isInspeccionUser(this.getUser())) {
+                this.getRouter().navigate(
+                    '#' + this.entityType + '/edit/' + this.model.id,
+                    {trigger: true}
+                );
+
+                return;
+            }
+
             if (RadicacionEditMode.isPureRadicacionUser(this.getUser())) {
                 RadicacionEditMode.openRadicadoEdit(this);
 
@@ -267,6 +276,19 @@ define('custom:views/case/record/detail', [
             const $editBtn = this.findPrimaryActionButton('edit');
 
             if (!model || !model.id) {
+                return;
+            }
+
+            if (
+                RadicacionFields.isInspeccionUser(user)
+                && !PatrulleroActa.isPurePatrulleroUser(user)
+            ) {
+                $editBtn.show();
+                this.setPrimaryActionButtonLabel(
+                    $editBtn,
+                    this.translate('Edit', 'labels', 'Global')
+                );
+
                 return;
             }
 

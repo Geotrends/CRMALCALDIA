@@ -9,11 +9,19 @@ define('custom:helpers/radicacion-edit-mode', [
             return false;
         }
 
+        if (RadicacionFields.isInspeccionUser(user)) {
+            return false;
+        }
+
         if (!RadicacionFields.isRadicacionUser(user)) {
             return false;
         }
 
-        return !RadicacionFields.isInspeccionUser(user);
+        if (!RadicacionFields.isProfileLoaded()) {
+            return false;
+        }
+
+        return true;
     };
 
     const activateRadicarMode = function (caseId) {
