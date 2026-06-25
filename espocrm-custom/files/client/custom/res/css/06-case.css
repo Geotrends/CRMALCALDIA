@@ -3,10 +3,10 @@
  */
 
 /* Campo radicado destacado */
-.field[data-name="cNumeroRadicado"] .field-value,
+.detail .field[data-name="cNumeroRadicado"] .field-value,
 .field[data-name="cNumeroRadicado"] input {
   font-weight: 700 !important;
-  color: var(--crm-primary-dark) !important;
+  color: var(--crm-form-accent-dark, var(--crm-primary-dark)) !important;
 }
 
 .field[data-name="cExpediente"] .field-value {

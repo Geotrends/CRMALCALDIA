@@ -133,27 +133,115 @@
   opacity: 0.92;
 }
 
-/* ── Lectura (detalle): tablitas por campo ── */
+/* ── Lectura (detalle): ficha organizada por sección (sin caja por campo) ── */
 .detail .middle > .panel:not(.panel-caseTimeline):not(.panel-caseCronograma) > .panel-body .cell,
 .detail .bottom > .panel > .panel-body .cell {
-  margin-bottom: 12px;
+  margin-bottom: 0;
 }
 
 .detail .middle > .panel:not(.panel-caseTimeline):not(.panel-caseCronograma) > .panel-body .cell > .field,
 .detail .bottom > .panel > .panel-body .cell > .field {
-  background: var(--crm-form-value-bg) !important;
-  border: 1px solid var(--crm-form-value-border) !important;
-  border-radius: var(--crm-radius-md) !important;
-  padding: 12px 14px 14px !important;
-  min-height: 72px;
-  box-shadow: var(--crm-shadow-xs);
-  transition: border-color var(--crm-transition), box-shadow var(--crm-transition);
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  min-height: 0 !important;
+  box-shadow: none !important;
 }
 
-.detail .middle > .panel:not(.panel-caseTimeline):not(.panel-caseCronograma) > .panel-body .cell > .field:hover,
-.detail .bottom > .panel > .panel-body .cell > .field:hover {
-  border-color: #cbd5e1 !important;
-  box-shadow: var(--crm-shadow-sm);
+.detail .panel-body label.control-label {
+  display: block;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  color: var(--crm-text-muted) !important;
+  margin-bottom: 4px !important;
+  padding-bottom: 0 !important;
+  border: none !important;
+}
+
+.detail .panel-body .field .field-value,
+.detail .panel-body .field .complex-text,
+.detail .panel-body .field .link-container {
+  font-size: var(--crm-font-size-base) !important;
+  font-weight: 600 !important;
+  color: var(--crm-form-accent-dark) !important;
+  line-height: 1.5;
+}
+
+.detail .panel-body .field .field-value a.link,
+.detail .panel-body .field .link-container a {
+  color: var(--crm-form-accent) !important;
+  font-weight: 600 !important;
+}
+
+/* Caso — rejilla tipo ficha dentro de cada sección */
+.detail[data-scope="Case"] .left .middle > .panel:not(.panel-caseTimeline):not(.panel-caseCronograma) > .panel-body,
+.detail[data-scope="Case"] .left .bottom > .panel > .panel-body {
+  padding: 0 !important;
+}
+
+.detail[data-scope="Case"] .left .middle > .panel:not(.panel-caseTimeline):not(.panel-caseCronograma) > .panel-body > .row,
+.detail[data-scope="Case"] .left .bottom > .panel > .panel-body > .row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  margin: 0 !important;
+  border-bottom: 1px solid var(--crm-form-value-border);
+}
+
+.detail[data-scope="Case"] .left .middle > .panel:not(.panel-caseTimeline):not(.panel-caseCronograma) > .panel-body > .row:last-child,
+.detail[data-scope="Case"] .left .bottom > .panel > .panel-body > .row:last-child {
+  border-bottom: none;
+}
+
+.detail[data-scope="Case"] .left .middle > .panel:not(.panel-caseTimeline):not(.panel-caseCronograma) > .panel-body > .row > .cell,
+.detail[data-scope="Case"] .left .bottom > .panel > .panel-body > .row > .cell {
+  flex: 1 1 50%;
+  min-width: 0;
+  padding: 16px 22px;
+  border-right: 1px solid #f1f5f9;
+}
+
+.detail[data-scope="Case"] .left .middle > .panel:not(.panel-caseTimeline):not(.panel-caseCronograma) > .panel-body > .row > .cell:last-child,
+.detail[data-scope="Case"] .left .bottom > .panel > .panel-body > .row > .cell:last-child {
+  border-right: none;
+}
+
+.detail[data-scope="Case"] .left .middle > .panel:not(.panel-caseTimeline):not(.panel-caseCronograma) > .panel-body > .row > .cell.col-sm-12,
+.detail[data-scope="Case"] .left .bottom > .panel > .panel-body > .row > .cell.col-sm-12,
+.detail[data-scope="Case"] .left .middle > .panel:not(.panel-caseTimeline):not(.panel-caseCronograma) > .panel-body > .row > .cell:only-child,
+.detail[data-scope="Case"] .left .bottom > .panel > .panel-body > .row > .cell:only-child {
+  flex: 1 1 100%;
+  border-right: none;
+}
+
+.detail[data-scope="Case"] .left .middle > .panel:not(.panel-caseTimeline):not(.panel-caseCronograma) > .panel-body > .row > .cell.col-sm-4,
+.detail[data-scope="Case"] .left .bottom > .panel > .panel-body > .row > .cell.col-sm-4 {
+  flex: 1 1 33.333%;
+}
+
+.detail[data-scope="Case"] .left .middle > .panel:not(.panel-caseTimeline):not(.panel-caseCronograma) > .panel-body > .row > .cell.col-sm-3,
+.detail[data-scope="Case"] .left .bottom > .panel > .panel-body > .row > .cell.col-sm-3 {
+  flex: 1 1 25%;
+}
+
+/* Textos largos en bloque resaltado (como motivo / respuesta) */
+.detail[data-scope="Case"] .field[data-name="description"] .field-value,
+.detail[data-scope="Case"] .field[data-name="cRespuestaInmediata"] .field-value,
+.detail[data-scope="Case"] .field[data-name="cMotivoReasignacion"] .field-value,
+.detail[data-scope="Case"] .field[data-name="cDireccionPeticionario"] .field-value,
+.detail[data-scope="Case"] .field[data-name="cDireccionPerjudicante"] .field-value {
+  display: block;
+  margin-top: 2px;
+  padding: 12px 14px;
+  background: var(--crm-form-heading-bg);
+  border: 1px solid var(--crm-form-value-border);
+  border-radius: var(--crm-radius-md);
+  font-weight: 500 !important;
+  white-space: pre-wrap;
+  line-height: 1.55;
 }
 
 /* Sin caja en paneles con botones / documentos custom */
@@ -168,69 +256,41 @@
   min-height: 0 !important;
 }
 
-.detail .panel-body label.control-label {
-  display: block;
-  font-size: 11px !important;
-  font-weight: 700 !important;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: var(--crm-text-muted) !important;
-  margin-bottom: 8px !important;
-  padding-bottom: 0 !important;
-  border: none !important;
+.detail[data-scope="Case"] .panel[data-name="actaVisita"] > .panel-body,
+.detail[data-scope="Case"] .panel[data-name="formatoGenerado"] > .panel-body {
+  padding: 20px 22px !important;
 }
 
-.detail .panel-body .field .field-value,
-.detail .panel-body .field .complex-text,
-.detail .panel-body .field .link-container {
-  font-size: var(--crm-font-size-base) !important;
-  font-weight: 600 !important;
-  color: var(--crm-form-accent-dark) !important;
-  line-height: 1.45;
+.detail[data-scope="Case"] .panel[data-name="actaVisita"] > .panel-body > .row,
+.detail[data-scope="Case"] .panel[data-name="formatoGenerado"] > .panel-body > .row {
+  border-bottom: none;
 }
 
-.detail .panel-body .field .field-value a.link,
-.detail .panel-body .field .link-container a {
-  color: var(--crm-form-accent) !important;
-  font-weight: 600 !important;
+.detail[data-scope="Case"] .panel[data-name="actaVisita"] > .panel-body > .row > .cell,
+.detail[data-scope="Case"] .panel[data-name="formatoGenerado"] > .panel-body > .row > .cell {
+  padding: 0;
+  border-right: none;
+  flex: 1 1 100%;
 }
 
-/* Filas del detalle: rejilla más pareja */
-.detail[data-scope="Case"] .left .middle > .panel:not(.panel-caseTimeline):not(.panel-caseCronograma) > .panel-body > .row {
-  margin-left: -6px;
-  margin-right: -6px;
-}
-
-.detail[data-scope="Case"] .left .middle > .panel:not(.panel-caseTimeline):not(.panel-caseCronograma) > .panel-body > .row > .cell {
-  padding-left: 6px;
-  padding-right: 6px;
-}
-
-/* Campos ancho completo */
-.detail .panel-body .cell.col-sm-12 > .field,
-.detail .panel-body .field[data-name="description"] .field-value,
-.detail .panel-body .field[data-name="cRespuestaInmediata"] .field-value {
-  min-height: auto;
-}
-
-.detail .panel-body .field[data-name="description"] .field-value,
-.detail .panel-body .field[data-name="cRespuestaInmediata"] .field-value {
-  font-weight: 500 !important;
-  white-space: pre-wrap;
-}
-
-/* Estado del caso en tablita */
+/* Estado del caso */
 .detail .field[data-name="status"] .label {
   font-size: var(--crm-font-size-sm) !important;
   padding: 5px 12px !important;
   border-radius: var(--crm-radius-full) !important;
 }
 
-/* Radicado en lectura */
+/* Radicado y expediente destacados */
 .detail .field[data-name="cNumeroRadicado"] .field-value,
 .detail .field[data-name="cExpediente"] .field-value {
   font-size: var(--crm-font-size-lg) !important;
   color: var(--crm-form-accent-dark) !important;
+  letter-spacing: -0.01em;
+}
+
+/* Primera fila de solicitud: datos clave más visibles */
+.detail[data-scope="Case"] .panel:first-child > .panel-body > .row:first-child .field-value {
+  font-size: var(--crm-font-size-md) !important;
 }
 
 /* Acordeón */
@@ -275,7 +335,16 @@
     padding: 16px !important;
   }
 
-  .detail .middle > .panel > .panel-body .cell > .field {
-    min-height: 64px;
+  .detail[data-scope="Case"] .left .middle > .panel:not(.panel-caseTimeline):not(.panel-caseCronograma) > .panel-body > .row > .cell,
+  .detail[data-scope="Case"] .left .bottom > .panel > .panel-body > .row > .cell {
+    flex: 1 1 100%;
+    border-right: none;
+    border-bottom: 1px solid #f1f5f9;
+    padding: 14px 16px;
+  }
+
+  .detail[data-scope="Case"] .left .middle > .panel:not(.panel-caseTimeline):not(.panel-caseCronograma) > .panel-body > .row > .cell:last-child,
+  .detail[data-scope="Case"] .left .bottom > .panel > .panel-body > .row > .cell:last-child {
+    border-bottom: none;
   }
 }
