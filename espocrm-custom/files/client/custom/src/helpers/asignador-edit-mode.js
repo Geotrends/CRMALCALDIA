@@ -86,8 +86,18 @@ define('custom:helpers/asignador-edit-mode', [
         );
     };
 
-    const getEditableFields = function () {
-        return ['assignedUser', 'cMotivoReasignacion'];
+    const getEditableFields = function (recordView) {
+        const fields = ['assignedUser'];
+
+        if (
+            recordView
+            && recordView.model
+            && PostRadicacionFields.hadPreviousAssignee(recordView._initialAssignedUserId)
+        ) {
+            fields.push('cMotivoReasignacion');
+        }
+
+        return fields;
     };
 
     const lockAllFieldViewsExcept = function (recordView, editableFields) {
@@ -160,10 +170,10 @@ define('custom:helpers/asignador-edit-mode', [
         moveAssignmentPanelToTop(recordView);
 
         if (typeof recordView.setReadOnlyExcept === 'function') {
-            recordView.setReadOnlyExcept(getEditableFields());
+            recordView.setReadOnlyExcept(getEditableFields(recordView));
         }
 
-        lockAllFieldViewsExcept(recordView, getEditableFields());
+        lockAllFieldViewsExcept(recordView, getEditableFields(recordView));
 
         return;
     };

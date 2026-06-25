@@ -7,7 +7,6 @@ use Espo\Core\Hook\Hook\AfterSave;
 use Espo\Core\Mail\EmailSender;
 use Espo\Entities\Email;
 use Espo\Entities\Notification;
-use Espo\Entities\Role;
 use Espo\Entities\User;
 use Espo\Custom\Tools\User\AlcaldiaUserProfile;
 use Espo\ORM\Entity;
@@ -23,7 +22,6 @@ class NotifyInspeccionAndAsignadorOnRadicado implements AfterSave
 {
     public static int $order = 26;
 
-    private const ROLE_RADICACION = 'Radicación';
     private const ROLE_INSPECCION = 'Inspección';
     private const ROLE_ASIGNADOR = 'Asignador';
 
@@ -37,38 +35,28 @@ class NotifyInspeccionAndAsignadorOnRadicado implements AfterSave
 
     public function afterSave(Entity $entity, SaveOptions $options): void
     {
-        if ($this->isJustCreated($entity)) {
+        if ($entity->isNew() || $this->isJustCreated($entity)) {
             return;
         }
 
-        if (!$this->profile->hasAnyRole($this->user, [self::ROLE_RADICACION])) {
+        if (!$this->profile->isRadicacion($this->user)) {
+            return;
+        }
+
+        if (!$this->becamePostRadicado($entity)) {
             return;
         }
 
         $numero = trim((string) $entity->get('cNumeroRadicado'));
         $expediente = trim((string) $entity->get('cExpediente'));
-
-        if ($numero === '' && $expediente === '') {
-            return;
-        }
-
-        if (
-            !$entity->isAttributeChanged('cNumeroRadicado')
-            && !$entity->isAttributeChanged('cExpediente')
-        ) {
-            return;
-        }
-
         $numeroLabel = $numero !== '' ? $numero : 'sin número';
         $linkLabel = $numero !== '' ? $numero : ($expediente !== '' ? $expediente : 'Caso');
         $recordUrl = rtrim((string) $this->config->get('siteUrl'), '/')
             . '/#Case/view/' . $entity->getId();
         $caseHref = '#Case/view/' . $entity->getId();
 
-        $this->notifyRole(
+        $this->notifyInspeccion(
             $entity,
-            self::ROLE_INSPECCION,
-            false,
             $linkLabel,
             $numeroLabel,
             $expediente,
@@ -76,16 +64,34 @@ class NotifyInspeccionAndAsignadorOnRadicado implements AfterSave
             $recordUrl
         );
 
-        $this->notifyRole(
+        $this->notifyAsignador(
             $entity,
-            self::ROLE_ASIGNADOR,
-            true,
             $linkLabel,
             $numeroLabel,
             $expediente,
             $caseHref,
             $recordUrl
         );
+    }
+
+    private function becamePostRadicado(Entity $entity): bool
+    {
+        if (!$this->isPostRadicado($entity)) {
+            return false;
+        }
+
+        $prevNumero = trim((string) $entity->getFetched('cNumeroRadicado'));
+        $prevExpediente = trim((string) $entity->getFetched('cExpediente'));
+
+        return $prevNumero === '' || $prevExpediente === '';
+    }
+
+    private function isPostRadicado(Entity $entity): bool
+    {
+        $numero = trim((string) $entity->get('cNumeroRadicado'));
+        $expediente = trim((string) $entity->get('cExpediente'));
+
+        return $numero !== '' && $expediente !== '';
     }
 
     private function isJustCreated(Entity $entity): bool
@@ -96,25 +102,58 @@ class NotifyInspeccionAndAsignadorOnRadicado implements AfterSave
         return $createdAt && $modifiedAt && $createdAt === $modifiedAt;
     }
 
-    private function userHasRole(string $roleName): bool
-    {
-        $role = $this->entityManager
-            ->getRDBRepositoryByClass(Role::class)
-            ->where(['name' => $roleName])
-            ->findOne();
+    private function notifyInspeccion(
+        Entity $entity,
+        string $linkLabel,
+        string $numeroLabel,
+        string $expediente,
+        string $caseHref,
+        string $recordUrl
+    ): void {
+        $userIds = array_unique(array_merge(
+            $this->profile->findActiveUserIdsByRoleName(self::ROLE_INSPECCION),
+            $this->profile->findActiveUserIdsByRoleName(AlcaldiaUserProfile::ROLE_INSPECCION_ALT)
+        ));
 
-        if (!$role) {
-            return false;
+        foreach ($userIds as $userId) {
+            $this->notifyUser(
+                $entity,
+                $userId,
+                false,
+                $linkLabel,
+                $numeroLabel,
+                $expediente,
+                $caseHref,
+                $recordUrl
+            );
         }
-
-        $roles = $this->user->getLinkMultipleIdList('roles') ?? [];
-
-        return in_array($role->getId(), $roles, true);
     }
 
-    private function notifyRole(
+    private function notifyAsignador(
         Entity $entity,
-        string $roleName,
+        string $linkLabel,
+        string $numeroLabel,
+        string $expediente,
+        string $caseHref,
+        string $recordUrl
+    ): void {
+        foreach ($this->profile->findActiveUserIdsByRoleName(self::ROLE_ASIGNADOR) as $userId) {
+            $this->notifyUser(
+                $entity,
+                $userId,
+                true,
+                $linkLabel,
+                $numeroLabel,
+                $expediente,
+                $caseHref,
+                $recordUrl
+            );
+        }
+    }
+
+    private function notifyUser(
+        Entity $entity,
+        string $notifyUserId,
         bool $forAsignador,
         string $linkLabel,
         string $numeroLabel,
@@ -122,57 +161,39 @@ class NotifyInspeccionAndAsignadorOnRadicado implements AfterSave
         string $caseHref,
         string $recordUrl
     ): void {
-        $role = $this->entityManager
-            ->getRDBRepositoryByClass(Role::class)
-            ->where(['name' => $roleName])
-            ->findOne();
-
-        if (!$role) {
+        if ($notifyUserId === $this->user->getId()) {
             return;
         }
 
-        $roleId = $role->getId();
+        $notifyUser = $this->entityManager->getEntityById(User::ENTITY_TYPE, $notifyUserId);
 
-        foreach (
-            $this->entityManager
-                ->getRDBRepositoryByClass(User::class)
-                ->where(['isActive' => true, 'type' => User::TYPE_REGULAR])
-                ->find() as $notifyUser
-        ) {
-            if ($notifyUser->getId() === $this->user->getId()) {
-                continue;
-            }
-
-            $roles = $notifyUser->getLinkMultipleIdList('roles') ?? [];
-
-            if (!in_array($roleId, $roles, true)) {
-                continue;
-            }
-
-            if ($this->hasNotification($entity, $notifyUser, $forAsignador)) {
-                continue;
-            }
-
-            $this->createNotification(
-                $entity,
-                $notifyUser,
-                $forAsignador,
-                $linkLabel,
-                $numeroLabel,
-                $expediente,
-                $caseHref
-            );
-
-            $this->sendEmail(
-                $entity,
-                $notifyUser,
-                $forAsignador,
-                $linkLabel,
-                $numeroLabel,
-                $expediente,
-                $recordUrl
-            );
+        if (!$notifyUser || !$notifyUser->get('isActive')) {
+            return;
         }
+
+        if ($this->hasNotification($entity, $notifyUser, $forAsignador)) {
+            return;
+        }
+
+        $this->createNotification(
+            $entity,
+            $notifyUser,
+            $forAsignador,
+            $linkLabel,
+            $numeroLabel,
+            $expediente,
+            $caseHref
+        );
+
+        $this->sendEmail(
+            $entity,
+            $notifyUser,
+            $forAsignador,
+            $linkLabel,
+            $numeroLabel,
+            $expediente,
+            $recordUrl
+        );
     }
 
     private function hasNotification(Entity $entity, User $notifyUser, bool $forAsignador): bool

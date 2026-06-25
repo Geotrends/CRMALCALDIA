@@ -617,7 +617,8 @@ define('custom:views/case/record/detail', [
                 $cell.toggle(show);
             }
 
-            const showMotivo = show && isPureAsignador;
+            const showMotivo = show
+                && !!String(model.get('cMotivoReasignacion') || '').trim();
 
             const $motivoCell = this.$el.find('[data-name="cMotivoReasignacion"]').closest('.cell');
 

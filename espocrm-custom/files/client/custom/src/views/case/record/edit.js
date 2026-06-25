@@ -797,13 +797,10 @@ define('custom:views/case/record/edit', [
                 $cell.toggle(show);
             }
 
-            const showMotivo = show && (
-                inAsignadorEdit
-                || PostRadicacionFields.shouldShowMotivoReasignacion(
-                    user,
-                    model,
-                    this._initialAssignedUserId
-                )
+            const showMotivo = show && PostRadicacionFields.shouldShowMotivoReasignacion(
+                user,
+                model,
+                this._initialAssignedUserId
             );
 
             const $motivoCell = this.$el.find('[data-name="cMotivoReasignacion"]').closest('.cell');
@@ -844,11 +841,15 @@ define('custom:views/case/record/edit', [
             if (motivoView && showMotivo) {
                 if (canEdit && typeof motivoView.setNotReadOnly === 'function') {
                     motivoView.setNotReadOnly();
-                } else if (!canEdit && typeof motivoView.setReadOnly === 'function') {
+                } else if (typeof motivoView.setReadOnly === 'function') {
                     motivoView.setReadOnly();
                 }
-            } else if (motivoView && inAsignadorEdit && typeof motivoView.setNotReadOnly === 'function') {
-                motivoView.setNotReadOnly();
+            } else if (motivoView && typeof motivoView.setReadOnly === 'function') {
+                motivoView.setReadOnly();
+            }
+
+            if (!showMotivo && inAsignadorEdit && model.get('cMotivoReasignacion')) {
+                model.set('cMotivoReasignacion', null, {silent: true});
             }
         },
 

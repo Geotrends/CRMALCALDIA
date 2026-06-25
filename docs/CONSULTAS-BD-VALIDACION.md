@@ -2,7 +2,7 @@
 
 Guía para comprobar que lo que ingresan en el CRM **sí quedó guardado** en la base de datos de producción.
 
-> **Solo consultas de lectura.** No ejecutes `DELETE`, `UPDATE` ni `DROP` si no sabe exactamente qué hace el comando.
+> **Solo consultas de lectura** en las secciones 2 y 3. La sección **4** incluye `DELETE` e `INSERT` destructivos — úsala solo para reiniciar datos de prueba.
 
 ---
 
@@ -274,7 +274,66 @@ Si creaste algo en el CRM hace unos minutos y **no** sale en estas consultas, av
 
 ---
 
-## 4. Salir
+## 4. Borrar todos los casos (dejar la base limpia)
+
+> **PELIGRO — solo para pruebas.** Esto **borra todos los casos** y datos ligados a ellos (actas, actuos, historial de asignación, comunicaciones, notas, etc.). **No borra** usuarios, roles ni configuración.
+>
+> Después de ejecutar, crea el caso nuevo **desde el CRM** (usuario de Inspección) y en el contenedor `espocrm` conviene:
+> `php command.php clear-cache`
+
+Copia **todo el bloque** (incluye `BEGIN` y `COMMIT`) y pégalo en `psql`:
+
+```sql
+BEGIN;
+
+-- Dependencias del caso (en orden)
+DELETE FROM comunicacion_caso;
+DELETE FROM asignacion_historial;
+DELETE FROM acta_visita;
+DELETE FROM actuo_archivo;
+DELETE FROM c_case_document;
+DELETE FROM case_contact;
+DELETE FROM case_knowledge_base_article;
+DELETE FROM kanban_order WHERE entity_type = 'Case';
+DELETE FROM task WHERE parent_type = 'Case';
+DELETE FROM notification
+WHERE related_parent_type = 'Case'
+   OR related_type = 'Case';
+DELETE FROM note
+WHERE parent_type = 'Case'
+   OR related_type = 'Case';
+DELETE FROM attachment
+WHERE parent_type = 'Case'
+   OR related_type = 'Case';
+
+-- Todos los casos
+DELETE FROM "case";
+
+COMMIT;
+```
+
+### Verificar que no quedaron casos
+
+```sql
+SELECT COUNT(*) AS total_casos
+FROM "case"
+WHERE deleted = false;
+```
+
+Debería devolver **0**. Luego entra al CRM y crea el caso como siempre.
+
+### Alternativa (script PHP)
+
+```bash
+docker cp scripts/purge-crm-data.php espocrm:/tmp/purge-crm-data.php
+docker exec espocrm php /tmp/purge-crm-data.php
+```
+
+Ese script también borra contactos y cuentas. Si solo quieres vaciar casos, usa el SQL de arriba.
+
+---
+
+## 5. Salir
 
 ```sql
 \q
