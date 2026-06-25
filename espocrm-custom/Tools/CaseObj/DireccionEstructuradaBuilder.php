@@ -7,7 +7,7 @@ use Espo\ORM\Entity;
 class DireccionEstructuradaBuilder
 {
     /** @var list<string> */
-    private const PETICIONARIO_FIELDS = [
+    public const PETICIONARIO_COMPONENT_FIELDS = [
         'cViaPrincipalPeticionario',
         'cNumViaPrincipalPeticionario',
         'cLetraViaPrincipalPeticionario',
@@ -21,7 +21,7 @@ class DireccionEstructuradaBuilder
     ];
 
     /** @var list<string> */
-    private const PERJUDICANTE_FIELDS = [
+    public const PERJUDICANTE_COMPONENT_FIELDS = [
         'cViaPrincipalPerjudicante',
         'cNumViaPrincipalPerjudicante',
         'cLetraViaPrincipalPerjudicante',
@@ -33,6 +33,12 @@ class DireccionEstructuradaBuilder
         'cBloquePerjudicante',
         'cInteriorPerjudicante',
     ];
+
+    /** @var list<string> */
+    private const PETICIONARIO_FIELDS = self::PETICIONARIO_COMPONENT_FIELDS;
+
+    /** @var list<string> */
+    private const PERJUDICANTE_FIELDS = self::PERJUDICANTE_COMPONENT_FIELDS;
 
     public static function applyToEntity(Entity $entity): void
     {

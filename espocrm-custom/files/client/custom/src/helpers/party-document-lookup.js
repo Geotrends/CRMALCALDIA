@@ -1,9 +1,36 @@
 define('custom:helpers/party-document-lookup', [
     'custom:helpers/persona-tipo-fields',
-], function (PersonaTipoFields) {
+    'custom:helpers/direccion-estructurada',
+], function (PersonaTipoFields, DireccionEstructurada) {
 
     var DEBOUNCE_MS = 400;
     var MIN_DOCUMENT_LENGTH = 4;
+
+    var refreshAddressFields = function (recordView, party) {
+        var config = party === 'peticionario'
+            ? DireccionEstructurada.PETICIONARIO
+            : DireccionEstructurada.PERJUDICANTE;
+
+        DireccionEstructurada.applyToModel(recordView.model, config);
+
+        if (!recordView.isRendered || !recordView.isRendered()) {
+            return;
+        }
+
+        config.componentFields.forEach(function (field) {
+            var fieldView = recordView.getFieldView(field);
+
+            if (fieldView && typeof fieldView.reRender === 'function') {
+                fieldView.reRender();
+            }
+        });
+
+        var direccionView = recordView.getFieldView(config.target);
+
+        if (direccionView && typeof direccionView.reRender === 'function') {
+            direccionView.reRender();
+        }
+    };
 
     var runLookup = function (recordView, config, party) {
         var tipo = String(recordView.model.get(config.tipo) || '').trim();
@@ -78,6 +105,7 @@ define('custom:helpers/party-document-lookup', [
 
             recordView._partyLookupCache[key] = true;
             recordView.model.set(response.data);
+            refreshAddressFields(recordView, party);
             Espo.Ui.warning(
                 response.message || 'Ya existe este registro. Se cargaron los datos registrados.'
             );
