@@ -12,7 +12,8 @@ RUN apt-get update \
         libreoffice-calc \
         libreoffice-writer \
         libreoffice-core \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && a2enmod proxy proxy_http proxy_wstunnel
 
 RUN mkdir -p /opt/bootstrap/repo
 
@@ -23,5 +24,7 @@ COPY sql /opt/bootstrap/repo/sql
 RUN mkdir -p /opt/bootstrap/repo/exports
 COPY docker/espocrm/run-custom-init.sh /usr/local/bin/run-custom-init.sh
 COPY docker/espocrm/entrypoint-with-deploy.sh /usr/local/bin/entrypoint-with-deploy.sh
+COPY docker/espocrm/apache-websocket-proxy.conf /etc/apache2/conf-available/websocket-proxy.conf
+RUN a2enconf websocket-proxy
 
 RUN chmod +x /usr/local/bin/run-custom-init.sh /usr/local/bin/entrypoint-with-deploy.sh
