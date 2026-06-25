@@ -14,8 +14,7 @@ define('custom:helpers/inspeccion-registro-excel', [
     ];
 
     const canEditRegistroExcelFields = function (user) {
-        return RadicacionFields.isInspeccionUser(user)
-            || RadicacionFields.isRadicacionUser(user);
+        return RadicacionFields.isInspeccionUser(user);
     };
 
     const canViewRegistroExcelFields = function () {

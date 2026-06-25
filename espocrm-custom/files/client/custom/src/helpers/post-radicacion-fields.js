@@ -13,7 +13,7 @@ define('custom:helpers/post-radicacion-fields', [
     };
 
     const canAssignPatrullero = function (user) {
-        return isAsignadorUser(user) || isRadicacionUser(user);
+        return isAsignadorUser(user);
     };
 
     const isCasePostRadicado = function (model) {

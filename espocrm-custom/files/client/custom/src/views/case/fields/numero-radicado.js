@@ -1,9 +1,10 @@
 define('custom:views/case/fields/numero-radicado', [
     'views/fields/varchar',
     'custom:helpers/radicacion-fields',
+    'custom:helpers/radicacion-edit-mode',
     'custom:helpers/radicado-catalog',
     'custom:helpers/case-radicado-label',
-], function (Dep, RadicacionFields, RadicadoCatalog, CaseRadicadoLabel) {
+], function (Dep, RadicacionFields, RadicacionEditMode, RadicadoCatalog, CaseRadicadoLabel) {
 
     return Dep.extend({
 
@@ -49,6 +50,14 @@ define('custom:views/case/fields/numero-radicado', [
         useAssistant: function () {
             if (!this.isEditMode() || !RadicacionFields.isRadicacionUser(this.getUser())) {
                 return false;
+            }
+
+            if (RadicacionEditMode.isPureRadicacionUser(this.getUser())) {
+                const recordView = this.getRecordView();
+
+                if (!recordView || typeof recordView.isRadicarMode !== 'function' || !recordView.isRadicarMode()) {
+                    return false;
+                }
             }
 
             if (this.model.isNew() && RadicacionFields.isInspeccionUser(this.getUser()) && !this.getUser().isAdmin()) {

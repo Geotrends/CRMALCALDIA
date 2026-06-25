@@ -80,14 +80,14 @@ while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $fieldData[$scope][$field] = ['read' => 'yes', 'edit' => 'no'];
         }
     } elseif ($roleName === $roleRadicacion) {
-        $fieldData[$scope][$recursoTemaField] = ['read' => 'yes', 'edit' => 'yes'];
+        $fieldData[$scope][$recursoTemaField] = ['read' => 'yes', 'edit' => 'no'];
 
         foreach ($registroExcelFields as $field) {
-            $fieldData[$scope][$field] = ['read' => 'yes', 'edit' => 'yes'];
+            $fieldData[$scope][$field] = ['read' => 'yes', 'edit' => 'no'];
         }
 
         foreach ($asignacionFields as $field) {
-            $fieldData[$scope][$field] = ['read' => 'yes', 'edit' => 'yes'];
+            $fieldData[$scope][$field] = ['read' => 'yes', 'edit' => 'no'];
         }
 
         $fieldData[$scope][$motivoReasignacionField] = ['read' => 'yes', 'edit' => 'no'];
@@ -145,7 +145,7 @@ while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
     ]);
 
     if ($roleName === $roleRadicacion) {
-        echo "OK lectura/edición (radicado + recurso/tema): {$roleName}\n";
+        echo "OK Radicación: solo radicado/expediente editables: {$roleName}\n";
     } elseif ($roleName === $roleInspeccion || $roleName === 'Inspeccion') {
         echo "OK Inspección: registro Excel/fecha vencimiento editables: {$roleName}\n";
     } else {
@@ -156,4 +156,4 @@ while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 require_once __DIR__ . '/includes/deploy-rebuild.php';
 
 deploy_maybe_rebuild($app);
-echo 'Listo. Recurso/tema: lectura para todos, edición Inspección y Radicación.' . PHP_EOL;
+echo 'Listo. Radicación: solo radicado y expediente editables. Inspección sin cambios.' . PHP_EOL;

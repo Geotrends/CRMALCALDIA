@@ -92,6 +92,7 @@
     "actaVisitaManualUnavailable": "Disponible para Inspección y el patrullero asignado al caso.",
     "actaVisitaPrintBlocked": "Permita ventanas emergentes para imprimir el acta.",
     "editarActaVisita": "Editar acta",
+    "radicarCaso": "Radicar",
     "actaVisitaPanelHelp": "Diligencie el acta oficial de visita para este caso.",
     "actaVisitaEditHelp": "El acta ya fue diligenciada. Puede revisarla o modificarla.",
     "actaVisitaInspeccionHelp": "El acta ya fue diligenciada. Puede editarla desde aquí.",
@@ -255,5 +256,8 @@
       "Este": "Este",
       "Oeste": "Oeste"
     }
+  },
+  "messages": {
+    "radicarUseButton": "Use el botón Radicar para registrar el radicado y el expediente. No puede editar el resto del caso."
   }
 }

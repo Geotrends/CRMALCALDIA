@@ -7,6 +7,7 @@
     "enSeguimiento": "En seguimiento"
   },
   "labels": {
+    "radicarCaso": "Radicar",
     "caseTimeline": "Línea de tiempo",
     "caseTimelineProgress": "Progreso del caso",
     "caseTimelineStepOf": "Paso {current} de {total}",
@@ -100,5 +101,8 @@
     "cMunicipioPeticionario": {
       "Envigado": "Envigado"
     }
+  },
+  "messages": {
+    "radicarUseButton": "Use el botón Radicar para registrar el radicado y el expediente. No puede editar el resto del caso."
   }
 }

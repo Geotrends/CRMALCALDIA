@@ -15,7 +15,8 @@ define('custom:views/case/record/detail', [
     'custom:helpers/inspeccion-registro-excel',
     'custom:helpers/case-documentos',
     'custom:helpers/case-detail-panels',
-], function (Dep, PatrulleroActa, InspeccionActa, RadicacionFields, PostRadicacionFields, ActaVisitaModal, ActaVisitaCaseStatus, InspeccionActuoArchivo, ActuoArchivoModal, ActuoArchivoCaseStatus, PersonaTipoFields, RadicadoGenerator, RadicadoAssistantPanel, InspeccionRegistroExcel, CaseDocumentos, CaseDetailPanels) {
+    'custom:helpers/radicacion-edit-mode',
+], function (Dep, PatrulleroActa, InspeccionActa, RadicacionFields, PostRadicacionFields, ActaVisitaModal, ActaVisitaCaseStatus, InspeccionActuoArchivo, ActuoArchivoModal, ActuoArchivoCaseStatus, PersonaTipoFields, RadicadoGenerator, RadicadoAssistantPanel, InspeccionRegistroExcel, CaseDocumentos, CaseDetailPanels, RadicacionEditMode) {
 
     return Dep.extend({
 
@@ -62,6 +63,7 @@ define('custom:views/case/record/detail', [
 
             this._actaVisitaButtonAdded = false;
             this._actuoArchivoButtonAdded = false;
+            this._radicarButtonAdded = false;
 
             this.listenTo(this.model, 'change', function () {
                 this.toggleActaPanels();
@@ -109,6 +111,7 @@ define('custom:views/case/record/detail', [
                 this.toggleRadicacionFields();
                 this.togglePostRadicacionFields();
                 this.toggleRegistroExcelPanel();
+                this.updateRadicacionDetailActions();
             });
         },
 
@@ -221,10 +224,57 @@ define('custom:views/case/record/detail', [
         },
 
         actionEdit: function () {
+            if (RadicacionEditMode.isPureRadicacionUser(this.getUser())) {
+                Espo.Ui.warning(this.translate('radicarUseButton', 'messages', 'Case'));
+
+                return;
+            }
+
             this.getRouter().navigate(
                 '#' + this.entityType + '/edit/' + this.model.id,
                 {trigger: true}
             );
+        },
+
+        actionRadicarCaso: function () {
+            RadicacionEditMode.activateRadicarMode(this.model.id);
+            this.getRouter().navigate(
+                '#' + this.entityType + '/edit/' + this.model.id,
+                {trigger: true}
+            );
+        },
+
+        updateRadicacionDetailActions: function () {
+            const user = this.getUser();
+
+            if (!RadicacionEditMode.isPureRadicacionUser(user)) {
+                if (this._radicarButtonAdded) {
+                    this.safeRemoveMenuItem('radicarCaso');
+                    this._radicarButtonAdded = false;
+                }
+
+                return;
+            }
+
+            this.$el.find('[data-action="edit"]').closest('.btn, .dropdown-item, li').hide();
+
+            if (this._radicarButtonAdded) {
+                this.safeRemoveMenuItem('radicarCaso');
+                this._radicarButtonAdded = false;
+            }
+
+            if (!RadicacionEditMode.shouldShowRadicarButton(user, this.model)) {
+                return;
+            }
+
+            if (this.safeAddMenuItem({
+                label: this.translate('radicarCaso', 'labels', 'Case'),
+                name: 'radicarCaso',
+                action: 'radicarCaso',
+                style: 'primary',
+            })) {
+                this._radicarButtonAdded = true;
+            }
         },
 
         actionDelete: function (data) {
@@ -259,6 +309,7 @@ define('custom:views/case/record/detail', [
             RadicadoGenerator.hideAssistantFields(this);
             this.updateActaVisitaButton();
             this.updateActuoArchivoButton();
+            this.updateRadicacionDetailActions();
             this.toggleActaPanels();
             this.toggleActuoArchivoPanels();
             this.setActaFieldsReadOnlyForReview();
@@ -270,6 +321,7 @@ define('custom:views/case/record/detail', [
                 self.toggleRegistroExcelPanel();
                 self.toggleActaPanels();
                 self.updateActaVisitaButton();
+                self.updateRadicacionDetailActions();
                 self.refreshActaVisitaPanel();
             };
 

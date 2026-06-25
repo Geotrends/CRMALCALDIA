@@ -11,8 +11,9 @@ define('custom:views/case/record/edit', [
     'custom:helpers/radicado-catalog',
     'custom:helpers/radicado-assistant-panel',
     'custom:helpers/inspeccion-registro-excel',
+    'custom:helpers/radicacion-edit-mode',
     'custom:helpers/direccion-estructurada',
-], function (Dep, PatrulleroActa, InspeccionActa, RadicacionFields, PostRadicacionFields, CaseCreateDefaults, PersonaTipoFields, PartyDocumentLookup, RadicadoGenerator, RadicadoCatalog, RadicadoAssistantPanel, InspeccionRegistroExcel, DireccionEstructurada) {
+], function (Dep, PatrulleroActa, InspeccionActa, RadicacionFields, PostRadicacionFields, CaseCreateDefaults, PersonaTipoFields, PartyDocumentLookup, RadicadoGenerator, RadicadoCatalog, RadicadoAssistantPanel, InspeccionRegistroExcel, RadicacionEditMode, DireccionEstructurada) {
 
     return Dep.extend({
 
@@ -54,10 +55,65 @@ define('custom:views/case/record/edit', [
                     return;
                 }
 
+                this.enforceRadicacionEntry();
                 this.toggleRadicacionFields();
                 this.togglePostRadicacionFields();
                 this.toggleRegistroExcelPanel();
-                this.ensureRadicacionEditAccess();
+                this.applyRadicacionFieldAccess();
+            });
+        },
+
+        isRadicarMode: function () {
+            return RadicacionEditMode.isRadicarMode(this);
+        },
+
+        enforceRadicacionEntry: function () {
+            if (!RadicacionEditMode.isPureRadicacionUser(this.getUser()) || this.model.isNew()) {
+                return;
+            }
+
+            if (this.isRadicarMode()) {
+                this._radicarMode = true;
+
+                return;
+            }
+
+            Espo.Ui.warning(this.translate('radicarUseButton', 'messages', 'Case'));
+            this.getRouter().navigate('#Case/view/' + this.model.id, {trigger: true});
+        },
+
+        hideRadicacionSaveActions: function () {
+            this.$el.find('[data-action="save"], [data-action="saveAndContinueEditing"]').hide();
+        },
+
+        applyRadicacionFieldAccess: function () {
+            if (!RadicacionEditMode.isPureRadicacionUser(this.getUser())) {
+                return;
+            }
+
+            RadicacionEditMode.applyRestrictedEdit(this);
+
+            if (!this.isRadicarMode()) {
+                return;
+            }
+
+            this.hideNonRadicacionPanels();
+        },
+
+        hideNonRadicacionPanels: function () {
+            const $radicacionPanel = this.findPanel('radicacionCaso');
+
+            if ($radicacionPanel.length) {
+                $radicacionPanel.show();
+            }
+
+            this.$el.find('.panel[data-name], .panel[data-panel-name], .record-panel[data-name]').each((index, el) => {
+                const $panel = $(el);
+                const name = $panel.data('name') || $panel.data('panelName');
+
+                if (name && name !== 'radicacionCaso') {
+                    $panel.hide();
+                }
             });
         },
 
@@ -237,21 +293,28 @@ define('custom:views/case/record/edit', [
 
             const self = this;
             const applyRoleUi = function () {
-                self.applyFieldModes();
+                self.enforceRadicacionEntry();
+
+                if (!RadicacionEditMode.isPureRadicacionUser(self.getUser()) || self.isRadicarMode()) {
+                    self.applyFieldModes();
+                }
+
                 self.toggleRadicacionFields();
                 self.togglePostRadicacionFields();
                 self.toggleRegistroExcelPanel();
 
-                if (RadicadoAssistantPanel.canShow(self)) {
+                if (RadicadoAssistantPanel.canShow(self) && self.isRadicarMode()) {
                     if (!self.hasRadicacionLayoutPanel() && !self.$el.find('.radicado-assistant-panel-mount').length) {
                         RadicadoAssistantPanel.mount(self);
                     }
                 } else {
                     RadicadoAssistantPanel.unmount(self);
-                    RadicadoGenerator.toggle(self);
+                    if (!RadicacionEditMode.isPureRadicacionUser(self.getUser())) {
+                        RadicadoGenerator.toggle(self);
+                    }
                 }
 
-                self.ensureRadicacionEditAccess();
+                self.applyRadicacionFieldAccess();
                 self.ensureInspeccionEditAccess();
             };
 
@@ -262,7 +325,7 @@ define('custom:views/case/record/edit', [
                             return;
                         }
 
-                        if (!RadicacionFields.isRadicacionUser(self.getUser())) {
+                        if (!RadicacionFields.isRadicacionUser(self.getUser()) || !self.isRadicarMode()) {
                             return;
                         }
 
@@ -326,6 +389,16 @@ define('custom:views/case/record/edit', [
         },
 
         applyFieldModes: function () {
+            if (RadicacionEditMode.isPureRadicacionUser(this.getUser())) {
+                RadicacionEditMode.applyRestrictedEdit(this);
+
+                if (this.isRadicarMode()) {
+                    return;
+                }
+
+                return;
+            }
+
             const user = this.getUser();
             const model = this.model;
 
@@ -370,55 +443,6 @@ define('custom:views/case/record/edit', [
             }
         },
 
-        ensureRadicacionEditAccess: function () {
-            if (!RadicacionFields.isRadicacionUser(this.getUser())) {
-                return;
-            }
-
-            if (RadicadoAssistantPanel.canShow(this)) {
-                if (!this.hasRadicacionLayoutPanel() && !this.$el.find('.radicado-assistant-panel-mount').length) {
-                    RadicadoAssistantPanel.mount(this);
-                }
-            }
-
-            const unlockFields = [
-                'cFechaCaso',
-                'cRecursoTema',
-                'cAsunto',
-                'cZonaAlcaldiaPeticionario',
-                RadicacionFields.FECHA_VENCIMIENTO_FIELD,
-                'cUltimaActuacion',
-                'cProximaActuacion',
-                'cNombrePeticionario',
-                'cApellidoPeticionario',
-                'cDocumentoPeticionario',
-                'cTelefonoPeticionario',
-                'cCorreoPeticionario',
-                'cBarrioPeticionario',
-                'cCanalDeReportePeticionario',
-                'cNombrePerjudicante',
-                'cApellidoPerjudicante',
-                'cDocumentoPerjudicante',
-                'cTelefonoPerjudicante',
-                'cBarrioPerjudicante',
-                'description',
-                'cRespuestaInmediata',
-                'cRecibidaPor',
-                'cRemitidoA',
-                'assignedUser',
-                'cTipoPersonaPeticionario',
-                'cTipoPersonaPerjudicante',
-            ].concat(DireccionEstructurada.allComponentFields());
-
-            unlockFields.forEach((field) => {
-                const view = this.getFieldView(field);
-
-                if (view && typeof view.setNotReadOnly === 'function') {
-                    view.setNotReadOnly();
-                }
-            });
-        },
-
         ensureInspeccionEditAccess: function () {
             if (!RadicacionFields.isInspeccionUser(this.getUser())) {
                 return;
@@ -446,14 +470,23 @@ define('custom:views/case/record/edit', [
             const user = this.getUser();
             const model = this.model;
             const isRadicacion = RadicacionFields.isRadicacionUser(user);
-            const show = RadicacionFields.shouldShowRadicacionFields(user, model);
+            const isPureRadicacion = RadicacionEditMode.isPureRadicacionUser(user);
+            const show = RadicacionEditMode.isPureRadicacionUser(user)
+                ? this.isRadicarMode()
+                : RadicacionFields.shouldShowRadicacionFields(user, model);
             const $layoutPanel = this.findPanel('radicacionCaso');
 
             if ($layoutPanel.length) {
                 $layoutPanel.toggle(show);
             }
 
-            if (RadicadoAssistantPanel.canShow(this)) {
+            if (isPureRadicacion && !this.isRadicarMode()) {
+                RadicadoAssistantPanel.unmount(this);
+
+                return;
+            }
+
+            if (RadicadoAssistantPanel.canShow(this) && this.isRadicarMode()) {
                 RadicadoAssistantPanel.mount(this);
 
                 RadicacionFields.RADICADO_ALL_FIELDS.forEach((field) => {
