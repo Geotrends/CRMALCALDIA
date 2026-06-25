@@ -35,6 +35,49 @@
   border-spacing: 14px 0 !important;
 }
 
+/* Ancho mínimo por columna (scroll horizontal en lugar de aplastar) */
+.case-list-root.case-kanban-active .kanban-head-container tr.kanban-row,
+.case-list-root.case-kanban-active .kanban-columns-container tr.kanban-row,
+.list[data-scope="Case"] .kanban-head-container tr.kanban-row,
+.list[data-scope="Case"] .kanban-columns-container tr.kanban-row,
+[data-scope="Case"] .kanban-head-container tr.kanban-row,
+[data-scope="Case"] .kanban-columns-container tr.kanban-row {
+  grid-auto-columns: minmax(236px, 1fr) !important;
+}
+
+.case-list-root.case-kanban-active .kanban-head-container th.group-header,
+.case-list-root.case-kanban-active .kanban-columns-container td.group-column,
+.list[data-scope="Case"] .kanban-head-container th.group-header,
+.list[data-scope="Case"] .kanban-columns-container td.group-column,
+[data-scope="Case"] .kanban-head-container th.group-header,
+[data-scope="Case"] .kanban-columns-container td.group-column {
+  min-width: 236px;
+}
+
+/* Espo fija los headers a ~28px — lo anulamos */
+.case-list-root.case-kanban-active .kanban-head-container th.group-header,
+.list[data-scope="Case"] .kanban-head-container th.group-header,
+[data-scope="Case"] .kanban-head-container th.group-header {
+  max-height: none !important;
+  height: auto !important;
+  overflow: visible !important;
+  padding: 0 !important;
+  vertical-align: top !important;
+}
+
+.case-list-root.case-kanban-active .kanban-head-placeholder,
+.list[data-scope="Case"] .kanban-head-placeholder,
+[data-scope="Case"] .kanban-head-placeholder {
+  height: auto !important;
+  min-height: 58px;
+}
+
+.case-list-root.case-kanban-active .kanban-head-container,
+.list[data-scope="Case"] .kanban-head-container,
+[data-scope="Case"] .kanban-head-container {
+  margin-bottom: 10px;
+}
+
 /* Encabezados de columna */
 .case-list-root.case-kanban-active .group-header > div,
 .list[data-scope="Case"] .group-header > div,
@@ -43,14 +86,29 @@
   color: var(--crm-form-accent-dark, #1e293b) !important;
   border: 1px solid var(--crm-form-value-border, #e2e8f0) !important;
   border-radius: var(--crm-radius-md) !important;
-  padding: 12px 16px !important;
+  padding: 14px 14px 12px !important;
   font-weight: 700 !important;
   font-size: var(--crm-font-size-sm) !important;
   line-height: 1.35 !important;
   box-shadow: var(--crm-shadow-xs) !important;
-  min-height: 44px;
-  display: flex;
+  min-height: 56px;
+  height: auto !important;
+  display: flex !important;
   align-items: center;
+  justify-content: flex-start;
+  width: 100% !important;
+  box-sizing: border-box;
+  overflow: visible !important;
+}
+
+.case-list-root.case-kanban-active .group-header > div > div,
+.list[data-scope="Case"] .group-header > div > div,
+[data-scope="Case"] .group-header > div > div {
+  display: flex;
+  align-items: flex-start;
+  width: 100%;
+  min-width: 0;
+  gap: 6px;
 }
 
 .case-list-root.case-kanban-active .kanban-group-label,
@@ -58,6 +116,41 @@
 [data-scope="Case"] .kanban-group-label {
   font-weight: 700 !important;
   color: var(--crm-form-accent-dark, #1e293b) !important;
+  white-space: normal !important;
+  text-overflow: unset !important;
+  overflow: visible !important;
+  max-width: none !important;
+  display: flex !important;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  line-height: 1.35 !important;
+  word-break: break-word;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.case-list-root.case-kanban-active .kanban-group-title,
+.list[data-scope="Case"] .kanban-group-title,
+[data-scope="Case"] .kanban-group-title {
+  display: block;
+  font-weight: 700 !important;
+  color: var(--crm-form-accent-dark, #1e293b) !important;
+  line-height: 1.35;
+}
+
+.case-list-root.case-kanban-active .kanban-group-count,
+.list[data-scope="Case"] .kanban-group-count,
+[data-scope="Case"] .kanban-group-count {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: var(--crm-radius-full);
+  background: var(--crm-form-heading-bg, #f1f5f9);
+  border: 1px solid var(--crm-form-value-border, #e2e8f0);
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  color: var(--crm-text-secondary) !important;
+  line-height: 1.3;
 }
 
 .case-list-root.case-kanban-active .group-header .create-button,
@@ -70,14 +163,12 @@
 .list[data-scope="Case"] .kanban-group-label::before,
 [data-scope="Case"] .kanban-group-label::before {
   content: '';
-  display: inline-block;
+  display: block;
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  margin-right: 8px;
-  vertical-align: middle;
-  position: relative;
-  top: -1px;
+  margin-bottom: 2px;
+  flex-shrink: 0;
   background: var(--crm-kanban-col-pendiente);
 }
 
@@ -399,6 +490,15 @@
 }
 
 @media (max-width: 991px) {
+  .case-list-root.case-kanban-active .kanban-head-container tr.kanban-row,
+  .case-list-root.case-kanban-active .kanban-columns-container tr.kanban-row,
+  .list[data-scope="Case"] .kanban-head-container tr.kanban-row,
+  .list[data-scope="Case"] .kanban-columns-container tr.kanban-row,
+  [data-scope="Case"] .kanban-head-container tr.kanban-row,
+  [data-scope="Case"] .kanban-columns-container tr.kanban-row {
+    grid-auto-columns: minmax(260px, 1fr) !important;
+  }
+
   .case-list-root.case-kanban-active td.group-column,
   .list[data-scope="Case"] td.group-column,
   [data-scope="Case"] td.group-column {

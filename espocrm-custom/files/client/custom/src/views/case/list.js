@@ -73,6 +73,7 @@ define('custom:views/case/list', ['views/list'], function (Dep) {
                 }
 
                 var $headers = $kanban.find('.kanban-head-container th.group-header');
+                var self = this;
 
                 $kanban.find('td.group-column').each(function (index) {
                     var $column = $(this);
@@ -84,12 +85,28 @@ define('custom:views/case/list', ['views/list'], function (Dep) {
                         return;
                     }
 
-                    var baseLabel = String($label.attr('data-base-label') || $label.text())
+                    var statusKey = String($column.attr('data-name') || '').trim();
+                    var shortLabel = statusKey
+                        ? (self.translate(statusKey, 'caseTimelineShort', 'Case') || self.translate(statusKey, 'options', 'Case', 'status'))
+                        : '';
+                    var baseLabel = shortLabel || String($label.attr('data-base-label') || $label.text())
                         .replace(/\s*\(\d+\)\s*$/, '')
                         .trim();
 
                     $label.attr('data-base-label', baseLabel);
-                    $label.text(baseLabel + ' (' + count + ')');
+
+                    var $title = $label.find('.kanban-group-title');
+                    var $countEl = $label.find('.kanban-group-count');
+
+                    if (!$title.length) {
+                        $label.empty();
+                        $title = $('<span class="kanban-group-title"></span>');
+                        $countEl = $('<span class="kanban-group-count"></span>');
+                        $label.append($title).append($countEl);
+                    }
+
+                    $title.text(baseLabel);
+                    $countEl.text('(' + count + ')');
                 });
 
                 this.decorateKanbanDueDates($kanban);
