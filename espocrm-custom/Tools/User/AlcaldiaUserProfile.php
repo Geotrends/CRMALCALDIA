@@ -160,27 +160,10 @@ class AlcaldiaUserProfile
     public function findFirstActiveUserIdByRoleNames(array $names): ?string
     {
         foreach ($names as $name) {
-            $role = $this->entityManager
-                ->getRDBRepositoryByClass(Role::class)
-                ->where(['name' => $name])
-                ->findOne();
+            $ids = $this->findActiveUserIdsByRoleName($name);
 
-            if (!$role) {
-                continue;
-            }
-
-            $roleUser = $this->entityManager
-                ->getRDBRepository('RoleUser')
-                ->join('user')
-                ->where([
-                    'roleId' => $role->getId(),
-                    'user.isActive' => true,
-                ])
-                ->order('user.createdAt', 'ASC')
-                ->findOne();
-
-            if ($roleUser) {
-                return (string) $roleUser->get('userId');
+            if ($ids !== []) {
+                return $ids[0];
             }
         }
 

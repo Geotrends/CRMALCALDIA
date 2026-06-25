@@ -21,6 +21,42 @@ define('custom:views/case/record/detail', [
 
         bottomDisabled: true,
 
+        getActionMenuHost: function () {
+            if (typeof this.addMenuItem === 'function') {
+                return this;
+            }
+
+            const header = typeof this.getHeaderView === 'function' ? this.getHeaderView() : null;
+
+            if (header && typeof header.addMenuItem === 'function') {
+                return header;
+            }
+
+            return null;
+        },
+
+        safeAddMenuItem: function (item) {
+            const host = this.getActionMenuHost();
+
+            if (!host) {
+                return false;
+            }
+
+            host.addMenuItem('buttons', item);
+
+            return true;
+        },
+
+        safeRemoveMenuItem: function (name) {
+            const host = this.getActionMenuHost();
+
+            if (!host || typeof host.removeMenuItem !== 'function') {
+                return;
+            }
+
+            host.removeMenuItem(name);
+        },
+
         setup: function () {
             Dep.prototype.setup.call(this);
 
@@ -79,7 +115,7 @@ define('custom:views/case/record/detail', [
         updateActaVisitaButton: function () {
             if (!this.model.id) {
                 if (this._actaVisitaButtonAdded) {
-                    this.removeMenuItem('llenarActaVisita');
+                    this.safeRemoveMenuItem('llenarActaVisita');
                     this._actaVisitaButtonAdded = false;
                 }
 
@@ -91,7 +127,7 @@ define('custom:views/case/record/detail', [
 
                 if (!show) {
                     if (this._actaVisitaButtonAdded) {
-                        this.removeMenuItem('llenarActaVisita');
+                        this.safeRemoveMenuItem('llenarActaVisita');
                         this._actaVisitaButtonAdded = false;
                     }
 
@@ -104,17 +140,18 @@ define('custom:views/case/record/detail', [
                     : this.translate('llenarActaVisita', 'Case');
 
                 if (this._actaVisitaButtonAdded) {
-                    this.removeMenuItem('llenarActaVisita');
+                    this.safeRemoveMenuItem('llenarActaVisita');
                     this._actaVisitaButtonAdded = false;
                 }
 
-                this.addMenuItem('buttons', {
+                if (this.safeAddMenuItem({
                     label: label,
                     name: 'llenarActaVisita',
                     action: 'llenarActaVisita',
                     style: 'primary',
-                });
-                this._actaVisitaButtonAdded = true;
+                })) {
+                    this._actaVisitaButtonAdded = true;
+                }
             });
         },
 
@@ -137,7 +174,7 @@ define('custom:views/case/record/detail', [
 
             if (!show) {
                 if (this._actuoArchivoButtonAdded) {
-                    this.removeMenuItem('llenarActuoArchivo');
+                    this.safeRemoveMenuItem('llenarActuoArchivo');
                     this._actuoArchivoButtonAdded = false;
                 }
 
@@ -155,17 +192,18 @@ define('custom:views/case/record/detail', [
                     : this.translate('llenarActuoArchivo', 'Case');
 
                 if (this._actuoArchivoButtonAdded) {
-                    this.removeMenuItem('llenarActuoArchivo');
+                    this.safeRemoveMenuItem('llenarActuoArchivo');
                     this._actuoArchivoButtonAdded = false;
                 }
 
-                this.addMenuItem('buttons', {
+                if (this.safeAddMenuItem({
                     label: label,
                     name: 'llenarActuoArchivo',
                     action: 'llenarActuoArchivo',
                     style: 'primary',
-                });
-                this._actuoArchivoButtonAdded = true;
+                })) {
+                    this._actuoArchivoButtonAdded = true;
+                }
             });
         },
 

@@ -40,9 +40,10 @@ class CaseObj extends BaseCaseObj
             throw new Forbidden();
         }
 
-        return $this->injectableFactory
-            ->create(CaseCreateDefaultsService::class)
-            ->build();
+        return (new CaseCreateDefaultsService(
+            $this->entityManager,
+            new AlcaldiaUserProfile($this->entityManager)
+        ))->build();
     }
 
     /**

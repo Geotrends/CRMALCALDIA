@@ -32,7 +32,7 @@ class CaseCreateDefaultsService
         if ($recibidaPorId) {
             $user = $this->entityManager->getEntityById('User', $recibidaPorId);
             $defaults['cRecibidaPorId'] = $recibidaPorId;
-            $defaults['cRecibidaPorName'] = $user ? (string) $user->get('name') : '';
+            $defaults['cRecibidaPorName'] = $user ? $this->resolveUserDisplayName($user) : '';
         }
 
         $remitidoAId = $this->profile->findFirstActiveUserIdByRoleNames([
@@ -43,9 +43,20 @@ class CaseCreateDefaultsService
         if ($remitidoAId) {
             $user = $this->entityManager->getEntityById('User', $remitidoAId);
             $defaults['cRemitidoAId'] = $remitidoAId;
-            $defaults['cRemitidoAName'] = $user ? (string) $user->get('name') : '';
+            $defaults['cRemitidoAName'] = $user ? $this->resolveUserDisplayName($user) : '';
         }
 
         return $defaults;
+    }
+
+    private function resolveUserDisplayName(\Espo\ORM\Entity $user): string
+    {
+        $name = trim((string) $user->get('name'));
+
+        if ($name !== '') {
+            return $name;
+        }
+
+        return trim(trim((string) $user->get('firstName')) . ' ' . trim((string) $user->get('lastName')));
     }
 }
