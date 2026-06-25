@@ -256,24 +256,26 @@ define('custom:views/case/record/edit', [
             };
 
             const scheduleRoleUiRetry = function () {
-                window.setTimeout(function () {
-                    if (!self.isEditMode || !self.isEditMode()) {
-                        return;
-                    }
+                [300, 800].forEach(function (delay) {
+                    window.setTimeout(function () {
+                        if (!self.isEditMode || !self.isEditMode()) {
+                            return;
+                        }
 
-                    if (!RadicacionFields.isRadicacionUser(self.getUser())) {
-                        return;
-                    }
+                        if (!RadicacionFields.isRadicacionUser(self.getUser())) {
+                            return;
+                        }
 
-                    if (self.hasVisibleRadicacionUi()) {
-                        return;
-                    }
+                        if (self.hasVisibleRadicacionUi()) {
+                            return;
+                        }
 
-                    applyRoleUi();
-                }, 300);
+                        applyRoleUi();
+                    }, delay);
+                });
             };
 
-            RadicacionFields.ensureProfile().then(function () {
+            RadicacionFields.refreshProfile().then(function () {
                 applyRoleUi();
                 scheduleRoleUiRetry();
             });
@@ -288,15 +290,23 @@ define('custom:views/case/record/edit', [
                 return true;
             }
 
-            const $panel = this.findPanel('radicacionCaso');
+            const $assistant = this.$el.find('[data-name="cNumeroRadicado"] .radicado-assistant');
 
-            if ($panel.length && $panel.is(':visible')) {
+            if ($assistant.length && $assistant.is(':visible')) {
                 return true;
             }
 
-            const $radicadoCell = this.$el.find('[data-name="cNumeroRadicado"]').closest('.cell');
+            const $panel = this.findPanel('radicacionCaso');
 
-            return $radicadoCell.length > 0 && $radicadoCell.is(':visible');
+            if ($panel.length && $panel.is(':visible')) {
+                const $preview = $panel.find('[data-role="preview-radicado"], [data-role="modo"]');
+
+                if ($preview.length) {
+                    return true;
+                }
+            }
+
+            return false;
         },
 
         clearAssignedUserOnCreate: function () {
@@ -437,46 +447,14 @@ define('custom:views/case/record/edit', [
             const model = this.model;
             const isRadicacion = RadicacionFields.isRadicacionUser(user);
             const show = RadicacionFields.shouldShowRadicacionFields(user, model);
-            const hasLayoutPanel = this.hasRadicacionLayoutPanel();
             const $layoutPanel = this.findPanel('radicacionCaso');
 
-            if (hasLayoutPanel) {
+            if ($layoutPanel.length) {
                 $layoutPanel.toggle(show);
-
-                if (isRadicacion && show) {
-                    RadicadoAssistantPanel.unmount(this);
-                    RadicadoGenerator.toggle(this);
-
-                    RadicacionFields.RADICADO_ALL_FIELDS.forEach((field) => {
-                        const $cell = this.$el.find('[data-name="' + field + '"]').closest('.cell');
-
-                        if (!$cell.length) {
-                            return;
-                        }
-
-                        $cell.show();
-
-                        const view = this.getFieldView(field);
-
-                        if (view && typeof view.setNotReadOnly === 'function') {
-                            view.setNotReadOnly();
-                        }
-                    });
-
-                    const radicadoView = this.getFieldView('cNumeroRadicado');
-
-                    if (radicadoView && radicadoView.isRendered && radicadoView.isRendered()) {
-                        radicadoView.reRender();
-                    }
-
-                    return;
-                }
             }
 
             if (RadicadoAssistantPanel.canShow(this)) {
-                if (!this.$el.find('.radicado-assistant-panel-mount').length) {
-                    RadicadoAssistantPanel.mount(this);
-                }
+                RadicadoAssistantPanel.mount(this);
 
                 RadicacionFields.RADICADO_ALL_FIELDS.forEach((field) => {
                     this.$el.find('[data-name="' + field + '"]').closest('.cell').hide();
@@ -487,10 +465,6 @@ define('custom:views/case/record/edit', [
 
             RadicadoAssistantPanel.unmount(this);
             RadicadoGenerator.hideAssistantFields(this);
-
-            if (hasLayoutPanel) {
-                $layoutPanel.toggle(show);
-            }
 
             RadicacionFields.RADICADO_ALL_FIELDS.forEach((field) => {
                 const $cell = this.$el.find('[data-name="' + field + '"]').closest('.cell');
@@ -512,6 +486,12 @@ define('custom:views/case/record/edit', [
 
                     if (view && typeof view.setNotReadOnly === 'function') {
                         view.setNotReadOnly();
+                    }
+
+                    const radicadoView = this.getFieldView('cNumeroRadicado');
+
+                    if (field === 'cNumeroRadicado' && radicadoView && radicadoView.isRendered && radicadoView.isRendered()) {
+                        radicadoView.reRender();
                     }
 
                     return;
@@ -692,6 +672,7 @@ define('custom:views/case/record/edit', [
         findPanel: function (name) {
             return this.$el.find(
                 '.panel[data-name="' + name + '"], ' +
+                '.panel[data-panel-name="' + name + '"], ' +
                 '.record-panel[data-name="' + name + '"], ' +
                 '[data-name="' + name + '"].panel'
             );

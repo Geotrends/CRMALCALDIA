@@ -223,10 +223,23 @@ define('custom:helpers/radicado-assistant-panel', [
         recordView.$el.find('.' + PANEL_CLASS).remove();
 
         const html = buildHtml(recordView.model);
+        const $layoutHost = recordView.$el.find(
+            '.panel[data-name="radicacionCaso"] .panel-body, ' +
+            '.panel[data-panel-name="radicacionCaso"] .panel-body, ' +
+            '.record-panel[data-name="radicacionCaso"] .panel-body'
+        ).first();
         const $grid = recordView.$el.find('.record-grid').first();
         const $form = recordView.$el.find('form.record, .panel-body-form').first();
 
-        if ($grid.length) {
+        if ($layoutHost.length) {
+            $layoutHost.find('.' + PANEL_CLASS).remove();
+            $layoutHost.prepend(html);
+            recordView.$el.find(
+                '.panel[data-name="radicacionCaso"], ' +
+                '.panel[data-panel-name="radicacionCaso"], ' +
+                '.record-panel[data-name="radicacionCaso"]'
+            ).show();
+        } else if ($grid.length) {
             $grid.before(html);
         } else if ($form.length) {
             $form.prepend(html);

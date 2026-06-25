@@ -37,6 +37,18 @@ define('custom:helpers/radicacion-fields', [], function () {
         }
     };
 
+    const refreshProfile = function () {
+        serverProfile = null;
+        profileLoaded = false;
+        profilePromise = null;
+
+        return ensureProfile();
+    };
+
+    const isProfileLoaded = function () {
+        return profileLoaded;
+    };
+
     const ensureProfile = function () {
         if (profileLoaded) {
             return Promise.resolve(serverProfile || {});
@@ -257,6 +269,10 @@ define('custom:helpers/radicacion-fields', [], function () {
             return true;
         }
 
+        if (!profileLoaded && user && hasRole(user, ROLE_RADICACION)) {
+            return true;
+        }
+
         return isCaseRadicado(model);
     };
 
@@ -279,6 +295,8 @@ define('custom:helpers/radicacion-fields', [], function () {
         RADICADO_ALL_FIELDS: RADICADO_ALL_FIELDS,
         FECHA_VENCIMIENTO_FIELD: FECHA_VENCIMIENTO_FIELD,
         ensureProfile: ensureProfile,
+        refreshProfile: refreshProfile,
+        isProfileLoaded: isProfileLoaded,
         onProfileReady: onProfileReady,
         isRadicacionUser: isRadicacionUser,
         isInspeccionUser: isInspeccionUser,

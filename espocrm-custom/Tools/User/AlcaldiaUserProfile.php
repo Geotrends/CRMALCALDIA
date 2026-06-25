@@ -3,6 +3,7 @@
 namespace Espo\Custom\Tools\User;
 
 use Espo\Entities\Role;
+use Espo\Entities\Team;
 use Espo\Entities\User;
 use Espo\ORM\EntityManager;
 
@@ -52,9 +53,9 @@ class AlcaldiaUserProfile
     public function build(User $user): array
     {
         $flags = [
-            'isInspeccion' => $user->isAdmin() || $this->hasAnyRole($user, self::NAMES_INSPECCION),
+            'isInspeccion' => $user->isAdmin() || $this->hasAnyRoleOrTeam($user, self::NAMES_INSPECCION),
             'isRadicacion' => $this->isRadicacion($user),
-            'isPatrullero' => $this->hasAnyRole($user, self::NAMES_PATRULLERO),
+            'isPatrullero' => $this->hasAnyRoleOrTeam($user, self::NAMES_PATRULLERO),
             'isAsignador' => $this->isAsignador($user),
             'canDownloadExcelAlcaldia' => $this->canDownloadExcelAlcaldia($user),
         ];
@@ -81,10 +82,10 @@ class AlcaldiaUserProfile
         }
 
         $flags ??= [
-            'isInspeccion' => $this->hasAnyRole($user, self::NAMES_INSPECCION),
-            'isRadicacion' => $this->hasAnyRole($user, self::NAMES_RADICACION),
-            'isPatrullero' => $this->hasAnyRole($user, self::NAMES_PATRULLERO),
-            'isAsignador' => $this->hasAnyRole($user, self::NAMES_ASIGNADOR),
+            'isInspeccion' => $this->hasAnyRoleOrTeam($user, self::NAMES_INSPECCION),
+            'isRadicacion' => $this->isRadicacion($user),
+            'isPatrullero' => $this->hasAnyRoleOrTeam($user, self::NAMES_PATRULLERO),
+            'isAsignador' => $this->isAsignador($user),
         ];
 
         if ($flags['isRadicacion']) {
@@ -108,27 +109,60 @@ class AlcaldiaUserProfile
 
     public function isInspeccion(User $user): bool
     {
-        return !$user->isAdmin() && $this->hasAnyRole($user, self::NAMES_INSPECCION);
+        return !$user->isAdmin() && $this->hasAnyRoleOrTeam($user, self::NAMES_INSPECCION);
     }
 
     public function isRadicacion(User $user): bool
     {
-        return $user->isAdmin() || $this->hasAnyRole($user, self::NAMES_RADICACION);
+        return $user->isAdmin() || $this->hasAnyRoleOrTeam($user, self::NAMES_RADICACION);
     }
 
     public function isPatrullero(User $user): bool
     {
-        return !$user->isAdmin() && $this->hasAnyRole($user, self::NAMES_PATRULLERO);
+        return !$user->isAdmin() && $this->hasAnyRoleOrTeam($user, self::NAMES_PATRULLERO);
     }
 
     public function isAsignador(User $user): bool
     {
-        return $user->isAdmin() || $this->hasAnyRole($user, self::NAMES_ASIGNADOR);
+        return $user->isAdmin() || $this->hasAnyRoleOrTeam($user, self::NAMES_ASIGNADOR);
     }
 
     public function canEditRadicado(User $user): bool
     {
         return $this->isRadicacion($user);
+    }
+
+    /**
+     * @param string[] $names
+     */
+    public function hasAnyRoleOrTeam(User $user, array $names): bool
+    {
+        return $this->hasAnyRole($user, $names) || $this->hasAnyTeam($user, $names);
+    }
+
+    /**
+     * @param string[] $names
+     */
+    public function hasAnyTeam(User $user, array $names): bool
+    {
+        $teamIds = $user->getLinkMultipleIdList('teams') ?? [];
+
+        if ($teamIds === []) {
+            return false;
+        }
+
+        foreach ($names as $name) {
+            $team = $this->entityManager
+                ->getRDBRepositoryByClass(Team::class)
+                ->where(['name' => $name])
+                ->findOne();
+
+            if ($team && in_array($team->getId(), $teamIds, true)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

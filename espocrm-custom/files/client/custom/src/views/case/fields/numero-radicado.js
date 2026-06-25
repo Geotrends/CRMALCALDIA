@@ -38,6 +38,12 @@ define('custom:views/case/fields/numero-radicado', [
                     this.reRender();
                 }
             });
+
+            RadicacionFields.onProfileReady(() => {
+                if (this.isRendered()) {
+                    this.reRender();
+                }
+            });
         },
 
         useAssistant: function () {
