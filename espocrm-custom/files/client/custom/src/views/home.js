@@ -89,6 +89,7 @@ define('custom:views/home', ['views/dashboard', 'search-manager'], function (Dep
             ],
             radicacion: [
                 {title: 'Pendientes de radicación', primary: 'pendienteRadicacion'},
+                {title: 'Casos radicados', primary: 'casosRadicados'},
             ],
             asignador: [
                 {title: 'Pendientes de asignación', primary: 'pendienteAsignacion'},

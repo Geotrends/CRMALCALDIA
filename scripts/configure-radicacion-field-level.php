@@ -155,5 +155,34 @@ while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 
 require_once __DIR__ . '/includes/deploy-rebuild.php';
 
+$roleRadicacionEntity = $em->getRDBRepository('Role')->where(['name' => $roleRadicacion])->findOne();
+
+if ($roleRadicacionEntity) {
+    $roleData = $roleRadicacionEntity->get('data');
+
+    if ($roleData instanceof stdClass) {
+        $roleData = json_decode(json_encode($roleData), true);
+    }
+
+    if (!is_array($roleData)) {
+        $roleData = [];
+    }
+
+    if (!isset($roleData[$scope]) || !is_array($roleData[$scope])) {
+        $roleData[$scope] = [];
+    }
+
+    $roleData[$scope]['create'] = 'no';
+    $roleData[$scope]['read'] = $roleData[$scope]['read'] ?? 'all';
+    $roleData[$scope]['edit'] = $roleData[$scope]['edit'] ?? 'all';
+    $roleData[$scope]['delete'] = 'no';
+    $roleData[$scope]['stream'] = $roleData[$scope]['stream'] ?? 'all';
+
+    $roleRadicacionEntity->set('data', $roleData);
+    $em->saveEntity($roleRadicacionEntity);
+
+    echo "OK Radicación: sin permiso para crear casos (Case create=no).\n";
+}
+
 deploy_maybe_rebuild($app);
-echo 'Listo. Radicación: solo radicado y expediente editables. Inspección sin cambios.' . PHP_EOL;
+echo 'Listo. Radicación: solo radicado y expediente editables; no puede crear casos. Inspección sin cambios.' . PHP_EOL;

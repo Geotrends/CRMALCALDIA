@@ -68,7 +68,14 @@ define('custom:views/case/record/edit', [
         },
 
         enforceRadicacionEntry: function () {
-            if (!RadicacionEditMode.isPureRadicacionUser(this.getUser()) || this.model.isNew()) {
+            if (!RadicacionEditMode.isPureRadicacionUser(this.getUser())) {
+                return;
+            }
+
+            if (this.model.isNew()) {
+                Espo.Ui.warning(this.translate('radicacionCannotCreateCase', 'messages', 'Case'));
+                this.getRouter().navigate('#Home', {trigger: true});
+
                 return;
             }
 

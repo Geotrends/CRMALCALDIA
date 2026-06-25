@@ -2,6 +2,7 @@
     "primaryFilterClassNameMap": {
         "todos": "Espo\\Custom\\Classes\\Select\\Case\\PrimaryFilters\\Todos",
         "pendienteRadicacion": "Espo\\Custom\\Classes\\Select\\Case\\PrimaryFilters\\PendienteRadicacion",
+        "casosRadicados": "Espo\\Custom\\Classes\\Select\\Case\\PrimaryFilters\\CasosRadicados",
         "pendienteAsignacion": "Espo\\Custom\\Classes\\Select\\Case\\PrimaryFilters\\PendienteAsignacion",
         "misCasos": "Espo\\Custom\\Classes\\Select\\Case\\PrimaryFilters\\MisCasos",
         "enSeguimiento": "Espo\\Custom\\Classes\\Select\\Case\\PrimaryFilters\\EnSeguimiento"

@@ -2,6 +2,7 @@
   "primaryFilters": {
     "todos": "Todos los casos",
     "pendienteRadicacion": "Pendientes de radicación",
+    "casosRadicados": "Casos radicados",
     "pendienteAsignacion": "Pendientes de asignación",
     "misCasos": "Mis casos asignados",
     "enSeguimiento": "En seguimiento"
@@ -103,6 +104,7 @@
     }
   },
   "messages": {
-    "radicarUseButton": "Use el botón Radicar para registrar el radicado y el expediente por primera vez."
+    "radicarUseButton": "Use el botón Radicar para registrar el radicado y el expediente por primera vez.",
+    "radicacionCannotCreateCase": "El rol de radicación no puede crear casos nuevos."
   }
 }
