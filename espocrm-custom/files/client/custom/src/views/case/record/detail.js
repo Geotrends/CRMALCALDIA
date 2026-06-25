@@ -17,7 +17,8 @@ define('custom:views/case/record/detail', [
     'custom:helpers/case-detail-panels',
     'custom:helpers/radicacion-edit-mode',
     'custom:helpers/asignador-edit-mode',
-], function (Dep, PatrulleroActa, InspeccionActa, RadicacionFields, PostRadicacionFields, ActaVisitaModal, ActaVisitaCaseStatus, InspeccionActuoArchivo, ActuoArchivoModal, ActuoArchivoCaseStatus, PersonaTipoFields, RadicadoGenerator, RadicadoAssistantPanel, InspeccionRegistroExcel, CaseDocumentos, CaseDetailPanels, RadicacionEditMode, AsignadorEditMode) {
+    'custom:helpers/alcaldia-case-roles',
+], function (Dep, PatrulleroActa, InspeccionActa, RadicacionFields, PostRadicacionFields, ActaVisitaModal, ActaVisitaCaseStatus, InspeccionActuoArchivo, ActuoArchivoModal, ActuoArchivoCaseStatus, PersonaTipoFields, RadicadoGenerator, RadicadoAssistantPanel, InspeccionRegistroExcel, CaseDocumentos, CaseDetailPanels, RadicacionEditMode, AsignadorEditMode, AlcaldiaCaseRoles) {
 
     return Dep.extend({
 
@@ -267,20 +268,7 @@ define('custom:views/case/record/detail', [
                 return;
             }
 
-            if (
-                RadicacionFields.isInspeccionUser(user)
-                && !PatrulleroActa.isPurePatrulleroUser(user)
-            ) {
-                $editBtn.show();
-                this.setPrimaryActionButtonLabel(
-                    $editBtn,
-                    this.translate('Edit', 'labels', 'Global')
-                );
-                this.setPrimaryActionButtonHref($editBtn, this.getCaseEditUrl());
-
-                return;
-            }
-
+            // Edwin: solo radicar / editar radicado (prioridad sobre asignador e inspección).
             if (RadicacionEditMode.isPureRadicacionUser(user)) {
                 $editBtn.show();
 
@@ -288,6 +276,10 @@ define('custom:views/case/record/detail', [
                     this.setPrimaryActionButtonLabel(
                         $editBtn,
                         this.translate('radicarCaso', 'labels', 'Case')
+                    );
+                    this.setPrimaryActionButtonHref(
+                        $editBtn,
+                        this.getCaseEditUrl() + '?radicar=1'
                     );
 
                     return;
@@ -311,6 +303,7 @@ define('custom:views/case/record/detail', [
                 return;
             }
 
+            // Julian: solo asignar.
             if (AsignadorEditMode.isPureAsignadorUser(user)) {
                 $editBtn.show();
                 this.setPrimaryActionButtonLabel(
@@ -321,6 +314,18 @@ define('custom:views/case/record/detail', [
                     $editBtn,
                     this.getCaseEditUrl() + '?asignar=1'
                 );
+
+                return;
+            }
+
+            // Juan: editar el caso completo.
+            if (AlcaldiaCaseRoles.isGestionInspeccionUser(user)) {
+                $editBtn.show();
+                this.setPrimaryActionButtonLabel(
+                    $editBtn,
+                    this.translate('Edit', 'labels', 'Global')
+                );
+                this.setPrimaryActionButtonHref($editBtn, this.getCaseEditUrl());
             }
         },
 

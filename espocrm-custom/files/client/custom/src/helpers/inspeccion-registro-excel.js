@@ -3,7 +3,8 @@ define('custom:helpers/inspeccion-registro-excel', [
     'custom:helpers/radicacion-edit-mode',
     'custom:helpers/asignador-edit-mode',
     'custom:helpers/patrullero-acta',
-], function (RadicacionFields, RadicacionEditMode, AsignadorEditMode, PatrulleroActa) {
+    'custom:helpers/alcaldia-case-roles',
+], function (RadicacionFields, RadicacionEditMode, AsignadorEditMode, PatrulleroActa, AlcaldiaCaseRoles) {
 
     const PANEL_NAME = 'registroExcelAlcaldia';
 
@@ -29,7 +30,7 @@ define('custom:helpers/inspeccion-registro-excel', [
             return false;
         }
 
-        return RadicacionFields.isInspeccionUser(user);
+        return AlcaldiaCaseRoles.isGestionInspeccionUser(user);
     };
 
     const canViewRegistroExcelFields = function () {

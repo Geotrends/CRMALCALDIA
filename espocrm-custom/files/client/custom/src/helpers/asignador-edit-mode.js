@@ -22,10 +22,6 @@ define('custom:helpers/asignador-edit-mode', [
             return false;
         }
 
-        if (!RadicacionFields.isProfileLoaded()) {
-            return false;
-        }
-
         return true;
     };
 

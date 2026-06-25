@@ -17,10 +17,6 @@ define('custom:helpers/radicacion-edit-mode', [
             return false;
         }
 
-        if (!RadicacionFields.isProfileLoaded()) {
-            return false;
-        }
-
         return true;
     };
 

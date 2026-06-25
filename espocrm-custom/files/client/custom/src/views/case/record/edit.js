@@ -13,8 +13,9 @@ define('custom:views/case/record/edit', [
     'custom:helpers/inspeccion-registro-excel',
     'custom:helpers/radicacion-edit-mode',
     'custom:helpers/asignador-edit-mode',
+    'custom:helpers/alcaldia-case-roles',
     'custom:helpers/direccion-estructurada',
-], function (Dep, PatrulleroActa, InspeccionActa, RadicacionFields, PostRadicacionFields, CaseCreateDefaults, PersonaTipoFields, PartyDocumentLookup, RadicadoGenerator, RadicadoCatalog, RadicadoAssistantPanel, InspeccionRegistroExcel, RadicacionEditMode, AsignadorEditMode, DireccionEstructurada) {
+], function (Dep, PatrulleroActa, InspeccionActa, RadicacionFields, PostRadicacionFields, CaseCreateDefaults, PersonaTipoFields, PartyDocumentLookup, RadicadoGenerator, RadicadoCatalog, RadicadoAssistantPanel, InspeccionRegistroExcel, RadicacionEditMode, AsignadorEditMode, AlcaldiaCaseRoles, DireccionEstructurada) {
 
     return Dep.extend({
 
@@ -547,7 +548,7 @@ define('custom:views/case/record/edit', [
         },
 
         scheduleInspeccionEditAccess: function () {
-            if (!RadicacionFields.isInspeccionUser(this.getUser())) {
+            if (!AlcaldiaCaseRoles.isGestionInspeccionUser(this.getUser())) {
                 return;
             }
 
@@ -565,19 +566,7 @@ define('custom:views/case/record/edit', [
         },
 
         ensureInspeccionEditAccess: function () {
-            if (RadicacionEditMode.isPureRadicacionUser(this.getUser())) {
-                return;
-            }
-
-            if (AsignadorEditMode.isPureAsignadorUser(this.getUser())) {
-                return;
-            }
-
-            if (PatrulleroActa.isPurePatrulleroUser(this.getUser())) {
-                return;
-            }
-
-            if (!RadicacionFields.isInspeccionUser(this.getUser())) {
+            if (!AlcaldiaCaseRoles.isGestionInspeccionUser(this.getUser())) {
                 return;
             }
 
@@ -603,33 +592,6 @@ define('custom:views/case/record/edit', [
 
             unlockFields.forEach((field) => {
                 const view = this.getFieldView(field);
-
-                if (view && typeof view.setNotReadOnly === 'function') {
-                    view.setNotReadOnly();
-                }
-            });
-
-            const fieldViews = typeof this.getFieldViews === 'function'
-                ? this.getFieldViews()
-                : {};
-
-            const keepReadOnly = [
-                'cNumeroRadicado',
-                'cExpediente',
-                'cRadicadoModo',
-                'cRadicadoSiglas',
-                'cRadicadoAnio',
-                'assignedUser',
-                'cMotivoReasignacion',
-                'cPanelActaVisita',
-            ];
-
-            Object.keys(fieldViews).forEach((field) => {
-                if (keepReadOnly.indexOf(field) !== -1) {
-                    return;
-                }
-
-                const view = fieldViews[field];
 
                 if (view && typeof view.setNotReadOnly === 'function') {
                     view.setNotReadOnly();
