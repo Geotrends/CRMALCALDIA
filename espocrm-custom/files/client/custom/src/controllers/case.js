@@ -10,15 +10,25 @@ define('custom:controllers/case', ['controllers/record'], function (Dep) {
             return this.getAcl().check(this.name, 'create');
         },
 
-        redirectCreateBlocked: function () {
-            var message = this.translate('caseCreateNotAllowed', 'messages', 'Case');
+        getCreateBlockedMessage: function () {
+            var message = 'Su rol no puede crear casos nuevos.';
 
-            if (!message || message === 'caseCreateNotAllowed') {
-                message = 'Su rol no puede crear casos nuevos.';
+            if (!this.getLanguage || typeof this.getLanguage !== 'function') {
+                return message;
             }
 
-            Espo.Ui.warning(message);
-            this.getRouter().navigate('#Home', {trigger: true, replace: true});
+            var translated = this.getLanguage().translate('caseCreateNotAllowed', 'messages', 'Case');
+
+            if (translated && translated !== 'caseCreateNotAllowed') {
+                return translated;
+            }
+
+            return message;
+        },
+
+        redirectCreateBlocked: function () {
+            Espo.Ui.warning(this.getCreateBlockedMessage());
+            this.getRouter().dispatch('Home', 'index', {trigger: true});
         },
 
         beforeCreate: function (options) {
@@ -30,6 +40,8 @@ define('custom:controllers/case', ['controllers/record'], function (Dep) {
         },
 
         actionCreate: function (options) {
+            options = options || {};
+
             if (!this.canCreateCase()) {
                 this.redirectCreateBlocked();
 

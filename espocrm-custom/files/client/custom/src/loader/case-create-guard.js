@@ -13,17 +13,15 @@
     }
 
     function getMessage(app) {
-        if (!app || !app.getLanguage) {
-            return DEFAULT_MESSAGE;
+        if (app && app.getLanguage) {
+            try {
+                var translated = app.getLanguage().translate('caseCreateNotAllowed', 'messages', 'Case');
+
+                if (translated && translated !== 'caseCreateNotAllowed') {
+                    return translated;
+                }
+            } catch (e) {}
         }
-
-        try {
-            var translated = app.getLanguage().translate('caseCreateNotAllowed', 'messages', 'Case');
-
-            if (translated && translated !== 'caseCreateNotAllowed') {
-                return translated;
-            }
-        } catch (e) {}
 
         return DEFAULT_MESSAGE;
     }
@@ -54,7 +52,7 @@
         notify(app, getMessage(app));
 
         if (app && app.getRouter) {
-            app.getRouter().navigate('#Home', {trigger: true, replace: true});
+            app.getRouter().dispatch('Home', 'index', {trigger: true});
         } else if (/^#Case\/create/i.test(window.location.hash || '')) {
             window.location.replace(
                 window.location.pathname + window.location.search + '#Home'
