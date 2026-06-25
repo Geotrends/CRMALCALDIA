@@ -111,7 +111,7 @@
     "formatoActuoArchivoCaseHelp": "El auto de archivo está listo. Puede descargar el formato oficial en PDF.",
     "formatoActuoArchivoCasePending": "El formato estará disponible cuando diligencie y guarde el auto de archivo con referencia y motivo.",
     "formatoActuoArchivoCaseUnavailable": "Disponible para Inspección cuando el caso esté en estado Finalizado.",
-    "Registro oficial (Excel)": "Registro oficial (Excel)",
+    "Clasificación y seguimiento": "Clasificación y seguimiento",
     "caseTimeline": "Línea de tiempo",
     "caseTimelineProgress": "Progreso del caso",
     "caseTimelineStepOf": "Paso {current} de {total}",

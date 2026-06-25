@@ -98,21 +98,39 @@
   margin-bottom: 6px !important;
 }
 
+/* Edición: inputs activos en blanco (no parecen deshabilitados) */
 .edit .panel-body .form-control,
-.modal-body .edit .form-control {
+.edit .panel-body .selectize-input,
+.modal-body .edit .form-control,
+.modal-body .edit .selectize-input {
   border-radius: var(--crm-radius-sm) !important;
   border-color: var(--crm-form-value-border) !important;
-  background: var(--crm-form-value-bg) !important;
+  background: var(--crm-surface) !important;
   min-height: 38px;
   box-shadow: none !important;
   transition: border-color var(--crm-transition), box-shadow var(--crm-transition) !important;
 }
 
 .edit .panel-body .form-control:focus,
-.modal-body .edit .form-control:focus {
+.edit .panel-body .selectize-input.focus,
+.modal-body .edit .form-control:focus,
+.modal-body .edit .selectize-input.focus {
   border-color: var(--crm-form-focus) !important;
   background: var(--crm-surface) !important;
   box-shadow: 0 0 0 3px rgba(100, 116, 139, 0.15) !important;
+}
+
+/* Solo gris cuando la persona ya existe en el registro (duplicado vinculado) */
+.edit .party-registry-linked .form-control,
+.edit .party-registry-linked .selectize-input,
+.edit .party-registry-linked textarea.form-control {
+  background: var(--crm-form-value-bg) !important;
+  color: var(--crm-text-secondary) !important;
+  cursor: default;
+}
+
+.edit .party-registry-linked .selectize-input {
+  opacity: 0.92;
 }
 
 /* ── Lectura (detalle): tablitas por campo ── */
