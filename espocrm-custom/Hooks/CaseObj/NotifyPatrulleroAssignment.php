@@ -4,6 +4,7 @@ namespace Espo\Custom\Hooks\CaseObj;
 
 use Espo\Core\Field\LinkParent;
 use Espo\Core\Hook\Hook\AfterSave;
+use Espo\Custom\Tools\CaseObj\AlcaldiaNotificationHtml;
 use Espo\Entities\Notification;
 use Espo\Entities\Role;
 use Espo\Entities\User;
@@ -91,9 +92,10 @@ class NotifyPatrulleroAssignment implements AfterSave
         $expediente = trim((string) $entity->get('cExpediente'));
         $linkLabel = $numero !== '' ? $numero : ($expediente !== '' ? $expediente : 'Caso');
 
-        $messagePlain = $this->user->getName()
-            . ' te asignó el caso ' . $linkLabel
-            . ($expediente !== '' ? ' · Expediente: ' . $expediente : '');
+        $messageHtml = AlcaldiaNotificationHtml::userLink($this->user->getId(), $this->user->getName())
+            . ' te asignó el caso '
+            . AlcaldiaNotificationHtml::caseLink($entity->getId(), $linkLabel)
+            . ($expediente !== '' ? ' · Expediente: ' . AlcaldiaNotificationHtml::text($expediente) : '');
 
         $notification = $this->entityManager
             ->getRDBRepositoryByClass(Notification::class)
@@ -102,7 +104,7 @@ class NotifyPatrulleroAssignment implements AfterSave
         $notification
             ->setType(Notification::TYPE_MESSAGE)
             ->setUserId($assignedUser->getId())
-            ->setMessage($messagePlain)
+            ->setMessage($messageHtml)
             ->setData([
                 'entityType' => $entity->getEntityType(),
                 'entityId' => $entity->getId(),
@@ -137,10 +139,12 @@ class NotifyPatrulleroAssignment implements AfterSave
         $linkLabel = $numero !== '' ? $numero : ($expediente !== '' ? $expediente : 'Caso');
         $assignedName = $assignedUser->getName();
 
-        $messagePlain = $this->user->getName()
-            . ' asignó el caso ' . $linkLabel
-            . ' a ' . $assignedName
-            . ($expediente !== '' ? ' · Expediente: ' . $expediente : '');
+        $messageHtml = AlcaldiaNotificationHtml::userLink($this->user->getId(), $this->user->getName())
+            . ' asignó el caso '
+            . AlcaldiaNotificationHtml::caseLink($entity->getId(), $linkLabel)
+            . ' a '
+            . AlcaldiaNotificationHtml::userLink($assignedUser->getId(), $assignedName)
+            . ($expediente !== '' ? ' · Expediente: ' . AlcaldiaNotificationHtml::text($expediente) : '');
 
         foreach (
             $this->entityManager
@@ -165,7 +169,7 @@ class NotifyPatrulleroAssignment implements AfterSave
             $notification
                 ->setType(Notification::TYPE_MESSAGE)
                 ->setUserId($notifyUser->getId())
-                ->setMessage($messagePlain)
+                ->setMessage($messageHtml)
                 ->setData([
                     'entityType' => $entity->getEntityType(),
                     'entityId' => $entity->getId(),

@@ -10,6 +10,7 @@ use Espo\Entities\Email;
 use Espo\Entities\Notification;
 use Espo\Entities\User;
 use Espo\Custom\Tools\User\AlcaldiaUserProfile;
+use Espo\Custom\Tools\CaseObj\AlcaldiaNotificationHtml;
 use Espo\ORM\Entity;
 use Espo\ORM\EntityManager;
 use Espo\ORM\Repository\Option\SaveOptions;
@@ -241,18 +242,18 @@ class NotifyInspeccionAndAsignadorOnRadicado implements BeforeSave, AfterSave
         string $caseHref
     ): void {
         if ($forAsignador) {
-            $messageHtml = htmlspecialchars($this->user->getName(), ENT_QUOTES, 'UTF-8')
-                . ' radicó un caso para asignar: <a href="' . $caseHref . '">'
-                . htmlspecialchars($linkLabel, ENT_QUOTES, 'UTF-8') . '</a>'
+            $messageHtml = AlcaldiaNotificationHtml::userLink($this->user->getId(), $this->user->getName())
+                . ' radicó un caso para asignar: '
+                . AlcaldiaNotificationHtml::caseLink($entity->getId(), $linkLabel)
                 . ($expediente !== ''
-                    ? ' · Expediente ' . htmlspecialchars($expediente, ENT_QUOTES, 'UTF-8')
+                    ? ' · Expediente ' . AlcaldiaNotificationHtml::text($expediente)
                     : '');
         } else {
-            $messageHtml = htmlspecialchars($this->user->getName(), ENT_QUOTES, 'UTF-8')
-                . ' radicó el caso <a href="' . $caseHref . '">'
-                . htmlspecialchars($linkLabel, ENT_QUOTES, 'UTF-8') . '</a>'
+            $messageHtml = AlcaldiaNotificationHtml::userLink($this->user->getId(), $this->user->getName())
+                . ' radicó el caso '
+                . AlcaldiaNotificationHtml::caseLink($entity->getId(), $linkLabel)
                 . ($expediente !== ''
-                    ? ' · Expediente: ' . htmlspecialchars($expediente, ENT_QUOTES, 'UTF-8')
+                    ? ' · Expediente: ' . AlcaldiaNotificationHtml::text($expediente)
                     : '');
         }
 

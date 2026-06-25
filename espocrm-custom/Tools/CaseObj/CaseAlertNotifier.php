@@ -241,7 +241,7 @@ class CaseAlertNotifier
             ->find();
     }
 
-    private function createNotification(Entity $case, string $userId, string $messagePlain, array $extraData): void
+    private function createNotification(Entity $case, string $userId, string $messageHtml, array $extraData): void
     {
         $linkLabel = $this->linkLabel($case);
         $caseHref = '#Case/view/' . $case->getId();
@@ -255,7 +255,7 @@ class CaseAlertNotifier
         $notification
             ->setType(Notification::TYPE_MESSAGE)
             ->setUserId($userId)
-            ->setMessage($messagePlain)
+            ->setMessage($messageHtml)
             ->setData(array_merge([
                 'entityType' => $case->getEntityType(),
                 'entityId' => $case->getId(),
@@ -272,28 +272,37 @@ class CaseAlertNotifier
     private function buildVencimientoMessage(Entity $case, string $alertTipo, string $fecha): string
     {
         $linkLabel = $this->linkLabel($case);
-        $fechaLabel = substr($fecha, 0, 10);
+        $fechaLabel = AlcaldiaNotificationHtml::text(substr($fecha, 0, 10));
         $expediente = trim((string) $case->get('cExpediente'));
-        $expSuffix = $expediente !== '' ? ' · Expediente: ' . $expediente : '';
+        $expSuffix = $expediente !== ''
+            ? ' · Expediente: ' . AlcaldiaNotificationHtml::text($expediente)
+            : '';
+        $caseLink = AlcaldiaNotificationHtml::caseLink($case->getId(), $linkLabel);
 
         if ($alertTipo === CaseVencimientoHelper::ALERT_VENCIDO) {
-            return 'El caso ' . $linkLabel . ' está vencido (vencía ' . $fechaLabel . ')' . $expSuffix;
+            return 'El caso ' . $caseLink . ' está vencido (vencía ' . $fechaLabel . ')' . $expSuffix;
         }
 
         $dias = CaseVencimientoHelper::diasRestantes($fecha);
         $diasLabel = $dias === 0 ? 'hoy' : ('en ' . $dias . ' día(s)');
 
-        return 'El caso ' . $linkLabel . ' vence ' . $diasLabel . ' (' . $fechaLabel . ')' . $expSuffix;
+        return 'El caso ' . $caseLink . ' vence ' . $diasLabel . ' (' . $fechaLabel . ')' . $expSuffix;
     }
 
     private function buildFinalizadoMessage(Entity $case, ?User $actor): string
     {
         $linkLabel = $this->linkLabel($case);
         $expediente = trim((string) $case->get('cExpediente'));
-        $expSuffix = $expediente !== '' ? ' · Expediente: ' . $expediente : '';
-        $actorName = $actor ? $actor->getName() : 'El CRM';
+        $expSuffix = $expediente !== ''
+            ? ' · Expediente: ' . AlcaldiaNotificationHtml::text($expediente)
+            : '';
+        $actorHtml = $actor
+            ? AlcaldiaNotificationHtml::userLink($actor->getId(), $actor->getName())
+            : 'El CRM';
 
-        return $actorName . ' finalizó el caso ' . $linkLabel . $expSuffix;
+        return $actorHtml . ' finalizó el caso '
+            . AlcaldiaNotificationHtml::caseLink($case->getId(), $linkLabel)
+            . $expSuffix;
     }
 
     private function linkLabel(Entity $case): string

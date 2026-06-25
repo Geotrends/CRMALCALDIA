@@ -9,6 +9,7 @@ use Espo\Entities\Email;
 use Espo\Entities\Notification;
 use Espo\Entities\User;
 use Espo\Custom\Tools\CaseObj\CasePartyNameHelper;
+use Espo\Custom\Tools\CaseObj\AlcaldiaNotificationHtml;
 use Espo\Custom\Tools\User\AlcaldiaUserProfile;
 use Espo\ORM\Entity;
 use Espo\ORM\EntityManager;
@@ -116,9 +117,9 @@ class NotifyRadicacionOnCaseCreated implements AfterSave
 
     private function createNotification(Entity $entity, User $notifyUser, string $label, string $caseHref): void
     {
-        $messageHtml = htmlspecialchars($this->user->getName(), ENT_QUOTES, 'UTF-8')
-            . ' creó una solicitud de queja: <a href="' . $caseHref . '">'
-            . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '</a>';
+        $messageHtml = AlcaldiaNotificationHtml::userLink($this->user->getId(), $this->user->getName())
+            . ' creó una solicitud de queja: '
+            . AlcaldiaNotificationHtml::caseLink($entity->getId(), $label);
 
         $notification = $this->entityManager
             ->getRDBRepositoryByClass(Notification::class)
