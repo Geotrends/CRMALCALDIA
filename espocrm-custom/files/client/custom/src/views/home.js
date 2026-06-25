@@ -138,6 +138,8 @@ define('custom:views/home', ['views/dashboard', 'search-manager'], function (Dep
                     return;
                 }
 
+                self._gestionLoaded = false;
+                self._historialLoaded = false;
                 self.config = profileConfig(apiProfile, userId, appTimestamp);
 
                 if (self.isRendered()) {
@@ -285,6 +287,9 @@ define('custom:views/home', ['views/dashboard', 'search-manager'], function (Dep
 
         renderCustomPanels: function () {
             this.$el.find('.custom-home').remove();
+            this._gestionLoaded = false;
+            this._agendaLoaded = false;
+            this._historialLoaded = false;
 
             var cfg = this.config;
             var activeTab = sessionStorage.getItem('crm-home-tab') || 'dashboard';
@@ -385,11 +390,11 @@ define('custom:views/home', ['views/dashboard', 'search-manager'], function (Dep
             this._activeHomeTab = activeTab;
 
             if (activeTab === 'gestion') {
-                this.loadGestionLists();
+                this.loadGestionLists(true);
             } else if (activeTab === 'agenda') {
-                this.loadAgendaLists();
+                this.loadAgendaLists(true);
             } else if (activeTab === 'historial-asignaciones') {
-                this.loadHistorialAsignaciones();
+                this.loadHistorialAsignaciones(true);
             } else if (activeTab === 'dashboard') {
                 this.refreshDashboardIframeHeight();
             }
@@ -596,8 +601,8 @@ define('custom:views/home', ['views/dashboard', 'search-manager'], function (Dep
             }, 120);
         },
 
-        loadGestionLists: function () {
-            if (this._gestionLoaded) {
+        loadGestionLists: function (force) {
+            if (this._gestionLoaded && !force) {
                 return;
             }
 
@@ -608,8 +613,8 @@ define('custom:views/home', ['views/dashboard', 'search-manager'], function (Dep
             }, this);
         },
 
-        loadAgendaLists: function () {
-            if (this._agendaLoaded) {
+        loadAgendaLists: function (force) {
+            if (this._agendaLoaded && !force) {
                 return;
             }
 
@@ -848,8 +853,8 @@ define('custom:views/home', ['views/dashboard', 'search-manager'], function (Dep
             );
         },
 
-        loadHistorialAsignaciones: function () {
-            if (this._historialLoaded) {
+        loadHistorialAsignaciones: function (force) {
+            if (this._historialLoaded && !force) {
                 return;
             }
 
