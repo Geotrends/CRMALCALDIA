@@ -9,6 +9,7 @@ define('custom:helpers/radicacion-fields', [], function () {
 
     let serverProfile = null;
     let profilePromise = null;
+    let profileLoaded = false;
     const profileListeners = [];
 
     const normalize = function (value) {
@@ -37,8 +38,8 @@ define('custom:helpers/radicacion-fields', [], function () {
     };
 
     const ensureProfile = function () {
-        if (serverProfile) {
-            return Promise.resolve(serverProfile);
+        if (profileLoaded) {
+            return Promise.resolve(serverProfile || {});
         }
 
         if (profilePromise) {
@@ -46,28 +47,33 @@ define('custom:helpers/radicacion-fields', [], function () {
         }
 
         if (typeof Espo === 'undefined' || !Espo.Ajax) {
+            profileLoaded = true;
+
             return Promise.resolve({});
         }
 
         profilePromise = Espo.Ajax.getRequest('Case/action/alcaldiaProfile')
             .then(function (data) {
                 serverProfile = data || {};
+                profileLoaded = true;
                 notifyProfileReady();
 
                 return serverProfile;
             })
             .catch(function () {
-                serverProfile = {};
+                serverProfile = null;
+                profileLoaded = true;
+                profilePromise = null;
                 notifyProfileReady();
 
-                return serverProfile;
+                return {};
             });
 
         return profilePromise;
     };
 
     const onProfileReady = function (callback) {
-        if (serverProfile) {
+        if (profileLoaded) {
             callback();
 
             return;
@@ -83,11 +89,23 @@ define('custom:helpers/radicacion-fields', [], function () {
         Object.values(user.get('rolesNames') || {}).forEach((name) => names.push(name));
         Object.values(user.get('teamsNames') || {}).forEach((name) => names.push(name));
 
+        const defaultTeam = user.get('defaultTeamName');
+
+        if (defaultTeam) {
+            names.push(defaultTeam);
+        }
+
         return names;
     };
 
+    const matchesRoleKey = function (name, roleKey) {
+        const normalized = normalize(name);
+
+        return normalized === roleKey || normalized.indexOf(roleKey) !== -1;
+    };
+
     const hasRole = function (user, roleKey) {
-        return getProfileNames(user).some((name) => normalize(name) === roleKey);
+        return getProfileNames(user).some((name) => matchesRoleKey(name, roleKey));
     };
 
     const isRadicacionUser = function (user) {
@@ -99,11 +117,19 @@ define('custom:helpers/radicacion-fields', [], function () {
             return true;
         }
 
-        if (serverProfile && serverProfile.isRadicacion) {
+        if (profileLoaded && serverProfile && serverProfile.isRadicacion) {
             return true;
         }
 
-        return hasRole(user, ROLE_RADICACION);
+        if (hasRole(user, ROLE_RADICACION)) {
+            return true;
+        }
+
+        if (!profileLoaded) {
+            ensureProfile();
+        }
+
+        return false;
     };
 
     const isInspeccionUser = function (user) {
@@ -115,11 +141,19 @@ define('custom:helpers/radicacion-fields', [], function () {
             return true;
         }
 
-        if (serverProfile && serverProfile.isInspeccion) {
+        if (profileLoaded && serverProfile && serverProfile.isInspeccion) {
             return true;
         }
 
-        return hasRole(user, ROLE_INSPECCION);
+        if (hasRole(user, ROLE_INSPECCION)) {
+            return true;
+        }
+
+        if (!profileLoaded) {
+            ensureProfile();
+        }
+
+        return false;
     };
 
     const isAsignadorUser = function (user) {
@@ -131,11 +165,19 @@ define('custom:helpers/radicacion-fields', [], function () {
             return true;
         }
 
-        if (serverProfile && serverProfile.isAsignador) {
+        if (profileLoaded && serverProfile && serverProfile.isAsignador) {
             return true;
         }
 
-        return hasRole(user, ROLE_ASIGNADOR);
+        if (hasRole(user, ROLE_ASIGNADOR)) {
+            return true;
+        }
+
+        if (!profileLoaded) {
+            ensureProfile();
+        }
+
+        return false;
     };
 
     const isPatrulleroUser = function (user) {
@@ -147,11 +189,19 @@ define('custom:helpers/radicacion-fields', [], function () {
             return false;
         }
 
-        if (serverProfile && serverProfile.isPatrullero) {
+        if (profileLoaded && serverProfile && serverProfile.isPatrullero) {
             return true;
         }
 
-        return hasRole(user, ROLE_PATRULLERO);
+        if (hasRole(user, ROLE_PATRULLERO)) {
+            return true;
+        }
+
+        if (!profileLoaded) {
+            ensureProfile();
+        }
+
+        return false;
     };
 
     const shouldShowFechaVencimiento = function (user) {

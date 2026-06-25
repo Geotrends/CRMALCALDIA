@@ -199,7 +199,10 @@ define('custom:views/case/record/edit', [
             }, this);
 
             if (RadicacionFields.isRadicacionUser(this.getUser())) {
-                if (this.$el.find('.radicado-assistant-panel-mount').length) {
+                if (
+                    this.$el.find('.radicado-assistant-panel-mount').length
+                    || this.$el.find('[data-name="cNumeroRadicado"] .radicado-assistant').length
+                ) {
                     this.syncRadicadoAssistantToModel();
                 }
 
@@ -240,7 +243,7 @@ define('custom:views/case/record/edit', [
                 self.toggleRegistroExcelPanel();
 
                 if (RadicadoAssistantPanel.canShow(self)) {
-                    if (!self.$el.find('.radicado-assistant-panel-mount').length) {
+                    if (!self.hasRadicacionLayoutPanel() && !self.$el.find('.radicado-assistant-panel-mount').length) {
                         RadicadoAssistantPanel.mount(self);
                     }
                 } else {
@@ -252,7 +255,48 @@ define('custom:views/case/record/edit', [
                 self.ensureInspeccionEditAccess();
             };
 
-            RadicacionFields.ensureProfile().then(applyRoleUi);
+            const scheduleRoleUiRetry = function () {
+                window.setTimeout(function () {
+                    if (!self.isEditMode || !self.isEditMode()) {
+                        return;
+                    }
+
+                    if (!RadicacionFields.isRadicacionUser(self.getUser())) {
+                        return;
+                    }
+
+                    if (self.hasVisibleRadicacionUi()) {
+                        return;
+                    }
+
+                    applyRoleUi();
+                }, 300);
+            };
+
+            RadicacionFields.ensureProfile().then(function () {
+                applyRoleUi();
+                scheduleRoleUiRetry();
+            });
+        },
+
+        hasRadicacionLayoutPanel: function () {
+            return !!this.findPanel('radicacionCaso').length;
+        },
+
+        hasVisibleRadicacionUi: function () {
+            if (this.$el.find('.radicado-assistant-panel-mount:visible').length) {
+                return true;
+            }
+
+            const $panel = this.findPanel('radicacionCaso');
+
+            if ($panel.length && $panel.is(':visible')) {
+                return true;
+            }
+
+            const $radicadoCell = this.$el.find('[data-name="cNumeroRadicado"]').closest('.cell');
+
+            return $radicadoCell.length > 0 && $radicadoCell.is(':visible');
         },
 
         clearAssignedUserOnCreate: function () {
@@ -322,7 +366,7 @@ define('custom:views/case/record/edit', [
             }
 
             if (RadicadoAssistantPanel.canShow(this)) {
-                if (!this.$el.find('.radicado-assistant-panel-mount').length) {
+                if (!this.hasRadicacionLayoutPanel() && !this.$el.find('.radicado-assistant-panel-mount').length) {
                     RadicadoAssistantPanel.mount(this);
                 }
             }
@@ -391,6 +435,43 @@ define('custom:views/case/record/edit', [
         toggleRadicacionFields: function () {
             const user = this.getUser();
             const model = this.model;
+            const isRadicacion = RadicacionFields.isRadicacionUser(user);
+            const show = RadicacionFields.shouldShowRadicacionFields(user, model);
+            const hasLayoutPanel = this.hasRadicacionLayoutPanel();
+            const $layoutPanel = this.findPanel('radicacionCaso');
+
+            if (hasLayoutPanel) {
+                $layoutPanel.toggle(show);
+
+                if (isRadicacion && show) {
+                    RadicadoAssistantPanel.unmount(this);
+                    RadicadoGenerator.toggle(this);
+
+                    RadicacionFields.RADICADO_ALL_FIELDS.forEach((field) => {
+                        const $cell = this.$el.find('[data-name="' + field + '"]').closest('.cell');
+
+                        if (!$cell.length) {
+                            return;
+                        }
+
+                        $cell.show();
+
+                        const view = this.getFieldView(field);
+
+                        if (view && typeof view.setNotReadOnly === 'function') {
+                            view.setNotReadOnly();
+                        }
+                    });
+
+                    const radicadoView = this.getFieldView('cNumeroRadicado');
+
+                    if (radicadoView && radicadoView.isRendered && radicadoView.isRendered()) {
+                        radicadoView.reRender();
+                    }
+
+                    return;
+                }
+            }
 
             if (RadicadoAssistantPanel.canShow(this)) {
                 if (!this.$el.find('.radicado-assistant-panel-mount').length) {
@@ -407,7 +488,9 @@ define('custom:views/case/record/edit', [
             RadicadoAssistantPanel.unmount(this);
             RadicadoGenerator.hideAssistantFields(this);
 
-            const show = RadicacionFields.shouldShowRadicacionFields(user, model);
+            if (hasLayoutPanel) {
+                $layoutPanel.toggle(show);
+            }
 
             RadicacionFields.RADICADO_ALL_FIELDS.forEach((field) => {
                 const $cell = this.$el.find('[data-name="' + field + '"]').closest('.cell');
@@ -424,7 +507,7 @@ define('custom:views/case/record/edit', [
 
                 $cell.show();
 
-                if (RadicacionFields.isRadicacionUser(user)) {
+                if (isRadicacion) {
                     const view = this.getFieldView(field);
 
                     if (view && typeof view.setNotReadOnly === 'function') {
@@ -492,39 +575,49 @@ define('custom:views/case/record/edit', [
         syncRadicadoAssistantToModel: function () {
             const $panel = this.$el.find('.radicado-assistant-panel-mount');
 
-            if (!$panel.length) {
+            if ($panel.length) {
+                this.syncRadicadoAssistantRoot($panel);
+
                 return;
             }
 
-            const modo = String($panel.find('[data-role="modo"]').val() || '').trim();
+            const $assistant = this.$el.find('[data-name="cNumeroRadicado"] .radicado-assistant');
+
+            if ($assistant.length) {
+                this.syncRadicadoAssistantRoot($assistant);
+            }
+        },
+
+        syncRadicadoAssistantRoot: function ($root) {
+            const modo = String($root.find('[data-role="modo"]').val() || '').trim();
 
             if (modo) {
                 this.model.set('cRadicadoModo', modo, {silent: true});
             }
 
-            const siglas = String($panel.find('[data-role="siglas"]').val() || '').trim();
+            const siglas = String($root.find('[data-role="siglas"]').val() || '').trim();
 
             if (siglas) {
                 this.model.set('cRadicadoSiglas', siglas, {silent: true});
             }
 
-            const anio = String($panel.find('[data-role="anio"]').val() || '').trim();
+            const anio = String($root.find('[data-role="anio"]').val() || '').trim();
 
             if (anio) {
                 this.model.set('cRadicadoAnio', anio, {silent: true});
             }
 
             if (RadicadoCatalog.isModoAutomatico(this.model.get('cRadicadoModo'))) {
-                const radicadoText = String($panel.find('[data-role="preview-radicado"]').text() || '').trim();
+                const radicadoText = String($root.find('[data-role="preview-radicado"]').text() || '').trim();
 
                 if (radicadoText && radicadoText !== '—') {
                     this.model.set('cNumeroRadicado', radicadoText, {silent: true});
                 }
 
-                this.model.set('cExpediente', $panel.find('[data-role="auto-expediente"]').val() || null, {silent: true});
+                this.model.set('cExpediente', $root.find('[data-role="auto-expediente"]').val() || null, {silent: true});
             } else {
-                this.model.set('cNumeroRadicado', $panel.find('[data-role="manual-radicado"]').val() || null, {silent: true});
-                this.model.set('cExpediente', $panel.find('[data-role="manual-expediente"]').val() || null, {silent: true});
+                this.model.set('cNumeroRadicado', $root.find('[data-name="manual-radicado"]').val() || null, {silent: true});
+                this.model.set('cExpediente', $root.find('[data-role="manual-expediente"]').val() || null, {silent: true});
             }
         },
 

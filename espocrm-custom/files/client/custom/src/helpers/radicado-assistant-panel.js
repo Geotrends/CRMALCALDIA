@@ -68,7 +68,7 @@ define('custom:helpers/radicado-assistant-panel', [
         const manualExpediente = String(model.get('cExpediente') || '');
 
         let body = ''
-            + '<div class="panel panel-default ' + PANEL_CLASS + '" style="margin-bottom: 15px;">'
+            + '<div class="panel panel-default radicado-assistant-panel ' + PANEL_CLASS + '" style="margin-bottom: 15px;">'
             + '<div class="panel-heading"><strong>Radicación del caso</strong></div>'
             + '<div class="panel-body">'
             + '<div class="form-group">'
