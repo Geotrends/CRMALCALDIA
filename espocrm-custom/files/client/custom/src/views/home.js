@@ -16,15 +16,29 @@ define('custom:views/home', ['views/dashboard', 'search-manager'], function (Dep
 
         var names = [];
 
+        Object.values(user.get('rolesNames') || {}).forEach(function (name) {
+            names.push(normalize(name));
+        });
+
         Object.values(user.get('teamsNames') || {}).forEach(function (name) {
             names.push(normalize(name));
         });
 
-        if (names.indexOf('radicacion') !== -1) {
+        var defaultTeam = user.get('defaultTeamName');
+
+        if (defaultTeam) {
+            names.push(normalize(defaultTeam));
+        }
+
+        if (names.some(function (name) {
+            return name.indexOf('radicacion') !== -1;
+        })) {
             return 'radicacion';
         }
 
-        if (names.indexOf('asignador') !== -1) {
+        if (names.some(function (name) {
+            return name.indexOf('asignador') !== -1;
+        })) {
             return 'asignador';
         }
 
@@ -34,7 +48,9 @@ define('custom:views/home', ['views/dashboard', 'search-manager'], function (Dep
             return 'patrullero';
         }
 
-        if (names.indexOf('inspeccion') !== -1) {
+        if (names.some(function (name) {
+            return name.indexOf('inspeccion') !== -1;
+        })) {
             return 'gestion';
         }
 
@@ -268,9 +284,7 @@ define('custom:views/home', ['views/dashboard', 'search-manager'], function (Dep
         },
 
         renderCustomPanels: function () {
-            if (this.$el.find('.custom-home').length) {
-                return;
-            }
+            this.$el.find('.custom-home').remove();
 
             var cfg = this.config;
             var activeTab = sessionStorage.getItem('crm-home-tab') || 'dashboard';
