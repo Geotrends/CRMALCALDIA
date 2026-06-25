@@ -1,8 +1,8 @@
 <?php
 
 /**
- * Ajusta WebSocket según la URL del sitio (producción: wss://dominio/ws).
- * Para desactivar y silenciar errores en consola: ESPO_DISABLE_WEBSOCKET=1 en el entorno.
+ * WebSocket desactivado por defecto (evita errores en login y consola).
+ * Para activarlo cuando TI configure el proxy /ws: ESPO_ENABLE_WEBSOCKET=1
  */
 
 require '/var/www/html/bootstrap.php';
@@ -12,12 +12,14 @@ $app->setupSystemUser();
 
 $config = $app->getContainer()->getByClass(Espo\Core\Utils\Config::class);
 
-$disable = trim((string) getenv('ESPO_DISABLE_WEBSOCKET')) === '1';
+$enable = trim((string) getenv('ESPO_ENABLE_WEBSOCKET')) === '1'
+    || trim((string) getenv('ESPOCRM_ENABLE_WEBSOCKET')) === '1';
 
-if ($disable) {
+if (!$enable) {
     $config->set('useWebSocket', false);
+    $config->set('webSocketUrl', null);
     $config->save();
-    echo "WebSocket desactivado (ESPO_DISABLE_WEBSOCKET=1).\n";
+    echo "WebSocket desactivado (modo seguro por defecto).\n";
 
     exit(0);
 }
@@ -25,7 +27,9 @@ if ($disable) {
 $siteUrl = trim((string) $config->get('siteUrl'));
 
 if ($siteUrl === '') {
-    echo "AVISO: siteUrl vacío; WebSocket sin cambios.\n";
+    $config->set('useWebSocket', false);
+    $config->save();
+    echo "AVISO: siteUrl vacío; WebSocket desactivado.\n";
 
     exit(0);
 }
@@ -42,4 +46,4 @@ $config->set('useWebSocket', true);
 $config->set('webSocketUrl', $wsUrl);
 $config->save();
 
-echo "WebSocket URL: {$wsUrl}\n";
+echo "WebSocket activado: {$wsUrl}\n";
