@@ -184,5 +184,34 @@ if ($roleRadicacionEntity) {
     echo "OK Radicación: sin permiso para crear casos (Case create=no).\n";
 }
 
+$roleInspeccionEntity = $em->getRDBRepository('Role')->where(['name' => $roleInspeccion])->findOne();
+
+if ($roleInspeccionEntity) {
+    $roleData = $roleInspeccionEntity->get('data');
+
+    if ($roleData instanceof stdClass) {
+        $roleData = json_decode(json_encode($roleData), true);
+    }
+
+    if (!is_array($roleData)) {
+        $roleData = [];
+    }
+
+    if (!isset($roleData[$scope]) || !is_array($roleData[$scope])) {
+        $roleData[$scope] = [];
+    }
+
+    $roleData[$scope]['create'] = 'yes';
+    $roleData[$scope]['read'] = 'all';
+    $roleData[$scope]['edit'] = 'all';
+    $roleData[$scope]['delete'] = 'yes';
+    $roleData[$scope]['stream'] = 'all';
+
+    $roleInspeccionEntity->set('data', $roleData);
+    $em->saveEntity($roleInspeccionEntity);
+
+    echo "OK Inspección: Case create/edit all.\n";
+}
+
 deploy_maybe_rebuild($app);
-echo 'Listo. Radicación: solo radicado y expediente editables; no puede crear casos. Inspección sin cambios.' . PHP_EOL;
+echo 'Listo. Radicación: solo radicado y expediente editables; no puede crear casos. Inspección: Case create/edit all.' . PHP_EOL;

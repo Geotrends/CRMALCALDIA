@@ -235,15 +235,6 @@ define('custom:views/case/record/detail', [
                 return;
             }
 
-            if (RadicacionFields.isInspeccionUser(this.getUser())) {
-                this.getRouter().navigate(
-                    '#' + this.entityType + '/edit/' + this.model.id,
-                    {trigger: true}
-                );
-
-                return;
-            }
-
             if (RadicacionEditMode.isPureRadicacionUser(this.getUser())) {
                 RadicacionEditMode.openRadicadoEdit(this);
 
@@ -256,10 +247,7 @@ define('custom:views/case/record/detail', [
                 return;
             }
 
-            this.getRouter().navigate(
-                '#' + this.entityType + '/edit/' + this.model.id,
-                {trigger: true}
-            );
+            Dep.prototype.actionEdit.call(this);
         },
 
         actionRadicarCaso: function () {
@@ -288,6 +276,7 @@ define('custom:views/case/record/detail', [
                     $editBtn,
                     this.translate('Edit', 'labels', 'Global')
                 );
+                this.setPrimaryActionButtonHref($editBtn, this.getCaseEditUrl());
 
                 return;
             }
@@ -309,6 +298,10 @@ define('custom:views/case/record/detail', [
                         $editBtn,
                         this.translate('Edit', 'labels', 'Global')
                     );
+                    this.setPrimaryActionButtonHref(
+                        $editBtn,
+                        this.getCaseEditUrl() + '?radicar=1'
+                    );
 
                     return;
                 }
@@ -323,6 +316,10 @@ define('custom:views/case/record/detail', [
                 this.setPrimaryActionButtonLabel(
                     $editBtn,
                     this.translate('asignarCaso', 'labels', 'Case')
+                );
+                this.setPrimaryActionButtonHref(
+                    $editBtn,
+                    this.getCaseEditUrl() + '?asignar=1'
                 );
             }
         },
@@ -360,6 +357,26 @@ define('custom:views/case/record/detail', [
                 })
                 .closest('.btn, a.btn, .dropdown-item, li')
                 .first();
+        },
+
+        getCaseEditUrl: function () {
+            const scope = this.scope || this.entityType || 'Case';
+
+            return '#' + scope + '/edit/' + this.model.id;
+        },
+
+        setPrimaryActionButtonHref: function ($btn, href) {
+            if (!$btn || !$btn.length || !href) {
+                return;
+            }
+
+            $btn.attr('href', href);
+
+            if ($btn.is('a')) {
+                return;
+            }
+
+            $btn.find('a[href]').attr('href', href);
         },
 
         setPrimaryActionButtonLabel: function ($btn, label) {

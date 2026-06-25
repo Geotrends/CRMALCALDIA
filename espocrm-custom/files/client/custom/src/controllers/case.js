@@ -50,5 +50,9 @@ define('custom:controllers/case', ['controllers/record'], function (Dep) {
 
             Dep.prototype.actionCreate.call(this, options);
         },
+
+        actionEdit: function (options) {
+            Dep.prototype.actionEdit.call(this, options);
+        },
     });
 });
