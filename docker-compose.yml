@@ -23,8 +23,10 @@ services:
       context: .
       dockerfile: docker/espocrm/Dockerfile
     image: crm-alcaldia/espocrm
-    container_name: espocrm
     entrypoint: ["/usr/local/bin/entrypoint-with-deploy.sh"]
+    command: ["apache2-foreground"]
+    expose:
+      - "80"
     environment:
       ESPOCRM_DATABASE_PLATFORM: Postgresql
       ESPOCRM_DATABASE_HOST: espocrm-db
@@ -45,6 +47,12 @@ services:
     depends_on:
       espocrm-db:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep -x apache2 >/dev/null || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 8
+      start_period: 120s
     ports:
       - "8080:80"
 

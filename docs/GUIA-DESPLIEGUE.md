@@ -111,6 +111,38 @@ Si aparece **API 403** en el tablero, el usuario no tiene rol asignado o no cerr
 
 **Excel oficial y base de datos sin consola:** [ACCESO-BD-Y-EXCEL.md](ACCESO-BD-Y-EXCEL.md).
 
+## Dokploy — dominio y 404
+
+Si ves **`404 page not found`** en texto plano (sin pantalla de EspoCRM), el proxy no llega al contenedor o Apache no arrancó.
+
+**1. Variables en Dokploy → Environment**
+
+| Variable | Valor ejemplo |
+|----------|----------------|
+| `ESPOCRM_SITE_URL` | `https://crm.deploy.geotrends.co` |
+| `POSTGRES_*` | Igual que en tu `.env` |
+
+**2. Dominio en Dokploy**
+
+- Servicio del compose: **`espocrm`** (no `espocrm-db`, no `espocrm-websocket`).
+- Puerto interno: **`80`** (no 8080; 8080 es solo mapeo local).
+
+**3. Tras redeploy, revisar logs**
+
+- `espocrm`: debe aparecer Apache en marcha; sin errores fatales en `entrypoint-with-deploy.sh`.
+- `espocrm-init`: `Dokploy custom deployment completed.`
+
+**4. Comprobar contenedores**
+
+En la terminal de Dokploy o SSH:
+
+```bash
+docker compose ps
+docker compose logs espocrm --tail 80
+```
+
+Si `espocrm` está **Restarting** o **Exited**, copia el log.
+
 En Dokploy usa **solo** `docker-compose.yml` (sin `docker-compose.dev.yml`). Tras cada **rebuild + redeploy**:
 
 1. La imagen incluye `espocrm-custom/`, `scripts/` y `formatos/` (ver `docker/espocrm/Dockerfile`).

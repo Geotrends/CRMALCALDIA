@@ -72,4 +72,8 @@ run_auto_deploy_background() {
 
 run_auto_deploy_background
 
+if [ "$#" -eq 0 ]; then
+  set -- apache2-foreground
+fi
+
 exec docker-entrypoint.sh "$@"
