@@ -205,12 +205,12 @@ define('custom:views/case/record/edit', [
                 return;
             }
 
-            RadicacionEditMode.showRadicacionPanelOnly(this);
+            RadicacionEditMode.prepareRadicacionEditView(this);
             RadicacionEditMode.scheduleRestrictedEdit(this);
         },
 
         ensureCasePanelsVisible: function () {
-            RadicacionEditMode.showRadicacionPanelOnly(this);
+            RadicacionEditMode.prepareRadicacionEditView(this);
         },
 
         save: function (options) {

@@ -50,7 +50,17 @@ define('custom:helpers/radicacion-edit-mode', [
         recordView.$el.find('[data-name="cPanelActaVisita"]').closest('.panel, .record-panel, .cell').hide();
     };
 
-    const showRadicacionPanelOnly = function (recordView) {
+    const getEditableFields = function () {
+        return [
+            'cNumeroRadicado',
+            'cExpediente',
+            'cRadicadoModo',
+            'cRadicadoSiglas',
+            'cRadicadoAnio',
+        ];
+    };
+
+    const prepareRadicacionEditView = function (recordView) {
         if (!recordView || !isPureRadicacionUser(recordView.getUser()) || !isRadicarMode(recordView)) {
             return;
         }
@@ -59,9 +69,8 @@ define('custom:helpers/radicacion-edit-mode', [
             return;
         }
 
-        recordView.$el.find('.panel[data-name], .panel[data-panel-name], .record-panel[data-name]').hide();
-        recordView.findPanel('radicacionCaso').show();
         hideNonRadicacionPanels(recordView);
+        recordView.findPanel('radicacionCaso').show();
     };
 
     const activateRadicarMode = function (caseId) {
@@ -139,10 +148,6 @@ define('custom:helpers/radicacion-edit-mode', [
         );
     };
 
-    const getEditableFields = function () {
-        return ['cNumeroRadicado', 'cExpediente'];
-    };
-
     const lockAllFieldViewsExcept = function (recordView, editableFields) {
         const editable = editableFields.slice();
         const fieldViews = typeof recordView.getFieldViews === 'function'
@@ -183,7 +188,7 @@ define('custom:helpers/radicacion-edit-mode', [
             }
 
             lockAllFieldViewsExcept(recordView, getEditableFields());
-            showRadicacionPanelOnly(recordView);
+            prepareRadicacionEditView(recordView);
 
             recordView.$el.find(
                 '[data-action="editLink"], [data-action="selectLink"], [data-action="quickCreate"]'
@@ -240,7 +245,7 @@ define('custom:helpers/radicacion-edit-mode', [
         applyRestrictedEdit: applyRestrictedEdit,
         scheduleRestrictedEdit: scheduleRestrictedEdit,
         hideNonRadicacionPanels: hideNonRadicacionPanels,
-        showRadicacionPanelOnly: showRadicacionPanelOnly,
+        prepareRadicacionEditView: prepareRadicacionEditView,
         hasRadicarHash: hasRadicarHash,
     };
 });
