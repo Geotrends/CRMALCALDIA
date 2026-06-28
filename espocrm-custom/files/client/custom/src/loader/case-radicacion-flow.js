@@ -227,6 +227,17 @@
         });
     }
 
+    function cleanupRadicarEditPage() {
+        document.body.classList.remove('alcaldia-radicacion-radicar-page');
+
+        document.querySelectorAll(
+            '.page-header .btn[data-action="save"], ' +
+            '.page-header .btn[data-action="cancel"]'
+        ).forEach(function (node) {
+            node.style.removeProperty('display');
+        });
+    }
+
     function applyRadicarEditPage() {
         document.body.classList.add('alcaldia-radicacion-radicar-page');
 
@@ -407,9 +418,13 @@
     function handleRoute(app) {
         fetchProfile(app, function (profile) {
             if (!isRadicacionOperator(profile, app)) {
-                document.body.classList.remove('alcaldia-radicacion-radicar-page');
+                cleanupRadicarEditPage();
 
                 return;
+            }
+
+            if (!isRadicarEditRoute()) {
+                cleanupRadicarEditPage();
             }
 
             if (isCaseDetailRoute()) {

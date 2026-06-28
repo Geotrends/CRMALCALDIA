@@ -126,6 +126,8 @@ define('custom:helpers/radicacion-edit-mode', [
     const prepareRadicacionDedicatedLayout = prepareRadicacionLayout;
     const bootstrapRadicarMode = prepareRadicacionLayout;
 
+    const hideNonRadicacionPanels = function () {};
+
     const hideRadicacionTextButtons = function (view) {
         if (!view || !view.$el) {
             return;
@@ -133,17 +135,15 @@ define('custom:helpers/radicacion-edit-mode', [
 
         const $roots = view.$el.closest('.detail[data-scope="Case"], .edit[data-scope="Case"]');
 
+        if (!$roots.length) {
+            return;
+        }
+
         $roots.find('.record-buttons').hide();
 
         const textPattern = /^(edit|editar|save|guardar|cancel|cancelar)$/i;
 
-        const $scan = $roots
-            .add(view.getDetailActionElements ? view.getDetailActionElements() : $())
-            .add($(document).find(
-                '.page-header.header-page, ' +
-                '.header-page .buttons-header, ' +
-                '.header-page .header-buttons'
-            ));
+        const $scan = $roots.add(view.getDetailActionElements ? view.getDetailActionElements() : $());
 
         $scan.find('.btn, a.btn, button.btn').each(function () {
             const $btn = $(this);
