@@ -10,7 +10,7 @@ define('custom:helpers/radicacion-fields', [], function () {
     const ROLE_ASIGNADOR = 'asignador';
     const ROLE_ASIGNACION = 'asignacion';
     const ROLE_PATRULLERO = 'patrullero';
-    const PROFILE_CACHE_KEY = 'alcaldiaCaseProfileCacheV2';
+    const PROFILE_CACHE_KEY = 'alcaldiaCaseProfileCacheV3';
     const RADICADO_FIELDS = ['cNumeroRadicado', 'cExpediente'];
     const FECHA_VENCIMIENTO_FIELD = 'cFechaVencimiento';
 
@@ -341,6 +341,10 @@ define('custom:helpers/radicacion-fields', [], function () {
             return false;
         }
 
+        if (isInspeccionUser(user)) {
+            return false;
+        }
+
         return resolveHomeProfile(user) === 'radicacion';
     };
 
@@ -424,6 +428,10 @@ define('custom:helpers/radicacion-fields', [], function () {
         }
 
         if (isInspeccionUser(user) && !isAsignadorUser(user)) {
+            return false;
+        }
+
+        if (isInspeccionUser(user)) {
             return false;
         }
 

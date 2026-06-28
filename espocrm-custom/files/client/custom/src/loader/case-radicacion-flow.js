@@ -5,7 +5,7 @@
 (function () {
 
     var FLOW_VERSION = 'v7';
-    var PROFILE_CACHE_KEY = 'alcaldiaCaseProfileCacheV2';
+    var PROFILE_CACHE_KEY = 'alcaldiaCaseProfileCacheV3';
     var profileInflight = null;
 
     function getApp() {

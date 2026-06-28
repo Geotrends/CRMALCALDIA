@@ -37,14 +37,6 @@ define('custom:views/case/record/edit', [
                 this.isWide = true;
                 CaseCreateDefaults.apply(this.model);
                 this.clearAssignedUserOnCreate();
-
-                if (
-                    RadicacionFields.isOperationalRadicacionUser(this.getUser())
-                    && !RadicacionFields.isInspeccionUser(this.getUser())
-                ) {
-                    Espo.Ui.warning(this.translate('radicacionCannotCreateCase', 'messages', 'Case'));
-                    this.getRouter().navigate('#Home', {trigger: true});
-                }
             } else {
                 this._initialAssignedUserId = this.model.get('assignedUserId') || null;
 
@@ -190,6 +182,10 @@ define('custom:views/case/record/edit', [
                 return;
             }
 
+            if (RadicacionFields.isInspeccionUser(this.getUser())) {
+                return;
+            }
+
             if (this.model.isNew()) {
                 Espo.Ui.warning(this.translate('asignadorCannotCreateCase', 'messages', 'Case'));
                 this.getRouter().navigate('#Home', {trigger: true});
@@ -215,6 +211,10 @@ define('custom:views/case/record/edit', [
 
         enforcePatrulleroEntry: function () {
             if (!PatrulleroActa.isPurePatrulleroUser(this.getUser())) {
+                return;
+            }
+
+            if (RadicacionFields.isInspeccionUser(this.getUser())) {
                 return;
             }
 
@@ -464,6 +464,16 @@ define('custom:views/case/record/edit', [
             const self = this;
 
             const applyRoleUi = function () {
+                if (self.model.isNew() && RadicacionFields.isInspeccionUser(self.getUser())) {
+                    self.toggleRadicacionFields();
+                    self.togglePostRadicacionFields();
+                    self.toggleRegistroExcelPanel();
+                    self.ensureInspeccionEditAccess();
+                    self.scheduleInspeccionEditAccess();
+
+                    return;
+                }
+
                 self.enforceAsignadorEntry();
                 self.enforcePatrulleroEntry();
 
