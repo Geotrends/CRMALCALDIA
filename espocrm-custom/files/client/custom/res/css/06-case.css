@@ -212,3 +212,9 @@ body.alcaldia-asignador-asignar-page .edit[data-scope="Case"] .cell[data-name="c
 .detail[data-scope="Case"] .panel[data-name="gestionPosteriorRadicacion"] .cell[data-name="cMotivoReasignacion"] input {
   pointer-events: auto !important;
 }
+
+.detail[data-scope="Case"] .panel[data-name="gestionPosteriorRadicacion"] .cell[data-name="cMotivoReasignacion"] textarea {
+  display: block !important;
+  width: 100%;
+  min-height: 64px;
+}

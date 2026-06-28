@@ -625,6 +625,7 @@ define('custom:views/case/record/detail', [
 
                 if (view) {
                     delete view._assignmentEditForced;
+                    delete view._inlineEditEnabled;
                 }
             });
         },
@@ -650,7 +651,9 @@ define('custom:views/case/record/detail', [
             if (showMotivo && this._asignacionEditMode) {
                 const motivoView = this.getFieldView('cMotivoReasignacion');
 
-                if (motivoView) {
+                if (motivoView && typeof motivoView.enableInlineEdit === 'function') {
+                    motivoView.enableInlineEdit();
+                } else if (motivoView) {
                     AsignadorEditMode.forceAssignmentFieldEditable(motivoView, this);
                 }
             }

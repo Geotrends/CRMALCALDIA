@@ -269,17 +269,32 @@ define('custom:helpers/asignador-edit-mode', [
 
         fieldView.readOnly = false;
 
-        if (typeof fieldView.setNotReadOnly === 'function') {
-            fieldView.setNotReadOnly();
-        }
-
         const isDetailRecord = recordView
             && typeof recordView.isEditMode === 'function'
-            && !recordView.isEditMode()
-            && fieldView.mode === 'detail';
+            && !recordView.isEditMode();
+
+        if (
+            fieldView.name === 'cMotivoReasignacion'
+            && isDetailRecord
+            && typeof fieldView.enableInlineEdit === 'function'
+        ) {
+            fieldView.enableInlineEdit();
+
+            return;
+        }
+
+        if (typeof fieldView.setNotReadOnly === 'function') {
+            try {
+                fieldView.setNotReadOnly();
+            } catch (e) {
+                safeSetFieldNotReadOnly(fieldView);
+            }
+        }
 
         if (
             isDetailRecord
+            && fieldView.mode === 'detail'
+            && fieldView.name === 'assignedUser'
             && typeof fieldView.reRender === 'function'
             && !fieldView._assignmentEditForced
         ) {
