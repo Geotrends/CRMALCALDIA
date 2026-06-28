@@ -4,7 +4,7 @@
  */
 (function () {
 
-    var FLOW_VERSION = 'v6';
+    var FLOW_VERSION = 'v7';
     var PROFILE_CACHE_KEY = 'alcaldiaCaseProfileCache';
     var profileInflight = null;
 
@@ -204,131 +204,27 @@
         }
     }
 
-    function patchDetailRadicarButton(caseId) {
-        if (!caseId) {
-            return;
-        }
-
-        var targetHref = getCaseRadicarUrl(caseId);
-        var selectors = [
-            '.detail[data-scope="Case"] [data-action="edit"]',
-            '.detail[data-scope="Case"] [data-action="radicarCaso"]',
-            '.header-buttons [data-action="edit"]',
-            '.header-buttons [data-action="radicarCaso"]',
-            '.detail-button-container [data-action="edit"]',
-            '.detail-button-container [data-action="radicarCaso"]',
-            '.page-header [data-action="edit"]',
-            '.page-header [data-action="radicarCaso"]',
-        ];
-
-        selectors.forEach(function (selector) {
-            document.querySelectorAll(selector).forEach(function (el) {
-                if (el.closest('.dropdown-menu')) {
-                    return;
-                }
-
-                var btn = el.closest('.btn, a.btn, .dropdown-item');
-
-                if (!btn) {
-                    btn = el;
-                }
-
-                btn.classList.remove('hidden');
-                btn.style.removeProperty('display');
-                el.setAttribute('data-action', 'radicarCaso');
-
-                if (btn !== el && btn.getAttribute('data-action')) {
-                    btn.setAttribute('data-action', 'radicarCaso');
-                }
-
-                var labelNode = btn.querySelector('.title, .btn-text');
-
-                if (labelNode) {
-                    labelNode.textContent = 'Radicar';
-                } else if (el.textContent && /editar|edit/i.test(el.textContent.trim())) {
-                    el.textContent = 'Radicar';
-                }
-
-                if (btn.tagName === 'A') {
-                    btn.href = targetHref;
-                    btn.setAttribute('href', targetHref);
-                }
-
-                var link = btn.querySelector('a[href]');
-
-                if (link) {
-                    link.href = targetHref;
-                    link.setAttribute('href', targetHref);
-                }
-
-                if (el.tagName === 'A') {
-                    el.href = targetHref;
-                    el.setAttribute('href', targetHref);
-                }
-            });
-        });
-
+    function ensureDetailEditVisible() {
         document.querySelectorAll('.detail-button-container.hidden, .edit-buttons.hidden').forEach(function (node) {
             node.classList.remove('hidden');
+            node.style.removeProperty('display');
         });
-    }
 
-    function bindRadicarClickFallback() {
-        if (document.__alcaldiaRadicarClickBound) {
-            return;
-        }
-
-        document.__alcaldiaRadicarClickBound = true;
-
-        document.addEventListener('click', function (event) {
-            if (!isCaseDetailRoute()) {
+        document.querySelectorAll(
+            '.detail[data-scope="Case"] [data-action="edit"], ' +
+            '.header-buttons [data-action="edit"], ' +
+            '.detail-button-container [data-action="edit"], ' +
+            '.page-header [data-action="edit"]'
+        ).forEach(function (el) {
+            if (el.closest('.dropdown-menu')) {
                 return;
             }
 
-            var actionEl = event.target.closest('[data-action="radicarCaso"]');
+            var btn = el.closest('.btn, a.btn') || el;
 
-            if (!actionEl) {
-                var editEl = event.target.closest('[data-action="edit"]');
-
-                if (!editEl || editEl.closest('.dropdown-menu')) {
-                    return;
-                }
-
-                var editBtn = editEl.closest('.btn, a.btn') || editEl;
-                var label = (editBtn.textContent || '').trim();
-
-                if (!/radicar/i.test(label)) {
-                    return;
-                }
-
-                actionEl = editEl;
-            }
-
-            var caseId = getCaseIdFromHash('Case/view');
-
-            if (!caseId) {
-                return;
-            }
-
-            var app = getApp();
-            var userId = getUserId(app);
-            var cached = readCachedProfile(userId);
-
-            if (!isRadicacionOperator(cached, app)) {
-                return;
-            }
-
-            event.preventDefault();
-            event.stopImmediatePropagation();
-
-            try {
-                if (typeof sessionStorage !== 'undefined') {
-                    sessionStorage.setItem('crm-case-radicar-mode', caseId);
-                }
-            } catch (error) {}
-
-            dispatchRadicarCase(caseId);
-        }, true);
+            btn.classList.remove('hidden');
+            btn.style.removeProperty('display');
+        });
     }
 
     function applyRadicarEditPage() {
@@ -509,7 +405,7 @@
             }
 
             if (isCaseDetailRoute()) {
-                patchDetailRadicarButton(getCaseIdFromHash('Case/view'));
+                ensureDetailEditVisible();
             }
 
             if (isCaseEditRoute() || isCaseRadicarRoute()) {
@@ -566,7 +462,6 @@
     }
 
     window.__alcaldiaRadicacionFlowVersion = FLOW_VERSION;
-    bindRadicarClickFallback();
     window.addEventListener('hashchange', scheduleHandleRoute, true);
 
     if (document.readyState === 'loading') {

@@ -12,11 +12,10 @@
             ],
             [
                 {
-                    "name": "cNumeroRadicado"
+                    "name": "cNumeroRadicado",
+                    "fullWidth": true
                 },
-                {
-                    "name": "cExpediente"
-                }
+                false
             ],
             [
                 {

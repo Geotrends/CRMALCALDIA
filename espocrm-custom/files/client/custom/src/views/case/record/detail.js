@@ -361,7 +361,16 @@ define('custom:views/case/record/detail', [
 
             const $editBtn = this.findPrimaryActionButton('edit');
 
-            // Edwin / Radicación: botón Radicar → Case/radicar/{id}
+            if (this._radicarButtonAdded) {
+                this.safeRemoveMenuItem('radicarCaso');
+                this._radicarButtonAdded = false;
+            }
+
+            if (!$editBtn.length) {
+                return;
+            }
+
+            // Radicación: lapicito estándar (actionEdit abre pantalla de radicación).
             if (RadicacionEditMode.isPureRadicacionUser(user)) {
                 this.$el.find('.detail-button-container, .edit-buttons').removeClass('hidden').show();
                 this.getDetailActionElements()
@@ -373,21 +382,12 @@ define('custom:views/case/record/detail', [
                     $editBtn.show();
                     this.setPrimaryActionButtonLabel(
                         $editBtn,
-                        this.translate('radicarCaso', 'labels', 'Case')
+                        this.translate('Edit', 'labels', 'Global')
                     );
-                    this.setPrimaryActionButtonAction($editBtn, 'radicarCaso');
-                    this.setPrimaryActionButtonHref($editBtn, this.getCaseRadicarUrl());
+                    this.setPrimaryActionButtonAction($editBtn, 'edit');
+                    this.setPrimaryActionButtonHref($editBtn, this.getCaseEditUrl());
                 }
 
-                return;
-            }
-
-            if (this._radicarButtonAdded) {
-                this.safeRemoveMenuItem('radicarCaso');
-                this._radicarButtonAdded = false;
-            }
-
-            if (!$editBtn.length) {
                 return;
             }
 
@@ -696,19 +696,22 @@ define('custom:views/case/record/detail', [
                 ? true
                 : RadicacionFields.shouldShowRadicacionFields(user, model);
 
-            RadicacionFields.RADICADO_FIELDS.forEach((field) => {
-                const $cell = this.$el.find('[data-name="' + field + '"]').closest('.cell');
+            const $radicadoCell = this.$el.find('[data-name="cNumeroRadicado"]').closest('.cell');
+            const $expedienteCell = this.$el.find('[data-name="cExpediente"]').closest('.cell');
 
-                if (!$cell.length) {
-                    return;
-                }
+            if ($radicadoCell.length) {
+                $radicadoCell.toggle(show);
+            }
 
-                if (show) {
-                    $cell.show();
-                } else {
-                    $cell.hide();
-                }
-            });
+            if ($expedienteCell.length) {
+                $expedienteCell.hide();
+            }
+
+            const radicadoView = this.getFieldView('cNumeroRadicado');
+
+            if (radicadoView && radicadoView.isRendered && radicadoView.isRendered()) {
+                radicadoView.reRender();
+            }
         },
 
         toggleRegistroExcelPanel: function () {

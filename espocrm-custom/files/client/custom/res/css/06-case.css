@@ -2,8 +2,12 @@
  * Casos — detalle, edición, listas
  */
 
-/* Campo radicado destacado */
-.detail .field[data-name="cNumeroRadicado"] .field-value,
+/* Detalle: radicado y expediente en una sola casilla */
+.detail[data-scope="Case"] .field[data-name="cNumeroRadicado"] .field-value {
+  font-weight: 600 !important;
+  line-height: 1.45 !important;
+}
+
 .field[data-name="cNumeroRadicado"] input {
   font-weight: 700 !important;
   color: var(--crm-form-accent-dark, var(--crm-primary-dark)) !important;

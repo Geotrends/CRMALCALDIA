@@ -25,9 +25,33 @@ define('custom:helpers/case-radicado-label', [], function () {
         return normalize(model.get(fieldName)) || EMPTY_LABEL;
     }
 
+    function getCombinedLabel(model) {
+        if (!model || typeof model.get !== 'function') {
+            return EMPTY_LABEL;
+        }
+
+        var radicado = normalize(model.get('cNumeroRadicado'));
+        var expediente = normalize(model.get('cExpediente'));
+
+        if (!radicado && !expediente) {
+            return EMPTY_LABEL;
+        }
+
+        if (radicado && expediente) {
+            return radicado + ' · Exp. ' + expediente;
+        }
+
+        if (radicado) {
+            return radicado;
+        }
+
+        return 'Exp. ' + expediente;
+    }
+
     return {
         EMPTY_LABEL: EMPTY_LABEL,
         getLabel: getLabel,
+        getCombinedLabel: getCombinedLabel,
         normalize: normalize,
     };
 });
