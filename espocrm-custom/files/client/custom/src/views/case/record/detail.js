@@ -559,15 +559,86 @@ define('custom:views/case/record/detail', [
                     .removeClass('hidden');
 
                 this.setReadOnlyExcept(editableFields);
+                this.remountAssignedUserForEdit();
                 this.enableAsignacionFields();
                 AsignadorEditMode.ensureAssignedUserEditable(this);
-
-                if (!this.getFieldView('assignedUser')) {
-                    AsignacionAssignmentPanel.mount(this, {force: true});
-                }
             } finally {
                 this._applyingAsignacionFieldAccess = false;
             }
+        },
+
+        remountAssignedUserForEdit: function () {
+            if (!this._asignacionEditMode) {
+                return;
+            }
+
+            const $cell = this.$el
+                .find('.panel[data-name="gestionPosteriorRadicacion"] [data-name="assignedUser"]')
+                .first();
+
+            if (!$cell.length) {
+                return;
+            }
+
+            $cell.closest('.cell, .field').show().removeClass('hidden');
+
+            const existing = this.getFieldView('assignedUser');
+
+            if (
+                existing
+                && existing.mode === 'edit'
+                && existing.$el
+                && existing.$el.find('[data-action="selectLink"], [data-action="editLink"]').length
+            ) {
+                existing.readOnly = false;
+
+                if (typeof existing.showSelectControls === 'function') {
+                    existing.showSelectControls();
+                }
+
+                return;
+            }
+
+            if (this._remountingAssignedUser) {
+                return;
+            }
+
+            if (typeof this.createFieldView !== 'function') {
+                return;
+            }
+
+            this._remountingAssignedUser = true;
+
+            if (existing) {
+                if (typeof existing.remove === 'function') {
+                    existing.remove();
+                } else if (typeof existing.stopListening === 'function') {
+                    existing.stopListening();
+                }
+            }
+
+            $cell.empty();
+
+            const self = this;
+
+            this.createFieldView('assignedUser', null, {
+                el: $cell,
+                mode: 'edit',
+                readOnly: false,
+            }, function (view) {
+                self._remountingAssignedUser = false;
+
+                if (!view) {
+                    return;
+                }
+
+                view.readOnly = false;
+                view.render();
+
+                if (typeof view.showSelectControls === 'function') {
+                    view.showSelectControls();
+                }
+            });
         },
 
         clearAsignacionAccessTimers: function () {
@@ -620,12 +691,15 @@ define('custom:views/case/record/detail', [
         },
 
         resetAsignacionFieldFlags: function () {
+            this._remountingAssignedUser = false;
+
             ['assignedUser', 'cMotivoReasignacion'].forEach((field) => {
                 const view = this.getFieldView(field);
 
                 if (view) {
                     delete view._assignmentEditForced;
                     delete view._inlineEditEnabled;
+                    delete view._assignmentSelectReady;
                 }
             });
         },

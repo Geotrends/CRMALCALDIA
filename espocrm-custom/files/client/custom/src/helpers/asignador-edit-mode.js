@@ -283,31 +283,22 @@ define('custom:helpers/asignador-edit-mode', [
             return;
         }
 
+        if (
+            fieldView.name === 'assignedUser'
+            && isDetailRecord
+            && typeof fieldView.enableAssignmentSelect === 'function'
+        ) {
+            fieldView.enableAssignmentSelect();
+
+            return;
+        }
+
         if (typeof fieldView.setNotReadOnly === 'function') {
             try {
                 fieldView.setNotReadOnly();
             } catch (e) {
                 safeSetFieldNotReadOnly(fieldView);
             }
-        }
-
-        if (
-            isDetailRecord
-            && fieldView.mode === 'detail'
-            && fieldView.name === 'assignedUser'
-            && typeof fieldView.reRender === 'function'
-            && !fieldView._assignmentEditForced
-        ) {
-            fieldView._assignmentEditForced = true;
-            fieldView.mode = 'edit';
-
-            try {
-                fieldView.reRender();
-            } catch (e) {
-                safeSetFieldNotReadOnly(fieldView);
-            }
-
-            return;
         }
 
         safeSetFieldNotReadOnly(fieldView);

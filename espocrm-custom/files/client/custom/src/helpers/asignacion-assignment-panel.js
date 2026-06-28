@@ -78,10 +78,10 @@ define('custom:helpers/asignacion-assignment-panel', [
             }
 
             if (fieldView.isRendered && fieldView.isRendered() && !$cell.find(fieldView.$el).length) {
-                fieldView.reRender();
+                unlockField(fieldView);
+            } else {
+                unlockField(fieldView);
             }
-
-            unlockField(fieldView);
 
             return;
         }
