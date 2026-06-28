@@ -1,21 +1,25 @@
 /**
- * Scroll unificado — desplaza #content (compatible con la estructura real de EspoCRM).
- * No bloquea html/body para evitar pantallas sin scroll.
+ * Un solo scroll vertical: #content.
+ * html/body bloqueados para evitar doble barra de desplazamiento.
  */
 
+html:has(body[data-navbar=side]:not(.login-page)) {
+  height: 100%;
+  overflow: hidden;
+}
+
 body[data-navbar=side]:not(.login-page) {
-  overflow-x: hidden;
+  height: 100%;
+  overflow: hidden !important;
 }
 
 body[data-navbar=side]:not(.login-page) #content {
-  display: block;
   box-sizing: border-box;
   height: 100vh;
   height: 100dvh;
-  max-height: 100vh;
-  max-height: 100dvh;
   overflow-x: hidden !important;
   overflow-y: auto !important;
+  overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
   scrollbar-color: rgba(100, 116, 139, 0.45) transparent;
@@ -34,18 +38,32 @@ body[data-navbar=side]:not(.login-page) #content::-webkit-scrollbar-thumb:hover 
   background: rgba(100, 116, 139, 0.55);
 }
 
-/* El contenido interno crece; el scroll lo hace #content */
+/* Nada dentro de #content debe tener scroll vertical propio */
 body[data-navbar=side]:not(.login-page) #content > .content,
-body[data-navbar=side]:not(.login-page) #content #main {
+body[data-navbar=side]:not(.login-page) #content #main,
+body[data-navbar=side]:not(.login-page) #content .list,
+body[data-navbar=side]:not(.login-page) #content .record,
+body[data-navbar=side]:not(.login-page) #content .detail,
+body[data-navbar=side]:not(.login-page) #content .edit,
+body[data-navbar=side]:not(.login-page) #content .list-container,
+body[data-navbar=side]:not(.login-page) #content .middle,
+body[data-navbar=side]:not(.login-page) #content .bottom {
   overflow: visible !important;
   max-height: none !important;
-  min-height: 0;
+  height: auto !important;
 }
 
-/* Kanban: scroll horizontal interno */
+/* Kanban: solo scroll horizontal en el tablero */
 .case-list-root.case-kanban-active .list-kanban-container,
 .list[data-scope="Case"] .list-kanban-container,
 [data-scope="Case"] .list-kanban-container {
   overflow-x: auto;
   overflow-y: visible;
+}
+
+/* Desplegables de formulario Case: scroll interno solo en la lista del select */
+.edit[data-scope="Case"] .selectize-dropdown-content,
+.modal .edit[data-scope="Case"] .selectize-dropdown-content {
+  max-height: min(280px, 45vh) !important;
+  overflow-y: auto !important;
 }
