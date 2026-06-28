@@ -503,16 +503,16 @@ define('custom:views/case/record/detail', [
             this.updateAsignacionActionButtons();
             AsignadorEditMode.applyDetailReadOnly(this);
             this.togglePostRadicacionFields();
+
+            const assignedView = this.getFieldView('assignedUser');
+
+            if (assignedView && typeof assignedView.reRender === 'function') {
+                assignedView.reRender();
+            }
         },
 
         getAsignacionEditableFields: function () {
-            const fields = ['assignedUser'];
-
-            if (PostRadicacionFields.hadPreviousAssignee(this._initialAssignedUserId)) {
-                fields.push('cMotivoReasignacion');
-            }
-
-            return fields;
+            return ['assignedUser'];
         },
 
         markAsignacionBatchEdit: function (active) {
@@ -561,14 +561,13 @@ define('custom:views/case/record/detail', [
 
                 this.findPanel('gestionPosteriorRadicacion').show();
                 AsignadorEditMode.moveAssignmentPanelToTop(this);
-                this.$el.find('[data-name="assignedUser"], [data-name="cMotivoReasignacion"]')
+                this.$el.find('[data-name="assignedUser"]')
                     .closest('.cell, .field')
                     .show()
                     .removeClass('hidden');
 
                 this.setReadOnlyExcept(editableFields);
                 this.remountAssignedUserForEdit();
-                this.remountMotivoForEdit();
                 this.enableAsignacionFields();
                 AsignadorEditMode.ensureAssignedUserEditable(this);
             } finally {
@@ -630,7 +629,7 @@ define('custom:views/case/record/detail', [
 
             const self = this;
 
-            this.createFieldView('assignedUser', null, {
+            this.createFieldView('assignedUser', 'custom:views/case/fields/asignacion-unificada', {
                 el: $cell,
                 mode: 'edit',
                 readOnly: false,
@@ -647,77 +646,9 @@ define('custom:views/case/record/detail', [
                 if (typeof view.showSelectControls === 'function') {
                     view.showSelectControls();
                 }
-            });
-        },
 
-        remountMotivoForEdit: function () {
-            if (!this._asignacionEditMode) {
-                return;
-            }
-
-            if (!PostRadicacionFields.hadPreviousAssignee(this._initialAssignedUserId)) {
-                return;
-            }
-
-            const $cell = this.$el
-                .find('.panel[data-name="gestionPosteriorRadicacion"] [data-name="cMotivoReasignacion"]')
-                .first();
-
-            if (!$cell.length) {
-                return;
-            }
-
-            $cell.closest('.cell, .field').show().removeClass('hidden');
-
-            const existing = this.getFieldView('cMotivoReasignacion');
-
-            if (
-                existing
-                && existing._inlineEditEnabled
-                && existing.$textarea
-                && existing.$textarea.length
-            ) {
-                return;
-            }
-
-            if (this._remountingMotivo) {
-                return;
-            }
-
-            if (typeof this.createFieldView !== 'function') {
-                return;
-            }
-
-            this._remountingMotivo = true;
-
-            if (existing) {
-                if (typeof existing.remove === 'function') {
-                    existing.remove();
-                } else if (typeof existing.stopListening === 'function') {
-                    existing.stopListening();
-                }
-            }
-
-            $cell.empty();
-
-            const self = this;
-
-            this.createFieldView('cMotivoReasignacion', null, {
-                el: $cell,
-                mode: 'edit',
-                readOnly: false,
-            }, function (view) {
-                self._remountingMotivo = false;
-
-                if (!view) {
-                    return;
-                }
-
-                view.readOnly = false;
-                view.render();
-
-                if (typeof view.enableInlineEdit === 'function') {
-                    view.enableInlineEdit();
+                if (typeof view.renderMotivoSection === 'function') {
+                    view.renderMotivoSection();
                 }
             });
         },
@@ -773,7 +704,6 @@ define('custom:views/case/record/detail', [
 
         resetAsignacionFieldFlags: function () {
             this._remountingAssignedUser = false;
-            this._remountingMotivo = false;
 
             ['assignedUser', 'cMotivoReasignacion'].forEach((field) => {
                 const view = this.getFieldView(field);
@@ -787,25 +717,10 @@ define('custom:views/case/record/detail', [
         },
 
         toggleAsignacionMotivoField: function () {
-            let showMotivo = PostRadicacionFields.shouldShowMotivoReasignacion(
-                this.getUser(),
-                this.model,
-                this._initialAssignedUserId
-            );
+            const assignedView = this.getFieldView('assignedUser');
 
-            if (!this._asignacionEditMode) {
-                showMotivo = showMotivo
-                    && !!String(this.model.get('cMotivoReasignacion') || '').trim();
-            }
-
-            const $motivoCell = this.$el.find('[data-name="cMotivoReasignacion"]').closest('.cell');
-
-            if ($motivoCell.length) {
-                $motivoCell.toggle(showMotivo).removeClass('hidden');
-            }
-
-            if (showMotivo && this._asignacionEditMode) {
-                this.remountMotivoForEdit();
+            if (assignedView && typeof assignedView.renderMotivoSection === 'function') {
+                assignedView.renderMotivoSection();
             }
         },
 
@@ -840,9 +755,7 @@ define('custom:views/case/record/detail', [
             };
 
             if (PostRadicacionFields.hadPreviousAssignee(this._initialAssignedUserId)) {
-                const motivo = String(this.model.get('cMotivoReasignacion') || '').trim();
-
-                data.cMotivoReasignacion = motivo || null;
+                data.cMotivoReasignacion = String(this.model.get('cMotivoReasignacion') || '').trim() || null;
             }
 
             Espo.Ui.notify(this.translate('pleaseWait', 'messages'));

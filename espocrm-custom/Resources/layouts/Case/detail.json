@@ -245,13 +245,8 @@
         "rows": [
             [
                 {
-                    "name": "assignedUser"
-                },
-                false
-            ],
-            [
-                {
-                    "name": "cMotivoReasignacion",
+                    "name": "assignedUser",
+                    "view": "custom:views/case/fields/asignacion-unificada",
                     "fullWidth": true
                 }
             ]

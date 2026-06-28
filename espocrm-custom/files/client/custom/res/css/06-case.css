@@ -224,27 +224,36 @@ body.alcaldia-asignador-asignar-page .edit[data-scope="Case"] .cell[data-name="c
 }
 
 .detail[data-scope="Case"] .panel[data-name="gestionPosteriorRadicacion"] .inline-save-link,
-.detail[data-scope="Case"] .panel[data-name="gestionPosteriorRadicacion"] .inline-cancel-link {
+.detail[data-scope="Case"] .panel[data-name="gestionPosteriorRadicacion"] .inline-cancel-link,
+.detail[data-scope="Case"] .panel[data-name="gestionPosteriorRadicacion"] .inline-edit-link {
   display: none !important;
 }
 
-.detail[data-scope="Case"] .panel[data-name="gestionPosteriorRadicacion"].alcaldia-asignacion-batch-edit .panel-body {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  padding-top: 12px;
-}
-
-.detail[data-scope="Case"] .panel[data-name="gestionPosteriorRadicacion"].alcaldia-asignacion-batch-edit .cell[data-name="assignedUser"],
-.detail[data-scope="Case"] .panel[data-name="gestionPosteriorRadicacion"].alcaldia-asignacion-batch-edit .cell[data-name="cMotivoReasignacion"] {
-  display: block !important;
+.detail[data-scope="Case"] .alcaldia-asignacion-unificada-cell {
   width: 100%;
-  margin-bottom: 0;
+  border-bottom: none !important;
 }
 
-.detail[data-scope="Case"] .panel[data-name="gestionPosteriorRadicacion"].alcaldia-asignacion-batch-edit .cell[data-name="cMotivoReasignacion"] .field-label::after {
-  content: " (opcional)";
-  font-weight: normal;
-  color: var(--text-muted-color, #999);
-  font-size: 0.9em;
+.detail[data-scope="Case"] .alcaldia-asignacion-unificada {
+  width: 100%;
+}
+
+.detail[data-scope="Case"] .alcaldia-asignacion-motivo-block {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--default-border-color, #ddd);
+}
+
+.detail[data-scope="Case"] .alcaldia-asignacion-motivo-block .control-label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.detail[data-scope="Case"] .alcaldia-asignacion-motivo-read .alcaldia-asignacion-motivo-value {
+  margin-top: 4px;
+}
+
+.detail[data-scope="Case"] .panel[data-name="gestionPosteriorRadicacion"].alcaldia-asignacion-batch-edit .panel-body {
+  padding-top: 12px;
 }
