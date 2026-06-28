@@ -369,6 +369,7 @@ define('custom:helpers/asignador-edit-mode', [
         openAsignadoEdit: openAsignadoEdit,
         getCaseAsignarUrl: getCaseAsignarUrl,
         getEditableFields: getEditableFields,
+        lockAllFieldViewsExcept: lockAllFieldViewsExcept,
         moveAssignmentPanelToTop: moveAssignmentPanelToTop,
         hideNonAssignmentPanels: hideNonAssignmentPanels,
         prepareAsignacionLayout: prepareAsignacionLayout,

@@ -486,6 +486,7 @@ define('custom:views/case/record/detail', [
         },
 
         exitAsignacionEditMode: function () {
+            this.clearAsignacionAccessTimers();
             this._asignacionEditMode = false;
 
             if (this._cancelAsignacionAdded) {
@@ -566,7 +567,6 @@ define('custom:views/case/record/detail', [
                 .removeClass('hidden');
 
             this.setReadOnlyExcept(editableFields);
-            AsignadorEditMode.lockAllFieldViewsExcept(this, editableFields);
             this.enableAsignacionFields();
             AsignadorEditMode.ensureAssignedUserEditable(this);
 
@@ -575,19 +575,36 @@ define('custom:views/case/record/detail', [
             }
         },
 
+        clearAsignacionAccessTimers: function () {
+            if (!this._asignacionAccessTimers) {
+                return;
+            }
+
+            this._asignacionAccessTimers.forEach(function (timerId) {
+                clearTimeout(timerId);
+            });
+
+            this._asignacionAccessTimers = null;
+        },
+
         scheduleAsignacionFieldAccess: function () {
             if (!this._asignacionEditMode) {
                 return;
             }
 
-            [120, 350, 700].forEach((delay) => {
-                window.setTimeout(() => {
+            this.clearAsignacionAccessTimers();
+            this._asignacionAccessTimers = [];
+
+            [150, 450].forEach((delay) => {
+                const timerId = window.setTimeout(() => {
                     if (!this.isRendered || !this.isRendered() || !this._asignacionEditMode) {
                         return;
                     }
 
                     this.applyAsignacionFieldAccess();
                 }, delay);
+
+                this._asignacionAccessTimers.push(timerId);
             });
         },
 
@@ -652,6 +669,7 @@ define('custom:views/case/record/detail', [
         },
 
         saveAsignacionEdit: function () {
+            this.clearAsignacionAccessTimers();
             this.syncAsignacionFields();
 
             const assignedUserId = this.model.get('assignedUserId');
@@ -687,20 +705,36 @@ define('custom:views/case/record/detail', [
 
             Espo.Ui.notify(this.translate('pleaseWait', 'messages'));
 
-            this.model.save(data, {patch: true}).then(() => {
-                Espo.Ui.notify(false);
-                Espo.Ui.success(this.translate('caseEditedSuccess', 'labels', 'Case'));
-                this._initialAssignedUserId = assignedUserId;
-                this.exitAsignacionEditMode();
-                this.model.fetch();
-            }).catch((error) => {
-                Espo.Ui.notify(false);
+            const savePromise = this.model.save(data, {patch: true});
+            const self = this;
 
+            const finishSave = function () {
+                Espo.Ui.notify(false);
+            };
+
+            if (!savePromise || typeof savePromise.then !== 'function') {
+                finishSave();
+                Espo.Ui.success(self.translate('caseEditedSuccess', 'labels', 'Case'));
+                self._initialAssignedUserId = assignedUserId;
+                self.exitAsignacionEditMode();
+
+                return;
+            }
+
+            savePromise.then(function () {
+                Espo.Ui.success(self.translate('caseEditedSuccess', 'labels', 'Case'));
+                self._initialAssignedUserId = assignedUserId;
+                self.exitAsignacionEditMode();
+
+                if (typeof self.model.fetch === 'function') {
+                    return self.model.fetch();
+                }
+            }).catch(function (error) {
                 const message = (error && (error.message || error.statusText))
-                    || this.translate('Error');
+                    || self.translate('Error');
 
                 Espo.Ui.error(message);
-            });
+            }).finally(finishSave);
         },
 
         cancelAsignacionEdit: function () {
