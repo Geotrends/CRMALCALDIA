@@ -3,33 +3,47 @@ define('custom:views/case/fields/c-motivo-reasignacion', [
     'custom:helpers/post-radicacion-fields',
 ], function (Dep, PostRadicacionFields) {
 
-    const isAssignmentEditing = function (recordView) {
-        if (!recordView) {
-            return false;
-        }
-
-        return !!recordView._asignacionEditMode
-            || !!recordView._asignarMode
-            || recordView.layoutName === 'asignar'
-            || !!(recordView.options && recordView.options.asignar);
-    };
-
-    const shouldEditMotivo = function (recordView, model, user) {
-        if (!isAssignmentEditing(recordView)) {
-            return false;
-        }
-
-        const initialAssignedUserId = recordView._initialAssignedUserId;
-
-        return PostRadicacionFields.shouldShowMotivoReasignacion(user, model, initialAssignedUserId);
-    };
-
     return Dep.extend({
 
-        isReadOnly: function () {
+        getRecordView: function () {
+            let parent = this.getParentView();
+
+            while (parent) {
+                if (parent.model && typeof parent.getFieldView === 'function') {
+                    return parent;
+                }
+
+                parent = parent.getParentView ? parent.getParentView() : null;
+            }
+
+            return null;
+        },
+
+        shouldAllowEdit: function () {
             const recordView = this.getRecordView();
 
-            if (shouldEditMotivo(recordView, this.model, this.getUser())) {
+            if (!recordView) {
+                return false;
+            }
+
+            if (
+                !recordView._asignacionEditMode
+                && !recordView._asignarMode
+                && recordView.layoutName !== 'asignar'
+                && !(recordView.options && recordView.options.asignar)
+            ) {
+                return false;
+            }
+
+            return PostRadicacionFields.shouldShowMotivoReasignacion(
+                this.getUser(),
+                this.model,
+                recordView._initialAssignedUserId
+            );
+        },
+
+        isReadOnly: function () {
+            if (this.shouldAllowEdit()) {
                 return false;
             }
 
@@ -39,9 +53,7 @@ define('custom:views/case/fields/c-motivo-reasignacion', [
         afterRender: function () {
             Dep.prototype.afterRender.call(this);
 
-            const recordView = this.getRecordView();
-
-            if (!shouldEditMotivo(recordView, this.model, this.getUser())) {
+            if (!this.shouldAllowEdit() || !this.$el) {
                 return;
             }
 
@@ -49,17 +61,6 @@ define('custom:views/case/fields/c-motivo-reasignacion', [
 
             if (typeof this.setNotReadOnly === 'function') {
                 this.setNotReadOnly();
-            }
-
-            if (this.mode === 'detail' && typeof this.reRender === 'function') {
-                this.mode = 'edit';
-                this.reRender();
-
-                return;
-            }
-
-            if (!this.$el) {
-                return;
             }
 
             this.$el.removeClass('field-readonly hidden');

@@ -250,7 +250,8 @@ define('custom:helpers/asignador-edit-mode', [
             && !recordView.isEditMode()
             && fieldView.mode === 'detail';
 
-        if (isDetailRecord && typeof fieldView.reRender === 'function') {
+        if (isDetailRecord && typeof fieldView.reRender === 'function' && !fieldView._assignmentEditForced) {
+            fieldView._assignmentEditForced = true;
             fieldView.mode = 'edit';
             fieldView.reRender();
 

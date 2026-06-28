@@ -84,9 +84,7 @@ define('custom:views/case/record/detail', [
                 this.toggleRadicacionFields();
                 this.togglePostRadicacionFields();
 
-                if (this._asignacionEditMode) {
-                    this.applyAsignacionFieldAccess();
-                } else {
+                if (!this._asignacionEditMode) {
                     this.scheduleRoleAwareUi();
                 }
 
@@ -491,6 +489,14 @@ define('custom:views/case/record/detail', [
             this.clearAsignacionAccessTimers();
             this._asignacionEditMode = false;
 
+            ['assignedUser', 'cMotivoReasignacion'].forEach((field) => {
+                const view = this.getFieldView(field);
+
+                if (view) {
+                    delete view._assignmentEditForced;
+                }
+            });
+
             if (this._cancelAsignacionAdded) {
                 this.safeRemoveMenuItem('cancelAsignacion');
                 this._cancelAsignacionAdded = false;
@@ -555,71 +561,32 @@ define('custom:views/case/record/detail', [
         },
 
         applyAsignacionFieldAccess: function () {
-            if (!this._asignacionEditMode || !this.isAsignadorOperator()) {
+            if (!this._asignacionEditMode || !this.isAsignadorOperator() || this._applyingAsignacionAccess) {
                 return;
             }
 
-            const editableFields = this.getAsignacionEditableFields();
+            this._applyingAsignacionAccess = true;
 
-            this.findPanel('gestionPosteriorRadicacion').show();
-            AsignadorEditMode.moveAssignmentPanelToTop(this);
-            this.$el.find('[data-name="assignedUser"], [data-name="cMotivoReasignacion"]')
-                .closest('.cell, .field')
-                .show()
-                .removeClass('hidden');
+            try {
+                const editableFields = this.getAsignacionEditableFields();
 
-            this.setReadOnlyExcept(editableFields);
-            this.enableAsignacionFields();
-            AsignadorEditMode.ensureAssignedUserEditable(this);
+                this.findPanel('gestionPosteriorRadicacion').show();
+                AsignadorEditMode.moveAssignmentPanelToTop(this);
+                this.$el.find('[data-name="assignedUser"], [data-name="cMotivoReasignacion"]')
+                    .closest('.cell, .field')
+                    .show()
+                    .removeClass('hidden');
 
-            if (!this.getFieldView('assignedUser')) {
-                AsignacionAssignmentPanel.mount(this, {force: true});
-            }
+                this.setReadOnlyExcept(editableFields);
+                this.enableAsignacionFields();
+                AsignadorEditMode.ensureAssignedUserEditable(this);
 
-            this.ensureMotivoReasignacionField();
-        },
-
-        ensureMotivoReasignacionField: function () {
-            if (!this._asignacionEditMode) {
-                return;
-            }
-
-            const editableFields = this.getAsignacionEditableFields();
-
-            if (editableFields.indexOf('cMotivoReasignacion') === -1) {
-                return;
-            }
-
-            this.toggleAsignacionMotivoField();
-
-            let motivoView = this.getFieldView('cMotivoReasignacion');
-
-            if (motivoView) {
-                AsignadorEditMode.forceAssignmentFieldEditable(motivoView, this);
-
-                return;
-            }
-
-            const $cell = this.$el.find('[data-name="cMotivoReasignacion"]').closest('.cell').first();
-
-            if (!$cell.length || typeof this.createFieldView !== 'function') {
-                return;
-            }
-
-            const self = this;
-
-            this.createFieldView('cMotivoReasignacion', null, {
-                el: $cell,
-                mode: 'edit',
-                readOnly: false,
-            }, function (view) {
-                if (!view) {
-                    return;
+                if (!this.getFieldView('assignedUser')) {
+                    AsignacionAssignmentPanel.mount(this, {force: true});
                 }
-
-                view.render();
-                AsignadorEditMode.forceAssignmentFieldEditable(view, self);
-            });
+            } finally {
+                this._applyingAsignacionAccess = false;
+            }
         },
 
         clearAsignacionAccessTimers: function () {
@@ -669,7 +636,6 @@ define('custom:views/case/record/detail', [
             });
 
             this.toggleAsignacionMotivoField();
-            this.ensureMotivoReasignacionField();
         },
 
         toggleAsignacionMotivoField: function () {
@@ -688,14 +654,6 @@ define('custom:views/case/record/detail', [
 
             if ($motivoCell.length) {
                 $motivoCell.toggle(showMotivo).removeClass('hidden');
-            }
-
-            if (showMotivo && this._asignacionEditMode) {
-                const motivoView = this.getFieldView('cMotivoReasignacion');
-
-                if (motivoView) {
-                    AsignadorEditMode.forceAssignmentFieldEditable(motivoView, this);
-                }
             }
         },
 
