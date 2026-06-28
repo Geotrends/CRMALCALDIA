@@ -1,0 +1,61 @@
+/**
+ * Scroll unificado — siempre desplaza #main, nunca el body entero.
+ * Evita barras de scroll intermitentes entre Inicio, listas, detalle y edición.
+ */
+
+html:has(body[data-navbar=side]:not(.login-page)) {
+  height: 100%;
+  overflow: hidden;
+}
+
+body[data-navbar=side]:not(.login-page) {
+  height: 100%;
+  overflow: hidden;
+}
+
+body[data-navbar=side]:not(.login-page) #content {
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden !important;
+  box-sizing: border-box;
+}
+
+body[data-navbar=side]:not(.login-page) #content > .content {
+  height: 100%;
+  min-height: 0;
+  overflow: hidden !important;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+body[data-navbar=side]:not(.login-page) #content > .content > #main {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(100, 116, 139, 0.45) transparent;
+}
+
+body[data-navbar=side]:not(.login-page) #content > .content > #main::-webkit-scrollbar {
+  width: 8px;
+}
+
+body[data-navbar=side]:not(.login-page) #content > .content > #main::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.35);
+  border-radius: 4px;
+}
+
+body[data-navbar=side]:not(.login-page) #content > .content > #main::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.55);
+}
+
+/* Kanban: scroll horizontal interno; vertical lo maneja #main */
+.case-list-root.case-kanban-active .list-kanban-container,
+.list[data-scope="Case"] .list-kanban-container,
+[data-scope="Case"] .list-kanban-container {
+  overflow-x: auto;
+  overflow-y: visible;
+}

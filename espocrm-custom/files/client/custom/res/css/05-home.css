@@ -12,12 +12,6 @@ body:has(.custom-home) #content #main {
 
 #content #main:has(.custom-home) {
   padding: 0 0 24px !important;
-  overflow: visible !important;
-}
-
-body:has(.custom-home) #content,
-body:has(.custom-home) #content > .content {
-  overflow: visible !important;
 }
 
 body:has(.custom-home) #content,
