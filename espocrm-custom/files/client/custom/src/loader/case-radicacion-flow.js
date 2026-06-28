@@ -4,7 +4,7 @@
  */
 (function () {
 
-    var FLOW_VERSION = 'v3';
+    var FLOW_VERSION = 'v4';
     var PROFILE_CACHE_KEY = 'alcaldiaCaseProfileCache';
     var profileInflight = null;
 
@@ -161,12 +161,17 @@
         return /^#Case\/edit\//i.test(getHash());
     }
 
+    function isCaseRadicarRoute() {
+        return /^#Case\/radicar\//i.test(getHash());
+    }
+
     function isRadicarEditRoute() {
-        return isCaseEditRoute() && /[?&]radicar=1(?:&|$)/.test(getHash());
+        return isCaseRadicarRoute()
+            || (isCaseEditRoute() && /[?&]radicar=1(?:&|$)/.test(getHash()));
     }
 
     function getCaseRadicarUrl(caseId) {
-        return '#Case/edit/' + caseId + '?radicar=1';
+        return '#Case/radicar/' + caseId;
     }
 
     function patchDetailRadicarButton(caseId) {
@@ -410,8 +415,11 @@
                 patchDetailRadicarButton(getCaseIdFromHash('Case/view'));
             }
 
-            if (isCaseEditRoute()) {
-                enforceRadicarEditRoute(app, getCaseIdFromHash('Case/edit'));
+            if (isCaseEditRoute() || isCaseRadicarRoute()) {
+                enforceRadicarEditRoute(
+                    app,
+                    getCaseIdFromHash('Case/edit') || getCaseIdFromHash('Case/radicar')
+                );
             }
 
             if (isRadicarEditRoute()) {
@@ -471,7 +479,7 @@
 
     if (document.body) {
         new MutationObserver(function () {
-            if (!isCaseDetailRoute() && !isCaseEditRoute()) {
+            if (!isCaseDetailRoute() && !isCaseEditRoute() && !isCaseRadicarRoute()) {
                 return;
             }
 

@@ -360,7 +360,7 @@ define('custom:views/case/record/detail', [
 
             const $editBtn = this.findPrimaryActionButton('edit');
 
-            // Edwin / Radicación: botón Radicar → edit?radicar=1
+            // Edwin / Radicación: botón Radicar → Case/radicar/{id}
             if (RadicacionEditMode.isPureRadicacionUser(user)) {
                 this.$el.find('.detail-button-container, .edit-buttons').removeClass('hidden').show();
                 this.getDetailActionElements()

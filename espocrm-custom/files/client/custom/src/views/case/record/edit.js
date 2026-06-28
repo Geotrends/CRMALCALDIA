@@ -825,7 +825,7 @@ define('custom:views/case/record/edit', [
 
                 this.model.set('cExpediente', $root.find('[data-role="auto-expediente"]').val() || null, {silent: true});
             } else {
-                this.model.set('cNumeroRadicado', $root.find('[data-name="manual-radicado"]').val() || null, {silent: true});
+                this.model.set('cNumeroRadicado', $root.find('[data-role="manual-radicado"]').val() || null, {silent: true});
                 this.model.set('cExpediente', $root.find('[data-role="manual-expediente"]').val() || null, {silent: true});
             }
         },

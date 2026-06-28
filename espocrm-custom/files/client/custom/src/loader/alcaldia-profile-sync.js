@@ -12,7 +12,7 @@
         } catch (error) {}
     }
 
-    function syncProfile(app) {
+    function syncProfile(app, forceRefresh) {
         if (!app || !app.getUser) {
             return;
         }
@@ -23,7 +23,9 @@
             return;
         }
 
-        if (lastUserId && lastUserId !== user.id) {
+        var userChanged = lastUserId && lastUserId !== user.id;
+
+        if (userChanged) {
             clearProfileCache();
         }
 
@@ -34,10 +36,12 @@
         }
 
         Espo.loader.require('custom:helpers/radicacion-fields', function (RadicacionFields) {
-            if (typeof RadicacionFields.refreshProfile === 'function') {
-                RadicacionFields.refreshProfile(user);
+            if (userChanged || forceRefresh) {
+                if (typeof RadicacionFields.refreshProfile === 'function') {
+                    RadicacionFields.refreshProfile(user);
 
-                return;
+                    return;
+                }
             }
 
             RadicacionFields.ensureProfile(user);
@@ -50,13 +54,7 @@
         }
 
         app.__alcaldiaProfileSyncBound = true;
-        syncProfile(app);
-
-        if (app.on) {
-            app.on('route', function () {
-                syncProfile(app);
-            });
-        }
+        syncProfile(app, true);
     }
 
     function waitForApp() {
