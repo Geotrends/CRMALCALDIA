@@ -42,19 +42,23 @@ define('custom:helpers/radicacion-edit-mode', [
             return false;
         }
 
+        if (userHasRoleKey(user, 'inspeccion') && !userHasRoleKey(user, 'radicacion')) {
+            return false;
+        }
+
         if (userHasRoleKey(user, 'radicacion')) {
             return true;
         }
 
-        if (!RadicacionFields.isRadicacionUser(user)) {
-            return false;
+        if (RadicacionFields.isProfileLoaded()) {
+            const profile = RadicacionFields.getServerProfile();
+
+            if (profile.isRadicacion && !profile.isInspeccion) {
+                return true;
+            }
         }
 
-        if (RadicacionFields.isPatrulleroUser(user) && !RadicacionFields.isRadicacionUser(user)) {
-            return false;
-        }
-
-        return true;
+        return false;
     };
 
     const PANELS_HIDDEN_FOR_RADICACION = [
@@ -65,7 +69,7 @@ define('custom:helpers/radicacion-edit-mode', [
     ];
 
     const hideNonRadicacionPanels = function (recordView) {
-        if (!recordView || !isPureRadicacionUser(recordView.getUser())) {
+        if (!recordView || !isRadicacionEditSession(recordView)) {
             return;
         }
 
@@ -99,6 +103,10 @@ define('custom:helpers/radicacion-edit-mode', [
             return false;
         }
 
+        if (recordView._alcaldiaRadicacionEdit) {
+            return true;
+        }
+
         return isPureRadicacionUser(recordView.getUser());
     };
 
@@ -109,6 +117,7 @@ define('custom:helpers/radicacion-edit-mode', [
     const bootstrapRadicarMode = function (recordView) {
         if (isRadicacionEditSession(recordView)) {
             recordView._radicarMode = true;
+            recordView._alcaldiaRadicacionEdit = true;
         }
     };
 
@@ -118,6 +127,22 @@ define('custom:helpers/radicacion-edit-mode', [
 
     const isCaseSinRadicar = function (model) {
         return !isCasePostRadicado(model);
+    };
+
+    const moveRadicacionPanelToTop = function (recordView) {
+        const $panel = recordView.findPanel('radicacionCaso');
+
+        if (!$panel.length) {
+            return;
+        }
+
+        const $host = recordView.$el.find('.record-grid, .panels-container, form.record').first();
+
+        if ($host.length) {
+            $host.prepend($panel);
+        }
+
+        $panel.show();
     };
 
     const prepareRadicacionEditView = function (recordView) {
@@ -130,6 +155,7 @@ define('custom:helpers/radicacion-edit-mode', [
         }
 
         hideNonRadicacionPanels(recordView);
+        moveRadicacionPanelToTop(recordView);
         recordView.findPanel('radicacionCaso').show();
     };
 
@@ -147,8 +173,16 @@ define('custom:helpers/radicacion-edit-mode', [
                 view.setNotReadOnly();
             }
 
-            recordView.$el.find('[data-name="' + field + '"]').closest('.cell').show();
+            const $cell = recordView.$el.find('[data-name="' + field + '"]').closest('.cell');
+
+            $cell.show();
+            $cell.find('input, select, textarea').prop('disabled', false).removeAttr('readonly');
         });
+
+        recordView.$el.find('.radicado-assistant-panel-mount')
+            .find('input, select, textarea')
+            .prop('disabled', false)
+            .removeAttr('readonly');
     };
 
     const lockAllFieldViewsExcept = function (recordView, editableFields) {
@@ -184,6 +218,7 @@ define('custom:helpers/radicacion-edit-mode', [
         }
 
         recordView._radicarMode = true;
+        recordView._alcaldiaRadicacionEdit = true;
 
         if (typeof recordView.setReadOnlyExcept === 'function') {
             recordView.setReadOnlyExcept(getEditableFields());
@@ -207,7 +242,7 @@ define('custom:helpers/radicacion-edit-mode', [
 
         applyRestrictedEdit(recordView);
 
-        [100, 300, 700, 1200, 2000].forEach(function (delay) {
+        [50, 150, 400, 800, 1500, 3000].forEach(function (delay) {
             window.setTimeout(function () {
                 if (!recordView.isEditMode || !recordView.isEditMode()) {
                     return;
@@ -226,6 +261,28 @@ define('custom:helpers/radicacion-edit-mode', [
         });
     };
 
+    const resolveRadicacionEditFlag = function (recordView) {
+        if (!recordView || !recordView.model || (recordView.model.isNew && recordView.model.isNew())) {
+            return Promise.resolve(false);
+        }
+
+        if (isPureRadicacionUser(recordView.getUser())) {
+            recordView._alcaldiaRadicacionEdit = true;
+
+            return Promise.resolve(true);
+        }
+
+        return RadicacionFields.ensureProfile().then(function (profile) {
+            const isRadicacion = !!(profile && profile.isRadicacion && !profile.isInspeccion);
+
+            if (isRadicacion) {
+                recordView._alcaldiaRadicacionEdit = true;
+            }
+
+            return isRadicacion;
+        });
+    };
+
     return {
         isPureRadicacionUser: isPureRadicacionUser,
         bootstrapRadicarMode: bootstrapRadicarMode,
@@ -239,5 +296,6 @@ define('custom:helpers/radicacion-edit-mode', [
         scheduleRestrictedEdit: scheduleRestrictedEdit,
         hideNonRadicacionPanels: hideNonRadicacionPanels,
         prepareRadicacionEditView: prepareRadicacionEditView,
+        resolveRadicacionEditFlag: resolveRadicacionEditFlag,
     };
 });

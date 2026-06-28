@@ -49,6 +49,10 @@ define('custom:helpers/radicacion-fields', [], function () {
         return profileLoaded;
     };
 
+    const getServerProfile = function () {
+        return serverProfile || {};
+    };
+
     const ensureProfile = function () {
         if (profileLoaded) {
             return Promise.resolve(serverProfile || {});
@@ -321,6 +325,7 @@ define('custom:helpers/radicacion-fields', [], function () {
         ensureProfile: ensureProfile,
         refreshProfile: refreshProfile,
         isProfileLoaded: isProfileLoaded,
+        getServerProfile: getServerProfile,
         onProfileReady: onProfileReady,
         isRadicacionUser: isRadicacionUser,
         isInspeccionUser: isInspeccionUser,
