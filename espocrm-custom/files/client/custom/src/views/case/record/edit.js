@@ -396,6 +396,10 @@ define('custom:views/case/record/edit', [
                     return;
                 }
 
+                if (inspeccionFullEdit && RadicacionFields.RADICADO_ALL_FIELDS.indexOf(view.name) !== -1) {
+                    return;
+                }
+
                 const relaxedFetch = inspeccionFullEdit
                     && RadicacionFields.RADICADO_ALL_FIELDS.indexOf(view.name) === -1;
 
@@ -436,6 +440,10 @@ define('custom:views/case/record/edit', [
             }
 
             if (this.model.isNew() && !RadicacionFields.isOperationalRadicacionUser(this.getUser())) {
+                RadicacionFields.omitRadicadoFromData(data);
+            }
+
+            if (inspeccionFullEdit && !this.model.isNew()) {
                 RadicacionFields.omitRadicadoFromData(data);
             }
 
@@ -698,8 +706,8 @@ define('custom:views/case/record/edit', [
                 if (RadicacionFields.isInspeccionUser(user) && InspeccionEditMode.canEditFullCase(user, this)) {
                     const inspeccionView = this.getFieldView(field);
 
-                    if (inspeccionView && typeof inspeccionView.setNotReadOnly === 'function') {
-                        inspeccionView.setNotReadOnly();
+                    if (inspeccionView && typeof inspeccionView.setReadOnly === 'function') {
+                        inspeccionView.setReadOnly();
                     }
 
                     return;

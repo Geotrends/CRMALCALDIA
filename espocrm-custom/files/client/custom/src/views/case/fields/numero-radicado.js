@@ -318,7 +318,20 @@ define('custom:views/case/fields/numero-radicado', [
                 return data;
             }
 
-            return Dep.prototype.fetch.call(this);
+            if (!this.useAssistant()) {
+                const $input = this.$input && this.$input.length
+                    ? this.$input
+                    : this.$el.find('input.main-element');
+                let raw = $input.length ? $input.val() : this.model.get(this.name);
+
+                if (raw != null && raw !== '') {
+                    data[this.name] = String(raw).trim();
+                } else {
+                    data[this.name] = this.model.get(this.name) || null;
+                }
+
+                return data;
+            }
         },
     });
 });
