@@ -185,4 +185,12 @@ unset ESPO_DEPLOY_BATCH
 source "$SCRIPTS_SOURCE/includes/deploy-stamp.sh"
 deploy_stamp_write "$APP_ROOT/data/.custom-deploy-stamp"
 
+echo "Verificando archivos críticos del custom..."
+if bash "$SCRIPTS_SOURCE/verify-custom-deploy.sh"; then
+  echo "Verificación deploy: OK."
+else
+  echo "ERROR: verify-custom-deploy falló — revisa la copia client/custom y Resources/."
+  exit 1
+fi
+
 echo "Dokploy custom deployment completed."

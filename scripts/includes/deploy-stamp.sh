@@ -14,8 +14,12 @@ deploy_stamp_compute() {
     return
   fi
 
-  find "$repo/espocrm-custom" "$repo/scripts" -type f 2>/dev/null \
-    | LC_ALL=C sort \
+  {
+    find "$repo/espocrm-custom" "$repo/scripts" -type f 2>/dev/null
+    if [ -f "$repo/.deploy-version" ]; then
+      echo "$repo/.deploy-version"
+    fi
+  } | LC_ALL=C sort \
     | xargs md5sum 2>/dev/null \
     | md5sum \
     | awk '{print $1}'

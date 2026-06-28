@@ -53,12 +53,15 @@ run_auto_deploy_background() {
       fi
 
       if [ -n "$new_stamp" ] && [ "$new_stamp" = "$current_stamp" ]; then
-        echo "Auto-deploy: sin cambios (omitido)."
+        echo "Auto-deploy: sin cambios (omitido). Huella=$current_stamp"
+        if [ -f "$REPO_ROOT/.deploy-version" ]; then
+          echo "Auto-deploy: imagen .deploy-version=$(cat "$REPO_ROOT/.deploy-version")"
+        fi
         exit 0
       fi
     fi
 
-    echo "==> Auto-deploy CRM Alcaldía (en segundo plano)..."
+    echo "==> Auto-deploy CRM Alcaldía (en segundo plano)... huella_nueva=$new_stamp huella_actual=${current_stamp:-ninguna}"
     if bash "$DEPLOY_SCRIPT"; then
       if command -v deploy_stamp_write >/dev/null 2>&1; then
         deploy_stamp_write "$STAMP_FILE"

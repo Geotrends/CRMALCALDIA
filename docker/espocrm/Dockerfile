@@ -17,6 +17,9 @@ RUN apt-get update \
 
 RUN mkdir -p /opt/bootstrap/repo
 
+ARG DEPLOY_VERSION=unknown
+RUN echo "${DEPLOY_VERSION}" > /opt/bootstrap/repo/.deploy-version
+
 COPY espocrm-custom /opt/bootstrap/repo/espocrm-custom
 COPY scripts /opt/bootstrap/repo/scripts
 COPY formatos /opt/bootstrap/repo/formatos

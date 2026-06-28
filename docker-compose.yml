@@ -22,6 +22,9 @@ services:
     build:
       context: .
       dockerfile: docker/espocrm/Dockerfile
+      args:
+        # Dokploy: pasa commit corto para forzar huella nueva en cada build.
+        DEPLOY_VERSION: ${DEPLOY_VERSION:-local}
     image: crm-alcaldia/espocrm
     entrypoint: ["/usr/local/bin/entrypoint-with-deploy.sh"]
     command: ["apache2-foreground"]
