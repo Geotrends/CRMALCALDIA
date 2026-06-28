@@ -177,6 +177,103 @@ define('custom:helpers/radicacion-fields', [], function () {
         return getAssignedRoleNames(user).some((name) => normalize(name) === roleKey);
     };
 
+    /**
+     * Misma prioridad que AlcaldiaUserProfile::resolveHomeProfile en servidor.
+     */
+    const resolveHomeProfile = function (user) {
+        if (!user) {
+            return 'gestion';
+        }
+
+        if (user.isAdmin()) {
+            return 'gestion';
+        }
+
+        const profile = getProfileForUser(user);
+
+        if (profile && profile.homeProfile) {
+            return profile.homeProfile;
+        }
+
+        if (
+            profileLoaded
+            && profileUserId === getCurrentUserId(user)
+            && serverProfile
+            && serverProfile.homeProfile
+        ) {
+            return serverProfile.homeProfile;
+        }
+
+        if (hasRole(user, ROLE_RADICACION)) {
+            return 'radicacion';
+        }
+
+        if (hasRole(user, ROLE_ASIGNADOR)) {
+            return 'asignador';
+        }
+
+        if (hasRole(user, ROLE_PATRULLERO)) {
+            return 'patrullero';
+        }
+
+        if (hasRole(user, ROLE_INSPECCION)) {
+            return 'gestion';
+        }
+
+        if (profile && profile.isRadicacion) {
+            return 'radicacion';
+        }
+
+        if (profile && profile.isAsignador) {
+            return 'asignador';
+        }
+
+        if (profile && profile.isPatrullero) {
+            return 'patrullero';
+        }
+
+        if (profile && profile.isInspeccion) {
+            return 'gestion';
+        }
+
+        return 'gestion';
+    };
+
+    const isOperationalRadicacionUser = function (user) {
+        if (!user || user.isAdmin()) {
+            return false;
+        }
+
+        if (hasRole(user, ROLE_RADICACION)) {
+            return true;
+        }
+
+        if (resolveHomeProfile(user) === 'radicacion') {
+            return true;
+        }
+
+        const profile = getProfileForUser(user);
+
+        if (profile && profile.isRadicacion) {
+            return true;
+        }
+
+        if (
+            profileLoaded
+            && profileUserId === getCurrentUserId(user)
+            && serverProfile
+            && serverProfile.isRadicacion
+        ) {
+            return true;
+        }
+
+        if (!profileLoaded) {
+            ensureProfile(user);
+        }
+
+        return false;
+    };
+
     const getProfileForUser = function (user) {
         const userId = getCurrentUserId(user);
 
@@ -416,6 +513,8 @@ define('custom:helpers/radicacion-fields', [], function () {
         onProfileReady: onProfileReady,
         hasRole: hasRole,
         getAssignedRoleNames: getAssignedRoleNames,
+        resolveHomeProfile: resolveHomeProfile,
+        isOperationalRadicacionUser: isOperationalRadicacionUser,
         isRadicacionUser: isRadicacionUser,
         isInspeccionUser: isInspeccionUser,
         isAsignadorUser: isAsignadorUser,

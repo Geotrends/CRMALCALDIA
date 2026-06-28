@@ -5,15 +5,7 @@ define('custom:helpers/radicacion-edit-mode', [
     const STORAGE_KEY = 'crm-case-radicar-mode';
 
     const isPureRadicacionUser = function (user) {
-        if (!user || user.isAdmin()) {
-            return false;
-        }
-
-        if (RadicacionFields.isInspeccionUser(user)) {
-            return false;
-        }
-
-        return RadicacionFields.isRadicacionUser(user);
+        return RadicacionFields.isOperationalRadicacionUser(user);
     };
 
     const activateRadicarMode = function (caseId) {

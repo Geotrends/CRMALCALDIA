@@ -20,7 +20,7 @@
         }
 
         Espo.loader.require('custom:helpers/radicacion-fields', function (RadicacionFields) {
-            RadicacionFields.syncProfileForUser(user);
+            RadicacionFields.ensureProfile(user);
         });
     }
 

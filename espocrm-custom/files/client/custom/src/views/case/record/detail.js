@@ -309,14 +309,21 @@ define('custom:views/case/record/detail', [
         applyDetailActionLabels: function () {
             const user = this.getUser();
             const model = this.model;
-            const $editBtn = this.findPrimaryActionButton('edit');
 
             if (!model || !model.id) {
                 return;
             }
 
-            // Edwin: el botón Editar se muestra como Radicar y abre el formulario restringido.
+            const $editBtn = this.findPrimaryActionButton('edit');
+
+            // Edwin / Radicación: botón Radicar → edit?radicar=1
             if (RadicacionEditMode.isPureRadicacionUser(user)) {
+                this.$el.find('.detail-button-container, .edit-buttons').removeClass('hidden').show();
+                this.getDetailActionElements()
+                    .find('.detail-button-container, .edit-buttons')
+                    .removeClass('hidden')
+                    .show();
+
                 if ($editBtn.length) {
                     $editBtn.show();
                     this.setPrimaryActionButtonLabel(
@@ -332,6 +339,10 @@ define('custom:views/case/record/detail', [
             if (this._radicarButtonAdded) {
                 this.safeRemoveMenuItem('radicarCaso');
                 this._radicarButtonAdded = false;
+            }
+
+            if (!$editBtn.length) {
+                return;
             }
 
             // Julian: solo asignar.
@@ -390,13 +401,30 @@ define('custom:views/case/record/detail', [
         },
 
         findPrimaryActionButton: function (action) {
-            return this.getDetailActionElements()
+            let $action = this.getDetailActionElements()
                 .find('[data-action="' + action + '"]')
                 .filter(function () {
                     return $(this).closest('.dropdown-menu').length === 0;
                 })
-                .closest('.btn, a.btn, .dropdown-item, li')
                 .first();
+
+            if (!$action.length) {
+                $action = $(document).find(
+                    '.header-buttons [data-action="' + action + '"], ' +
+                    '.detail-button-container [data-action="' + action + '"], ' +
+                    '.page-header [data-action="' + action + '"]'
+                ).filter(function () {
+                    return $(this).closest('.dropdown-menu').length === 0;
+                }).first();
+            }
+
+            if (!$action.length) {
+                return $();
+            }
+
+            const $btn = $action.closest('.btn, a.btn, .dropdown-item, li').first();
+
+            return $btn.length ? $btn : $action;
         },
 
         getCaseEditUrl: function () {

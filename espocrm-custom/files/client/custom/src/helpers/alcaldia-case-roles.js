@@ -14,13 +14,19 @@ define('custom:helpers/alcaldia-case-roles', [
             return false;
         }
 
-        if (!RadicacionFields.isInspeccionUser(user)) {
+        if (RadicacionFields.isOperationalRadicacionUser(user)) {
             return false;
         }
 
-        return !RadicacionEditMode.isPureRadicacionUser(user)
-            && !AsignadorEditMode.isPureAsignadorUser(user)
-            && !PatrulleroActa.isPurePatrulleroUser(user);
+        if (AsignadorEditMode.isPureAsignadorUser(user)) {
+            return false;
+        }
+
+        if (PatrulleroActa.isPurePatrulleroUser(user)) {
+            return false;
+        }
+
+        return RadicacionFields.isInspeccionUser(user);
     };
 
     return {
