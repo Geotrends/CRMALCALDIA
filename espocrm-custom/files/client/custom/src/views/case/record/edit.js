@@ -411,7 +411,7 @@ define('custom:views/case/record/edit', [
             }, this);
 
             if (
-                RadicacionFields.isRadicacionUser(this.getUser())
+                RadicacionFields.isOperationalRadicacionUser(this.getUser())
                 || RadicacionEditMode.isRadicacionEditSession(this)
             ) {
                 if (
@@ -433,6 +433,10 @@ define('custom:views/case/record/edit', [
                 RadicacionFields.RADICADO_ALL_FIELDS.forEach((field) => {
                     data[field] = this.model.get(field);
                 });
+            }
+
+            if (this.model.isNew() && !RadicacionFields.isOperationalRadicacionUser(this.getUser())) {
+                RadicacionFields.omitRadicadoFromData(data);
             }
 
             return data;
@@ -718,14 +722,14 @@ define('custom:views/case/record/edit', [
                 PersonaTipoFields.clearInfractorFields(this);
             }
 
-            if (this.model.isNew() && !RadicacionFields.isRadicacionUser(this.getUser())) {
+            if (this.model.isNew() && !RadicacionFields.isOperationalRadicacionUser(this.getUser())) {
                 RadicacionFields.stripRadicadoFromModel(this.model);
 
                 return;
             }
 
             if (
-                !RadicacionFields.isRadicacionUser(this.getUser())
+                !RadicacionFields.isOperationalRadicacionUser(this.getUser())
                 && !RadicacionEditMode.isRadicacionEditSession(this)
             ) {
                 return;

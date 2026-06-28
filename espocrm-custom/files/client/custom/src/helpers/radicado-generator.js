@@ -9,7 +9,7 @@ define('custom:helpers/radicado-generator', [
     let fetchRequest = null;
 
     const canUseAssistant = function (recordView) {
-        return RadicacionFields.isRadicacionUser(recordView.getUser());
+        return RadicacionFields.isOperationalRadicacionUser(recordView.getUser());
     };
 
     const applyDefaults = function (model) {

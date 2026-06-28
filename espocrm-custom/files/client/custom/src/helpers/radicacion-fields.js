@@ -626,10 +626,26 @@ define('custom:helpers/radicacion-fields', [], function () {
         }
 
         RADICADO_ALL_FIELDS.forEach(function (field) {
-            if (model.get(field)) {
+            if (typeof model.unset === 'function') {
+                model.unset(field, {silent: true});
+            } else {
                 model.set(field, null, {silent: true});
             }
         });
+    };
+
+    const omitRadicadoFromData = function (data) {
+        if (!data) {
+            return data;
+        }
+
+        RADICADO_ALL_FIELDS.forEach(function (field) {
+            if (Object.prototype.hasOwnProperty.call(data, field)) {
+                delete data[field];
+            }
+        });
+
+        return data;
     };
 
     return {
@@ -665,5 +681,6 @@ define('custom:helpers/radicacion-fields', [], function () {
         hasRadicadoMetadataChanged: hasRadicadoMetadataChanged,
         shouldMutateRadicadoPreview: shouldMutateRadicadoPreview,
         stripRadicadoFromModel: stripRadicadoFromModel,
+        omitRadicadoFromData: omitRadicadoFromData,
     };
 });
