@@ -584,7 +584,7 @@ define('custom:views/case/record/edit', [
         },
 
         scheduleInspeccionEditAccess: function () {
-            if (!AlcaldiaCaseRoles.isGestionInspeccionUser(this.getUser())) {
+            if (!RadicacionFields.isInspeccionUser(this.getUser())) {
                 return;
             }
 
@@ -592,7 +592,7 @@ define('custom:views/case/record/edit', [
 
             [150, 450, 900].forEach(function (delay) {
                 window.setTimeout(function () {
-                    if (!self.isEditMode || !self.isEditMode()) {
+                    if (!self.isRendered || !self.isRendered()) {
                         return;
                     }
 
@@ -606,7 +606,7 @@ define('custom:views/case/record/edit', [
                 return;
             }
 
-            if (!AlcaldiaCaseRoles.isGestionInspeccionUser(this.getUser())) {
+            if (!RadicacionFields.isInspeccionUser(this.getUser())) {
                 return;
             }
 
@@ -621,22 +621,7 @@ define('custom:views/case/record/edit', [
                 return;
             }
 
-            const unlockFields = [
-                'cRecursoTema',
-                'cAsunto',
-                'cZonaAlcaldiaPeticionario',
-                RadicacionFields.FECHA_VENCIMIENTO_FIELD,
-                'cUltimaActuacion',
-                'cProximaActuacion',
-            ];
-
-            unlockFields.forEach((field) => {
-                const view = this.getFieldView(field);
-
-                if (view && typeof view.setNotReadOnly === 'function') {
-                    view.setNotReadOnly();
-                }
-            });
+            InspeccionRegistroExcel.ensureEditable(this);
         },
 
         toggleRadicacionFields: function () {

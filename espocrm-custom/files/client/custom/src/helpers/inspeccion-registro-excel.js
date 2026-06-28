@@ -3,8 +3,7 @@ define('custom:helpers/inspeccion-registro-excel', [
     'custom:helpers/radicacion-edit-mode',
     'custom:helpers/asignador-edit-mode',
     'custom:helpers/patrullero-acta',
-    'custom:helpers/alcaldia-case-roles',
-], function (RadicacionFields, RadicacionEditMode, AsignadorEditMode, PatrulleroActa, AlcaldiaCaseRoles) {
+], function (RadicacionFields, RadicacionEditMode, AsignadorEditMode, PatrulleroActa) {
 
     const PANEL_NAME = 'registroExcelAlcaldia';
 
@@ -18,19 +17,27 @@ define('custom:helpers/inspeccion-registro-excel', [
     ];
 
     const canEditRegistroExcelFields = function (user, recordView) {
-        if (recordView && RadicacionEditMode.isPureRadicacionUser(user)) {
+        if (!user) {
             return false;
         }
 
-        if (recordView && AsignadorEditMode.isPureAsignadorUser(user)) {
+        if (recordView && RadicacionEditMode.isRadicacionOnlyEdit(recordView)) {
             return false;
         }
 
-        if (recordView && PatrulleroActa.isPurePatrulleroUser(user)) {
+        if (PatrulleroActa.isPurePatrulleroUser(user)) {
             return false;
         }
 
-        return AlcaldiaCaseRoles.isGestionInspeccionUser(user);
+        if (AsignadorEditMode.isPureAsignadorUser(user)) {
+            return false;
+        }
+
+        if (RadicacionEditMode.isPureRadicacionUser(user) && !RadicacionFields.isInspeccionUser(user)) {
+            return false;
+        }
+
+        return RadicacionFields.isInspeccionUser(user);
     };
 
     const canViewRegistroExcelFields = function (user) {
@@ -51,6 +58,38 @@ define('custom:helpers/inspeccion-registro-excel', [
         });
     };
 
+    const forceFieldEditable = function (fieldView, recordView) {
+        if (!fieldView) {
+            return;
+        }
+
+        fieldView.readOnly = false;
+
+        if (typeof fieldView.setNotReadOnly === 'function') {
+            fieldView.setNotReadOnly();
+        }
+
+        const isDetailRecord = recordView
+            && typeof recordView.isEditMode === 'function'
+            && !recordView.isEditMode()
+            && fieldView.mode === 'detail';
+
+        if (isDetailRecord && typeof fieldView.reRender === 'function') {
+            fieldView.mode = 'edit';
+            fieldView.reRender();
+        }
+
+        if (!fieldView.$el) {
+            return;
+        }
+
+        fieldView.$el.removeClass('field-readonly');
+        fieldView.$el.find('input, select, textarea, button').prop('disabled', false).removeAttr('readonly');
+        fieldView.$el.find(
+            '[data-action="editLink"], [data-action="selectLink"], [data-action="quickCreate"]'
+        ).closest('.btn, a, .input-group-btn, .link-container').show();
+    };
+
     const applyEditAccess = function (recordView, editFields) {
         REGISTRO_EXCEL_FIELDS.forEach(function (field) {
             const fieldView = recordView.getFieldView(field);
@@ -59,11 +98,27 @@ define('custom:helpers/inspeccion-registro-excel', [
                 return;
             }
 
-            if (editFields && typeof fieldView.setNotReadOnly === 'function') {
-                fieldView.setNotReadOnly();
+            if (editFields) {
+                forceFieldEditable(fieldView, recordView);
             } else if (typeof fieldView.setReadOnly === 'function') {
                 fieldView.setReadOnly();
             }
+        });
+    };
+
+    const scheduleEditable = function (recordView, editFields) {
+        if (!editFields) {
+            return;
+        }
+
+        [0, 120, 350, 900].forEach(function (delay) {
+            window.setTimeout(function () {
+                if (!recordView.isRendered || !recordView.isRendered()) {
+                    return;
+                }
+
+                applyEditAccess(recordView, editFields);
+            }, delay);
         });
     };
 
@@ -82,28 +137,24 @@ define('custom:helpers/inspeccion-registro-excel', [
         }
 
         applyFieldVisibility(recordView, showFields);
+        applyEditAccess(recordView, editFields);
+        scheduleEditable(recordView, editFields);
+    };
 
-        const isEditMode = recordView.isEditMode
-            && typeof recordView.isEditMode === 'function'
-            && recordView.isEditMode();
+    const ensureEditable = function (recordView) {
+        if (!recordView) {
+            return;
+        }
 
-        if (!isEditMode) {
+        const user = recordView.getUser();
+        const editFields = canEditRegistroExcelFields(user, recordView);
+
+        if (!editFields) {
             return;
         }
 
         applyEditAccess(recordView, editFields);
-
-        window.setTimeout(function () {
-            if (
-                !recordView.isEditMode
-                || typeof recordView.isEditMode !== 'function'
-                || !recordView.isEditMode()
-            ) {
-                return;
-            }
-
-            applyEditAccess(recordView, editFields);
-        }, 100);
+        scheduleEditable(recordView, editFields);
     };
 
     return {
@@ -112,6 +163,8 @@ define('custom:helpers/inspeccion-registro-excel', [
         INSPECTOR_ONLY_FIELDS: REGISTRO_EXCEL_FIELDS,
         RECURSO_TEMA_FIELD: 'cRecursoTema',
         canEditRecursoTema: canEditRegistroExcelFields,
+        canEditRegistroExcelFields: canEditRegistroExcelFields,
         togglePanel: togglePanel,
+        ensureEditable: ensureEditable,
     };
 });

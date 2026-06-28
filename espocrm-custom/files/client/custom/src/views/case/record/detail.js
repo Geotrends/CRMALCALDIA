@@ -138,7 +138,27 @@ define('custom:views/case/record/detail', [
             this.toggleActuoArchivoPanels();
             AsignadorEditMode.applyDetailReadOnly(this);
             PatrulleroEditMode.applyDetailReadOnly(this);
+            this.applyInspeccionRegistroExcelAccess();
             RadicacionEditMode.hideNonRadicacionPanels(this);
+        },
+
+        applyInspeccionRegistroExcelAccess: function () {
+            if (!RadicacionFields.isInspeccionUser(this.getUser())) {
+                return;
+            }
+
+            const user = this.getUser();
+            const model = this.model;
+
+            if (
+                InspeccionActa.shouldShowActaRevision(user, model)
+                || InspeccionActa.shouldFinalizeCaseStatus(user, model)
+                || InspeccionActa.shouldShowActoCierre(user, model)
+            ) {
+                return;
+            }
+
+            InspeccionRegistroExcel.ensureEditable(this);
         },
 
         configureRadicacionDetailMenu: function () {
@@ -884,6 +904,21 @@ define('custom:views/case/record/detail', [
 
             this.scheduleRefreshActaVisitaPanel();
             this.scheduleRefreshFormatoGeneradoDocs();
+            this.scheduleInspeccionRegistroExcelAccess();
+        },
+
+        scheduleInspeccionRegistroExcelAccess: function () {
+            const self = this;
+
+            RadicacionFields.onProfileReady(function () {
+                if (!self.isRendered || !self.isRendered()) {
+                    return;
+                }
+
+                self.applyInspeccionRegistroExcelAccess();
+            });
+
+            this.applyInspeccionRegistroExcelAccess();
         },
 
         scheduleRefreshFormatoGeneradoDocs: function () {
