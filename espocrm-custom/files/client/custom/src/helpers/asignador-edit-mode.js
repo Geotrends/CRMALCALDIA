@@ -226,8 +226,16 @@ define('custom:helpers/asignador-edit-mode', [
         return true;
     };
 
+    const isAssignmentEditing = function (recordView) {
+        if (!recordView) {
+            return false;
+        }
+
+        return isAsignarMode(recordView) || !!recordView._asignacionEditMode;
+    };
+
     const ensureAssignedUserEditable = function (recordView) {
-        if (!recordView || !isAsignarMode(recordView)) {
+        if (!recordView || !isAssignmentEditing(recordView)) {
             return;
         }
 
@@ -307,11 +315,12 @@ define('custom:helpers/asignador-edit-mode', [
                 .closest('.btn, .dropdown-item, li')
                 .hide();
 
-            if (typeof recordView.enableAsignacionFields === 'function') {
+            if (typeof recordView.applyAsignacionFieldAccess === 'function') {
+                recordView.applyAsignacionFieldAccess();
+            } else if (typeof recordView.enableAsignacionFields === 'function') {
                 recordView.enableAsignacionFields();
+                lockAllFieldViewsExcept(recordView, getEditableFields(recordView));
             }
-
-            lockAllFieldViewsExcept(recordView, getEditableFields(recordView));
 
             return;
         }

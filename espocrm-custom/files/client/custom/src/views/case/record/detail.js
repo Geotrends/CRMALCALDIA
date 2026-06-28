@@ -18,9 +18,10 @@ define('custom:views/case/record/detail', [
     'custom:helpers/case-detail-panels',
     'custom:helpers/radicacion-edit-mode',
     'custom:helpers/asignador-edit-mode',
+    'custom:helpers/asignacion-assignment-panel',
     'custom:helpers/patrullero-edit-mode',
     'custom:helpers/alcaldia-case-roles',
-], function (Dep, PatrulleroActa, InspeccionActa, RadicacionFields, PostRadicacionFields, ActaVisitaModal, ActaVisitaCaseStatus, InspeccionActuoArchivo, ActuoArchivoModal, ActuoArchivoCaseStatus, PersonaTipoFields, RadicadoGenerator, RadicadoAssistantPanel, InspeccionRegistroExcel, InspeccionEditMode, CaseDocumentos, CaseDetailPanels, RadicacionEditMode, AsignadorEditMode, PatrulleroEditMode, AlcaldiaCaseRoles) {
+], function (Dep, PatrulleroActa, InspeccionActa, RadicacionFields, PostRadicacionFields, ActaVisitaModal, ActaVisitaCaseStatus, InspeccionActuoArchivo, ActuoArchivoModal, ActuoArchivoCaseStatus, PersonaTipoFields, RadicadoGenerator, RadicadoAssistantPanel, InspeccionRegistroExcel, InspeccionEditMode, CaseDocumentos, CaseDetailPanels, RadicacionEditMode, AsignadorEditMode, AsignacionAssignmentPanel, PatrulleroEditMode, AlcaldiaCaseRoles) {
 
     return Dep.extend({
 
@@ -113,7 +114,7 @@ define('custom:views/case/record/detail', [
                     ActuoArchivoCaseStatus.invalidateCache(this.model.id);
                 }
 
-                if (this.isRendered()) {
+                if (this.isRendered() && !this._asignacionEditMode) {
                     this.scheduleRoleAwareUi();
                 }
             });
@@ -161,7 +162,7 @@ define('custom:views/case/record/detail', [
             }
 
             if (this._asignacionEditMode && this.isAsignadorOperator()) {
-                this.enableAsignacionFields();
+                this.applyAsignacionFieldAccess();
                 this.updateAsignacionActionButtons();
 
                 return;
@@ -472,7 +473,8 @@ define('custom:views/case/record/detail', [
             this._asignacionEditMode = true;
             this.findPanel('gestionPosteriorRadicacion').show();
             AsignadorEditMode.moveAssignmentPanelToTop(this);
-            this.enableAsignacionFields();
+            this.applyAsignacionFieldAccess();
+            this.scheduleAsignacionFieldAccess();
             this.updateAsignacionActionButtons();
 
             window.setTimeout(function () {
@@ -508,6 +510,85 @@ define('custom:views/case/record/detail', [
             }
 
             return fields;
+        },
+
+        setReadOnly: function () {
+            if (this._asignacionEditMode && this.isAsignadorOperator()) {
+                this.applyAsignacionFieldAccess();
+
+                return;
+            }
+
+            Dep.prototype.setReadOnly.apply(this, arguments);
+        },
+
+        setReadOnlyExcept: function (editableFields) {
+            const editable = (editableFields || []).slice();
+            const fieldViews = typeof this.getFieldViews === 'function'
+                ? this.getFieldViews()
+                : {};
+
+            Object.keys(fieldViews).forEach(function (field) {
+                const view = fieldViews[field];
+
+                if (!view) {
+                    return;
+                }
+
+                if (editable.indexOf(field) !== -1) {
+                    view.readOnly = false;
+
+                    if (typeof view.setNotReadOnly === 'function') {
+                        view.setNotReadOnly();
+                    }
+
+                    return;
+                }
+
+                if (typeof view.setReadOnly === 'function') {
+                    view.setReadOnly();
+                }
+            });
+        },
+
+        applyAsignacionFieldAccess: function () {
+            if (!this._asignacionEditMode || !this.isAsignadorOperator()) {
+                return;
+            }
+
+            const editableFields = this.getAsignacionEditableFields();
+
+            this.findPanel('gestionPosteriorRadicacion').show();
+            AsignadorEditMode.moveAssignmentPanelToTop(this);
+            this.$el.find('[data-name="assignedUser"], [data-name="cMotivoReasignacion"]')
+                .closest('.cell, .field')
+                .show()
+                .removeClass('hidden');
+
+            this.setReadOnlyExcept(editableFields);
+            AsignadorEditMode.lockAllFieldViewsExcept(this, editableFields);
+            this.enableAsignacionFields();
+            AsignadorEditMode.ensureAssignedUserEditable(this);
+
+            if (!this.getFieldView('assignedUser')) {
+                AsignacionAssignmentPanel.mount(this, {force: true});
+            }
+        },
+
+        scheduleAsignacionFieldAccess: function () {
+            if (!this._asignacionEditMode) {
+                return;
+            }
+
+            [120, 350, 700].forEach((delay) => {
+                window.setTimeout(() => {
+                    if (!this.isRendered || !this.isRendered() || !this._asignacionEditMode) {
+                        return;
+                    }
+
+                    this.applyAsignacionFieldAccess();
+                }, delay);
+            });
         },
 
         enableAsignacionFields: function () {
@@ -1201,7 +1282,7 @@ define('custom:views/case/record/detail', [
             }
 
             if (this._asignacionEditMode) {
-                this.enableAsignacionFields();
+                this.applyAsignacionFieldAccess();
             } else {
                 this.toggleAsignacionMotivoField();
             }
