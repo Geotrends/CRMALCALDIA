@@ -46,8 +46,22 @@ define('custom:helpers/inspeccion-edit-mode', [
             || RadicacionFields.isInspeccionUser(user);
     };
 
+    const isDetailRecordView = function (recordView) {
+        return recordView
+            && typeof recordView.isEditMode === 'function'
+            && !recordView.isEditMode();
+    };
+
+    const isRadicadoField = function (field) {
+        return RadicacionFields.RADICADO_ALL_FIELDS.indexOf(field) !== -1;
+    };
+
     const forceFieldEditable = function (fieldView, recordView) {
         if (!fieldView) {
+            return;
+        }
+
+        if (isRadicadoField(fieldView.name)) {
             return;
         }
 
@@ -57,15 +71,11 @@ define('custom:helpers/inspeccion-edit-mode', [
             fieldView.setNotReadOnly();
         }
 
-        const isDetailRecord = recordView
-            && typeof recordView.isEditMode === 'function'
-            && !recordView.isEditMode()
-            && fieldView.mode === 'detail';
-
-        if (isDetailRecord && typeof fieldView.reRender === 'function') {
-            fieldView.mode = 'edit';
-            fieldView.reRender();
+        if (isDetailRecordView(recordView)) {
+            return;
         }
+
+        fieldView.mode = 'edit';
 
         if (!fieldView.$el) {
             return;

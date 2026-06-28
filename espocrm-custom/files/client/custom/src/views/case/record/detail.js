@@ -192,6 +192,10 @@ define('custom:views/case/record/detail', [
                 return;
             }
 
+            if (typeof this.isEditMode !== 'function' || !this.isEditMode()) {
+                return;
+            }
+
             InspeccionEditMode.ensureFullCaseEditable(this);
         },
 

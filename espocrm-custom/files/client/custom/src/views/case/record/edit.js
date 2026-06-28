@@ -262,6 +262,13 @@ define('custom:views/case/record/edit', [
         save: function (options) {
             options = options || {};
 
+            if (
+                InspeccionEditMode.canEditFullCase(this.getUser(), this)
+                && !RadicacionEditMode.isRadicacionOnlyEdit(this)
+            ) {
+                InspeccionEditMode.ensureFullCaseEditable(this);
+            }
+
             const messageMode = options.saveMessageMode || 'default';
             const saveOptions = _.omit(options, 'saveMessageMode');
             let saveTimeoutId = null;
@@ -381,33 +388,26 @@ define('custom:views/case/record/edit', [
                 this.model.get('cTipoPersonaPerjudicante')
             );
             const fieldViews = this.getFieldViews();
+            const inspeccionFullEdit = InspeccionEditMode.canEditFullCase(this.getUser(), this)
+                && !RadicacionEditMode.isRadicacionOnlyEdit(this);
 
             _.each(fieldViews, function (view) {
                 if (skipInfractor && PersonaTipoFields.INFRACTOR_DETAIL_FIELDS.indexOf(view.name) !== -1) {
                     return;
                 }
 
-                if (!view.isEditMode() || view.disabled || view.readOnly || !view.isFullyRendered()) {
+                const relaxedFetch = inspeccionFullEdit
+                    && RadicacionFields.RADICADO_ALL_FIELDS.indexOf(view.name) === -1;
+
+                if (!relaxedFetch) {
+                    if (!view.isEditMode() || view.disabled || view.readOnly || !view.isFullyRendered()) {
+                        return;
+                    }
+                } else if (!view || typeof view.fetch !== 'function') {
                     return;
                 }
 
-                if (typeof view.fetch !== 'function') {
-                    return;
-                }
-
-                try {
-                    const part = view.fetch();
-
-                    if (part && typeof part === 'object') {
-                        _.extend(data, part);
-                    }
-                } catch (error) {
-                    if (view.name) {
-                        const current = this.model.get(view.name);
-
-                        data[view.name] = current === undefined ? null : current;
-                    }
-                }
+                this.fetchFieldValue(view, data);
             }, this);
 
             if (
@@ -711,6 +711,26 @@ define('custom:views/case/record/edit', [
                     view.setReadOnly();
                 }
             });
+        },
+
+        fetchFieldValue: function (view, data) {
+            if (!view || typeof view.fetch !== 'function') {
+                return;
+            }
+
+            try {
+                const part = view.fetch();
+
+                if (part && typeof part === 'object') {
+                    _.extend(data, part);
+                }
+            } catch (error) {
+                if (view.name) {
+                    const current = this.model.get(view.name);
+
+                    data[view.name] = current === undefined ? null : current;
+                }
+            }
         },
 
         prepareModelForSave: function () {
