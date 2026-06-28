@@ -66,7 +66,9 @@ define('custom:views/case/record/detail', [
             this._actaVisitaButtonAdded = false;
             this._actuoArchivoButtonAdded = false;
             this._radicarButtonAdded = false;
-            this._asignarButtonAdded = false;
+            this._cancelAsignacionAdded = false;
+            this._asignacionEditMode = false;
+            this._initialAssignedUserId = this.model.get('assignedUserId') || null;
 
             this.listenTo(this.model, 'change', function () {
                 this.toggleActaPanels();
@@ -142,56 +144,14 @@ define('custom:views/case/record/detail', [
                 this._radicarButtonAdded = false;
             }
 
-            this.configureAsignadorDetailMenu();
             this.updateDetailActionLabels();
         },
 
-        configureAsignadorDetailMenu: function () {
-            const user = this.getUser();
-            const model = this.model;
+        isAsignadorOperator: function (user) {
+            user = user || this.getUser();
 
-            if (!AsignadorEditMode.isPureAsignadorUser(user) && !RadicacionFields.canAssignCase(user)) {
-                if (this._asignarButtonAdded) {
-                    this.safeRemoveMenuItem('asignarCaso');
-                    this._asignarButtonAdded = false;
-                }
-
-                return;
-            }
-
-            if (!model || !model.id || !PostRadicacionFields.isCasePostRadicado(model)) {
-                return;
-            }
-
-            this.$el.find('[data-action="delete"], [data-action="remove"]')
-                .closest('.btn, .dropdown-item, li')
-                .hide();
-
-            const $editBtn = this.findPrimaryActionButton('edit');
-
-            if ($editBtn.length) {
-                $editBtn.show();
-                this.setPrimaryActionButtonLabel(
-                    $editBtn,
-                    this.translate('asignarCaso', 'labels', 'Case')
-                );
-                this.setPrimaryActionButtonAction($editBtn, 'asignarCaso');
-                this.setPrimaryActionButtonHref($editBtn, AsignadorEditMode.getCaseAsignarUrl(this));
-            }
-
-            if (this._asignarButtonAdded) {
-                this.safeRemoveMenuItem('asignarCaso');
-                this._asignarButtonAdded = false;
-            }
-
-            if (this.safeAddMenuItem({
-                label: this.translate('asignarCaso', 'labels', 'Case'),
-                name: 'asignarCaso',
-                action: 'asignarCaso',
-                style: 'primary',
-            })) {
-                this._asignarButtonAdded = true;
-            }
+            return AsignadorEditMode.isPureAsignadorUser(user)
+                || RadicacionFields.canAssignCase(user);
         },
 
         dispatchRadicarCase: function () {
@@ -377,7 +337,13 @@ define('custom:views/case/record/detail', [
                     RadicacionFields.canAssignCase(self.getUser())
                     || AsignadorEditMode.isPureAsignadorUser(self.getUser())
                 ) {
-                    self.dispatchAsignarCase();
+                    if (self._asignacionEditMode) {
+                        self.actionSaveAsignacion();
+
+                        return;
+                    }
+
+                    self.enterAsignacionEditMode();
 
                     return;
                 }
@@ -386,102 +352,242 @@ define('custom:views/case/record/detail', [
             });
         },
 
+        actionSaveAsignacion: function () {
+            this.saveAsignacionEdit();
+        },
+
+        actionCancelAsignacion: function () {
+            this.cancelAsignacionEdit();
+        },
+
         actionRadicarCaso: function () {
             this.dispatchRadicarCase();
         },
 
-        actionAsignarCaso: function () {
-            this.dispatchAsignarCase();
-        },
-
-        dispatchAsignarCase: function () {
+        enterAsignacionEditMode: function () {
             const self = this;
-            const id = this.model && this.model.id;
 
-            if (!id) {
+            if (!PostRadicacionFields.isCasePostRadicado(this.model)) {
+                if (!this.model || typeof this.model.fetch !== 'function') {
+                    Espo.Ui.warning(this.translate('asignadorCaseNotReady', 'messages', 'Case'));
+
+                    return;
+                }
+
+                this.model.fetch({
+                    select: ['cNumeroRadicado', 'cExpediente', 'assignedUserId', 'assignedUserName', 'cMotivoReasignacion'],
+                }).then(function () {
+                    self.enterAsignacionEditMode();
+                }).catch(function () {
+                    Espo.Ui.warning(self.translate('asignadorCaseNotReady', 'messages', 'Case'));
+                });
+
                 return;
             }
 
-            const scrollToPanel = function () {
-                const $panel = self.findPanel('gestionPosteriorRadicacion');
-
-                if (!$panel.length) {
-                    return false;
-                }
-
-                $panel.show();
-
-                window.setTimeout(function () {
-                    const top = $panel.offset() ? $panel.offset().top - 90 : 0;
-
-                    $('html, body').animate({scrollTop: top}, 250);
-
-                    const $select = $panel.find(
-                        '[data-action="selectLink"], [data-action="editLink"], input, .link-container'
-                    ).filter(':visible').first();
-
-                    if ($select.length) {
-                        $select.trigger('focus');
-                    }
-                }, 120);
-
-                return true;
+            this._asignacionBackup = {
+                assignedUserId: this.model.get('assignedUserId'),
+                assignedUserName: this.model.get('assignedUserName'),
+                cMotivoReasignacion: this.model.get('cMotivoReasignacion'),
             };
 
-            RadicacionFields.ensureProfile(this.getUser()).then(function () {
-                if (
-                    !RadicacionFields.canAssignCase(self.getUser())
-                    && !AsignadorEditMode.isPureAsignadorUser(self.getUser())
-                ) {
-                    Espo.Ui.warning(self.translate('Access denied', 'messages'));
+            this._asignacionEditMode = true;
+            this.findPanel('gestionPosteriorRadicacion').show();
+            AsignadorEditMode.moveAssignmentPanelToTop(this);
+            this.enableAsignacionFields();
+            this.updateAsignacionActionButtons();
 
+            window.setTimeout(function () {
+                const $panel = self.findPanel('gestionPosteriorRadicacion');
+                const top = $panel.offset() ? $panel.offset().top - 90 : 0;
+
+                $('html, body').animate({scrollTop: top}, 250);
+            }, 120);
+        },
+
+        exitAsignacionEditMode: function () {
+            this._asignacionEditMode = false;
+
+            if (this._cancelAsignacionAdded) {
+                this.safeRemoveMenuItem('cancelAsignacion');
+                this._cancelAsignacionAdded = false;
+            }
+
+            this.updateAsignacionActionButtons();
+            AsignadorEditMode.applyDetailReadOnly(this);
+            this.togglePostRadicacionFields();
+        },
+
+        getAsignacionEditableFields: function () {
+            const fields = ['assignedUser'];
+
+            if (PostRadicacionFields.shouldShowMotivoReasignacion(
+                this.getUser(),
+                this.model,
+                this._initialAssignedUserId
+            )) {
+                fields.push('cMotivoReasignacion');
+            }
+
+            return fields;
+        },
+
+        enableAsignacionFields: function () {
+            this.getAsignacionEditableFields().forEach((field) => {
+                const view = this.getFieldView(field);
+
+                if (!view) {
                     return;
                 }
 
-                const ensureFields = function () {
-                    if (PostRadicacionFields.isCasePostRadicado(self.model)) {
-                        if (scrollToPanel()) {
-                            return;
-                        }
+                view.readOnly = false;
 
-                        Espo.Ui.warning(self.translate('asignadorCaseNotReady', 'messages', 'Case'));
+                if (typeof view.setNotReadOnly === 'function') {
+                    view.setNotReadOnly();
+                }
 
-                        return;
-                    }
-
-                    if (!self.model || typeof self.model.fetch !== 'function') {
-                        Espo.Ui.warning(self.translate('asignadorCaseNotReady', 'messages', 'Case'));
-
-                        return;
-                    }
-
-                    self.model.fetch({
-                        select: ['cNumeroRadicado', 'cExpediente', 'assignedUserId', 'assignedUserName'],
-                    }).then(function () {
-                        if (!PostRadicacionFields.isCasePostRadicado(self.model)) {
-                            Espo.Ui.warning(self.translate('asignadorCaseNotReady', 'messages', 'Case'));
-
-                            return;
-                        }
-
-                        self.refreshRoleAwareUi();
-
-                        if (!scrollToPanel()) {
-                            Espo.Ui.warning(self.translate('asignadorCaseNotReady', 'messages', 'Case'));
-                        }
-                    }).catch(function () {
-                        Espo.Ui.warning(self.translate('asignadorCaseNotReady', 'messages', 'Case'));
-                    });
-                };
-
-                ensureFields();
-            }).catch(function () {
-                if (scrollToPanel()) {
+                if (!view.$el) {
                     return;
                 }
 
-                Espo.Ui.warning(self.translate('asignadorCaseNotReady', 'messages', 'Case'));
+                view.$el.removeClass('field-readonly hidden');
+                view.$el.closest('.cell, .field').show().removeClass('hidden');
+                view.$el.find('input, select, textarea, button').prop('disabled', false).removeAttr('readonly');
+                view.$el.find(
+                    '[data-action="editLink"], [data-action="selectLink"], [data-action="quickCreate"]'
+                ).closest('.btn, a, .input-group-btn, .link-container').show();
             });
+
+            this.toggleAsignacionMotivoField();
+        },
+
+        toggleAsignacionMotivoField: function () {
+            let showMotivo = PostRadicacionFields.shouldShowMotivoReasignacion(
+                this.getUser(),
+                this.model,
+                this._initialAssignedUserId
+            );
+
+            if (!this._asignacionEditMode) {
+                showMotivo = showMotivo
+                    && !!String(this.model.get('cMotivoReasignacion') || '').trim();
+            }
+
+            const $motivoCell = this.$el.find('[data-name="cMotivoReasignacion"]').closest('.cell');
+
+            if ($motivoCell.length) {
+                $motivoCell.toggle(showMotivo);
+            }
+        },
+
+        syncAsignacionFields: function () {
+            this.getAsignacionEditableFields().forEach((field) => {
+                const view = this.getFieldView(field);
+
+                if (!view || typeof view.fetch !== 'function') {
+                    return;
+                }
+
+                this.model.set(view.fetch());
+            });
+        },
+
+        saveAsignacionEdit: function () {
+            this.syncAsignacionFields();
+
+            const assignedUserId = this.model.get('assignedUserId');
+
+            if (!assignedUserId) {
+                Espo.Ui.error(this.translate('validationRequired', 'messages')
+                    .replace('{field}', this.translate('assignedUser', 'fields', 'Case')));
+
+                return;
+            }
+
+            const data = {
+                assignedUserId: assignedUserId,
+                assignedUserName: this.model.get('assignedUserName'),
+            };
+
+            if (PostRadicacionFields.shouldShowMotivoReasignacion(
+                this.getUser(),
+                this.model,
+                this._initialAssignedUserId
+            )) {
+                const motivo = String(this.model.get('cMotivoReasignacion') || '').trim();
+
+                if (!motivo) {
+                    Espo.Ui.error(this.translate('validationRequired', 'messages')
+                        .replace('{field}', this.translate('cMotivoReasignacion', 'fields', 'Case')));
+
+                    return;
+                }
+
+                data.cMotivoReasignacion = motivo;
+            }
+
+            Espo.Ui.notify(this.translate('pleaseWait', 'messages'));
+
+            this.model.save(data, {patch: true}).then(() => {
+                Espo.Ui.notify(false);
+                Espo.Ui.success(this.translate('caseEditedSuccess', 'labels', 'Case'));
+                this._initialAssignedUserId = assignedUserId;
+                this.exitAsignacionEditMode();
+                this.model.fetch();
+            }).catch((error) => {
+                Espo.Ui.notify(false);
+
+                const message = (error && (error.message || error.statusText))
+                    || this.translate('Error');
+
+                Espo.Ui.error(message);
+            });
+        },
+
+        cancelAsignacionEdit: function () {
+            if (this._asignacionBackup) {
+                this.model.set(this._asignacionBackup, {silent: true});
+            }
+
+            this.exitAsignacionEditMode();
+        },
+
+        updateAsignacionActionButtons: function () {
+            if (!this.isAsignadorOperator()) {
+                return;
+            }
+
+            const $editBtn = this.findPrimaryActionButton('edit');
+
+            if (!$editBtn.length) {
+                return;
+            }
+
+            this.$el.find('[data-action="delete"], [data-action="remove"]')
+                .closest('.btn, .dropdown-item, li')
+                .hide();
+
+            if (this._asignacionEditMode) {
+                $editBtn.show();
+                this.setPrimaryActionButtonLabel($editBtn, this.translate('Save', 'labels', 'Global'));
+                this.setPrimaryActionButtonAction($editBtn, 'saveAsignacion');
+
+                if (!this._cancelAsignacionAdded) {
+                    if (this.safeAddMenuItem({
+                        label: this.translate('Cancel', 'labels', 'Global'),
+                        name: 'cancelAsignacion',
+                        action: 'cancelAsignacion',
+                    })) {
+                        this._cancelAsignacionAdded = true;
+                    }
+                }
+
+                return;
+            }
+
+            $editBtn.show();
+            this.setPrimaryActionButtonLabel($editBtn, this.translate('Edit', 'labels', 'Global'));
+            this.setPrimaryActionButtonAction($editBtn, 'edit');
         },
 
         updateDetailActionLabels: function () {
@@ -510,10 +616,6 @@ define('custom:views/case/record/detail', [
             }
 
             if (!$editBtn.length) {
-                if (AsignadorEditMode.isPureAsignadorUser(user) || RadicacionFields.canAssignCase(user)) {
-                    this.configureAsignadorDetailMenu();
-                }
-
                 return;
             }
 
@@ -540,22 +642,8 @@ define('custom:views/case/record/detail', [
 
             $('body').removeClass('alcaldia-radicacion-detail-ui');
 
-            // Julian: solo asignar.
-            if (AsignadorEditMode.isPureAsignadorUser(user) || RadicacionFields.canAssignCase(user)) {
-                if ($editBtn.length) {
-                    $editBtn.show();
-                    this.setPrimaryActionButtonLabel(
-                        $editBtn,
-                        this.translate('asignarCaso', 'labels', 'Case')
-                    );
-                    this.setPrimaryActionButtonAction($editBtn, 'asignarCaso');
-                    this.setPrimaryActionButtonHref(
-                        $editBtn,
-                        AsignadorEditMode.getCaseAsignarUrl(this)
-                    );
-                }
-
-                this.configureAsignadorDetailMenu();
+            if (this.isAsignadorOperator(user)) {
+                this.updateAsignacionActionButtons();
 
                 return;
             }
@@ -789,7 +877,7 @@ define('custom:views/case/record/detail', [
                     return false;
                 }
 
-                if (action === 'edit' || action === 'asignarCaso') {
+                if (action === 'edit' || action === 'asignarCaso' || action === 'saveAsignacion' || action === 'cancelAsignacion') {
                     return true;
                 }
             }
@@ -989,6 +1077,18 @@ define('custom:views/case/record/detail', [
 
             if (isPureAsignador && show) {
                 AsignadorEditMode.moveAssignmentPanelToTop(this);
+            }
+
+            const $cell = this.$el.find('[data-name="assignedUser"]').closest('.cell');
+
+            if ($cell.length) {
+                $cell.toggle(show);
+            }
+
+            if (this._asignacionEditMode) {
+                this.enableAsignacionFields();
+            } else {
+                this.toggleAsignacionMotivoField();
             }
         },
     });

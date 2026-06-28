@@ -241,7 +241,7 @@
 
             var target = event.target;
             var actionEl = target && target.closest
-                ? target.closest('[data-action="asignarCaso"], [data-action="edit"]')
+                ? target.closest('[data-action="asignarCaso"]')
                 : null;
 
             if (!actionEl || actionEl.closest('.dropdown-menu')) {

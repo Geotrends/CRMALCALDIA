@@ -794,13 +794,6 @@
             "readOnly": true,
             "utility": true,
             "isCustom": true
-        },
-        "cPanelAsignacionPatrullero": {
-            "type": "varchar",
-            "notStorable": true,
-            "readOnly": true,
-            "utility": true,
-            "isCustom": true
         }
     },
     "links": {

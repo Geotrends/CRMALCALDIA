@@ -35,20 +35,6 @@ define('custom:views/case/detail', [
             }
         },
 
-        actionAsignarCaso: function () {
-            var record = typeof this.getRecordView === 'function' ? this.getRecordView() : null;
-
-            if (record && typeof record.actionAsignarCaso === 'function') {
-                record.actionAsignarCaso();
-
-                return;
-            }
-
-            if (record && typeof record.actionEdit === 'function') {
-                record.actionEdit();
-            }
-        },
-
         actionEdit: function () {
             var record = typeof this.getRecordView === 'function' ? this.getRecordView() : null;
 
@@ -59,6 +45,22 @@ define('custom:views/case/detail', [
             }
 
             Dep.prototype.actionEdit.call(this);
+        },
+
+        actionSaveAsignacion: function () {
+            var record = typeof this.getRecordView === 'function' ? this.getRecordView() : null;
+
+            if (record && typeof record.actionSaveAsignacion === 'function') {
+                record.actionSaveAsignacion();
+            }
+        },
+
+        actionCancelAsignacion: function () {
+            var record = typeof this.getRecordView === 'function' ? this.getRecordView() : null;
+
+            if (record && typeof record.actionCancelAsignacion === 'function') {
+                record.actionCancelAsignacion();
+            }
         },
 
         getCaseTitle: function () {

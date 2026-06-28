@@ -206,19 +206,7 @@ body.alcaldia-asignador-asignar-page .edit[data-scope="Case"] .cell[data-name="c
   pointer-events: auto !important;
 }
 
-.case-asignacion-inline {
-  max-width: 520px;
-}
-
-.case-asignacion-inline .form-group {
-  margin-bottom: 12px;
-}
-
-.case-asignacion-inline-user .field[data-name="assignedUser"],
-.case-asignacion-inline-user .link-container {
-  width: 100%;
-}
-
-.case-asignacion-inline [data-action="saveAsignacion"] {
-  margin-top: 4px;
+.detail[data-scope="Case"] .panel[data-name="gestionPosteriorRadicacion"] .cell[data-name="assignedUser"] .link-container,
+.detail[data-scope="Case"] .panel[data-name="gestionPosteriorRadicacion"] .cell[data-name="assignedUser"] [data-action="selectLink"] {
+  pointer-events: auto !important;
 }

@@ -302,18 +302,20 @@ define('custom:helpers/asignador-edit-mode', [
             return;
         }
 
-        if (typeof recordView.setReadOnly === 'function') {
-            recordView.setReadOnly();
+        if (recordView._asignacionEditMode) {
+            recordView.$el.find('[data-action="delete"], [data-action="remove"]')
+                .closest('.btn, .dropdown-item, li')
+                .hide();
+
+            if (typeof recordView.enableAsignacionFields === 'function') {
+                recordView.enableAsignacionFields();
+            }
+
+            return;
         }
 
-        const panelView = typeof recordView.getFieldView === 'function'
-            ? recordView.getFieldView('cPanelAsignacionPatrullero')
-            : null;
-
-        if (panelView && typeof panelView.mountFields === 'function') {
-            window.setTimeout(function () {
-                panelView.mountFields();
-            }, 0);
+        if (typeof recordView.setReadOnly === 'function') {
+            recordView.setReadOnly();
         }
 
         recordView.$el.find('[data-action="delete"], [data-action="remove"]').closest('.btn, .dropdown-item, li').hide();

@@ -20,11 +20,11 @@ define('custom:views/case/fields/assigned-user', [
         },
 
         isReadOnly: function () {
-            if (this.isInlineAsignacionField()) {
+            const recordView = this.getRecordView();
+
+            if (recordView && recordView._asignacionEditMode) {
                 return false;
             }
-
-            const recordView = this.getRecordView();
 
             if (
                 recordView
@@ -40,41 +40,16 @@ define('custom:views/case/fields/assigned-user', [
             return Dep.prototype.isReadOnly.call(this);
         },
 
-        isInlineAsignacionField: function () {
-            let parent = this.getParentView ? this.getParentView() : null;
-
-            while (parent) {
-                if (parent.name === 'cPanelAsignacionPatrullero') {
-                    return true;
-                }
-
-                parent = parent.getParentView ? parent.getParentView() : null;
-            }
-
-            return false;
-        },
-
         afterRender: function () {
             Dep.prototype.afterRender.call(this);
-
-            if (this.isInlineAsignacionField()) {
-                this.readOnly = false;
-
-                if (typeof this.setNotReadOnly === 'function') {
-                    this.setNotReadOnly();
-                }
-
-                this.$el.find(
-                    '[data-action="editLink"], [data-action="selectLink"], [data-action="quickCreate"]'
-                ).closest('.btn, a, .input-group-btn, .link-container').show();
-            }
 
             const recordView = this.getRecordView();
 
             if (
                 recordView
                 && (
-                    recordView._asignarMode
+                    recordView._asignacionEditMode
+                    || recordView._asignarMode
                     || recordView.layoutName === 'asignar'
                 )
             ) {

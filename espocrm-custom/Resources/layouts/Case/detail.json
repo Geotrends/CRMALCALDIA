@@ -245,9 +245,13 @@
         "rows": [
             [
                 {
-                    "name": "cPanelAsignacionPatrullero",
-                    "view": "custom:views/case/fields/asignacion-patrullero-action",
-                    "noLabel": true,
+                    "name": "assignedUser"
+                },
+                false
+            ],
+            [
+                {
+                    "name": "cMotivoReasignacion",
                     "fullWidth": true
                 }
             ]
