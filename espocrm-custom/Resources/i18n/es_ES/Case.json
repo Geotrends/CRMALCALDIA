@@ -267,6 +267,7 @@
     "asignadorCannotCreateCase": "El rol de asignación no puede crear casos nuevos.",
     "asignadorCaseNotReady": "Solo puede asignar casos que ya tengan radicado y expediente.",
     "patrulleroReadOnlyCase": "Solo puede consultar el caso. Use «Llenar acta de visita» o imprimir el acta desde el panel del caso.",
-    "caseCreateNotAllowed": "Su rol no puede crear casos nuevos."
+    "caseCreateNotAllowed": "Su rol no puede crear casos nuevos.",
+    "cMotivoReasignacionPlaceholder": "Opcional: indique el motivo si desea registrarlo"
   }
 }

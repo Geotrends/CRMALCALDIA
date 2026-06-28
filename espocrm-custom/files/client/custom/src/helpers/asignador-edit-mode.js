@@ -330,6 +330,16 @@ define('custom:helpers/asignador-edit-mode', [
                 assignedView.hideAssignmentInlineSaveControls();
             }
         }
+
+        const motivoView = recordView.getFieldView('cMotivoReasignacion');
+
+        if (motivoView) {
+            motivoView.inlineEditDisabled = true;
+
+            if (typeof motivoView.hideAssignmentInlineSaveControls === 'function') {
+                motivoView.hideAssignmentInlineSaveControls();
+            }
+        }
     };
 
     const applyAsignarPageClass = function (recordView) {

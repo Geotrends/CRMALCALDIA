@@ -475,6 +475,7 @@ define('custom:views/case/record/detail', [
 
             this._asignacionEditMode = true;
             this.findPanel('gestionPosteriorRadicacion').show();
+            this.markAsignacionBatchEdit(true);
             AsignadorEditMode.moveAssignmentPanelToTop(this);
             this.applyAsignacionFieldAccess();
             this.scheduleAsignacionFieldAccess();
@@ -492,6 +493,7 @@ define('custom:views/case/record/detail', [
             this.clearAsignacionAccessTimers();
             this.resetAsignacionFieldFlags();
             this._asignacionEditMode = false;
+            this.markAsignacionBatchEdit(false);
 
             if (this._cancelAsignacionAdded) {
                 this.safeRemoveMenuItem('cancelAsignacion');
@@ -506,16 +508,21 @@ define('custom:views/case/record/detail', [
         getAsignacionEditableFields: function () {
             const fields = ['assignedUser'];
 
-            if (PostRadicacionFields.requiresMotivoReasignacion(
-                this.getUser(),
-                this.model,
-                this._initialAssignedUserId,
-                this.model.get('assignedUserId')
-            )) {
+            if (PostRadicacionFields.hadPreviousAssignee(this._initialAssignedUserId)) {
                 fields.push('cMotivoReasignacion');
             }
 
             return fields;
+        },
+
+        markAsignacionBatchEdit: function (active) {
+            const $panel = this.findPanel('gestionPosteriorRadicacion');
+
+            if (!$panel.length) {
+                return;
+            }
+
+            $panel.toggleClass('alcaldia-asignacion-batch-edit', !!active);
         },
 
         setReadOnly: function () {
@@ -561,6 +568,7 @@ define('custom:views/case/record/detail', [
 
                 this.setReadOnlyExcept(editableFields);
                 this.remountAssignedUserForEdit();
+                this.remountMotivoForEdit();
                 this.enableAsignacionFields();
                 AsignadorEditMode.ensureAssignedUserEditable(this);
             } finally {
@@ -642,6 +650,78 @@ define('custom:views/case/record/detail', [
             });
         },
 
+        remountMotivoForEdit: function () {
+            if (!this._asignacionEditMode) {
+                return;
+            }
+
+            if (!PostRadicacionFields.hadPreviousAssignee(this._initialAssignedUserId)) {
+                return;
+            }
+
+            const $cell = this.$el
+                .find('.panel[data-name="gestionPosteriorRadicacion"] [data-name="cMotivoReasignacion"]')
+                .first();
+
+            if (!$cell.length) {
+                return;
+            }
+
+            $cell.closest('.cell, .field').show().removeClass('hidden');
+
+            const existing = this.getFieldView('cMotivoReasignacion');
+
+            if (
+                existing
+                && existing._inlineEditEnabled
+                && existing.$textarea
+                && existing.$textarea.length
+            ) {
+                return;
+            }
+
+            if (this._remountingMotivo) {
+                return;
+            }
+
+            if (typeof this.createFieldView !== 'function') {
+                return;
+            }
+
+            this._remountingMotivo = true;
+
+            if (existing) {
+                if (typeof existing.remove === 'function') {
+                    existing.remove();
+                } else if (typeof existing.stopListening === 'function') {
+                    existing.stopListening();
+                }
+            }
+
+            $cell.empty();
+
+            const self = this;
+
+            this.createFieldView('cMotivoReasignacion', null, {
+                el: $cell,
+                mode: 'edit',
+                readOnly: false,
+            }, function (view) {
+                self._remountingMotivo = false;
+
+                if (!view) {
+                    return;
+                }
+
+                view.readOnly = false;
+                view.render();
+
+                if (typeof view.enableInlineEdit === 'function') {
+                    view.enableInlineEdit();
+                }
+            });
+        },
+
         clearAsignacionAccessTimers: function () {
             if (!this._asignacionAccessTimers) {
                 return;
@@ -693,6 +773,7 @@ define('custom:views/case/record/detail', [
 
         resetAsignacionFieldFlags: function () {
             this._remountingAssignedUser = false;
+            this._remountingMotivo = false;
 
             ['assignedUser', 'cMotivoReasignacion'].forEach((field) => {
                 const view = this.getFieldView(field);
@@ -709,8 +790,7 @@ define('custom:views/case/record/detail', [
             let showMotivo = PostRadicacionFields.shouldShowMotivoReasignacion(
                 this.getUser(),
                 this.model,
-                this._initialAssignedUserId,
-                this.model.get('assignedUserId')
+                this._initialAssignedUserId
             );
 
             if (!this._asignacionEditMode) {
@@ -725,19 +805,7 @@ define('custom:views/case/record/detail', [
             }
 
             if (showMotivo && this._asignacionEditMode) {
-                const motivoView = this.getFieldView('cMotivoReasignacion');
-
-                if (motivoView && typeof motivoView.enableInlineEdit === 'function') {
-                    motivoView.enableInlineEdit();
-                } else if (motivoView) {
-                    AsignadorEditMode.forceAssignmentFieldEditable(motivoView, this);
-                }
-
-                if (motivoView && motivoView.$textarea && motivoView.$textarea.length) {
-                    window.setTimeout(function () {
-                        motivoView.$textarea.trigger('focus');
-                    }, 80);
-                }
+                this.remountMotivoForEdit();
             }
         },
 
@@ -771,22 +839,10 @@ define('custom:views/case/record/detail', [
                 assignedUserName: this.model.get('assignedUserName'),
             };
 
-            if (PostRadicacionFields.requiresMotivoReasignacion(
-                this.getUser(),
-                this.model,
-                this._initialAssignedUserId,
-                assignedUserId
-            )) {
+            if (PostRadicacionFields.hadPreviousAssignee(this._initialAssignedUserId)) {
                 const motivo = String(this.model.get('cMotivoReasignacion') || '').trim();
 
-                if (!motivo) {
-                    Espo.Ui.error(this.translate('validationRequired', 'messages')
-                        .replace('{field}', this.translate('cMotivoReasignacion', 'fields', 'Case')));
-
-                    return;
-                }
-
-                data.cMotivoReasignacion = motivo;
+                data.cMotivoReasignacion = motivo || null;
             }
 
             Espo.Ui.notify(this.translate('pleaseWait', 'messages'));

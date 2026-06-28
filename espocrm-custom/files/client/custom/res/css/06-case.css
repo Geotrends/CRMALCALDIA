@@ -227,3 +227,24 @@ body.alcaldia-asignador-asignar-page .edit[data-scope="Case"] .cell[data-name="c
 .detail[data-scope="Case"] .panel[data-name="gestionPosteriorRadicacion"] .inline-cancel-link {
   display: none !important;
 }
+
+.detail[data-scope="Case"] .panel[data-name="gestionPosteriorRadicacion"].alcaldia-asignacion-batch-edit .panel-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-top: 12px;
+}
+
+.detail[data-scope="Case"] .panel[data-name="gestionPosteriorRadicacion"].alcaldia-asignacion-batch-edit .cell[data-name="assignedUser"],
+.detail[data-scope="Case"] .panel[data-name="gestionPosteriorRadicacion"].alcaldia-asignacion-batch-edit .cell[data-name="cMotivoReasignacion"] {
+  display: block !important;
+  width: 100%;
+  margin-bottom: 0;
+}
+
+.detail[data-scope="Case"] .panel[data-name="gestionPosteriorRadicacion"].alcaldia-asignacion-batch-edit .cell[data-name="cMotivoReasignacion"] .field-label::after {
+  content: " (opcional)";
+  font-weight: normal;
+  color: var(--text-muted-color, #999);
+  font-size: 0.9em;
+}

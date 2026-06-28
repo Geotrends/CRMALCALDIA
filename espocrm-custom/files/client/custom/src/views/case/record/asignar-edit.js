@@ -117,11 +117,10 @@ define('custom:views/case/record/asignar-edit', [
         },
 
         toggleMotivoReasignacion: function () {
-            const showMotivo = PostRadicacionFields.requiresMotivoReasignacion(
+            const showMotivo = PostRadicacionFields.shouldShowMotivoReasignacion(
                 this.getUser(),
                 this.model,
-                this._initialAssignedUserId,
-                this.model.get('assignedUserId')
+                this._initialAssignedUserId
             );
             const $motivoCell = this.$el.find('[data-name="cMotivoReasignacion"]').closest('.cell');
 
@@ -202,7 +201,7 @@ define('custom:views/case/record/asignar-edit', [
             };
 
             if (this.getEditableAssignmentFields().indexOf('cMotivoReasignacion') !== -1) {
-                data.cMotivoReasignacion = this.model.get('cMotivoReasignacion');
+                data.cMotivoReasignacion = String(this.model.get('cMotivoReasignacion') || '').trim() || null;
             }
 
             return data;
@@ -214,20 +213,6 @@ define('custom:views/case/record/asignar-edit', [
             if (!assignedUserId) {
                 Espo.Ui.error(this.translate('validationRequired', 'messages')
                     .replace('{field}', this.translate('assignedUser', 'fields', 'Case')));
-
-                return false;
-            }
-
-            const showMotivo = PostRadicacionFields.requiresMotivoReasignacion(
-                this.getUser(),
-                this.model,
-                this._initialAssignedUserId,
-                assignedUserId
-            );
-
-            if (showMotivo && !String(this.model.get('cMotivoReasignacion') || '').trim()) {
-                Espo.Ui.error(this.translate('validationRequired', 'messages')
-                    .replace('{field}', this.translate('cMotivoReasignacion', 'fields', 'Case')));
 
                 return false;
             }
