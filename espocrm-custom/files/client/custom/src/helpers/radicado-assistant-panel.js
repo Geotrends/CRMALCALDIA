@@ -1,12 +1,20 @@
 define('custom:helpers/radicado-assistant-panel', [
     'custom:helpers/radicacion-fields',
+    'custom:helpers/radicacion-edit-mode',
     'custom:helpers/radicado-catalog',
-], function (RadicacionFields, RadicadoCatalog) {
+], function (RadicacionFields, RadicacionEditMode, RadicadoCatalog) {
 
     const PANEL_CLASS = 'radicado-assistant-panel-mount';
     let fetchRequest = null;
 
     const canShow = function (recordView) {
+        if (
+            RadicacionEditMode.isPureRadicacionUser(recordView.getUser())
+            && RadicacionEditMode.isRadicarMode(recordView)
+        ) {
+            return true;
+        }
+
         if (!RadicacionFields.isRadicacionUser(recordView.getUser())) {
             return false;
         }

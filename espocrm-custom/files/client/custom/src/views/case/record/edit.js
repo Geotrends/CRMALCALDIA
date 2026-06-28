@@ -46,6 +46,8 @@ define('custom:views/case/record/edit', [
                 RadicacionFields.RADICADO_ALL_FIELDS.forEach((field) => {
                     this._lockedRadicadoValues[field] = this.model.get(field);
                 });
+
+                RadicacionEditMode.bootstrapRadicarMode(this);
             }
 
             PersonaTipoFields.setup(this);
@@ -300,6 +302,10 @@ define('custom:views/case/record/edit', [
                     this.returnUrl = null;
                 }
 
+                if (this.model.id) {
+                    RadicacionEditMode.clearRadicarMode(this.model.id);
+                }
+
                 const self = this;
 
                 window.setTimeout(function () {
@@ -350,7 +356,10 @@ define('custom:views/case/record/edit', [
                 }
             }, this);
 
-            if (RadicacionFields.isRadicacionUser(this.getUser())) {
+            if (
+                RadicacionFields.isRadicacionUser(this.getUser())
+                || (RadicacionEditMode.isPureRadicacionUser(this.getUser()) && this.isRadicarMode())
+            ) {
                 if (
                     this.$el.find('.radicado-assistant-panel-mount').length
                     || this.$el.find('[data-name="cNumeroRadicado"] .radicado-assistant').length
@@ -408,9 +417,7 @@ define('custom:views/case/record/edit', [
                 self.toggleRegistroExcelPanel();
 
                 if (RadicadoAssistantPanel.canShow(self) && self.isRadicarMode()) {
-                    if (!self.hasRadicacionLayoutPanel() && !self.$el.find('.radicado-assistant-panel-mount').length) {
-                        RadicadoAssistantPanel.mount(self);
-                    }
+                    RadicadoAssistantPanel.mount(self);
                 } else {
                     RadicadoAssistantPanel.unmount(self);
                     if (!RadicacionEditMode.isPureRadicacionUser(self.getUser())) {
@@ -433,7 +440,13 @@ define('custom:views/case/record/edit', [
                             return;
                         }
 
-                        if (!RadicacionFields.isRadicacionUser(self.getUser()) || !self.isRadicarMode()) {
+                        if (
+                            !self.isRadicarMode()
+                            || (
+                                !RadicacionFields.isRadicacionUser(self.getUser())
+                                && !RadicacionEditMode.isPureRadicacionUser(self.getUser())
+                            )
+                        ) {
                             return;
                         }
 
@@ -670,12 +683,26 @@ define('custom:views/case/record/edit', [
                     return;
                 }
 
+                if (isPureRadicacion && this.isRadicarMode()) {
+                    const view = this.getFieldView(field);
+
+                    if (view && typeof view.setNotReadOnly === 'function') {
+                        view.setNotReadOnly();
+                    }
+
+                    return;
+                }
+
                 const view = this.getFieldView(field);
 
                 if (view && typeof view.setReadOnly === 'function') {
                     view.setReadOnly();
                 }
             });
+
+            if (isPureRadicacion && this.isRadicarMode()) {
+                RadicacionEditMode.unlockEditableRadicacionFields(this);
+            }
         },
 
         prepareModelForSave: function () {
@@ -689,7 +716,10 @@ define('custom:views/case/record/edit', [
                 return;
             }
 
-            if (!RadicacionFields.isRadicacionUser(this.getUser())) {
+            if (
+                !RadicacionFields.isRadicacionUser(this.getUser())
+                && !(RadicacionEditMode.isPureRadicacionUser(this.getUser()) && this.isRadicarMode())
+            ) {
                 return;
             }
 
@@ -915,6 +945,14 @@ define('custom:views/case/record/edit', [
                     view.setReadOnly();
                 }
             });
+        },
+
+        exit: function (after) {
+            if (this.model && this.model.id) {
+                RadicacionEditMode.clearRadicarMode(this.model.id);
+            }
+
+            return Dep.prototype.exit.call(this, after);
         },
     });
 });

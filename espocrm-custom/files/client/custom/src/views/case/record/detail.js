@@ -328,25 +328,29 @@ define('custom:views/case/record/detail', [
         },
 
         actionEdit: function () {
+            const self = this;
+
             if (PatrulleroActa.isPurePatrulleroUser(this.getUser())) {
                 Espo.Ui.warning(this.translate('patrulleroReadOnlyCase', 'messages', 'Case'));
 
                 return;
             }
 
-            if (RadicacionEditMode.isPureRadicacionUser(this.getUser())) {
-                RadicacionEditMode.openRadicadoEdit(this);
+            RadicacionFields.ensureProfile().then(function () {
+                if (RadicacionEditMode.isPureRadicacionUser(self.getUser())) {
+                    RadicacionEditMode.openRadicadoEdit(self);
 
-                return;
-            }
+                    return;
+                }
 
-            if (AsignadorEditMode.isPureAsignadorUser(this.getUser())) {
-                AsignadorEditMode.openAsignadoEdit(this);
+                if (AsignadorEditMode.isPureAsignadorUser(self.getUser())) {
+                    AsignadorEditMode.openAsignadoEdit(self);
 
-                return;
-            }
+                    return;
+                }
 
-            Dep.prototype.actionEdit.call(this);
+                Dep.prototype.actionEdit.call(self);
+            });
         },
 
         actionRadicarCaso: function () {

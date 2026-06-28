@@ -13,7 +13,7 @@ define('custom:helpers/radicacion-edit-mode', [
             return false;
         }
 
-        if (RadicacionFields.isPatrulleroUser(user) || RadicacionFields.isAsignadorUser(user)) {
+        if (RadicacionFields.isPatrulleroUser(user)) {
             return false;
         }
 
@@ -77,16 +77,44 @@ define('custom:helpers/radicacion-edit-mode', [
         sessionStorage.setItem(STORAGE_KEY, String(caseId || ''));
     };
 
-    const consumeRadicarMode = function (caseId) {
+    const peekRadicarMode = function (caseId) {
+        const stored = sessionStorage.getItem(STORAGE_KEY);
+
+        return !!(stored && stored === String(caseId || ''));
+    };
+
+    const clearRadicarMode = function (caseId) {
         const stored = sessionStorage.getItem(STORAGE_KEY);
 
         if (stored && stored === String(caseId || '')) {
             sessionStorage.removeItem(STORAGE_KEY);
+        }
+    };
 
-            return true;
+    const bootstrapRadicarMode = function (recordView) {
+        if (!recordView || !recordView.model || (recordView.model.isNew && recordView.model.isNew())) {
+            return;
         }
 
-        return false;
+        if (recordView._radicarMode) {
+            return;
+        }
+
+        if (recordView.options && recordView.options.radicar) {
+            recordView._radicarMode = true;
+
+            return;
+        }
+
+        if (hasRadicarHash()) {
+            recordView._radicarMode = true;
+
+            return;
+        }
+
+        if (peekRadicarMode(recordView.model.id)) {
+            recordView._radicarMode = true;
+        }
     };
 
     const isCasePostRadicado = function (model) {
@@ -108,23 +136,9 @@ define('custom:helpers/radicacion-edit-mode', [
             return false;
         }
 
-        if (recordView._radicarMode) {
-            return true;
-        }
+        bootstrapRadicarMode(recordView);
 
-        if (recordView.options && recordView.options.radicar) {
-            return true;
-        }
-
-        if (hasRadicarHash()) {
-            return true;
-        }
-
-        if (consumeRadicarMode(model.id)) {
-            return true;
-        }
-
-        return false;
+        return !!recordView._radicarMode;
     };
 
     const shouldShowRadicarButton = function (user, model) {
@@ -146,6 +160,24 @@ define('custom:helpers/radicacion-edit-mode', [
             '#' + recordView.entityType + '/edit/' + recordView.model.id + '?radicar=1',
             {trigger: true}
         );
+    };
+
+    const unlockEditableRadicacionFields = function (recordView) {
+        if (!recordView) {
+            return;
+        }
+
+        getEditableFields().forEach(function (field) {
+            const view = typeof recordView.getFieldView === 'function'
+                ? recordView.getFieldView(field)
+                : null;
+
+            if (view && typeof view.setNotReadOnly === 'function') {
+                view.setNotReadOnly();
+            }
+
+            recordView.$el.find('[data-name="' + field + '"]').closest('.cell').show();
+        });
     };
 
     const lockAllFieldViewsExcept = function (recordView, editableFields) {
@@ -188,6 +220,7 @@ define('custom:helpers/radicacion-edit-mode', [
             }
 
             lockAllFieldViewsExcept(recordView, getEditableFields());
+            unlockEditableRadicacionFields(recordView);
             prepareRadicacionEditView(recordView);
 
             recordView.$el.find(
@@ -235,6 +268,9 @@ define('custom:helpers/radicacion-edit-mode', [
     return {
         isPureRadicacionUser: isPureRadicacionUser,
         activateRadicarMode: activateRadicarMode,
+        bootstrapRadicarMode: bootstrapRadicarMode,
+        clearRadicarMode: clearRadicarMode,
+        peekRadicarMode: peekRadicarMode,
         isRadicarMode: isRadicarMode,
         isCaseSinRadicar: isCaseSinRadicar,
         isCasePostRadicado: isCasePostRadicado,
@@ -242,6 +278,7 @@ define('custom:helpers/radicacion-edit-mode', [
         shouldShowEditRadicadoButton: shouldShowEditRadicadoButton,
         openRadicadoEdit: openRadicadoEdit,
         getEditableFields: getEditableFields,
+        unlockEditableRadicacionFields: unlockEditableRadicacionFields,
         applyRestrictedEdit: applyRestrictedEdit,
         scheduleRestrictedEdit: scheduleRestrictedEdit,
         hideNonRadicacionPanels: hideNonRadicacionPanels,

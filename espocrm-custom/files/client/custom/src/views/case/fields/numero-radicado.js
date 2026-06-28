@@ -48,7 +48,7 @@ define('custom:views/case/fields/numero-radicado', [
         },
 
         useAssistant: function () {
-            if (!this.isEditMode() || !RadicacionFields.isRadicacionUser(this.getUser())) {
+            if (!this.isEditMode()) {
                 return false;
             }
 
@@ -58,6 +58,12 @@ define('custom:views/case/fields/numero-radicado', [
                 if (!recordView || typeof recordView.isRadicarMode !== 'function' || !recordView.isRadicarMode()) {
                     return false;
                 }
+
+                return true;
+            }
+
+            if (!RadicacionFields.isRadicacionUser(this.getUser())) {
+                return false;
             }
 
             if (this.model.isNew() && RadicacionFields.isInspeccionUser(this.getUser()) && !this.getUser().isAdmin()) {
