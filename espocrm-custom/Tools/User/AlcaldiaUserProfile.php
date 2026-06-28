@@ -23,6 +23,10 @@ class AlcaldiaUserProfile
 
     public const ROLE_ASIGNADOR = 'Asignador';
 
+    public const ROLE_ASIGNACION = 'Asignación';
+
+    public const ROLE_ASIGNACION_ALT = 'Asignacion';
+
   /** @var string[] */
     private const NAMES_INSPECCION = [self::ROLE_INSPECCION, self::ROLE_INSPECCION_ALT];
 
@@ -33,7 +37,11 @@ class AlcaldiaUserProfile
     private const NAMES_PATRULLERO = [self::ROLE_PATRULLERO];
 
   /** @var string[] */
-    private const NAMES_ASIGNADOR = [self::ROLE_ASIGNADOR];
+    private const NAMES_ASIGNADOR = [
+        self::ROLE_ASIGNADOR,
+        self::ROLE_ASIGNACION,
+        self::ROLE_ASIGNACION_ALT,
+    ];
 
     public function __construct(
         private EntityManager $entityManager

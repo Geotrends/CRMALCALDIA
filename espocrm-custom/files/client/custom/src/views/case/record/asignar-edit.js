@@ -192,6 +192,21 @@ define('custom:views/case/record/asignar-edit', [
             });
         },
 
+        fetch: function () {
+            this.syncAssignmentFields();
+
+            const data = {
+                assignedUserId: this.model.get('assignedUserId'),
+                assignedUserName: this.model.get('assignedUserName'),
+            };
+
+            if (this.getEditableAssignmentFields().indexOf('cMotivoReasignacion') !== -1) {
+                data.cMotivoReasignacion = this.model.get('cMotivoReasignacion');
+            }
+
+            return data;
+        },
+
         validateAssignment: function () {
             const assignedUserId = this.model.get('assignedUserId');
 

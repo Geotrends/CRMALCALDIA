@@ -103,7 +103,7 @@ while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         foreach ($exclusiveFields as $field) {
             $fieldData[$scope][$field] = ['read' => 'yes', 'edit' => 'yes'];
         }
-    } elseif ($roleName === 'Asignador') {
+    } elseif (in_array($roleName, ['Asignador', 'Asignación', 'Asignacion'], true)) {
         foreach ($asignacionFields as $field) {
             $fieldData[$scope][$field] = ['read' => 'yes', 'edit' => 'yes'];
         }

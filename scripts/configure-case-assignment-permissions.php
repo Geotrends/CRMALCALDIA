@@ -18,7 +18,7 @@ $app->setupSystemUser();
 /** @var EntityManager $em */
 $em = $app->getContainer()->getByClass(EntityManager::class);
 
-$roles = ['Inspección', 'Radicación', 'Asignador'];
+$roles = ['Inspección', 'Radicación', 'Asignador', 'Asignación', 'Asignacion'];
 
 foreach ($roles as $roleName) {
     $role = $em->getRDBRepository('Role')->where(['name' => $roleName])->findOne();

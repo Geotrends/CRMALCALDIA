@@ -3,9 +3,8 @@
 namespace Espo\Custom\Classes\Select\Case\AccessControlFilters;
 
 use Espo\Core\Select\AccessControl\Filter;
-use Espo\Entities\Role;
+use Espo\Custom\Tools\User\AlcaldiaUserProfile;
 use Espo\Entities\User;
-use Espo\ORM\EntityManager;
 use Espo\ORM\Query\SelectBuilder as QueryBuilder;
 
 /**
@@ -13,12 +12,9 @@ use Espo\ORM\Query\SelectBuilder as QueryBuilder;
  */
 class Mandatory implements Filter
 {
-    private const ROLE_ASIGNADOR = 'Asignador';
-    private const ROLE_PATRULLERO = 'Patrullero';
-
     public function __construct(
         private User $user,
-        private EntityManager $entityManager
+        private AlcaldiaUserProfile $profile
     ) {}
 
     public function apply(QueryBuilder $queryBuilder): void
@@ -33,7 +29,7 @@ class Mandatory implements Filter
             return;
         }
 
-        if ($this->hasRoleByName(self::ROLE_PATRULLERO)) {
+        if ($this->profile->isPatrullero($this->user)) {
             $queryBuilder->where([
                 'assignedUserId' => $this->user->getId(),
             ]);
@@ -41,27 +37,11 @@ class Mandatory implements Filter
             return;
         }
 
-        if ($this->hasRoleByName(self::ROLE_ASIGNADOR)) {
+        if ($this->profile->isAsignador($this->user) && !$this->profile->isInspeccion($this->user)) {
             $queryBuilder->where([
                 'cNumeroRadicado!=' => '',
                 'cExpediente!=' => '',
             ]);
         }
-    }
-
-    private function hasRoleByName(string $roleName): bool
-    {
-        $role = $this->entityManager
-            ->getRDBRepositoryByClass(Role::class)
-            ->where(['name' => $roleName])
-            ->findOne();
-
-        if (!$role) {
-            return false;
-        }
-
-        $roles = $this->user->getLinkMultipleIdList('roles') ?? [];
-
-        return in_array($role->getId(), $roles, true);
     }
 }
