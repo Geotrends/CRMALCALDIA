@@ -212,6 +212,25 @@ define('custom:helpers/radicacion-edit-mode', [
         });
     };
 
+    const applyFieldReadOnlyRestrictions = function (recordView) {
+        if (!isRadicacionEditSession(recordView)) {
+            return;
+        }
+
+        if (recordView._applyingRadicacionFieldRestrictions) {
+            return;
+        }
+
+        recordView._applyingRadicacionFieldRestrictions = true;
+
+        try {
+            lockAllFieldViewsExcept(recordView, getEditableFields());
+            unlockEditableRadicacionFields(recordView);
+        } finally {
+            recordView._applyingRadicacionFieldRestrictions = false;
+        }
+    };
+
     const applyRestrictedEdit = function (recordView) {
         if (!isRadicacionEditSession(recordView)) {
             return;
@@ -220,12 +239,7 @@ define('custom:helpers/radicacion-edit-mode', [
         recordView._radicarMode = true;
         recordView._alcaldiaRadicacionEdit = true;
 
-        if (typeof recordView.setReadOnlyExcept === 'function') {
-            recordView.setReadOnlyExcept(getEditableFields());
-        }
-
-        lockAllFieldViewsExcept(recordView, getEditableFields());
-        unlockEditableRadicacionFields(recordView);
+        applyFieldReadOnlyRestrictions(recordView);
         prepareRadicacionEditView(recordView);
 
         recordView.$el.find(
@@ -292,6 +306,7 @@ define('custom:helpers/radicacion-edit-mode', [
         isCasePostRadicado: isCasePostRadicado,
         getEditableFields: getEditableFields,
         unlockEditableRadicacionFields: unlockEditableRadicacionFields,
+        applyFieldReadOnlyRestrictions: applyFieldReadOnlyRestrictions,
         applyRestrictedEdit: applyRestrictedEdit,
         scheduleRestrictedEdit: scheduleRestrictedEdit,
         hideNonRadicacionPanels: hideNonRadicacionPanels,

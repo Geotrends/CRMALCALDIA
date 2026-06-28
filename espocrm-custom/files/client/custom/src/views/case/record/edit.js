@@ -41,6 +41,7 @@ define('custom:views/case/record/edit', [
             });
 
             if (!this.model.isNew()) {
+                RadicacionEditMode.bootstrapRadicarMode(this);
                 this._lockedRadicadoValues = {};
 
                 RadicacionFields.RADICADO_ALL_FIELDS.forEach((field) => {
@@ -925,7 +926,7 @@ define('custom:views/case/record/edit', [
 
         setReadOnly: function () {
             if (RadicacionEditMode.isRadicacionEditSession(this)) {
-                RadicacionEditMode.applyRestrictedEdit(this);
+                RadicacionEditMode.applyFieldReadOnlyRestrictions(this);
 
                 return;
             }
@@ -935,7 +936,7 @@ define('custom:views/case/record/edit', [
 
         setReadOnlyExcept: function (editableFields) {
             if (RadicacionEditMode.isRadicacionEditSession(this)) {
-                RadicacionEditMode.applyRestrictedEdit(this);
+                RadicacionEditMode.applyFieldReadOnlyRestrictions(this);
 
                 return;
             }
