@@ -136,3 +136,17 @@ body.alcaldia-radicacion-edit-mode .edit[data-scope="Case"] .record-buttons * {
   pointer-events: auto !important;
   opacity: 1 !important;
 }
+
+/* Radicación: pantalla mínima con ?radicar=1 */
+body.alcaldia-radicacion-radicar-page .edit[data-scope="Case"] .middle .panel:not([data-name="radicacionCaso"]):not([data-panel-name="radicacionCaso"]),
+body.alcaldia-radicacion-radicar-page .edit[data-scope="Case"] .bottom .panel,
+body.alcaldia-radicacion-radicar-page .edit[data-scope="Case"] .side,
+body.alcaldia-radicacion-radicar-page .edit[data-scope="Case"] .panel-group-accordion > .panel:not([data-name="radicacionCaso"]):not([data-panel-name="radicacionCaso"]) {
+  display: none !important;
+}
+
+body.alcaldia-radicacion-radicar-page .edit[data-scope="Case"] .panel[data-name="radicacionCaso"],
+body.alcaldia-radicacion-radicar-page .edit[data-scope="Case"] .panel[data-panel-name="radicacionCaso"],
+body.alcaldia-radicacion-radicar-page .edit[data-scope="Case"] .radicado-assistant-panel-mount {
+  display: block !important;
+}

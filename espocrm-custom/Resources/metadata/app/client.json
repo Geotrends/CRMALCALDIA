@@ -5,6 +5,7 @@
     "scriptList": [
         "client/custom/src/loader/case-create-guard.js",
         "client/custom/src/loader/alcaldia-profile-sync.js",
+        "client/custom/src/loader/case-radicacion-flow.js",
         "client/custom/src/loader/theme-login.js",
         "client/custom/src/loader/i18n-personas.js",
         "client/custom/src/loader/case-list-radicado-fix.js",

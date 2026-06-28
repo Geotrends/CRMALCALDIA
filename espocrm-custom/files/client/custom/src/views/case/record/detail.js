@@ -125,6 +125,7 @@ define('custom:views/case/record/detail', [
             this.toggleRadicacionFields();
             this.togglePostRadicacionFields();
             this.toggleRegistroExcelPanel();
+            this.configureRadicacionDetailMenu();
             this.updateDetailActionLabels();
             this.updateActaVisitaButton();
             this.updateActuoArchivoButton();
@@ -132,6 +133,49 @@ define('custom:views/case/record/detail', [
             this.toggleActaPanels();
             this.toggleActuoArchivoPanels();
             RadicacionEditMode.hideNonRadicacionPanels(this);
+        },
+
+        configureRadicacionDetailMenu: function () {
+            const self = this;
+
+            RadicacionFields.ensureProfile(this.getUser()).then(function () {
+                if (!self.isRendered || !self.isRendered()) {
+                    return;
+                }
+
+                if (!RadicacionEditMode.isPureRadicacionUser(self.getUser())) {
+                    if (self._radicarButtonAdded) {
+                        self.safeRemoveMenuItem('radicarCaso');
+                        self._radicarButtonAdded = false;
+                    }
+
+                    return;
+                }
+
+                self.$el.find('[data-action="edit"]')
+                    .filter(function () {
+                        return $(this).closest('.dropdown-menu').length === 0;
+                    })
+                    .closest('.btn, a.btn')
+                    .hide();
+
+                if (self._radicarButtonAdded) {
+                    self.updateDetailActionLabels();
+
+                    return;
+                }
+
+                if (self.safeAddMenuItem({
+                    name: 'radicarCaso',
+                    label: self.translate('radicarCaso', 'labels', 'Case'),
+                    action: 'radicarCaso',
+                    style: 'primary',
+                })) {
+                    self._radicarButtonAdded = true;
+                }
+
+                self.updateDetailActionLabels();
+            });
         },
 
         scheduleRoleAwareUi: function () {
