@@ -52,62 +52,12 @@ define('custom:views/case/fields/c-motivo-reasignacion', [
             return getRecordViewFromField(this);
         },
 
-        setup: function () {
-            Dep.prototype.setup.call(this);
-
-            if (isAssignmentEditing(this.getRecordView())) {
-                this.inlineEditDisabled = true;
-            }
-        },
-
         isReadOnly: function () {
             if (shouldEditMotivo(this)) {
                 return false;
             }
 
             return Dep.prototype.isReadOnly.call(this);
-        },
-
-        hideAssignmentInlineSaveControls: function () {
-            if (!isAssignmentEditing(this.getRecordView())) {
-                return;
-            }
-
-            if (typeof this.removeInlineEditLinks === 'function') {
-                this.removeInlineEditLinks();
-            }
-
-            if (!this.$el || !this.$el.length) {
-                return;
-            }
-
-            this.$el.closest('.cell, .field')
-                .find('.inline-save-link, .inline-cancel-link')
-                .remove();
-        },
-
-        addInlineEditLinks: function () {
-            if (isAssignmentEditing(this.getRecordView())) {
-                this.hideAssignmentInlineSaveControls();
-
-                return;
-            }
-
-            Dep.prototype.addInlineEditLinks.call(this);
-        },
-
-        inlineEditSave: function (options) {
-            if (isAssignmentEditing(this.getRecordView())) {
-                this.hideAssignmentInlineSaveControls();
-
-                if (typeof this.fetch === 'function') {
-                    this.model.set(this.fetch());
-                }
-
-                return;
-            }
-
-            Dep.prototype.inlineEditSave.call(this, options);
         },
 
         enableInlineEdit: function () {
@@ -122,7 +72,6 @@ define('custom:views/case/fields/c-motivo-reasignacion', [
             this._inlineEditEnabled = true;
             this.readOnly = false;
             this.mode = 'edit';
-            this.inlineEditDisabled = true;
 
             const value = String(this.model.get(this.name) || '');
             const rows = this.params.rows || 2;
@@ -135,7 +84,6 @@ define('custom:views/case/fields/c-motivo-reasignacion', [
             const $textarea = $('<textarea class="form-control main-element"></textarea>')
                 .attr('rows', rows)
                 .attr('maxlength', maxLength)
-                .attr('placeholder', this.translate('cMotivoReasignacionPlaceholder', 'messages', 'Case'))
                 .val(value);
 
             let $container = this.$el.find('.textarea-container, .text-container').first();
@@ -151,8 +99,6 @@ define('custom:views/case/fields/c-motivo-reasignacion', [
             $textarea.on('input change', () => {
                 this.model.set(this.name, $textarea.val());
             });
-
-            this.hideAssignmentInlineSaveControls();
         },
 
         afterRender: function () {

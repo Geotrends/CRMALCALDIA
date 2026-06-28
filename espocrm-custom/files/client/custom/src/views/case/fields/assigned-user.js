@@ -37,79 +37,15 @@ define('custom:views/case/fields/assigned-user', [
         setup: function () {
             Dep.prototype.setup.call(this);
 
-            if (isAssignmentEditing(this.getRecordView())) {
-                this.inlineEditDisabled = true;
-            }
-
             if (this.isEditMode() && this.model.isNew()) {
                 this.clearAssignedUserIfHidden();
             }
 
             this.listenTo(this.model, 'change:assignedUserId', () => {
-                const recordView = this.getRecordView();
-
-                if (recordView && recordView._asignacionEditMode) {
-                    if (typeof recordView.toggleAsignacionMotivoField === 'function') {
-                        recordView.toggleAsignacionMotivoField();
-                    }
-
-                    this.hideAssignmentInlineSaveControls();
-
-                    return;
-                }
-
                 if (this.isEditMode() && this.model.isNew()) {
                     this.clearAssignedUserIfHidden();
                 }
             });
-        },
-
-        hideAssignmentInlineSaveControls: function () {
-            if (!isAssignmentEditing(this.getRecordView())) {
-                return;
-            }
-
-            if (typeof this.removeInlineEditLinks === 'function') {
-                this.removeInlineEditLinks();
-            }
-
-            if (!this.$el || !this.$el.length) {
-                return;
-            }
-
-            this.$el.closest('.cell, .field')
-                .find('.inline-save-link, .inline-cancel-link')
-                .remove();
-        },
-
-        addInlineEditLinks: function () {
-            if (isAssignmentEditing(this.getRecordView())) {
-                this.hideAssignmentInlineSaveControls();
-
-                return;
-            }
-
-            Dep.prototype.addInlineEditLinks.call(this);
-        },
-
-        inlineEditSave: function (options) {
-            const recordView = this.getRecordView();
-
-            if (isAssignmentEditing(recordView)) {
-                this.hideAssignmentInlineSaveControls();
-
-                if (typeof this.fetch === 'function') {
-                    this.model.set(this.fetch());
-                }
-
-                if (recordView && typeof recordView.toggleAsignacionMotivoField === 'function') {
-                    recordView.toggleAsignacionMotivoField();
-                }
-
-                return;
-            }
-
-            Dep.prototype.inlineEditSave.call(this, options);
         },
 
         isReadOnly: function () {
@@ -166,9 +102,7 @@ define('custom:views/case/fields/assigned-user', [
             Dep.prototype.afterRender.call(this);
 
             if (isAssignmentEditing(this.getRecordView())) {
-                this.inlineEditDisabled = true;
                 this.showSelectControls();
-                this.hideAssignmentInlineSaveControls();
             }
 
             if (this.isEditMode() && this.model.isNew()) {

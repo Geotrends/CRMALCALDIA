@@ -201,7 +201,7 @@ define('custom:views/case/record/asignar-edit', [
             };
 
             if (this.getEditableAssignmentFields().indexOf('cMotivoReasignacion') !== -1) {
-                data.cMotivoReasignacion = String(this.model.get('cMotivoReasignacion') || '').trim() || null;
+                data.cMotivoReasignacion = this.model.get('cMotivoReasignacion');
             }
 
             return data;
@@ -213,6 +213,19 @@ define('custom:views/case/record/asignar-edit', [
             if (!assignedUserId) {
                 Espo.Ui.error(this.translate('validationRequired', 'messages')
                     .replace('{field}', this.translate('assignedUser', 'fields', 'Case')));
+
+                return false;
+            }
+
+            const showMotivo = PostRadicacionFields.shouldShowMotivoReasignacion(
+                this.getUser(),
+                this.model,
+                this._initialAssignedUserId
+            );
+
+            if (showMotivo && !String(this.model.get('cMotivoReasignacion') || '').trim()) {
+                Espo.Ui.error(this.translate('validationRequired', 'messages')
+                    .replace('{field}', this.translate('cMotivoReasignacion', 'fields', 'Case')));
 
                 return false;
             }
