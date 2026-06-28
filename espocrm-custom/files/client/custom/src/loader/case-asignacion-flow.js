@@ -4,7 +4,7 @@
 (function () {
 
     var FLOW_VERSION = 'v4';
-    var PROFILE_CACHE_KEY = 'alcaldiaCaseProfileCache';
+    var PROFILE_CACHE_KEY = 'alcaldiaCaseProfileCacheV2';
 
     function getApp() {
         return window.Espo && Espo.App && Espo.App.instance;

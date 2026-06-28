@@ -38,7 +38,10 @@ define('custom:views/case/record/edit', [
                 CaseCreateDefaults.apply(this.model);
                 this.clearAssignedUserOnCreate();
 
-                if (RadicacionEditMode.isPureRadicacionUser(this.getUser())) {
+                if (
+                    RadicacionFields.isOperationalRadicacionUser(this.getUser())
+                    && !RadicacionFields.isInspeccionUser(this.getUser())
+                ) {
                     Espo.Ui.warning(this.translate('radicacionCannotCreateCase', 'messages', 'Case'));
                     this.getRouter().navigate('#Home', {trigger: true});
                 }

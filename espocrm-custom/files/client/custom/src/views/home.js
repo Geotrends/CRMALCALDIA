@@ -20,6 +20,10 @@ define('custom:views/home', ['views/dashboard', 'search-manager'], function (Dep
             names.push(normalize(name));
         });
 
+        if (names.indexOf('inspeccion') !== -1) {
+            return 'gestion';
+        }
+
         if (names.indexOf('radicacion') !== -1) {
             return 'radicacion';
         }
@@ -32,10 +36,6 @@ define('custom:views/home', ['views/dashboard', 'search-manager'], function (Dep
             return 'patrullero';
         }
 
-        if (names.indexOf('inspeccion') !== -1) {
-            return 'gestion';
-        }
-
         return 'gestion';
     };
 
@@ -46,6 +46,10 @@ define('custom:views/home', ['views/dashboard', 'search-manager'], function (Dep
 
         if (data.homeProfile) {
             return data.homeProfile;
+        }
+
+        if (data.isInspeccion) {
+            return 'gestion';
         }
 
         if (data.isRadicacion) {

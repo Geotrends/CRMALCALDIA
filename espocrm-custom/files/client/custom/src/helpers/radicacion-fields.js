@@ -10,7 +10,7 @@ define('custom:helpers/radicacion-fields', [], function () {
     const ROLE_ASIGNADOR = 'asignador';
     const ROLE_ASIGNACION = 'asignacion';
     const ROLE_PATRULLERO = 'patrullero';
-    const PROFILE_CACHE_KEY = 'alcaldiaCaseProfileCache';
+    const PROFILE_CACHE_KEY = 'alcaldiaCaseProfileCacheV2';
     const RADICADO_FIELDS = ['cNumeroRadicado', 'cExpediente'];
     const FECHA_VENCIMIENTO_FIELD = 'cFechaVencimiento';
 
@@ -293,6 +293,10 @@ define('custom:helpers/radicacion-fields', [], function () {
             return serverProfile.homeProfile;
         }
 
+        if (hasRole(user, ROLE_INSPECCION)) {
+            return 'gestion';
+        }
+
         if (hasRole(user, ROLE_RADICACION)) {
             return 'radicacion';
         }
@@ -309,7 +313,7 @@ define('custom:helpers/radicacion-fields', [], function () {
             return 'patrullero';
         }
 
-        if (hasRole(user, ROLE_INSPECCION)) {
+        if (profile && profile.isInspeccion) {
             return 'gestion';
         }
 
@@ -325,36 +329,11 @@ define('custom:helpers/radicacion-fields', [], function () {
             return 'patrullero';
         }
 
-        if (profile && profile.isInspeccion) {
-            return 'gestion';
-        }
-
         return 'gestion';
     };
 
     const canEditRadicadoCase = function (user) {
-        if (!user || user.isAdmin()) {
-            return false;
-        }
-
-        if (isOperationalRadicacionUser(user)) {
-            return true;
-        }
-
-        const userId = getCurrentUserId(user);
-        const cached = readSessionProfileCache(userId);
-
-        if (cached && (cached.canEditRadicado || cached.isRadicacion)) {
-            return true;
-        }
-
-        const profile = getServerProfile();
-
-        if (profile && (profile.canEditRadicado || profile.isRadicacion)) {
-            return true;
-        }
-
-        return false;
+        return isOperationalRadicacionUser(user);
     };
 
     const isOperationalRadicacionUser = function (user) {
@@ -362,41 +341,7 @@ define('custom:helpers/radicacion-fields', [], function () {
             return false;
         }
 
-        if (hasRole(user, ROLE_RADICACION)) {
-            return true;
-        }
-
-        const userId = getCurrentUserId(user);
-        const cached = readSessionProfileCache(userId);
-
-        if (cached && (cached.homeProfile === 'radicacion' || cached.isRadicacion)) {
-            return true;
-        }
-
-        if (resolveHomeProfile(user) === 'radicacion') {
-            return true;
-        }
-
-        const profile = getProfileForUser(user);
-
-        if (profile && profile.isRadicacion) {
-            return true;
-        }
-
-        if (
-            profileLoaded
-            && profileUserId === userId
-            && serverProfile
-            && serverProfile.isRadicacion
-        ) {
-            return true;
-        }
-
-        if (!profileLoaded) {
-            ensureProfile(user);
-        }
-
-        return false;
+        return resolveHomeProfile(user) === 'radicacion';
     };
 
     const getProfileForUser = function (user) {

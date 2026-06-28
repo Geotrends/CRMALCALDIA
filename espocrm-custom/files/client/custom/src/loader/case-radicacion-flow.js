@@ -5,7 +5,7 @@
 (function () {
 
     var FLOW_VERSION = 'v7';
-    var PROFILE_CACHE_KEY = 'alcaldiaCaseProfileCache';
+    var PROFILE_CACHE_KEY = 'alcaldiaCaseProfileCacheV2';
     var profileInflight = null;
 
     function getApp() {
@@ -106,8 +106,18 @@
     }
 
     function isRadicacionOperator(profile, app) {
-        if (profile && (profile.homeProfile === 'radicacion' || profile.isRadicacion)) {
-            return true;
+        if (profile) {
+            if (profile.homeProfile === 'radicacion') {
+                return true;
+            }
+
+            if (profile.isInspeccion) {
+                return false;
+            }
+
+            if (profile.isRadicacion && profile.homeProfile !== 'gestion') {
+                return profile.homeProfile === 'radicacion';
+            }
         }
 
         app = app || getApp();
@@ -126,17 +136,18 @@
 
         if (roles) {
             var names = Array.isArray(roles) ? roles : Object.values(roles);
-
-            for (var i = 0; i < names.length; i++) {
-                var normalized = String(names[i] || '')
+            var normalizedNames = names.map(function (name) {
+                return String(name || '')
                     .toLowerCase()
                     .normalize('NFD')
                     .replace(/[\u0300-\u036f]/g, '');
+            });
 
-                if (normalized === 'radicacion') {
-                    return true;
-                }
+            if (normalizedNames.indexOf('inspeccion') !== -1) {
+                return false;
             }
+
+            return normalizedNames.indexOf('radicacion') !== -1;
         }
 
         return false;

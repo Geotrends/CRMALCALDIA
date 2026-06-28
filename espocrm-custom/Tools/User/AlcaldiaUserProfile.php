@@ -118,6 +118,10 @@ class AlcaldiaUserProfile
             'isAsignador' => $this->isAsignador($user),
         ];
 
+        if ($flags['isInspeccion']) {
+            return 'gestion';
+        }
+
         if ($flags['isRadicacion']) {
             return 'radicacion';
         }
@@ -128,10 +132,6 @@ class AlcaldiaUserProfile
 
         if ($flags['isPatrullero']) {
             return 'patrullero';
-        }
-
-        if ($flags['isInspeccion']) {
-            return 'gestion';
         }
 
         return 'gestion';
@@ -159,7 +159,7 @@ class AlcaldiaUserProfile
 
     public function canEditRadicado(User $user): bool
     {
-        return $this->isRadicacion($user);
+        return $this->isOperationalRadicacion($user);
     }
 
     public function canAssignCase(User $user): bool
