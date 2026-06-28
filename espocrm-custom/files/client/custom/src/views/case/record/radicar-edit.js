@@ -37,17 +37,6 @@ define('custom:views/case/record/radicar-edit', [
                     label: 'Cancel',
                 },
             ];
-
-            const self = this;
-
-            RadicacionFields.ensureProfile(this.getUser()).then(function () {
-                if (RadicacionEditMode.isPureRadicacionUser(self.getUser())) {
-                    return;
-                }
-
-                Espo.Ui.warning(self.translate('Access denied', 'messages'));
-                self.getRouter().navigate('#Case/view/' + self.model.id, {trigger: true});
-            });
         },
 
         afterRender: function () {

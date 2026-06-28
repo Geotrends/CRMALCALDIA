@@ -1,9 +1,10 @@
 /**
- * Flujo Radicación (Edwin): botón Radicar, redirect ?radicar=1, ocultar resto del formulario.
- * Respaldo independiente de las vistas — usa API alcaldiaProfile directamente.
+ * Flujo Radicación — respaldo independiente de las vistas (v3).
+ * Si la vista custom falla, este script monta el panel de radicación igual.
  */
 (function () {
 
+    var FLOW_VERSION = 'v3';
     var PROFILE_CACHE_KEY = 'alcaldiaCaseProfileCache';
     var profileInflight = null;
 
@@ -104,8 +105,41 @@
         });
     }
 
-    function isRadicacionOperator(profile) {
-        return !!(profile && profile.homeProfile === 'radicacion');
+    function isRadicacionOperator(profile, app) {
+        if (profile && (profile.homeProfile === 'radicacion' || profile.isRadicacion)) {
+            return true;
+        }
+
+        app = app || getApp();
+
+        if (!app || !app.getUser) {
+            return false;
+        }
+
+        var user = app.getUser();
+
+        if (!user || user.isAdmin()) {
+            return false;
+        }
+
+        var roles = user.get && user.get('rolesNames');
+
+        if (roles) {
+            var names = Array.isArray(roles) ? roles : Object.values(roles);
+
+            for (var i = 0; i < names.length; i++) {
+                var normalized = String(names[i] || '')
+                    .toLowerCase()
+                    .normalize('NFD')
+                    .replace(/[\u0300-\u036f]/g, '');
+
+                if (normalized === 'radicacion') {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     function getHash() {
@@ -131,12 +165,8 @@
         return isCaseEditRoute() && /[?&]radicar=1(?:&|$)/.test(getHash());
     }
 
-    function isCaseRadicarRoute() {
-        return /^#Case\/radicar\//i.test(getHash()) || isRadicarEditRoute();
-    }
-
     function getCaseRadicarUrl(caseId) {
-        return '#Case/radicar/' + caseId;
+        return '#Case/edit/' + caseId + '?radicar=1';
     }
 
     function patchDetailRadicarButton(caseId) {
@@ -203,7 +233,7 @@
         document.body.classList.add('alcaldia-radicacion-radicar-page');
 
         document.querySelectorAll(
-            '.edit[data-scope="Case"] .panel:not([data-name="radicacionCaso"]):not([data-panel-name="radicacionCaso"]), ' +
+            '.edit[data-scope="Case"] .middle .panel:not([data-name="radicacionCaso"]):not([data-panel-name="radicacionCaso"]):not(.radicado-assistant-panel):not(.radicado-assistant-panel-mount), ' +
             '.edit[data-scope="Case"] .record-panel:not([data-name="radicacionCaso"])'
         ).forEach(function (panel) {
             if (panel.querySelector('.radicado-assistant-panel-mount, .radicado-assistant-panel')) {
@@ -226,27 +256,151 @@
                 host.style.display = 'none';
             }
         });
+
+        document.querySelectorAll(
+            '.edit[data-scope="Case"] .panel[data-name="radicacionCaso"], ' +
+            '.edit[data-scope="Case"] .radicado-assistant-panel, ' +
+            '.edit[data-scope="Case"] .radicado-assistant-panel-mount'
+        ).forEach(function (node) {
+            node.style.display = 'block';
+        });
     }
 
-    function enforceRadicarEditRoute(caseId) {
+    function walkViews(view, bucket) {
+        if (!view) {
+            return;
+        }
+
+        bucket.push(view);
+
+        if (typeof view.getNestedViews === 'function') {
+            view.getNestedViews().forEach(function (child) {
+                walkViews(child, bucket);
+            });
+        }
+
+        if (view.childViews) {
+            Object.keys(view.childViews).forEach(function (key) {
+                if (typeof view.getView === 'function') {
+                    walkViews(view.getView(key), bucket);
+                }
+            });
+        }
+    }
+
+    function findCaseEditRecordView() {
+        var app = getApp();
+
+        if (!app || typeof app.getMainView !== 'function') {
+            return null;
+        }
+
+        var views = [];
+
+        walkViews(app.getMainView(), views);
+
+        for (var i = views.length - 1; i >= 0; i--) {
+            var view = views[i];
+
+            if (!view || !view.model || !view.model.id) {
+                continue;
+            }
+
+            if (view.scope !== 'Case' && view.entityType !== 'Case') {
+                continue;
+            }
+
+            if (!view.$el || !view.$el.length) {
+                continue;
+            }
+
+            if (!view.$el.closest('.edit[data-scope="Case"]').length && !view.$el.hasClass('record')) {
+                continue;
+            }
+
+            if (typeof view.fetch !== 'function') {
+                continue;
+            }
+
+            return view;
+        }
+
+        return null;
+    }
+
+    function mountAssistantFallback() {
+        if (!isRadicarEditRoute() && !document.body.classList.contains('alcaldia-radicacion-radicar-page')) {
+            return;
+        }
+
+        if (document.querySelector('.edit[data-scope="Case"] .radicado-assistant-panel-mount')) {
+            return;
+        }
+
+        if (!window.Espo || !Espo.loader || typeof Espo.loader.require !== 'function') {
+            return;
+        }
+
+        var recordView = findCaseEditRecordView();
+
+        if (!recordView) {
+            return;
+        }
+
+        recordView.layoutName = recordView.layoutName || 'radicar';
+        recordView._alcaldiaRadicacionEdit = true;
+        recordView._radicarMode = true;
+
+        Espo.loader.require('custom:helpers/radicado-assistant-panel', function (RadicadoAssistantPanel) {
+            if (document.querySelector('.edit[data-scope="Case"] .radicado-assistant-panel-mount')) {
+                return;
+            }
+
+            RadicadoAssistantPanel.mount(recordView);
+
+            var panel = document.querySelector('.edit[data-scope="Case"] .radicado-assistant-panel-mount');
+
+            if (!panel) {
+                return;
+            }
+
+            panel.querySelectorAll('input, select, textarea').forEach(function (input) {
+                input.disabled = false;
+                input.removeAttribute('readonly');
+            });
+        });
+    }
+
+    function enforceRadicarEditRoute(app, caseId) {
         if (!caseId) {
             return;
         }
 
-        if (isCaseRadicarRoute()) {
+        if (isRadicarEditRoute()) {
             applyRadicarEditPage();
+            mountAssistantFallback();
 
             return;
         }
 
-        window.location.replace(
-            window.location.pathname + window.location.search + getCaseRadicarUrl(caseId)
-        );
+        if (!isCaseEditRoute()) {
+            return;
+        }
+
+        var router = app && app.getRouter && app.getRouter();
+
+        if (router && typeof router.navigate === 'function') {
+            router.navigate(getCaseRadicarUrl(caseId), {trigger: true});
+
+            return;
+        }
+
+        window.location.hash = getCaseRadicarUrl(caseId);
     }
 
     function handleRoute(app) {
         fetchProfile(app, function (profile) {
-            if (!isRadicacionOperator(profile)) {
+            if (!isRadicacionOperator(profile, app)) {
                 document.body.classList.remove('alcaldia-radicacion-radicar-page');
 
                 return;
@@ -256,10 +410,13 @@
                 patchDetailRadicarButton(getCaseIdFromHash('Case/view'));
             }
 
-            if (isCaseEditRoute() || /^#Case\/radicar\//i.test(getHash())) {
-                enforceRadicarEditRoute(
-                    getCaseIdFromHash('Case/edit') || getCaseIdFromHash('Case/radicar')
-                );
+            if (isCaseEditRoute()) {
+                enforceRadicarEditRoute(app, getCaseIdFromHash('Case/edit'));
+            }
+
+            if (isRadicarEditRoute()) {
+                applyRadicarEditPage();
+                mountAssistantFallback();
             }
         });
     }
@@ -270,6 +427,7 @@
         }
 
         app.__caseRadicacionFlowBound = true;
+        app.__caseRadicacionFlowVersion = FLOW_VERSION;
         handleRoute(app);
 
         if (app.on) {
@@ -294,17 +452,15 @@
     function scheduleHandleRoute() {
         var app = getApp();
 
-        window.setTimeout(function () {
-            handleRoute(app);
-        }, 0);
-        window.setTimeout(function () {
-            handleRoute(app);
-        }, 250);
-        window.setTimeout(function () {
-            handleRoute(app);
-        }, 900);
+        [0, 250, 900, 1800, 3500].forEach(function (delay) {
+            window.setTimeout(function () {
+                handleRoute(app);
+                mountAssistantFallback();
+            }, delay);
+        });
     }
 
+    window.__alcaldiaRadicacionFlowVersion = FLOW_VERSION;
     window.addEventListener('hashchange', scheduleHandleRoute, true);
 
     if (document.readyState === 'loading') {
@@ -315,7 +471,7 @@
 
     if (document.body) {
         new MutationObserver(function () {
-            if (!isCaseDetailRoute() && !isCaseEditRoute() && !/^#Case\/radicar\//i.test(getHash())) {
+            if (!isCaseDetailRoute() && !isCaseEditRoute()) {
                 return;
             }
 

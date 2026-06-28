@@ -332,7 +332,41 @@ define('custom:helpers/radicacion-fields', [], function () {
             return false;
         }
 
-        return resolveHomeProfile(user) === 'radicacion';
+        if (hasRole(user, ROLE_RADICACION)) {
+            return true;
+        }
+
+        const userId = getCurrentUserId(user);
+        const cached = readSessionProfileCache(userId);
+
+        if (cached && (cached.homeProfile === 'radicacion' || cached.isRadicacion)) {
+            return true;
+        }
+
+        if (resolveHomeProfile(user) === 'radicacion') {
+            return true;
+        }
+
+        const profile = getProfileForUser(user);
+
+        if (profile && profile.isRadicacion) {
+            return true;
+        }
+
+        if (
+            profileLoaded
+            && profileUserId === userId
+            && serverProfile
+            && serverProfile.isRadicacion
+        ) {
+            return true;
+        }
+
+        if (!profileLoaded) {
+            ensureProfile(user);
+        }
+
+        return false;
     };
 
     const getProfileForUser = function (user) {

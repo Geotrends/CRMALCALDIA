@@ -20,6 +20,10 @@ define('custom:views/case/record/edit', [
     return Dep.extend({
 
         setup: function () {
+            if (!this.model.isNew()) {
+                RadicacionFields.ensureProfile(this.getUser());
+            }
+
             if (RadicacionEditMode.isRadicacionOnlyEdit(this)) {
                 RadicacionEditMode.prepareRadicacionLayout(this);
             }

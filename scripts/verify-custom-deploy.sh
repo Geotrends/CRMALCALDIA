@@ -34,9 +34,9 @@ errors=0
 echo "==> Verificación deploy custom (APP_ROOT=$APP_ROOT)"
 echo ""
 
-check_file "Loader flujo radicación" \
+check_file "Loader flujo radicación v3" \
   "$CLIENT/src/loader/case-radicacion-flow.js" \
-  "alcaldia-radicacion-radicar-page" || errors=$((errors + 1))
+  "FLOW_VERSION = 'v3'" || errors=$((errors + 1))
 
 check_file "Loader perfil (IIFE, sin define)" \
   "$CLIENT/src/loader/alcaldia-profile-sync.js" \
@@ -58,9 +58,9 @@ check_file "Edit case (modo radicación)" \
   "$CLIENT/src/views/case/record/edit.js" \
   "isRadicacionOnlyEdit" || errors=$((errors + 1))
 
-check_file "Controller case (pantalla radicar)" \
+check_file "Controller case (edit?radicar=1)" \
   "$CLIENT/src/controllers/case.js" \
-  "getRadicarViewName" || errors=$((errors + 1))
+  "openRadicarScreen" || errors=$((errors + 1))
 
 if [ -f "$REPO_ROOT/.deploy-version" ]; then
   echo "OK: Versión en imagen → $(cat "$REPO_ROOT/.deploy-version")"

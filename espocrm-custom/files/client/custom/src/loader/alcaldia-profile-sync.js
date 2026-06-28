@@ -1,8 +1,16 @@
 /**
- * Refresca el perfil Alcaldía cuando cambia el usuario en sesión
- * (evita mezclar roles de Edwin/Juan tras cambiar de cuenta sin recargar).
+ * Refresca el perfil Alcaldía cuando cambia el usuario en sesión.
  */
 (function () {
+
+    var PROFILE_CACHE_KEY = 'alcaldiaCaseProfileCache';
+    var lastUserId = null;
+
+    function clearProfileCache() {
+        try {
+            sessionStorage.removeItem(PROFILE_CACHE_KEY);
+        } catch (error) {}
+    }
 
     function syncProfile(app) {
         if (!app || !app.getUser) {
@@ -15,11 +23,23 @@
             return;
         }
 
+        if (lastUserId && lastUserId !== user.id) {
+            clearProfileCache();
+        }
+
+        lastUserId = user.id;
+
         if (!window.Espo || !Espo.loader || typeof Espo.loader.require !== 'function') {
             return;
         }
 
         Espo.loader.require('custom:helpers/radicacion-fields', function (RadicacionFields) {
+            if (typeof RadicacionFields.refreshProfile === 'function') {
+                RadicacionFields.refreshProfile(user);
+
+                return;
+            }
+
             RadicacionFields.ensureProfile(user);
         });
     }

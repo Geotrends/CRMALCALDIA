@@ -70,7 +70,7 @@ define('custom:helpers/radicacion-edit-mode', [
 
         const scope = recordView.scope || recordView.entityType || 'Case';
 
-        return '#' + scope + '/radicar/' + recordView.model.id;
+        return '#' + scope + '/edit/' + recordView.model.id + '?radicar=1';
     };
 
     const openRadicadoEdit = function (recordView) {
