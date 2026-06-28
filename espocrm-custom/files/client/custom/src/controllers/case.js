@@ -59,9 +59,14 @@ define('custom:controllers/case', [
 
             if (options.id && RadicacionEditMode.isPureRadicacionUser(this.getUser())) {
                 RadicacionEditMode.activateRadicarMode(options.id);
-                this.getRouter().navigate('#Case/edit/' + options.id + '?radicar=1', {trigger: true});
 
-                return;
+                const hash = String(window.location.hash || '');
+
+                if (!/[?&]radicar=1(?:&|$)/.test(hash)) {
+                    this.getRouter().navigate('#Case/edit/' + options.id + '?radicar=1', {trigger: true});
+
+                    return;
+                }
             }
 
             Dep.prototype.actionEdit.call(this, options);

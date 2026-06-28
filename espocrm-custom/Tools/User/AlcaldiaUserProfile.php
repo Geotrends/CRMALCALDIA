@@ -170,6 +170,15 @@ class AlcaldiaUserProfile
         return false;
     }
 
+    public function isOperationalRadicacion(User $user): bool
+    {
+        if ($user->isAdmin()) {
+            return false;
+        }
+
+        return $this->resolveHomeProfile($user) === 'radicacion';
+    }
+
     /**
      * @param string[] $names
      */

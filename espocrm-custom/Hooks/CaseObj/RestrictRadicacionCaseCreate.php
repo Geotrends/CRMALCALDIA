@@ -28,7 +28,7 @@ class RestrictRadicacionCaseCreate implements BeforeSave
 
         $profile = new AlcaldiaUserProfile($this->entityManager);
 
-        if (!$profile->isRadicacion($this->user) || $profile->isInspeccion($this->user)) {
+        if (!$profile->isOperationalRadicacion($this->user)) {
             return;
         }
 

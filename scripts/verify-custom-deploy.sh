@@ -54,9 +54,13 @@ check_file "Layout radicar" \
   "$CUSTOM/Resources/layouts/Case/radicar.json" \
   "radicacionCaso" || errors=$((errors + 1))
 
-check_file "Edit case (layout dedicado)" \
+check_file "Edit case (modo radicación)" \
   "$CLIENT/src/views/case/record/edit.js" \
-  "prepareRadicacionDedicatedLayoutForUser" || errors=$((errors + 1))
+  "isRadicacionOnlyEdit" || errors=$((errors + 1))
+
+check_file "Controller case (edit sin bucle)" \
+  "$CLIENT/src/controllers/case.js" \
+  "radicar=1" || errors=$((errors + 1))
 
 if [ -f "$REPO_ROOT/.deploy-version" ]; then
   echo "OK: Versión en imagen → $(cat "$REPO_ROOT/.deploy-version")"
