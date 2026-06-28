@@ -159,6 +159,10 @@ define('custom:views/case/record/edit', [
 
             RadicadoAssistantPanel.mount(this);
 
+            if (!this.$el.find('.radicado-assistant-panel-mount').length) {
+                return;
+            }
+
             RadicacionFields.RADICADO_ALL_FIELDS.forEach((field) => {
                 this.$el.find('[data-name="' + field + '"]').closest('.cell').hide();
             });

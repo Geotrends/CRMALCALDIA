@@ -58,9 +58,9 @@ check_file "Edit case (modo radicación)" \
   "$CLIENT/src/views/case/record/edit.js" \
   "isRadicacionOnlyEdit" || errors=$((errors + 1))
 
-check_file "Controller case (edit sin bucle)" \
+check_file "Controller case (pantalla radicar)" \
   "$CLIENT/src/controllers/case.js" \
-  "radicar=1" || errors=$((errors + 1))
+  "getRadicarViewName" || errors=$((errors + 1))
 
 if [ -f "$REPO_ROOT/.deploy-version" ]; then
   echo "OK: Versión en imagen → $(cat "$REPO_ROOT/.deploy-version")"

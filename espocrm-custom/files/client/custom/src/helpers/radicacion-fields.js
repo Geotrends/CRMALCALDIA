@@ -270,6 +270,13 @@ define('custom:helpers/radicacion-fields', [], function () {
             return 'gestion';
         }
 
+        const userId = getCurrentUserId(user);
+        const cached = readSessionProfileCache(userId);
+
+        if (cached && cached.homeProfile) {
+            return cached.homeProfile;
+        }
+
         const profile = getProfileForUser(user);
 
         if (profile && profile.homeProfile) {
@@ -325,51 +332,7 @@ define('custom:helpers/radicacion-fields', [], function () {
             return false;
         }
 
-        const userId = getCurrentUserId(user);
-        const cached = readSessionProfileCache(userId);
-
-        if (cached && cached.homeProfile === 'radicacion') {
-            return true;
-        }
-
-        if (hasRole(user, ROLE_RADICACION)) {
-            return true;
-        }
-
-        const profile = getProfileForUser(user);
-
-        if (profile && profile.homeProfile === 'radicacion') {
-            return true;
-        }
-
-        if (
-            profileLoaded
-            && profileUserId === userId
-            && serverProfile
-            && serverProfile.homeProfile === 'radicacion'
-        ) {
-            return true;
-        }
-
-        if (profile && profile.isRadicacion && !profile.isInspeccion) {
-            return true;
-        }
-
-        if (
-            profileLoaded
-            && profileUserId === userId
-            && serverProfile
-            && serverProfile.isRadicacion
-            && !serverProfile.isInspeccion
-        ) {
-            return true;
-        }
-
-        if (!profileLoaded) {
-            ensureProfile(user);
-        }
-
-        return false;
+        return resolveHomeProfile(user) === 'radicacion';
     };
 
     const getProfileForUser = function (user) {

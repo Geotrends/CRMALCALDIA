@@ -8,6 +8,16 @@ define('custom:helpers/radicado-assistant-panel', [
     let fetchRequest = null;
 
     const canShow = function (recordView) {
+        if (
+            recordView
+            && (
+                recordView.layoutName === 'radicar'
+                || recordView._alcaldiaRadicacionEdit
+            )
+        ) {
+            return true;
+        }
+
         if (RadicacionEditMode.isRadicacionEditSession(recordView)) {
             return true;
         }

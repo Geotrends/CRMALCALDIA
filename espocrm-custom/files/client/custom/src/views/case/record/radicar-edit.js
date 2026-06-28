@@ -11,6 +11,7 @@ define('custom:views/case/record/radicar-edit', [
 
         layoutName: 'radicar',
         sideDisabled: true,
+        bottomDisabled: true,
         isWide: false,
 
         setup: function () {
@@ -18,14 +19,6 @@ define('custom:views/case/record/radicar-edit', [
 
             this._alcaldiaRadicacionEdit = true;
             this._radicarMode = true;
-
-            if (!RadicacionEditMode.isPureRadicacionUser(this.getUser())) {
-                Espo.Ui.warning(this.translate('Access denied', 'messages'));
-                this.getRouter().navigate('#Case/view/' + this.model.id, {trigger: true});
-
-                return;
-            }
-
             this._lockedRadicadoValues = {};
 
             RadicacionFields.RADICADO_ALL_FIELDS.forEach((field) => {
@@ -44,19 +37,50 @@ define('custom:views/case/record/radicar-edit', [
                     label: 'Cancel',
                 },
             ];
+
+            const self = this;
+
+            RadicacionFields.ensureProfile(this.getUser()).then(function () {
+                if (RadicacionEditMode.isPureRadicacionUser(self.getUser())) {
+                    return;
+                }
+
+                Espo.Ui.warning(self.translate('Access denied', 'messages'));
+                self.getRouter().navigate('#Case/view/' + self.model.id, {trigger: true});
+            });
         },
 
         afterRender: function () {
             Dep.prototype.afterRender.call(this);
 
+            $('body').addClass('alcaldia-radicacion-radicar-page');
+            this.mountAssistantPanel();
+
+            [100, 350, 800].forEach((delay) => {
+                window.setTimeout(() => {
+                    if (!this.isRendered || !this.isRendered()) {
+                        return;
+                    }
+
+                    this.mountAssistantPanel();
+                }, delay);
+            });
+        },
+
+        mountAssistantPanel: function () {
             RadicadoAssistantPanel.mount(this);
+
+            const $panel = this.$el.find('.radicado-assistant-panel-mount');
+
+            if (!$panel.length) {
+                return;
+            }
 
             RadicacionFields.RADICADO_ALL_FIELDS.forEach((field) => {
                 this.$el.find('[data-name="' + field + '"]').closest('.cell').hide();
             });
 
-            this.$el.find('.radicado-assistant-panel-mount')
-                .find('input, select, textarea')
+            $panel.find('input, select, textarea')
                 .prop('disabled', false)
                 .removeAttr('readonly');
         },
@@ -173,6 +197,12 @@ define('custom:views/case/record/radicar-edit', [
 
         actionCancel: function () {
             this.getRouter().navigate('#Case/view/' + this.model.id, {trigger: true});
+        },
+
+        exit: function (after) {
+            $('body').removeClass('alcaldia-radicacion-radicar-page');
+
+            return Dep.prototype.exit.call(this, after);
         },
     });
 });

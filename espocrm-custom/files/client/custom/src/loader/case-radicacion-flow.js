@@ -131,12 +131,20 @@
         return isCaseEditRoute() && /[?&]radicar=1(?:&|$)/.test(getHash());
     }
 
+    function isCaseRadicarRoute() {
+        return /^#Case\/radicar\//i.test(getHash()) || isRadicarEditRoute();
+    }
+
+    function getCaseRadicarUrl(caseId) {
+        return '#Case/radicar/' + caseId;
+    }
+
     function patchDetailRadicarButton(caseId) {
         if (!caseId) {
             return;
         }
 
-        var targetHref = '#Case/edit/' + caseId + '?radicar=1';
+        var targetHref = getCaseRadicarUrl(caseId);
         var selectors = [
             '.detail[data-scope="Case"] [data-action="edit"]',
             '.header-buttons [data-action="edit"]',
@@ -225,14 +233,14 @@
             return;
         }
 
-        if (isRadicarEditRoute()) {
+        if (isCaseRadicarRoute()) {
             applyRadicarEditPage();
 
             return;
         }
 
         window.location.replace(
-            window.location.pathname + window.location.search + '#Case/edit/' + caseId + '?radicar=1'
+            window.location.pathname + window.location.search + getCaseRadicarUrl(caseId)
         );
     }
 
@@ -248,8 +256,10 @@
                 patchDetailRadicarButton(getCaseIdFromHash('Case/view'));
             }
 
-            if (isCaseEditRoute()) {
-                enforceRadicarEditRoute(getCaseIdFromHash('Case/edit'));
+            if (isCaseEditRoute() || /^#Case\/radicar\//i.test(getHash())) {
+                enforceRadicarEditRoute(
+                    getCaseIdFromHash('Case/edit') || getCaseIdFromHash('Case/radicar')
+                );
             }
         });
     }
@@ -305,7 +315,7 @@
 
     if (document.body) {
         new MutationObserver(function () {
-            if (!isCaseDetailRoute() && !isCaseEditRoute()) {
+            if (!isCaseDetailRoute() && !isCaseEditRoute() && !/^#Case\/radicar\//i.test(getHash())) {
                 return;
             }
 

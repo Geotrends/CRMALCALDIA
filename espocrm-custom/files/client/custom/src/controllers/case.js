@@ -1,7 +1,8 @@
 define('custom:controllers/case', [
     'controllers/record',
     'custom:helpers/radicacion-edit-mode',
-], function (Dep, RadicacionEditMode) {
+    'custom:helpers/radicacion-fields',
+], function (Dep, RadicacionEditMode, RadicacionFields) {
 
     return Dep.extend({
 
@@ -34,6 +35,28 @@ define('custom:controllers/case', [
             this.getRouter().dispatch('Home', 'index', {trigger: true});
         },
 
+        getRadicarViewName: function () {
+            return this.getMetadata().get(['clientDefs', this.name, 'views', 'radicar'])
+                || 'custom:views/case/radicar';
+        },
+
+        openRadicarScreen: function (id, options) {
+            options = options || {};
+
+            if (!id) {
+                throw new Error('Case id required for radicar.');
+            }
+
+            if (!this.getAcl().check(this.name, 'edit')) {
+                this.accessDenied();
+
+                return;
+            }
+
+            RadicacionEditMode.activateRadicarMode(id);
+            this.getRouter().navigate('#Case/radicar/' + id, {trigger: true});
+        },
+
         beforeCreate: function (options) {
             if (!this.canCreateCase()) {
                 return;
@@ -58,15 +81,9 @@ define('custom:controllers/case', [
             options = options || {};
 
             if (options.id && RadicacionEditMode.isPureRadicacionUser(this.getUser())) {
-                RadicacionEditMode.activateRadicarMode(options.id);
+                this.openRadicarScreen(options.id, options);
 
-                const hash = String(window.location.hash || '');
-
-                if (!/[?&]radicar=1(?:&|$)/.test(hash)) {
-                    this.getRouter().navigate('#Case/edit/' + options.id + '?radicar=1', {trigger: true});
-
-                    return;
-                }
+                return;
             }
 
             Dep.prototype.actionEdit.call(this, options);
@@ -76,6 +93,7 @@ define('custom:controllers/case', [
             options = options || {};
 
             var id = options.id;
+            var self = this;
 
             if (!id) {
                 throw new Error('Case id required for radicar.');
@@ -88,7 +106,39 @@ define('custom:controllers/case', [
             }
 
             RadicacionEditMode.activateRadicarMode(id);
-            this.getRouter().navigate('#Case/edit/' + id + '?radicar=1', {trigger: true});
+
+            var proceed = function () {
+                if (!RadicacionEditMode.isPureRadicacionUser(self.getUser())) {
+                    Espo.Ui.warning(self.translate('Access denied', 'messages'));
+                    self.getRouter().navigate('#Case/view/' + id, {trigger: true});
+
+                    return;
+                }
+
+                self.getModelFactory().create(self.name, function (model) {
+                    model.id = id;
+
+                    self.listenToOnce(model, 'sync', function () {
+                        self.main(self.getRadicarViewName(), {
+                            scope: self.name,
+                            model: model,
+                            returnUrl: options.returnUrl || ('#Case/view/' + id),
+                            returnDispatchParams: options.returnDispatchParams,
+                            isReturned: options.isReturned || self.store.get('isReturned'),
+                        });
+                    }, self);
+
+                    model.fetch({main: true});
+                }, self);
+            };
+
+            if (RadicacionFields.isProfileLoaded()) {
+                proceed();
+
+                return;
+            }
+
+            RadicacionFields.ensureProfile(this.getUser()).then(proceed);
         },
     });
 });
