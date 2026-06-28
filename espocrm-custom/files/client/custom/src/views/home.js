@@ -9,7 +9,7 @@ define('custom:views/home', ['views/dashboard', 'search-manager'], function (Dep
             .replace(/[\u0300-\u036f]/g, '');
     };
 
-    var detectProfileFromTeams = function (user) {
+    var detectProfileFromRoles = function (user) {
         if (user.isAdmin()) {
             return 'gestion';
         }
@@ -20,37 +20,19 @@ define('custom:views/home', ['views/dashboard', 'search-manager'], function (Dep
             names.push(normalize(name));
         });
 
-        Object.values(user.get('teamsNames') || {}).forEach(function (name) {
-            names.push(normalize(name));
-        });
-
-        var defaultTeam = user.get('defaultTeamName');
-
-        if (defaultTeam) {
-            names.push(normalize(defaultTeam));
-        }
-
-        if (names.some(function (name) {
-            return name.indexOf('radicacion') !== -1;
-        })) {
+        if (names.indexOf('radicacion') !== -1) {
             return 'radicacion';
         }
 
-        if (names.some(function (name) {
-            return name.indexOf('asignador') !== -1;
-        })) {
+        if (names.indexOf('asignador') !== -1) {
             return 'asignador';
         }
 
-        if (names.some(function (name) {
-            return name.indexOf('patrullero') !== -1;
-        })) {
+        if (names.indexOf('patrullero') !== -1) {
             return 'patrullero';
         }
 
-        if (names.some(function (name) {
-            return name.indexOf('inspeccion') !== -1;
-        })) {
+        if (names.indexOf('inspeccion') !== -1) {
             return 'gestion';
         }
 
@@ -127,7 +109,7 @@ define('custom:views/home', ['views/dashboard', 'search-manager'], function (Dep
             var user = this.getUser();
             var userId = user.id;
             var appTimestamp = this.getConfig().get('appTimestamp');
-            var profile = detectProfileFromTeams(user);
+            var profile = detectProfileFromRoles(user);
 
             this.config = profileConfig(profile, userId, appTimestamp);
             this._pageState = {};

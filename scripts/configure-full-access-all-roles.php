@@ -76,6 +76,8 @@ $fullScope = static function (): array {
     ];
 };
 
+$restrictedCaseRoles = ['Radicación', 'Radicacion', 'Patrullero', 'Asignador'];
+
 foreach ($em->getRDBRepository('Role')->find() as $role) {
     $name = (string) $role->get('name');
 
@@ -94,6 +96,10 @@ foreach ($em->getRDBRepository('Role')->find() as $role) {
     }
 
     foreach ($scopes as $scope) {
+        if ($scope === 'Case' && in_array($name, $restrictedCaseRoles, true)) {
+            continue;
+        }
+
         $data[$scope] = $fullScope();
     }
 

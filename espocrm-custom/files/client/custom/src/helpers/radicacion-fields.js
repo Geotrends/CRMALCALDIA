@@ -1,5 +1,10 @@
 define('custom:helpers/radicacion-fields', [], function () {
 
+    /**
+     * Roles operativos Alcaldía — solo entidad Role (rolesNames + API alcaldiaProfile).
+     * No usar equipos, defaultTeam ni userName para decidir permisos.
+     */
+
     const ROLE_RADICACION = 'radicacion';
     const ROLE_INSPECCION = 'inspeccion';
     const ROLE_ASIGNADOR = 'asignador';
@@ -143,27 +148,20 @@ define('custom:helpers/radicacion-fields', [], function () {
         ensureProfile();
     };
 
-    const getProfileNames = function (user) {
+    const getAssignedRoleNames = function (user) {
+        if (!user) {
+            return [];
+        }
+
         const names = [];
 
         Object.values(user.get('rolesNames') || {}).forEach((name) => names.push(name));
-        Object.values(user.get('teamsNames') || {}).forEach((name) => names.push(name));
-
-        const defaultTeam = user.get('defaultTeamName');
-
-        if (defaultTeam) {
-            names.push(defaultTeam);
-        }
 
         return names;
     };
 
-    const matchesRoleKey = function (name, roleKey) {
-        return normalize(name) === roleKey;
-    };
-
     const hasRole = function (user, roleKey) {
-        return getProfileNames(user).some((name) => matchesRoleKey(name, roleKey));
+        return getAssignedRoleNames(user).some((name) => normalize(name) === roleKey);
     };
 
     const getProfileForUser = function (user) {
@@ -395,6 +393,8 @@ define('custom:helpers/radicacion-fields', [], function () {
             return profileUserId;
         },
         onProfileReady: onProfileReady,
+        hasRole: hasRole,
+        getAssignedRoleNames: getAssignedRoleNames,
         isRadicacionUser: isRadicacionUser,
         isInspeccionUser: isInspeccionUser,
         isAsignadorUser: isAsignadorUser,

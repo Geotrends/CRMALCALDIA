@@ -6,8 +6,8 @@ use Espo\ORM\Entity;
 use Espo\ORM\EntityManager;
 
 /**
- * EspoCRM no expone rolesNames en la sesión del cliente; sí teamsNames.
- * Al asignar un rol, el usuario debe pertenecer al equipo homónimo.
+ * EspoCRM usa equipos para visibilidad interna. Los perfiles operativos del CRM Alcaldía
+ * se resuelven solo por rol asignado (AlcaldiaUserProfile / alcaldiaProfile).
  */
 class TeamRoleSync
 {

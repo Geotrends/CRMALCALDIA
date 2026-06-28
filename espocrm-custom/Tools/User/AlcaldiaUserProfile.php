@@ -3,12 +3,11 @@
 namespace Espo\Custom\Tools\User;
 
 use Espo\Entities\Role;
-use Espo\Entities\Team;
 use Espo\Entities\User;
 use Espo\ORM\EntityManager;
 
 /**
- * Perfiles operativos de la Alcaldía — solo por rol, nunca por userName.
+ * Perfiles operativos de la Alcaldía — solo por rol asignado (entidad Role), nunca por equipo ni userName.
  */
 class AlcaldiaUserProfile
 {
@@ -53,9 +52,9 @@ class AlcaldiaUserProfile
     public function build(User $user): array
     {
         $flags = [
-            'isInspeccion' => $user->isAdmin() || $this->hasAnyRoleOrTeam($user, self::NAMES_INSPECCION),
+            'isInspeccion' => $user->isAdmin() || $this->hasAnyRole($user, self::NAMES_INSPECCION),
             'isRadicacion' => $this->isRadicacion($user),
-            'isPatrullero' => $this->hasAnyRoleOrTeam($user, self::NAMES_PATRULLERO),
+            'isPatrullero' => $this->hasAnyRole($user, self::NAMES_PATRULLERO),
             'isAsignador' => $this->isAsignador($user),
             'canDownloadExcelAlcaldia' => $this->canDownloadExcelAlcaldia($user),
         ];
@@ -82,9 +81,9 @@ class AlcaldiaUserProfile
         }
 
         $flags ??= [
-            'isInspeccion' => $this->hasAnyRoleOrTeam($user, self::NAMES_INSPECCION),
+            'isInspeccion' => $this->hasAnyRole($user, self::NAMES_INSPECCION),
             'isRadicacion' => $this->isRadicacion($user),
-            'isPatrullero' => $this->hasAnyRoleOrTeam($user, self::NAMES_PATRULLERO),
+            'isPatrullero' => $this->hasAnyRole($user, self::NAMES_PATRULLERO),
             'isAsignador' => $this->isAsignador($user),
         ];
 
@@ -109,22 +108,22 @@ class AlcaldiaUserProfile
 
     public function isInspeccion(User $user): bool
     {
-        return !$user->isAdmin() && $this->hasAnyRoleOrTeam($user, self::NAMES_INSPECCION);
+        return !$user->isAdmin() && $this->hasAnyRole($user, self::NAMES_INSPECCION);
     }
 
     public function isRadicacion(User $user): bool
     {
-        return $user->isAdmin() || $this->hasAnyRoleOrTeam($user, self::NAMES_RADICACION);
+        return $user->isAdmin() || $this->hasAnyRole($user, self::NAMES_RADICACION);
     }
 
     public function isPatrullero(User $user): bool
     {
-        return !$user->isAdmin() && $this->hasAnyRoleOrTeam($user, self::NAMES_PATRULLERO);
+        return !$user->isAdmin() && $this->hasAnyRole($user, self::NAMES_PATRULLERO);
     }
 
     public function isAsignador(User $user): bool
     {
-        return $user->isAdmin() || $this->hasAnyRoleOrTeam($user, self::NAMES_ASIGNADOR);
+        return $user->isAdmin() || $this->hasAnyRole($user, self::NAMES_ASIGNADOR);
     }
 
     public function canEditRadicado(User $user): bool
@@ -133,35 +132,20 @@ class AlcaldiaUserProfile
     }
 
     /**
-     * @param string[] $names
+     * @param string[] $names Nombres de rol (Inspección, Radicación, etc.)
      */
     public function hasAnyRoleOrTeam(User $user, array $names): bool
     {
-        return $this->hasAnyRole($user, $names) || $this->hasAnyTeam($user, $names);
+        return $this->hasAnyRole($user, $names);
     }
 
     /**
+     * @deprecated Solo se usa rol; conservado por compatibilidad.
+     *
      * @param string[] $names
      */
     public function hasAnyTeam(User $user, array $names): bool
     {
-        $teamIds = $user->getLinkMultipleIdList('teams') ?? [];
-
-        if ($teamIds === []) {
-            return false;
-        }
-
-        foreach ($names as $name) {
-            $team = $this->entityManager
-                ->getRDBRepositoryByClass(Team::class)
-                ->where(['name' => $name])
-                ->findOne();
-
-            if ($team && in_array($team->getId(), $teamIds, true)) {
-                return true;
-            }
-        }
-
         return false;
     }
 
@@ -237,7 +221,7 @@ class AlcaldiaUserProfile
     }
 
     /**
-     * Usuarios activos con alguno de los roles o equipos indicados (por nombre).
+     * Usuarios activos con alguno de los roles indicados (por nombre de rol).
      *
      * @param string[] $names
      * @return string[]
@@ -248,30 +232,6 @@ class AlcaldiaUserProfile
 
         foreach ($names as $name) {
             $ids = array_merge($ids, $this->findActiveUserIdsByRoleName($name));
-        }
-
-        foreach ($names as $name) {
-            $team = $this->entityManager
-                ->getRDBRepositoryByClass(Team::class)
-                ->where(['name' => $name])
-                ->findOne();
-
-            if (!$team) {
-                continue;
-            }
-
-            foreach (
-                $this->entityManager
-                    ->getRDBRepositoryByClass(User::class)
-                    ->where(['isActive' => true, 'type' => User::TYPE_REGULAR])
-                    ->find() as $user
-            ) {
-                $teams = $user->getLinkMultipleIdList('teams') ?? [];
-
-                if (in_array($team->getId(), $teams, true)) {
-                    $ids[] = $user->getId();
-                }
-            }
         }
 
         return array_values(array_unique($ids));

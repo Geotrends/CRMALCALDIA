@@ -1,8 +1,8 @@
 <?php
 
 /**
- * Sincroniza equipos homónimos a los roles de cada usuario activo.
- * Necesario porque el cliente EspoCRM solo carga teamsNames en sesión.
+ * Sincroniza equipos homónimos a los roles de cada usuario activo (utilidad EspoCRM interna).
+ * La lógica de negocio del CRM Alcaldía identifica perfiles solo por rol asignado, no por equipo.
  *
  * docker exec espocrm php /tmp/sync-user-teams-from-roles.php
  */

@@ -41,6 +41,11 @@ define('custom:views/case/record/edit', [
             });
 
             if (!this.model.isNew()) {
+                if (RadicacionEditMode.shouldUseRadicacionRestrictedEdit(this)) {
+                    this._alcaldiaRadicacionEdit = true;
+                    this._radicarMode = true;
+                }
+
                 RadicacionEditMode.bootstrapRadicarMode(this);
                 this._lockedRadicadoValues = {};
 
@@ -108,8 +113,8 @@ define('custom:views/case/record/edit', [
 
         enforceRadicacionEntry: function () {
             if (this.model.isNew()) {
-                if (!this.getAcl().check('Case', 'create')) {
-                    Espo.Ui.warning(this.translate('caseCreateNotAllowed', 'messages', 'Case'));
+                if (RadicacionEditMode.isPureRadicacionUser(this.getUser())) {
+                    Espo.Ui.warning(this.translate('radicacionCannotCreateCase', 'messages', 'Case'));
                     this.getRouter().navigate('#Home', {trigger: true});
                 }
 
@@ -413,6 +418,10 @@ define('custom:views/case/record/edit', [
             PersonaTipoFields.toggleInfractorFields(this);
             PartyDocumentLookup.bindDom(this);
 
+            if (!this.model.isNew() && RadicacionEditMode.isRadicacionEditSession(this)) {
+                this.setupRadicacionEditUi();
+            }
+
             const self = this;
 
             const applyRoleUi = function () {
@@ -463,10 +472,6 @@ define('custom:views/case/record/edit', [
 
                         RadicacionEditMode.resolveRadicacionEditFlag(self).then(function (isRadicacion) {
                             if (!isRadicacion) {
-                                return;
-                            }
-
-                            if (self.hasVisibleRadicacionUi()) {
                                 return;
                             }
 
@@ -535,12 +540,9 @@ define('custom:views/case/record/edit', [
                 return;
             }
 
-            if (RadicacionEditMode.isPureRadicacionUser(this.getUser())) {
+            if (RadicacionEditMode.isPureRadicacionUser(this.getUser())
+                || RadicacionEditMode.shouldUseRadicacionRestrictedEdit(this)) {
                 RadicacionEditMode.applyRestrictedEdit(this);
-
-                if (this.isRadicarMode()) {
-                    return;
-                }
 
                 return;
             }
@@ -603,6 +605,10 @@ define('custom:views/case/record/edit', [
         },
 
         ensureInspeccionEditAccess: function () {
+            if (RadicacionEditMode.isRadicacionEditSession(this)) {
+                return;
+            }
+
             if (!AlcaldiaCaseRoles.isGestionInspeccionUser(this.getUser())) {
                 return;
             }
@@ -698,12 +704,9 @@ define('custom:views/case/record/edit', [
                     return;
                 }
 
-                if (isPureRadicacion) {
-                    const view = this.getFieldView(field);
-
-                    if (view && typeof view.setNotReadOnly === 'function') {
-                        view.setNotReadOnly();
-                    }
+                if (isPureRadicacion || RadicacionEditMode.isRadicacionEditSession(this)) {
+                    RadicacionEditMode.applyRestrictedEdit(this);
+                    this.ensureRadicacionAssistant();
 
                     return;
                 }

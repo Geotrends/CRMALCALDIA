@@ -2,59 +2,42 @@ define('custom:helpers/radicacion-edit-mode', [
     'custom:helpers/radicacion-fields',
 ], function (RadicacionFields) {
 
-    const normalize = function (value) {
-        return String(value)
-            .toLowerCase()
-            .normalize('NFD')
-            .replace(/[\u0300-\u036f]/g, '');
-    };
-
-    const getUserRoleNames = function (user) {
-        const names = [];
-
-        Object.values(user.get('rolesNames') || {}).forEach(function (name) {
-            names.push(name);
-        });
-
-        Object.values(user.get('teamsNames') || {}).forEach(function (name) {
-            names.push(name);
-        });
-
-        const defaultTeam = user.get('defaultTeamName');
-
-        if (defaultTeam) {
-            names.push(defaultTeam);
-        }
-
-        return names;
-    };
-
-    const userHasRoleKey = function (user, roleKey) {
-        return getUserRoleNames(user).some(function (name) {
-            return normalize(name) === roleKey;
-        });
-    };
-
     const isPureRadicacionUser = function (user) {
         if (!user || user.isAdmin()) {
             return false;
         }
 
-        if (userHasRoleKey(user, 'inspeccion') || RadicacionFields.isInspeccionUser(user)) {
+        if (RadicacionFields.isInspeccionUser(user)) {
             return false;
         }
 
-        if (userHasRoleKey(user, 'radicacion')) {
+        if (RadicacionFields.isAsignadorUser(user) && !RadicacionFields.isRadicacionUser(user)) {
+            return false;
+        }
+
+        if (RadicacionFields.isPatrulleroUser(user) && !RadicacionFields.isRadicacionUser(user)) {
+            return false;
+        }
+
+        if (RadicacionFields.hasRole(user, 'radicacion')) {
             return true;
         }
 
         const profile = RadicacionFields.getProfileForUser(user);
 
-        if (profile && profile.isRadicacion && !profile.isInspeccion) {
-            return true;
+        return !!(profile && profile.isRadicacion && !profile.isInspeccion);
+    };
+
+    const shouldUseRadicacionRestrictedEdit = function (recordView) {
+        if (!recordView || !recordView.model) {
+            return false;
         }
 
-        return false;
+        if (recordView.model.isNew && recordView.model.isNew()) {
+            return false;
+        }
+
+        return isPureRadicacionUser(recordView.getUser());
     };
 
     const PANELS_HIDDEN_FOR_RADICACION = [
@@ -103,7 +86,7 @@ define('custom:helpers/radicacion-edit-mode', [
             return true;
         }
 
-        return isPureRadicacionUser(recordView.getUser());
+        return shouldUseRadicacionRestrictedEdit(recordView);
     };
 
     const isRadicarMode = function (recordView) {
@@ -111,7 +94,7 @@ define('custom:helpers/radicacion-edit-mode', [
     };
 
     const bootstrapRadicarMode = function (recordView) {
-        if (isRadicacionEditSession(recordView)) {
+        if (shouldUseRadicacionRestrictedEdit(recordView)) {
             recordView._radicarMode = true;
             recordView._alcaldiaRadicacionEdit = true;
         }
@@ -208,6 +191,37 @@ define('custom:helpers/radicacion-edit-mode', [
         });
     };
 
+    const lockFormDomExceptAssistant = function (recordView) {
+        if (!recordView || !recordView.$el) {
+            return;
+        }
+
+        const $scope = recordView.$el;
+
+        $scope.find('input, select, textarea').each(function () {
+            const $input = $(this);
+
+            if ($input.closest('.radicado-assistant-panel-mount').length) {
+                return;
+            }
+
+            if ($input.closest('.save-button, .record-buttons, .button-container, .detail-button-container').length) {
+                return;
+            }
+
+            if ($input.attr('type') === 'hidden') {
+                return;
+            }
+
+            $input.prop('disabled', true).attr('readonly', 'readonly');
+        });
+
+        $scope.find('.radicado-assistant-panel-mount')
+            .find('input, select, textarea')
+            .prop('disabled', false)
+            .removeAttr('readonly');
+    };
+
     const applyFieldReadOnlyRestrictions = function (recordView) {
         if (!isRadicacionEditSession(recordView)) {
             return;
@@ -222,6 +236,7 @@ define('custom:helpers/radicacion-edit-mode', [
         try {
             lockAllFieldViewsExcept(recordView, getEditableFields());
             unlockEditableRadicacionFields(recordView);
+            lockFormDomExceptAssistant(recordView);
         } finally {
             recordView._applyingRadicacionFieldRestrictions = false;
         }
@@ -236,6 +251,7 @@ define('custom:helpers/radicacion-edit-mode', [
         recordView._alcaldiaRadicacionEdit = true;
 
         applyFieldReadOnlyRestrictions(recordView);
+        lockFormDomExceptAssistant(recordView);
         prepareRadicacionEditView(recordView);
 
         recordView.$el.find(
@@ -282,8 +298,8 @@ define('custom:helpers/radicacion-edit-mode', [
             return Promise.resolve(true);
         }
 
-        return RadicacionFields.ensureProfile(recordView.getUser()).then(function (profile) {
-            const isRadicacion = !!(profile && profile.isRadicacion && !profile.isInspeccion);
+        return RadicacionFields.ensureProfile(recordView.getUser()).then(function () {
+            const isRadicacion = isPureRadicacionUser(recordView.getUser());
 
             if (isRadicacion) {
                 recordView._alcaldiaRadicacionEdit = true;
@@ -295,6 +311,7 @@ define('custom:helpers/radicacion-edit-mode', [
 
     return {
         isPureRadicacionUser: isPureRadicacionUser,
+        shouldUseRadicacionRestrictedEdit: shouldUseRadicacionRestrictedEdit,
         bootstrapRadicarMode: bootstrapRadicarMode,
         isRadicarMode: isRadicarMode,
         isRadicacionEditSession: isRadicacionEditSession,

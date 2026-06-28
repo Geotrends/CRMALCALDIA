@@ -5,7 +5,7 @@
 
 DEPLOY_SETUP_STEPS=(
   "Roles y equipos base (despliegue desde cero)|seed-roles.php"
-  "Sincronizar equipos desde roles (sesión cliente usa teamsNames)|sync-user-teams-from-roles.php"
+  "Sincronizar equipos homónimos (utilidad Espo; perfiles por rol en alcaldiaProfile)|sync-user-teams-from-roles.php"
   "Catálogos Excel Alcaldía (desplegables)|configure-excel-alcaldia-case-fields.php"
   "Placeholder en desplegables Case|configure-case-enum-placeholders.php"
   "Menú lateral (tabList global)|configure-global-tablist.php"
