@@ -2,23 +2,29 @@
  * Refresca el perfil Alcaldía cuando cambia el usuario en sesión
  * (evita mezclar roles de Edwin/Juan tras cambiar de cuenta sin recargar).
  */
-define('custom:loader/alcaldia-profile-sync', ['custom:helpers/radicacion-fields'], function (RadicacionFields) {
+(function () {
 
-    const syncProfile = function (app) {
+    function syncProfile(app) {
         if (!app || !app.getUser) {
             return;
         }
 
-        const user = app.getUser();
+        var user = app.getUser();
 
         if (!user || !user.id) {
             return;
         }
 
-        RadicacionFields.syncProfileForUser(user);
-    };
+        if (!window.Espo || !Espo.loader || typeof Espo.loader.require !== 'function') {
+            return;
+        }
 
-    const bindApp = function (app) {
+        Espo.loader.require('custom:helpers/radicacion-fields', function (RadicacionFields) {
+            RadicacionFields.syncProfileForUser(user);
+        });
+    }
+
+    function bindApp(app) {
         if (!app || app.__alcaldiaProfileSyncBound) {
             return;
         }
@@ -31,10 +37,10 @@ define('custom:loader/alcaldia-profile-sync', ['custom:helpers/radicacion-fields
                 syncProfile(app);
             });
         }
-    };
+    }
 
-    const waitForApp = function () {
-        const app = window.Espo && Espo.App && Espo.App.instance;
+    function waitForApp() {
+        var app = window.Espo && Espo.App && Espo.App.instance;
 
         if (app && app.getUser) {
             bindApp(app);
@@ -43,11 +49,11 @@ define('custom:loader/alcaldia-profile-sync', ['custom:helpers/radicacion-fields
         }
 
         window.setTimeout(waitForApp, 150);
-    };
+    }
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', waitForApp);
     } else {
         waitForApp();
     }
-});
+})();
