@@ -585,6 +585,14 @@ define('custom:helpers/radicacion-fields', [], function () {
             return true;
         }
 
+        if (
+            recordView._radicarMode
+            || recordView._alcaldiaRadicacionEdit
+            || recordView.layoutName === 'radicar'
+        ) {
+            return true;
+        }
+
         // Primera radicación: permitir generar vista previa aunque modo/siglas/año no hayan cambiado.
         if (!isCasePostRadicado(model)) {
             return true;

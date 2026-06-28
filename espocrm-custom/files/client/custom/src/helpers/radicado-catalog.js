@@ -80,6 +80,41 @@ define('custom:helpers/radicado-catalog', [], function () {
         return String(new Date().getFullYear());
     };
 
+    const buildPreviewPlaceholder = function (model) {
+        const siglas = normalizeSiglas(model) || '···';
+        const anio = String(model.get('cRadicadoAnio') || getCurrentYear());
+
+        return PREFIX + '-' + siglas + '-···-' + anio;
+    };
+
+    const setPreviewRadicadoValue = function ($root, value) {
+        const $el = $root.find('[data-role="preview-radicado"]').first();
+
+        if (!$el.length) {
+            return;
+        }
+
+        if ($el.is('input, textarea')) {
+            $el.val(value);
+        } else {
+            $el.text(value);
+        }
+    };
+
+    const getPreviewRadicadoValue = function ($root) {
+        const $el = $root.find('[data-role="preview-radicado"]').first();
+
+        if (!$el.length) {
+            return '';
+        }
+
+        if ($el.is('input, textarea')) {
+            return String($el.val() || '').trim();
+        }
+
+        return String($el.text() || '').trim();
+    };
+
     return {
         PREFIX: PREFIX,
         MODO_AUTOMATICO: MODO_AUTOMATICO,
@@ -95,5 +130,8 @@ define('custom:helpers/radicado-catalog', [], function () {
         buildRadicado: buildRadicado,
         buildExpediente: buildExpediente,
         getCurrentYear: getCurrentYear,
+        buildPreviewPlaceholder: buildPreviewPlaceholder,
+        setPreviewRadicadoValue: setPreviewRadicadoValue,
+        getPreviewRadicadoValue: getPreviewRadicadoValue,
     };
 });

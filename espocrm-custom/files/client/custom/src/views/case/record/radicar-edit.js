@@ -110,9 +110,9 @@ define('custom:views/case/record/radicar-edit', [
             }
 
             if (RadicadoCatalog.isModoAutomatico(this.model.get('cRadicadoModo'))) {
-                const radicadoText = String($panel.find('[data-role="preview-radicado"]').text() || '').trim();
+                const radicadoText = RadicadoCatalog.getPreviewRadicadoValue($panel);
 
-                if (radicadoText && radicadoText !== '—') {
+                if (radicadoText && radicadoText.indexOf('···') === -1) {
                     this.model.set('cNumeroRadicado', radicadoText, {silent: true});
                 }
 

@@ -132,6 +132,7 @@ define('custom:views/case/record/detail', [
             this.updatePatrulleroDetailActions();
             this.toggleActaPanels();
             this.toggleActuoArchivoPanels();
+            AsignadorEditMode.applyDetailReadOnly(this);
             RadicacionEditMode.hideNonRadicacionPanels(this);
         },
 
@@ -586,6 +587,8 @@ define('custom:views/case/record/detail', [
             } else {
                 $('body').removeClass('alcaldia-radicacion-detail-ui');
             }
+
+            AsignadorEditMode.applyDetailReadOnly(this);
 
             if (this._pendingRoleUiRefresh) {
                 this._pendingRoleUiRefresh = false;

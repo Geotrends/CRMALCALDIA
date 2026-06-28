@@ -4,6 +4,8 @@ define('custom:helpers/asignador-edit-mode', [
 ], function (RadicacionFields, PostRadicacionFields) {
 
     const STORAGE_KEY = 'crm-case-asignar-mode';
+    const ASSIGNMENT_PANEL = 'gestionPosteriorRadicacion';
+    const BODY_CLASS = 'alcaldia-asignador-asignar-page';
 
     const isPureAsignadorUser = function (user) {
         if (!user || user.isAdmin()) {
@@ -144,7 +146,7 @@ define('custom:helpers/asignador-edit-mode', [
     };
 
     const moveAssignmentPanelToTop = function (recordView) {
-        const $panel = recordView.findPanel('gestionPosteriorRadicacion');
+        const $panel = recordView.findPanel(ASSIGNMENT_PANEL);
 
         if (!$panel.length) {
             return;
@@ -154,6 +156,51 @@ define('custom:helpers/asignador-edit-mode', [
 
         if ($container.length && $panel.index() !== 0) {
             $panel.detach().prependTo($container);
+        }
+    };
+
+    const hideNonAssignmentPanels = function (recordView) {
+        if (!recordView || !recordView.$el) {
+            return;
+        }
+
+        recordView.$el.find(
+            '.middle .panel, .middle .record-panel, .panel-group-accordion > .panel'
+        ).each(function () {
+            const $panel = $(this);
+            const name = String(
+                $panel.attr('data-name') || $panel.attr('data-panel-name') || ''
+            ).trim();
+
+            if (name === ASSIGNMENT_PANEL) {
+                $panel.show();
+
+                return;
+            }
+
+            $panel.hide();
+        });
+
+        recordView.$el.find('.side, .bottom').hide();
+    };
+
+    const prepareAsignacionLayout = function (recordView) {
+        if (!recordView || !isPureAsignadorUser(recordView.getUser()) || !isAsignarMode(recordView)) {
+            return false;
+        }
+
+        recordView._asignarMode = true;
+        recordView.sideDisabled = true;
+        recordView.bottomDisabled = true;
+
+        return true;
+    };
+
+    const applyAsignarPageClass = function (recordView) {
+        if (isAsignarMode(recordView)) {
+            $('body').addClass(BODY_CLASS);
+        } else {
+            $('body').removeClass(BODY_CLASS);
         }
     };
 
@@ -167,19 +214,33 @@ define('custom:helpers/asignador-edit-mode', [
                 recordView.setReadOnly();
             }
 
+            $('body').removeClass(BODY_CLASS);
+
             return;
         }
 
         recordView._asignarMode = true;
+        applyAsignarPageClass(recordView);
         moveAssignmentPanelToTop(recordView);
+        hideNonAssignmentPanels(recordView);
 
         if (typeof recordView.setReadOnlyExcept === 'function') {
             recordView.setReadOnlyExcept(getEditableFields(recordView));
         }
 
         lockAllFieldViewsExcept(recordView, getEditableFields(recordView));
+    };
 
-        return;
+    const applyDetailReadOnly = function (recordView) {
+        if (!recordView || !isPureAsignadorUser(recordView.getUser())) {
+            return;
+        }
+
+        if (typeof recordView.setReadOnly === 'function') {
+            recordView.setReadOnly();
+        }
+
+        recordView.$el.find('[data-action="delete"], [data-action="remove"]').closest('.btn, .dropdown-item, li').hide();
     };
 
     const scheduleRestrictedEdit = function (recordView) {
@@ -204,6 +265,10 @@ define('custom:helpers/asignador-edit-mode', [
         });
     };
 
+    const cleanupAsignarPage = function () {
+        $('body').removeClass(BODY_CLASS);
+    };
+
     return {
         isPureAsignadorUser: isPureAsignadorUser,
         activateAsignarMode: activateAsignarMode,
@@ -213,7 +278,11 @@ define('custom:helpers/asignador-edit-mode', [
         openAsignadoEdit: openAsignadoEdit,
         getEditableFields: getEditableFields,
         moveAssignmentPanelToTop: moveAssignmentPanelToTop,
+        hideNonAssignmentPanels: hideNonAssignmentPanels,
+        prepareAsignacionLayout: prepareAsignacionLayout,
         applyRestrictedEdit: applyRestrictedEdit,
+        applyDetailReadOnly: applyDetailReadOnly,
         scheduleRestrictedEdit: scheduleRestrictedEdit,
+        cleanupAsignarPage: cleanupAsignarPage,
     };
 });

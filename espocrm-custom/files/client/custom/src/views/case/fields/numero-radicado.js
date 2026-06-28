@@ -239,7 +239,10 @@ define('custom:views/case/fields/numero-radicado', [
             const recordView = this.getRecordView();
 
             if (recordView && !RadicacionFields.shouldMutateRadicadoPreview(recordView)) {
-                this.$el.find('[data-role="preview-radicado"]').text(String(this.model.get('cNumeroRadicado') || '—'));
+                RadicadoCatalog.setPreviewRadicadoValue(
+                    this.$el,
+                    String(this.model.get('cNumeroRadicado') || RadicadoCatalog.buildPreviewPlaceholder(this.model))
+                );
                 this.$el.find('[data-role="auto-expediente"]').val(String(this.model.get('cExpediente') || ''));
 
                 return;
@@ -249,10 +252,18 @@ define('custom:views/case/fields/numero-radicado', [
             const anio = String(this.model.get('cRadicadoAnio') || RadicadoCatalog.getCurrentYear()).trim();
 
             if (!siglas || !anio) {
-                this.$el.find('[data-role="preview-radicado"]').text('—');
+                RadicadoCatalog.setPreviewRadicadoValue(
+                    this.$el,
+                    RadicadoCatalog.buildPreviewPlaceholder(this.model)
+                );
 
                 return;
             }
+
+            RadicadoCatalog.setPreviewRadicadoValue(
+                this.$el,
+                RadicadoCatalog.buildPreviewPlaceholder(this.model)
+            );
 
             const url = 'Case/action/radicadoConsecutivo'
                 + '?siglas=' + encodeURIComponent(siglas)
@@ -271,7 +282,7 @@ define('custom:views/case/fields/numero-radicado', [
                 }
 
                 this.model.set('cNumeroRadicado', response.radicado, {silent: true});
-                this.$el.find('[data-role="preview-radicado"]').text(response.radicado);
+                RadicadoCatalog.setPreviewRadicadoValue(this.$el, response.radicado);
 
                 if (!this._expedienteDirty) {
                     this.model.set('cExpediente', response.expediente, {silent: true});

@@ -32,7 +32,8 @@
             </div>
             <div class="well well-sm radicado-preview">
                 <div class="form-group" style="margin-bottom:8px;">
-                    <div><strong>{{translate 'cNumeroRadicado' scope='Case'}}:</strong> <span data-role="preview-radicado">{{previewRadicado}}</span></div>
+                    <label class="control-label">{{translate 'cNumeroRadicado' scope='Case'}} (automático)</label>
+                    <input class="form-control input-sm" type="text" data-role="preview-radicado" readonly value="{{previewRadicado}}" placeholder="ENV-SIGLAS-Nº-AÑO">
                 </div>
                 <div class="form-group" style="margin-bottom:0;">
                     <label class="control-label">{{translate 'cExpediente' scope='Case'}}</label>

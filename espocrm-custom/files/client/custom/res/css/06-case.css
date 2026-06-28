@@ -167,3 +167,22 @@ body.alcaldia-radicacion-detail-ui .detail[data-scope="Case"] .detail-button-con
 body.alcaldia-radicacion-detail-ui .detail[data-scope="Case"] .header-buttons .btn .title {
   display: none !important;
 }
+
+/* Asignador: pantalla de asignación — solo panel Asignación */
+body.alcaldia-asignador-asignar-page .edit[data-scope="Case"] .middle .panel:not([data-name="gestionPosteriorRadicacion"]):not([data-panel-name="gestionPosteriorRadicacion"]),
+body.alcaldia-asignador-asignar-page .edit[data-scope="Case"] .record-panel:not([data-name="gestionPosteriorRadicacion"]),
+body.alcaldia-asignador-asignar-page .edit[data-scope="Case"] .panel-group-accordion > .panel:not([data-name="gestionPosteriorRadicacion"]),
+body.alcaldia-asignador-asignar-page .edit[data-scope="Case"] .bottom,
+body.alcaldia-asignador-asignar-page .edit[data-scope="Case"] .side {
+  display: none !important;
+}
+
+body.alcaldia-asignador-asignar-page .edit[data-scope="Case"] .panel[data-name="gestionPosteriorRadicacion"],
+body.alcaldia-asignador-asignar-page .edit[data-scope="Case"] .panel[data-panel-name="gestionPosteriorRadicacion"] {
+  display: block !important;
+}
+
+body.alcaldia-asignador-asignar-page .edit[data-scope="Case"] .cell:not([data-name="assignedUser"]):not([data-name="cMotivoReasignacion"]) {
+  pointer-events: none;
+  opacity: 0.65;
+}

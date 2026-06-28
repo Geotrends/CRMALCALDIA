@@ -28,6 +28,8 @@ define('custom:views/case/record/edit', [
                 RadicacionEditMode.prepareRadicacionLayout(this);
             }
 
+            AsignadorEditMode.prepareAsignacionLayout(this);
+
             Dep.prototype.setup.call(this);
 
             if (this.model.isNew()) {
@@ -235,7 +237,6 @@ define('custom:views/case/record/edit', [
                 return;
             }
 
-            this.$el.find('.panel[data-name], .panel[data-panel-name], .record-panel[data-name]').show();
             AsignadorEditMode.scheduleRestrictedEdit(this);
 
             const assignedView = this.getFieldView('assignedUser');
@@ -816,9 +817,9 @@ define('custom:views/case/record/edit', [
             }
 
             if (RadicadoCatalog.isModoAutomatico(this.model.get('cRadicadoModo'))) {
-                const radicadoText = String($root.find('[data-role="preview-radicado"]').text() || '').trim();
+                const radicadoText = RadicadoCatalog.getPreviewRadicadoValue($root);
 
-                if (radicadoText && radicadoText !== '—') {
+                if (radicadoText && radicadoText.indexOf('···') === -1) {
                     this.model.set('cNumeroRadicado', radicadoText, {silent: true});
                 }
 
@@ -988,6 +989,7 @@ define('custom:views/case/record/edit', [
 
         exit: function (after) {
             $('body').removeClass('alcaldia-radicacion-edit-mode alcaldia-radicacion-radicar-page');
+            AsignadorEditMode.cleanupAsignarPage();
 
             return Dep.prototype.exit.call(this, after);
         },

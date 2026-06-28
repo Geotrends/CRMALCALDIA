@@ -109,7 +109,10 @@ define('custom:helpers/radicado-assistant-panel', [
                 + '</div>'
                 + '<div class="well well-sm" style="margin-bottom:0;">'
                 + '<div class="form-group" style="margin-bottom:8px;">'
-                + '<div><strong>Número de radicado:</strong> <span data-role="preview-radicado">' + _.escape(radicado) + '</span></div>'
+                + '<label>Número de radicado (automático)</label>'
+                + '<input type="text" class="form-control input-sm" data-role="preview-radicado" readonly '
+                + 'value="' + _.escape(radicado === '—' ? '' : radicado) + '" '
+                + 'placeholder="' + _.escape(RadicadoCatalog.buildPreviewPlaceholder(model)) + '">'
                 + '</div>'
                 + '<div class="form-group" style="margin-bottom:0;">'
                 + '<label>Expediente</label>'
@@ -169,12 +172,26 @@ define('custom:helpers/radicado-assistant-panel', [
             return;
         }
 
+        const siglas = RadicadoCatalog.normalizeSiglas(model);
+        const anio = String(model.get('cRadicadoAnio') || RadicadoCatalog.getCurrentYear()).trim();
+
+        if (!siglas || !anio) {
+            RadicadoCatalog.setPreviewRadicadoValue($panel, RadicadoCatalog.buildPreviewPlaceholder(model));
+
+            return;
+        }
+
         if (!RadicacionFields.shouldMutateRadicadoPreview(recordView)) {
-            $panel.find('[data-role="preview-radicado"]').text(String(model.get('cNumeroRadicado') || '—'));
+            RadicadoCatalog.setPreviewRadicadoValue(
+                $panel,
+                String(model.get('cNumeroRadicado') || RadicadoCatalog.buildPreviewPlaceholder(model))
+            );
             $panel.find('[data-role="auto-expediente"]').val(String(model.get('cExpediente') || ''));
 
             return;
         }
+
+        RadicadoCatalog.setPreviewRadicadoValue($panel, RadicadoCatalog.buildPreviewPlaceholder(model));
 
         fetchPreview(model).then(function (response) {
             if (!response || !$panel.closest('body').length) {
@@ -182,7 +199,7 @@ define('custom:helpers/radicado-assistant-panel', [
             }
 
             model.set('cNumeroRadicado', response.radicado, {silent: true});
-            $panel.find('[data-role="preview-radicado"]').text(response.radicado);
+            RadicadoCatalog.setPreviewRadicadoValue($panel, response.radicado);
 
             if (!$panel.data('expedienteDirty')) {
                 model.set('cExpediente', response.expediente, {silent: true});
