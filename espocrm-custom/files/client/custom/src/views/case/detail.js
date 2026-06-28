@@ -63,6 +63,22 @@ define('custom:views/case/detail', [
             }
         },
 
+        actionLlenarActaVisita: function () {
+            var record = typeof this.getRecordView === 'function' ? this.getRecordView() : null;
+
+            if (record && typeof record.actionLlenarActaVisita === 'function') {
+                record.actionLlenarActaVisita();
+            }
+        },
+
+        actionImprimirActaManual: function () {
+            var record = typeof this.getRecordView === 'function' ? this.getRecordView() : null;
+
+            if (record && typeof record.actionImprimirActaManual === 'function') {
+                record.actionImprimirActaManual();
+            }
+        },
+
         getCaseTitle: function () {
             return CaseRadicadoLabel.getLabel(this.model);
         },

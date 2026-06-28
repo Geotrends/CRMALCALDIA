@@ -17,8 +17,9 @@ define('custom:views/case/record/detail', [
     'custom:helpers/case-detail-panels',
     'custom:helpers/radicacion-edit-mode',
     'custom:helpers/asignador-edit-mode',
+    'custom:helpers/patrullero-edit-mode',
     'custom:helpers/alcaldia-case-roles',
-], function (Dep, PatrulleroActa, InspeccionActa, RadicacionFields, PostRadicacionFields, ActaVisitaModal, ActaVisitaCaseStatus, InspeccionActuoArchivo, ActuoArchivoModal, ActuoArchivoCaseStatus, PersonaTipoFields, RadicadoGenerator, RadicadoAssistantPanel, InspeccionRegistroExcel, CaseDocumentos, CaseDetailPanels, RadicacionEditMode, AsignadorEditMode, AlcaldiaCaseRoles) {
+], function (Dep, PatrulleroActa, InspeccionActa, RadicacionFields, PostRadicacionFields, ActaVisitaModal, ActaVisitaCaseStatus, InspeccionActuoArchivo, ActuoArchivoModal, ActuoArchivoCaseStatus, PersonaTipoFields, RadicadoGenerator, RadicadoAssistantPanel, InspeccionRegistroExcel, CaseDocumentos, CaseDetailPanels, RadicacionEditMode, AsignadorEditMode, PatrulleroEditMode, AlcaldiaCaseRoles) {
 
     return Dep.extend({
 
@@ -67,6 +68,7 @@ define('custom:views/case/record/detail', [
             this._actuoArchivoButtonAdded = false;
             this._radicarButtonAdded = false;
             this._cancelAsignacionAdded = false;
+            this._imprimirActaButtonAdded = false;
             this._asignacionEditMode = false;
             this._initialAssignedUserId = this.model.get('assignedUserId') || null;
 
@@ -135,6 +137,8 @@ define('custom:views/case/record/detail', [
             this.toggleActaPanels();
             this.toggleActuoArchivoPanels();
             AsignadorEditMode.applyDetailReadOnly(this);
+            PatrulleroEditMode.applyDetailReadOnly(this);
+            PatrulleroEditMode.updateDetailActionButtons(this);
             RadicacionEditMode.hideNonRadicacionPanels(this);
         },
 
@@ -218,6 +222,12 @@ define('custom:views/case/record/detail', [
                     return;
                 }
 
+                if (PatrulleroActa.isPurePatrulleroUser(self.getUser())) {
+                    PatrulleroEditMode.updateDetailActionButtons(self);
+
+                    return;
+                }
+
                 ActaVisitaCaseStatus.fetchActaForCase(self.model.id, self.getUser(), self.model, { bypassCache: true }).then((acta) => {
                     const show = PatrulleroActa.shouldShowActaVisitaButton(self.getUser(), self.model, acta);
 
@@ -260,10 +270,15 @@ define('custom:views/case/record/detail', [
                     }
 
                     this.updateActaVisitaButton();
+                    PatrulleroEditMode.updateDetailActionButtons(this);
                     this.refreshActaVisitaPanel();
                     this.refreshFormatoGeneradoDocs();
                 },
             });
+        },
+
+        actionImprimirActaManual: function () {
+            PatrulleroEditMode.actionImprimirActaManual(this);
         },
 
         updateActuoArchivoButton: function () {
@@ -615,6 +630,12 @@ define('custom:views/case/record/detail', [
                 this._radicarButtonAdded = false;
             }
 
+            if (PatrulleroActa.isPurePatrulleroUser(user)) {
+                PatrulleroEditMode.updateDetailActionButtons(this);
+
+                return;
+            }
+
             if (!$editBtn.length) {
                 return;
             }
@@ -671,9 +692,8 @@ define('custom:views/case/record/detail', [
                     return;
                 }
 
-                self.$el.find('[data-action="edit"], [data-action="delete"], [data-action="remove"]')
-                    .closest('.btn, .dropdown-item, li')
-                    .hide();
+                PatrulleroEditMode.applyDetailReadOnly(self);
+                PatrulleroEditMode.updateDetailActionButtons(self);
             });
         },
 
@@ -726,7 +746,14 @@ define('custom:views/case/record/detail', [
         },
 
         setPrimaryActionButtonHref: function ($btn, href) {
-            if (!$btn || !$btn.length || !href) {
+            if (!$btn || !$btn.length) {
+                return;
+            }
+
+            if (!href) {
+                $btn.removeAttr('href');
+                $btn.find('a[href]').removeAttr('href');
+
                 return;
             }
 
@@ -879,6 +906,20 @@ define('custom:views/case/record/detail', [
 
                 if (action === 'edit' || action === 'asignarCaso' || action === 'saveAsignacion' || action === 'cancelAsignacion') {
                     return true;
+                }
+            }
+
+            if (PatrulleroActa.isPurePatrulleroUser(user)) {
+                if (action === 'delete' || action === 'create' || action === 'remove' || action === 'edit') {
+                    return false;
+                }
+
+                if (action === 'llenarActaVisita') {
+                    return PatrulleroActa.shouldShowActaVisitaButton(user, this.model);
+                }
+
+                if (action === 'imprimirActaManual') {
+                    return PatrulleroActa.canPrintManualActa(user, this.model);
                 }
             }
 

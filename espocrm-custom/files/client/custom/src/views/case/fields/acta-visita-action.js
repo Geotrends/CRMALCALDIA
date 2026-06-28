@@ -40,7 +40,8 @@ define('custom:views/case/fields/acta-visita-action', [
             }
 
             return {
-                showButton: this.showButton,
+                showPanel: this.showButton || this.showPrintManual,
+                showLlenarActa: this.showButton,
                 showPrintManual: this.showPrintManual,
                 helpText: helpText,
                 buttonLabelDigital: buttonLabelDigital,
@@ -81,8 +82,7 @@ define('custom:views/case/fields/acta-visita-action', [
                 ActaVisitaCaseStatus.fetchActaForCase(self.model.id, user, self.model, { bypassCache: true }).then((acta) => {
                     self.actaIsEditMode = ActaVisitaCaseStatus.isActaDiligenciada(acta);
                     self.showPrintManual = PatrulleroActa.canPrintManualActa(user, self.model);
-                    self.showButton = self.showPrintManual
-                        || PatrulleroActa.shouldShowActaVisitaButton(user, self.model, acta);
+                    self.showButton = PatrulleroActa.shouldShowActaVisitaButton(user, self.model, acta);
                     self.updatePanelVisibility(self.showButton || self.showPrintManual);
                     self.reRenderIfNeeded();
                 });
