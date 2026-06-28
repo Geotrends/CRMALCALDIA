@@ -133,8 +133,7 @@ define('custom:views/case/record/edit', [
                 return;
             }
 
-            this._radicarMode = true;
-            this.updateRadicarPageTitle();
+            this.getRouter().navigate('#Case/radicar/' + this.model.id, {trigger: true, replace: true});
         },
 
         enforceAsignadorEntry: function () {

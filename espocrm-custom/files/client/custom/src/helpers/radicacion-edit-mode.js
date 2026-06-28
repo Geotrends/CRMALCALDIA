@@ -343,6 +343,24 @@ define('custom:helpers/radicacion-edit-mode', [
         });
     };
 
+    const getCaseRadicarUrl = function (recordView) {
+        if (!recordView || !recordView.model || !recordView.model.id) {
+            return '#Case';
+        }
+
+        const scope = recordView.scope || recordView.entityType || 'Case';
+
+        return '#' + scope + '/radicar/' + recordView.model.id;
+    };
+
+    const openRadicadoEdit = function (recordView) {
+        if (!recordView || !recordView.model || !recordView.model.id) {
+            return;
+        }
+
+        recordView.getRouter().navigate(getCaseRadicarUrl(recordView), {trigger: true});
+    };
+
     const resolveRadicacionEditFlag = function (recordView) {
         if (!recordView || !recordView.model || (recordView.model.isNew && recordView.model.isNew())) {
             return Promise.resolve(false);
@@ -383,5 +401,7 @@ define('custom:helpers/radicacion-edit-mode', [
         hideNonRadicacionPanels: hideNonRadicacionPanels,
         prepareRadicacionEditView: prepareRadicacionEditView,
         resolveRadicacionEditFlag: resolveRadicacionEditFlag,
+        getCaseRadicarUrl: getCaseRadicarUrl,
+        openRadicadoEdit: openRadicadoEdit,
     };
 });

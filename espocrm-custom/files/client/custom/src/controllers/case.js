@@ -1,4 +1,7 @@
-define('custom:controllers/case', ['controllers/record'], function (Dep) {
+define('custom:controllers/case', [
+    'controllers/record',
+    'custom:helpers/radicacion-edit-mode',
+], function (Dep, RadicacionEditMode) {
 
     return Dep.extend({
 
@@ -49,6 +52,45 @@ define('custom:controllers/case', ['controllers/record'], function (Dep) {
             }
 
             Dep.prototype.actionCreate.call(this, options);
+        },
+
+        actionEdit: function (options) {
+            options = options || {};
+
+            if (options.id && RadicacionEditMode.isPureRadicacionUser(this.getUser())) {
+                this.actionRadicar(options);
+
+                return;
+            }
+
+            Dep.prototype.actionEdit.call(this, options);
+        },
+
+        actionRadicar: function (options) {
+            options = options || {};
+
+            var id = options.id;
+
+            if (!id) {
+                throw new Error('Case id required for radicar.');
+            }
+
+            if (!this.getAcl().check(this.name, 'edit')) {
+                this.accessDenied();
+
+                return;
+            }
+
+            var model = this.getModelFactory().create(this.name);
+
+            model.id = id;
+
+            this.main('custom:views/case/radicar', {
+                scope: this.name,
+                model: model,
+                returnUrl: options.returnUrl,
+                returnDispatchParams: options.returnDispatchParams,
+            });
         },
     });
 });

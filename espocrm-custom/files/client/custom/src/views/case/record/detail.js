@@ -269,6 +269,12 @@ define('custom:views/case/record/detail', [
                 return;
             }
 
+            if (RadicacionEditMode.isPureRadicacionUser(this.getUser())) {
+                RadicacionEditMode.openRadicadoEdit(this);
+
+                return;
+            }
+
             if (AsignadorEditMode.isPureAsignadorUser(this.getUser())) {
                 AsignadorEditMode.openAsignadoEdit(this);
 
@@ -279,7 +285,7 @@ define('custom:views/case/record/detail', [
         },
 
         actionRadicarCaso: function () {
-            this.actionEdit();
+            RadicacionEditMode.openRadicadoEdit(this);
         },
 
         actionAsignarCaso: function () {
@@ -313,7 +319,7 @@ define('custom:views/case/record/detail', [
                         $editBtn,
                         this.translate('radicarCaso', 'labels', 'Case')
                     );
-                    this.setPrimaryActionButtonHref($editBtn, this.getCaseEditUrl());
+                    this.setPrimaryActionButtonHref($editBtn, this.getCaseRadicarUrl());
                 }
 
                 return;
@@ -393,6 +399,10 @@ define('custom:views/case/record/detail', [
             const scope = this.scope || this.entityType || 'Case';
 
             return '#' + scope + '/edit/' + this.model.id;
+        },
+
+        getCaseRadicarUrl: function () {
+            return RadicacionEditMode.getCaseRadicarUrl(this);
         },
 
         setPrimaryActionButtonHref: function ($btn, href) {

@@ -7,12 +7,14 @@
     "views": {
         "list": "custom:views/case/list",
         "detail": "custom:views/case/detail",
-        "edit": "custom:views/case/edit"
+        "edit": "custom:views/case/edit",
+        "radicar": "custom:views/case/radicar"
     },
     "recordViews": {
         "edit": "custom:views/case/record/edit",
         "detail": "custom:views/case/record/detail",
-        "editSmall": "custom:views/case/record/edit"
+        "editSmall": "custom:views/case/record/edit",
+        "radicar": "custom:views/case/record/radicar-edit"
     },
     "quickEditDisabled": true,
     "defaultSidePanelDisabled": true,

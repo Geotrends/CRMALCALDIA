@@ -1,0 +1,21 @@
+[
+  {
+    "name": "radicacionCaso",
+    "rows": [
+      [
+        {
+          "name": "cNumeroRadicado",
+          "fullWidth": true
+        }
+      ],
+      [
+        {
+          "name": "cExpediente"
+        },
+        false
+      ]
+    ],
+    "style": "default",
+    "label": "Radicación del caso"
+  }
+]
