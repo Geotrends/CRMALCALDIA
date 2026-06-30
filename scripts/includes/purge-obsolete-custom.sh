@@ -56,7 +56,6 @@ purge_obsolete_custom() {
       "$client_target/src/helpers/post-radicacion-fields.js" \
       "$client_target/src/helpers/asignador-edit-mode.js" \
       "$client_target/src/helpers/patrullero-edit-mode.js" \
-      "$client_target/src/helpers/patrullero-acta.js" \
       "$client_target/src/helpers/inspeccion-acta.js" \
       "$client_target/src/helpers/inspeccion-actuo-archivo.js" \
       "$client_target/src/helpers/inspeccion-registro-excel.js" \
