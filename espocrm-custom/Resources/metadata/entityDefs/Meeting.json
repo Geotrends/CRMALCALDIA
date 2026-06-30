@@ -13,7 +13,7 @@
             "readOnly": false,
             "customizationReadOnlyDisabled": true
         },
-        "accounts": {
+        "cuentasInvitadas": {
             "type": "linkMultiple",
             "layoutDetailDisabled": true,
             "layoutListDisabled": true,
@@ -28,10 +28,10 @@
         }
     },
     "links": {
-        "accounts": {
+        "cuentasInvitadas": {
             "type": "hasMany",
             "entity": "Account",
-            "foreign": "meetings",
+            "foreign": "reunionesComoAsistente",
             "relationName": "AccountMeeting",
             "additionalColumns": {
                 "status": {

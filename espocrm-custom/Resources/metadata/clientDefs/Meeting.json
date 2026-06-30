@@ -8,6 +8,9 @@
         },
         "accounts": {
             "disabled": true
+        },
+        "cuentasInvitadas": {
+            "disabled": true
         }
     },
     "sidePanels": {

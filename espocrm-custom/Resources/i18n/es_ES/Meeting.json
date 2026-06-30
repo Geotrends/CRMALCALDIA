@@ -10,7 +10,7 @@
         "joinUrl": "Enlace de la reunión",
         "users": "Usuarios invitados",
         "contacts": "Personas naturales",
-        "accounts": "Personas jurídicas"
+        "cuentasInvitadas": "Personas jurídicas"
     },
     "options": {
         "status": {
@@ -27,7 +27,7 @@
     },
     "links": {
         "contacts": "Personas naturales",
-        "accounts": "Personas jurídicas",
+        "cuentasInvitadas": "Personas jurídicas",
         "users": "Usuarios invitados"
     }
 }

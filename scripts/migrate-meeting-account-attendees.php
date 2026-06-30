@@ -1,8 +1,8 @@
 <?php
 
 /**
- * Crea la relación Meeting ↔ Account (asistentes: personas jurídicas).
- * Idempotente: seguro en cada deploy.
+ * Relación Meeting ↔ Account para asistentes (personas jurídicas).
+ * Corrige conflicto con el link estándar Account.meetings (actividades).
  */
 
 require_once '/var/www/html/bootstrap.php';
@@ -31,46 +31,38 @@ $tableExists = static function (string $table) use ($pdo): bool {
     return (bool) $stmt->fetchColumn();
 };
 
-if ($tableExists('account_meeting')) {
-    echo "Tabla account_meeting ya existe.\n";
-    exit(0);
-}
-
-echo "Tabla account_meeting no encontrada — ejecutando rebuild...\n";
+echo "Rebuild metadata (relación cuentasInvitadas)...\n";
 
 /** @var DataManager $dataManager */
 $dataManager = $app->getContainer()->getByClass(DataManager::class);
 $dataManager->rebuild();
 
-if ($tableExists('account_meeting')) {
-    echo "Tabla account_meeting creada por rebuild.\n";
-    exit(0);
+if (!$tableExists('account_meeting')) {
+    echo "Tabla account_meeting no encontrada — creando manualmente...\n";
+
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS account_meeting (
+            id VARCHAR(24) NOT NULL,
+            account_id VARCHAR(24) DEFAULT NULL,
+            meeting_id VARCHAR(24) DEFAULT NULL,
+            status VARCHAR(36) DEFAULT 'None',
+            deleted BOOLEAN DEFAULT FALSE,
+            created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT NULL,
+            modified_at TIMESTAMP WITHOUT TIME ZONE DEFAULT NULL,
+            PRIMARY KEY (id)
+        )
+    ");
+
+    $pdo->exec('CREATE INDEX IF NOT EXISTS idx_account_meeting_account_id ON account_meeting (account_id)');
+    $pdo->exec('CREATE INDEX IF NOT EXISTS idx_account_meeting_meeting_id ON account_meeting (meeting_id)');
+    $pdo->exec('CREATE INDEX IF NOT EXISTS idx_account_meeting_deleted ON account_meeting (deleted)');
 }
 
-echo "Rebuild no creó account_meeting — creando manualmente...\n";
-
-$pdo->exec("
-    CREATE TABLE IF NOT EXISTS account_meeting (
-        id VARCHAR(24) NOT NULL,
-        account_id VARCHAR(24) DEFAULT NULL,
-        meeting_id VARCHAR(24) DEFAULT NULL,
-        status VARCHAR(36) DEFAULT 'None',
-        deleted BOOLEAN DEFAULT FALSE,
-        created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT NULL,
-        modified_at TIMESTAMP WITHOUT TIME ZONE DEFAULT NULL,
-        PRIMARY KEY (id)
-    )
-");
-
-$pdo->exec('CREATE INDEX IF NOT EXISTS idx_account_meeting_account_id ON account_meeting (account_id)');
-$pdo->exec('CREATE INDEX IF NOT EXISTS idx_account_meeting_meeting_id ON account_meeting (meeting_id)');
-$pdo->exec('CREATE INDEX IF NOT EXISTS idx_account_meeting_deleted ON account_meeting (deleted)');
-
 if ($tableExists('account_meeting')) {
-    echo "Tabla account_meeting creada manualmente.\n";
+    echo "Tabla account_meeting OK.\n";
 } else {
     fwrite(STDERR, "ERROR: no se pudo crear account_meeting.\n");
     exit(1);
 }
 
-echo "Listo. Reuniones con personas jurídicas habilitadas.\n";
+echo "Listo. Reuniones con personas jurídicas (cuentasInvitadas).\n";

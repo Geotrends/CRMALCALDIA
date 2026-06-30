@@ -1,7 +1,7 @@
 {
     "attendeeLinkMap": {
         "Contact": "contacts",
-        "Account": "accounts",
+        "Account": "cuentasInvitadas",
         "User": "users"
     }
 }
