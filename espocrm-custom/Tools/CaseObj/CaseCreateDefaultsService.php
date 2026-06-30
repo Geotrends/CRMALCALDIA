@@ -2,6 +2,7 @@
 
 namespace Espo\Custom\Tools\CaseObj;
 
+use Espo\Custom\Tools\App\AlcaldiaDateTimeHelper;
 use Espo\Custom\Tools\User\AlcaldiaUserProfile;
 use Espo\Entities\User;
 use Espo\ORM\EntityManager;
@@ -36,10 +37,8 @@ class CaseCreateDefaultsService
      */
     public function build(): array
     {
-        $now = new \DateTimeImmutable('now', new \DateTimeZone('America/Bogota'));
-
         $defaults = [
-            'cFechaCaso' => $now->format('Y-m-d H:i'),
+            'cFechaCaso' => AlcaldiaDateTimeHelper::storageNowString(),
         ];
 
         $recibida = $this->resolveUserLinkDefault(self::RECIBIDA_ROLE_NAMES, self::RECIBIDA_USER_NAMES);

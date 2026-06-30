@@ -6,6 +6,7 @@ use Espo\Core\Api\Request;
 use Espo\Core\Exceptions\BadRequest;
 use Espo\Core\Exceptions\Forbidden;
 use Espo\Core\Exceptions\NotFound;
+use Espo\Custom\Tools\App\AlcaldiaDateTimeHelper;
 use Espo\Custom\Tools\Calendar\CaseCalendarEventService;
 use Espo\Custom\Tools\CaseObj\CaseCreateDefaultsService;
 use Espo\Custom\Tools\CaseObj\CaseCronogramaService;
@@ -67,10 +68,8 @@ class CaseObj extends BaseCaseObj
                 ->create(CaseCreateDefaultsService::class)
                 ->build();
         } catch (\Throwable $e) {
-            $now = new \DateTimeImmutable('now', new \DateTimeZone('America/Bogota'));
-
             return [
-                'cFechaCaso' => $now->format('Y-m-d H:i'),
+                'cFechaCaso' => AlcaldiaDateTimeHelper::storageNowString(),
             ];
         }
     }

@@ -10,6 +10,7 @@ require_once __DIR__ . '/includes/admin-credentials.php';
 
 use Espo\Core\Application;
 use Espo\Core\InjectableFactory;
+use Espo\Custom\Tools\App\AlcaldiaLocaleDefaults;
 use Espo\ORM\EntityManager;
 
 $app = new Application();
@@ -194,6 +195,7 @@ if (!$prefs) {
 
 $prefs->set('tabList', null);
 $prefs->set('useCustomTabList', false);
+$injectableFactory->create(AlcaldiaLocaleDefaults::class)->applyToPreferences($prefs);
 $em->saveEntity($prefs, ['skipHooks' => true]);
 
 $adminCount = (int) $pdo->query(

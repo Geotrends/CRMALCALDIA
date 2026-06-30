@@ -2,6 +2,7 @@
 
 namespace Espo\Custom\Tools\CaseObj;
 
+use Espo\Custom\Tools\App\AlcaldiaDateTimeHelper;
 use Espo\Core\InjectableFactory;
 use Espo\Core\Utils\Config;
 use Espo\Core\Utils\DateTime as DateTimeUtil;
@@ -194,19 +195,6 @@ class ExcelAlcaldiaExporter
 
     private function formatDate(mixed $value): string
     {
-        if (!$value) {
-            return '';
-        }
-
-        $timezone = $this->config->get('timeZone') ?? 'America/Bogota';
-
-        try {
-            $dateTime = new \DateTime($value, new \DateTimeZone('UTC'));
-            $dateTime->setTimezone(new \DateTimeZone($timezone));
-
-            return $dateTime->format('d/m/Y');
-        } catch (\Exception) {
-            return (string) $value;
-        }
+        return AlcaldiaDateTimeHelper::formatDocumentDate($value);
     }
 }

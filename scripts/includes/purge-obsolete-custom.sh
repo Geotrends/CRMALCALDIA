@@ -15,7 +15,6 @@ purge_obsolete_custom() {
     echo "Purging obsolete custom backend files..."
 
     rm -f \
-    "$custom_target/Hooks/User/ApplyAlcaldiaLocaleDefaults.php" \
     "$custom_target/Hooks/User/SyncTeamsFromRoles.php" \
     "$custom_target/Tools/User/TeamRoleSync.php" \
     "$custom_target/Classes/Select/User/PrimaryFilters/Patrulleros.php" \
@@ -42,7 +41,6 @@ purge_obsolete_custom() {
     "$custom_target/Tools/CaseObj/CrmRegistroExcelExporter.php" \
     "$custom_target/files/scripts/upsert-crm-excel.py"
 
-    rmdir "$custom_target/Hooks/User" 2>/dev/null || true
     rmdir "$custom_target/Classes/Select/User/PrimaryFilters" 2>/dev/null || true
     rmdir "$custom_target/Classes/Select/User" 2>/dev/null || true
   fi

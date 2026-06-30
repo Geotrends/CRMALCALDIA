@@ -136,12 +136,13 @@ check_file "Perfil API AlcaldiaUserProfile" \
   "$CUSTOM/Tools/User/AlcaldiaUserProfile.php" \
   "ROLE_INSPECCION" || errors=$((errors + 1))
 
-if [ -f "$CUSTOM/Hooks/User/ApplyAlcaldiaLocaleDefaults.php" ]; then
-  echo "FALTA: hook obsoleto ApplyAlcaldiaLocaleDefaults.php aún en el servidor"
-  errors=$((errors + 1))
-else
-  echo "OK: sin hook obsoleto User/ApplyAlcaldiaLocaleDefaults"
-fi
+check_file "Hook locale Bogotá 24h en usuarios nuevos" \
+  "$CUSTOM/Hooks/User/ApplyAlcaldiaLocaleDefaults.php" \
+  "AlcaldiaLocaleDefaults" || errors=$((errors + 1))
+
+check_file "Helper fecha/hora Bogotá" \
+  "$CUSTOM/Tools/App/AlcaldiaDateTimeHelper.php" \
+  "America/Bogota" || errors=$((errors + 1))
 
 if [ -f "$CUSTOM/Hooks/User/SyncTeamsFromRoles.php" ]; then
   echo "FALTA: hook obsoleto SyncTeamsFromRoles.php aún en el servidor"

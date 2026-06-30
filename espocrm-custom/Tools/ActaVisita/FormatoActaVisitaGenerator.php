@@ -2,6 +2,7 @@
 
 namespace Espo\Custom\Tools\ActaVisita;
 
+use Espo\Custom\Tools\App\AlcaldiaDateTimeHelper;
 use Espo\Custom\Tools\CaseObj\CasePartyNameHelper;
 use Espo\Custom\Tools\User\AlcaldiaUserProfile;
 use Espo\Core\Acl;
@@ -76,9 +77,9 @@ class FormatoActaVisitaGenerator
         $payload = $this->buildPayloadFromCase($case);
         $payload['modoDiligenciamiento'] = 'manual';
         $payload['modo'] = 'manual';
-        $payload['fecha'] = date('Y-m-d');
-        $payload['fechaVisita'] = date('d/m/Y');
-        $payload['fechaHora'] = date('d/m/Y H:i');
+        $payload['fecha'] = AlcaldiaDateTimeHelper::storageDateString();
+        $payload['fechaVisita'] = AlcaldiaDateTimeHelper::documentNowDate();
+        $payload['fechaHora'] = AlcaldiaDateTimeHelper::documentNowDateTime();
         $payload['funcionarioNombre'] = $this->resolveFuncionarioNombre($case);
         $payload['posibleAfectante'] = $payload['posibleAfectante'] ?: CasePartyNameHelper::getPeticionarioFullName($case);
         $payload['direccionAfectacion'] = $payload['direccionAfectacion'] ?: trim((string) $case->get('cDireccionPeticionario'));
@@ -406,7 +407,7 @@ class FormatoActaVisitaGenerator
     private function buildPayloadFromCase(Entity $case): array
     {
         return [
-            'fecha' => date('Y-m-d'),
+            'fecha' => AlcaldiaDateTimeHelper::storageDateString(),
             'fechaVisita' => '',
             'fechaHora' => '',
             'posibleAfectante' => CasePartyNameHelper::getPerjudicanteFullName($case) ?: CasePartyNameHelper::getPeticionarioFullName($case),
@@ -631,13 +632,9 @@ class FormatoActaVisitaGenerator
             return '';
         }
 
-        try {
-            $dateTime = new \DateTime($value);
+        $formatted = AlcaldiaDateTimeHelper::formatDocumentDate($value);
 
-            return $dateTime->format('Y-m-d');
-        } catch (\Exception) {
-            return (string) $value;
-        }
+        return $formatted !== '' ? $formatted : (string) $value;
     }
 
     private function formatDateTime(mixed $value): string
@@ -646,15 +643,8 @@ class FormatoActaVisitaGenerator
             return '';
         }
 
-        $timezone = $this->config->get('timeZone') ?? 'America/Bogota';
+        $formatted = AlcaldiaDateTimeHelper::formatDocumentDateTime($value);
 
-        try {
-            $dateTime = new \DateTime($value, new \DateTimeZone('UTC'));
-            $dateTime->setTimezone(new \DateTimeZone($timezone));
-
-            return $dateTime->format('d/m/Y H:i');
-        } catch (\Exception) {
-            return (string) $value;
-        }
+        return $formatted !== '' ? $formatted : (string) $value;
     }
 }

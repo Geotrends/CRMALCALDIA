@@ -180,6 +180,7 @@ $scriptsDir = getenv('REPO_ROOT')
 $postScripts = [
     'configure-document-plantillas.php',
     'configure-excel-alcaldia-document.php',
+    'configure-default-locale.php',
 ];
 
 foreach ($postScripts as $scriptName) {

@@ -12,6 +12,7 @@ class AlcaldiaLocaleDefaults
     public const LANGUAGE = 'es_ES';
     public const DATE_FORMAT = 'DD.MM.YYYY';
     public const TIME_FORMAT = 'HH:mm';
+    public const WEEK_START = 1;
 
     public function applyToConfig(Config $config): void
     {
@@ -20,6 +21,7 @@ class AlcaldiaLocaleDefaults
         $config->set('timeZone', self::TIME_ZONE);
         $config->set('dateFormat', self::DATE_FORMAT);
         $config->set('timeFormat', self::TIME_FORMAT);
+        $config->set('weekStart', self::WEEK_START);
         $config->save();
     }
 
@@ -29,6 +31,7 @@ class AlcaldiaLocaleDefaults
         $prefs->set('timeZone', self::TIME_ZONE);
         $prefs->set('dateFormat', self::DATE_FORMAT);
         $prefs->set('timeFormat', self::TIME_FORMAT);
+        $prefs->set('weekStart', self::WEEK_START);
     }
 
     public function syncAllActiveUsers(EntityManager $entityManager): int
