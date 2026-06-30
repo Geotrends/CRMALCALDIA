@@ -110,7 +110,10 @@
       "type": "hasMany",
       "entity": "Meeting",
       "foreign": "accounts",
-      "layoutRelationshipsDisabled": true
+      "layoutRelationshipsDisabled": true,
+      "columnAttributeMap": {
+        "status": "acceptanceStatus"
+      }
     }
   }
 }

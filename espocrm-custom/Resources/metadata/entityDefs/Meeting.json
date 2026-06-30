@@ -22,7 +22,9 @@
                 "status": "acceptanceStatus"
             },
             "additionalAttributeList": ["columns"],
-            "orderBy": "name"
+            "orderBy": "name",
+            "audited": true,
+            "duplicatorClassName": "Espo\\Modules\\Crm\\Classes\\FieldDuplicators\\Meeting\\Attendees"
         }
     },
     "links": {
