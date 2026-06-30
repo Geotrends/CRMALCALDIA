@@ -1,11 +1,11 @@
 <?php
 
 /**
- * Vacía todos los datos de negocio en PostgreSQL.
- * Conserva usuarios, roles, equipos, preferencias y configuración del sistema.
+ * Borra TODOS los datos operativos: casos, contactos, usuarios, roles, equipos, etc.
+ * Conserva solo configuración del sistema (layouts, plantillas, jobs, moneda, integraciones).
+ * Tras el deploy se recrea únicamente el usuario admin (seed-admin-user.php).
  *
- * Se ejecuta automáticamente una vez en el próximo deploy (ver deploy-custom-dokploy.sh).
- * Forzar de nuevo: ESPO_WIPE_BUSINESS_DATA=1
+ * Automático en deploy. Forzar: ESPO_WIPE_BUSINESS_DATA=1
  */
 
 require_once '/var/www/html/bootstrap.php';
@@ -20,17 +20,8 @@ $app->setupSystemUser();
 $em = $app->getContainer()->getByClass(EntityManager::class);
 $pdo = $em->getPDO();
 
-/** Tablas de configuración / acceso que NO se vacían. */
+/** Solo tablas de configuración / esquema del sistema — NO datos operativos ni roles. */
 $keepTables = [
-    'user',
-    'role',
-    'role_user',
-    'role_team',
-    'team',
-    'team_user',
-    'preferences',
-    'user_data',
-    'user_working_time_range',
     'scheduled_job',
     'extension',
     'integration',
@@ -41,11 +32,6 @@ $keepTables = [
     'currency_record',
     'currency_record_rate',
     'address_country',
-    'portal',
-    'portal_role',
-    'portal_portal_role',
-    'portal_role_user',
-    'portal_user',
     'authentication_provider',
     'o_auth_provider',
     'email_template',
@@ -65,6 +51,9 @@ $keepTables = [
     'app_secret',
     'group_email_folder',
     'group_email_folder_team',
+    'portal',
+    'portal_role',
+    'portal_portal_role',
 ];
 
 $quoteIdentifier = static function (string $name): string {
@@ -89,7 +78,7 @@ if ($toTruncate === []) {
     exit(0);
 }
 
-echo 'Vacía datos de negocio en ' . count($toTruncate) . ' tablas...' . PHP_EOL;
+echo 'Reset total: vacía ' . count($toTruncate) . ' tablas (usuarios, roles, casos, todo)...' . PHP_EOL;
 
 $pdo->beginTransaction();
 
@@ -99,12 +88,7 @@ try {
 
     $pdo->exec($sql);
 
-    $pdo->exec(
-        "UPDATE next_number SET value = 1 WHERE entity_type IN (
-            'Case', 'ActaVisita', 'ActuoArchivo', 'ComunicacionCaso', 'AsignacionHistorial',
-            'Contact', 'Account', 'Document', 'Task', 'Lead', 'Opportunity'
-        )"
-    );
+    $pdo->exec('UPDATE next_number SET value = 1');
 
     $pdo->commit();
 } catch (Throwable $exception) {
@@ -115,5 +99,26 @@ try {
     throw $exception;
 }
 
-echo 'Datos de negocio eliminados. Usuarios, roles y configuración conservados.' . PHP_EOL;
-echo 'Reinicia consecutivos en next_number.' . PHP_EOL;
+$uploadDirs = [
+    '/var/www/html/data/upload/files',
+    '/var/www/html/data/upload/attachments',
+];
+
+foreach ($uploadDirs as $dir) {
+    if (!is_dir($dir)) {
+        continue;
+    }
+
+    $removed = 0;
+
+    foreach (glob($dir . '/*') ?: [] as $file) {
+        if (is_file($file) && @unlink($file)) {
+            $removed++;
+        }
+    }
+
+    echo basename($dir) . ": {$removed} archivos eliminados" . PHP_EOL;
+}
+
+echo 'Reset completado. Usuarios, roles y datos operativos eliminados.' . PHP_EOL;
+echo 'El deploy recreará solo el usuario admin.' . PHP_EOL;

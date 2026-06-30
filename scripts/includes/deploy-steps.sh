@@ -4,6 +4,7 @@
 # No cambiar el orden sin revisar dependencias entre scripts configure-*.
 
 DEPLOY_SETUP_STEPS=(
+  "Usuario administrador (desde .env)|seed-admin-user.php"
   "Roles y equipos base (despliegue desde cero)|seed-roles.php"
   "Sincronizar equipos homónimos (utilidad Espo; perfiles por rol en alcaldiaProfile)|sync-user-teams-from-roles.php"
   "Catálogos Excel Alcaldía (desplegables)|configure-excel-alcaldia-case-fields.php"
@@ -80,7 +81,7 @@ deploy_maybe_wipe_business_data() {
   local app_root="$1"
   local scripts_source="$2"
   local php_bin="${3:-php}"
-  local wipe_stamp="$app_root/data/.alcaldia-business-data-wiped-v1"
+  local wipe_stamp="$app_root/data/.alcaldia-full-reset-v2"
   local force_wipe="${ESPO_WIPE_BUSINESS_DATA:-0}"
   local wipe_script="$scripts_source/wipe-business-data.php"
 
@@ -90,7 +91,7 @@ deploy_maybe_wipe_business_data() {
   fi
 
   if [ "$force_wipe" = "1" ] || [ ! -f "$wipe_stamp" ]; then
-    echo "Vacía datos de negocio (inicio desde cero)..."
+    echo "Reset total (usuarios, roles, datos)..."
     "$php_bin" "$wipe_script"
     mkdir -p "$app_root/data"
     touch "$wipe_stamp"
@@ -108,11 +109,11 @@ deploy_maybe_wipe_business_data_docker() {
 
   docker exec -e "ESPO_WIPE_BUSINESS_DATA=${force_wipe}" espocrm bash -c '
     APP_ROOT=/var/www/html
-    STAMP="$APP_ROOT/data/.alcaldia-business-data-wiped-v1"
+    STAMP="$APP_ROOT/data/.alcaldia-full-reset-v2"
     FORCE="${ESPO_WIPE_BUSINESS_DATA:-0}"
 
     if [ "$FORCE" = "1" ] || [ ! -f "$STAMP" ]; then
-      echo "Vacía datos de negocio (inicio desde cero)..."
+      echo "Reset total (usuarios, roles, datos)..."
       php /tmp/wipe-business-data.php
       mkdir -p "$APP_ROOT/data"
       touch "$STAMP"

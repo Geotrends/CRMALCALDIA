@@ -8,10 +8,15 @@
  */
 
 require_once '/var/www/html/bootstrap.php';
+require_once __DIR__ . '/includes/alcaldia-deploy-roles.php';
 
 use Espo\Core\Application;
 use Espo\Custom\Tools\User\TeamRoleSync;
 use Espo\ORM\EntityManager;
+
+if (alcaldiaDeploySkipIfRolesDisabled('sync-user-teams-from-roles.php')) {
+    exit(0);
+}
 
 $app = new Application();
 $app->setupSystemUser();
