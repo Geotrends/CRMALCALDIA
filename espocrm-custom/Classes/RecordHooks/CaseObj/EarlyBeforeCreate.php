@@ -15,5 +15,17 @@ class EarlyBeforeCreate implements SaveHook
         $entity->set('assignedUserId', null);
         $entity->set('assignedUserName', null);
         $entity->setLinkMultipleIdList('teams', []);
+
+        $name = trim((string) $entity->get('name'));
+        $description = trim((string) $entity->get('description'));
+
+        if ($name === '') {
+            if ($description !== '') {
+                $entity->set('name', mb_substr($description, 0, 149));
+            } else {
+                $now = new \DateTimeImmutable('now', new \DateTimeZone('America/Bogota'));
+                $entity->set('name', 'Solicitud ' . $now->format('Y-m-d H:i'));
+            }
+        }
     }
 }

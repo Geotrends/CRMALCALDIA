@@ -56,8 +56,12 @@ class GenerateFormatoSolicitudOnSave implements AfterSave
             return;
         }
 
-        $attacher = $this->injectableFactory->create(FormatoSolicitudAttacher::class);
-        $attacher->attachToCase($entity);
+        try {
+            $attacher = $this->injectableFactory->create(FormatoSolicitudAttacher::class);
+            $attacher->attachToCase($entity);
+        } catch (\Throwable $e) {
+            // PDF opcional: no bloquear guardado del caso.
+        }
     }
 
     private function shouldGenerate(Entity $entity): bool

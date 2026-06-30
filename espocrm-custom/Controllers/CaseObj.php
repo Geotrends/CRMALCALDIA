@@ -26,11 +26,26 @@ class CaseObj extends BaseCaseObj
      */
     public function getActionAlcaldiaProfile(Request $request): array
     {
-        $user = $this->getUser();
+        try {
+            $user = $this->getUser();
 
-        return $this->injectableFactory
-            ->create(AlcaldiaUserProfile::class)
-            ->build($user);
+            return $this->injectableFactory
+                ->create(AlcaldiaUserProfile::class)
+                ->build($user);
+        } catch (\Throwable $e) {
+            return [
+                'isAdmin' => false,
+                'isInspeccion' => false,
+                'isRadicacion' => false,
+                'isPatrullero' => false,
+                'isAsignador' => false,
+                'canDownloadExcelAlcaldia' => false,
+                'homeProfile' => 'gestion',
+                'canEditRadicado' => false,
+                'canAssignCase' => false,
+                'roles' => [],
+            ];
+        }
     }
 
     /**
@@ -40,13 +55,24 @@ class CaseObj extends BaseCaseObj
      */
     public function getActionCreateDefaults(Request $request): array
     {
-        if (!$this->acl->check('Case', 'create')) {
+        if (
+            !$this->acl->check('Case', 'create')
+            && !$this->acl->check('Case', 'read')
+        ) {
             throw new Forbidden();
         }
 
-        return $this->injectableFactory
-            ->create(CaseCreateDefaultsService::class)
-            ->build();
+        try {
+            return $this->injectableFactory
+                ->create(CaseCreateDefaultsService::class)
+                ->build();
+        } catch (\Throwable $e) {
+            $now = new \DateTimeImmutable('now', new \DateTimeZone('America/Bogota'));
+
+            return [
+                'cFechaCaso' => $now->format('Y-m-d H:i'),
+            ];
+        }
     }
 
     /**

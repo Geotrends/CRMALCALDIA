@@ -1,4 +1,19 @@
 {
     "tab": true,
-    "disabled": false
+    "disabled": false,
+    "aclActionList": [
+        "create",
+        "read",
+        "edit",
+        "delete",
+        "stream",
+        "alcaldiaProfile",
+        "createDefaults",
+        "radicadoConsecutivo",
+        "buscarParte",
+        "calendarEvents",
+        "timeline",
+        "cronograma",
+        "panelesDetalle"
+    ]
 }

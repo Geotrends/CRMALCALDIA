@@ -36,6 +36,15 @@ class NotifyRadicacionOnCaseCreated implements AfterSave
 
     public function afterSave(Entity $entity, SaveOptions $options): void
     {
+        try {
+            $this->runAfterSave($entity, $options);
+        } catch (\Throwable $e) {
+            // No bloquear guardado del caso por fallos de notificación.
+        }
+    }
+
+    private function runAfterSave(Entity $entity, SaveOptions $options): void
+    {
         if (!$this->isJustCreated($entity)) {
             return;
         }

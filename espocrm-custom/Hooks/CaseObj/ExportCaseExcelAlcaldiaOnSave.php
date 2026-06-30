@@ -80,7 +80,11 @@ class ExportCaseExcelAlcaldiaOnSave implements AfterSave
             return;
         }
 
-        $this->injectableFactory->create(ExcelAlcaldiaExporter::class)->exportCase($entity);
+        try {
+            $this->injectableFactory->create(ExcelAlcaldiaExporter::class)->exportCase($entity);
+        } catch (\Throwable $e) {
+            // Excel solo tras radicación; no bloquear guardado.
+        }
     }
 
     private function shouldExport(Entity $entity): bool

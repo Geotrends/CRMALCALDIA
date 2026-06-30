@@ -118,8 +118,8 @@ run_auto_deploy_if_needed() {
     write_deploy_version_applied
     echo "==> Auto-deploy completado."
   else
-    echo "ERROR: auto-deploy falló — revisa logs de deploy-custom-dokploy.sh"
-    exit 1
+    echo "ERROR: auto-deploy falló — Apache arranca con la versión anterior del custom."
+    echo "ERROR: revisa logs arriba; tras corregir, vuelve a desplegar en Dokploy."
   fi
 }
 

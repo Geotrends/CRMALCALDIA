@@ -795,6 +795,26 @@
             "readOnly": true,
             "utility": true,
             "isCustom": true
+        },
+        "cRespuestaInmediata": {
+            "type": "text",
+            "required": false,
+            "isCustom": true
+        },
+        "cRecibidaPor": {
+            "type": "link",
+            "required": false,
+            "isCustom": true
+        },
+        "cRemitidoA": {
+            "type": "link",
+            "required": false,
+            "isCustom": true
+        },
+        "cMotivoReasignacion": {
+            "type": "text",
+            "required": false,
+            "isCustom": true
         }
     },
     "links": {

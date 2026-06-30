@@ -66,14 +66,27 @@ $scopes = [
     'ActuoArchivo',
 ];
 
-$fullScope = static function (): array {
-    return [
+$fullScope = static function (string $scope = ''): array {
+    $perms = [
         'create' => 'yes',
         'read' => 'all',
         'edit' => 'all',
         'delete' => 'yes',
         'stream' => 'all',
     ];
+
+    if ($scope === 'Case') {
+        $perms['alcaldiaProfile'] = 'yes';
+        $perms['createDefaults'] = 'yes';
+        $perms['buscarParte'] = 'yes';
+        $perms['radicadoConsecutivo'] = 'yes';
+        $perms['calendarEvents'] = 'yes';
+        $perms['timeline'] = 'yes';
+        $perms['cronograma'] = 'yes';
+        $perms['panelesDetalle'] = 'yes';
+    }
+
+    return $perms;
 };
 
 $restrictedCaseRoles = [];
@@ -100,7 +113,7 @@ foreach ($em->getRDBRepository('Role')->find() as $role) {
             continue;
         }
 
-        $data[$scope] = $fullScope();
+        $data[$scope] = $fullScope($scope);
     }
 
     $data['Calendar'] = true;

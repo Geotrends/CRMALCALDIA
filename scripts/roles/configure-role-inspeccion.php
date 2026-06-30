@@ -119,6 +119,29 @@ if ($actaFields !== []) {
 }
 
 $role->set('fieldData', $fieldData);
+
+$caseData = $data['Case'] ?? [];
+if (!is_array($caseData)) {
+    $caseData = [];
+}
+
+$caseApiActions = [
+    'alcaldiaProfile' => 'yes',
+    'createDefaults' => 'yes',
+    'buscarParte' => 'yes',
+    'calendarEvents' => 'yes',
+    'timeline' => 'yes',
+    'cronograma' => 'yes',
+    'panelesDetalle' => 'yes',
+    'radicadoConsecutivo' => 'no',
+];
+
+foreach ($caseApiActions as $action => $level) {
+    $caseData[$action] = $level;
+}
+
+$data['Case'] = $caseData;
+$role->set('data', $data);
 $role->set('tabList', null);
 $role->set('assignmentPermission', 'all');
 $role->set('userPermission', 'all');
