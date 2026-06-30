@@ -37,79 +37,102 @@ def logo_html(data: dict) -> str:
 def build_html(data: dict) -> str:
     kpis = data.get("kpis", {})
     filtro = data.get("filtroAsignado")
-    filtro_row = (
-        f"<tr><td colspan='2' class='meta-cell'>"
-        f"<span class='meta-label'>Filtro</span> Casos asignados a {esc(filtro)}</td></tr>"
-        if filtro
-        else ""
+
+    th_style = (
+        'bgcolor="#2a5934" style="border:1px solid #64748b;padding:5pt;'
+        'font-family:Arial,sans-serif;font-size:9pt;color:#ffffff;"'
+    )
+    td_style = 'style="border:1px solid #94a3b8;padding:5pt;font-family:Arial,sans-serif;font-size:9pt;"'
+    td_right = (
+        'style="border:1px solid #94a3b8;padding:5pt;font-family:Arial,sans-serif;'
+        'font-size:9pt;text-align:right;"'
+    )
+    td_num = td_right
+    section_style = (
+        'style="border:none;padding:10pt 0 4pt 0;font-family:Arial,sans-serif;'
+        'font-size:10pt;font-weight:bold;color:#2a5934;"'
     )
 
-    meta_html = f"""<table class="report-meta" width="100%" cellpadding="0" cellspacing="0">
+    filtro_row = ""
+    if filtro:
+        filtro_row = (
+            f"<tr><td colspan='2' {td_style}>"
+            f"<b>Filtro:</b> Casos asignados a {esc(filtro)}</td></tr>"
+        )
+
+    meta_html = f"""<table width="100%" border="1" cellspacing="0" cellpadding="0" style="border-collapse:collapse;">
       <tr>
-        <td class="meta-cell" width="50%"><span class="meta-label">Generado</span> {esc(data.get('generadoEn'))}</td>
-        <td class="meta-cell" width="50%"><span class="meta-label">Elaborado por</span> {esc(data.get('generadoPor'))}</td>
+        <td width="50%" {td_style}><b>Generado:</b> {esc(data.get('generadoEn'))}</td>
+        <td width="50%" {td_style}><b>Elaborado por:</b> {esc(data.get('generadoPor'))}</td>
       </tr>
       {filtro_row}
     </table>"""
 
-    def table_rows(rows: list[dict]) -> str:
+    def summary_rows(rows: list[dict]) -> str:
         if not rows:
-            return "<tr class='empty-row'><td colspan='2'>Sin datos</td></tr>"
-        return "".join(
-            f"<tr><td>{esc(r.get('label', ''))}</td>"
-            f"<td class='num' align='right'>{esc(r.get('total', 0))}</td></tr>"
-            for r in rows
-        )
+            return f"<tr><td colspan='2' {td_style} align='center'><i>Sin datos</i></td></tr>"
+        out = ""
+        for r in rows:
+            out += (
+                f"<tr>"
+                f"<td width='80%' {td_style}>{esc(r.get('label', ''))}</td>"
+                f"<td width='20%' {td_num}><b>{esc(r.get('total', 0))}</b></td>"
+                f"</tr>"
+            )
+        return out
 
-    def summary_table(title: str, label_col: str, rows: list[dict]) -> str:
-        body = table_rows(rows)
+    def summary_block(title: str, label_col: str, rows: list[dict]) -> str:
         return f"""
-        <div class="section-title section-title--compact">{esc(title)}</div>
-        <table class="data summary-table" width="100%" cellpadding="0" cellspacing="0">
-          <colgroup><col width="78%" /><col width="22%" /></colgroup>
-          <thead><tr><th>{esc(label_col)}</th><th class="th-total" align="right">Total</th></tr></thead>
-          <tbody>{body}</tbody>
-        </table>"""
+    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+      <tr><td {section_style}>{esc(title)}</td></tr>
+      <tr><td>
+        <table width="100%" border="1" cellspacing="0" cellpadding="0" style="border-collapse:collapse;">
+          <tr>
+            <td width="80%" {th_style}><b>{esc(label_col)}</b></td>
+            <td width="20%" {th_style} align="right"><b>Total</b></td>
+          </tr>
+          {summary_rows(rows)}
+        </table>
+      </td></tr>
+    </table>"""
 
     detalle_rows = ""
     for row in data.get("detalle", []):
         semaforo = esc(row.get("semaforo"))
-        semaforo_class = ""
+        sem_bg = "#ffffff"
         if semaforo == "Vencido":
-            semaforo_class = "badge badge--danger"
+            sem_bg = "#fee2e2"
         elif semaforo == "Próximo a vencer":
-            semaforo_class = "badge badge--warn"
+            sem_bg = "#fef3c7"
         elif semaforo == "Al día":
-            semaforo_class = "badge badge--ok"
-
-        semaforo_cell = (
-            f"<span class='{semaforo_class}'>{semaforo}</span>" if semaforo_class else semaforo
-        )
+            sem_bg = "#dcfce7"
 
         detalle_rows += (
             "<tr>"
-            f"<td class='mono'>{esc(row.get('radicado'))}</td>"
-            f"<td>{esc(row.get('peticionario'))}</td>"
-            f"<td>{esc(row.get('estado'))}</td>"
-            f"<td>{esc(row.get('recurso'))}</td>"
-            f"<td>{esc(row.get('asignado'))}</td>"
-            f"<td>{esc(row.get('fechaVencimiento'))}</td>"
-            f"<td>{semaforo_cell}</td>"
+            f'<td width="13%" {td_style}><font face="Courier New" size="1">{esc(row.get("radicado"))}</font></td>'
+            f'<td width="17%" {td_style}>{esc(row.get("peticionario"))}</td>'
+            f'<td width="11%" {td_style}>{esc(row.get("estado"))}</td>'
+            f'<td width="10%" {td_style}>{esc(row.get("recurso"))}</td>'
+            f'<td width="16%" {td_style}>{esc(row.get("asignado"))}</td>'
+            f'<td width="11%" {td_style}>{esc(row.get("fechaVencimiento"))}</td>'
+            f'<td width="12%" style="border:1px solid #94a3b8;padding:5pt;font-family:Arial,sans-serif;'
+            f'font-size:8pt;background-color:{sem_bg};">{semaforo}</td>'
             "</tr>"
         )
 
     if not detalle_rows:
-        detalle_rows = "<tr class='empty-row'><td colspan='7'>Sin casos</td></tr>"
+        detalle_rows = f"<tr><td colspan='7' {td_style} align='center'><i>Sin casos</i></td></tr>"
 
-    def kpi_cell(label: str, value, extra: str = "") -> str:
+    def kpi_cell(label: str, value, value_color: str = "#2a5934") -> str:
         return (
-            f'<td class="kpi-cell {extra}" width="33%">'
-            f'<div class="kpi-label">{esc(label)}</div>'
-            f'<div class="kpi-value">{esc(value)}</div>'
+            f'<td width="33%" valign="top" style="border:1px solid #94a3b8;padding:8pt;'
+            f'font-family:Arial,sans-serif;">'
+            f'<font size="1" color="#64748b">{esc(label)}</font><br/>'
+            f'<font size="4" color="{value_color}"><b>{esc(value)}</b></font>'
             f"</td>"
         )
 
-    kpi_html = f"""<table class="kpi-table" width="100%" cellpadding="0" cellspacing="0">
+    kpi_html = f"""<table width="100%" border="1" cellspacing="0" cellpadding="0" style="border-collapse:collapse;">
       <tr>
         {kpi_cell("Total casos", kpis.get("total", 0))}
         {kpi_cell("Pend. radicación", kpis.get("pendienteRadicacion", 0))}
@@ -117,244 +140,85 @@ def build_html(data: dict) -> str:
       </tr>
       <tr>
         {kpi_cell("Finalizados", kpis.get("finalizados", 0))}
-        {kpi_cell("Vencidos", kpis.get("vencidos", 0), "kpi-danger")}
-        {kpi_cell("Próx. a vencer", kpis.get("proximosVencer", 0), "kpi-warn")}
+        {kpi_cell("Vencidos", kpis.get("vencidos", 0), "#b91c1c")}
+        {kpi_cell("Próx. a vencer", kpis.get("proximosVencer", 0), "#a16207")}
       </tr>
     </table>"""
+
+    summaries = (
+        summary_block("Resumen por estado", "Estado", data.get("porEstado", []))
+        + summary_block("Resumen por recurso / tema", "Recurso", data.get("porRecurso", []))
+        + summary_block("Resumen por canal de reporte", "Canal", data.get("porCanal", []))
+        + summary_block("Semáforo de vencimiento", "Semáforo", data.get("porSemaforo", []))
+    )
 
     return f"""<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <title>{esc(data.get('titulo', 'Reporte gerencial'))}</title>
-  <style>
-    @page {{
-      size: A4 portrait;
-      margin: 1.4cm 1.6cm 1.6cm 1.6cm;
-    }}
-    body {{
-      font-family: Arial, Helvetica, sans-serif;
-      color: #1e293b;
-      margin: 0;
-      padding: 0;
-      font-size: 10pt;
-      line-height: 1.35;
-      background: #ffffff;
-    }}
-    .page {{
-      width: 100%;
-    }}
-    .report-header {{
-      width: 100%;
-      border-bottom: 2px solid #2a5934;
-      margin: 0 0 10pt 0;
-      padding: 0 0 10pt 0;
-    }}
-    .report-header__logo {{
-      width: 64px;
-      vertical-align: middle;
-      padding: 0 12pt 0 0;
-    }}
-    .report-header__text {{
-      vertical-align: middle;
-      text-align: left;
-    }}
-    .report-title {{
-      margin: 0;
-      color: #2a5934;
-      font-size: 14pt;
-      font-weight: bold;
-      line-height: 1.2;
-    }}
-    .report-subtitle {{
-      margin: 3pt 0 0;
-      color: #64748b;
-      font-size: 9pt;
-      line-height: 1.3;
-    }}
-    .report-meta {{
-      width: 100%;
-      margin: 0 0 12pt 0;
-      border: 1px solid #cbd5e1;
-      background: #f8fafc;
-      border-collapse: collapse;
-    }}
-    .meta-cell {{
-      padding: 7pt 10pt;
-      font-size: 9pt;
-      border: 1px solid #e2e8f0;
-      vertical-align: top;
-    }}
-    .meta-label {{
-      color: #475569;
-      font-weight: bold;
-    }}
-    .section-title {{
-      color: #2a5934;
-      font-size: 10.5pt;
-      font-weight: bold;
-      margin: 12pt 0 6pt 0;
-      padding: 0 0 4pt 0;
-      border-bottom: 1px solid #cbd5e1;
-    }}
-    .section-title--compact {{
-      font-size: 9.5pt;
-      margin: 0 0 4pt 0;
-      padding: 0 0 3pt 0;
-    }}
-    .kpi-table {{
-      width: 100%;
-      margin: 0 0 10pt 0;
-      border-collapse: collapse;
-      table-layout: fixed;
-    }}
-    .kpi-cell {{
-      border: 1px solid #cbd5e1;
-      background: #ffffff;
-      padding: 8pt 10pt;
-      vertical-align: top;
-    }}
-    .kpi-label {{
-      font-size: 8pt;
-      color: #64748b;
-      margin: 0 0 3pt 0;
-      line-height: 1.2;
-    }}
-    .kpi-value {{
-      font-size: 15pt;
-      font-weight: bold;
-      color: #2a5934;
-      line-height: 1.1;
-      margin: 0;
-    }}
-    .kpi-danger .kpi-value {{ color: #b91c1c; }}
-    .kpi-warn .kpi-value {{ color: #a16207; }}
-    .summary-grid {{
-      width: 100%;
-      border-collapse: collapse;
-      margin: 0 0 8pt 0;
-    }}
-    .summary-grid > tbody > tr > td {{
-      width: 50%;
-      vertical-align: top;
-      padding: 0 8pt 8pt 0;
-    }}
-    .summary-grid > tbody > tr > td + td {{
-      padding: 0 0 8pt 8pt;
-    }}
-    table.data {{
-      width: 100%;
-      border-collapse: collapse;
-      table-layout: fixed;
-      margin: 0;
-    }}
-    table.data th,
-    table.data td {{
-      border: 1px solid #cbd5e1;
-      padding: 5pt 7pt;
-      font-size: 9pt;
-      vertical-align: middle;
-      word-wrap: break-word;
-    }}
-    table.data th {{
-      background: #2a5934;
-      color: #ffffff;
-      font-weight: bold;
-      text-align: left;
-    }}
-    table.data td.num,
-    table.data th.th-total {{
-      text-align: right;
-      white-space: nowrap;
-    }}
-    table.data tbody tr:nth-child(even) td {{
-      background: #f8fafc;
-    }}
-    .detail-table th {{
-      font-size: 8pt;
-      padding: 5pt 4pt;
-    }}
-    .detail-table td {{
-      font-size: 8pt;
-      padding: 4pt 4pt;
-      vertical-align: top;
-    }}
-    .mono {{
-      font-family: "Courier New", Courier, monospace;
-      font-size: 7.5pt;
-    }}
-    .badge {{
-      display: inline-block;
-      padding: 1pt 6pt;
-      font-size: 7.5pt;
-      font-weight: bold;
-      white-space: nowrap;
-    }}
-    .badge--danger {{ background: #fee2e2; color: #b91c1c; }}
-    .badge--warn {{ background: #fef3c7; color: #a16207; }}
-    .badge--ok {{ background: #dcfce7; color: #166534; }}
-    .empty-row td {{
-      text-align: center;
-      color: #64748b;
-      font-style: italic;
-    }}
-    .report-footer {{
-      margin-top: 14pt;
-      padding-top: 6pt;
-      border-top: 1px solid #cbd5e1;
-      font-size: 7.5pt;
-      color: #94a3b8;
-      text-align: center;
-    }}
-  </style>
 </head>
-<body>
-  <div class="page">
-  <table class="report-header" width="100%" cellpadding="0" cellspacing="0">
+<body style="margin:1.5cm 1.5cm 1.5cm 1.5cm;font-family:Arial,sans-serif;color:#1e293b;font-size:10pt;">
+
+  <table width="100%" border="0" cellspacing="0" cellpadding="0">
     <tr>
-      <td class="report-header__logo" width="72">{logo_html(data)}</td>
-      <td class="report-header__text">
-        <h1 class="report-title">{esc(data.get('titulo'))}</h1>
-        <p class="report-subtitle">{esc(data.get('subtitulo'))}</p>
+      <td width="70" valign="middle">{logo_html(data)}</td>
+      <td valign="middle" style="padding-left:10pt;">
+        <font face="Arial" size="4" color="#2a5934"><b>{esc(data.get('titulo'))}</b></font><br/>
+        <font face="Arial" size="2" color="#64748b">{esc(data.get('subtitulo'))}</font>
+      </td>
+    </tr>
+    <tr><td colspan="2" style="border-bottom:2px solid #2a5934;height:8pt;">&nbsp;</td></tr>
+  </table>
+
+  <br/>
+
+  {meta_html}
+
+  <br/>
+
+  <table width="100%" border="0" cellspacing="0" cellpadding="0">
+    <tr><td {section_style}>Indicadores generales</td></tr>
+    <tr><td>{kpi_html}</td></tr>
+  </table>
+
+  <br/>
+
+  {summaries}
+
+  <br/>
+
+  <table width="100%" border="0" cellspacing="0" cellpadding="0">
+    <tr><td {section_style}>Detalle de casos</td></tr>
+    <tr><td>
+      <table width="100%" border="1" cellspacing="0" cellpadding="0" style="border-collapse:collapse;">
+        <tr>
+          <td width="13%" {th_style}><b>Radicado</b></td>
+          <td width="17%" {th_style}><b>Peticionario</b></td>
+          <td width="11%" {th_style}><b>Estado</b></td>
+          <td width="10%" {th_style}><b>Recurso</b></td>
+          <td width="16%" {th_style}><b>Asignado</b></td>
+          <td width="11%" {th_style}><b>Vencimiento</b></td>
+          <td width="12%" {th_style}><b>Semáforo</b></td>
+        </tr>
+        {detalle_rows}
+      </table>
+    </td></tr>
+  </table>
+
+  <br/>
+
+  <table width="100%" border="0" cellspacing="0" cellpadding="0">
+    <tr>
+      <td align="center" style="border-top:1px solid #cbd5e1;padding-top:6pt;">
+        <font face="Arial" size="1" color="#94a3b8">
+          Alcaldía de Envigado — Secretaría de Medio Ambiente · CRM ambiental
+        </font>
       </td>
     </tr>
   </table>
 
-  {meta_html}
-
-  <div class="section-title">Indicadores generales</div>
-  {kpi_html}
-
-  <table class="summary-grid" width="100%" cellpadding="0" cellspacing="0">
-    <tr>
-      <td width="50%">{summary_table('Resumen por estado', 'Estado', data.get('porEstado', []))}</td>
-      <td width="50%">{summary_table('Resumen por recurso / tema', 'Recurso', data.get('porRecurso', []))}</td>
-    </tr>
-    <tr>
-      <td width="50%">{summary_table('Resumen por canal de reporte', 'Canal', data.get('porCanal', []))}</td>
-      <td width="50%">{summary_table('Semáforo de vencimiento', 'Semáforo', data.get('porSemaforo', []))}</td>
-    </tr>
-  </table>
-
-  <div class="section-title">Detalle de casos</div>
-  <table class="data detail-table" width="100%" cellpadding="0" cellspacing="0">
-    <colgroup>
-      <col width="14%" /><col width="18%" /><col width="11%" /><col width="10%" />
-      <col width="16%" /><col width="11%" /><col width="14%" />
-    </colgroup>
-    <thead>
-      <tr>
-        <th>Radicado</th><th>Peticionario</th><th>Estado</th><th>Recurso</th>
-        <th>Asignado</th><th>Vencimiento</th><th>Semáforo</th>
-      </tr>
-    </thead>
-    <tbody>{detalle_rows}</tbody>
-  </table>
-
-  <div class="report-footer">
-    Alcaldía de Envigado — Secretaría de Medio Ambiente · CRM ambiental
-  </div>
-  </div>
 </body>
 </html>"""
 
