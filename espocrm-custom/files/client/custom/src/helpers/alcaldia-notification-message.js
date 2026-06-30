@@ -56,6 +56,17 @@ define('custom:helpers/alcaldia-notification-message', [
         return 'text-warning';
     };
 
+    /**
+     * Referencia del caso en notificaciones: radicado si existe; si no, peticionario.
+     */
+    const resolveCaseReferenceLabel = function (data) {
+        const radicadoRaw = String(data.cNumeroRadicado || data.numeroRadicacion || '').trim();
+        const radicadoNumero = radicadoRaw === 'sin número' ? '' : radicadoRaw;
+        const entityName = String(data.entityName || '').trim();
+
+        return radicadoNumero || entityName || 'Caso';
+    };
+
   /**
    * Mensaje HTML con enlaces para cualquier notificación de casos (todos los roles).
    *
@@ -70,25 +81,7 @@ define('custom:helpers/alcaldia-notification-message', [
         const href = data.recordUrl || ('#' + entityType + '/view/' + entityId);
         const userId = data.userId || model.get('createdById') || null;
         const userName = data.userName || model.get('createdByName') || '';
-        const entityName = data.entityName || '';
-        const radicadoNumero = String(data.cNumeroRadicado || data.numeroRadicacion || '').trim();
-        let expediente = String(data.expediente || data.cExpediente || '').trim();
-        const linkLabel = radicadoNumero || entityName || 'Caso';
-
-        if (!expediente && rawMessage) {
-            const expMatch = rawMessage.match(/expediente[:\s]+([^·<]+)/i);
-
-            if (expMatch) {
-                expediente = expMatch[1].trim();
-            }
-        }
-
-        const expSuffix = expediente
-            ? ' · Expediente: ' + escapeHtml(expediente)
-            : '';
-        const expSuffixAsignador = expediente
-            ? ' · Expediente ' + escapeHtml(expediente)
-            : '';
+        const linkLabel = resolveCaseReferenceLabel(data);
 
         const isActaVisita = !!data.isActaVisita
             || /realizó la visita|se ha realizado la visita/i.test(rawMessage);
@@ -113,7 +106,8 @@ define('custom:helpers/alcaldia-notification-message', [
             style: data.style || 'text-muted',
         };
 
-        if (hasHtmlLinks(rawMessage) && !isNuevaSolicitud && !isRadicado) {
+        if (hasHtmlLinks(rawMessage) && !isNuevaSolicitud && !isRadicado
+            && !isVencimientoAlert && !isFinalizadoAlert) {
             return {
                 message: rawMessage,
                 style: resolveStyle(styleFlags),
@@ -130,8 +124,7 @@ define('custom:helpers/alcaldia-notification-message', [
             if (alertTipo === 'vencido' || /está vencido/i.test(rawMessage)) {
                 message = 'El caso ' + caseLink(href, linkLabel)
                     + ' está vencido'
-                    + (fechaVenc ? ' (vencía ' + escapeHtml(fechaVenc) + ')' : '')
-                    + (expediente ? ' · Expediente: ' + escapeHtml(expediente) : '');
+                    + (fechaVenc ? ' (vencía ' + escapeHtml(fechaVenc) + ')' : '');
             } else {
                 const diasText = diasRest === 0
                     ? 'hoy'
@@ -139,40 +132,33 @@ define('custom:helpers/alcaldia-notification-message', [
 
                 message = 'El caso ' + caseLink(href, linkLabel)
                     + ' vence ' + diasText
-                    + (fechaVenc ? ' (' + escapeHtml(fechaVenc) + ')' : '')
-                    + (expediente ? ' · Expediente: ' + escapeHtml(expediente) : '');
+                    + (fechaVenc ? ' (' + escapeHtml(fechaVenc) + ')' : '');
             }
         } else if (isFinalizadoAlert) {
             message = (userId ? userLink(userId, userName) : escapeHtml(userName || 'El CRM'))
-                + ' finalizó el caso ' + caseLink(href, linkLabel)
-                + (expediente ? ' · Expediente: ' + escapeHtml(expediente) : '');
+                + ' finalizó el caso ' + caseLink(href, linkLabel);
         } else if (isActaVisita) {
             message = userLink(userId, userName)
-                + ' realizó la visita en el caso ' + caseLink(href, entityName || linkLabel)
-                + (expediente ? ' (expediente ' + escapeHtml(expediente) + ')' : '')
+                + ' realizó la visita en el caso ' + caseLink(href, linkLabel)
                 + '. Revise el acta de visita.';
         } else if (isNuevaSolicitud) {
             message = userLink(userId, userName)
                 + ' creó una solicitud de queja: '
-                + caseLink(href, entityName || 'Caso');
+                + caseLink(href, linkLabel);
         } else if (isPatrulleroAsignacion) {
             message = userLink(userId, userName)
-                + ' te asignó el caso ' + caseLink(href, linkLabel)
-                + expSuffix;
+                + ' te asignó el caso ' + caseLink(href, linkLabel);
         } else if (isAsignacion) {
             message = userLink(userId, userName)
                 + ' asignó el caso ' + caseLink(href, linkLabel)
-                + ' a ' + userLink(data.assignedUserId, data.assignedUserName || 'patrullero')
-                + expSuffix;
+                + ' a ' + userLink(data.assignedUserId, data.assignedUserName || 'patrullero');
         } else if (isRadicado || /radicó el caso|radicó un caso/i.test(rawMessage)) {
             message = userLink(userId, userName)
                 + ' radicó el caso '
-                + caseLink(href, radicadoNumero || linkLabel)
-                + expSuffix;
+                + caseLink(href, linkLabel);
         } else if (data.isAsignador) {
             message = userLink(userId, userName)
-                + ' radicó un caso para asignar: ' + caseLink(href, linkLabel)
-                + expSuffixAsignador;
+                + ' radicó un caso para asignar: ' + caseLink(href, linkLabel);
         } else if (entityId) {
             message = userLink(userId, userName)
                 + ' · ' + caseLink(href, linkLabel);
@@ -191,5 +177,6 @@ define('custom:helpers/alcaldia-notification-message', [
         buildFromNotificationModel: buildFromNotificationModel,
         userLink: userLink,
         caseLink: caseLink,
+        resolveCaseReferenceLabel: resolveCaseReferenceLabel,
     };
 });

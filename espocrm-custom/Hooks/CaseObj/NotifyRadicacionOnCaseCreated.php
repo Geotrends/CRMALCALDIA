@@ -59,7 +59,7 @@ class NotifyRadicacionOnCaseCreated implements AfterSave
             return;
         }
 
-        $label = $this->buildCaseLabel($entity);
+        $label = CasePartyNameHelper::getNotificationReferenceLabel($entity);
         $recordUrl = rtrim((string) $this->config->get('siteUrl'), '/')
             . '/#Case/view/' . $entity->getId();
         $caseHref = '#Case/view/' . $entity->getId();
@@ -92,23 +92,6 @@ class NotifyRadicacionOnCaseCreated implements AfterSave
         $modifiedAt = $entity->get('modifiedAt');
 
         return $createdAt && $modifiedAt && $createdAt === $modifiedAt;
-    }
-
-    private function buildCaseLabel(Entity $entity): string
-    {
-        $peticionario = CasePartyNameHelper::getPeticionarioFullName($entity);
-
-        if ($peticionario !== '') {
-            return $peticionario;
-        }
-
-        $name = trim((string) $entity->get('name'));
-
-        if ($name !== '') {
-            return $name;
-        }
-
-        return 'Solicitud de queja';
     }
 
     private function createNotification(Entity $entity, User $notifyUser, string $label, string $caseHref): void

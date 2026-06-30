@@ -68,8 +68,8 @@ class NotifyInspeccionAndAsignadorOnRadicado implements AfterSave
             return;
         }
 
-        $label = $this->buildCaseLabel($entity);
         $radicado = trim((string) $entity->get('cNumeroRadicado'));
+        $label = CasePartyNameHelper::getNotificationReferenceLabel($entity);
         $expediente = trim((string) $entity->get('cExpediente'));
         $recordUrl = rtrim((string) $this->config->get('siteUrl'), '/')
             . '/#Case/view/' . $entity->getId();
@@ -116,23 +116,6 @@ class NotifyInspeccionAndAsignadorOnRadicado implements AfterSave
 
         return $beforeNumero !== trim((string) $entity->get('cNumeroRadicado'))
             || $beforeExpediente !== trim((string) $entity->get('cExpediente'));
-    }
-
-    private function buildCaseLabel(Entity $entity): string
-    {
-        $peticionario = CasePartyNameHelper::getPeticionarioFullName($entity);
-
-        if ($peticionario !== '') {
-            return $peticionario;
-        }
-
-        $name = trim((string) $entity->get('name'));
-
-        if ($name !== '') {
-            return $name;
-        }
-
-        return 'Solicitud de queja';
     }
 
     private function createNotification(
@@ -188,7 +171,7 @@ class NotifyInspeccionAndAsignadorOnRadicado implements AfterSave
 
         $body = '<p>' . htmlspecialchars($this->user->getName(), ENT_QUOTES, 'UTF-8')
             . ' radicó el caso <strong>'
-            . htmlspecialchars($radicado !== '' ? $radicado : $label, ENT_QUOTES, 'UTF-8') . '</strong>.</p>'
+            . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '</strong>.</p>'
             . '<p><a href="' . htmlspecialchars($recordUrl, ENT_QUOTES, 'UTF-8')
             . '">Abrir caso en el CRM</a></p>';
 
@@ -196,7 +179,7 @@ class NotifyInspeccionAndAsignadorOnRadicado implements AfterSave
         $email = $this->entityManager->getNewEntity(Email::ENTITY_TYPE);
 
         $email->set([
-            'subject' => 'Caso radicado – ' . ($radicado !== '' ? $radicado : $label),
+            'subject' => 'Caso radicado – ' . $label,
             'body' => $body,
             'isHtml' => true,
             'to' => $emailAddress,

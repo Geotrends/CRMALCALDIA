@@ -132,4 +132,27 @@ class CasePartyNameHelper
     {
         return self::getPerjudicanteFullName($entity) !== '';
     }
+
+    /**
+     * Etiqueta de referencia en notificaciones: número de radicado si ya está radicado;
+     * de lo contrario, nombre del peticionario.
+     */
+    public static function getNotificationReferenceLabel(Entity $entity): string
+    {
+        if (CaseRadicadoHelper::isRadicadoCompleto($entity)) {
+            $numero = trim((string) $entity->get('cNumeroRadicado'));
+
+            if ($numero !== '') {
+                return $numero;
+            }
+        }
+
+        $peticionario = self::getPeticionarioFullName($entity);
+
+        if ($peticionario !== '') {
+            return $peticionario;
+        }
+
+        return 'Caso';
+    }
 }

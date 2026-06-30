@@ -5,6 +5,7 @@ namespace Espo\Custom\Hooks\CaseObj;
 use Espo\Core\Field\LinkParent;
 use Espo\Core\Hook\Hook\AfterSave;
 use Espo\Custom\Tools\CaseObj\CaseNotificationDuplicateGuard;
+use Espo\Custom\Tools\CaseObj\CasePartyNameHelper;
 use Espo\Custom\Tools\CaseObj\CaseRadicadoHelper;
 use Espo\Custom\Tools\User\AlcaldiaUserProfile;
 use Espo\Entities\Notification;
@@ -78,8 +79,7 @@ class NotifyPatrulleroAssignment implements AfterSave
 
         $caseHref = '#Case/view/' . $entity->getId();
         $numero = trim((string) $entity->get('cNumeroRadicado'));
-        $expediente = trim((string) $entity->get('cExpediente'));
-        $linkLabel = $numero !== '' ? $numero : ($expediente !== '' ? $expediente : 'Caso');
+        $linkLabel = CasePartyNameHelper::getNotificationReferenceLabel($entity);
 
         $notification = $this->entityManager
             ->getRDBRepositoryByClass(Notification::class)
@@ -94,8 +94,7 @@ class NotifyPatrulleroAssignment implements AfterSave
                 'entityId' => $entity->getId(),
                 'entityName' => $linkLabel,
                 'cNumeroRadicado' => $numero,
-                'numeroRadicacion' => $numero !== '' ? $numero : 'sin número',
-                'expediente' => $expediente,
+                'numeroRadicacion' => $numero,
                 'userId' => $this->user->getId(),
                 'userName' => $this->user->getName(),
                 'isPatrulleroAsignacion' => true,
@@ -111,8 +110,7 @@ class NotifyPatrulleroAssignment implements AfterSave
     {
         $caseHref = '#Case/view/' . $entity->getId();
         $numero = trim((string) $entity->get('cNumeroRadicado'));
-        $expediente = trim((string) $entity->get('cExpediente'));
-        $linkLabel = $numero !== '' ? $numero : ($expediente !== '' ? $expediente : 'Caso');
+        $linkLabel = CasePartyNameHelper::getNotificationReferenceLabel($entity);
         $assignedName = $assignedUser->getName();
 
         $notifyUserIds = array_values(array_unique(array_merge(
@@ -150,8 +148,7 @@ class NotifyPatrulleroAssignment implements AfterSave
                     'entityId' => $entity->getId(),
                     'entityName' => $linkLabel,
                     'cNumeroRadicado' => $numero,
-                    'numeroRadicacion' => $numero !== '' ? $numero : 'sin número',
-                    'expediente' => $expediente,
+                    'numeroRadicacion' => $numero,
                     'userId' => $this->user->getId(),
                     'userName' => $this->user->getName(),
                     'assignedUserId' => $assignedUser->getId(),
