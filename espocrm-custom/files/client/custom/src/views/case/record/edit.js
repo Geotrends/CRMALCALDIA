@@ -72,13 +72,6 @@ define('custom:views/case/record/edit', [
                 }
 
                 if (RadicacionEditMode.isRadicacionOnlyEdit(self)) {
-                    if (self.layoutName !== 'radicar' && self.isRendered && self.isRendered()) {
-                        RadicacionEditMode.prepareRadicacionLayout(self);
-                        self.reRender();
-
-                        return;
-                    }
-
                     if (self.isRendered && self.isRendered()) {
                         self.setupRadicacionOnlyEdit();
                     }
@@ -132,25 +125,9 @@ define('custom:views/case/record/edit', [
             }
 
             RadicacionEditMode.prepareRadicacionLayout(this);
-            this.updateRadicarPageTitle();
-            $('body').addClass('alcaldia-radicacion-radicar-page');
-            this.mountRadicacionAssistant();
-            RadicacionEditMode.hideRadicacionTextButtons(this);
-
-            [100, 350, 800].forEach((delay) => {
-                window.setTimeout(() => {
-                    if (!this.isRendered || !this.isRendered()) {
-                        return;
-                    }
-
-                    if (!RadicacionEditMode.isRadicacionOnlyEdit(this)) {
-                        return;
-                    }
-
-                    this.mountRadicacionAssistant();
-                    RadicacionEditMode.hideRadicacionTextButtons(this);
-                }, delay);
-            });
+            $('body').addClass('alcaldia-radicacion-edit-mode');
+            RadicacionEditMode.applyRestrictedEdit(this);
+            RadicacionEditMode.scheduleRestrictedEdit(this);
         },
 
         mountRadicacionAssistant: function () {
@@ -559,6 +536,8 @@ define('custom:views/case/record/edit', [
 
         applyFieldModes: function () {
             if (RadicacionEditMode.isRadicacionOnlyEdit(this)) {
+                RadicacionEditMode.applyRestrictedEdit(this);
+
                 return;
             }
 
@@ -637,7 +616,14 @@ define('custom:views/case/record/edit', [
 
         toggleRadicacionFields: function () {
             if (RadicacionEditMode.isRadicacionOnlyEdit(this)) {
+                const $layoutPanel = this.findPanel('radicacionCaso');
+
+                if ($layoutPanel.length) {
+                    $layoutPanel.show();
+                }
+
                 this.mountRadicacionAssistant();
+                RadicacionEditMode.applyRestrictedEdit(this);
 
                 return;
             }
@@ -963,6 +949,8 @@ define('custom:views/case/record/edit', [
 
         setReadOnly: function () {
             if (RadicacionEditMode.isRadicacionOnlyEdit(this)) {
+                RadicacionEditMode.applyRestrictedEdit(this);
+
                 return;
             }
 
@@ -970,10 +958,6 @@ define('custom:views/case/record/edit', [
         },
 
         setReadOnlyExcept: function (editableFields) {
-            if (RadicacionEditMode.isRadicacionOnlyEdit(this)) {
-                return;
-            }
-
             const editable = editableFields.slice();
             const fieldViews = typeof this.getFieldViews === 'function'
                 ? this.getFieldViews()

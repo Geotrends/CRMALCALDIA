@@ -253,7 +253,7 @@ define('custom:controllers/case', [
 
             var proceed = function () {
                 if (RadicacionFields.canEditRadicadoCase(self.getUser())) {
-                    self.loadRadicarView(options.id, options);
+                    Dep.prototype.actionEdit.call(self, options);
 
                     return;
                 }

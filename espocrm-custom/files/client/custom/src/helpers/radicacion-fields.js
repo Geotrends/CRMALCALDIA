@@ -341,7 +341,11 @@ define('custom:helpers/radicacion-fields', [], function () {
             return false;
         }
 
-        return resolveHomeProfile(user) === 'radicacion';
+        if (resolveHomeProfile(user) === 'radicacion') {
+            return true;
+        }
+
+        return hasRole(user, ROLE_RADICACION) && !hasRole(user, ROLE_INSPECCION);
     };
 
     const getProfileForUser = function (user) {

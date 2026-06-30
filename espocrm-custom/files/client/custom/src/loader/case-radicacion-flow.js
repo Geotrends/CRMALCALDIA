@@ -4,7 +4,7 @@
  */
 (function () {
 
-    var FLOW_VERSION = 'v7';
+    var FLOW_VERSION = 'v8';
     var PROFILE_CACHE_KEY = 'alcaldiaCaseProfileCacheV3';
     var profileInflight = null;
 
@@ -430,28 +430,13 @@
         fetchProfile(app, function (profile) {
             if (!isRadicacionOperator(profile, app)) {
                 cleanupRadicarEditPage();
+                document.body.classList.remove('alcaldia-radicacion-edit-mode');
 
                 return;
             }
 
-            if (!isRadicarEditRoute()) {
-                cleanupRadicarEditPage();
-            }
-
             if (isCaseDetailRoute()) {
                 ensureDetailEditVisible();
-            }
-
-            if (isCaseEditRoute() || isCaseRadicarRoute()) {
-                enforceRadicarEditRoute(
-                    app,
-                    getCaseIdFromHash('Case/edit') || getCaseIdFromHash('Case/radicar')
-                );
-            }
-
-            if (isRadicarEditRoute()) {
-                applyRadicarEditPage();
-                mountAssistantFallback();
             }
         });
     }
@@ -487,10 +472,9 @@
     function scheduleHandleRoute() {
         var app = getApp();
 
-        [0, 250, 900, 1800, 3500].forEach(function (delay) {
+        [0, 250].forEach(function (delay) {
             window.setTimeout(function () {
                 handleRoute(app);
-                mountAssistantFallback();
             }, delay);
         });
     }

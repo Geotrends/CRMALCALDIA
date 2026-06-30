@@ -422,7 +422,7 @@ define('custom:views/case/record/detail', [
 
             RadicacionFields.ensureProfile(this.getUser()).then(function () {
                 if (RadicacionFields.canEditRadicadoCase(self.getUser())) {
-                    self.dispatchRadicarCase();
+                    Dep.prototype.actionEdit.call(self);
 
                     return;
                 }
@@ -964,10 +964,8 @@ define('custom:views/case/record/detail', [
                 if ($editBtn.length) {
                     $editBtn.show();
                     this.setPrimaryActionButtonAction($editBtn, 'edit');
-                    this.setPrimaryActionButtonHref($editBtn, this.getCaseRadicarUrl());
+                    this.setPrimaryActionButtonHref($editBtn, this.getCaseEditUrl());
                 }
-
-                RadicacionEditMode.hideRadicacionTextButtons(this);
 
                 return;
             }
