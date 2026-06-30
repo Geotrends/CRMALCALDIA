@@ -48,6 +48,9 @@ foreach ($em->getRDBRepository('Role')->find() as $role) {
 
     alcaldiaApplyTaskPermissions($metadata, $data, $fieldData);
 
+    $role->set('assignmentPermission', 'all');
+    $role->set('userPermission', 'all');
+
     $role->set('data', $data);
     $role->set('fieldData', $fieldData);
 
@@ -56,4 +59,4 @@ foreach ($em->getRDBRepository('Role')->find() as $role) {
     echo "Rol {$name}: Task crear/editar (solo propias)." . PHP_EOL;
 }
 
-echo 'Permisos de tareas aplicados. Cerrar sesión y volver a entrar.' . PHP_EOL;
+echo 'Permisos de tareas y asignación de usuarios aplicados. Cerrar sesión y volver a entrar.' . PHP_EOL;

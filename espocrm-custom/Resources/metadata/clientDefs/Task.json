@@ -1,6 +1,9 @@
 {
     "kanbanViewMode": true,
     "defaultSidePanelDisabled": true,
+    "recordViews": {
+        "edit": "custom:views/task/record/edit"
+    },
     "relationshipPanels": {
         "account": {
             "disabled": true
