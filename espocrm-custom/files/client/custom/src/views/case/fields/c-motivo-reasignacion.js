@@ -1,11 +1,23 @@
 define('custom:views/case/fields/c-motivo-reasignacion', ['views/fields/text'], function (Dep) {
 
+    const VISIBLE_CLASS = 'alcaldia-motivo-reasignacion-visible';
+
     const hadPreviousAssignee = function (model) {
         if (!model || typeof model.getFetched !== 'function') {
             return false;
         }
 
-        return !!model.getFetched('assignedUserId');
+        return !!String(model.getFetched('assignedUserId') || '').trim();
+    };
+
+    const getCell = function (view) {
+        if (!view.$el || !view.$el.length) {
+            return null;
+        }
+
+        const $cell = view.$el.closest('.cell[data-name="cMotivoReasignacion"]');
+
+        return $cell.length ? $cell : null;
     };
 
     return Dep.extend({
@@ -13,16 +25,27 @@ define('custom:views/case/fields/c-motivo-reasignacion', ['views/fields/text'], 
         setup: function () {
             Dep.prototype.setup.call(this);
 
-            this.listenTo(this.model, 'sync', function () {
+            this.listenTo(this.model, 'sync change:assignedUserId', function () {
                 this.manageVisibility();
             });
         },
 
         manageVisibility: function () {
-            if (hadPreviousAssignee(this.model)) {
+            const $cell = getCell(this);
+            const isReasignacion = hadPreviousAssignee(this.model);
+
+            if (isReasignacion) {
+                if ($cell) {
+                    $cell.addClass(VISIBLE_CLASS).show();
+                }
+
                 this.show();
 
                 return;
+            }
+
+            if ($cell) {
+                $cell.removeClass(VISIBLE_CLASS).hide();
             }
 
             this.hide();

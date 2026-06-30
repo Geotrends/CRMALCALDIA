@@ -28,7 +28,7 @@ define('custom:helpers/asignador-case-flow', [
             return false;
         }
 
-        return !!model.getFetched('assignedUserId');
+        return !!String(model.getFetched('assignedUserId') || '').trim();
     };
 
     const restoreNonAsignacionAttributes = function (model) {

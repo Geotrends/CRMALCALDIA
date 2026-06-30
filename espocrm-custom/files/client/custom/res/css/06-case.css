@@ -245,10 +245,16 @@ body.alcaldia-asignador-asignar-page .edit[data-scope="Case"] .field[data-name="
   visibility: visible !important;
 }
 
-body.alcaldia-asignador-asignar-page .edit[data-scope="Case"] .cell[data-name="cMotivoReasignacion"] {
+.edit[data-scope="Case"] .panel[data-name="gestionPosteriorRadicacion"] .cell[data-name="cMotivoReasignacion"]:not(.alcaldia-motivo-reasignacion-visible),
+.edit[data-scope="Case"] .panel[data-panel-name="gestionPosteriorRadicacion"] .cell[data-name="cMotivoReasignacion"]:not(.alcaldia-motivo-reasignacion-visible) {
   display: none !important;
 }
 
+body.alcaldia-asignador-asignar-page .edit[data-scope="Case"] .cell[data-name="cMotivoReasignacion"]:not(.alcaldia-motivo-reasignacion-visible) {
+  display: none !important;
+}
+
+body.alcaldia-asignador-asignar-page .edit[data-scope="Case"] .cell[data-name="cMotivoReasignacion"].alcaldia-motivo-reasignacion-visible,
 body.alcaldia-asignador-asignar-page.alcaldia-reasignacion-caso .edit[data-scope="Case"] .cell[data-name="cMotivoReasignacion"] {
   display: block !important;
   visibility: visible !important;
@@ -268,15 +274,24 @@ body.alcaldia-asignador-asignar-page.alcaldia-reasignacion-caso .edit[data-scope
 .detail[data-scope="Case"] .panel[data-name="gestionPosteriorRadicacion"] .cell[data-name="assignedUser"] .link-container,
 .detail[data-scope="Case"] .panel[data-name="gestionPosteriorRadicacion"] .cell[data-name="assignedUser"] [data-action="selectLink"],
 .detail[data-scope="Case"] .panel[data-name="gestionPosteriorRadicacion"] .cell[data-name="assignedUser"] [data-action="editLink"],
-.detail[data-scope="Case"] .panel[data-name="gestionPosteriorRadicacion"] .cell[data-name="assignedUser"] .input-group-btn,
-.detail[data-scope="Case"] .panel[data-name="gestionPosteriorRadicacion"] .cell[data-name="cMotivoReasignacion"] textarea,
-.detail[data-scope="Case"] .panel[data-name="gestionPosteriorRadicacion"] .cell[data-name="cMotivoReasignacion"] input {
+.detail[data-scope="Case"] .panel[data-name="gestionPosteriorRadicacion"] .cell[data-name="assignedUser"] .input-group-btn {
   pointer-events: auto !important;
   display: inline-block !important;
   visibility: visible !important;
 }
 
-.detail[data-scope="Case"] .panel[data-name="gestionPosteriorRadicacion"] .cell[data-name="cMotivoReasignacion"] textarea {
+.detail[data-scope="Case"] .panel[data-name="gestionPosteriorRadicacion"] .cell[data-name="cMotivoReasignacion"]:not(.alcaldia-motivo-reasignacion-visible) {
+  display: none !important;
+}
+
+.detail[data-scope="Case"] .panel[data-name="gestionPosteriorRadicacion"] .cell[data-name="cMotivoReasignacion"].alcaldia-motivo-reasignacion-visible textarea,
+.detail[data-scope="Case"] .panel[data-name="gestionPosteriorRadicacion"] .cell[data-name="cMotivoReasignacion"].alcaldia-motivo-reasignacion-visible input {
+  pointer-events: auto !important;
+  display: inline-block !important;
+  visibility: visible !important;
+}
+
+.detail[data-scope="Case"] .panel[data-name="gestionPosteriorRadicacion"] .cell[data-name="cMotivoReasignacion"].alcaldia-motivo-reasignacion-visible textarea {
   display: block !important;
   width: 100%;
   min-height: 64px;
