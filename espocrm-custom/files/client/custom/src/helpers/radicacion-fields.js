@@ -10,7 +10,7 @@ define('custom:helpers/radicacion-fields', [], function () {
     const ROLE_ASIGNADOR = 'asignador';
     const ROLE_ASIGNACION = 'asignacion';
     const ROLE_PATRULLERO = 'patrullero';
-    const PROFILE_CACHE_KEY = 'alcaldiaCaseProfileCacheV3';
+    const PROFILE_CACHE_KEY = 'alcaldiaCaseProfileCacheV4';
     const RADICADO_FIELDS = ['cNumeroRadicado', 'cExpediente'];
     const FECHA_VENCIMIENTO_FIELD = 'cFechaVencimiento';
 
@@ -332,8 +332,42 @@ define('custom:helpers/radicacion-fields', [], function () {
         return 'gestion';
     };
 
+    const getActiveProfile = function (user) {
+        const userId = getCurrentUserId(user);
+
+        if (!userId) {
+            return null;
+        }
+
+        if (profileLoaded && profileUserId === userId && serverProfile) {
+            return serverProfile;
+        }
+
+        return readSessionProfileCache(userId);
+    };
+
     const canEditRadicadoCase = function (user) {
-        return isOperationalRadicacionUser(user);
+        if (!user || user.isAdmin()) {
+            return false;
+        }
+
+        const profile = getActiveProfile(user);
+
+        if (profile) {
+            if (profile.canEditRadicado === true || profile.homeProfile === 'radicacion') {
+                return true;
+            }
+
+            if (profile.isRadicacion && !profile.isInspeccion) {
+                return true;
+            }
+        }
+
+        if (resolveHomeProfile(user) === 'radicacion') {
+            return true;
+        }
+
+        return hasRole(user, ROLE_RADICACION) && !hasRole(user, ROLE_INSPECCION);
     };
 
     const isOperationalRadicacionUser = function (user) {

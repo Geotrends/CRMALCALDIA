@@ -3,7 +3,7 @@
  */
 (function () {
 
-    var PROFILE_CACHE_KEY = 'alcaldiaCaseProfileCacheV3';
+    var PROFILE_CACHE_KEY = 'alcaldiaCaseProfileCacheV4';
     var lastUserId = null;
 
     function clearProfileCache() {

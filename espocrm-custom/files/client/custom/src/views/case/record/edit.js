@@ -120,7 +120,7 @@ define('custom:views/case/record/edit', [
         },
 
         setupRadicacionOnlyEdit: function () {
-            if (!RadicacionEditMode.isRadicacionOnlyEdit(this)) {
+            if (!this.shouldApplyRadicacionEdit()) {
                 return;
             }
 
@@ -131,11 +131,11 @@ define('custom:views/case/record/edit', [
         },
 
         mountRadicacionAssistant: function () {
-            if (!RadicacionEditMode.isRadicacionOnlyEdit(this)) {
+            if (!RadicacionFields.canEditRadicadoCase(this.getUser()) && !this._alcaldiaRadicacionEdit) {
                 return;
             }
 
-            RadicadoAssistantPanel.mount(this);
+            RadicadoAssistantPanel.mount(this, {force: true});
 
             if (!this.$el.find('.radicado-assistant-panel-mount').length) {
                 return;
@@ -144,6 +144,24 @@ define('custom:views/case/record/edit', [
             RadicacionFields.RADICADO_ALL_FIELDS.forEach((field) => {
                 this.$el.find('[data-name="' + field + '"]').closest('.cell').hide();
             });
+        },
+
+        shouldApplyRadicacionEdit: function () {
+            if (this.model.isNew()) {
+                return false;
+            }
+
+            return RadicacionFields.canEditRadicadoCase(this.getUser());
+        },
+
+        applyRadicacionEditIfNeeded: function () {
+            if (!this.shouldApplyRadicacionEdit()) {
+                return false;
+            }
+
+            this.setupRadicacionOnlyEdit();
+
+            return true;
         },
 
         setupRadicacionEditUi: function () {
@@ -242,6 +260,7 @@ define('custom:views/case/record/edit', [
             if (
                 InspeccionEditMode.canEditFullCase(this.getUser(), this)
                 && !RadicacionEditMode.isRadicacionOnlyEdit(this)
+                && !RadicacionFields.canEditRadicadoCase(this.getUser())
             ) {
                 InspeccionEditMode.ensureFullCaseEditable(this);
             }
@@ -346,7 +365,10 @@ define('custom:views/case/record/edit', [
         },
 
         fetch: function () {
-            if (RadicacionEditMode.isRadicacionOnlyEdit(this)) {
+            if (
+                RadicacionEditMode.isRadicacionOnlyEdit(this)
+                || RadicacionFields.canEditRadicadoCase(this.getUser())
+            ) {
                 if (this.$el.find('.radicado-assistant-panel-mount').length) {
                     this.syncRadicadoAssistantToModel();
                 }
@@ -366,7 +388,8 @@ define('custom:views/case/record/edit', [
             );
             const fieldViews = this.getFieldViews();
             const inspeccionFullEdit = InspeccionEditMode.canEditFullCase(this.getUser(), this)
-                && !RadicacionEditMode.isRadicacionOnlyEdit(this);
+                && !RadicacionEditMode.isRadicacionOnlyEdit(this)
+                && !RadicacionFields.canEditRadicadoCase(this.getUser());
 
             _.each(fieldViews, function (view) {
                 if (skipInfractor && PersonaTipoFields.INFRACTOR_DETAIL_FIELDS.indexOf(view.name) !== -1) {
@@ -435,12 +458,6 @@ define('custom:views/case/record/edit', [
                 this.clearAssignedUserOnCreate();
             }
 
-            if (RadicacionEditMode.isRadicacionOnlyEdit(this)) {
-                this.setupRadicacionOnlyEdit();
-
-                return;
-            }
-
             PersonaTipoFields.hidePartyLinks(this);
             PersonaTipoFields.applyLabels(this);
             PersonaTipoFields.toggleInfractorFields(this);
@@ -449,6 +466,10 @@ define('custom:views/case/record/edit', [
             const self = this;
 
             const applyRoleUi = function () {
+                if (self.applyRadicacionEditIfNeeded()) {
+                    return;
+                }
+
                 if (self.model.isNew() && RadicacionFields.isInspeccionUser(self.getUser())) {
                     self.toggleRadicacionFields();
                     self.togglePostRadicacionFields();
@@ -488,6 +509,16 @@ define('custom:views/case/record/edit', [
             });
 
             applyRoleUi();
+
+            [150, 500, 1200].forEach(function (delay) {
+                window.setTimeout(function () {
+                    if (!self.isRendered || !self.isRendered()) {
+                        return;
+                    }
+
+                    applyRoleUi();
+                }, delay);
+            });
         },
 
         hasRadicacionLayoutPanel: function () {
@@ -603,6 +634,10 @@ define('custom:views/case/record/edit', [
         },
 
         ensureInspeccionEditAccess: function () {
+            if (RadicacionFields.canEditRadicadoCase(this.getUser())) {
+                return;
+            }
+
             if (RadicacionEditMode.isRadicacionEditSession(this)) {
                 return;
             }
@@ -728,7 +763,10 @@ define('custom:views/case/record/edit', [
         },
 
         prepareModelForSave: function () {
-            if (RadicacionEditMode.isRadicacionOnlyEdit(this)) {
+            if (
+                RadicacionEditMode.isRadicacionOnlyEdit(this)
+                || RadicacionFields.canEditRadicadoCase(this.getUser())
+            ) {
                 RadicadoGenerator.applyDefaults(this.model);
 
                 const siglas = RadicadoCatalog.normalizeSiglas(this.model);

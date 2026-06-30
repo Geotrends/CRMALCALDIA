@@ -4,8 +4,8 @@
  */
 (function () {
 
-    var FLOW_VERSION = 'v8';
-    var PROFILE_CACHE_KEY = 'alcaldiaCaseProfileCacheV3';
+    var FLOW_VERSION = 'v9';
+    var PROFILE_CACHE_KEY = 'alcaldiaCaseProfileCacheV4';
     var profileInflight = null;
 
     function getApp() {
