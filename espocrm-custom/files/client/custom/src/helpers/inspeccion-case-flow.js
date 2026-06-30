@@ -29,11 +29,11 @@ define('custom:helpers/inspeccion-case-flow', [
             return true;
         }
 
-        if (recordView && recordView._asignacionEditMode && RadicacionFields.canAssignCase(user)) {
+        if (recordView && recordView._asignacionEditMode && RadicacionFields.isAsignadorUser(user)) {
             return false;
         }
 
-        if (RadicacionFields.isAsignadorUser(user) || RadicacionFields.canAssignCase(user)) {
+        if (RadicacionFields.isAsignadorUser(user)) {
             return false;
         }
 

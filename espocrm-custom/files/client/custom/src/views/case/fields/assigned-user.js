@@ -33,7 +33,7 @@ define('custom:views/case/fields/assigned-user', [
 
         const user = typeof recordView.getUser === 'function' ? recordView.getUser() : null;
 
-        if (!user || !RadicacionFields.canAssignCase(user)) {
+        if (!user || !AsignadorCaseFlow.isAsignadorUser(user)) {
             return false;
         }
 
@@ -128,7 +128,7 @@ define('custom:views/case/fields/assigned-user', [
         clearAssignedUserIfHidden: function () {
             const user = this.getUser();
 
-            if (RadicacionFields.canAssignCase(user)) {
+            if (AsignadorCaseFlow.isAsignadorUser(user)) {
                 return;
             }
 

@@ -115,6 +115,7 @@ define('custom:views/case/record/detail', [
             this._asignacionEditMode = false;
             this._cancelAsignacionAdded = false;
             this._initialAssignedUserId = this.model.get('assignedUserId') || null;
+            document.body.classList.remove('alcaldia-asignacion-detail-edit');
 
             Dep.prototype.setup.call(this);
 
@@ -136,7 +137,7 @@ define('custom:views/case/record/detail', [
             const self = this;
 
             this.$el.on('click.alcaldiaAsignacion', 'a[href*="/edit/"], [data-action="edit"]', function (e) {
-                if (!self.canOperateAsignacion() || !RadicacionFields.isCaseRadicado(self.model)) {
+                if (!self.isAsignadorOperator() || !RadicacionFields.isCaseRadicado(self.model)) {
                     return;
                 }
 
@@ -146,34 +147,8 @@ define('custom:views/case/record/detail', [
             });
         },
 
-        canOperateAsignacion: function () {
-            return RadicacionFields.canAssignCase(this.getUser());
-        },
-
-        scheduleAsignacionAutoOpen: function () {
-            const self = this;
-
-            if (this._asignacionAutoOpenScheduled) {
-                return;
-            }
-
-            this._asignacionAutoOpenScheduled = true;
-
-            RadicacionFields.ensureProfile(this.getUser()).then(function () {
-                if (!self.isRendered || !self.isRendered()) {
-                    return;
-                }
-
-                if (!self.canOperateAsignacion() || !RadicacionFields.isCaseRadicado(self.model)) {
-                    return;
-                }
-
-                if (self._asignacionEditMode) {
-                    return;
-                }
-
-                self.enterAsignacionEditMode();
-            });
+        isAsignadorOperator: function () {
+            return AsignadorCaseFlow.isAsignadorUser(this.getUser());
         },
 
         scheduleAsignacionFieldAccess: function () {
@@ -203,24 +178,9 @@ define('custom:views/case/record/detail', [
             RadicacionCaseFlow.schedule(this);
             AsignadorCaseFlow.schedule(this);
 
-            if (this.canOperateAsignacion()) {
+            if (this.isAsignadorOperator()) {
                 this.updateAsignacionActionButtons();
-                this.scheduleAsignacionAutoOpen();
             }
-        },
-
-        isAsignadorOperator: function () {
-            return this.canOperateAsignacion();
-        },
-
-        edit: function () {
-            if (this.canOperateAsignacion() && RadicacionFields.isCaseRadicado(this.model)) {
-                this.enterAsignacionEditMode();
-
-                return;
-            }
-
-            Dep.prototype.edit.call(this);
         },
 
         actionEdit: function () {
@@ -369,34 +329,40 @@ define('custom:views/case/record/detail', [
 
             const existing = this.getFieldView('assignedUser');
 
-            if (
-                existing
-                && existing.mode === 'edit'
-                && existing.$el
-                && existing.$el.find('[data-action="selectLink"], [data-action="editLink"]').length
-            ) {
+            if (existing) {
                 existing.readOnly = false;
 
-                if (typeof existing.showSelectControls === 'function') {
-                    existing.showSelectControls();
+                if (typeof existing.setMode === 'function' && existing.mode !== 'edit') {
+                    existing.setMode('edit');
+
+                    return;
                 }
 
-                return;
+                if (
+                    existing.mode === 'edit'
+                    && existing.$el
+                    && existing.$el.find('[data-action="selectLink"], [data-action="editLink"]').length
+                ) {
+                    if (typeof existing.showSelectControls === 'function') {
+                        existing.showSelectControls();
+                    }
+
+                    return;
+                }
             }
 
-            if (this._remountingAssignedUser) {
+            if (this._remountingAssignedUser || typeof this.createFieldView !== 'function') {
                 return;
             }
 
             this._remountingAssignedUser = true;
 
-            if (existing) {
-                if (typeof existing.remove === 'function') {
-                    existing.remove();
-                }
+            if (existing && typeof existing.remove === 'function') {
+                existing.remove();
             }
 
-            $cell.empty();
+            const cellId = 'alcaldia-assigned-user-' + (this.model.id || this.cid);
+            $cell.attr('id', cellId).empty();
 
             const self = this;
             const mountView = function (view) {
@@ -414,19 +380,7 @@ define('custom:views/case/record/detail', [
                 }
             };
 
-            if (typeof this.createFieldView === 'function') {
-                this.createFieldView('assignedUser', null, {
-                    el: $cell,
-                    mode: 'edit',
-                    readOnly: false,
-                }, mountView);
-
-                return;
-            }
-
-            this.createView('fieldAssignedUser', 'custom:views/case/fields/assigned-user', {
-                model: this.model,
-                el: $cell,
+            this.createFieldView('assignedUser', null, '#' + cellId, {
                 mode: 'edit',
                 readOnly: false,
             }, mountView);
@@ -513,7 +467,6 @@ define('custom:views/case/record/detail', [
                 return;
             }
 
-            const self = this;
             const $editBtn = this.findAsignacionPrimaryButton();
 
             if (!$editBtn.length) {
@@ -528,10 +481,7 @@ define('custom:views/case/record/detail', [
                 $editBtn.show();
                 this.setPrimaryActionButtonLabel($editBtn, this.translate('Save', 'labels', 'Global'));
                 this.setPrimaryActionButtonAction($editBtn, 'saveAsignacion');
-                $editBtn.off('click.alcaldiaSave').on('click.alcaldiaSave', function (e) {
-                    e.preventDefault();
-                    self.saveAsignacionEdit();
-                });
+                $editBtn.off('click.alcaldiaSave');
 
                 if (!this._cancelAsignacionAdded) {
                     if (this.safeAddMenuItem({
@@ -547,6 +497,7 @@ define('custom:views/case/record/detail', [
             }
 
             $editBtn.show();
+            $editBtn.off('click.alcaldiaSave');
             this.setPrimaryActionButtonLabel($editBtn, this.translate('Edit', 'labels', 'Global'));
             this.setPrimaryActionButtonAction($editBtn, 'edit');
         },
