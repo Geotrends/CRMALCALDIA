@@ -22,15 +22,37 @@ define('custom:views/case/fields/numero-radicado', [
             this.applyAssistantDefaults();
 
             this.listenTo(this.model, 'change:cRecursoTema', function () {
-                if (!this.model.get('cRadicadoSiglas')) {
-                    var siglas = RadicadoCatalog.getSiglasFromModelRecurso(this.model);
-
-                    if (siglas) {
-                        this.model.set('cRadicadoSiglas', siglas);
-                        this.refreshPreview();
-                    }
-                }
+                this.syncSiglasFromRecurso();
+                this.refreshPreview();
             });
+        },
+
+        syncSiglasFromRecurso: function () {
+            if (!RadicadoCatalog.isModoAutomatico(this.model.get('cRadicadoModo'))) {
+                return;
+            }
+
+            var siglas = RadicadoCatalog.getSiglasFromModelRecurso(this.model);
+
+            if (siglas) {
+                this.model.set('cRadicadoSiglas', siglas, {silent: true});
+            }
+        },
+
+        getSiglasDisplayLabel: function () {
+            var siglas = RadicadoCatalog.normalizeSiglas(this.model);
+            var recurso = String(this.model.get('cRecursoTema') || '').trim();
+
+            if (!siglas) {
+                return '';
+            }
+
+            if (recurso && RadicadoCatalog.SIGLAS_LABELS[siglas]) {
+                return RadicadoCatalog.SIGLAS_LABELS[siglas];
+            }
+
+            return siglas;
+        },
 
             this.listenTo(this.model, 'change:cExpediente', function () {
                 if (this.isRendered()) {
@@ -86,6 +108,8 @@ define('custom:views/case/fields/numero-radicado', [
             } else if (RadicadoCatalog.isEmptySiglas(this.model.get('cRadicadoSiglas'))) {
                 this.model.set('cRadicadoSiglas', null, {silent: true});
             }
+
+            this.syncSiglasFromRecurso();
         },
 
         data: function () {
@@ -101,20 +125,13 @@ define('custom:views/case/fields/numero-radicado', [
             }
 
             var automatico = RadicadoCatalog.isModoAutomatico(this.model.get('cRadicadoModo'));
-            var siglas = String(this.model.get('cRadicadoSiglas') || '').trim();
-            var siglasOptions = Object.keys(RadicadoCatalog.SIGLAS_LABELS).map(function (code) {
-                return {
-                    code: code,
-                    label: RadicadoCatalog.SIGLAS_LABELS[code],
-                    selected: code === siglas,
-                };
-            });
+            var siglasDisplayLabel = this.getSiglasDisplayLabel();
 
             return _.extend(data, {
                 isAssistant: this.useAssistant(),
                 isAutomatico: automatico,
                 anio: String(this.model.get('cRadicadoAnio') || RadicadoCatalog.getCurrentYear()),
-                siglasOptions: siglasOptions,
+                siglasDisplayLabel: siglasDisplayLabel,
                 previewRadicado: String(this.model.get('cNumeroRadicado') || '—'),
                 previewExpediente: String(this.model.get('cExpediente') || '—'),
                 manualRadicado: String(this.model.get('cNumeroRadicado') || ''),
@@ -128,6 +145,7 @@ define('custom:views/case/fields/numero-radicado', [
                 return;
             }
 
+            this.syncSiglasFromRecurso();
             this.bindAssistantEvents();
             this.toggleExpedienteField();
             this.refreshPreview();
@@ -135,7 +153,6 @@ define('custom:views/case/fields/numero-radicado', [
 
         bindAssistantEvents: function () {
             this.$el.find('[data-role="modo"]').off('.radicadoAssistant');
-            this.$el.find('[data-role="siglas"]').off('.radicadoAssistant');
             this.$el.find('[data-role="anio"]').off('.radicadoAssistant');
             this.$el.find('[data-name="manual-radicado"]').off('.radicadoAssistant');
 
@@ -145,14 +162,6 @@ define('custom:views/case/fields/numero-radicado', [
                 this._expedienteDirty = false;
                 this.model.set('cRadicadoModo', modo);
                 this.reRender();
-            }.bind(this));
-
-            this.$el.find('[data-role="siglas"]').on('change.radicadoAssistant', function () {
-                this._expedienteDirty = false;
-                var siglas = this.$el.find('[data-role="siglas"]').val();
-
-                this.model.set('cRadicadoSiglas', siglas || null);
-                this.refreshPreview();
             }.bind(this));
 
             this.$el.find('[data-role="anio"]').on('change.radicadoAssistant keyup.radicadoAssistant', function () {

@@ -53,16 +53,18 @@ class AutoGenerateRadicadoOnSave implements BeforeSave
             return;
         }
 
+        $fromRecurso = $this->resolveSiglasFromRecurso($entity);
         $siglas = strtoupper(trim((string) $entity->get('cRadicadoSiglas')));
-        $anio = (int) $entity->get('cRadicadoAnio');
 
-        if ($siglas === '') {
-            $siglas = $this->resolveSiglasFromRecurso($entity) ?? '';
+        if ($fromRecurso !== null && $fromRecurso !== '') {
+            $siglas = $fromRecurso;
         }
 
         if ($siglas === '') {
             throw new BadRequest('Seleccione el recurso/tema para generar el radicado.');
         }
+
+        $anio = (int) $entity->get('cRadicadoAnio');
 
         if ($anio < 1900 || $anio > 9999) {
             $anio = (int) date('Y');

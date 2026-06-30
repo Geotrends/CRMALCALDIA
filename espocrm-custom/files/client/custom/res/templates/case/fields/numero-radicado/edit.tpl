@@ -12,15 +12,15 @@
 
         {{#if isAutomatico}}
             <div class="row">
-                <div class="col-sm-7">
+                <div class="col-sm-12">
                     <div class="form-group">
                         <label class="control-label">{{translate 'cRadicadoSiglas' scope='Case'}}</label>
-                        <select class="form-control input-sm" data-role="siglas">
-                            <option value="">{{translate 'Select'}}</option>
-                            {{#each siglasOptions}}
-                                <option value="{{code}}" {{#if selected}}selected{{/if}}>{{label}}</option>
-                            {{/each}}
-                        </select>
+                        <p class="form-control-static text-muted" data-role="siglas-display" style="margin-bottom:0;">
+                            {{#if siglasDisplayLabel}}{{siglasDisplayLabel}}{{else}}
+                                <span class="text-warning">{{translate 'Seleccione recurso/tema en la solicitud'}}</span>
+                            {{/if}}
+                        </p>
+                        <div class="text-muted small">{{translate 'radicadoSiglasFromRecursoHelp' scope='Case' default='Se toma automáticamente del campo Recurso/tema.'}}</div>
                     </div>
                 </div>
                 <div class="col-sm-5">

@@ -5,12 +5,14 @@ namespace Espo\Custom\Hooks\CaseObj;
 use Espo\Core\Exceptions\BadRequest;
 use Espo\Core\Hook\Hook\BeforeSave;
 use Espo\Custom\Tools\CaseObj\CaseRadicadoHelper;
+use Espo\Custom\Tools\User\AlcaldiaUserProfile;
+use Espo\Entities\User;
 use Espo\ORM\Entity;
 use Espo\ORM\Repository\Option\SaveOptions;
 
 /**
- * Valida campos del formato de solicitud (peticionario y perjudicante).
- * Solo aplica cuando el caso ya tiene radicado completo (fase de radicación).
+ * Valida peticionario/perjudicante solo cuando Inspección completa el caso.
+ * Radicación no revalida esos campos al asignar número de radicado.
  */
 class ValidatePersonaTipoOnSave implements BeforeSave
 {
@@ -21,9 +23,18 @@ class ValidatePersonaTipoOnSave implements BeforeSave
     private const NO_SE_CONOCE = 'No se conoce';
     private const PLACEHOLDER = 'Seleccione una opción';
 
+    public function __construct(
+        private User $user,
+        private AlcaldiaUserProfile $profile
+    ) {}
+
     public function beforeSave(Entity $entity, SaveOptions $options): void
     {
         if (!CaseRadicadoHelper::isRadicadoCompleto($entity)) {
+            return;
+        }
+
+        if ($this->profile->isOperationalRadicacion($this->user) && !$this->user->isAdmin()) {
             return;
         }
 
@@ -63,35 +74,16 @@ class ValidatePersonaTipoOnSave implements BeforeSave
     {
         $tipo = trim((string) $entity->get('cTipoPersonaPerjudicante'));
 
-        if ($tipo === self::NO_SE_CONOCE) {
+        if ($tipo === '' || $tipo === self::PLACEHOLDER || $tipo === self::NO_SE_CONOCE) {
             return;
-        }
-
-        $nombre = trim((string) $entity->get('cNombrePerjudicante'));
-        $apellido = trim((string) $entity->get('cApellidoPerjudicante'));
-        $documento = trim((string) $entity->get('cDocumentoPerjudicante'));
-        $telefono = trim((string) $entity->get('cTelefonoPerjudicante'));
-        $direccion = trim((string) $entity->get('cDireccionPerjudicante'));
-        $barrio = trim((string) $entity->get('cBarrioPerjudicante'));
-
-        $hasAny = $nombre !== ''
-            || $apellido !== ''
-            || $documento !== ''
-            || $telefono !== ''
-            || $direccion !== ''
-            || ($barrio !== '' && $barrio !== self::PLACEHOLDER);
-
-        if (!$hasAny) {
-            return;
-        }
-
-        if ($tipo === '' || $tipo === self::PLACEHOLDER) {
-            throw new BadRequest('Seleccione el tipo de perjudicante (persona natural o jurídica).');
         }
 
         if (!in_array($tipo, [self::PERSONA_NATURAL, self::PERSONA_JURIDICA], true)) {
             throw new BadRequest('Tipo de perjudicante no válido.');
         }
+
+        $nombre = trim((string) $entity->get('cNombrePerjudicante'));
+        $apellido = trim((string) $entity->get('cApellidoPerjudicante'));
 
         if ($tipo === self::PERSONA_JURIDICA) {
             if ($nombre === '') {
