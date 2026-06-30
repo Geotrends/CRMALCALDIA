@@ -143,10 +143,6 @@ define('custom:helpers/inspeccion-case-flow', [
             stripAsignacionFromModel(model);
         }
 
-        if (!RadicacionFields.isInspeccionUser(user)) {
-            return;
-        }
-
         if (RadicacionFields.canEditRadicadoCase(user)) {
             return;
         }

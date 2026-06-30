@@ -18,6 +18,8 @@ class CaseRadicadoHelper
         'cRadicadoAnio',
     ];
 
+    public const STATUS_PENDIENTE_RADICACION = 'Pendiente de radicacion';
+
     public static function isRadicadoCompleto(Entity $entity): bool
     {
         $numero = trim((string) $entity->get('cNumeroRadicado'));
@@ -40,6 +42,36 @@ class CaseRadicadoHelper
         $expediente = trim($expediente);
 
         return $expediente === '-' || $expediente === '—' || $expediente === '–';
+    }
+
+    public static function wasRadicadoCompleto(Entity $entity): bool
+    {
+        if ($entity->isNew()) {
+            return false;
+        }
+
+        $numero = trim((string) $entity->getFetched('cNumeroRadicado'));
+        $expediente = trim((string) $entity->getFetched('cExpediente'));
+
+        if ($numero === '' || $expediente === '') {
+            return false;
+        }
+
+        if (self::isPlaceholderExpediente($expediente)) {
+            return false;
+        }
+
+        return RadicadoCatalog::parseRadicado($numero) !== null
+            && RadicadoCatalog::parseExpediente($expediente) !== null;
+    }
+
+    public static function ensurePendienteRadicacionStatus(Entity $entity): void
+    {
+        $status = trim((string) $entity->get('status'));
+
+        if ($status === '' || in_array($status, ['New', 'Pending', 'Assigned'], true)) {
+            $entity->set('status', self::STATUS_PENDIENTE_RADICACION);
+        }
     }
 
     public static function clearRadicadoFields(Entity $entity): void

@@ -24,21 +24,23 @@ class AutoGenerateRadicadoOnSave implements BeforeSave
 
     public function beforeSave(Entity $entity, SaveOptions $options): void
     {
+        if ($entity->isNew()) {
+            return;
+        }
+
         if (!$this->canEditRadicado($this->user)) {
             return;
         }
 
-        if (!$entity->isNew()) {
-            $existingRadicado = trim((string) $entity->getFetched('cNumeroRadicado'));
+        $existingRadicado = trim((string) $entity->getFetched('cNumeroRadicado'));
 
-            if ($existingRadicado !== '') {
-                $metadataChanged = $entity->isAttributeChanged('cRadicadoSiglas')
-                    || $entity->isAttributeChanged('cRadicadoAnio')
-                    || $entity->isAttributeChanged('cRadicadoModo');
+        if ($existingRadicado !== '') {
+            $metadataChanged = $entity->isAttributeChanged('cRadicadoSiglas')
+                || $entity->isAttributeChanged('cRadicadoAnio')
+                || $entity->isAttributeChanged('cRadicadoModo');
 
-                if (!$metadataChanged) {
-                    return;
-                }
+            if (!$metadataChanged) {
+                return;
             }
         }
 
@@ -89,7 +91,6 @@ class AutoGenerateRadicadoOnSave implements BeforeSave
             && $parsedCurrent['anio'] === $anio
             && !$entity->isAttributeChanged('cRadicadoSiglas')
             && !$entity->isAttributeChanged('cRadicadoAnio')
-            && !$entity->isNew()
         ) {
             $consecutivo = $parsedCurrent['consecutivo'];
         } else {

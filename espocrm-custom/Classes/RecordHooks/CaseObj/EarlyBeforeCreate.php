@@ -4,6 +4,7 @@ namespace Espo\Custom\Classes\RecordHooks\CaseObj;
 
 use Espo\Core\Record\Hook\SaveHook;
 use Espo\Custom\Tools\App\AlcaldiaDateTimeHelper;
+use Espo\Custom\Tools\CaseObj\CaseRadicadoHelper;
 use Espo\ORM\Entity;
 
 /**
@@ -30,5 +31,8 @@ class EarlyBeforeCreate implements SaveHook
 
         // Siempre hora real Bogotá en UTC (Espo resta 5 h al mostrar si se guarda hora local como UTC).
         $entity->set('cFechaCaso', AlcaldiaDateTimeHelper::espoStorageNowString());
+
+        CaseRadicadoHelper::clearRadicadoFields($entity);
+        CaseRadicadoHelper::ensurePendienteRadicacionStatus($entity);
     }
 }

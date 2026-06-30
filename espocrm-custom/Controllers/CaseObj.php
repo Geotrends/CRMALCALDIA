@@ -291,6 +291,8 @@ class CaseObj extends BaseCaseObj
             return true;
         }
 
-        return $this->acl->check('Case', 'edit');
+        return $this->injectableFactory
+            ->create(AlcaldiaUserProfile::class)
+            ->canEditRadicado($user);
     }
 }
