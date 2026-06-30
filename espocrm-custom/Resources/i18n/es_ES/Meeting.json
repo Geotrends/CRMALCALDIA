@@ -8,7 +8,9 @@
         "description": "Descripción",
         "assignedUser": "Usuario asignado",
         "joinUrl": "Enlace de la reunión",
-        "users": "Usuarios invitados"
+        "users": "Usuarios invitados",
+        "contacts": "Personas naturales",
+        "accounts": "Personas jurídicas"
     },
     "options": {
         "status": {
@@ -20,6 +22,12 @@
     "labels": {
         "Create Meeting": "Crear reunión",
         "Meetings": "Reuniones",
-        "Meeting": "Reunión"
+        "Meeting": "Reunión",
+        "Attendees": "Asistentes"
+    },
+    "links": {
+        "contacts": "Personas naturales",
+        "accounts": "Personas jurídicas",
+        "users": "Usuarios invitados"
     }
 }

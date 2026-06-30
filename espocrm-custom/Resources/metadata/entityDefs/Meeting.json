@@ -12,6 +12,35 @@
         "joinUrl": {
             "readOnly": false,
             "customizationReadOnlyDisabled": true
+        },
+        "accounts": {
+            "type": "linkMultiple",
+            "layoutDetailDisabled": true,
+            "layoutListDisabled": true,
+            "view": "crm:views/meeting/fields/attendees",
+            "columns": {
+                "status": "acceptanceStatus"
+            },
+            "additionalAttributeList": ["columns"],
+            "orderBy": "name"
+        }
+    },
+    "links": {
+        "accounts": {
+            "type": "hasMany",
+            "entity": "Account",
+            "foreign": "meetings",
+            "relationName": "AccountMeeting",
+            "additionalColumns": {
+                "status": {
+                    "type": "varchar",
+                    "len": "36",
+                    "default": "None"
+                }
+            },
+            "columnAttributeMap": {
+                "status": "acceptanceStatus"
+            }
         }
     }
 }

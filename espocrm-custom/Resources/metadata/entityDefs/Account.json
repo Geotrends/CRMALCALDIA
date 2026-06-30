@@ -105,6 +105,12 @@
       "type": "hasMany",
       "entity": "Case",
       "foreign": "cPerjudicanteCuenta"
+    },
+    "meetings": {
+      "type": "hasMany",
+      "entity": "Meeting",
+      "foreign": "accounts",
+      "layoutRelationshipsDisabled": true
     }
   }
 }

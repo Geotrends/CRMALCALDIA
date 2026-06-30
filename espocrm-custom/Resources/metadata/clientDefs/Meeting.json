@@ -5,6 +5,9 @@
         },
         "leads": {
             "disabled": true
+        },
+        "accounts": {
+            "disabled": true
         }
     },
     "sidePanels": {
@@ -12,10 +15,7 @@
             {
                 "name": "attendees",
                 "label": "Asistentes",
-                "view": "crm:views/meeting/record/panels/attendees",
-                "options": {
-                    "fieldList": ["users"]
-                },
+                "view": "custom:views/meeting/record/panels/attendees",
                 "sticked": true,
                 "isForm": true,
                 "notRefreshable": true
@@ -25,10 +25,7 @@
             {
                 "name": "attendees",
                 "label": "Asistentes",
-                "view": "crm:views/meeting/record/panels/attendees",
-                "options": {
-                    "fieldList": ["users"]
-                },
+                "view": "custom:views/meeting/record/panels/attendees",
                 "sticked": true,
                 "isForm": true,
                 "notRefreshable": true
@@ -38,10 +35,7 @@
             {
                 "name": "attendees",
                 "label": "Asistentes",
-                "view": "crm:views/meeting/record/panels/attendees",
-                "options": {
-                    "fieldList": ["users"]
-                },
+                "view": "custom:views/meeting/record/panels/attendees",
                 "sticked": true,
                 "isForm": true,
                 "notRefreshable": true
@@ -51,10 +45,7 @@
             {
                 "name": "attendees",
                 "label": "Asistentes",
-                "view": "crm:views/meeting/record/panels/attendees",
-                "options": {
-                    "fieldList": ["users"]
-                },
+                "view": "custom:views/meeting/record/panels/attendees",
                 "sticked": true,
                 "isForm": true,
                 "notRefreshable": true
