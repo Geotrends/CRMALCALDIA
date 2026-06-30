@@ -19,6 +19,12 @@
                 "Actuo archivo": "warning",
                 "Excel oficial": "info"
             }
+        },
+        "cPanelExcelOnlyOffice": {
+            "type": "varchar",
+            "notStorable": true,
+            "utility": true,
+            "layoutDetailDisabled": false
         }
     },
     "collection": {

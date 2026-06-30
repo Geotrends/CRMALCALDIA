@@ -13,20 +13,12 @@
                     <span class="party-expediente-kpi__label">Casos</span>
                 </div>
                 <div class="party-expediente-kpi">
-                    <span class="party-expediente-kpi__value">{{expediente.resumen.peticionario}}</span>
-                    <span class="party-expediente-kpi__label">Como peticionario</span>
-                </div>
-                <div class="party-expediente-kpi">
                     <span class="party-expediente-kpi__value">{{expediente.resumen.infractor}}</span>
                     <span class="party-expediente-kpi__label">Como infractor</span>
                 </div>
                 <div class="party-expediente-kpi">
                     <span class="party-expediente-kpi__value">{{expediente.resumen.actas}}</span>
                     <span class="party-expediente-kpi__label">Actas</span>
-                </div>
-                <div class="party-expediente-kpi">
-                    <span class="party-expediente-kpi__value">{{expediente.resumen.comunicaciones}}</span>
-                    <span class="party-expediente-kpi__label">Comunicaciones</span>
                 </div>
                 <div class="party-expediente-kpi">
                     <span class="party-expediente-kpi__value">{{expediente.resumen.actuos}}</span>

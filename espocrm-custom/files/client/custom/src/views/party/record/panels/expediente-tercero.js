@@ -1,10 +1,9 @@
 define('custom:views/party/record/panels/expediente-tercero', ['views/fields/base'], function (Dep) {
 
-    var tipoLabel = function (tipo) {
+        var tipoLabel = function (tipo) {
         var labels = {
             caso: 'Caso',
             acta: 'Acta',
-            comunicacion: 'Comunicación',
             actuo: 'Actuo',
         };
 
@@ -24,10 +23,8 @@ define('custom:views/party/record/panels/expediente-tercero', ['views/fields/bas
                 loadError: false,
                 resumen: {
                     totalCasos: 0,
-                    peticionario: 0,
                     infractor: 0,
                     actas: 0,
-                    comunicaciones: 0,
                     actuos: 0,
                 },
                 casos: [],

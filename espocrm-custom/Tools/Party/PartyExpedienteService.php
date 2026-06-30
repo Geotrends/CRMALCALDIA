@@ -63,10 +63,8 @@ class PartyExpedienteService
         $actuaciones = [];
         $stats = [
             'totalCasos' => 0,
-            'peticionario' => 0,
             'infractor' => 0,
             'actas' => 0,
-            'comunicaciones' => 0,
             'actuos' => 0,
         ];
 
@@ -78,9 +76,7 @@ class PartyExpedienteService
             $rol = $this->resolveRol($case, $partyType, $partyId);
             $stats['totalCasos']++;
 
-            if ($rol === 'Peticionario') {
-                $stats['peticionario']++;
-            } else {
+            if ($rol === 'Infractor') {
                 $stats['infractor']++;
             }
 
@@ -123,27 +119,6 @@ class PartyExpedienteService
                     $caseLabel,
                     'ActaVisita',
                     $acta->getId(),
-                    $rol
-                );
-            }
-
-            foreach ($this->fetchComunicaciones($caseId) as $comunicacion) {
-                if (!$canReadEntity($comunicacion)) {
-                    continue;
-                }
-
-                $stats['comunicaciones']++;
-                $detalle = trim((string) ($comunicacion->get('asunto') ?: $comunicacion->get('destinatario')));
-
-                $actuaciones[] = $this->actuacion(
-                    'comunicacion',
-                    $this->normalizeDate((string) ($comunicacion->get('fecha') ?: $comunicacion->get('createdAt'))),
-                    (string) $comunicacion->get('tipo'),
-                    $detalle !== '' ? $detalle : 'Comunicación registrada',
-                    $caseId,
-                    $caseLabel,
-                    'ComunicacionCaso',
-                    $comunicacion->getId(),
                     $rol
                 );
             }
@@ -253,16 +228,6 @@ class PartyExpedienteService
             ->getRDBRepository('ActaVisita')
             ->where(['caseId' => $caseId])
             ->order('createdAt', 'DESC')
-            ->find();
-    }
-
-    /** @return iterable<Entity> */
-    private function fetchComunicaciones(string $caseId): iterable
-    {
-        return $this->entityManager
-            ->getRDBRepository('ComunicacionCaso')
-            ->where(['caseId' => $caseId])
-            ->order('fecha', 'DESC')
             ->find();
     }
 

@@ -5,7 +5,15 @@
     "labels": {
         "Create Document": "Crear documento",
         "Documents": "Documentos",
-        "Document": "Documento"
+        "Document": "Documento",
+        "excelViewerTitle": "Registro oficial Excel Alcaldía",
+        "excelViewerHelp": "Abra el registro en una ventana amplia sin descargar el archivo. Use Actualizar si acaba de radicar un caso.",
+        "excelViewerOpen": "Ver registro Excel",
+        "excelViewerDownload": "Descargar archivo",
+        "excelViewerRefresh": "Actualizar",
+        "excelViewerNoFile": "Aún no hay archivo Excel adjunto.",
+        "excelViewerForbidden": "No tiene permiso para ver el registro Excel oficial.",
+        "excelViewerLoadError": "No se pudo cargar el Excel. Intente de nuevo o descargue el archivo."
     },
     "options": {
         "cCategoria": {

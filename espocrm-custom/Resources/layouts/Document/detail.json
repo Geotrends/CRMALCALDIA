@@ -30,5 +30,19 @@
             ]
         ],
         "label": "Overview"
+    },
+    {
+        "name": "excelOnlyOfficeViewer",
+        "label": "Ver registro Excel",
+        "rows": [
+            [
+                {
+                    "name": "cPanelExcelOnlyOffice",
+                    "view": "custom:views/document/record/panels/excel-onlyoffice-viewer",
+                    "noLabel": true,
+                    "fullWidth": true
+                }
+            ]
+        ]
     }
 ]
