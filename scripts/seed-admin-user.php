@@ -1,11 +1,16 @@
 <?php
 
 /**
- * Reinicia admin desde variables de entorno (ESPOCRM_ADMIN_USERNAME / ESPOCRM_ADMIN_PASSWORD).
- * Se ejecuta tras wipe-business-data.php en cada deploy.
+ * Garantiza usuario admin con las credenciales de Dokploy / .env.
+ * Se ejecuta en cada deploy (después del wipe si aplica).
+ *
+ * Variables requeridas:
+ *   ESPOCRM_ADMIN_USERNAME
+ *   ESPOCRM_ADMIN_PASSWORD
  */
 
 require_once '/var/www/html/bootstrap.php';
+require_once __DIR__ . '/includes/admin-credentials.php';
 
 use Espo\Core\Application;
 use Espo\Core\Authentication\Password\PasswordHasherFactory;
@@ -17,16 +22,16 @@ $app->setupSystemUser();
 /** @var EntityManager $em */
 $em = $app->getContainer()->getByClass(EntityManager::class);
 
-$userName = trim((string) (getenv('ESPOCRM_ADMIN_USERNAME') ?: 'admin'));
-$password = (string) (getenv('ESPOCRM_ADMIN_PASSWORD') ?: '');
+$userName = alcaldiaAdminUsername();
+$password = alcaldiaAdminPassword();
 
 if ($userName === '') {
-    echo 'ERROR: ESPOCRM_ADMIN_USERNAME vacío.' . PHP_EOL;
+    echo 'ERROR: ESPOCRM_ADMIN_USERNAME vacío. Configúralo en Dokploy → Environment.' . PHP_EOL;
     exit(1);
 }
 
 if ($password === '') {
-    echo 'ERROR: ESPOCRM_ADMIN_PASSWORD vacío. Configúralo en Dokploy / .env.' . PHP_EOL;
+    echo 'ERROR: ESPOCRM_ADMIN_PASSWORD vacío. Configúralo en Dokploy → Environment.' . PHP_EOL;
     exit(1);
 }
 
@@ -62,4 +67,4 @@ $prefs->set('tabList', null);
 $prefs->set('useCustomTabList', false);
 $em->saveEntity($prefs, ['skipHooks' => true]);
 
-echo 'Admin listo. Inicia sesión con las credenciales del .env / Dokploy.' . PHP_EOL;
+echo 'Admin listo. Puedes ingresar con ESPOCRM_ADMIN_USERNAME / ESPOCRM_ADMIN_PASSWORD.' . PHP_EOL;

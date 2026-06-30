@@ -84,6 +84,7 @@ deploy_maybe_wipe_business_data() {
   local wipe_stamp="$app_root/data/.alcaldia-full-reset-v2"
   local force_wipe="${ESPO_WIPE_BUSINESS_DATA:-0}"
   local wipe_script="$scripts_source/wipe-business-data.php"
+  local seed_script="$scripts_source/seed-admin-user.php"
 
   if [ ! -f "$wipe_script" ]; then
     echo "AVISO: wipe-business-data.php no encontrado — omitiendo wipe."
@@ -96,6 +97,11 @@ deploy_maybe_wipe_business_data() {
     mkdir -p "$app_root/data"
     touch "$wipe_stamp"
     echo "Wipe completado."
+
+    if [ -f "$seed_script" ]; then
+      echo "Recreando usuario admin..."
+      "$php_bin" "$seed_script" || exit 1
+    fi
   else
     echo "Wipe omitido (ya ejecutado). Forzar: ESPO_WIPE_BUSINESS_DATA=1"
   fi
@@ -106,8 +112,14 @@ deploy_maybe_wipe_business_data_docker() {
   local force_wipe="${ESPO_WIPE_BUSINESS_DATA:-0}"
 
   docker cp "${root}/scripts/wipe-business-data.php" espocrm:/tmp/wipe-business-data.php
+  docker cp "${root}/scripts/seed-admin-user.php" espocrm:/tmp/seed-admin-user.php
+  docker exec espocrm mkdir -p /tmp/includes
+  docker cp "${root}/scripts/includes/admin-credentials.php" espocrm:/tmp/includes/admin-credentials.php
 
-  docker exec -e "ESPO_WIPE_BUSINESS_DATA=${force_wipe}" espocrm bash -c '
+  docker exec -e "ESPO_WIPE_BUSINESS_DATA=${force_wipe}" \
+    -e "ESPOCRM_ADMIN_USERNAME=${ESPOCRM_ADMIN_USERNAME:-}" \
+    -e "ESPOCRM_ADMIN_PASSWORD=${ESPOCRM_ADMIN_PASSWORD:-}" \
+    espocrm bash -c '
     APP_ROOT=/var/www/html
     STAMP="$APP_ROOT/data/.alcaldia-full-reset-v2"
     FORCE="${ESPO_WIPE_BUSINESS_DATA:-0}"
@@ -118,6 +130,10 @@ deploy_maybe_wipe_business_data_docker() {
       mkdir -p "$APP_ROOT/data"
       touch "$STAMP"
       echo "Wipe completado."
+      if [ -f /tmp/seed-admin-user.php ]; then
+        echo "Recreando usuario admin..."
+        php /tmp/seed-admin-user.php || exit 1
+      fi
     else
       echo "Wipe omitido (ya ejecutado). Forzar: ESPO_WIPE_BUSINESS_DATA=1"
     fi

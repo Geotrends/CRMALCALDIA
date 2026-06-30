@@ -90,6 +90,8 @@ services:
     environment:
       REPO_ROOT: /opt/bootstrap/repo
       APP_ROOT: /var/www/html
+      ESPOCRM_ADMIN_USERNAME: ${ESPOCRM_ADMIN_USERNAME}
+      ESPOCRM_ADMIN_PASSWORD: ${ESPOCRM_ADMIN_PASSWORD}
     volumes:
       - espocrm:/var/www/html
     restart: "no"
