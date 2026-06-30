@@ -78,6 +78,14 @@ check_file "Sync peticionario con skipAll" \
   "$CUSTOM/Hooks/CaseObj/SyncPeticionarioToContact.php" \
   "skipAll" || errors=$((errors + 1))
 
+check_file "Notificaciones con enlaces (helper)" \
+  "$CLIENT/src/helpers/alcaldia-notification-message.js" \
+  "isNuevaSolicitud" || errors=$((errors + 1))
+
+check_file "Vista notificaciones custom" \
+  "$CUSTOM/Resources/metadata/clientDefs/Notification.json" \
+  "custom:views/notification/items/radicado" || errors=$((errors + 1))
+
 check_file "Validacion persona solo tras radicado" \
   "$CUSTOM/Hooks/CaseObj/ValidatePersonaTipoOnSave.php" \
   "isRadicadoCompleto" || errors=$((errors + 1))

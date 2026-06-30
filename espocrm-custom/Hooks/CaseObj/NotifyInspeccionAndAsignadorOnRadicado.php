@@ -6,7 +6,6 @@ use Espo\Core\Field\LinkParent;
 use Espo\Core\Hook\Hook\AfterSave;
 use Espo\Core\Mail\EmailSender;
 use Espo\Core\Utils\Config;
-use Espo\Custom\Tools\CaseObj\AlcaldiaNotificationHtml;
 use Espo\Custom\Tools\CaseObj\CasePartyNameHelper;
 use Espo\Custom\Tools\CaseObj\CaseRadicadoHelper;
 use Espo\Custom\Tools\User\AlcaldiaUserProfile;
@@ -70,6 +69,7 @@ class NotifyInspeccionAndAsignadorOnRadicado implements AfterSave
 
         $label = $this->buildCaseLabel($entity);
         $radicado = trim((string) $entity->get('cNumeroRadicado'));
+        $expediente = trim((string) $entity->get('cExpediente'));
         $recordUrl = rtrim((string) $this->config->get('siteUrl'), '/')
             . '/#Case/view/' . $entity->getId();
         $caseHref = '#Case/view/' . $entity->getId();
@@ -85,7 +85,7 @@ class NotifyInspeccionAndAsignadorOnRadicado implements AfterSave
                 continue;
             }
 
-            $this->createNotification($entity, $notifyUser, $label, $radicado, $caseHref);
+            $this->createNotification($entity, $notifyUser, $label, $radicado, $expediente, $caseHref);
             $this->sendEmail($entity, $notifyUser, $label, $radicado, $recordUrl);
         }
     }
@@ -133,16 +133,9 @@ class NotifyInspeccionAndAsignadorOnRadicado implements AfterSave
         User $notifyUser,
         string $label,
         string $radicado,
+        string $expediente,
         string $caseHref
     ): void {
-        $messageHtml = AlcaldiaNotificationHtml::userLink($this->user->getId(), $this->user->getName())
-            . ' radicó el caso '
-            . AlcaldiaNotificationHtml::caseLink($entity->getId(), $label);
-
-        if ($radicado !== '') {
-            $messageHtml .= ' (radicado ' . AlcaldiaNotificationHtml::text($radicado) . ')';
-        }
-
         $notification = $this->entityManager
             ->getRDBRepositoryByClass(Notification::class)
             ->getNew();
@@ -150,7 +143,7 @@ class NotifyInspeccionAndAsignadorOnRadicado implements AfterSave
         $notification
             ->setType(Notification::TYPE_MESSAGE)
             ->setUserId($notifyUser->getId())
-            ->setMessage($messageHtml)
+            ->setMessage('Caso radicado')
             ->setData([
                 'entityType' => $entity->getEntityType(),
                 'entityId' => $entity->getId(),
@@ -159,6 +152,8 @@ class NotifyInspeccionAndAsignadorOnRadicado implements AfterSave
                 'userName' => $this->user->getName(),
                 'isRadicado' => true,
                 'cNumeroRadicado' => $radicado,
+                'numeroRadicacion' => $radicado,
+                'expediente' => $expediente,
                 'recordUrl' => $caseHref,
             ])
             ->setRelated(LinkParent::createFromEntity($entity));
@@ -183,12 +178,9 @@ class NotifyInspeccionAndAsignadorOnRadicado implements AfterSave
             return;
         }
 
-        $radicadoText = $radicado !== '' ? ' (radicado ' . $radicado . ')' : '';
-
         $body = '<p>' . htmlspecialchars($this->user->getName(), ENT_QUOTES, 'UTF-8')
             . ' radicó el caso <strong>'
-            . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '</strong>'
-            . htmlspecialchars($radicadoText, ENT_QUOTES, 'UTF-8') . '.</p>'
+            . htmlspecialchars($radicado !== '' ? $radicado : $label, ENT_QUOTES, 'UTF-8') . '</strong>.</p>'
             . '<p><a href="' . htmlspecialchars($recordUrl, ENT_QUOTES, 'UTF-8')
             . '">Abrir caso en el CRM</a></p>';
 
@@ -196,7 +188,7 @@ class NotifyInspeccionAndAsignadorOnRadicado implements AfterSave
         $email = $this->entityManager->getNewEntity(Email::ENTITY_TYPE);
 
         $email->set([
-            'subject' => 'Caso radicado – ' . $label,
+            'subject' => 'Caso radicado – ' . ($radicado !== '' ? $radicado : $label),
             'body' => $body,
             'isHtml' => true,
             'to' => $emailAddress,
