@@ -159,7 +159,7 @@ fi
 
 check_file "Hook estado Radicado al radicar" \
   "$CUSTOM/Hooks/CaseObj/SetRadicadoOnPostRadicacion.php" \
-  "STATUS_RADICADO" || errors=$((errors + 1))
+  "order = 26" || errors=$((errors + 1))
 
 check_file "Hook notificación asignación patrullero" \
   "$CUSTOM/Hooks/CaseObj/NotifyPatrulleroAssignment.php" \

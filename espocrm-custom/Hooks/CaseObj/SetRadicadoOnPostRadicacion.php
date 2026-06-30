@@ -12,9 +12,11 @@ use Espo\ORM\Repository\Option\SaveOptions;
  */
 class SetRadicadoOnPostRadicacion implements BeforeSave
 {
-    public static int $order = 15;
+    /** Después de LimitRadicacionCaseEdit (25), que revierte cambios fuera de campos de radicado. */
+    public static int $order = 26;
 
     private const STATUS_RADICADO = 'Radicado';
+    private const STATUS_PENDIENTE_RADICACION = 'Pendiente de radicacion';
 
     /** @var string[] */
     private const ADVANCE_FROM = [
@@ -35,16 +37,17 @@ class SetRadicadoOnPostRadicacion implements BeforeSave
             return;
         }
 
-        if (
-            !$entity->isAttributeChanged('cNumeroRadicado')
-            && !$entity->isAttributeChanged('cExpediente')
-        ) {
-            return;
-        }
-
         $current = trim((string) $entity->get('status'));
 
         if (!in_array($current, self::ADVANCE_FROM, true)) {
+            return;
+        }
+
+        $fieldsChanged = $entity->isAttributeChanged('cNumeroRadicado')
+            || $entity->isAttributeChanged('cExpediente');
+
+        // Reparar casos que ya tienen radicado pero quedaron en Pendiente (p. ej. orden de hooks).
+        if (!$fieldsChanged && $current !== self::STATUS_PENDIENTE_RADICACION) {
             return;
         }
 
