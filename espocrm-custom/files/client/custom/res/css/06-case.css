@@ -283,6 +283,25 @@ body.alcaldia-asignador-asignar-page.alcaldia-reasignacion-caso .edit[data-scope
   pointer-events: auto !important;
 }
 
+body.alcaldia-asignacion-detail-edit .detail[data-scope="Case"] .panel[data-name="gestionPosteriorRadicacion"],
+body.alcaldia-asignacion-detail-edit .detail[data-scope="Case"] .panel[data-panel-name="gestionPosteriorRadicacion"] {
+  display: block !important;
+}
+
+body.alcaldia-asignacion-detail-edit .detail[data-scope="Case"] .cell[data-name="assignedUser"],
+body.alcaldia-asignacion-detail-edit .detail[data-scope="Case"] .field[data-name="assignedUser"],
+body.alcaldia-asignacion-detail-edit .detail[data-scope="Case"] .cell[data-name="cMotivoReasignacion"].alcaldia-motivo-reasignacion-visible {
+  display: block !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  opacity: 1 !important;
+}
+
+body.alcaldia-asignacion-detail-edit .detail[data-scope="Case"] .cell[data-name="assignedUser"] *,
+body.alcaldia-asignacion-detail-edit .detail[data-scope="Case"] .cell[data-name="cMotivoReasignacion"].alcaldia-motivo-reasignacion-visible * {
+  pointer-events: auto !important;
+}
+
 .detail[data-scope="Case"] .panel[data-name="gestionPosteriorRadicacion"] .cell[data-name="assignedUser"] .link-container,
 .detail[data-scope="Case"] .panel[data-name="gestionPosteriorRadicacion"] .cell[data-name="assignedUser"] [data-action="selectLink"],
 .detail[data-scope="Case"] .panel[data-name="gestionPosteriorRadicacion"] .cell[data-name="assignedUser"] [data-action="editLink"],

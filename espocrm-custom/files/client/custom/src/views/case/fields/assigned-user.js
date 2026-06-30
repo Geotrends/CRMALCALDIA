@@ -33,7 +33,7 @@ define('custom:views/case/fields/assigned-user', [
 
         const user = typeof recordView.getUser === 'function' ? recordView.getUser() : null;
 
-        if (!user || !AsignadorCaseFlow.isAsignadorUser(user)) {
+        if (!user || !RadicacionFields.canAssignCase(user)) {
             return false;
         }
 
@@ -41,7 +41,8 @@ define('custom:views/case/fields/assigned-user', [
             return true;
         }
 
-        return document.body.classList.contains('alcaldia-asignador-asignar-page');
+        return document.body.classList.contains('alcaldia-asignador-asignar-page')
+            || document.body.classList.contains('alcaldia-asignacion-detail-edit');
     };
 
     return Dep.extend({
@@ -127,7 +128,7 @@ define('custom:views/case/fields/assigned-user', [
         clearAssignedUserIfHidden: function () {
             const user = this.getUser();
 
-            if (AsignadorCaseFlow.isAsignadorUser(user)) {
+            if (RadicacionFields.canAssignCase(user)) {
                 return;
             }
 

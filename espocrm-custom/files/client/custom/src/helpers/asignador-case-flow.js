@@ -19,6 +19,10 @@ define('custom:helpers/asignador-case-flow', [
 
     const ASIGNACION_PANEL = 'gestionPosteriorRadicacion';
 
+    const canAssign = function (user) {
+        return RadicacionFields.canAssignCase(user);
+    };
+
     const isAsignadorUser = function (user) {
         return RadicacionFields.isAsignadorUser(user);
     };
@@ -197,7 +201,7 @@ define('custom:helpers/asignador-case-flow', [
 
         const user = recordView.getUser();
 
-        if (!isAsignadorUser(user) || recordView.model.isNew()) {
+        if (!canAssign(user) || recordView.model.isNew()) {
             syncBodyClass(false, false);
 
             return;
@@ -210,7 +214,7 @@ define('custom:helpers/asignador-case-flow', [
         if (recordView.mode === 'detail') {
             syncBodyClass(false, isReasign);
 
-            if (isAsignadorUser(user) && recordView._asignacionEditMode) {
+            if (canAssign(user) && recordView._asignacionEditMode) {
                 unlockAssignmentUi(recordView);
             }
 
@@ -232,7 +236,7 @@ define('custom:helpers/asignador-case-flow', [
     };
 
     const prepareModelForSave = function (recordView) {
-        if (!isAsignadorUser(recordView.getUser())) {
+        if (!canAssign(recordView.getUser())) {
             return;
         }
 

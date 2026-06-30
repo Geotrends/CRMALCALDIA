@@ -25,7 +25,15 @@ define('custom:helpers/inspeccion-case-flow', [
     const shouldHideAsignacion = function (recordView) {
         const user = recordView && recordView.getUser && recordView.getUser();
 
-        if (RadicacionFields.isAsignadorUser(user)) {
+        if (recordView && recordView.model && recordView.model.isNew()) {
+            return true;
+        }
+
+        if (recordView && recordView._asignacionEditMode && RadicacionFields.canAssignCase(user)) {
+            return false;
+        }
+
+        if (RadicacionFields.isAsignadorUser(user) || RadicacionFields.canAssignCase(user)) {
             return false;
         }
 

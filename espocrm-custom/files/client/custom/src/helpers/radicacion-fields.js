@@ -318,6 +318,26 @@ define('custom:helpers/radicacion-fields', [], function () {
         return resolveHomeProfile(user) === 'radicacion';
     };
 
+    const canAssignCase = function (user) {
+        if (!user) {
+            return false;
+        }
+
+        if (isAdminUser(user)) {
+            return true;
+        }
+
+        if (isAsignadorUser(user)) {
+            return true;
+        }
+
+        const profile = serverProfile && profileUserId === getCurrentUserId(user)
+            ? serverProfile
+            : null;
+
+        return !!(profile && profile.canAssignCase);
+    };
+
     const normalizeRadicadoValue = function (value) {
         return String(value || '').trim();
     };
@@ -369,6 +389,7 @@ define('custom:helpers/radicacion-fields', [], function () {
         isInspeccionUser: isInspeccionUser,
         isRadicacionUser: isRadicacionUser,
         isAsignadorUser: isAsignadorUser,
+        canAssignCase: canAssignCase,
         canEditRadicadoCase: canEditRadicadoCase,
         isCaseRadicado: isCaseRadicado,
         shouldShowRadicacionFields: shouldShowRadicacionFields,

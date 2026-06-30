@@ -128,6 +128,73 @@ define('custom:views/case/record/detail', [
                     this.applyAsignacionFieldAccess();
                 }
             });
+
+            this.bindAsignacionEditIntercept();
+        },
+
+        bindAsignacionEditIntercept: function () {
+            const self = this;
+
+            this.$el.on('click.alcaldiaAsignacion', 'a[href*="/edit/"], [data-action="edit"]', function (e) {
+                if (!self.canOperateAsignacion() || !RadicacionFields.isCaseRadicado(self.model)) {
+                    return;
+                }
+
+                e.preventDefault();
+                e.stopPropagation();
+                self.enterAsignacionEditMode();
+            });
+        },
+
+        canOperateAsignacion: function () {
+            return RadicacionFields.canAssignCase(this.getUser());
+        },
+
+        scheduleAsignacionAutoOpen: function () {
+            const self = this;
+
+            if (this._asignacionAutoOpenScheduled) {
+                return;
+            }
+
+            this._asignacionAutoOpenScheduled = true;
+
+            RadicacionFields.ensureProfile(this.getUser()).then(function () {
+                if (!self.isRendered || !self.isRendered()) {
+                    return;
+                }
+
+                if (!self.canOperateAsignacion() || !RadicacionFields.isCaseRadicado(self.model)) {
+                    return;
+                }
+
+                if (self._asignacionEditMode) {
+                    return;
+                }
+
+                self.enterAsignacionEditMode();
+            });
+        },
+
+        scheduleAsignacionFieldAccess: function () {
+            const self = this;
+
+            [0, 150, 500, 1200].forEach(function (delay) {
+                window.setTimeout(function () {
+                    if (!self._asignacionEditMode) {
+                        return;
+                    }
+
+                    self.applyAsignacionFieldAccess();
+                }, delay);
+            });
+        },
+
+        syncAsignacionBodyClass: function () {
+            document.body.classList.toggle(
+                'alcaldia-asignacion-detail-edit',
+                !!(this._asignacionEditMode && this.mode === 'detail')
+            );
         },
 
         afterRender: function () {
@@ -136,13 +203,24 @@ define('custom:views/case/record/detail', [
             RadicacionCaseFlow.schedule(this);
             AsignadorCaseFlow.schedule(this);
 
-            if (this.isAsignadorOperator()) {
+            if (this.canOperateAsignacion()) {
                 this.updateAsignacionActionButtons();
+                this.scheduleAsignacionAutoOpen();
             }
         },
 
         isAsignadorOperator: function () {
-            return AsignadorCaseFlow.isAsignadorUser(this.getUser());
+            return this.canOperateAsignacion();
+        },
+
+        edit: function () {
+            if (this.canOperateAsignacion() && RadicacionFields.isCaseRadicado(this.model)) {
+                this.enterAsignacionEditMode();
+
+                return;
+            }
+
+            Dep.prototype.edit.call(this);
         },
 
         actionEdit: function () {
@@ -192,7 +270,9 @@ define('custom:views/case/record/detail', [
             };
 
             this._asignacionEditMode = true;
+            this.syncAsignacionBodyClass();
             this.applyAsignacionFieldAccess();
+            this.scheduleAsignacionFieldAccess();
             this.updateAsignacionActionButtons();
         },
 
@@ -206,6 +286,7 @@ define('custom:views/case/record/detail', [
 
         exitAsignacionEditMode: function () {
             this._asignacionEditMode = false;
+            this.syncAsignacionBodyClass();
 
             if (this._cancelAsignacionAdded) {
                 this.safeRemoveMenuItem('cancelAsignacion');
@@ -273,9 +354,12 @@ define('custom:views/case/record/detail', [
                 return;
             }
 
-            const $cell = this.$el
-                .find('.panel[data-name="' + PANEL_ASIGNACION + '"] [data-name="assignedUser"]')
-                .first();
+            const $panel = findPanel(this, PANEL_ASIGNACION);
+            let $cell = $panel.find('.cell[data-name="assignedUser"], .field[data-name="assignedUser"]').first();
+
+            if (!$cell.length) {
+                $cell = this.$el.find('.cell[data-name="assignedUser"], .field[data-name="assignedUser"]').first();
+            }
 
             if (!$cell.length) {
                 return;
@@ -300,7 +384,7 @@ define('custom:views/case/record/detail', [
                 return;
             }
 
-            if (this._remountingAssignedUser || typeof this.createFieldView !== 'function') {
+            if (this._remountingAssignedUser) {
                 return;
             }
 
@@ -315,12 +399,7 @@ define('custom:views/case/record/detail', [
             $cell.empty();
 
             const self = this;
-
-            this.createFieldView('assignedUser', null, {
-                el: $cell,
-                mode: 'edit',
-                readOnly: false,
-            }, function (view) {
+            const mountView = function (view) {
                 self._remountingAssignedUser = false;
 
                 if (!view) {
@@ -333,7 +412,24 @@ define('custom:views/case/record/detail', [
                 if (typeof view.showSelectControls === 'function') {
                     view.showSelectControls();
                 }
-            });
+            };
+
+            if (typeof this.createFieldView === 'function') {
+                this.createFieldView('assignedUser', null, {
+                    el: $cell,
+                    mode: 'edit',
+                    readOnly: false,
+                }, mountView);
+
+                return;
+            }
+
+            this.createView('fieldAssignedUser', 'custom:views/case/fields/assigned-user', {
+                model: this.model,
+                el: $cell,
+                mode: 'edit',
+                readOnly: false,
+            }, mountView);
         },
 
         enableAsignacionFields: function () {
@@ -417,6 +513,7 @@ define('custom:views/case/record/detail', [
                 return;
             }
 
+            const self = this;
             const $editBtn = this.findAsignacionPrimaryButton();
 
             if (!$editBtn.length) {
@@ -431,6 +528,10 @@ define('custom:views/case/record/detail', [
                 $editBtn.show();
                 this.setPrimaryActionButtonLabel($editBtn, this.translate('Save', 'labels', 'Global'));
                 this.setPrimaryActionButtonAction($editBtn, 'saveAsignacion');
+                $editBtn.off('click.alcaldiaSave').on('click.alcaldiaSave', function (e) {
+                    e.preventDefault();
+                    self.saveAsignacionEdit();
+                });
 
                 if (!this._cancelAsignacionAdded) {
                     if (this.safeAddMenuItem({
@@ -448,6 +549,12 @@ define('custom:views/case/record/detail', [
             $editBtn.show();
             this.setPrimaryActionButtonLabel($editBtn, this.translate('Edit', 'labels', 'Global'));
             this.setPrimaryActionButtonAction($editBtn, 'edit');
+        },
+
+        remove: function () {
+            this.$el.off('click.alcaldiaAsignacion');
+            document.body.classList.remove('alcaldia-asignacion-detail-edit');
+            Dep.prototype.remove.call(this);
         },
 
         prepareModelForSave: function () {
