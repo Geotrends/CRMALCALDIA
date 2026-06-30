@@ -210,6 +210,10 @@ define('custom:helpers/asignador-case-flow', [
         if (recordView.mode === 'detail') {
             syncBodyClass(false, isReasign);
 
+            if (isAsignadorUser(user) && recordView._asignacionEditMode) {
+                unlockAssignmentUi(recordView);
+            }
+
             return;
         }
 

@@ -17,7 +17,6 @@ purge_obsolete_custom() {
     rm -f \
     "$custom_target/Hooks/User/SyncTeamsFromRoles.php" \
     "$custom_target/Tools/User/TeamRoleSync.php" \
-    "$custom_target/Classes/Select/User/PrimaryFilters/Patrulleros.php" \
     "$custom_target/Classes/Select/User/PrimaryFilters/Radicacion.php" \
     "$custom_target/Classes/Select/User/PrimaryFilters/Recibidores.php" \
     "$custom_target/Classes/Select/Case/AccessControlFilters/Mandatory.php" \
@@ -62,7 +61,6 @@ purge_obsolete_custom() {
       "$client_target/src/loader/case-radicacion-flow.js" \
       "$client_target/src/loader/case-asignacion-flow.js" \
       "$client_target/src/controllers/case.js" \
-      "$client_target/src/config/case-create-users.js" \
-      "$client_target/src/views/case/fields/assigned-user.js"
+      "$client_target/src/config/case-create-users.js"
   fi
 }

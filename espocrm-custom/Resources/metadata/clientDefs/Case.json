@@ -141,6 +141,9 @@
         ]
     },
     "fields": {
+        "assignedUser": {
+            "view": "custom:views/case/fields/assigned-user"
+        },
         "cFormatoSolicitudPdf": {
             "view": "custom:views/case/fields/formato-generado-docs"
         },
