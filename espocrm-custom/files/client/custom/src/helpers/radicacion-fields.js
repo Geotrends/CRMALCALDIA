@@ -8,6 +8,11 @@ define('custom:helpers/radicacion-fields', [], function () {
     const ROLE_PATRULLAJE = 'patrullaje';
     const PROFILE_CACHE_KEY = 'alcaldiaCaseProfileCacheV7';
 
+    const RADICADO_PERSISTED_FIELDS = [
+        'cNumeroRadicado',
+        'cExpediente',
+    ];
+
     const RADICADO_ALL_FIELDS = [
         'cRadicadoModo',
         'cRadicadoSiglas',
@@ -370,7 +375,7 @@ define('custom:helpers/radicacion-fields', [], function () {
             return;
         }
 
-        RADICADO_ALL_FIELDS.forEach(function (field) {
+        RADICADO_PERSISTED_FIELDS.forEach(function (field) {
             if (typeof model.unset === 'function') {
                 model.unset(field, {silent: true});
             } else {
@@ -381,6 +386,7 @@ define('custom:helpers/radicacion-fields', [], function () {
 
     return {
         RADICADO_ALL_FIELDS: RADICADO_ALL_FIELDS,
+        RADICADO_PERSISTED_FIELDS: RADICADO_PERSISTED_FIELDS,
         ensureProfile: ensureProfile,
         onProfileReady: onProfileReady,
         hasRole: hasRole,

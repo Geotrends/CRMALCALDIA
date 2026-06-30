@@ -9,7 +9,13 @@ use Espo\ORM\Entity;
  */
 class CaseRadicadoHelper
 {
-    /** @var string[] */
+    /** @var string[] Campos que identifican radicado persistido (no tocar enums de modo/siglas). */
+    public const PERSISTED_FIELD_LIST = [
+        'cNumeroRadicado',
+        'cExpediente',
+    ];
+
+    /** @var string[] Todos los campos de radicación (restaurar en edición restringida). */
     public const FIELD_LIST = [
         'cNumeroRadicado',
         'cExpediente',
@@ -76,7 +82,7 @@ class CaseRadicadoHelper
 
     public static function clearRadicadoFields(Entity $entity): void
     {
-        foreach (self::FIELD_LIST as $field) {
+        foreach (self::PERSISTED_FIELD_LIST as $field) {
             $entity->set($field, null);
         }
     }
