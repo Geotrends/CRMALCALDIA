@@ -107,12 +107,13 @@ define('custom:helpers/radicacion-case-flow', [
 
         if (!isRadicacionOnlyUser(user)) {
             syncBodyClass(recordView, false);
+            document.body.classList.remove(DETAIL_CLASS);
             return;
         }
 
         if (recordView.mode === 'detail') {
-            document.body.classList.toggle(DETAIL_CLASS, true);
-            document.body.classList.toggle(BODY_CLASS, false);
+            document.body.classList.remove(BODY_CLASS);
+            document.body.classList.remove(DETAIL_CLASS);
             return;
         }
 
