@@ -11,10 +11,5 @@
         <span class="fas fa-print"></span> {{buttonLabelManual}}
     </button>
     {{/if}}
-    {{#if showPrintDigital}}
-    <button type="button" class="btn btn-default btn-sm case-acta-visita-btn" data-action="descargarActaDigital">
-        <span class="fas fa-file-pdf"></span> {{buttonLabelDigitalPdf}}
-    </button>
-    {{/if}}
 </div>
 {{/if}}
