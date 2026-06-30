@@ -55,6 +55,39 @@ define('custom:helpers/case-create-form', [], function () {
         }
     };
 
+    const DEFAULT_LINK_FIELDS = [
+        'cRecibidaPor',
+        'cRemitidoA',
+    ];
+
+    let cachedDefaults = null;
+
+    const applyServerDefaults = function (recordView, data) {
+        if (!recordView || !recordView.model || !data) {
+            return;
+        }
+
+        Object.keys(data).forEach(function (key) {
+            if (data[key] == null || data[key] === '') {
+                return;
+            }
+
+            if (recordView.model.get(key)) {
+                return;
+            }
+
+            recordView.model.set(key, data[key], {silent: true});
+        });
+
+        ['cFechaCaso'].concat(DEFAULT_LINK_FIELDS).forEach(function (field) {
+            const fieldView = recordView.getFieldView(field);
+
+            if (fieldView && fieldView.isRendered && fieldView.isRendered()) {
+                fieldView.reRender();
+            }
+        });
+    };
+
     const fetchServerDefaults = function (recordView) {
         if (!recordView || !recordView.model || !recordView.model.isNew()) {
             return Promise.resolve();
@@ -66,27 +99,28 @@ define('custom:helpers/case-create-form', [], function () {
 
         return Espo.Ajax.getRequest('Case/action/createDefaults')
             .then(function (data) {
-                if (!data || !data.cFechaCaso) {
-                    return;
-                }
-
-                recordView.model.set('cFechaCaso', data.cFechaCaso, {silent: true});
-
-                const fieldView = recordView.getFieldView('cFechaCaso');
-
-                if (fieldView && fieldView.isRendered && fieldView.isRendered()) {
-                    fieldView.reRender();
-                }
+                cachedDefaults = data || null;
+                applyServerDefaults(recordView, data);
             })
             .catch(function () {});
     };
 
+    const applyCachedDefaults = function (recordView) {
+        if (!cachedDefaults) {
+            return;
+        }
+
+        applyServerDefaults(recordView, cachedDefaults);
+    };
+
     const schedule = function (recordView) {
         hideDetailOnlyUi(recordView);
+        applyCachedDefaults(recordView);
 
         [100, 400, 1000].forEach(function (delay) {
             window.setTimeout(function () {
                 hideDetailOnlyUi(recordView);
+                applyCachedDefaults(recordView);
             }, delay);
         });
     };

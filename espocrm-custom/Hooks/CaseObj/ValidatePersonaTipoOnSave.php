@@ -4,11 +4,13 @@ namespace Espo\Custom\Hooks\CaseObj;
 
 use Espo\Core\Exceptions\BadRequest;
 use Espo\Core\Hook\Hook\BeforeSave;
+use Espo\Custom\Tools\CaseObj\CaseRadicadoHelper;
 use Espo\ORM\Entity;
 use Espo\ORM\Repository\Option\SaveOptions;
 
 /**
  * Valida campos del formato de solicitud (peticionario y perjudicante).
+ * Solo aplica cuando el caso ya tiene radicado completo (fase de radicación).
  */
 class ValidatePersonaTipoOnSave implements BeforeSave
 {
@@ -21,6 +23,10 @@ class ValidatePersonaTipoOnSave implements BeforeSave
 
     public function beforeSave(Entity $entity, SaveOptions $options): void
     {
+        if (!CaseRadicadoHelper::isRadicadoCompleto($entity)) {
+            return;
+        }
+
         $this->validatePeticionario($entity);
         $this->validatePerjudicante($entity);
     }

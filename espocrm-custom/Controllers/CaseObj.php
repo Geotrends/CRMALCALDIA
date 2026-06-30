@@ -44,7 +44,9 @@ class CaseObj extends BaseCaseObj
             throw new Forbidden();
         }
 
-        return (new CaseCreateDefaultsService())->build();
+        return $this->injectableFactory
+            ->create(CaseCreateDefaultsService::class)
+            ->build();
     }
 
     /**

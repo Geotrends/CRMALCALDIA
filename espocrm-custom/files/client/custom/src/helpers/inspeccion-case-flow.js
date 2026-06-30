@@ -3,6 +3,13 @@ define('custom:helpers/inspeccion-case-flow', [
 ], function (RadicacionFields) {
 
     const PANEL_RADICACION = 'radicacionCaso';
+    const PANEL_ASIGNACION = 'gestionPosteriorRadicacion';
+    const BODY_CLASS = 'alcaldia-inspeccion-case-page';
+
+    const ASIGNACION_FIELDS = [
+        'assignedUser',
+        'cMotivoReasignacion',
+    ];
 
     const findPanel = function (recordView, name) {
         return recordView.$el.find(
@@ -11,6 +18,42 @@ define('custom:helpers/inspeccion-case-flow', [
             '.record-panel[data-name="' + name + '"], ' +
             '[data-name="' + name + '"].panel'
         );
+    };
+
+    const isInspeccionOnlyUser = function (user) {
+        if (!RadicacionFields.isInspeccionUser(user)) {
+            return false;
+        }
+
+        return RadicacionFields.resolveHomeProfile(user) !== 'asignador';
+    };
+
+    const syncBodyClass = function (recordView) {
+        const user = recordView.getUser();
+        const enabled = isInspeccionOnlyUser(user);
+
+        document.body.classList.toggle(BODY_CLASS, enabled);
+    };
+
+    const hideAsignacionPanel = function (recordView) {
+        const user = recordView.getUser();
+
+        if (!isInspeccionOnlyUser(user)) {
+            return;
+        }
+
+        const $panel = findPanel(recordView, PANEL_ASIGNACION);
+
+        if ($panel.length) {
+            $panel.addClass('hidden alcaldia-inspeccion-asignacion-hidden');
+        }
+
+        ASIGNACION_FIELDS.forEach(function (field) {
+            recordView.$el
+                .find('.cell[data-name="' + field + '"], .field[data-name="' + field + '"]')
+                .closest('.cell, .field')
+                .addClass('hidden');
+        });
     };
 
     const lockRadicadoFields = function (recordView) {
@@ -51,6 +94,8 @@ define('custom:helpers/inspeccion-case-flow', [
             return;
         }
 
+        syncBodyClass(recordView);
+        hideAsignacionPanel(recordView);
         lockRadicadoFields(recordView);
     };
 
@@ -64,9 +109,21 @@ define('custom:helpers/inspeccion-case-flow', [
         });
     };
 
+    const stripAsignacionFromModel = function (model) {
+        model.set({
+            assignedUserId: null,
+            assignedUserName: null,
+            cMotivoReasignacion: null,
+        }, {silent: true});
+    };
+
     const prepareModelForSave = function (recordView) {
         const user = recordView.getUser();
         const model = recordView.model;
+
+        if (isInspeccionOnlyUser(user)) {
+            stripAsignacionFromModel(model);
+        }
 
         if (!RadicacionFields.isInspeccionUser(user)) {
             return;
@@ -102,5 +159,6 @@ define('custom:helpers/inspeccion-case-flow', [
         schedule: schedule,
         prepareModelForSave: prepareModelForSave,
         lockRadicadoFields: lockRadicadoFields,
+        hideAsignacionPanel: hideAsignacionPanel,
     };
 });

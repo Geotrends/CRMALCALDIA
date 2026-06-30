@@ -4,7 +4,7 @@
             "required": false
         },
         "description": {
-            "required": true
+            "required": false
         },
         "cFechaVencimiento": {
             "notNull": false,
@@ -14,7 +14,7 @@
         "cFechaCaso": {
             "notNull": false,
             "type": "datetime",
-            "required": true,
+            "required": false,
             "default": "javascript: return this.dateTime.getNow(1);",
             "minuteStep": 1,
             "isCustom": true
@@ -75,12 +75,12 @@
                 "Persona jurídica": null
             },
             "default": "Seleccione una opción",
-            "required": true,
+            "required": false,
             "isCustom": true
         },
         "cDocumentoPeticionario": {
             "type": "varchar",
-            "required": true,
+            "required": false,
             "maxLength": 100,
             "options": [],
             "isCustom": true,
@@ -88,7 +88,7 @@
         },
         "cNombrePeticionario": {
             "type": "varchar",
-            "required": true,
+            "required": false,
             "maxLength": 100,
             "isCustom": true
         },
@@ -167,7 +167,7 @@
         "cTelefonoPeticionario": {
             "type": "varchar",
             "maxLength": 100,
-            "required": true,
+            "required": false,
             "options": [],
             "isCustom": true,
             "view": "custom:views/fields/numeric-only"
@@ -303,7 +303,7 @@
                 "Personal": null
             },
             "default": "Seleccione una opción",
-            "required": true,
+            "required": false,
             "maxLength": 100,
             "isCustom": true
         },

@@ -2,9 +2,7 @@
 
 namespace Espo\Custom\Hooks\CaseObj;
 
-use Espo\Core\Exceptions\BadRequest;
 use Espo\Core\Hook\Hook\BeforeSave;
-use Espo\Custom\Tools\CaseObj\InfractorUnknownHelper;
 use Espo\ORM\Entity;
 use Espo\ORM\Repository\Option\SaveOptions;
 
@@ -27,20 +25,6 @@ class NormalizeCaseEnumPlaceholders implements BeforeSave
         'cRadicadoSiglas',
     ];
 
-    /** @var array<string, string> */
-    private const REQUIRED_MESSAGES = [
-        'cTipoPersonaPeticionario' => 'Seleccione el tipo de peticionario.',
-        'cTipoPersonaPerjudicante' => 'Seleccione el tipo de perjudicante.',
-        'cCanalDeReportePeticionario' => 'Seleccione el canal de reporte.',
-        'cBarrioPeticionario' => 'Seleccione el barrio del peticionario.',
-        'cZonaAlcaldiaPeticionario' => 'Seleccione la zona del peticionario.',
-        'cBarrioPerjudicante' => 'Seleccione el barrio del perjudicante.',
-        'cRecursoTema' => 'Seleccione el recurso / tema.',
-        'cAsunto' => 'Seleccione el asunto.',
-        'cUltimaActuacion' => 'Seleccione la última actuación.',
-        'cProximaActuacion' => 'Seleccione la próxima actuación.',
-    ];
-
     public static int $order = 2;
 
     public function beforeSave(Entity $entity, SaveOptions $options): void
@@ -54,25 +38,7 @@ class NormalizeCaseEnumPlaceholders implements BeforeSave
 
             if ($value === '' || $value === self::PLACEHOLDER) {
                 $entity->set($field, null);
-                $value = '';
-            }
-
-            if ($value === '' && isset(self::REQUIRED_MESSAGES[$field]) && $this->needsFullSolicitud($entity)) {
-                if (InfractorUnknownHelper::isUnknown($entity)
-                    && in_array($field, InfractorUnknownHelper::SKIP_VALIDATION_FIELDS, true)) {
-                    continue;
-                }
-
-                throw new BadRequest(self::REQUIRED_MESSAGES[$field]);
             }
         }
-    }
-
-    private function needsFullSolicitud(Entity $entity): bool
-    {
-        $numero = trim((string) $entity->get('cNumeroRadicado'));
-        $expediente = trim((string) $entity->get('cExpediente'));
-
-        return $numero === '' || $expediente === '';
     }
 }
