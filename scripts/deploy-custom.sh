@@ -44,6 +44,26 @@ fi
 echo 'Copiando frontend client/custom...'
 docker cp "$ROOT/espocrm-custom/files/client/custom/." espocrm:/var/www/html/client/custom/
 
+echo 'Eliminando JS obsoleto de flujo por roles...'
+docker exec espocrm rm -f \
+  /var/www/html/client/custom/src/helpers/radicacion-fields.js \
+  /var/www/html/client/custom/src/helpers/radicacion-edit-mode.js \
+  /var/www/html/client/custom/src/helpers/post-radicacion-fields.js \
+  /var/www/html/client/custom/src/helpers/asignador-edit-mode.js \
+  /var/www/html/client/custom/src/helpers/patrullero-edit-mode.js \
+  /var/www/html/client/custom/src/helpers/patrullero-acta.js \
+  /var/www/html/client/custom/src/helpers/inspeccion-edit-mode.js \
+  /var/www/html/client/custom/src/helpers/inspeccion-acta.js \
+  /var/www/html/client/custom/src/helpers/inspeccion-actuo-archivo.js \
+  /var/www/html/client/custom/src/helpers/inspeccion-registro-excel.js \
+  /var/www/html/client/custom/src/helpers/alcaldia-case-roles.js \
+  /var/www/html/client/custom/src/helpers/alcaldia-roles-config.js \
+  /var/www/html/client/custom/src/helpers/alcaldia-notification-message.js \
+  /var/www/html/client/custom/src/loader/alcaldia-profile-sync.js \
+  /var/www/html/client/custom/src/loader/case-radicacion-flow.js \
+  /var/www/html/client/custom/src/loader/case-asignacion-flow.js \
+  /var/www/html/client/custom/src/controllers/case.js
+
 echo 'Verificando LibreOffice (generación de formatos)...'
 docker exec espocrm bash -c 'dpkg -s libreoffice-writer-nogui >/dev/null 2>&1 || (apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get install -y -qq libreoffice-writer-nogui python3-uno); dpkg -s libreoffice-calc-nogui >/dev/null 2>&1 || (apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get install -y -qq libreoffice-calc-nogui)'
 

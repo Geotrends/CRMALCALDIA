@@ -143,6 +143,26 @@ echo "Copying frontend client/custom..."
 require_path "$CLIENT_SOURCE" "client custom source"
 cp -R "$CLIENT_SOURCE/." "$CLIENT_TARGET/"
 
+echo "Removing obsolete client JS (flujo por roles)..."
+rm -f \
+  "$CLIENT_TARGET/src/helpers/radicacion-fields.js" \
+  "$CLIENT_TARGET/src/helpers/radicacion-edit-mode.js" \
+  "$CLIENT_TARGET/src/helpers/post-radicacion-fields.js" \
+  "$CLIENT_TARGET/src/helpers/asignador-edit-mode.js" \
+  "$CLIENT_TARGET/src/helpers/patrullero-edit-mode.js" \
+  "$CLIENT_TARGET/src/helpers/patrullero-acta.js" \
+  "$CLIENT_TARGET/src/helpers/inspeccion-edit-mode.js" \
+  "$CLIENT_TARGET/src/helpers/inspeccion-acta.js" \
+  "$CLIENT_TARGET/src/helpers/inspeccion-actuo-archivo.js" \
+  "$CLIENT_TARGET/src/helpers/inspeccion-registro-excel.js" \
+  "$CLIENT_TARGET/src/helpers/alcaldia-case-roles.js" \
+  "$CLIENT_TARGET/src/helpers/alcaldia-roles-config.js" \
+  "$CLIENT_TARGET/src/helpers/alcaldia-notification-message.js" \
+  "$CLIENT_TARGET/src/loader/alcaldia-profile-sync.js" \
+  "$CLIENT_TARGET/src/loader/case-radicacion-flow.js" \
+  "$CLIENT_TARGET/src/loader/case-asignacion-flow.js" \
+  "$CLIENT_TARGET/src/controllers/case.js"
+
 if [ -f "$EXCEL_SOURCE" ]; then
   echo "Copying exports/excelAlcaldia.xlsx..."
   mkdir -p "$APP_ROOT/data/exports"

@@ -19,6 +19,24 @@ use Espo\Modules\Crm\Controllers\CaseObj as BaseCaseObj;
 class CaseObj extends BaseCaseObj
 {
     /**
+     * GET Case/action/alcaldiaProfile
+     *
+     * Compatibilidad con JS en caché del cliente; sin lógica por roles.
+     *
+     * @return array<string, mixed>
+     */
+    public function getActionAlcaldiaProfile(Request $request): array
+    {
+        return [
+            'homeProfile' => 'gestion',
+            'isInspeccion' => false,
+            'isRadicacion' => false,
+            'isAsignador' => false,
+            'isPatrullero' => false,
+        ];
+    }
+
+    /**
      * GET Case/action/createDefaults
      *
      * @return array<string, string>
