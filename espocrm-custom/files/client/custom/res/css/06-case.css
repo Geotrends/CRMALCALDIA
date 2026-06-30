@@ -342,3 +342,44 @@ body.alcaldia-reasignacion-caso .detail[data-scope="Case"] .cell[data-name="cMot
   width: 100%;
   min-height: 64px;
 }
+
+body.alcaldia-asignador-asignar-page .edit[data-scope="Case"] .panel[data-name="gestionPosteriorRadicacion"] .cell[data-name="assignedUser"],
+body.alcaldia-asignador-asignar-page .edit[data-scope="Case"] .panel[data-name="gestionPosteriorRadicacion"] .field[data-name="assignedUser"],
+body.alcaldia-asignador-asignar-page .edit[data-scope="Case"] .panel[data-name="gestionPosteriorRadicacion"] .cell[data-name="cMotivoReasignacion"],
+body.alcaldia-asignador-asignar-page .edit[data-scope="Case"] .panel[data-name="gestionPosteriorRadicacion"] .field[data-name="cMotivoReasignacion"] {
+  pointer-events: auto !important;
+  opacity: 1 !important;
+}
+
+body.alcaldia-asignador-asignar-page .edit[data-scope="Case"] .panel[data-name="gestionPosteriorRadicacion"] .cell[data-name="assignedUser"] *,
+body.alcaldia-asignador-asignar-page .edit[data-scope="Case"] .panel[data-name="gestionPosteriorRadicacion"] .cell[data-name="cMotivoReasignacion"] *,
+body.alcaldia-asignador-asignar-page .edit[data-scope="Case"] .alcaldia-pick-patrullero {
+  pointer-events: auto !important;
+  opacity: 1 !important;
+}
+
+body.alcaldia-asignador-asignar-page .edit[data-scope="Case"] .panel[data-name="gestionPosteriorRadicacion"] textarea,
+body.alcaldia-asignador-asignar-page .edit[data-scope="Case"] .panel[data-name="gestionPosteriorRadicacion"] input,
+body.alcaldia-asignador-asignar-page .edit[data-scope="Case"] .panel[data-name="gestionPosteriorRadicacion"] .btn {
+  pointer-events: auto !important;
+  opacity: 1 !important;
+  cursor: pointer;
+}
+
+.detail[data-scope="Case"] .panel[data-name="gestionPosteriorRadicacion"] .alcaldia-asignacion-panel-actions {
+  display: inline-block;
+  margin-left: 12px;
+  white-space: nowrap;
+}
+
+.detail[data-scope="Case"] .panel[data-name="gestionPosteriorRadicacion"] .alcaldia-asignacion-panel-actions .btn {
+  margin-left: 4px;
+}
+
+.detail[data-scope="Case"] .panel[data-name="gestionPosteriorRadicacion"] .panel-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}

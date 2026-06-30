@@ -1,7 +1,8 @@
 define('custom:views/case/fields/c-motivo-reasignacion', [
     'views/fields/text',
     'custom:helpers/asignador-case-flow',
-], function (Dep, AsignadorCaseFlow) {
+    'custom:helpers/radicacion-fields',
+], function (Dep, AsignadorCaseFlow, RadicacionFields) {
 
     const VISIBLE_CLASS = 'alcaldia-motivo-reasignacion-visible';
 
@@ -93,6 +94,12 @@ define('custom:views/case/fields/c-motivo-reasignacion', [
         manageVisibility: function () {
             const isReasignacion = this.isReasignacion();
             const $cell = getCell(this);
+            const recordView = this.getRecordView && this.getRecordView();
+            const isEditing = recordView && (
+                recordView._asignacionEditMode
+                || recordView._asignarMode
+                || (typeof recordView.isEditMode === 'function' && recordView.isEditMode())
+            );
 
             if (isReasignacion) {
                 if ($cell) {
@@ -102,12 +109,18 @@ define('custom:views/case/fields/c-motivo-reasignacion', [
                         .css('display', '');
                 }
 
-                if (this.mode === 'detail' && typeof this.setMode === 'function') {
+                if (isEditing && typeof this.setMode === 'function' && this.mode !== 'edit') {
                     this.setMode('edit');
                 }
 
                 if (this.isRendered && this.isRendered()) {
                     this.show();
+                }
+
+                this.readOnly = false;
+
+                if (typeof this.setNotReadOnly === 'function') {
+                    this.setNotReadOnly();
                 }
 
                 return;
@@ -138,6 +151,44 @@ define('custom:views/case/fields/c-motivo-reasignacion', [
                     self.manageVisibility();
                 }, delay);
             });
+        },
+
+        isReadOnly: function () {
+            const recordView = this.getRecordView && this.getRecordView();
+            const user = this.getUser && this.getUser();
+
+            if (user && RadicacionFields.isAsignadorUser(user) && this.isReasignacion()) {
+                if (
+                    (recordView && (recordView._asignacionEditMode || recordView._asignarMode))
+                    || this.mode === 'edit'
+                    || document.body.classList.contains('alcaldia-asignador-asignar-page')
+                    || document.body.classList.contains('alcaldia-asignacion-detail-edit')
+                ) {
+                    return false;
+                }
+            }
+
+            return Dep.prototype.isReadOnly.call(this);
+        },
+
+        setReadOnly: function () {
+            const recordView = this.getRecordView && this.getRecordView();
+
+            if (this.isReasignacion() && (
+                this.mode === 'edit'
+                || (recordView && recordView._asignarMode)
+                || document.body.classList.contains('alcaldia-asignador-asignar-page')
+            )) {
+                this.readOnly = false;
+
+                if (typeof this.setNotReadOnly === 'function') {
+                    this.setNotReadOnly();
+                }
+
+                return;
+            }
+
+            Dep.prototype.setReadOnly.apply(this, arguments);
         },
     });
 });

@@ -5,7 +5,8 @@ define('custom:views/case/record/detail', [
     'custom:helpers/inspeccion-case-flow',
     'custom:helpers/radicacion-case-flow',
     'custom:helpers/asignador-case-flow',
-], function (Dep, PersonaTipoFields, RadicacionFields, InspeccionCaseFlow, RadicacionCaseFlow, AsignadorCaseFlow) {
+    'custom:helpers/asignador-assignment-ui',
+], function (Dep, PersonaTipoFields, RadicacionFields, InspeccionCaseFlow, RadicacionCaseFlow, AsignadorCaseFlow, AsignadorAssignmentUi) {
 
     const PANEL_ASIGNACION = 'gestionPosteriorRadicacion';
 
@@ -59,9 +60,22 @@ define('custom:views/case/record/detail', [
         },
 
         findPrimaryActionButton: function (action) {
-            const $action = this.$el.find('[data-action="' + action + '"]').filter(function () {
-                return $(this).closest('.dropdown-menu').length === 0;
-            }).first();
+            let $action = this.getDetailActionElements()
+                .find('[data-action="' + action + '"]')
+                .filter(function () {
+                    return $(this).closest('.dropdown-menu').length === 0;
+                })
+                .first();
+
+            if (!$action.length) {
+                $action = $(document).find(
+                    '.header-buttons [data-action="' + action + '"], ' +
+                    '.detail-button-container [data-action="' + action + '"], ' +
+                    '.page-header [data-action="' + action + '"]'
+                ).filter(function () {
+                    return $(this).closest('.dropdown-menu').length === 0;
+                }).first();
+            }
 
             if (!$action.length) {
                 return $();
@@ -70,6 +84,17 @@ define('custom:views/case/record/detail', [
             const $btn = $action.closest('.btn, a.btn, .dropdown-item, li').first();
 
             return $btn.length ? $btn : $action;
+        },
+
+        getDetailActionElements: function () {
+            let $root = this.$el;
+            const header = typeof this.getHeaderView === 'function' ? this.getHeaderView() : null;
+
+            if (header && header.$el) {
+                $root = $root.add(header.$el);
+            }
+
+            return $root;
         },
 
         findAsignacionPrimaryButton: function () {
@@ -131,6 +156,108 @@ define('custom:views/case/record/detail', [
             });
 
             this.bindAsignacionEditIntercept();
+            this.bindAsignacionPanelActions();
+        },
+
+        bindAsignacionPanelActions: function () {
+            const self = this;
+
+            this.$el.on('click.alcaldiaPanelAsignacion', '[data-action="alcaldiaEditAsignacion"]', function (e) {
+                e.preventDefault();
+                self.enterAsignacionEditMode();
+            });
+
+            this.$el.on('click.alcaldiaPanelAsignacion', '[data-action="alcaldiaSaveAsignacion"]', function (e) {
+                e.preventDefault();
+                self.saveAsignacionEdit();
+            });
+
+            this.$el.on('click.alcaldiaPanelAsignacion', '[data-action="alcaldiaCancelAsignacion"]', function (e) {
+                e.preventDefault();
+                self.cancelAsignacionEdit();
+            });
+        },
+
+        ensureAsignacionPanelToolbar: function () {
+            if (!this.isAsignadorOperator() || !RadicacionFields.isCaseRadicado(this.model)) {
+                return;
+            }
+
+            const $panel = findPanel(this, PANEL_ASIGNACION);
+
+            if (!$panel.length) {
+                return;
+            }
+
+            let $toolbar = $panel.find('.alcaldia-asignacion-panel-actions').first();
+
+            if (!$toolbar.length) {
+                const $heading = $panel.find('.panel-heading, .panel-title').first();
+
+                if (!$heading.length) {
+                    return;
+                }
+
+                $heading.append(
+                    '<div class="alcaldia-asignacion-panel-actions pull-right" style="margin-top:-2px;">' +
+                    '<button type="button" class="btn btn-primary btn-sm" data-action="alcaldiaEditAsignacion">' +
+                    'Asignar patrullero</button>' +
+                    '<button type="button" class="btn btn-primary btn-sm hidden" data-action="alcaldiaSaveAsignacion">' +
+                    'Guardar</button>' +
+                    '<button type="button" class="btn btn-default btn-sm hidden" data-action="alcaldiaCancelAsignacion">' +
+                    'Cancelar</button>' +
+                    '</div>'
+                );
+
+                $toolbar = $panel.find('.alcaldia-asignacion-panel-actions').first();
+            }
+
+            this.updateAsignacionPanelToolbar($toolbar);
+        },
+
+        updateAsignacionPanelToolbar: function ($toolbar) {
+            if (!$toolbar || !$toolbar.length) {
+                $toolbar = this.$el.find('.alcaldia-asignacion-panel-actions').first();
+            }
+
+            if (!$toolbar.length) {
+                return;
+            }
+
+            const $edit = $toolbar.find('[data-action="alcaldiaEditAsignacion"]');
+            const $save = $toolbar.find('[data-action="alcaldiaSaveAsignacion"]');
+            const $cancel = $toolbar.find('[data-action="alcaldiaCancelAsignacion"]');
+
+            if (this._asignacionEditMode) {
+                $edit.addClass('hidden');
+                $save.removeClass('hidden');
+                $cancel.removeClass('hidden');
+
+                return;
+            }
+
+            $edit.removeClass('hidden');
+            $save.addClass('hidden');
+            $cancel.addClass('hidden');
+        },
+
+        scheduleAsignacionUiRefresh: function () {
+            const self = this;
+
+            if (!this.isAsignadorOperator()) {
+                return;
+            }
+
+            [0, 150, 500, 1200].forEach(function (delay) {
+                window.setTimeout(function () {
+                    if (!self.isRendered || !self.isRendered()) {
+                        return;
+                    }
+
+                    self.ensureAsignacionPanelToolbar();
+                    self.updateAsignacionActionButtons();
+                }, delay);
+            });
         },
 
         bindAsignacionEditIntercept: function () {
@@ -179,13 +306,15 @@ define('custom:views/case/record/detail', [
             AsignadorCaseFlow.schedule(this);
 
             if (this.isAsignadorOperator()) {
-                this.updateAsignacionActionButtons();
+                this._asignacionEditMode = false;
+                document.body.classList.remove('alcaldia-asignacion-detail-edit');
+                this.scheduleAsignacionUiRefresh();
             }
         },
 
         actionEdit: function () {
             if (this.isAsignadorOperator() && RadicacionFields.isCaseRadicado(this.model)) {
-                this.enterAsignacionEditMode();
+                AsignadorAssignmentUi.openAssignmentModal(this);
 
                 return;
             }
@@ -202,38 +331,7 @@ define('custom:views/case/record/detail', [
         },
 
         enterAsignacionEditMode: function () {
-            const self = this;
-
-            if (!RadicacionFields.isCaseRadicado(this.model)) {
-                if (this.model && typeof this.model.fetch === 'function') {
-                    this.model.fetch({
-                        select: [
-                            'cNumeroRadicado', 'cExpediente',
-                            'assignedUserId', 'assignedUserName', 'cMotivoReasignacion',
-                        ],
-                    }).then(function () {
-                        self.enterAsignacionEditMode();
-                    });
-
-                    return;
-                }
-
-                Espo.Ui.warning(this.translate('asignadorCaseNotReady', 'messages', 'Case') || 'El caso aún no está listo para asignación.');
-
-                return;
-            }
-
-            this._asignacionBackup = {
-                assignedUserId: this.model.get('assignedUserId'),
-                assignedUserName: this.model.get('assignedUserName'),
-                cMotivoReasignacion: this.model.get('cMotivoReasignacion'),
-            };
-
-            this._asignacionEditMode = true;
-            this.syncAsignacionBodyClass();
-            this.applyAsignacionFieldAccess();
-            this.scheduleAsignacionFieldAccess();
-            this.updateAsignacionActionButtons();
+            AsignadorAssignmentUi.openAssignmentModal(this);
         },
 
         cancelAsignacionEdit: function () {
@@ -253,7 +351,15 @@ define('custom:views/case/record/detail', [
                 this._cancelAsignacionAdded = false;
             }
 
+            const assignedView = this.getFieldView('assignedUser');
+
+            if (assignedView && typeof assignedView.setMode === 'function') {
+                assignedView.setMode('detail');
+                assignedView.render();
+            }
+
             this.updateAsignacionActionButtons();
+            this.ensureAsignacionPanelToolbar();
             AsignadorCaseFlow.schedule(this);
         },
 
@@ -285,117 +391,21 @@ define('custom:views/case/record/detail', [
                     .closest('.cell, .field')
                     .show()
                     .removeClass('hidden alcaldia-inspeccion-asignacion-hidden alcaldia-field-readonly');
+
+                if (field === 'cMotivoReasignacion') {
+                    this.$el
+                        .find('[data-name="cMotivoReasignacion"]')
+                        .closest('.cell, .field')
+                        .addClass('alcaldia-motivo-reasignacion-visible');
+                }
             }, this);
 
             this.setReadOnlyExcept(editableFields);
-            this.remountAssignedUserForEdit();
-            this.enableAsignacionFields();
+            AsignadorAssignmentUi.ensureAssignedUserEditable(this);
         },
 
         setReadOnlyExcept: function (editableFields) {
-            const editable = editableFields || [];
-            const recordView = this;
-
-            (this.fieldList || []).forEach(function (field) {
-                if (editable.indexOf(field) !== -1) {
-                    return;
-                }
-
-                const view = recordView.getFieldView(field);
-
-                if (view && typeof view.setReadOnly === 'function') {
-                    view.setReadOnly();
-                }
-            });
-        },
-
-        remountAssignedUserForEdit: function () {
-            if (!this._asignacionEditMode) {
-                return;
-            }
-
-            const $panel = findPanel(this, PANEL_ASIGNACION);
-            let $cell = $panel.find('.cell[data-name="assignedUser"], .field[data-name="assignedUser"]').first();
-
-            if (!$cell.length) {
-                $cell = this.$el.find('.cell[data-name="assignedUser"], .field[data-name="assignedUser"]').first();
-            }
-
-            if (!$cell.length) {
-                return;
-            }
-
-            $cell.closest('.cell, .field').show().removeClass('hidden');
-
-            const existing = this.getFieldView('assignedUser');
-
-            if (existing) {
-                existing.readOnly = false;
-
-                if (typeof existing.setMode === 'function' && existing.mode !== 'edit') {
-                    existing.setMode('edit');
-
-                    return;
-                }
-
-                if (
-                    existing.mode === 'edit'
-                    && existing.$el
-                    && existing.$el.find('[data-action="selectLink"], [data-action="editLink"]').length
-                ) {
-                    if (typeof existing.showSelectControls === 'function') {
-                        existing.showSelectControls();
-                    }
-
-                    return;
-                }
-            }
-
-            if (this._remountingAssignedUser || typeof this.createFieldView !== 'function') {
-                return;
-            }
-
-            this._remountingAssignedUser = true;
-
-            if (existing && typeof existing.remove === 'function') {
-                existing.remove();
-            }
-
-            const cellId = 'alcaldia-assigned-user-' + (this.model.id || this.cid);
-            $cell.attr('id', cellId).empty();
-
-            const self = this;
-            const mountView = function (view) {
-                self._remountingAssignedUser = false;
-
-                if (!view) {
-                    return;
-                }
-
-                view.readOnly = false;
-                view.render();
-
-                if (typeof view.showSelectControls === 'function') {
-                    view.showSelectControls();
-                }
-            };
-
-            this.createFieldView('assignedUser', null, '#' + cellId, {
-                mode: 'edit',
-                readOnly: false,
-            }, mountView);
-        },
-
-        enableAsignacionFields: function () {
-            const self = this;
-
-            ['assignedUser', 'cMotivoReasignacion'].forEach(function (field) {
-                const view = self.getFieldView(field);
-
-                if (view && typeof view.setReadOnly === 'function') {
-                    view.setReadOnly(false);
-                }
-            });
+            AsignadorAssignmentUi.lockAllFieldViewsExcept(this, editableFields || []);
         },
 
         syncAsignacionFields: function () {
@@ -467,13 +477,16 @@ define('custom:views/case/record/detail', [
                 return;
             }
 
+            this.ensureAsignacionPanelToolbar();
+
             const $editBtn = this.findAsignacionPrimaryButton();
 
             if (!$editBtn.length) {
                 return;
             }
 
-            this.$el.find('[data-action="delete"], [data-action="remove"]')
+            this.getDetailActionElements()
+                .find('[data-action="delete"], [data-action="remove"]')
                 .closest('.btn, .dropdown-item, li')
                 .hide();
 
@@ -500,11 +513,15 @@ define('custom:views/case/record/detail', [
             $editBtn.off('click.alcaldiaSave');
             this.setPrimaryActionButtonLabel($editBtn, this.translate('Edit', 'labels', 'Global'));
             this.setPrimaryActionButtonAction($editBtn, 'edit');
+
+            this.updateAsignacionPanelToolbar();
         },
 
         remove: function () {
             this.$el.off('click.alcaldiaAsignacion');
+            this.$el.off('click.alcaldiaPanelAsignacion');
             document.body.classList.remove('alcaldia-asignacion-detail-edit');
+            document.body.classList.remove('alcaldia-reasignacion-caso');
             Dep.prototype.remove.call(this);
         },
 

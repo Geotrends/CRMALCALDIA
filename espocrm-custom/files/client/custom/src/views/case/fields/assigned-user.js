@@ -27,7 +27,7 @@ define('custom:views/case/fields/assigned-user', [
             return false;
         }
 
-        if (recordView._asignacionEditMode) {
+        if (recordView._asignacionEditMode || recordView._asignarMode) {
             return true;
         }
 
@@ -66,11 +66,44 @@ define('custom:views/case/fields/assigned-user', [
         },
 
         isReadOnly: function () {
+            const user = this.getUser();
+
+            if (RadicacionFields.isAsignadorUser(user) && RadicacionFields.isCaseRadicado(this.model)) {
+                if (this.mode === 'edit') {
+                    return false;
+                }
+
+                if (
+                    document.body.classList.contains('alcaldia-asignador-asignar-page')
+                    || document.body.classList.contains('alcaldia-asignacion-detail-edit')
+                ) {
+                    return false;
+                }
+            }
+
             if (isAssignmentEditing(this.getRecordView())) {
                 return false;
             }
 
             return Dep.prototype.isReadOnly.call(this);
+        },
+
+        setReadOnly: function () {
+            if (
+                RadicacionFields.isAsignadorUser(this.getUser())
+                && RadicacionFields.isCaseRadicado(this.model)
+                && (this.mode === 'edit' || isAssignmentEditing(this.getRecordView()))
+            ) {
+                this.readOnly = false;
+
+                if (typeof this.setNotReadOnly === 'function') {
+                    this.setNotReadOnly();
+                }
+
+                return;
+            }
+
+            Dep.prototype.setReadOnly.apply(this, arguments);
         },
 
         showSelectControls: function () {
@@ -100,24 +133,67 @@ define('custom:views/case/fields/assigned-user', [
                 return;
             }
 
-            if (this.mode === 'edit' && this.showSelectControls()) {
+            this.readOnly = false;
+
+            if (typeof this.setNotReadOnly === 'function') {
+                this.setNotReadOnly();
+            }
+
+            if (this.mode !== 'edit' && typeof this.setMode === 'function') {
+                this.setMode('edit');
+            }
+
+            if (typeof this.render === 'function') {
+                this.render();
+            }
+
+            if (this.showSelectControls()) {
                 return;
             }
 
-            if (this.mode === 'detail' && this.showSelectControls()) {
-                return;
-            }
+            if (recordView && typeof recordView.createFieldView === 'function') {
+                const $cell = this.$el.closest('.cell, .field');
 
-            if (recordView && typeof recordView.remountAssignedUserForEdit === 'function') {
-                recordView.remountAssignedUserForEdit();
+                if ($cell.length) {
+                    const cellId = 'alcaldia-assigned-user-remount-' + (this.model.id || this.cid);
+                    $cell.attr('id', cellId).empty();
+
+                    const self = this;
+                    recordView.createFieldView('assignedUser', null, '#' + cellId, {
+                        mode: 'edit',
+                        readOnly: false,
+                    }, function (view) {
+                        if (!view) {
+                            return;
+                        }
+
+                        view.readOnly = false;
+                        view.render();
+
+                        if (typeof view.showSelectControls === 'function') {
+                            view.showSelectControls();
+                        }
+                    });
+                }
             }
         },
 
         afterRender: function () {
             Dep.prototype.afterRender.call(this);
 
-            if (isAssignmentEditing(this.getRecordView())) {
-                this.showSelectControls();
+            const self = this;
+
+            if (isAssignmentEditing(this.getRecordView())
+                || (RadicacionFields.isAsignadorUser(this.getUser())
+                    && this.mode === 'edit'
+                    && RadicacionFields.isCaseRadicado(this.model))) {
+                this.enableAssignmentSelect();
+
+                [150, 500, 1200].forEach(function (delay) {
+                    window.setTimeout(function () {
+                        self.enableAssignmentSelect();
+                    }, delay);
+                });
             }
 
             if (this.isEditMode() && this.model.isNew()) {

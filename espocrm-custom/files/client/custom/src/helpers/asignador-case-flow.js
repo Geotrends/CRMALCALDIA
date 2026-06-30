@@ -61,8 +61,18 @@ define('custom:helpers/asignador-case-flow', [
 
             const fieldView = recordView.getFieldView(field);
 
-            if (fieldView && typeof fieldView.setReadOnly === 'function') {
-                fieldView.setReadOnly(false);
+            if (!fieldView) {
+                return;
+            }
+
+            fieldView.readOnly = false;
+
+            if (typeof fieldView.setNotReadOnly === 'function') {
+                fieldView.setNotReadOnly();
+            }
+
+            if (field === 'assignedUser' && typeof fieldView.enableAssignmentSelect === 'function') {
+                fieldView.enableAssignmentSelect();
             }
         });
     };
