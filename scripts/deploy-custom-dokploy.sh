@@ -29,6 +29,22 @@ require_path() {
   fi
 }
 
+require_admin_credentials() {
+  if [ -z "${ESPOCRM_ADMIN_PASSWORD:-}" ]; then
+    echo "ERROR: ESPOCRM_ADMIN_PASSWORD vacía."
+    echo "En Dokploy → Environment define:"
+    echo "  ESPOCRM_ADMIN_USERNAME=admin"
+    echo "  ESPOCRM_ADMIN_PASSWORD=<tu_contraseña>"
+    exit 1
+  fi
+
+  if [ -z "${ESPOCRM_ADMIN_USERNAME:-}" ]; then
+    export ESPOCRM_ADMIN_USERNAME=admin
+  fi
+
+  echo "Admin deploy: usuario=${ESPOCRM_ADMIN_USERNAME}"
+}
+
 run_php_script() {
   local script_name="$1"
   local script_path="$SCRIPTS_SOURCE/$script_name"
@@ -83,6 +99,7 @@ generate_pdf_if_missing() {
 
 require_path "$CUSTOM_SOURCE" "espocrm-custom"
 require_path "$SCRIPTS_SOURCE" "scripts"
+require_admin_credentials
 
 mkdir -p "$APP_ROOT/data"
 write_admin_credentials_file

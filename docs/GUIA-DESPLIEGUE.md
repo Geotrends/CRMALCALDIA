@@ -115,12 +115,23 @@ Si aparece **API 403** en el tablero, el usuario no tiene rol asignado o no cerr
 
 Si ves **`404 page not found`** en texto plano (sin pantalla de EspoCRM), el proxy no llega al contenedor o Apache no arrancó.
 
-**1. Variables en Dokploy → Environment**
+**1. Variables en Dokploy → Environment** (obligatorias para login admin)
 
 | Variable | Valor ejemplo |
 |----------|----------------|
+| `POSTGRES_DB` | `espocrm` |
+| `POSTGRES_USER` | `espocrm` |
+| `POSTGRES_PASSWORD` | *(contraseña segura)* |
+| `ESPOCRM_ADMIN_USERNAME` | `admin` |
+| `ESPOCRM_ADMIN_PASSWORD` | *(contraseña del login CRM)* |
 | `ESPOCRM_SITE_URL` | `https://crm.deploy.geotrends.co` |
-| `POSTGRES_*` | Igual que en tu `.env` |
+| `ESPOCRM_TIME_ZONE` | `America/Bogota` |
+
+Plantilla completa: `backups/despliegue-inicial/env.txt` o `.env.example`.
+
+Sin `ESPOCRM_ADMIN_PASSWORD` el deploy **falla** a propósito: el script no puede crear el usuario admin.
+
+Tras cada **rebuild + redeploy** el pipeline ejecuta `ensure-admin-login.php` y deja el admin con esas credenciales.
 
 **2. Dominio en Dokploy**
 

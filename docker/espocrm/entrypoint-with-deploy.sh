@@ -87,6 +87,12 @@ ensure_admin_login() {
   fi
 
   echo "==> Verificando usuario admin (credenciales Dokploy)..."
+  if [ -z "${ESPOCRM_ADMIN_PASSWORD:-}" ] && [ -r /var/www/html/data/.alcaldia-admin-credentials.json ]; then
+    echo "Admin: usando credenciales guardadas en data/.alcaldia-admin-credentials.json"
+  elif [ -z "${ESPOCRM_ADMIN_PASSWORD:-}" ]; then
+    echo "AVISO: ESPOCRM_ADMIN_PASSWORD vacía — define la variable en Dokploy → Environment."
+    return 0
+  fi
   ESPOCRM_ADMIN_USERNAME="${ESPOCRM_ADMIN_USERNAME:-admin}" \
   ESPOCRM_ADMIN_PASSWORD="${ESPOCRM_ADMIN_PASSWORD:-}" \
   php "$script" || echo "AVISO: ensure-admin-login falló — revisa ESPOCRM_ADMIN_* en Dokploy."

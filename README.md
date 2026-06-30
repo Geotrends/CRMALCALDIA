@@ -51,3 +51,10 @@ Ambos flujos automáticos comparten el manifiesto en `scripts/includes/deploy-st
 El flujo por roles (Inspección, Radicación, Patrullero, Asignador) fue **eliminado** del código. El CRM opera en modo admin con permisos amplios hasta que se implemente el nuevo flujo desde cero.
 
 Tras desplegar, use el usuario administrador. El script `configure-alcaldia-no-roles-mode.php` aplica permisos amplios a todos los roles existentes.
+
+### Dokploy — checklist rápido
+
+1. **Environment:** copiar variables de `backups/despliegue-inicial/env.txt` (sobre todo `ESPOCRM_ADMIN_*` y `POSTGRES_*`).
+2. **Redeploy** con rebuild de la imagen (solo `docker-compose.yml`).
+3. Revisar logs de `espocrm-init`: debe decir `Dokploy custom deployment completed.`
+4. Login: usuario y contraseña de `ESPOCRM_ADMIN_USERNAME` / `ESPOCRM_ADMIN_PASSWORD`.
