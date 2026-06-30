@@ -11,8 +11,8 @@ use Espo\ORM\Entity;
 use Espo\ORM\Repository\Option\SaveOptions;
 
 /**
- * Valida peticionario/perjudicante solo cuando Inspección completa el caso.
- * Radicación no revalida esos campos al asignar número de radicado.
+ * Valida peticionario/perjudicante cuando Inspección edita la solicitud en casos radicados.
+ * Radicación y Asignación no revalidan esos campos al radicar o asignar patrullero.
  */
 class ValidatePersonaTipoOnSave implements BeforeSave
 {
@@ -34,7 +34,22 @@ class ValidatePersonaTipoOnSave implements BeforeSave
             return;
         }
 
-        if ($this->profile->isOperationalRadicacion($this->user) && !$this->user->isAdmin()) {
+        if ($this->user->isAdmin()) {
+            $this->validatePeticionario($entity);
+            $this->validatePerjudicante($entity);
+
+            return;
+        }
+
+        if ($this->profile->isOperationalRadicacion($this->user)) {
+            return;
+        }
+
+        if ($this->profile->resolveHomeProfile($this->user) === 'asignador') {
+            return;
+        }
+
+        if ($this->profile->isPatrullero($this->user)) {
             return;
         }
 
