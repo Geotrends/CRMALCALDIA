@@ -1,8 +1,11 @@
 {
     "kanbanViewMode": true,
     "defaultSidePanelDisabled": true,
-    "recordViews": {
-        "edit": "custom:views/task/record/edit"
+    "viewSetupHandlers": {
+        "record/edit": [
+            "__APPEND__",
+            "custom:handlers/task-default-assigned-user"
+        ]
     },
     "relationshipPanels": {
         "account": {
