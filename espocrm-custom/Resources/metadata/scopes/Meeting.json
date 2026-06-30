@@ -1,7 +1,0 @@
-{
-    "attendeeLinkMap": {
-        "Contact": "contacts",
-        "Account": "cuentasInvitadas",
-        "User": "users"
-    }
-}

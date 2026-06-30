@@ -105,15 +105,6 @@
       "type": "hasMany",
       "entity": "Case",
       "foreign": "cPerjudicanteCuenta"
-    },
-    "reunionesComoAsistente": {
-      "type": "hasMany",
-      "entity": "Meeting",
-      "foreign": "cuentasInvitadas",
-      "layoutRelationshipsDisabled": true,
-      "columnAttributeMap": {
-        "status": "acceptanceStatus"
-      }
     }
   }
 }

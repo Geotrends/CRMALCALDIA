@@ -12,10 +12,6 @@ define('custom:views/meeting/record/panels/attendees', [
             if (this.getAcl().check('Contact') && !this.getMetadata().get('scopes.Contact.disabled')) {
                 this.fieldList.push('contacts');
             }
-
-            if (this.getAcl().check('Account') && !this.getMetadata().get('scopes.Account.disabled')) {
-                this.fieldList.push('cuentasInvitadas');
-            }
         },
     });
 });

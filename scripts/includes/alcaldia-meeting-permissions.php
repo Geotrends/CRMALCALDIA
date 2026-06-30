@@ -33,7 +33,9 @@ function alcaldiaApplyMeetingPermissions(
         return;
     }
 
-    $fieldData['Meeting'] = [];
+    if (!isset($fieldData['Meeting']) || !is_array($fieldData['Meeting'])) {
+        $fieldData['Meeting'] = [];
+    }
 
     foreach ($fields as $field) {
         $fieldData['Meeting'][$field] = [

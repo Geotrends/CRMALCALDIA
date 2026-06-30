@@ -23,7 +23,7 @@ DEPLOY_SETUP_STEPS=(
   "Permisos ComunicacionCaso (todos los roles)|configure-comunicacion-caso-permissions.php"
   "Permisos Task — crear tareas (todos los roles)|configure-task-permissions.php"
   "Permisos Meeting — solo propias (todos los roles)|configure-meeting-permissions.php"
-  "Reuniones: tabla account_meeting (personas jurídicas)|migrate-meeting-account-attendees.php"
+  "Verificar creación de reuniones|verify-meeting-save.php"
   "Documentos: plantillas oficiales (solicitud, acta, actuo)|configure-document-plantillas.php"
   "Documentos: Excel oficial (excelAlcaldia.xlsx)|configure-excel-alcaldia-document.php"
 )

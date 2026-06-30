@@ -12,37 +12,6 @@
         "joinUrl": {
             "readOnly": false,
             "customizationReadOnlyDisabled": true
-        },
-        "cuentasInvitadas": {
-            "type": "linkMultiple",
-            "layoutDetailDisabled": true,
-            "layoutListDisabled": true,
-            "view": "crm:views/meeting/fields/attendees",
-            "columns": {
-                "status": "acceptanceStatus"
-            },
-            "additionalAttributeList": ["columns"],
-            "orderBy": "name",
-            "audited": true,
-            "duplicatorClassName": "Espo\\Modules\\Crm\\Classes\\FieldDuplicators\\Meeting\\Attendees"
-        }
-    },
-    "links": {
-        "cuentasInvitadas": {
-            "type": "hasMany",
-            "entity": "Account",
-            "foreign": "reunionesComoAsistente",
-            "relationName": "AccountMeeting",
-            "additionalColumns": {
-                "status": {
-                    "type": "varchar",
-                    "len": "36",
-                    "default": "None"
-                }
-            },
-            "columnAttributeMap": {
-                "status": "acceptanceStatus"
-            }
         }
     }
 }

@@ -9,8 +9,7 @@
         "assignedUser": "Usuario asignado",
         "joinUrl": "Enlace de la reunión",
         "users": "Usuarios invitados",
-        "contacts": "Personas naturales",
-        "cuentasInvitadas": "Personas jurídicas"
+        "contacts": "Personas naturales"
     },
     "options": {
         "status": {
@@ -27,7 +26,6 @@
     },
     "links": {
         "contacts": "Personas naturales",
-        "cuentasInvitadas": "Personas jurídicas",
         "users": "Usuarios invitados"
     }
 }

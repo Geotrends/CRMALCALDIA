@@ -5,12 +5,6 @@
         },
         "leads": {
             "disabled": true
-        },
-        "accounts": {
-            "disabled": true
-        },
-        "cuentasInvitadas": {
-            "disabled": true
         }
     },
     "sidePanels": {
