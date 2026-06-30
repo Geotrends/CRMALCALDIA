@@ -240,25 +240,28 @@ body.alcaldia-asignador-asignar-page .edit[data-scope="Case"] .asignacion-assign
 }
 
 body.alcaldia-asignador-asignar-page .edit[data-scope="Case"] .cell[data-name="assignedUser"],
-body.alcaldia-asignador-asignar-page .edit[data-scope="Case"] .cell[data-name="cMotivoReasignacion"] {
-  pointer-events: auto !important;
-  opacity: 1 !important;
-}
-
-body.alcaldia-asignador-asignar-page .edit[data-scope="Case"] .cell[data-name="assignedUser"],
 body.alcaldia-asignador-asignar-page .edit[data-scope="Case"] .field[data-name="assignedUser"] {
   display: block !important;
   visibility: visible !important;
 }
 
-body.alcaldia-asignador-asignar-page .edit[data-scope="Case"] .cell[data-name="assignedUser"],
 body.alcaldia-asignador-asignar-page .edit[data-scope="Case"] .cell[data-name="cMotivoReasignacion"] {
+  display: none !important;
+}
+
+body.alcaldia-asignador-asignar-page.alcaldia-reasignacion-caso .edit[data-scope="Case"] .cell[data-name="cMotivoReasignacion"] {
+  display: block !important;
+  visibility: visible !important;
+}
+
+body.alcaldia-asignador-asignar-page .edit[data-scope="Case"] .cell[data-name="assignedUser"],
+body.alcaldia-asignador-asignar-page.alcaldia-reasignacion-caso .edit[data-scope="Case"] .cell[data-name="cMotivoReasignacion"] {
   pointer-events: auto !important;
   opacity: 1 !important;
 }
 
 body.alcaldia-asignador-asignar-page .edit[data-scope="Case"] .cell[data-name="assignedUser"] *,
-body.alcaldia-asignador-asignar-page .edit[data-scope="Case"] .cell[data-name="cMotivoReasignacion"] * {
+body.alcaldia-asignador-asignar-page.alcaldia-reasignacion-caso .edit[data-scope="Case"] .cell[data-name="cMotivoReasignacion"] * {
   pointer-events: auto !important;
 }
 

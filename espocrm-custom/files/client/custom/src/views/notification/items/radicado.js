@@ -5,23 +5,22 @@ define('custom:views/notification/items/radicado', [
 
     return Dep.extend({
 
-        templateContent:
-            '<div class="stream-head-container">' +
-                '<div class="pull-left">{{{avatar}}}</div>' +
-                '<div class="stream-head-text-container">' +
-                    '<span class="{{style}} message">{{{message}}}</span>' +
-                '</div>' +
-            '</div>' +
-            '<div class="stream-date-container">' +
-                '<span class="text-muted small">{{{createdAt}}}</span>' +
-            '</div>',
+        template: 'custom:notification/items/radicado',
 
         setup: function () {
-            Dep.prototype.setup.call(this);
+            let built = {
+                message: '',
+                style: 'text-muted',
+                userId: null,
+            };
 
-            const built = AlcaldiaNotificationMessage.buildFromNotificationModel(this.model);
+            try {
+                built = AlcaldiaNotificationMessage.buildFromNotificationModel(this.model) || built;
+            } catch (e) {
+                built.message = String(this.model.get('message') || '');
+            }
 
-            this.message = built.message || '';
+            this.message = built.message || String(this.model.get('message') || '');
             this.style = built.style || 'text-muted';
             this.userId = built.userId || this.model.get('createdById') || null;
         },

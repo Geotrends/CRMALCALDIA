@@ -104,6 +104,14 @@ check_file "Vista notificaciones custom" \
   "$CUSTOM/Resources/metadata/clientDefs/Notification.json" \
   "custom:views/notification/items/radicado" || errors=$((errors + 1))
 
+check_file "Container notificaciones custom" \
+  "$CLIENT/src/views/notification/fields/container.js" \
+  "custom:views/notification/items/radicado" || errors=$((errors + 1))
+
+check_file "Hook estado Asignado" \
+  "$CUSTOM/Hooks/CaseObj/SetAsignadoOnPatrulleroAssignment.php" \
+  "STATUS_ASIGNADO" || errors=$((errors + 1))
+
 check_file "Validacion persona solo tras radicado" \
   "$CUSTOM/Hooks/CaseObj/ValidatePersonaTipoOnSave.php" \
   "isRadicadoCompleto" || errors=$((errors + 1))
