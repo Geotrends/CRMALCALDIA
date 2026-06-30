@@ -2,9 +2,8 @@ define('custom:views/case/fields/acta-visita-action', [
     'views/fields/base',
     'custom:helpers/patrullero-acta',
     'custom:helpers/radicacion-fields',
-    'custom:helpers/acta-visita-modal',
     'custom:helpers/acta-visita-case-status',
-], function (Dep, PatrulleroActa, RadicacionFields, ActaVisitaModal, ActaVisitaCaseStatus) {
+], function (Dep, PatrulleroActa, RadicacionFields, ActaVisitaCaseStatus) {
 
     return Dep.extend({
 
@@ -25,8 +24,6 @@ define('custom:views/case/fields/acta-visita-action', [
             this.listenTo(this.model, 'change:status change:assignedUserId change:cNumeroRadicado change:cExpediente sync', function () {
                 this.loadActaState();
             });
-
-            this.loadActaState();
         },
 
         data: function () {
@@ -58,6 +55,7 @@ define('custom:views/case/fields/acta-visita-action', [
         afterRender: function () {
             Dep.prototype.afterRender.call(this);
             this.bindButtons();
+            this.loadActaState();
         },
 
         setReadOnly: function () {
@@ -95,47 +93,57 @@ define('custom:views/case/fields/acta-visita-action', [
             RadicacionFields.ensureProfile(user);
 
             RadicacionFields.onProfileReady(function () {
-                if (RadicacionFields.resolveHomeProfile(user) === 'radicacion'
-                    && !RadicacionFields.isAdminUser(user)) {
-                    self.actaIsEditMode = false;
-                    self.showButton = false;
-                    self.showPrintManual = false;
-                    self.showPrintDigital = false;
-                    self.updatePanelVisibility(false);
-                    self.reRenderIfNeeded();
-
-                    return;
-                }
-
-                ActaVisitaCaseStatus.fetchActaForCase(self.model.id, user, self.model, {bypassCache: true})
-                    .then(function (acta) {
-                        const canUse = PatrulleroActa.canUseActaVisitaTools(user, self.model);
-
-                        self.actaIsEditMode = ActaVisitaCaseStatus.isActaDiligenciada(acta);
-                        self.showButton = canUse;
-                        self.showPrintManual = canUse;
-                        self.showPrintDigital = PatrulleroActa.canPrintDigitalActa(user, self.model, acta);
-                        self.updatePanelVisibility(canUse);
-                        self.reRenderIfNeeded();
-                    })
-                    .catch(function () {
+                try {
+                    if (RadicacionFields.resolveHomeProfile(user) === 'radicacion'
+                        && !RadicacionFields.isAdminUser(user)) {
                         self.actaIsEditMode = false;
                         self.showButton = false;
                         self.showPrintManual = false;
                         self.showPrintDigital = false;
                         self.updatePanelVisibility(false);
-                    });
+                        self.reRenderIfNeeded();
+
+                        return;
+                    }
+
+                    ActaVisitaCaseStatus.fetchActaForCase(self.model.id, user, self.model, {bypassCache: true})
+                        .then(function (acta) {
+                            const canUse = PatrulleroActa.canUseActaVisitaTools(user, self.model);
+
+                            self.actaIsEditMode = ActaVisitaCaseStatus.isActaDiligenciada(acta);
+                            self.showButton = canUse;
+                            self.showPrintManual = canUse;
+                            self.showPrintDigital = PatrulleroActa.canPrintDigitalActa(user, self.model, acta);
+                            self.updatePanelVisibility(canUse);
+                            self.reRenderIfNeeded();
+                        })
+                        .catch(function () {
+                            self.actaIsEditMode = false;
+                            self.showButton = false;
+                            self.showPrintManual = false;
+                            self.showPrintDigital = false;
+                            self.updatePanelVisibility(false);
+                        });
+                } catch (error) {
+                    console.error(error);
+                }
             });
         },
 
         reRenderIfNeeded: function () {
-            if (this.isRendered()) {
-                this.reRender();
-                this.bindButtons();
+            if (!this.isRendered || !this.isRendered()) {
+                return;
             }
+
+            this.reRender();
+            this.bindButtons();
         },
 
         updatePanelVisibility: function (show) {
+            if (!this.$el || !this.$el.length) {
+                return;
+            }
+
             this.$el.closest(
                 '.panel[data-name="actaVisita"], ' +
                 '.record-panel[data-name="actaVisita"], ' +
@@ -144,6 +152,10 @@ define('custom:views/case/fields/acta-visita-action', [
         },
 
         bindButtons: function () {
+            if (!this.$el || !this.$el.length) {
+                return;
+            }
+
             const self = this;
 
             this.$el.find('[data-action="llenarActa"]').off('click.acta');
@@ -154,12 +166,14 @@ define('custom:views/case/fields/acta-visita-action', [
                 e.preventDefault();
                 e.stopPropagation();
 
-                ActaVisitaModal.open(self, self.model, self.getUser(), {
-                    modoDiligenciamiento: 'Digital',
-                    onAfterSave: function () {
-                        self.loadActaState();
-                        self.model.fetch();
-                    },
+                Espo.loader.require('custom:helpers/acta-visita-modal', function (ActaVisitaModal) {
+                    ActaVisitaModal.open(self, self.model, self.getUser(), {
+                        modoDiligenciamiento: 'Digital',
+                        onAfterSave: function () {
+                            self.loadActaState();
+                            self.model.fetch();
+                        },
+                    });
                 });
             });
 

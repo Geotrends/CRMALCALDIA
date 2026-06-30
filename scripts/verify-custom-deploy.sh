@@ -120,6 +120,10 @@ check_file "Modal acta visita" \
   "$CLIENT/src/helpers/acta-visita-modal.js" \
   "ActaVisita" || errors=$((errors + 1))
 
+check_file "Helper acta-visita-from-case" \
+  "$CLIENT/src/helpers/acta-visita-from-case.js" \
+  "buildDefaultsFromCase" || errors=$((errors + 1))
+
 check_file "Validacion persona solo tras radicado" \
   "$CUSTOM/Hooks/CaseObj/ValidatePersonaTipoOnSave.php" \
   "isRadicadoCompleto" || errors=$((errors + 1))
