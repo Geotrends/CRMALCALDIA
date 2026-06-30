@@ -58,6 +58,24 @@ check_file "Helper radicacion-fields" \
   "$CLIENT/src/helpers/radicacion-fields.js" \
   "isInspeccionUser" || errors=$((errors + 1))
 
+if head -c 2 "$CLIENT/src/helpers/radicacion-fields.js" 2>/dev/null | od -An -tx1 | grep -q "ff fe"; then
+  echo "FALTA: radicacion-fields.js está en UTF-16 (debe ser UTF-8)"
+  errors=$((errors + 1))
+else
+  echo "OK: radicacion-fields.js codificación UTF-8"
+fi
+
+check_file "numero-radicado sin sintaxis rota" \
+  "$CLIENT/src/views/case/fields/numero-radicado.js" \
+  "change:cExpediente" || errors=$((errors + 1))
+
+if grep -q $'        },\n\n            this.listenTo' "$CLIENT/src/views/case/fields/numero-radicado.js" 2>/dev/null; then
+  echo "FALTA: numero-radicado.js tiene listenTo huérfano (SyntaxError en cliente)"
+  errors=$((errors + 1))
+else
+  echo "OK: numero-radicado.js sin listenTo huérfano"
+fi
+
 check_file "Helper inspeccion-case-flow" \
   "$CLIENT/src/helpers/inspeccion-case-flow.js" \
   "hideAsignacionPanel" || errors=$((errors + 1))

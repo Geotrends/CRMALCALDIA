@@ -25,6 +25,12 @@ define('custom:views/case/fields/numero-radicado', [
                 this.syncSiglasFromRecurso();
                 this.refreshPreview();
             });
+
+            this.listenTo(this.model, 'change:cExpediente', function () {
+                if (this.isRendered()) {
+                    this.reRender();
+                }
+            });
         },
 
         syncSiglasFromRecurso: function () {
@@ -52,13 +58,6 @@ define('custom:views/case/fields/numero-radicado', [
             }
 
             return siglas;
-        },
-
-            this.listenTo(this.model, 'change:cExpediente', function () {
-                if (this.isRendered()) {
-                    this.reRender();
-                }
-            });
         },
 
         useAssistant: function () {
