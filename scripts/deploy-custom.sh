@@ -7,19 +7,13 @@ if [ -f /var/www/html/command.php ] && ! command -v docker >/dev/null 2>&1; then
   exec bash "$ROOT/scripts/deploy-custom-dokploy.sh"
 fi
 
-echo 'Copiando backend custom...'
+echo 'Copiando backend custom (sync limpio)...'
+docker exec espocrm bash -c 'find /var/www/html/custom/Espo/Custom -mindepth 1 -maxdepth 1 -exec rm -rf {} +'
 docker cp "$ROOT/espocrm-custom/." espocrm:/var/www/html/custom/Espo/Custom/
 
 echo 'Eliminando hooks y clases obsoletas (no presentes en el repo)...'
-docker exec espocrm rm -f \
-  /var/www/html/custom/Espo/Custom/Hooks/CaseObj/SyncCasePartyFullNamesOnSave.php \
-  /var/www/html/custom/Espo/Custom/Hooks/CaseObj/SyncLegacyCaseFieldsOnSave.php \
-  /var/www/html/custom/Espo/Custom/Hooks/CaseObj/ExportCaseSolicitudExcelOnSave.php \
-  /var/www/html/custom/Espo/Custom/Hooks/User/ApplyAlcaldiaLocaleDefaults.php \
-  /var/www/html/custom/Espo/Custom/Tools/CaseObj/LegacyCaseFieldMirror.php \
-  /var/www/html/custom/Espo/Custom/Tools/CaseObj/CrmRegistroExcelExporter.php \
-  /var/www/html/custom/Espo/Custom/files/scripts/upsert-crm-excel.py
-docker exec espocrm rmdir /var/www/html/custom/Espo/Custom/Hooks/User 2>/dev/null || true
+docker cp "$ROOT/scripts/includes/purge-obsolete-custom.sh" espocrm:/tmp/purge-obsolete-custom.sh
+docker exec espocrm bash -c 'source /tmp/purge-obsolete-custom.sh && purge_obsolete_custom /var/www/html/custom/Espo/Custom /var/www/html/client/custom'
 docker exec espocrm rm -f /var/www/html/data/exports/casos-solicitud.xlsx
 
 if [ -d "$ROOT/formatos" ]; then
@@ -43,27 +37,12 @@ if [ -d "$ROOT/formatos" ]; then
   done
 fi
 
-echo 'Copiando frontend client/custom...'
+echo 'Copiando frontend client/custom (sync limpio)...'
+docker exec espocrm bash -c 'find /var/www/html/client/custom -mindepth 1 -maxdepth 1 -exec rm -rf {} +'
 docker cp "$ROOT/espocrm-custom/files/client/custom/." espocrm:/var/www/html/client/custom/
 
 echo 'Eliminando JS obsoleto...'
-docker exec espocrm rm -f \
-  /var/www/html/client/custom/src/helpers/radicacion-edit-mode.js \
-  /var/www/html/client/custom/src/helpers/post-radicacion-fields.js \
-  /var/www/html/client/custom/src/helpers/asignador-edit-mode.js \
-  /var/www/html/client/custom/src/helpers/patrullero-edit-mode.js \
-  /var/www/html/client/custom/src/helpers/patrullero-acta.js \
-  /var/www/html/client/custom/src/helpers/inspeccion-edit-mode.js \
-  /var/www/html/client/custom/src/helpers/inspeccion-acta.js \
-  /var/www/html/client/custom/src/helpers/inspeccion-actuo-archivo.js \
-  /var/www/html/client/custom/src/helpers/inspeccion-registro-excel.js \
-  /var/www/html/client/custom/src/helpers/alcaldia-case-roles.js \
-  /var/www/html/client/custom/src/helpers/alcaldia-roles-config.js \
-  /var/www/html/client/custom/src/helpers/alcaldia-notification-message.js \
-  /var/www/html/client/custom/src/loader/alcaldia-profile-sync.js \
-  /var/www/html/client/custom/src/loader/case-radicacion-flow.js \
-  /var/www/html/client/custom/src/loader/case-asignacion-flow.js \
-  /var/www/html/client/custom/src/controllers/case.js
+docker exec espocrm bash -c 'source /tmp/purge-obsolete-custom.sh && purge_obsolete_custom /var/www/html/custom/Espo/Custom /var/www/html/client/custom'
 
 echo 'Verificando LibreOffice (generación de formatos)...'
 docker exec espocrm bash -c 'dpkg -s libreoffice-writer-nogui >/dev/null 2>&1 || (apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get install -y -qq libreoffice-writer-nogui python3-uno); dpkg -s libreoffice-calc-nogui >/dev/null 2>&1 || (apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get install -y -qq libreoffice-calc-nogui)'

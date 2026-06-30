@@ -73,6 +73,20 @@ else
   echo "OK: sin hook obsoleto User/ApplyAlcaldiaLocaleDefaults"
 fi
 
+if [ -f "$CUSTOM/Hooks/User/SyncTeamsFromRoles.php" ]; then
+  echo "FALTA: hook obsoleto SyncTeamsFromRoles.php aún en el servidor"
+  errors=$((errors + 1))
+else
+  echo "OK: sin hook obsoleto User/SyncTeamsFromRoles"
+fi
+
+if [ -f "$CUSTOM/Tools/User/TeamRoleSync.php" ]; then
+  echo "FALTA: TeamRoleSync.php obsoleto aún en el servidor"
+  errors=$((errors + 1))
+else
+  echo "OK: sin TeamRoleSync obsoleto"
+fi
+
 check_file "Hook notificación Inspección→Radicación" \
   "$CUSTOM/Hooks/CaseObj/NotifyRadicacionOnCaseCreated.php" \
   "isInspeccion" || errors=$((errors + 1))

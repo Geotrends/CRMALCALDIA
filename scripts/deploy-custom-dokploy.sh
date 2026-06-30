@@ -110,20 +110,15 @@ if ! run_php_script ensure-admin-login.php; then
   exit 1
 fi
 
-echo "Copying backend custom..."
+echo "Copying backend custom (sync limpio)..."
 mkdir -p "$CUSTOM_TARGET" "$CLIENT_TARGET" "$APP_ROOT/data"
-cp -R "$CUSTOM_SOURCE/." "$CUSTOM_TARGET/"
+find "$CUSTOM_TARGET" -mindepth 1 -maxdepth 1 -exec rm -rf {} +
 
-echo "Removing obsolete classes..."
-rm -f \
-  "$CUSTOM_TARGET/Hooks/CaseObj/SyncCasePartyFullNamesOnSave.php" \
-  "$CUSTOM_TARGET/Hooks/CaseObj/SyncLegacyCaseFieldsOnSave.php" \
-  "$CUSTOM_TARGET/Hooks/CaseObj/ExportCaseSolicitudExcelOnSave.php" \
-  "$CUSTOM_TARGET/Hooks/User/ApplyAlcaldiaLocaleDefaults.php" \
-  "$CUSTOM_TARGET/Tools/CaseObj/LegacyCaseFieldMirror.php" \
-  "$CUSTOM_TARGET/Tools/CaseObj/CrmRegistroExcelExporter.php" \
-  "$CUSTOM_TARGET/files/scripts/upsert-crm-excel.py"
-rmdir "$CUSTOM_TARGET/Hooks/User" 2>/dev/null || true
+# shellcheck source=includes/purge-obsolete-custom.sh
+source "$SCRIPTS_SOURCE/includes/purge-obsolete-custom.sh"
+
+cp -R "$CUSTOM_SOURCE/." "$CUSTOM_TARGET/"
+purge_obsolete_custom "$CUSTOM_TARGET" ""
 rm -f "$APP_ROOT/data/exports/casos-solicitud.xlsx"
 
 if [ -d "$FORMATOS_SOURCE" ]; then
@@ -141,28 +136,11 @@ if [ -d "$FORMATOS_SOURCE" ]; then
   [ -f "$FORMATOS_SOURCE/ActuoArchivo.docx" ] && cp "$FORMATOS_SOURCE/ActuoArchivo.docx" "$TEMPLATES_TARGET/ActuoArchivo.docx"
 fi
 
-echo "Copying frontend client/custom..."
+echo "Copying frontend client/custom (sync limpio)..."
 require_path "$CLIENT_SOURCE" "client custom source"
+find "$CLIENT_TARGET" -mindepth 1 -maxdepth 1 -exec rm -rf {} +
 cp -R "$CLIENT_SOURCE/." "$CLIENT_TARGET/"
-
-echo "Removing obsolete client JS..."
-rm -f \
-  "$CLIENT_TARGET/src/helpers/radicacion-edit-mode.js" \
-  "$CLIENT_TARGET/src/helpers/post-radicacion-fields.js" \
-  "$CLIENT_TARGET/src/helpers/asignador-edit-mode.js" \
-  "$CLIENT_TARGET/src/helpers/patrullero-edit-mode.js" \
-  "$CLIENT_TARGET/src/helpers/patrullero-acta.js" \
-  "$CLIENT_TARGET/src/helpers/inspeccion-acta.js" \
-  "$CLIENT_TARGET/src/helpers/inspeccion-actuo-archivo.js" \
-  "$CLIENT_TARGET/src/helpers/inspeccion-registro-excel.js" \
-  "$CLIENT_TARGET/src/helpers/inspeccion-edit-mode.js" \
-  "$CLIENT_TARGET/src/helpers/alcaldia-case-roles.js" \
-  "$CLIENT_TARGET/src/helpers/alcaldia-roles-config.js" \
-  "$CLIENT_TARGET/src/helpers/alcaldia-notification-message.js" \
-  "$CLIENT_TARGET/src/loader/alcaldia-profile-sync.js" \
-  "$CLIENT_TARGET/src/loader/case-radicacion-flow.js" \
-  "$CLIENT_TARGET/src/loader/case-asignacion-flow.js" \
-  "$CLIENT_TARGET/src/controllers/case.js"
+purge_obsolete_custom "" "$CLIENT_TARGET"
 
 if [ -f "$EXCEL_SOURCE" ]; then
   echo "Copying exports/excelAlcaldia.xlsx..."
