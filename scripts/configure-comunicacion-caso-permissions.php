@@ -19,8 +19,6 @@ $em = $app->getContainer()->getByClass(EntityManager::class);
 /** @var Metadata $metadata */
 $metadata = $app->getContainer()->getByClass(Metadata::class);
 
-$patrullajeNames = ['Patrullaje', 'Patrullero'];
-
 foreach ($em->getRDBRepository('Role')->find() as $role) {
     $name = (string) $role->get('name');
 
@@ -48,18 +46,14 @@ foreach ($em->getRDBRepository('Role')->find() as $role) {
         $fieldData = [];
     }
 
-    $isPatrullaje = in_array($name, $patrullajeNames, true);
-    $read = $isPatrullaje ? 'team' : 'all';
-    $edit = $isPatrullaje ? 'team' : 'all';
-
-    alcaldiaApplyComunicacionCasoPermissions($metadata, $data, $fieldData, $read, $edit);
+    alcaldiaApplyComunicacionCasoPermissions($metadata, $data, $fieldData);
 
     $role->set('data', $data);
     $role->set('fieldData', $fieldData);
 
     $em->saveEntity($role);
 
-    echo "Rol {$name}: ComunicacionCaso crear/editar (lectura {$read})." . PHP_EOL;
+    echo "Rol {$name}: ComunicacionCaso crear/editar (solo propias)." . PHP_EOL;
 }
 
 echo 'Permisos de comunicaciones aplicados. Cerrar sesión y volver a entrar.' . PHP_EOL;

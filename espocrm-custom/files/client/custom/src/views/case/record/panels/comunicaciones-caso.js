@@ -39,16 +39,24 @@ define('custom:views/case/record/panels/comunicaciones-caso', [
             }
 
             var self = this;
+            var userId = this.getUser().id;
 
             this.getCollectionFactory().create('ComunicacionCaso', function (collection) {
                 collection.maxSize = 50;
                 collection.orderBy = 'fecha';
                 collection.order = 'desc';
-                collection.where = [{
-                    type: 'equals',
-                    attribute: 'caseId',
-                    value: self.model.id,
-                }];
+                collection.where = [
+                    {
+                        type: 'equals',
+                        attribute: 'caseId',
+                        value: self.model.id,
+                    },
+                    {
+                        type: 'equals',
+                        attribute: 'createdById',
+                        value: userId,
+                    },
+                ];
 
                 collection.fetch()
                     .then(function () {

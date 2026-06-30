@@ -98,7 +98,7 @@ if ($actaFields !== []) {
     }
 }
 
-alcaldiaApplyComunicacionCasoPermissions($metadata, $data, $fieldData, 'team', 'team');
+alcaldiaApplyComunicacionCasoPermissions($metadata, $data, $fieldData);
 alcaldiaApplyTaskPermissions($metadata, $data, $fieldData);
 
 $role->set('data', $data);

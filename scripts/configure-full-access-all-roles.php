@@ -67,6 +67,18 @@ $scopes = [
 ];
 
 $fullScope = static function (string $scope = ''): array {
+    $ownActivityScopes = ['Task', 'Meeting', 'ComunicacionCaso'];
+
+    if (in_array($scope, $ownActivityScopes, true)) {
+        return [
+            'create' => 'yes',
+            'read' => 'own',
+            'edit' => 'own',
+            'delete' => 'no',
+            'stream' => 'no',
+        ];
+    }
+
     $perms = [
         'create' => 'yes',
         'read' => 'all',

@@ -1,0 +1,5 @@
+{
+    "accessControlFilterClassNameMap": {
+        "mandatory": "Espo\\Custom\\Classes\\Select\\ComunicacionCaso\\AccessControlFilters\\Mandatory"
+    }
+}

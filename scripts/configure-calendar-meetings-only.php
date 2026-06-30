@@ -38,9 +38,17 @@ foreach ($em->getRDBRepository('Role')->find() as $role) {
         $data['Task'] = [];
     }
 
-    $data['Task']['read'] = $data['Task']['read'] ?? 'all';
+    $data['Task']['read'] = $data['Task']['read'] ?? 'own';
     $data['Task']['create'] = $data['Task']['create'] ?? 'yes';
-    $data['Task']['edit'] = $data['Task']['edit'] ?? 'all';
+    $data['Task']['edit'] = $data['Task']['edit'] ?? 'own';
+
+    if (!isset($data['Meeting']) || !is_array($data['Meeting'])) {
+        $data['Meeting'] = [];
+    }
+
+    $data['Meeting']['read'] = $data['Meeting']['read'] ?? 'own';
+    $data['Meeting']['create'] = $data['Meeting']['create'] ?? 'yes';
+    $data['Meeting']['edit'] = $data['Meeting']['edit'] ?? 'own';
 
     $role->set('data', $data);
     $em->saveEntity($role);

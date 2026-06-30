@@ -22,6 +22,7 @@ DEPLOY_SETUP_STEPS=(
   "Rol Patrullaje — acta de visita y casos asignados|roles/configure-role-patrullaje.php"
   "Permisos ComunicacionCaso (todos los roles)|configure-comunicacion-caso-permissions.php"
   "Permisos Task — crear tareas (todos los roles)|configure-task-permissions.php"
+  "Permisos Meeting — solo propias (todos los roles)|configure-meeting-permissions.php"
   "Documentos: plantillas oficiales (solicitud, acta, actuo)|configure-document-plantillas.php"
   "Documentos: Excel oficial (excelAlcaldia.xlsx)|configure-excel-alcaldia-document.php"
 )

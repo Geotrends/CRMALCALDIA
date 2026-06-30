@@ -12,8 +12,8 @@ function alcaldiaApplyTaskPermissions(
     Metadata $metadata,
     array &$data,
     array &$fieldData,
-    string $read = 'all',
-    string $edit = 'all'
+    string $read = 'own',
+    string $edit = 'own'
 ): void {
     if (!$metadata->get(['scopes', 'Task', 'entity'])) {
         return;

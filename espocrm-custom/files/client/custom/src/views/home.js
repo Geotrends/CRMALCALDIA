@@ -660,11 +660,9 @@ define('custom:views/home', ['views/dashboard'], function (Dep) {
                 collection.orderBy = 'dateStart';
                 collection.order = 'desc';
                 collection.where = [{
-                    type: 'or',
-                    value: [
-                        {type: 'equals', attribute: 'assignedUserId', value: userId},
-                        {type: 'linkedWith', attribute: 'users', value: userId},
-                    ],
+                    type: 'equals',
+                    attribute: 'createdById',
+                    value: userId,
                 }];
 
                 collection.fetch({main: true})
@@ -693,7 +691,7 @@ define('custom:views/home', ['views/dashboard'], function (Dep) {
                 collection.order = 'desc';
                 collection.where = [{
                     type: 'equals',
-                    attribute: 'assignedUserId',
+                    attribute: 'createdById',
                     value: userId,
                 }];
 
@@ -712,6 +710,7 @@ define('custom:views/home', ['views/dashboard'], function (Dep) {
             this._pageState.comunicaciones = page;
 
             var $container = this.$el.find('[data-agenda-list="comunicaciones"]');
+            var userId = this.getUser().id;
 
             $container.html('<p class="text-muted">Cargando comunicaciones…</p>');
 
@@ -720,6 +719,11 @@ define('custom:views/home', ['views/dashboard'], function (Dep) {
                 collection.offset = (page - 1) * PAGE_SIZE;
                 collection.orderBy = 'fecha';
                 collection.order = 'desc';
+                collection.where = [{
+                    type: 'equals',
+                    attribute: 'createdById',
+                    value: userId,
+                }];
 
                 collection.fetch({main: true})
                     .then(function () {

@@ -1,13 +1,13 @@
 <?php
 
-namespace Espo\Custom\Classes\Select\Task\AccessControlFilters;
+namespace Espo\Custom\Classes\Select\ComunicacionCaso\AccessControlFilters;
 
 use Espo\Core\Select\AccessControl\Filter;
 use Espo\Entities\User;
 use Espo\ORM\Query\SelectBuilder as QueryBuilder;
 
 /**
- * Solo tareas creadas por el usuario autenticado.
+ * Solo comunicaciones registradas por el usuario autenticado.
  */
 class Mandatory implements Filter
 {

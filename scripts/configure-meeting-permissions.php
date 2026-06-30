@@ -1,11 +1,11 @@
 <?php
 
 /**
- * Asegura permisos de creación/edición en Task para todos los roles.
+ * Asegura permisos de creación/edición en Meeting (solo propias) para todos los roles.
  */
 
 require_once '/var/www/html/bootstrap.php';
-require_once __DIR__ . '/includes/alcaldia-task-permissions.php';
+require_once __DIR__ . '/includes/alcaldia-meeting-permissions.php';
 
 use Espo\Core\Application;
 use Espo\Core\Utils\Metadata;
@@ -46,14 +46,14 @@ foreach ($em->getRDBRepository('Role')->find() as $role) {
         $fieldData = [];
     }
 
-    alcaldiaApplyTaskPermissions($metadata, $data, $fieldData);
+    alcaldiaApplyMeetingPermissions($metadata, $data, $fieldData);
 
     $role->set('data', $data);
     $role->set('fieldData', $fieldData);
 
     $em->saveEntity($role);
 
-    echo "Rol {$name}: Task crear/editar (solo propias)." . PHP_EOL;
+    echo "Rol {$name}: Meeting crear/editar (solo propias)." . PHP_EOL;
 }
 
-echo 'Permisos de tareas aplicados. Cerrar sesión y volver a entrar.' . PHP_EOL;
+echo 'Permisos de reuniones aplicados. Cerrar sesión y volver a entrar.' . PHP_EOL;

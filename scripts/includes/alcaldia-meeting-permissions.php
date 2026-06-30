@@ -3,23 +3,23 @@
 use Espo\Core\Utils\Metadata;
 
 /**
- * Permisos de ComunicacionCaso para todos los roles operativos.
+ * Permisos de Meeting para todos los roles operativos.
  *
  * @param array<string, mixed> $data
  * @param array<string, mixed> $fieldData
  */
-function alcaldiaApplyComunicacionCasoPermissions(
+function alcaldiaApplyMeetingPermissions(
     Metadata $metadata,
     array &$data,
     array &$fieldData,
     string $read = 'own',
     string $edit = 'own'
 ): void {
-    if (!$metadata->get(['scopes', 'ComunicacionCaso', 'entity'])) {
+    if (!$metadata->get(['scopes', 'Meeting', 'entity'])) {
         return;
     }
 
-    $data['ComunicacionCaso'] = [
+    $data['Meeting'] = [
         'create' => 'yes',
         'read' => $read,
         'edit' => $edit,
@@ -27,16 +27,16 @@ function alcaldiaApplyComunicacionCasoPermissions(
         'stream' => 'no',
     ];
 
-    $fields = array_keys($metadata->get(['entityDefs', 'ComunicacionCaso', 'fields']) ?? []);
+    $fields = array_keys($metadata->get(['entityDefs', 'Meeting', 'fields']) ?? []);
 
     if ($fields === []) {
         return;
     }
 
-    $fieldData['ComunicacionCaso'] = [];
+    $fieldData['Meeting'] = [];
 
     foreach ($fields as $field) {
-        $fieldData['ComunicacionCaso'][$field] = [
+        $fieldData['Meeting'][$field] = [
             'read' => 'yes',
             'edit' => 'yes',
         ];
