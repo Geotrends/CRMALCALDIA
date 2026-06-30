@@ -6,6 +6,7 @@ DEPLOY_SETUP_STEPS=(
   "Credenciales admin (Dokploy → archivo local)|write-admin-credentials.php"
   "Usuario administrador (desde .env)|ensure-admin-login.php"
   "Roles operativos (Inspección, Radicación, Asignación, Patrullaje)|seed-alcaldia-roles.php"
+  "Usuarios enrutamiento (Recibida por / Remitido a)|seed-gestion-routing-users.php"
   "Catálogos Excel Alcaldía (desplegables)|configure-excel-alcaldia-case-fields.php"
   "Placeholder en desplegables Case|configure-case-enum-placeholders.php"
   "Menú lateral (tabList global)|configure-global-tablist.php"

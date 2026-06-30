@@ -66,26 +66,25 @@ class CaseCreateDefaultsService
      */
     private function resolveUserLinkDefault(array $roleNames, array $userNames): ?array
     {
-        foreach ($roleNames as $roleName) {
-            $ids = $this->profile->findActiveUserIdsByRoleName($roleName);
-
-            if ($ids !== []) {
-                return $this->mapUserToLinkDefault($ids[0]);
-            }
-        }
-
         foreach ($userNames as $userName) {
             $user = $this->entityManager
                 ->getRDBRepositoryByClass(User::class)
                 ->where([
                     'userName' => $userName,
                     'isActive' => true,
-                    'type' => User::TYPE_REGULAR,
                 ])
                 ->findOne();
 
             if ($user) {
                 return $this->mapUserToLinkDefault($user->getId());
+            }
+        }
+
+        foreach ($roleNames as $roleName) {
+            $ids = $this->profile->findActiveUserIdsByRoleName($roleName);
+
+            if ($ids !== []) {
+                return $this->mapUserToLinkDefault($ids[0]);
             }
         }
 

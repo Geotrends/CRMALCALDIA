@@ -62,6 +62,76 @@ define('custom:helpers/case-create-form', [], function () {
 
     let cachedDefaults = null;
 
+    const fetchUserByUserName = function (userName) {
+        if (typeof Espo === 'undefined' || !Espo.Ajax) {
+            return Promise.resolve(null);
+        }
+
+        return Espo.Ajax.getRequest('User', {
+            select: ['id', 'name', 'userName'],
+            where: [{
+                type: 'equals',
+                attribute: 'userName',
+                value: userName,
+            }],
+            maxSize: 1,
+        }).then(function (response) {
+            const list = response.list || [];
+
+            return list.length ? list[0] : null;
+        }).catch(function () {
+            return null;
+        });
+    };
+
+    const applyGestionLinkDefaults = function (recordView) {
+        if (!recordView || !recordView.model || !recordView.model.isNew()) {
+            return Promise.resolve();
+        }
+
+        const tasks = [];
+
+        if (!recordView.model.get('cRecibidaPorId')) {
+            tasks.push(
+                fetchUserByUserName('inspeccion').then(function (user) {
+                    if (!user || recordView.model.get('cRecibidaPorId')) {
+                        return;
+                    }
+
+                    recordView.model.set({
+                        cRecibidaPorId: user.id,
+                        cRecibidaPorName: user.name || 'Inspección',
+                    }, {silent: true});
+                })
+            );
+        }
+
+        if (!recordView.model.get('cRemitidoAId')) {
+            tasks.push(
+                fetchUserByUserName('radicacion').then(function (user) {
+                    if (!user || recordView.model.get('cRemitidoAId')) {
+                        return;
+                    }
+
+                    recordView.model.set({
+                        cRemitidoAId: user.id,
+                        cRemitidoAName: user.name || 'Radicación',
+                    }, {silent: true});
+                })
+            );
+        }
+
+        return Promise.all(tasks).then(function () {
+            DEFAULT_LINK_FIELDS.forEach(function (field) {
+                const fieldView = recordView.getFieldView(field);
+
+                if (fieldView && fieldView.isRendered && fieldView.isRendered()) {
+                    fieldView.reRender();
+                }
+            });
+        });
+    };
+
     const applyServerDefaults = function (recordView, data) {
         if (!recordView || !recordView.model || !data) {
             return;
@@ -102,7 +172,10 @@ define('custom:helpers/case-create-form', [], function () {
                 cachedDefaults = data || null;
                 applyServerDefaults(recordView, data);
             })
-            .catch(function () {});
+            .catch(function () {})
+            .then(function () {
+                return applyGestionLinkDefaults(recordView);
+            });
     };
 
     const applyCachedDefaults = function (recordView) {
@@ -121,6 +194,7 @@ define('custom:helpers/case-create-form', [], function () {
             window.setTimeout(function () {
                 hideDetailOnlyUi(recordView);
                 applyCachedDefaults(recordView);
+                applyGestionLinkDefaults(recordView);
             }, delay);
         });
     };

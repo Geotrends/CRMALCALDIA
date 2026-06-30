@@ -184,12 +184,14 @@ body.alcaldia-radicacion-detail-ui .detail[data-scope="Case"] .header-buttons .b
   display: none !important;
 }
 
-/* Asignador: pantalla de asignación — solo panel Asignación */
-body.alcaldia-inspeccion-case-page .edit[data-scope="Case"] .panel[data-name="gestionPosteriorRadicacion"],
-body.alcaldia-inspeccion-case-page .edit[data-scope="Case"] .panel[data-panel-name="gestionPosteriorRadicacion"],
-body.alcaldia-inspeccion-case-page .edit[data-scope="Case"] .alcaldia-inspeccion-asignacion-hidden {
+/* Crear/editar caso: ocultar Asignación para todos (admin, inspección, etc.) */
+.edit[data-scope="Case"] .panel[data-name="gestionPosteriorRadicacion"],
+.edit[data-scope="Case"] .panel[data-panel-name="gestionPosteriorRadicacion"],
+.edit[data-scope="Case"] .alcaldia-inspeccion-asignacion-hidden {
   display: none !important;
 }
+
+/* Asignador: pantalla de asignación — solo panel Asignación */
 
 body.alcaldia-asignador-asignar-page .edit[data-scope="Case"] .middle .panel:not([data-name="gestionPosteriorRadicacion"]):not([data-panel-name="gestionPosteriorRadicacion"]):not(.asignacion-assignment-panel),
 body.alcaldia-asignador-asignar-page .edit[data-scope="Case"] .record-panel:not([data-name="gestionPosteriorRadicacion"]):not(.asignacion-assignment-panel),

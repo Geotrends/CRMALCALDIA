@@ -4,8 +4,6 @@ define('custom:helpers/inspeccion-case-flow', [
 
     const PANEL_RADICACION = 'radicacionCaso';
     const PANEL_ASIGNACION = 'gestionPosteriorRadicacion';
-    const BODY_CLASS = 'alcaldia-inspeccion-case-page';
-
     const ASIGNACION_FIELDS = [
         'assignedUser',
         'cMotivoReasignacion',
@@ -20,25 +18,16 @@ define('custom:helpers/inspeccion-case-flow', [
         );
     };
 
-    const isInspeccionOnlyUser = function (user) {
-        if (!RadicacionFields.isInspeccionUser(user)) {
-            return false;
-        }
-
-        return RadicacionFields.resolveHomeProfile(user) !== 'asignador';
+    const isAsignadorAssignmentPage = function () {
+        return document.body.classList.contains('alcaldia-asignador-asignar-page');
     };
 
-    const syncBodyClass = function (recordView) {
-        const user = recordView.getUser();
-        const enabled = isInspeccionOnlyUser(user);
-
-        document.body.classList.toggle(BODY_CLASS, enabled);
+    const shouldHideAsignacion = function () {
+        return !isAsignadorAssignmentPage();
     };
 
     const hideAsignacionPanel = function (recordView) {
-        const user = recordView.getUser();
-
-        if (!isInspeccionOnlyUser(user)) {
+        if (!shouldHideAsignacion()) {
             return;
         }
 
@@ -94,7 +83,6 @@ define('custom:helpers/inspeccion-case-flow', [
             return;
         }
 
-        syncBodyClass(recordView);
         hideAsignacionPanel(recordView);
         lockRadicadoFields(recordView);
     };
@@ -121,7 +109,7 @@ define('custom:helpers/inspeccion-case-flow', [
         const user = recordView.getUser();
         const model = recordView.model;
 
-        if (isInspeccionOnlyUser(user)) {
+        if (shouldHideAsignacion()) {
             stripAsignacionFromModel(model);
         }
 

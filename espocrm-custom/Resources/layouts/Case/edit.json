@@ -1,24 +1,5 @@
 [
   {
-    "name": "gestionPosteriorRadicacion",
-    "rows": [
-      [
-        {
-          "name": "assignedUser"
-        },
-        false
-      ],
-      [
-        {
-          "name": "cMotivoReasignacion",
-          "fullWidth": true
-        }
-      ]
-    ],
-    "style": "default",
-    "label": "Asignación"
-  },
-  {
     "rows": [
       [
         {
@@ -246,5 +227,24 @@
     ],
     "style": "default",
     "label": "Queja y gestion"
+  },
+  {
+    "name": "gestionPosteriorRadicacion",
+    "rows": [
+      [
+        {
+          "name": "assignedUser"
+        },
+        false
+      ],
+      [
+        {
+          "name": "cMotivoReasignacion",
+          "fullWidth": true
+        }
+      ]
+    ],
+    "style": "default",
+    "label": "Asignación"
   }
 ]
