@@ -2,7 +2,8 @@ define('custom:views/case/record/panels/actuo-archivo', [
     'views/record/panels/side',
     'custom:helpers/actuo-archivo-modal',
     'custom:helpers/actuo-archivo-case-status',
-], function (Dep, ActuoArchivoModal, ActuoArchivoCaseStatus) {
+    'custom:helpers/radicacion-fields',
+], function (Dep, ActuoArchivoModal, ActuoArchivoCaseStatus, RadicacionFields) {
 
     return Dep.extend({
 
@@ -37,9 +38,16 @@ define('custom:views/case/record/panels/actuo-archivo', [
                 return true;
             }
 
-            const acl = this.getAcl();
+            if (RadicacionFields.isInspeccionUser(user)) {
+                return true;
+            }
 
-            return acl.check('ActuoArchivo', 'edit') || acl.check('ActuoArchivo', 'create');
+            if (RadicacionFields.resolveHomeProfile(user) === 'patrullero') {
+                return true;
+            }
+
+            return RadicacionFields.hasRole(user, 'patrullaje')
+                || RadicacionFields.hasRole(user, 'patrullero');
         },
 
         loadActuoState: function () {

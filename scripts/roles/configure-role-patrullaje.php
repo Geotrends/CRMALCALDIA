@@ -68,6 +68,22 @@ $data['ActaVisita'] = [
     'stream' => 'no',
 ];
 
+$data['ActuoArchivo'] = [
+    'create' => 'yes',
+    'read' => 'team',
+    'edit' => 'team',
+    'delete' => 'no',
+    'stream' => 'no',
+];
+
+$data['ComunicacionCaso'] = [
+    'create' => 'yes',
+    'read' => 'team',
+    'edit' => 'team',
+    'delete' => 'no',
+    'stream' => 'no',
+];
+
 $data['Calendar'] = true;
 
 $fieldData = $role->get('fieldData');
