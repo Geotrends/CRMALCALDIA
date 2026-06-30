@@ -3,7 +3,6 @@
 require_once '/var/www/html/bootstrap.php';
 
 use Espo\Core\Application;
-use Espo\Core\Authentication\Password\PasswordHasherFactory;
 use Espo\ORM\EntityManager;
 
 $userName = $argv[1] ?? null;
@@ -27,8 +26,7 @@ if (!$user) {
     exit(1);
 }
 
-$hasher = $app->getContainer()->getByClass(PasswordHasherFactory::class)->create();
-$user->set('password', $hasher->hash($password));
-$em->saveEntity($user, ['skipHooks' => true]);
+$user->set('password', $password);
+$em->saveEntity($user);
 
 echo "OK: contraseña actualizada para {$userName}\n";

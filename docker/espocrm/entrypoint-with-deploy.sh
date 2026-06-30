@@ -75,6 +75,25 @@ run_auto_deploy_background() {
 
 run_auto_deploy_background
 
+ensure_admin_login() {
+  if [ "$(is_espocrm_installed)" != "1" ]; then
+    return 0
+  fi
+
+  local script="$REPO_ROOT/scripts/ensure-admin-login.php"
+
+  if [ ! -f "$script" ]; then
+    return 0
+  fi
+
+  echo "==> Verificando usuario admin (credenciales Dokploy)..."
+  ESPOCRM_ADMIN_USERNAME="${ESPOCRM_ADMIN_USERNAME:-admin}" \
+  ESPOCRM_ADMIN_PASSWORD="${ESPOCRM_ADMIN_PASSWORD:-}" \
+  php "$script" || echo "AVISO: ensure-admin-login falló — revisa ESPOCRM_ADMIN_* en Dokploy."
+}
+
+ensure_admin_login
+
 if [ "$#" -eq 0 ]; then
   set -- apache2-foreground
 fi

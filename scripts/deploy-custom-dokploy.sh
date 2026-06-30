@@ -193,7 +193,7 @@ echo "Rebuild final..."
 (cd "$APP_ROOT" && "$PHP_BIN" command.php clear-cache)
 
 echo "Verificación final: usuario admin..."
-run_php_script seed-admin-user.php
+run_php_script ensure-admin-login.php
 
 unset ESPO_DEPLOY_BATCH
 

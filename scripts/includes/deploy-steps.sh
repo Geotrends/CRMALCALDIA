@@ -5,7 +5,7 @@
 
 DEPLOY_SETUP_STEPS=(
   "Credenciales admin (Dokploy → archivo local)|write-admin-credentials.php"
-  "Usuario administrador (desde .env)|seed-admin-user.php"
+  "Usuario administrador (desde .env)|ensure-admin-login.php"
   "Roles y equipos base (despliegue desde cero)|seed-roles.php"
   "Sincronizar equipos homónimos (utilidad Espo; perfiles por rol en alcaldiaProfile)|sync-user-teams-from-roles.php"
   "Catálogos Excel Alcaldía (desplegables)|configure-excel-alcaldia-case-fields.php"
@@ -85,7 +85,7 @@ deploy_maybe_wipe_business_data() {
   local wipe_stamp="$app_root/data/.alcaldia-full-reset-v2"
   local force_wipe="${ESPO_WIPE_BUSINESS_DATA:-0}"
   local wipe_script="$scripts_source/wipe-business-data.php"
-  local seed_script="$scripts_source/seed-admin-user.php"
+  local seed_script="$scripts_source/ensure-admin-login.php"
 
   if [ ! -f "$wipe_script" ]; then
     echo "AVISO: wipe-business-data.php no encontrado — omitiendo wipe."
@@ -113,7 +113,7 @@ deploy_maybe_wipe_business_data_docker() {
   local force_wipe="${ESPO_WIPE_BUSINESS_DATA:-0}"
 
   docker cp "${root}/scripts/wipe-business-data.php" espocrm:/tmp/wipe-business-data.php
-  docker cp "${root}/scripts/seed-admin-user.php" espocrm:/tmp/seed-admin-user.php
+  docker cp "${root}/scripts/ensure-admin-login.php" espocrm:/tmp/ensure-admin-login.php
   docker exec espocrm mkdir -p /tmp/includes
   docker cp "${root}/scripts/includes/admin-credentials.php" espocrm:/tmp/includes/admin-credentials.php
 
@@ -131,9 +131,9 @@ deploy_maybe_wipe_business_data_docker() {
       mkdir -p "$APP_ROOT/data"
       touch "$STAMP"
       echo "Wipe completado."
-      if [ -f /tmp/seed-admin-user.php ]; then
+      if [ -f /tmp/ensure-admin-login.php ]; then
         echo "Recreando usuario admin..."
-        php /tmp/seed-admin-user.php || exit 1
+        php /tmp/ensure-admin-login.php || exit 1
       fi
     else
       echo "Wipe omitido (ya ejecutado). Forzar: ESPO_WIPE_BUSINESS_DATA=1"
