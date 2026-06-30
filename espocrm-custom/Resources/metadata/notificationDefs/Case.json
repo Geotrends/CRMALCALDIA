@@ -1,0 +1,4 @@
+{
+    "assignmentNotificatorClassName": "Espo\\Custom\\Classes\\AssignmentNotificators\\CaseObj",
+    "forceAssignmentNotificator": true
+}

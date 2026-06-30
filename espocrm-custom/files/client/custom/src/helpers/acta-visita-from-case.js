@@ -26,10 +26,11 @@ define('custom:helpers/acta-visita-from-case', ['custom:helpers/case-party-name'
 
         const perjudicante = CasePartyName.perjudicanteFromModel(caseModel);
         const peticionario = CasePartyName.peticionarioFromModel(caseModel);
+        const caseReference = radicado || peticionario || caseModel.get('name');
 
         return {
             caseId: caseModel.id,
-            caseName: caseModel.get('name'),
+            caseName: caseReference,
             numeroRadicado: radicado,
             expediente: expediente,
             name: nameParts.join(' — '),

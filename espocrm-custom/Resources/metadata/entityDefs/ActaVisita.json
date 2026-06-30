@@ -11,7 +11,8 @@
             "type": "link",
             "required": true,
             "readOnlyAfterCreate": true,
-            "isCustom": true
+            "isCustom": true,
+            "view": "custom:views/acta-visita/fields/case"
         },
         "autorizacionDatos": {
             "type": "bool",

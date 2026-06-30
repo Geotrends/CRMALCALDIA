@@ -6,6 +6,7 @@
         "client/custom/src/loader/theme-login.js",
         "client/custom/src/loader/i18n-personas.js",
         "client/custom/src/loader/case-list-radicado-fix.js",
+        "client/custom/src/loader/notification-views.js",
         "client/custom/src/loader/theme-navbar.js"
     ]
 }

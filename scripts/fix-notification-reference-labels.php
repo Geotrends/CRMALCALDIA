@@ -29,6 +29,55 @@ $em = $app->getContainer()->getByClass(EntityManager::class);
 
 $apply = trim((string) getenv('ESPO_CONFIRM_FIX')) === '1';
 
+$removedNative = 0;
+$seenNativeIds = [];
+
+$queueNativeRemoval = function (Notification $notification) use (
+    $apply,
+    $em,
+    &$removedNative,
+    &$seenNativeIds
+): void {
+    $id = (string) $notification->getId();
+
+    if ($id === '' || isset($seenNativeIds[$id])) {
+        return;
+    }
+
+    $seenNativeIds[$id] = true;
+    $removedNative++;
+
+    if ($apply) {
+        $em->removeEntity($notification, ['skipAll' => true]);
+    }
+};
+
+foreach ([Notification::TYPE_ASSIGN, Notification::TYPE_NOTE] as $nativeType) {
+    $nativeNotifications = $em->getRDBRepositoryByClass(Notification::class)
+        ->where([
+            'type' => $nativeType,
+            'relatedType' => 'Case',
+        ])
+        ->find();
+
+    foreach ($nativeNotifications as $nativeNotification) {
+        $queueNativeRemoval($nativeNotification);
+    }
+}
+
+$streamNotes = $em->getRDBRepositoryByClass(Notification::class)
+    ->where([
+        'type' => Notification::TYPE_NOTE,
+        'relatedParentType' => 'Case',
+    ])
+    ->find();
+
+foreach ($streamNotes as $nativeNotification) {
+    $queueNativeRemoval($nativeNotification);
+}
+
+echo 'Notificaciones nativas de casos (Assign/Note) a eliminar: ' . $removedNative . "\n";
+
 $notifications = $em->getRDBRepositoryByClass(Notification::class)
     ->where([
         'relatedType' => 'Case',
@@ -117,7 +166,8 @@ echo "\nEscaneadas: {$scanned}, a actualizar: {$updated}, omitidas: {$skipped}\n
 if (!$apply) {
     echo "Modo vista previa. Ejecute con ESPO_CONFIRM_FIX=1 para aplicar.\n";
 } else {
-    echo "Actualizadas: {$updated}\n";
+    echo "Eliminadas nativas: {$removedNative}\n";
+    echo "Actualizadas personalizadas: {$updated}\n";
 }
 
 /** @return array<string, mixed> */
