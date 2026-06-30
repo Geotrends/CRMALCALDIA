@@ -1,12 +1,12 @@
 define('custom:helpers/inspeccion-case-flow', [
     'custom:helpers/radicacion-fields',
-], function (RadicacionFields) {
+    'custom:helpers/asignador-case-flow',
+], function (RadicacionFields, AsignadorCaseFlow) {
 
     const PANEL_RADICACION = 'radicacionCaso';
     const PANEL_ASIGNACION = 'gestionPosteriorRadicacion';
-    const ASIGNACION_FIELDS = [
+    const ASIGNACION_PANEL_FIELDS = [
         'assignedUser',
-        'cMotivoReasignacion',
     ];
 
     const findPanel = function (recordView, name) {
@@ -22,7 +22,13 @@ define('custom:helpers/inspeccion-case-flow', [
         return document.body.classList.contains('alcaldia-asignador-asignar-page');
     };
 
-    const shouldHideAsignacion = function () {
+    const shouldHideAsignacion = function (recordView) {
+        const user = recordView && recordView.getUser && recordView.getUser();
+
+        if (AsignadorCaseFlow.isAsignadorUser(user)) {
+            return false;
+        }
+
         return !isAsignadorAssignmentPage();
     };
 
@@ -33,7 +39,7 @@ define('custom:helpers/inspeccion-case-flow', [
             $panel.removeClass('hidden alcaldia-inspeccion-asignacion-hidden');
         }
 
-        ASIGNACION_FIELDS.forEach(function (field) {
+        ASIGNACION_PANEL_FIELDS.forEach(function (field) {
             recordView.$el
                 .find('.cell[data-name="' + field + '"], .field[data-name="' + field + '"]')
                 .closest('.cell, .field')
@@ -42,7 +48,7 @@ define('custom:helpers/inspeccion-case-flow', [
     };
 
     const hideAsignacionPanel = function (recordView) {
-        if (!shouldHideAsignacion()) {
+        if (!shouldHideAsignacion(recordView)) {
             showAsignacionPanel(recordView);
             return;
         }
@@ -53,7 +59,7 @@ define('custom:helpers/inspeccion-case-flow', [
             $panel.addClass('hidden alcaldia-inspeccion-asignacion-hidden');
         }
 
-        ASIGNACION_FIELDS.forEach(function (field) {
+        ASIGNACION_PANEL_FIELDS.forEach(function (field) {
             recordView.$el
                 .find('.cell[data-name="' + field + '"], .field[data-name="' + field + '"]')
                 .closest('.cell, .field')
@@ -125,7 +131,7 @@ define('custom:helpers/inspeccion-case-flow', [
         const user = recordView.getUser();
         const model = recordView.model;
 
-        if (shouldHideAsignacion()) {
+        if (shouldHideAsignacion(recordView)) {
             stripAsignacionFromModel(model);
         }
 

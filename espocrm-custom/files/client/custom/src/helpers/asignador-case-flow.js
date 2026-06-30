@@ -17,17 +17,24 @@ define('custom:helpers/asignador-case-flow', [
         'Visita aprobada',
     ];
 
-    const isAsignadorOnlyUser = function (user) {
-        if (RadicacionFields.isAdminUser(user)) {
+    const isAsignadorUser = function (user) {
+        if (!user || RadicacionFields.isAdminUser(user)) {
             return false;
         }
 
-        return RadicacionFields.resolveHomeProfile(user) === 'asignador';
+        if (RadicacionFields.resolveHomeProfile(user) === 'asignador') {
+            return true;
+        }
+
+        return RadicacionFields.hasRole(user, 'asignador')
+            || RadicacionFields.hasRole(user, 'asignacion');
     };
 
-    const syncBodyClass = function (enabled, isReasignacion) {
-        document.body.classList.toggle(BODY_CLASS, enabled);
-        document.body.classList.toggle(REASIGNACION_CLASS, enabled && !!isReasignacion);
+    const isAsignadorOnlyUser = isAsignadorUser;
+
+    const syncBodyClass = function (assignarPage, isReasignacion) {
+        document.body.classList.toggle(BODY_CLASS, !!assignarPage);
+        document.body.classList.toggle(REASIGNACION_CLASS, !!isReasignacion);
     };
 
     const getFetchedOrCurrent = function (model, attribute) {
@@ -155,13 +162,23 @@ define('custom:helpers/asignador-case-flow', [
 
         const user = recordView.getUser();
 
-        if (!isAsignadorOnlyUser(user) || recordView.model.isNew() || recordView.mode === 'detail') {
+        if (!isAsignadorUser(user) || recordView.model.isNew()) {
             syncBodyClass(false, false);
+
             return;
         }
 
         captureOpenState(recordView);
-        syncBodyClass(true, isUiReasignacion(recordView));
+
+        const isReasign = isUiReasignacion(recordView);
+
+        if (recordView.mode === 'detail') {
+            syncBodyClass(false, isReasign);
+
+            return;
+        }
+
+        syncBodyClass(true, isReasign);
     };
 
     const schedule = function (recordView) {
@@ -175,7 +192,7 @@ define('custom:helpers/asignador-case-flow', [
     };
 
     const prepareModelForSave = function (recordView) {
-        if (!isAsignadorOnlyUser(recordView.getUser())) {
+        if (!isAsignadorUser(recordView.getUser())) {
             return;
         }
 
@@ -237,6 +254,7 @@ define('custom:helpers/asignador-case-flow', [
         isReasignacionCaseOnSave: isReasignacionCaseOnSave,
         isUiReasignacion: isUiReasignacion,
         markUiReasignacion: markUiReasignacion,
+        isAsignadorUser: isAsignadorUser,
         // Compatibilidad con código anterior.
         isReasignacionCase: isReasignacionCaseOnOpen,
     };

@@ -245,6 +245,12 @@ body.alcaldia-asignador-asignar-page .edit[data-scope="Case"] .field[data-name="
   visibility: visible !important;
 }
 
+body:not(.alcaldia-reasignacion-caso) .edit[data-scope="Case"] .cell[data-name="cMotivoReasignacion"].alcaldia-motivo-reasignacion-visible,
+body:not(.alcaldia-reasignacion-caso) .detail[data-scope="Case"] .cell[data-name="cMotivoReasignacion"].alcaldia-motivo-reasignacion-visible {
+  display: block !important;
+  visibility: visible !important;
+}
+
 body:not(.alcaldia-reasignacion-caso) .edit[data-scope="Case"] .panel[data-name="gestionPosteriorRadicacion"] .cell[data-name="cMotivoReasignacion"]:not(.alcaldia-motivo-reasignacion-visible),
 body:not(.alcaldia-reasignacion-caso) .edit[data-scope="Case"] .panel[data-panel-name="gestionPosteriorRadicacion"] .cell[data-name="cMotivoReasignacion"]:not(.alcaldia-motivo-reasignacion-visible) {
   display: none !important;
@@ -287,6 +293,21 @@ body.alcaldia-asignador-asignar-page.alcaldia-reasignacion-caso .edit[data-scope
 
 .detail[data-scope="Case"] .panel[data-name="gestionPosteriorRadicacion"] .cell[data-name="cMotivoReasignacion"]:not(.alcaldia-motivo-reasignacion-visible) {
   display: none !important;
+}
+
+body.alcaldia-reasignacion-caso .detail[data-scope="Case"] .panel[data-name="gestionPosteriorRadicacion"] .cell[data-name="cMotivoReasignacion"],
+body.alcaldia-reasignacion-caso .detail[data-scope="Case"] .cell[data-name="cMotivoReasignacion"].alcaldia-motivo-reasignacion-visible,
+body.alcaldia-reasignacion-caso .detail[data-scope="Case"] .field[data-name="cMotivoReasignacion"] {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+body.alcaldia-reasignacion-caso .detail[data-scope="Case"] .cell[data-name="cMotivoReasignacion"].hidden {
+  display: block !important;
 }
 
 .detail[data-scope="Case"] .panel[data-name="gestionPosteriorRadicacion"] .cell[data-name="cMotivoReasignacion"].alcaldia-motivo-reasignacion-visible textarea,

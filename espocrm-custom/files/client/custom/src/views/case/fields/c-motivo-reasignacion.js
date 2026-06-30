@@ -98,8 +98,12 @@ define('custom:views/case/fields/c-motivo-reasignacion', [
                 if ($cell) {
                     $cell
                         .addClass(VISIBLE_CLASS)
-                        .removeClass('hidden')
+                        .removeClass('hidden alcaldia-inspeccion-asignacion-hidden')
                         .css('display', '');
+                }
+
+                if (this.mode === 'detail' && typeof this.setMode === 'function') {
+                    this.setMode('edit');
                 }
 
                 if (this.isRendered && this.isRendered()) {
