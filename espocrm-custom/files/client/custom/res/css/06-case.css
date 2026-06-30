@@ -255,9 +255,14 @@ body.alcaldia-asignador-asignar-page:not(.alcaldia-reasignacion-caso) .edit[data
 }
 
 body.alcaldia-asignador-asignar-page .edit[data-scope="Case"] .cell[data-name="cMotivoReasignacion"].alcaldia-motivo-reasignacion-visible,
-body.alcaldia-asignador-asignar-page.alcaldia-reasignacion-caso .edit[data-scope="Case"] .cell[data-name="cMotivoReasignacion"] {
+body.alcaldia-asignador-asignar-page.alcaldia-reasignacion-caso .edit[data-scope="Case"] .cell[data-name="cMotivoReasignacion"],
+body.alcaldia-asignador-asignar-page.alcaldia-reasignacion-caso .edit[data-scope="Case"] .field[data-name="cMotivoReasignacion"] {
   display: block !important;
   visibility: visible !important;
+  opacity: 1 !important;
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
 }
 
 body.alcaldia-asignador-asignar-page .edit[data-scope="Case"] .cell[data-name="assignedUser"],

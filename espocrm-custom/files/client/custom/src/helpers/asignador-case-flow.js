@@ -10,6 +10,13 @@ define('custom:helpers/asignador-case-flow', [
         'cMotivoReasignacion',
     ];
 
+    const POST_ASSIGNMENT_STATUSES = [
+        'Asignado',
+        'En proceso',
+        'Visita realizada',
+        'Visita aprobada',
+    ];
+
     const isAsignadorOnlyUser = function (user) {
         if (RadicacionFields.isAdminUser(user)) {
             return false;
@@ -23,7 +30,53 @@ define('custom:helpers/asignador-case-flow', [
         document.body.classList.toggle(REASIGNACION_CLASS, enabled && !!isReasignacion);
     };
 
-    const isReasignacionCase = function (model) {
+    const getFetchedOrCurrent = function (model, attribute) {
+        if (!model) {
+            return null;
+        }
+
+        if (typeof model.getFetched === 'function') {
+            const fetched = model.getFetched(attribute);
+
+            if (fetched !== undefined && fetched !== null && String(fetched).trim() !== '') {
+                return fetched;
+            }
+        }
+
+        const current = model.get(attribute);
+
+        if (current !== undefined && current !== null && String(current).trim() !== '') {
+            return current;
+        }
+
+        return null;
+    };
+
+    const hasPostAssignmentStatus = function (model, useCurrent) {
+        const status = String(
+            useCurrent
+                ? (getFetchedOrCurrent(model, 'status') || '')
+                : ((typeof model.getFetched === 'function' ? model.getFetched('status') : null) || '')
+        ).trim();
+
+        return POST_ASSIGNMENT_STATUSES.indexOf(status) !== -1;
+    };
+
+    const isReasignacionCaseOnOpen = function (model) {
+        if (!model || model.isNew()) {
+            return false;
+        }
+
+        const assigneeId = String(getFetchedOrCurrent(model, 'assignedUserId') || '').trim();
+
+        if (assigneeId) {
+            return true;
+        }
+
+        return hasPostAssignmentStatus(model, true);
+    };
+
+    const isReasignacionCaseOnSave = function (model) {
         if (!model || model.isNew() || typeof model.getFetched !== 'function') {
             return false;
         }
@@ -34,9 +87,39 @@ define('custom:helpers/asignador-case-flow', [
             return true;
         }
 
-        const status = String(model.getFetched('status') || model.get('status') || '').trim();
+        return hasPostAssignmentStatus(model, false);
+    };
 
-        return status === 'Asignado';
+    const captureOpenState = function (recordView) {
+        if (!recordView || !recordView.model || recordView.model.isNew()) {
+            recordView._alcaldiaHadAssigneeOnOpen = false;
+
+            return;
+        }
+
+        if (recordView._alcaldiaHadAssigneeOnOpen) {
+            return;
+        }
+
+        recordView._alcaldiaHadAssigneeOnOpen = isReasignacionCaseOnOpen(recordView.model);
+    };
+
+    const isUiReasignacion = function (recordView) {
+        if (!recordView) {
+            return false;
+        }
+
+        captureOpenState(recordView);
+
+        return !!recordView._alcaldiaHadAssigneeOnOpen;
+    };
+
+    const markUiReasignacion = function (recordView) {
+        if (!recordView) {
+            return;
+        }
+
+        recordView._alcaldiaHadAssigneeOnOpen = true;
     };
 
     const restoreNonAsignacionAttributes = function (model) {
@@ -77,7 +160,8 @@ define('custom:helpers/asignador-case-flow', [
             return;
         }
 
-        syncBodyClass(true, isReasignacionCase(recordView.model));
+        captureOpenState(recordView);
+        syncBodyClass(true, isUiReasignacion(recordView));
     };
 
     const schedule = function (recordView) {
@@ -95,7 +179,7 @@ define('custom:helpers/asignador-case-flow', [
             return;
         }
 
-        if (!isReasignacionCase(recordView.model)) {
+        if (!isReasignacionCaseOnSave(recordView.model)) {
             recordView.model.set('cMotivoReasignacion', null, {silent: true});
         }
 
@@ -106,6 +190,31 @@ define('custom:helpers/asignador-case-flow', [
         const self = recordView;
 
         RadicacionFields.ensureProfile(self.getUser());
+
+        self.listenTo(self.model, 'sync', function () {
+            if (!self.isRendered || !self.isRendered()) {
+                return;
+            }
+
+            apply(self);
+        });
+
+        self.listenTo(self.model, 'change:assignedUserId', function (model, value) {
+            const fetchedId = String(
+                typeof model.getFetched === 'function' ? (model.getFetched('assignedUserId') || '') : ''
+            ).trim();
+            const nextId = String(value || '').trim();
+
+            if (fetchedId && nextId) {
+                markUiReasignacion(self);
+            }
+
+            if (!self.isRendered || !self.isRendered()) {
+                return;
+            }
+
+            apply(self);
+        });
 
         RadicacionFields.onProfileReady(function () {
             if (!self.isRendered || !self.isRendered()) {
@@ -124,6 +233,11 @@ define('custom:helpers/asignador-case-flow', [
         setup: setup,
         schedule: schedule,
         prepareModelForSave: prepareModelForSave,
-        isReasignacionCase: isReasignacionCase,
+        isReasignacionCaseOnOpen: isReasignacionCaseOnOpen,
+        isReasignacionCaseOnSave: isReasignacionCaseOnSave,
+        isUiReasignacion: isUiReasignacion,
+        markUiReasignacion: markUiReasignacion,
+        // Compatibilidad con código anterior.
+        isReasignacionCase: isReasignacionCaseOnOpen,
     };
 });

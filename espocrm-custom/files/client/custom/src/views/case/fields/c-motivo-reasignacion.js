@@ -32,11 +32,44 @@ define('custom:views/case/fields/c-motivo-reasignacion', [
         setup: function () {
             Dep.prototype.setup.call(this);
 
-            this._hadAssigneeOnOpen = AsignadorCaseFlow.isReasignacionCase(this.model);
+            this._baselineAssigneeId = String(
+                (typeof this.model.getFetched === 'function' ? this.model.getFetched('assignedUserId') : null)
+                || this.model.get('assignedUserId')
+                || ''
+            ).trim();
+
+            this._hadAssigneeOnOpen = AsignadorCaseFlow.isReasignacionCaseOnOpen(this.model)
+                || !!this._baselineAssigneeId;
+
+            const recordView = this.getRecordView && this.getRecordView();
+
+            if (recordView && this._hadAssigneeOnOpen) {
+                AsignadorCaseFlow.markUiReasignacion(recordView);
+            }
 
             this.listenTo(this.model, 'sync', function () {
                 if (!this._hadAssigneeOnOpen) {
-                    this._hadAssigneeOnOpen = AsignadorCaseFlow.isReasignacionCase(this.model);
+                    this._hadAssigneeOnOpen = AsignadorCaseFlow.isReasignacionCaseOnOpen(this.model)
+                        || !!this._baselineAssigneeId;
+                }
+
+                this.manageVisibility();
+            });
+
+            this.listenTo(this.model, 'change:assignedUserId', function (model, value) {
+                const fetchedId = String(
+                    typeof model.getFetched === 'function' ? (model.getFetched('assignedUserId') || '') : ''
+                ).trim();
+                const nextId = String(value || '').trim();
+
+                if ((fetchedId && nextId) || (this._baselineAssigneeId && nextId)) {
+                    this._hadAssigneeOnOpen = true;
+
+                    const rv = this.getRecordView && this.getRecordView();
+
+                    if (rv) {
+                        AsignadorCaseFlow.markUiReasignacion(rv);
+                    }
                 }
 
                 this.manageVisibility();
@@ -44,7 +77,17 @@ define('custom:views/case/fields/c-motivo-reasignacion', [
         },
 
         isReasignacion: function () {
-            return this._hadAssigneeOnOpen || AsignadorCaseFlow.isReasignacionCase(this.model);
+            if (this._hadAssigneeOnOpen) {
+                return true;
+            }
+
+            const recordView = this.getRecordView && this.getRecordView();
+
+            if (recordView && AsignadorCaseFlow.isUiReasignacion(recordView)) {
+                return true;
+            }
+
+            return AsignadorCaseFlow.isReasignacionCaseOnOpen(this.model);
         },
 
         manageVisibility: function () {
@@ -53,10 +96,15 @@ define('custom:views/case/fields/c-motivo-reasignacion', [
 
             if (isReasignacion) {
                 if ($cell) {
-                    $cell.addClass(VISIBLE_CLASS).removeClass('hidden');
+                    $cell
+                        .addClass(VISIBLE_CLASS)
+                        .removeClass('hidden')
+                        .css('display', '');
                 }
 
-                this.show();
+                if (this.isRendered && this.isRendered()) {
+                    this.show();
+                }
 
                 return;
             }
@@ -65,7 +113,9 @@ define('custom:views/case/fields/c-motivo-reasignacion', [
                 $cell.removeClass(VISIBLE_CLASS);
             }
 
-            this.hide();
+            if (this.isRendered && this.isRendered()) {
+                this.hide();
+            }
 
             if (this.mode === 'edit' || this.mode === 'detail') {
                 this.model.set('cMotivoReasignacion', null, {silent: true});
@@ -79,7 +129,7 @@ define('custom:views/case/fields/c-motivo-reasignacion', [
 
             const self = this;
 
-            [0, 150, 500].forEach(function (delay) {
+            [0, 150, 500, 1200].forEach(function (delay) {
                 window.setTimeout(function () {
                     self.manageVisibility();
                 }, delay);
