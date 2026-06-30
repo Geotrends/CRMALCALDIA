@@ -29,8 +29,8 @@ def logo_html(data: dict) -> str:
 
     return (
         f'<img src="data:{mime};base64,{b64}" '
-        'alt="Alcaldía de Envigado" width="72" height="72" '
-        'style="width:72px;height:72px;" />'
+        'alt="Alcaldía de Envigado" width="64" height="64" '
+        'style="width:64px;height:64px;" />'
     )
 
 
@@ -52,23 +52,24 @@ def build_html(data: dict) -> str:
       {filtro_row}
     </table>"""
 
+    def table_rows(rows: list[dict]) -> str:
+        if not rows:
+            return "<tr class='empty-row'><td colspan='2'>Sin datos</td></tr>"
+        return "".join(
+            f"<tr><td>{esc(r.get('label', ''))}</td>"
+            f"<td class='num' align='right'>{esc(r.get('total', 0))}</td></tr>"
+            for r in rows
+        )
+
     def summary_table(title: str, label_col: str, rows: list[dict]) -> str:
         body = table_rows(rows)
         return f"""
-        <h2>{esc(title)}</h2>
+        <div class="section-title section-title--compact">{esc(title)}</div>
         <table class="data summary-table" width="100%" cellpadding="0" cellspacing="0">
-          <thead><tr><th>{esc(label_col)}</th><th class="th-total" width="72">Total</th></tr></thead>
+          <colgroup><col width="78%" /><col width="22%" /></colgroup>
+          <thead><tr><th>{esc(label_col)}</th><th class="th-total" align="right">Total</th></tr></thead>
           <tbody>{body}</tbody>
         </table>"""
-
-    def table_rows(rows: list[dict]) -> str:
-        if not rows:
-            return "<tr><td colspan='2'>Sin datos</td></tr>"
-        return "".join(
-            f"<tr><td>{esc(r.get('label', ''))}</td>"
-            f"<td class='num'>{esc(r.get('total', 0))}</td></tr>"
-            for r in rows
-        )
 
     detalle_rows = ""
     for row in data.get("detalle", []):
@@ -98,17 +99,17 @@ def build_html(data: dict) -> str:
         )
 
     if not detalle_rows:
-        detalle_rows = "<tr><td colspan='7'>Sin casos</td></tr>"
+        detalle_rows = "<tr class='empty-row'><td colspan='7'>Sin casos</td></tr>"
 
     def kpi_cell(label: str, value, extra: str = "") -> str:
         return (
-            f'<td class="kpi-cell {extra}">'
+            f'<td class="kpi-cell {extra}" width="33%">'
             f'<div class="kpi-label">{esc(label)}</div>'
             f'<div class="kpi-value">{esc(value)}</div>'
             f"</td>"
         )
 
-    kpi_html = f"""<table class="kpi-table" width="100%" cellpadding="6" cellspacing="0">
+    kpi_html = f"""<table class="kpi-table" width="100%" cellpadding="0" cellspacing="0">
       <tr>
         {kpi_cell("Total casos", kpis.get("total", 0))}
         {kpi_cell("Pend. radicación", kpis.get("pendienteRadicacion", 0))}
@@ -127,142 +128,191 @@ def build_html(data: dict) -> str:
   <meta charset="UTF-8" />
   <title>{esc(data.get('titulo', 'Reporte gerencial'))}</title>
   <style>
+    @page {{
+      size: A4 portrait;
+      margin: 1.4cm 1.6cm 1.6cm 1.6cm;
+    }}
     body {{
       font-family: Arial, Helvetica, sans-serif;
       color: #1e293b;
       margin: 0;
       padding: 0;
       font-size: 10pt;
-      line-height: 1.4;
+      line-height: 1.35;
+      background: #ffffff;
+    }}
+    .page {{
+      width: 100%;
     }}
     .report-header {{
       width: 100%;
       border-bottom: 2px solid #2a5934;
-      margin-bottom: 16px;
-      padding-bottom: 12px;
+      margin: 0 0 10pt 0;
+      padding: 0 0 10pt 0;
     }}
     .report-header__logo {{
-      width: 80px;
+      width: 64px;
       vertical-align: middle;
-      padding-right: 12px;
+      padding: 0 12pt 0 0;
     }}
     .report-header__text {{
       vertical-align: middle;
-      text-align: right;
+      text-align: left;
     }}
     .report-title {{
       margin: 0;
       color: #2a5934;
-      font-size: 16pt;
+      font-size: 14pt;
       font-weight: bold;
+      line-height: 1.2;
     }}
     .report-subtitle {{
-      margin: 4px 0 0;
+      margin: 3pt 0 0;
       color: #64748b;
-      font-size: 10pt;
+      font-size: 9pt;
+      line-height: 1.3;
     }}
     .report-meta {{
       width: 100%;
-      margin: 12px 0 18px;
-      border: 1px solid #e2e8f0;
+      margin: 0 0 12pt 0;
+      border: 1px solid #cbd5e1;
       background: #f8fafc;
+      border-collapse: collapse;
     }}
     .meta-cell {{
-      padding: 10px 12px;
-      font-size: 9.5pt;
-      border-bottom: 1px solid #e2e8f0;
+      padding: 7pt 10pt;
+      font-size: 9pt;
+      border: 1px solid #e2e8f0;
+      vertical-align: top;
     }}
     .meta-label {{
-      color: #64748b;
+      color: #475569;
       font-weight: bold;
-      margin-right: 6px;
     }}
-    h2 {{
+    .section-title {{
       color: #2a5934;
-      font-size: 11pt;
+      font-size: 10.5pt;
       font-weight: bold;
-      margin: 16px 0 8px;
-      padding-bottom: 4px;
-      border-bottom: 1px solid #e2e8f0;
+      margin: 12pt 0 6pt 0;
+      padding: 0 0 4pt 0;
+      border-bottom: 1px solid #cbd5e1;
+    }}
+    .section-title--compact {{
+      font-size: 9.5pt;
+      margin: 0 0 4pt 0;
+      padding: 0 0 3pt 0;
     }}
     .kpi-table {{
       width: 100%;
-      margin-bottom: 8px;
-      border-collapse: separate;
+      margin: 0 0 10pt 0;
+      border-collapse: collapse;
+      table-layout: fixed;
     }}
     .kpi-cell {{
-      width: 33%;
-      border: 1px solid #e2e8f0;
-      background: #fff;
-      padding: 10px 12px;
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      padding: 8pt 10pt;
       vertical-align: top;
     }}
     .kpi-label {{
-      font-size: 8.5pt;
+      font-size: 8pt;
       color: #64748b;
-      margin-bottom: 4px;
+      margin: 0 0 3pt 0;
+      line-height: 1.2;
     }}
     .kpi-value {{
-      font-size: 18pt;
+      font-size: 15pt;
       font-weight: bold;
       color: #2a5934;
       line-height: 1.1;
+      margin: 0;
     }}
     .kpi-danger .kpi-value {{ color: #b91c1c; }}
     .kpi-warn .kpi-value {{ color: #a16207; }}
+    .summary-grid {{
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0 0 8pt 0;
+    }}
+    .summary-grid > tbody > tr > td {{
+      width: 50%;
+      vertical-align: top;
+      padding: 0 8pt 8pt 0;
+    }}
+    .summary-grid > tbody > tr > td + td {{
+      padding: 0 0 8pt 8pt;
+    }}
     table.data {{
       width: 100%;
       border-collapse: collapse;
       table-layout: fixed;
-      margin-bottom: 12px;
+      margin: 0;
     }}
     table.data th,
     table.data td {{
-      border: 1px solid #e2e8f0;
-      padding: 7px 8px;
-      font-size: 9.5pt;
-      vertical-align: top;
+      border: 1px solid #cbd5e1;
+      padding: 5pt 7pt;
+      font-size: 9pt;
+      vertical-align: middle;
       word-wrap: break-word;
     }}
     table.data th {{
       background: #2a5934;
-      color: #fff;
+      color: #ffffff;
       font-weight: bold;
       text-align: left;
     }}
     table.data td.num,
     table.data th.th-total {{
-      width: 72px;
       text-align: right;
       white-space: nowrap;
     }}
-    table.data tr:nth-child(even) td {{ background: #f8fafc; }}
-    .detail-table th {{ font-size: 8.5pt; }}
-    .detail-table td {{ font-size: 8.5pt; }}
-    .mono {{ font-family: Courier, monospace; font-size: 8pt; }}
-    .badge {{
-      padding: 2px 8px;
+    table.data tbody tr:nth-child(even) td {{
+      background: #f8fafc;
+    }}
+    .detail-table th {{
       font-size: 8pt;
+      padding: 5pt 4pt;
+    }}
+    .detail-table td {{
+      font-size: 8pt;
+      padding: 4pt 4pt;
+      vertical-align: top;
+    }}
+    .mono {{
+      font-family: "Courier New", Courier, monospace;
+      font-size: 7.5pt;
+    }}
+    .badge {{
+      display: inline-block;
+      padding: 1pt 6pt;
+      font-size: 7.5pt;
       font-weight: bold;
       white-space: nowrap;
     }}
     .badge--danger {{ background: #fee2e2; color: #b91c1c; }}
     .badge--warn {{ background: #fef3c7; color: #a16207; }}
     .badge--ok {{ background: #dcfce7; color: #166534; }}
+    .empty-row td {{
+      text-align: center;
+      color: #64748b;
+      font-style: italic;
+    }}
     .report-footer {{
-      margin-top: 20px;
-      padding-top: 8px;
-      border-top: 1px solid #e2e8f0;
-      font-size: 8pt;
+      margin-top: 14pt;
+      padding-top: 6pt;
+      border-top: 1px solid #cbd5e1;
+      font-size: 7.5pt;
       color: #94a3b8;
       text-align: center;
     }}
   </style>
 </head>
 <body>
+  <div class="page">
   <table class="report-header" width="100%" cellpadding="0" cellspacing="0">
     <tr>
-      <td class="report-header__logo">{logo_html(data)}</td>
+      <td class="report-header__logo" width="72">{logo_html(data)}</td>
       <td class="report-header__text">
         <h1 class="report-title">{esc(data.get('titulo'))}</h1>
         <p class="report-subtitle">{esc(data.get('subtitulo'))}</p>
@@ -272,16 +322,26 @@ def build_html(data: dict) -> str:
 
   {meta_html}
 
-  <h2>Indicadores generales</h2>
+  <div class="section-title">Indicadores generales</div>
   {kpi_html}
 
-  {summary_table('Resumen por estado', 'Estado', data.get('porEstado', []))}
-  {summary_table('Resumen por recurso / tema', 'Recurso', data.get('porRecurso', []))}
-  {summary_table('Resumen por canal de reporte', 'Canal', data.get('porCanal', []))}
-  {summary_table('Semáforo de vencimiento', 'Semáforo', data.get('porSemaforo', []))}
+  <table class="summary-grid" width="100%" cellpadding="0" cellspacing="0">
+    <tr>
+      <td width="50%">{summary_table('Resumen por estado', 'Estado', data.get('porEstado', []))}</td>
+      <td width="50%">{summary_table('Resumen por recurso / tema', 'Recurso', data.get('porRecurso', []))}</td>
+    </tr>
+    <tr>
+      <td width="50%">{summary_table('Resumen por canal de reporte', 'Canal', data.get('porCanal', []))}</td>
+      <td width="50%">{summary_table('Semáforo de vencimiento', 'Semáforo', data.get('porSemaforo', []))}</td>
+    </tr>
+  </table>
 
-  <h2>Detalle de casos</h2>
-  <table class="data detail-table" width="100%">
+  <div class="section-title">Detalle de casos</div>
+  <table class="data detail-table" width="100%" cellpadding="0" cellspacing="0">
+    <colgroup>
+      <col width="14%" /><col width="18%" /><col width="11%" /><col width="10%" />
+      <col width="16%" /><col width="11%" /><col width="14%" />
+    </colgroup>
     <thead>
       <tr>
         <th>Radicado</th><th>Peticionario</th><th>Estado</th><th>Recurso</th>
@@ -293,6 +353,7 @@ def build_html(data: dict) -> str:
 
   <div class="report-footer">
     Alcaldía de Envigado — Secretaría de Medio Ambiente · CRM ambiental
+  </div>
   </div>
 </body>
 </html>"""
