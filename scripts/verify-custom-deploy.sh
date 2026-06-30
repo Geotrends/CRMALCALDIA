@@ -66,6 +66,13 @@ check_file "Perfil API AlcaldiaUserProfile" \
   "$CUSTOM/Tools/User/AlcaldiaUserProfile.php" \
   "ROLE_INSPECCION" || errors=$((errors + 1))
 
+if [ -f "$CUSTOM/Hooks/User/ApplyAlcaldiaLocaleDefaults.php" ]; then
+  echo "FALTA: hook obsoleto ApplyAlcaldiaLocaleDefaults.php aún en el servidor"
+  errors=$((errors + 1))
+else
+  echo "OK: sin hook obsoleto User/ApplyAlcaldiaLocaleDefaults"
+fi
+
 check_file "Hook notificación Inspección→Radicación" \
   "$CUSTOM/Hooks/CaseObj/NotifyRadicacionOnCaseCreated.php" \
   "isInspeccion" || errors=$((errors + 1))
