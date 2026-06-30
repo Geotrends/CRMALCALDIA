@@ -1,6 +1,41 @@
 (function () {
     var estado = document.getElementById('estado');
 
+    function hideDashboardLoading() {
+        var loader = document.getElementById('dashboard-loading');
+        var dash = document.querySelector('.dashboard');
+
+        if (dash) {
+            dash.classList.remove('dashboard--booting');
+        }
+
+        if (!loader) {
+            notifyDashboardReady();
+            return;
+        }
+
+        loader.classList.add('is-hidden');
+        loader.setAttribute('aria-busy', 'false');
+
+        setTimeout(function () {
+            if (loader.parentNode) {
+                loader.parentNode.removeChild(loader);
+            }
+        }, 320);
+
+        notifyDashboardReady();
+    }
+
+    function notifyDashboardReady() {
+        if (window.parent === window) {
+            return;
+        }
+
+        window.parent.postMessage({
+            type: 'crm-dashboard-ready',
+        }, window.location.origin);
+    }
+
     document.getElementById('fecha-actual').textContent =
         new Date().toLocaleDateString('es-CO', {
             weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
@@ -746,6 +781,7 @@
                 estado.textContent = dashboardProfile === 'radicacion'
                     ? 'Aún no hay casos visibles para su perfil de radicación.'
                     : 'Aún no hay casos registrados.';
+                hideDashboardLoading();
                 ajustarAlturaIframe();
                 return;
             }
@@ -917,11 +953,13 @@
             ajustarAlturaIframe();
             setTimeout(ajustarAlturaIframe, 250);
             setTimeout(ajustarAlturaIframe, 1200);
+            hideDashboardLoading();
         })
         .catch(function (err) {
             console.error('Dashboard error:', err);
             estado.textContent = 'Error al leer casos: ' + (err.message || err);
             estado.classList.add('error');
+            hideDashboardLoading();
             ajustarAlturaIframe();
         });
 })();

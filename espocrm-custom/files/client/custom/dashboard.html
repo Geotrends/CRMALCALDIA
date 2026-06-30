@@ -7,6 +7,53 @@
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <title>Tablero de Control — CRM Alcaldía</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #f0f4f8;
+      color: #0f172a;
+    }
+
+    .dashboard-loading {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      background: #f0f4f8;
+      color: #64748b;
+      font-family: Inter, system-ui, sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      transition: opacity 0.28s ease;
+    }
+
+    .dashboard-loading.is-hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .dashboard-spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid #d1ebe3;
+      border-top-color: #1d8a6e;
+      border-radius: 50%;
+      animation: dashboard-spin 0.75s linear infinite;
+    }
+
+    @keyframes dashboard-spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .dashboard.dashboard--booting {
+      visibility: hidden;
+    }
+  </style>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
     /* Botones export — embebidos para que no queden atrapados en caché del @import */
@@ -97,7 +144,11 @@
   </script>
 </head>
 <body>
-  <div class="dashboard">
+  <div id="dashboard-loading" class="dashboard-loading" role="status" aria-live="polite" aria-busy="true">
+    <div class="dashboard-spinner" aria-hidden="true"></div>
+    <span>Cargando tablero…</span>
+  </div>
+  <div class="dashboard dashboard--booting">
     <header class="dashboard-header">
       <div class="dashboard-header__brand">
         <div class="dashboard-header__logo">

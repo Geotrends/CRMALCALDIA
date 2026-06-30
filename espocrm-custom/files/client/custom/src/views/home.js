@@ -59,11 +59,20 @@ define('custom:views/home', ['views/dashboard'], function (Dep) {
             }
 
             this._dashboardHeightHandler = function (event) {
-                if (!event.data || event.data.type !== 'crm-dashboard-height') {
+                if (!event.data || !event.data.type) {
                     return;
                 }
 
                 if (event.origin !== window.location.origin) {
+                    return;
+                }
+
+                if (event.data.type === 'crm-dashboard-ready') {
+                    self.markDashboardIframeReady();
+                    return;
+                }
+
+                if (event.data.type !== 'crm-dashboard-height') {
                     return;
                 }
 
@@ -209,8 +218,13 @@ define('custom:views/home', ['views/dashboard'], function (Dep) {
                 html += '<div class="panel panel-default custom-home-tablero">' +
                     '<div class="panel-heading"><h4 class="panel-title">Tablero de control</h4></div>' +
                     '<div class="panel-body custom-home-tablero-body">' +
+                    '<div class="custom-home-iframe-wrap">' +
+                    '<div class="custom-home-iframe-loading" aria-live="polite" aria-busy="true">' +
+                    '<span class="custom-home-iframe-spinner" aria-hidden="true"></span>' +
+                    '<span>Cargando tablero…</span>' +
+                    '</div>' +
                     '<iframe src="' + _.escape(cfg.iframeUrl) + '" title="Tablero de control" class="custom-home-iframe" scrolling="no"></iframe>' +
-                    '</div></div>';
+                    '</div></div></div>';
             }
 
             html += '</div>';
@@ -258,6 +272,7 @@ define('custom:views/home', ['views/dashboard'], function (Dep) {
 
             this.bindHomeTabs();
             this.bindHomePagination();
+            this.bindDashboardIframeLoad();
             this._activeHomeTab = activeTab;
 
             if (activeTab === 'gestion') {
@@ -442,6 +457,42 @@ define('custom:views/home', ['views/dashboard'], function (Dep) {
             if (tab === 'dashboard') {
                 this.refreshDashboardIframeHeight();
             }
+        },
+
+        markDashboardIframeReady: function () {
+            var $wrap = this.$el.find('.custom-home-iframe-wrap');
+
+            $wrap.find('.custom-home-iframe-loading')
+                .addClass('is-hidden')
+                .attr('aria-busy', 'false');
+
+            $wrap.find('.custom-home-iframe').addClass('is-ready');
+        },
+
+        bindDashboardIframeLoad: function () {
+            var self = this;
+
+            this.$el.find('.custom-home-iframe').each(function () {
+                var iframe = this;
+
+                if (iframe.dataset.dashboardBound === '1') {
+                    return;
+                }
+
+                iframe.dataset.dashboardBound = '1';
+
+                $(iframe).on('load', function () {
+                    if (iframe.classList.contains('is-ready')) {
+                        return;
+                    }
+
+                    setTimeout(function () {
+                        if (!iframe.classList.contains('is-ready')) {
+                            self.markDashboardIframeReady();
+                        }
+                    }, 12000);
+                });
+            });
         },
 
         refreshDashboardIframeHeight: function () {
