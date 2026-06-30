@@ -3,6 +3,7 @@
 namespace Espo\Custom\Tools\ActaVisita;
 
 use Espo\Custom\Tools\CaseObj\CasePartyNameHelper;
+use Espo\Custom\Tools\User\AlcaldiaUserProfile;
 use Espo\Core\Acl;
 use Espo\Core\Exceptions\BadRequest;
 use Espo\Core\Exceptions\Error;
@@ -24,7 +25,8 @@ class FormatoActaVisitaGenerator
         private EntityManager $entityManager,
         private Config $config,
         private User $user,
-        private Acl $acl
+        private Acl $acl,
+        private AlcaldiaUserProfile $profile
     ) {}
 
     /**
@@ -78,6 +80,10 @@ class FormatoActaVisitaGenerator
         $payload['fechaVisita'] = date('d/m/Y');
         $payload['fechaHora'] = date('d/m/Y H:i');
         $payload['funcionarioNombre'] = $this->resolveFuncionarioNombre($case);
+        $payload['posibleAfectante'] = $payload['posibleAfectante'] ?: CasePartyNameHelper::getPeticionarioFullName($case);
+        $payload['direccionAfectacion'] = $payload['direccionAfectacion'] ?: trim((string) $case->get('cDireccionPeticionario'));
+        $payload['telefono'] = $payload['telefono'] ?: trim((string) $case->get('cTelefonoPeticionario'));
+        $payload['barrio'] = $payload['barrio'] ?: trim((string) $case->get('cBarrioPeticionario'));
         $payload['objetoVisita'] = '';
         $payload['situacionEncontrada'] = '';
         $payload['analisisSituacion'] = '';
@@ -134,7 +140,13 @@ class FormatoActaVisitaGenerator
         $acta = $this->resolveActaForCase($caseId);
 
         if (!$internal && $modo === 'digital' && !$this->isFormatoActaHabilitadoForCase($case, $acta)) {
-            throw new Forbidden('El formato de acta de visita aún no está habilitado.');
+            $hasActaData = $acta && $this->actaHasFormatoData($acta);
+
+            if (!$hasActaData
+                && !$this->profile->isInspeccion($this->user)
+                && !$this->profile->isPatrullero($this->user)) {
+                throw new Forbidden('El formato de acta de visita aún no está habilitado.');
+            }
         }
 
         if ($modo === 'manual') {
@@ -176,15 +188,15 @@ class FormatoActaVisitaGenerator
             return true;
         }
 
-        if ($this->userHasRole(self::ROLE_INSPECCION) || $this->userHasRole('Inspeccion')) {
-            return true;
+        if ($this->profile->isInspeccion($this->user)) {
+            return $this->isCaseReadyForActa($case);
         }
 
         if (!$this->isCaseReadyForActa($case)) {
             return false;
         }
 
-        if ($this->userHasRole(self::ROLE_PATRULLERO)) {
+        if ($this->profile->isPatrullero($this->user)) {
             return (string) $case->get('assignedUserId') === (string) $this->user->getId();
         }
 

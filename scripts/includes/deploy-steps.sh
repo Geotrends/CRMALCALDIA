@@ -19,6 +19,7 @@ DEPLOY_SETUP_STEPS=(
   "Rol Inspección — permisos y campos|roles/configure-role-inspeccion.php"
   "Rol Radicación — solo radicado/expediente|roles/configure-role-radicacion.php"
   "Rol Asignación — solo panel Asignación|roles/configure-role-asignacion.php"
+  "Rol Patrullaje — acta de visita y casos asignados|roles/configure-role-patrullaje.php"
   "Documentos: plantillas oficiales (solicitud, acta, actuo)|configure-document-plantillas.php"
   "Documentos: Excel oficial (excelAlcaldia.xlsx)|configure-excel-alcaldia-document.php"
 )

@@ -1,7 +1,10 @@
 define('custom:views/case/fields/acta-visita-action', [
     'views/fields/base',
+    'custom:helpers/patrullero-acta',
+    'custom:helpers/radicacion-fields',
+    'custom:helpers/acta-visita-modal',
     'custom:helpers/acta-visita-case-status',
-], function (Dep, ActaVisitaCaseStatus) {
+], function (Dep, PatrulleroActa, RadicacionFields, ActaVisitaModal, ActaVisitaCaseStatus) {
 
     return Dep.extend({
 
@@ -10,14 +13,16 @@ define('custom:views/case/fields/acta-visita-action', [
         setup: function () {
             Dep.prototype.setup.call(this);
 
+            this.actaIsEditMode = false;
             this.showButton = false;
             this.showPrintManual = false;
+            this.showPrintDigital = false;
 
             if (!this.model.id) {
                 return;
             }
 
-            this.listenTo(this.model, 'change:status change:assignedUserId sync', function () {
+            this.listenTo(this.model, 'change:status change:assignedUserId change:cNumeroRadicado change:cExpediente sync', function () {
                 this.loadActaState();
             });
 
@@ -25,50 +30,29 @@ define('custom:views/case/fields/acta-visita-action', [
         },
 
         data: function () {
-            return {
-                showPanel: this.showButton || this.showPrintManual,
-                showLlenarActa: this.showButton,
-                showPrintManual: this.showPrintManual,
-                helpText: this.translate('actaVisitaPanelHelp', 'Case'),
-                buttonLabelDigital: this.translate('llenarActaVisitaDigital', 'Case'),
-                buttonLabelManual: this.translate('imprimirActaVisitaManual', 'Case'),
-            };
-        },
+            const user = this.getUser();
+            let helpText = this.translate('actaVisitaPanelHelp', 'Case');
+            let buttonLabelDigital = this.translate('llenarActaVisitaDigital', 'Case');
 
-        loadActaState: function () {
-            var self = this;
-
-            if (!this.model.id) {
-                this.showButton = false;
-                this.showPrintManual = false;
-                this.updatePanelVisibility(false);
-
-                if (this.isRendered()) {
-                    this.reRender();
-                }
-
-                return;
+            if (this.actaIsEditMode) {
+                helpText = RadicacionFields.isInspeccionUser(user)
+                    ? this.translate('actaVisitaInspeccionHelp', 'Case')
+                    : this.translate('actaVisitaEditHelp', 'Case');
+                buttonLabelDigital = this.translate('editarActaVisita', 'Case');
+            } else if (this.showPrintManual) {
+                helpText = this.translate('actaVisitaManualHelp', 'Case');
             }
 
-            ActaVisitaCaseStatus.fetchActaForCase(this.model.id, this.getUser(), this.model, {bypassCache: true})
-                .then(function (acta) {
-                    var diligenciada = ActaVisitaCaseStatus.isActaDiligenciada(acta);
-                    var radicado = String(self.model.get('cNumeroRadicado') || '').trim() !== '';
-
-                    self.showButton = radicado && !diligenciada;
-                    self.showPrintManual = radicado && diligenciada;
-                    self.updatePanelVisibility(self.showButton || self.showPrintManual);
-
-                    if (self.isRendered()) {
-                        self.reRender();
-                        self.bindButtons();
-                    }
-                })
-                .catch(function () {
-                    self.showButton = false;
-                    self.showPrintManual = false;
-                    self.updatePanelVisibility(false);
-                });
+            return {
+                showPanel: this.showButton || this.showPrintManual || this.showPrintDigital,
+                showLlenarActa: this.showButton,
+                showPrintManual: this.showPrintManual,
+                showPrintDigital: this.showPrintDigital,
+                helpText: helpText,
+                buttonLabelDigital: buttonLabelDigital,
+                buttonLabelManual: this.translate('imprimirActaVisitaManual', 'Case'),
+                buttonLabelDigitalPdf: this.translate('downloadFormatoActaPdf', 'ActaVisita'),
+            };
         },
 
         afterRender: function () {
@@ -76,41 +60,163 @@ define('custom:views/case/fields/acta-visita-action', [
             this.bindButtons();
         },
 
+        setReadOnly: function () {
+            this.readOnly = false;
+
+            if (this.isRendered && this.isRendered()) {
+                this.$el.find('.case-acta-visita-actions, .case-acta-visita-btn').show();
+                this.bindButtons();
+            }
+        },
+
+        setNotReadOnly: function () {
+            this.readOnly = false;
+
+            if (this.isRendered && this.isRendered()) {
+                this.bindButtons();
+            }
+        },
+
+        loadActaState: function () {
+            const user = this.getUser();
+            const self = this;
+
+            if (!this.model.id) {
+                this.actaIsEditMode = false;
+                this.showButton = false;
+                this.showPrintManual = false;
+                this.showPrintDigital = false;
+                this.updatePanelVisibility(false);
+                this.reRenderIfNeeded();
+
+                return;
+            }
+
+            RadicacionFields.ensureProfile(user);
+
+            RadicacionFields.onProfileReady(function () {
+                if (RadicacionFields.resolveHomeProfile(user) === 'radicacion'
+                    && !RadicacionFields.isAdminUser(user)) {
+                    self.actaIsEditMode = false;
+                    self.showButton = false;
+                    self.showPrintManual = false;
+                    self.showPrintDigital = false;
+                    self.updatePanelVisibility(false);
+                    self.reRenderIfNeeded();
+
+                    return;
+                }
+
+                ActaVisitaCaseStatus.fetchActaForCase(self.model.id, user, self.model, {bypassCache: true})
+                    .then(function (acta) {
+                        const canUse = PatrulleroActa.canUseActaVisitaTools(user, self.model);
+
+                        self.actaIsEditMode = ActaVisitaCaseStatus.isActaDiligenciada(acta);
+                        self.showButton = canUse;
+                        self.showPrintManual = canUse;
+                        self.showPrintDigital = PatrulleroActa.canPrintDigitalActa(user, self.model, acta);
+                        self.updatePanelVisibility(canUse);
+                        self.reRenderIfNeeded();
+                    })
+                    .catch(function () {
+                        self.actaIsEditMode = false;
+                        self.showButton = false;
+                        self.showPrintManual = false;
+                        self.showPrintDigital = false;
+                        self.updatePanelVisibility(false);
+                    });
+            });
+        },
+
+        reRenderIfNeeded: function () {
+            if (this.isRendered()) {
+                this.reRender();
+                this.bindButtons();
+            }
+        },
+
         updatePanelVisibility: function (show) {
             this.$el.closest(
-                '.panel[data-name="actaVisita"], .record-panel[data-name="actaVisita"], [data-name="actaVisita"].panel'
+                '.panel[data-name="actaVisita"], ' +
+                '.record-panel[data-name="actaVisita"], ' +
+                '[data-name="actaVisita"].panel'
             ).toggle(show);
         },
 
         bindButtons: function () {
-            var self = this;
+            const self = this;
 
-            this.$el.find('[data-action="llenarActa"]').off('click.acta').on('click.acta', function (e) {
+            this.$el.find('[data-action="llenarActa"]').off('click.acta');
+            this.$el.find('[data-action="imprimirActaManual"]').off('click.actaManual');
+            this.$el.find('[data-action="descargarActaDigital"]').off('click.actaDigital');
+
+            this.$el.find('[data-action="llenarActa"]').on('click.acta', function (e) {
                 e.preventDefault();
                 e.stopPropagation();
 
-                if (!self.model.id) {
-                    return;
-                }
-
-                self.getRouter().navigate('#ActaVisita/create?caseId=' + encodeURIComponent(self.model.id), {trigger: true});
+                ActaVisitaModal.open(self, self.model, self.getUser(), {
+                    modoDiligenciamiento: 'Digital',
+                    onAfterSave: function () {
+                        self.loadActaState();
+                        self.model.fetch();
+                    },
+                });
             });
 
-            this.$el.find('[data-action="imprimirActaManual"]').off('click.actaManual').on('click.actaManual', function (e) {
+            this.$el.find('[data-action="imprimirActaManual"]').on('click.actaManual', function (e) {
                 e.preventDefault();
                 e.stopPropagation();
-
-                if (!self.model.id) {
-                    return;
-                }
-
-                var url = self.getBasePath()
-                    + '?entryPoint=FormatoActaVisitaCaso'
-                    + '&id=' + encodeURIComponent(self.model.id)
-                    + '&modo=manual&inline=1';
-
-                window.open(url, '_blank');
+                self.actionImprimirActaManual();
             });
+
+            this.$el.find('[data-action="descargarActaDigital"]').on('click.actaDigital', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                self.actionDescargarActaDigital();
+            });
+        },
+
+        actionImprimirActaManual: function () {
+            if (!PatrulleroActa.canPrintManualActa(this.getUser(), this.model)) {
+                Espo.Ui.warning(this.translate('actaVisitaManualUnavailable', 'Case'));
+
+                return;
+            }
+
+            this.openFormatoUrl('manual');
+        },
+
+        actionDescargarActaDigital: function () {
+            this.openFormatoUrl('digital');
+        },
+
+        openFormatoUrl: function (modo) {
+            if (!this.model.id) {
+                Espo.Ui.error(this.translate('Error'));
+
+                return;
+            }
+
+            const url = this.getBasePath()
+                + '?entryPoint=FormatoActaVisitaCaso'
+                + '&id=' + encodeURIComponent(this.model.id)
+                + '&modo=' + encodeURIComponent(modo)
+                + '&inline=1';
+
+            Espo.Ui.notify(this.translate('pleaseWait', 'messages'));
+
+            const printWindow = window.open(url, '_blank');
+
+            if (!printWindow) {
+                Espo.Ui.error(this.translate('actaVisitaPrintBlocked', 'Case'));
+                Espo.Ui.notify(false);
+
+                return;
+            }
+
+            setTimeout(function () {
+                Espo.Ui.notify(false);
+            }, 2000);
         },
     });
 });

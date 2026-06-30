@@ -112,6 +112,14 @@ check_file "Hook estado Asignado" \
   "$CUSTOM/Hooks/CaseObj/SetAsignadoOnPatrulleroAssignment.php" \
   "STATUS_ASIGNADO" || errors=$((errors + 1))
 
+check_file "Helper patrullero-acta" \
+  "$CLIENT/src/helpers/patrullero-acta.js" \
+  "canPrintManualActa" || errors=$((errors + 1))
+
+check_file "Modal acta visita" \
+  "$CLIENT/src/helpers/acta-visita-modal.js" \
+  "ActaVisita" || errors=$((errors + 1))
+
 check_file "Validacion persona solo tras radicado" \
   "$CUSTOM/Hooks/CaseObj/ValidatePersonaTipoOnSave.php" \
   "isRadicadoCompleto" || errors=$((errors + 1))
