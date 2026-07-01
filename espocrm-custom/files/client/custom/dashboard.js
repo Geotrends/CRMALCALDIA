@@ -42,10 +42,11 @@
             timeZone: 'America/Bogota',
         });
 
-    /* Paleta institucional — verdes, slate y tonos apagados */
+    /* Paleta pastel — gráficas del dashboard (alineada con estados del listado) */
     var PALETA = [
-        '#2a5934', '#3d6b47', '#4a7c59', '#5c8d6a',
-        '#64748b', '#475569', '#52667a', '#1d8a6e',
+        '#dcfce7', '#e0f2fe', '#fce7f3', '#ede9fe',
+        '#fef9c3', '#ffedd5', '#d1e7dd', '#e2e8f0',
+        '#ccfbf1', '#fecdd3', '#e9d5ff', '#d9f99d',
     ];
 
     /* Pasteles por estado — mismos tonos que el listado de casos */
@@ -83,17 +84,17 @@
     };
 
     var COLORES_SEMAFORO = {
-        'Al día': '#4a7c59',
-        'Próximo a vencer': '#a16207',
-        'Vencido': '#b91c1c',
-        'Sin fecha': '#cbd5e1',
+        'Al día': '#bbf7d0',
+        'Próximo a vencer': '#fef08a',
+        'Vencido': '#fecaca',
+        'Sin fecha': '#e2e8f0',
     };
 
     var COLORES_CANAL = {
-        'Teléfono': '#52667a',
-        'Correo': '#475569',
-        'Personal': '#2a5934',
-        'Sin canal': '#cbd5e1',
+        'Teléfono': '#cbd5e1',
+        'Correo': '#bae6fd',
+        'Personal': '#b8e6cf',
+        'Sin canal': '#f1f5f9',
     };
 
     var CANAL_CATALOGO = [
@@ -290,11 +291,11 @@
     }
 
     function tonosPorValor(valores, rgb) {
-        var base = rgb || {r: 42, g: 89, b: 52};
+        var base = rgb || {r: 184, g: 230, b: 207};
         var max = Math.max.apply(null, valores.concat([1]));
 
         return valores.map(function (valor) {
-            var intensidad = 0.4 + (valor / max) * 0.6;
+            var intensidad = 0.55 + (valor / max) * 0.4;
 
             return 'rgba(' + base.r + ', ' + base.g + ', ' + base.b + ', ' + intensidad.toFixed(2) + ')';
         });
@@ -492,12 +493,12 @@
                 datasets: [{
                     label: cfg.label || 'Casos',
                     data: valores,
-                    borderColor: cfg.color || '#2a5934',
-                    backgroundColor: cfg.fill || 'rgba(42, 89, 52, 0.12)',
+                    borderColor: cfg.color || '#86efac',
+                    backgroundColor: cfg.fill || 'rgba(187, 247, 208, 0.35)',
                     fill: true,
                     tension: 0.35,
                     pointRadius: 4,
-                    pointBackgroundColor: cfg.color || '#2a5934',
+                    pointBackgroundColor: cfg.color || '#86efac',
                 }],
             },
             options: {
@@ -915,7 +916,7 @@
             } else {
                 dibujarBarras('grafica-tiempo', porDia.etiquetas, porDia.valores, {
                     etiquetaDataset: 'Ingreso diario',
-                    coloresPorValor: {r: 42, g: 89, b: 52},
+                    coloresPorValor: {r: 186, g: 230, b: 253},
                     borderRadiusBarra: {topLeft: 8, topRight: 8, bottomLeft: 2, bottomRight: 2},
                     maxBarThickness: 48,
                     unidad: 'caso(s)',
@@ -946,7 +947,7 @@
                     porDiaRadicados.valores,
                     {
                         etiquetaDataset: 'Radicados por día',
-                        colorBarra: '#52667a',
+                        colorBarra: '#bae6fd',
                         unidad: 'radicado(s)',
                         ticksX: 11,
                         rotacionX: 45,
@@ -977,7 +978,7 @@
                     'grafica-sin-asignar',
                     ['Con patrullero', 'Sin asignar'],
                     [asignados, sinAsignar],
-                    ['rgba(42, 89, 52, 0.72)', 'rgba(148, 163, 184, 0.78)']
+                    ['rgba(184, 230, 207, 0.88)', 'rgba(226, 232, 240, 0.92)']
                 );
             }
 
