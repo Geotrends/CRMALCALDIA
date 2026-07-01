@@ -133,6 +133,7 @@ $caseApiActions = [
     'timeline' => 'yes',
     'cronograma' => 'yes',
     'panelesDetalle' => 'yes',
+    'confirmarVisitaRealizada' => 'yes',
     'radicadoConsecutivo' => 'no',
 ];
 

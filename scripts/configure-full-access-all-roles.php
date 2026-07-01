@@ -96,6 +96,7 @@ $fullScope = static function (string $scope = ''): array {
         $perms['timeline'] = 'yes';
         $perms['cronograma'] = 'yes';
         $perms['panelesDetalle'] = 'yes';
+        $perms['confirmarVisitaRealizada'] = 'yes';
     }
 
     return $perms;

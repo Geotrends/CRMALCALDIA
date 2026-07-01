@@ -8,6 +8,7 @@ use Espo\Core\Exceptions\Forbidden;
 use Espo\Core\Exceptions\NotFound;
 use Espo\Custom\Tools\App\AlcaldiaDateTimeHelper;
 use Espo\Custom\Tools\Calendar\CaseCalendarEventService;
+use Espo\Custom\Tools\CaseObj\CaseActaVisitaHelper;
 use Espo\Custom\Tools\CaseObj\CaseCreateDefaultsService;
 use Espo\Custom\Tools\CaseObj\CaseCronogramaService;
 use Espo\Custom\Tools\CaseObj\CaseTimelineService;
@@ -282,6 +283,83 @@ class CaseObj extends BaseCaseObj
         return [
             'timeline' => $timelineService->build($case, $statusDates),
             'cronograma' => (new CaseCronogramaService($this->entityManager))->build($case, $statusDates),
+        ];
+    }
+
+    /**
+     * POST Case/action/confirmarVisitaRealizada  body: { "id": "caseId" }
+     *
+     * @return array<string, mixed>
+     */
+    public function postActionConfirmarVisitaRealizada(Request $request): array
+    {
+        if (!$this->acl->check('Case', 'confirmarVisitaRealizada')) {
+            throw new Forbidden();
+        }
+
+        $body = $request->getParsedBody();
+        $id = '';
+
+        if (is_object($body)) {
+            $id = trim((string) ($body->id ?? ''));
+        } elseif (is_array($body)) {
+            $id = trim((string) ($body['id'] ?? ''));
+        }
+
+        if ($id === '') {
+            throw new BadRequest('ID requerido.');
+        }
+
+        $case = $this->entityManager->getEntityById('Case', $id);
+
+        if (!$case) {
+            throw new NotFound();
+        }
+
+        if (!$this->acl->checkEntityRead($case)) {
+            throw new Forbidden();
+        }
+
+        $user = $this->getUser();
+        $profile = $this->injectableFactory->create(AlcaldiaUserProfile::class);
+
+        if (!$user->isAdmin() && !$profile->isInspeccion($user)) {
+            $assignedId = trim((string) $case->get('assignedUserId'));
+
+            if ($assignedId === '' || $assignedId !== $user->getId()) {
+                throw new Forbidden();
+            }
+
+            if (!$profile->isPatrullero($user)) {
+                throw new Forbidden();
+            }
+        }
+
+        $currentStatus = trim((string) $case->get('status'));
+
+        if (CaseActaVisitaHelper::isVisitaConfirmadaStatus($currentStatus)) {
+            return [
+                'success' => true,
+                'status' => $currentStatus,
+                'alreadyConfirmed' => true,
+            ];
+        }
+
+        if (!CaseActaVisitaHelper::canAdvanceCaseToVisitaRealizada($case)) {
+            throw new BadRequest('El caso no está en estado Asignado.');
+        }
+
+        $case->set('status', CaseActaVisitaHelper::STATUS_VISITA_REALIZADA);
+
+        $this->entityManager->saveEntity($case, [
+            'skipCaseStatusUpdate' => true,
+            'skipPatrulleroCaseLimit' => true,
+        ]);
+
+        return [
+            'success' => true,
+            'status' => CaseActaVisitaHelper::STATUS_VISITA_REALIZADA,
+            'alreadyConfirmed' => false,
         ];
     }
 

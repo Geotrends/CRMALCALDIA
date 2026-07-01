@@ -60,6 +60,7 @@ $data['Case'] = [
     'timeline' => 'yes',
     'cronograma' => 'yes',
     'panelesDetalle' => 'yes',
+    'confirmarVisitaRealizada' => 'yes',
 ];
 
 $data['ActaVisita'] = [

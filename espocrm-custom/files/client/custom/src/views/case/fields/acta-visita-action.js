@@ -14,10 +14,14 @@ define('custom:views/case/fields/acta-visita-action', [
             Dep.prototype.setup.call(this);
 
             this.actaIsEditMode = false;
+            this.canUseTools = false;
+            this.visitaConfirmada = false;
+            this.requiresVisitaCheck = false;
             this.showButton = false;
             this.showPrintManual = false;
             this.stateReady = false;
             this._actaStateLoading = false;
+            this._confirmingVisita = false;
 
             if (!this.model.id) {
                 return;
@@ -34,6 +38,33 @@ define('custom:views/case/fields/acta-visita-action', [
                 || key;
         },
 
+        isPrivilegedActaUser: function (user) {
+            return !!(user && user.isAdmin && user.isAdmin())
+                || RadicacionFields.isInspeccionUser(user);
+        },
+
+        resolveRequiresVisitaCheck: function (user) {
+            return PatrulleroActa.isPatrulleroUser(user)
+                && !this.isPrivilegedActaUser(user)
+                && String(this.model.get('status') || '').trim() === 'Asignado';
+        },
+
+        resolveVisitaConfirmada: function () {
+            return ActaVisitaCaseStatus.isVisitaConfirmada(this.model);
+        },
+
+        canEnableActaActions: function (user) {
+            if (!this.canUseTools) {
+                return false;
+            }
+
+            if (!this.requiresVisitaCheck) {
+                return true;
+            }
+
+            return this.visitaConfirmada;
+        },
+
         data: function () {
             const user = this.getUser();
             let helpText = this.translateCaseLabel('actaVisitaPanelHelp');
@@ -48,8 +79,18 @@ define('custom:views/case/fields/acta-visita-action', [
                 helpText = this.translateCaseLabel('actaVisitaManualHelp');
             }
 
+            const showActions = this.stateReady && (this.showButton || this.showPrintManual);
+            const showPanel = this.stateReady && this.canUseTools
+                && (this.showVisitaCheck || showActions);
+
             return {
-                showPanel: this.stateReady && (this.showButton || this.showPrintManual),
+                showPanel: showPanel,
+                showVisitaCheck: this.showVisitaCheck,
+                showActions: showActions,
+                visitaConfirmada: this.visitaConfirmada,
+                visitaCheckDisabled: this.visitaConfirmada || this._confirmingVisita,
+                visitaCheckLabel: this.translateCaseLabel('visitaRealizadaCheck'),
+                visitaCheckHelp: this.translateCaseLabel('visitaRealizadaCheckHelp'),
                 showLlenarActa: this.showButton,
                 showPrintManual: this.showPrintManual,
                 helpText: helpText,
@@ -60,7 +101,7 @@ define('custom:views/case/fields/acta-visita-action', [
 
         afterRender: function () {
             Dep.prototype.afterRender.call(this);
-            this.bindButtons();
+            this.bindUi();
 
             if (this.model.id && !this.stateReady && !this._actaStateLoading) {
                 this.loadActaState();
@@ -72,7 +113,7 @@ define('custom:views/case/fields/acta-visita-action', [
 
             if (this.isRendered && this.isRendered()) {
                 this.$el.find('.case-acta-visita-actions, .case-acta-visita-btn').show();
-                this.bindButtons();
+                this.bindUi();
             }
         },
 
@@ -80,7 +121,7 @@ define('custom:views/case/fields/acta-visita-action', [
             this.readOnly = false;
 
             if (this.isRendered && this.isRendered()) {
-                this.bindButtons();
+                this.bindUi();
             }
         },
 
@@ -137,11 +178,30 @@ define('custom:views/case/fields/acta-visita-action', [
         },
 
         applyActaState: function (acta, canUse) {
+            const user = this.getUser();
+
             this.actaIsEditMode = ActaVisitaCaseStatus.isActaDiligenciada(acta);
-            this.showButton = canUse;
-            this.showPrintManual = canUse;
+            this.canUseTools = !!canUse;
+            this.visitaConfirmada = this.resolveVisitaConfirmada();
+
+            if (this.actaIsEditMode) {
+                this.visitaConfirmada = true;
+            }
+
+            this.requiresVisitaCheck = canUse && this.resolveRequiresVisitaCheck(user);
+            this.showVisitaCheck = this.requiresVisitaCheck || (
+                canUse
+                && PatrulleroActa.isPatrulleroUser(user)
+                && !this.isPrivilegedActaUser(user)
+                && this.visitaConfirmada
+            );
+
+            const actionsEnabled = this.canEnableActaActions(user);
+
+            this.showButton = actionsEnabled;
+            this.showPrintManual = actionsEnabled;
             this.stateReady = true;
-            this.updatePanelVisibility(canUse);
+            this.updatePanelVisibility(this.canUseTools);
             this.refreshViewState();
         },
 
@@ -164,7 +224,7 @@ define('custom:views/case/fields/acta-visita-action', [
             if (!hadPanel && showPanel) {
                 this.$el.data('actaPanelVisible', true);
                 this.reRender();
-                this.bindButtons();
+                this.bindUi();
 
                 return;
             }
@@ -173,7 +233,15 @@ define('custom:views/case/fields/acta-visita-action', [
             this.$el.toggle(showPanel);
             this.updatePanelVisibility(showPanel);
 
+            this.$el.find('.case-visita-realizada-checkbox')
+                .prop('checked', !!data.visitaConfirmada)
+                .prop('disabled', !!data.visitaCheckDisabled);
+
+            this.$el.find('.case-visita-visita-check-help').text(data.visitaCheckHelp || '');
             this.$el.find('.case-acta-visita-help').text(data.helpText || '');
+            this.$el.find('.case-visita-realizada-check').toggle(!!data.showVisitaCheck);
+            this.$el.find('.case-acta-visita-actions').toggle(!!data.showActions);
+            this.$el.find('.case-acta-visita-help').toggle(!!data.showActions);
 
             const $llenar = this.$el.find('[data-action="llenarActa"]');
 
@@ -191,7 +259,7 @@ define('custom:views/case/fields/acta-visita-action', [
                 $manual.html('<span class="fas fa-print"></span> ' + escapeHtml(data.buttonLabelManual));
             }
 
-            this.bindButtons();
+            this.bindUi();
         },
 
         updatePanelVisibility: function (show) {
@@ -204,6 +272,74 @@ define('custom:views/case/fields/acta-visita-action', [
                 '.record-panel[data-name="actaVisita"], ' +
                 '[data-name="actaVisita"].panel'
             ).toggle(show);
+        },
+
+        bindUi: function () {
+            this.bindButtons();
+            this.bindVisitaCheckbox();
+        },
+
+        bindVisitaCheckbox: function () {
+            if (!this.$el || !this.$el.length) {
+                return;
+            }
+
+            const self = this;
+
+            this.$el.find('[data-action="confirmarVisita"]').off('change.visita');
+
+            this.$el.find('[data-action="confirmarVisita"]').on('change.visita', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                if (self.visitaConfirmada || self._confirmingVisita) {
+                    $(e.currentTarget).prop('checked', true);
+
+                    return;
+                }
+
+                if (!$(e.currentTarget).is(':checked')) {
+                    $(e.currentTarget).prop('checked', false);
+
+                    return;
+                }
+
+                self.confirmarVisitaRealizada();
+            });
+        },
+
+        confirmarVisitaRealizada: function () {
+            const self = this;
+
+            if (!this.model.id || this._confirmingVisita) {
+                return;
+            }
+
+            this._confirmingVisita = true;
+            this.refreshViewState();
+
+            Espo.Ajax.postRequest('Case/action/confirmarVisitaRealizada', {
+                id: this.model.id,
+            }).then(function (response) {
+                const status = response && response.status
+                    ? response.status
+                    : 'Visita realizada';
+
+                self.model.set('status', status, {silent: true});
+                self.visitaConfirmada = true;
+                self.showButton = true;
+                self.showPrintManual = true;
+                self.model.fetch().then(function () {
+                    self.scheduleLoadActaState();
+                });
+                Espo.Ui.success(self.translateCaseLabel('visitaRealizadaConfirmSuccess'));
+            }).catch(function () {
+                self.$el.find('[data-action="confirmarVisita"]').prop('checked', false);
+                Espo.Ui.error(self.translateCaseLabel('visitaRealizadaConfirmError'));
+            }).finally(function () {
+                self._confirmingVisita = false;
+                self.refreshViewState();
+            });
         },
 
         bindButtons: function () {
@@ -219,12 +355,26 @@ define('custom:views/case/fields/acta-visita-action', [
             this.$el.find('[data-action="llenarActa"]').on('click.acta', function (e) {
                 e.preventDefault();
                 e.stopPropagation();
+
+                if (!self.canEnableActaActions(self.getUser())) {
+                    Espo.Ui.warning(self.translateCaseLabel('visitaRealizadaCheckHelp'));
+
+                    return;
+                }
+
                 self.openActaModal();
             });
 
             this.$el.find('[data-action="imprimirActaManual"]').on('click.actaManual', function (e) {
                 e.preventDefault();
                 e.stopPropagation();
+
+                if (!self.canEnableActaActions(self.getUser())) {
+                    Espo.Ui.warning(self.translateCaseLabel('visitaRealizadaCheckHelp'));
+
+                    return;
+                }
+
                 self.actionImprimirActaManual();
             });
         },

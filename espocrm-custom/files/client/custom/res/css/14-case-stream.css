@@ -85,6 +85,27 @@
   margin-bottom: 8px;
 }
 
+.detail[data-scope="Case"] .panel[data-name="actaVisita"] .case-visita-realizada-check {
+  margin-bottom: 12px;
+}
+
+.detail[data-scope="Case"] .panel[data-name="actaVisita"] .case-visita-realizada-check-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  cursor: pointer;
+}
+
+.detail[data-scope="Case"] .panel[data-name="actaVisita"] .case-visita-realizada-checkbox {
+  margin-top: 2px;
+}
+
+.detail[data-scope="Case"] .panel[data-name="actaVisita"] .case-visita-visita-check-help {
+  margin: 0 0 0 24px;
+}
+
 .detail[data-scope="Case"] .panel[data-name="actaVisita"] .case-acta-visita-btn {
   width: auto;
   max-width: 100%;

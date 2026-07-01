@@ -13,10 +13,6 @@
         "isMuted": true
     },
     {
-        "name": "cExpediente",
-        "isMuted": true
-    },
-    {
         "name": "cFechaVencimiento",
         "isMuted": true
     },

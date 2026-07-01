@@ -10,6 +10,10 @@ define('custom:helpers/acta-visita-case-status', [
         'Proceso cerrado',
     ];
 
+    const LEGACY_VISITA_STATUSES = [
+        'En proceso',
+    ];
+
     const CONTENT_FIELDS = [
         'objetoVisita',
         'situacionEncontrada',
@@ -76,6 +80,20 @@ define('custom:helpers/acta-visita-case-status', [
         return POST_VISITA_STATUSES.indexOf(status) !== -1;
     };
 
+    const isVisitaConfirmada = function (model) {
+        if (!model) {
+            return false;
+        }
+
+        const status = String(model.get('status') || '').trim();
+
+        if (POST_VISITA_STATUSES.indexOf(status) !== -1) {
+            return true;
+        }
+
+        return LEGACY_VISITA_STATUSES.indexOf(status) !== -1;
+    };
+
     const isVisitaRealizadaForFormatos = function (model, acta) {
         if (acta && isActaDiligenciada(acta)) {
             return true;
@@ -140,6 +158,7 @@ define('custom:helpers/acta-visita-case-status', [
         isActaDiligenciada: isActaDiligenciada,
         isFormatoActaHabilitado: isFormatoActaHabilitado,
         isPostVisitaStatus: isPostVisitaStatus,
+        isVisitaConfirmada: isVisitaConfirmada,
         isVisitaRealizadaForFormatos: isVisitaRealizadaForFormatos,
         canFetchActaForCase: canFetchActaForCase,
         fetchActaForCase: fetchActaForCase,

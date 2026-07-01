@@ -41,13 +41,13 @@ foreach ($actas as $acta) {
 
     $case = $em->getEntityById('Case', $caseId);
 
-    if (!$case || !CaseActaVisitaHelper::canAdvanceCaseToEnProceso($case)) {
+    if (!$case || !CaseActaVisitaHelper::canAdvanceCaseToVisitaRealizada($case)) {
         $skipped++;
 
         continue;
     }
 
-    $case->set('status', CaseActaVisitaHelper::STATUS_EN_PROCESO);
+    $case->set('status', CaseActaVisitaHelper::STATUS_VISITA_REALIZADA);
 
     $em->saveEntity($case, [
         'skipCaseStatusUpdate' => true,
@@ -55,7 +55,7 @@ foreach ($actas as $acta) {
     ]);
 
     $updated++;
-    echo 'Actualizado: ' . $case->getId() . ' → En proceso' . PHP_EOL;
+    echo 'Actualizado: ' . $case->getId() . ' → Visita realizada' . PHP_EOL;
 }
 
 echo PHP_EOL . "Listo. Actualizados: {$updated}. Omitidos: {$skipped}." . PHP_EOL;

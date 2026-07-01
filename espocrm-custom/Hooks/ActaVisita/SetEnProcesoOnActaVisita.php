@@ -9,7 +9,7 @@ use Espo\ORM\EntityManager;
 use Espo\ORM\Repository\Option\SaveOptions;
 
 /**
- * Acta de visita con contenido → caso pasa a En proceso (solo desde Asignado).
+ * Acta de visita con contenido → caso pasa a Visita realizada (desde Asignado o En proceso legacy).
  */
 class SetEnProcesoOnActaVisita implements AfterSave
 {
@@ -33,11 +33,11 @@ class SetEnProcesoOnActaVisita implements AfterSave
 
         $case = $this->entityManager->getEntityById('Case', $caseId);
 
-        if (!$case || !CaseActaVisitaHelper::canAdvanceCaseToEnProceso($case)) {
+        if (!$case || !CaseActaVisitaHelper::canAdvanceCaseToVisitaRealizada($case)) {
             return;
         }
 
-        $case->set('status', CaseActaVisitaHelper::STATUS_EN_PROCESO);
+        $case->set('status', CaseActaVisitaHelper::STATUS_VISITA_REALIZADA);
 
         $this->entityManager->saveEntity($case, [
             'skipCaseStatusUpdate' => true,

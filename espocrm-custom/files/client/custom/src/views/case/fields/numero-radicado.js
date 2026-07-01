@@ -96,7 +96,7 @@ define('custom:views/case/fields/numero-radicado', [
         },
 
         getDisplayRadicado: function () {
-            if (this.mode === this.MODE_DETAIL) {
+            if (this.mode === this.MODE_DETAIL || this.isListMode()) {
                 return CaseRadicadoLabel.getCombinedLabel(this.model);
             }
 
