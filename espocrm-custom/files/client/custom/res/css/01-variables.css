@@ -39,6 +39,24 @@
   --crm-purple: #8b5cf6;
   --crm-purple-soft: #ede9fe;
 
+  /* Estados del caso — paleta única por etapa */
+  --crm-case-pendiente: #d97706;
+  --crm-case-pendiente-soft: #fef3c7;
+  --crm-case-radicado: #6366f1;
+  --crm-case-radicado-soft: #e0e7ff;
+  --crm-case-asignado: #0284c7;
+  --crm-case-asignado-soft: #e0f2fe;
+  --crm-case-en-proceso: #7c3aed;
+  --crm-case-en-proceso-soft: #ede9fe;
+  --crm-case-visita: #0d9488;
+  --crm-case-visita-soft: #ccfbf1;
+  --crm-case-aprobada: #16a34a;
+  --crm-case-aprobada-soft: #dcfce7;
+  --crm-case-finalizado: #059669;
+  --crm-case-finalizado-soft: #d1fae5;
+  --crm-case-cerrado: #64748b;
+  --crm-case-cerrado-soft: #f1f5f9;
+
   /* Geometría */
   --crm-radius-sm: 8px;
   --crm-radius-md: 12px;

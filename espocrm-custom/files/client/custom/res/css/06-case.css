@@ -23,6 +23,63 @@
   padding: 4px 12px !important;
 }
 
+/* Lista y detalle — color distinto por estado */
+.label-casePendiente,
+.list[data-scope="Case"] .label-casePendiente,
+.detail[data-scope="Case"] .label-casePendiente {
+  background: var(--crm-case-pendiente-soft) !important;
+  color: var(--crm-case-pendiente) !important;
+}
+
+.label-caseRadicado,
+.list[data-scope="Case"] .label-caseRadicado,
+.detail[data-scope="Case"] .label-caseRadicado {
+  background: var(--crm-case-radicado-soft) !important;
+  color: var(--crm-case-radicado) !important;
+}
+
+.label-caseAsignado,
+.list[data-scope="Case"] .label-caseAsignado,
+.detail[data-scope="Case"] .label-caseAsignado {
+  background: var(--crm-case-asignado-soft) !important;
+  color: var(--crm-case-asignado) !important;
+}
+
+.label-caseEnProceso,
+.list[data-scope="Case"] .label-caseEnProceso,
+.detail[data-scope="Case"] .label-caseEnProceso {
+  background: var(--crm-case-en-proceso-soft) !important;
+  color: var(--crm-case-en-proceso) !important;
+}
+
+.label-caseVisitaRealizada,
+.list[data-scope="Case"] .label-caseVisitaRealizada,
+.detail[data-scope="Case"] .label-caseVisitaRealizada {
+  background: var(--crm-case-visita-soft) !important;
+  color: var(--crm-case-visita) !important;
+}
+
+.label-caseVisitaAprobada,
+.list[data-scope="Case"] .label-caseVisitaAprobada,
+.detail[data-scope="Case"] .label-caseVisitaAprobada {
+  background: var(--crm-case-aprobada-soft) !important;
+  color: var(--crm-case-aprobada) !important;
+}
+
+.label-caseFinalizado,
+.list[data-scope="Case"] .label-caseFinalizado,
+.detail[data-scope="Case"] .label-caseFinalizado {
+  background: var(--crm-case-finalizado-soft) !important;
+  color: var(--crm-case-finalizado) !important;
+}
+
+.label-caseCerrado,
+.list[data-scope="Case"] .label-caseCerrado,
+.detail[data-scope="Case"] .label-caseCerrado {
+  background: var(--crm-case-cerrado-soft) !important;
+  color: var(--crm-case-cerrado) !important;
+}
+
 /* Side panels — borde neutro (sin franja verde) */
 .detail[data-scope="Case"] .side .panel,
 .edit[data-scope="Case"] .side .panel {

@@ -575,14 +575,14 @@
             ],
             "default": "Pendiente de radicacion",
             "style": {
-                "Pendiente de radicacion": "warning",
-                "Radicado": "info",
-                "Asignado": "primary",
-                "En proceso": "primary",
-                "Visita realizada": "info",
-                "Visita aprobada": "success",
-                "Finalizado": "success",
-                "Proceso cerrado": "default"
+                "Pendiente de radicacion": "casePendiente",
+                "Radicado": "caseRadicado",
+                "Asignado": "caseAsignado",
+                "En proceso": "caseEnProceso",
+                "Visita realizada": "caseVisitaRealizada",
+                "Visita aprobada": "caseVisitaAprobada",
+                "Finalizado": "caseFinalizado",
+                "Proceso cerrado": "caseCerrado"
             }
         },
         "assignedUser": {

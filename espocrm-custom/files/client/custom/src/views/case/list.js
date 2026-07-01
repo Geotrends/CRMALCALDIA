@@ -20,6 +20,7 @@ define('custom:views/case/list', ['views/list'], function (Dep) {
             if (this.collection) {
                 this.listenTo(this.collection, 'sync', function () {
                     this.decorateKanbanBoard();
+                    this.decorateListStatusLabels();
                 });
             }
         },
@@ -32,6 +33,7 @@ define('custom:views/case/list', ['views/list'], function (Dep) {
             }
 
             this.decorateKanbanBoard();
+            this.decorateListStatusLabels();
         },
 
         checkAccessAction: function (action) {
@@ -86,6 +88,10 @@ define('custom:views/case/list', ['views/list'], function (Dep) {
                     }
 
                     var statusKey = String($column.attr('data-name') || '').trim();
+
+                    $column.attr('data-case-status', statusKey);
+                    $header.attr('data-case-status', statusKey);
+
                     var shortLabel = statusKey
                         ? (self.translate(statusKey, 'caseTimelineShort', 'Case') || self.translate(statusKey, 'options', 'Case', 'status'))
                         : '';
@@ -110,6 +116,7 @@ define('custom:views/case/list', ['views/list'], function (Dep) {
                 });
 
                 this.decorateKanbanDueDates($kanban);
+                this.decorateListStatusLabels();
             } catch (e) {
                 // No bloquear la lista si falla el adorno visual del kanban.
             }
@@ -178,6 +185,49 @@ define('custom:views/case/list', ['views/list'], function (Dep) {
             parsed.setHours(0, 0, 0, 0);
 
             return parsed;
+        },
+
+        STATUS_LABEL_CLASSES: {
+            'Pendiente de radicacion': 'casePendiente',
+            'Radicado': 'caseRadicado',
+            'Asignado': 'caseAsignado',
+            'En proceso': 'caseEnProceso',
+            'Visita realizada': 'caseVisitaRealizada',
+            'Visita aprobada': 'caseVisitaAprobada',
+            'Finalizado': 'caseFinalizado',
+            'Proceso cerrado': 'caseCerrado',
+        },
+
+        decorateListStatusLabels: function () {
+            if (!this.$el || !this.$el.length || !this.collection) {
+                return;
+            }
+
+            var self = this;
+            var allClasses = Object.keys(this.STATUS_LABEL_CLASSES).map(function (status) {
+                return 'label-' + self.STATUS_LABEL_CLASSES[status];
+            }).join(' ');
+
+            this.$el.find('tr[data-id]').each(function () {
+                var $row = $(this);
+                var id = $row.attr('data-id');
+                var model = id ? self.collection.get(id) : null;
+
+                if (!model) {
+                    return;
+                }
+
+                var status = String(model.get('status') || '').trim();
+                var styleClass = self.STATUS_LABEL_CLASSES[status];
+
+                if (!styleClass) {
+                    return;
+                }
+
+                $row.find('.cell[data-name="status"] .label')
+                    .removeClass(allClasses)
+                    .addClass('label-' + styleClass);
+            });
         },
     });
 });
