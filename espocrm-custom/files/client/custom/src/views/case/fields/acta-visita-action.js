@@ -17,8 +17,6 @@ define('custom:views/case/fields/acta-visita-action', [
             this.canUseTools = false;
             this.visitaConfirmada = false;
             this.requiresVisitaCheck = false;
-            this.showButton = false;
-            this.showPrintManual = false;
             this.stateReady = false;
             this._actaStateLoading = false;
             this._visitaMarcadaLocal = false;
@@ -75,36 +73,44 @@ define('custom:views/case/fields/acta-visita-action', [
             return this.isVisitaHabilitada();
         },
 
-        data: function () {
-            const user = this.getUser();
-            let helpText = this.translateCaseLabel('actaVisitaPanelHelp');
-            let buttonLabelDigital = this.translateCaseLabel('llenarActaVisitaDigital');
-
+        resolveHelpText: function (user) {
             if (this.actaIsEditMode) {
-                helpText = RadicacionFields.isInspeccionUser(user)
+                return RadicacionFields.isInspeccionUser(user)
                     ? this.translateCaseLabel('actaVisitaInspeccionHelp')
                     : this.translateCaseLabel('actaVisitaEditHelp');
-                buttonLabelDigital = this.translateCaseLabel('editarActaVisita');
-            } else if (this.showPrintManual) {
-                helpText = this.translateCaseLabel('actaVisitaManualHelp');
             }
 
-            const showActions = this.stateReady && (this.showButton || this.showPrintManual);
-            const showPanel = this.stateReady && this.canUseTools
-                && (this.showVisitaCheck || showActions);
+            if (this.canEnableActaActions()) {
+                return this.translateCaseLabel('actaVisitaManualHelp');
+            }
+
+            return this.translateCaseLabel('actaVisitaPanelHelp');
+        },
+
+        resolveButtonLabelDigital: function () {
+            if (this.actaIsEditMode) {
+                return this.translateCaseLabel('editarActaVisita');
+            }
+
+            return this.translateCaseLabel('llenarActaVisitaDigital');
+        },
+
+        data: function () {
+            const user = this.getUser();
+            const actionsEnabled = this.canEnableActaActions();
+            const showPanel = this.stateReady && this.canUseTools;
 
             return {
                 showPanel: showPanel,
                 showVisitaCheck: this.showVisitaCheck,
-                showActions: showActions,
+                showActions: showPanel,
+                actionsEnabled: actionsEnabled,
                 visitaHabilitada: this.isVisitaHabilitada(),
                 visitaCheckDisabled: this.visitaConfirmada || this.actaIsEditMode,
                 visitaCheckLabel: this.translateCaseLabel('visitaRealizadaCheck'),
                 visitaCheckHelp: this.translateCaseLabel('visitaRealizadaCheckHelp'),
-                showLlenarActa: this.showButton,
-                showPrintManual: this.showPrintManual,
-                helpText: helpText,
-                buttonLabelDigital: buttonLabelDigital,
+                helpText: this.resolveHelpText(user),
+                buttonLabelDigital: this.resolveButtonLabelDigital(),
                 buttonLabelManual: this.translateCaseLabel('imprimirActaVisitaManual'),
             };
         },
@@ -199,11 +205,6 @@ define('custom:views/case/fields/acta-visita-action', [
 
             this.requiresVisitaCheck = this.resolveRequiresVisitaCheck();
             this.showVisitaCheck = this.requiresVisitaCheck;
-
-            const actionsEnabled = this.canEnableActaActions();
-
-            this.showButton = actionsEnabled;
-            this.showPrintManual = actionsEnabled;
             this.stateReady = true;
             this.updatePanelVisibility(this.canUseTools);
             this.refreshViewState();
@@ -248,20 +249,15 @@ define('custom:views/case/fields/acta-visita-action', [
             this.$el.find('.case-acta-visita-help').toggle(!!data.showActions);
 
             const $llenar = this.$el.find('[data-action="llenarActa"]');
-
-            $llenar.toggle(!!data.showLlenarActa);
-
-            if (data.showLlenarActa) {
-                $llenar.html('<span class="fas fa-laptop"></span> ' + escapeHtml(data.buttonLabelDigital));
-            }
-
             const $manual = this.$el.find('[data-action="imprimirActaManual"]');
 
-            $manual.toggle(!!data.showPrintManual);
+            $llenar
+                .prop('disabled', !data.actionsEnabled)
+                .html('<span class="fas fa-laptop"></span> ' + escapeHtml(data.buttonLabelDigital));
 
-            if (data.showPrintManual) {
-                $manual.html('<span class="fas fa-print"></span> ' + escapeHtml(data.buttonLabelManual));
-            }
+            $manual
+                .prop('disabled', !data.actionsEnabled)
+                .html('<span class="fas fa-print"></span> ' + escapeHtml(data.buttonLabelManual));
 
             this.bindUi();
         },
@@ -303,8 +299,6 @@ define('custom:views/case/fields/acta-visita-action', [
                 }
 
                 self._visitaMarcadaLocal = $(e.currentTarget).is(':checked');
-                self.showButton = self.canEnableActaActions();
-                self.showPrintManual = self.showButton;
                 self.refreshViewState();
             });
         },

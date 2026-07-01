@@ -116,6 +116,11 @@
   max-width: 100%;
 }
 
+.detail[data-scope="Case"] .panel[data-name="actaVisita"] .case-acta-visita-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 .detail[data-scope="Case"] .panel[data-name="formatoGenerado"] .field[data-name="cFormatoSolicitudPdf"] .cell {
   padding-top: 0;
 }
