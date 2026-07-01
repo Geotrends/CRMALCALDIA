@@ -6,12 +6,13 @@ define('custom:helpers/case-status-timeline', [
         'Pendiente de radicacion',
         'Radicado',
         'Asignado',
-        'En proceso',
         'Visita realizada',
         'Visita aprobada',
         'Finalizado',
         'Proceso cerrado',
     ];
+
+    const LEGACY_STATUS_EN_PROCESO = 'En proceso';
 
     const STATUS_ALIASES = {
         'New': 'Pendiente de radicacion',
@@ -30,6 +31,11 @@ define('custom:helpers/case-status-timeline', [
 
     const indexForStatus = function (status) {
         const normalized = normalizeStatus(status);
+
+        if (normalized === LEGACY_STATUS_EN_PROCESO) {
+            return STATUS_FLOW.indexOf('Visita realizada');
+        }
+
         const idx = STATUS_FLOW.indexOf(normalized);
 
         return idx >= 0 ? idx : 0;
@@ -52,11 +58,11 @@ define('custom:helpers/case-status-timeline', [
         const actaEstado = String(model.get('cActaEstado') || '').trim();
 
         if (actaEstado === 'Diligenciada' || actaEstado === 'Aprobada') {
-            index = Math.max(index, 4);
+            index = Math.max(index, 3);
         }
 
         if (actaEstado === 'Aprobada') {
-            index = Math.max(index, 5);
+            index = Math.max(index, 4);
         }
 
         if (model.get('cActaFechaVisita') || model.get('cActaHallazgos')) {
@@ -109,10 +115,19 @@ define('custom:helpers/case-status-timeline', [
             }
 
             const interval = statusIntervals ? statusIntervals[status] : null;
-            const startedAt = interval
+            let startedAt = interval
                 ? interval.startedAt
                 : (statusDates ? statusDates[status] : null);
-            const endedAt = interval ? interval.endedAt : null;
+
+            if (status === 'Visita realizada' && !startedAt && statusDates && statusDates[LEGACY_STATUS_EN_PROCESO]) {
+                startedAt = statusDates[LEGACY_STATUS_EN_PROCESO];
+            }
+
+            let endedAt = interval ? interval.endedAt : null;
+
+            if (status === 'Asignado' && !endedAt && statusDates && statusDates[LEGACY_STATUS_EN_PROCESO]) {
+                endedAt = statusDates[LEGACY_STATUS_EN_PROCESO];
+            }
 
             let startedAtFormatted = '';
             let endedAtFormatted = '';
@@ -184,6 +199,10 @@ define('custom:helpers/case-status-timeline', [
                 statusDates[step.status] = step.startedAt || step.date;
             }
         });
+
+        if (!statusDates['Visita realizada'] && statusDates[LEGACY_STATUS_EN_PROCESO]) {
+            statusDates['Visita realizada'] = statusDates[LEGACY_STATUS_EN_PROCESO];
+        }
 
         const steps = buildSteps(view, currentIndex, statusDates, statusIntervals);
 

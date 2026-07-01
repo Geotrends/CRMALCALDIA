@@ -12,12 +12,13 @@ class CaseTimelineService
         'Pendiente de radicacion',
         'Radicado',
         'Asignado',
-        'En proceso',
         'Visita realizada',
         'Visita aprobada',
         'Finalizado',
         'Proceso cerrado',
     ];
+
+    private const LEGACY_STATUS_EN_PROCESO = 'En proceso';
 
     public function __construct(
         private EntityManager $entityManager
@@ -31,7 +32,7 @@ class CaseTimelineService
         $currentStatus = $this->normalizeStatus((string) $case->get('status'));
         $currentIndex = $this->resolveCurrentIndex($case, $currentStatus);
 
-        $statusDates = $statusDates ?? $this->resolveStatusDates($case);
+        $statusDates = $this->mergeLegacyStatusDates($statusDates ?? $this->resolveStatusDates($case));
         $actualDates = $statusDates;
         $statusDates = $this->fillMissingDatesForCompletedSteps($statusDates, $currentIndex);
         $total = count(self::STATUS_FLOW);
@@ -49,6 +50,11 @@ class CaseTimelineService
             }
 
             $startedAt = $actualDates[$status] ?? null;
+
+            if ($status === 'Visita realizada' && $startedAt === null) {
+                $startedAt = $actualDates[self::LEGACY_STATUS_EN_PROCESO] ?? null;
+            }
+
             $endedAt = $this->resolveEndedAt($index, $actualDates);
 
             if ($state === 'current') {
@@ -213,7 +219,8 @@ class CaseTimelineService
 
     private function isValidFlowStatus(string $status): bool
     {
-        return in_array($status, self::STATUS_FLOW, true);
+        return in_array($status, self::STATUS_FLOW, true)
+            || $status === self::LEGACY_STATUS_EN_PROCESO;
     }
 
     /**
@@ -256,6 +263,10 @@ class CaseTimelineService
 
     private function resolveCurrentIndex(Entity $case, string $currentStatus): int
     {
+        if ($currentStatus === self::LEGACY_STATUS_EN_PROCESO) {
+            $currentStatus = 'Visita realizada';
+        }
+
         $statusIndex = array_search($currentStatus, self::STATUS_FLOW, true);
 
         if ($statusIndex === false) {
@@ -285,18 +296,18 @@ class CaseTimelineService
             $estado = trim((string) $acta->get('estado'));
 
             if (in_array($estado, ['Diligenciada', 'Aprobada'], true)) {
-                $index = max($index, 4);
+                $index = max($index, 3);
             }
 
             if ($estado === 'Aprobada') {
-                $index = max($index, 5);
+                $index = max($index, 4);
             }
         }
 
         $actuo = $this->findActuoForCase($case->getId());
 
         if ($actuo && $this->isActuoWithContent($actuo)) {
-            $index = max($index, 7);
+            $index = max($index, 6);
         }
 
         return $index;
@@ -368,6 +379,12 @@ class CaseTimelineService
      */
     private function resolveEndedAt(int $statusIndex, array $actualDates): ?string
     {
+        $currentStatus = self::STATUS_FLOW[$statusIndex] ?? '';
+
+        if ($currentStatus === 'Asignado' && isset($actualDates[self::LEGACY_STATUS_EN_PROCESO])) {
+            return $actualDates[self::LEGACY_STATUS_EN_PROCESO];
+        }
+
         for ($i = $statusIndex + 1, $count = count(self::STATUS_FLOW); $i < $count; $i++) {
             $nextStatus = self::STATUS_FLOW[$i];
 
@@ -399,6 +416,19 @@ class CaseTimelineService
             if ($lastKnown !== null) {
                 $dates[$status] = $lastKnown;
             }
+        }
+
+        return $dates;
+    }
+
+    /**
+     * @param array<string, string> $dates
+     * @return array<string, string>
+     */
+    private function mergeLegacyStatusDates(array $dates): array
+    {
+        if (!isset($dates['Visita realizada']) && isset($dates[self::LEGACY_STATUS_EN_PROCESO])) {
+            $dates['Visita realizada'] = $dates[self::LEGACY_STATUS_EN_PROCESO];
         }
 
         return $dates;
