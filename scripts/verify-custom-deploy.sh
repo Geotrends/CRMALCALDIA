@@ -236,7 +236,23 @@ check_file "CSS estados caso" \
 
 check_file "Hook En proceso al guardar acta" \
   "$CUSTOM/Hooks/ActaVisita/SetEnProcesoOnActaVisita.php" \
-  "CaseActaVisitaHelper" || errors=$((errors + 1))
+  "STATUS_VISITA_REALIZADA" || errors=$((errors + 1))
+
+check_file "Acción confirmar visita realizada" \
+  "$CUSTOM/Controllers/CaseObj.php" \
+  "confirmarVisitaRealizada" || errors=$((errors + 1))
+
+check_file "Panel acta — checkbox visita" \
+  "$CLIENT/src/views/case/fields/acta-visita-action.js" \
+  "confirmarVisitaRealizada" || errors=$((errors + 1))
+
+check_file "Kanban — radicado combinado" \
+  "$CLIENT/src/views/case/fields/numero-radicado.js" \
+  "getCombinedLabel" || errors=$((errors + 1))
+
+check_file "Scope Case — ACL confirmar visita" \
+  "$CUSTOM/Resources/metadata/scopes/Case.json" \
+  "confirmarVisitaRealizada" || errors=$((errors + 1))
 
 if [ -f "$REPO_ROOT/.deploy-version" ]; then
   echo "OK: Versión en imagen → $(tr -d '\r\n' < "$REPO_ROOT/.deploy-version")"
