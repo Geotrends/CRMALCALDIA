@@ -210,6 +210,34 @@ check_file "Campo numero radicado" \
   "$CLIENT/src/views/case/fields/numero-radicado.js" \
   "radicado-catalog" || errors=$((errors + 1))
 
+check_file "Colores estado caso (helper)" \
+  "$CLIENT/src/helpers/case-status-colors.js" \
+  "applyKanbanColumn" || errors=$((errors + 1))
+
+check_file "Vista lista casos (kanban colores)" \
+  "$CLIENT/src/views/case/list.js" \
+  "scheduleDecorate" || errors=$((errors + 1))
+
+check_file "Campo status con colores pastel" \
+  "$CLIENT/src/views/case/fields/status.js" \
+  "applyStatusStyle" || errors=$((errors + 1))
+
+check_file "clientDefs Case — vista status" \
+  "$CUSTOM/Resources/metadata/clientDefs/Case.json" \
+  "custom:views/case/fields/status" || errors=$((errors + 1))
+
+check_file "entityDefs Case — estilos por etapa" \
+  "$CUSTOM/Resources/metadata/entityDefs/Case.json" \
+  "caseEnProceso" || errors=$((errors + 1))
+
+check_file "CSS estados caso" \
+  "$CLIENT/res/css/06-case.css" \
+  "data-case-status" || errors=$((errors + 1))
+
+check_file "Hook En proceso al guardar acta" \
+  "$CUSTOM/Hooks/ActaVisita/SetEnProcesoOnActaVisita.php" \
+  "CaseActaVisitaHelper" || errors=$((errors + 1))
+
 if [ -f "$REPO_ROOT/.deploy-version" ]; then
   echo "OK: Versión en imagen → $(tr -d '\r\n' < "$REPO_ROOT/.deploy-version")"
 else

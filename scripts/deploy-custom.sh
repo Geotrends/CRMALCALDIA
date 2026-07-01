@@ -8,7 +8,7 @@ if [ -f /var/www/html/command.php ] && ! command -v docker >/dev/null 2>&1; then
 fi
 
 echo 'Copiando backend custom (sync limpio)...'
-docker exec espocrm bash -c 'find /var/www/html/custom/Espo/Custom -mindepth 1 -maxdepth 1 -exec rm -rf {} +'
+docker exec -u root espocrm bash -c 'find /var/www/html/custom/Espo/Custom -mindepth 1 -maxdepth 1 -exec rm -rf {} +'
 docker cp "$ROOT/espocrm-custom/." espocrm:/var/www/html/custom/Espo/Custom/
 
 echo 'Eliminando hooks y clases obsoletas (no presentes en el repo)...'
@@ -38,7 +38,7 @@ if [ -d "$ROOT/formatos" ]; then
 fi
 
 echo 'Copiando frontend client/custom (sync limpio)...'
-docker exec espocrm bash -c 'find /var/www/html/client/custom -mindepth 1 -maxdepth 1 -exec rm -rf {} +'
+docker exec -u root espocrm bash -c 'find /var/www/html/client/custom -mindepth 1 -maxdepth 1 -exec rm -rf {} +'
 docker cp "$ROOT/espocrm-custom/files/client/custom/." espocrm:/var/www/html/client/custom/
 
 echo 'Eliminando JS obsoleto...'

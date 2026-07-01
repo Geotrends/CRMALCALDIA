@@ -22,10 +22,11 @@ define('custom:views/case/list', [
 
             if (this.collection) {
                 this.listenTo(this.collection, 'sync', function () {
-                    this.decorateKanbanBoard();
-                    this.decorateListStatusLabels();
+                    this.scheduleDecorate();
                 });
             }
+
+            this._decorateTimers = [];
         },
 
         afterRender: function () {
@@ -35,20 +36,77 @@ define('custom:views/case/list', [
                 this.$el.addClass('case-list-root');
             }
 
+            this.scheduleDecorate();
+            this.setupKanbanObserver();
+        },
+
+        switchViewMode: function (mode) {
+            var result = Dep.prototype.switchViewMode
+                ? Dep.prototype.switchViewMode.apply(this, arguments)
+                : undefined;
+
+            this.scheduleDecorate();
+
+            return result;
+        },
+
+        scheduleDecorate: function () {
             var self = this;
 
-            this.decorateKanbanBoard();
-            this.decorateListStatusLabels();
+            if (this._decorateTimers) {
+                this._decorateTimers.forEach(function (timerId) {
+                    clearTimeout(timerId);
+                });
+                this._decorateTimers = [];
+            }
 
-            setTimeout(function () {
-                self.decorateKanbanBoard();
-                self.decorateListStatusLabels();
-            }, 0);
+            [0, 120, 400, 900].forEach(function (delay) {
+                var timerId = setTimeout(function () {
+                    self.decorateKanbanBoard();
+                    self.decorateListStatusLabels();
+                }, delay);
 
-            setTimeout(function () {
-                self.decorateKanbanBoard();
-                self.decorateListStatusLabels();
-            }, 200);
+                self._decorateTimers.push(timerId);
+            });
+        },
+
+        setupKanbanObserver: function () {
+            if (this._kanbanObserverAttached) {
+                return;
+            }
+
+            var self = this;
+
+            this._kanbanObserverAttached = true;
+
+            var attach = function () {
+                var $kanban = self.getKanbanRoot();
+
+                if (!$kanban || !$kanban.length || $kanban.data('case-kanban-observed')) {
+                    return;
+                }
+
+                $kanban.data('case-kanban-observed', true);
+
+                if (typeof MutationObserver === 'undefined') {
+                    return;
+                }
+
+                var observer = new MutationObserver(function () {
+                    self.scheduleDecorate();
+                });
+
+                observer.observe($kanban[0], {
+                    childList: true,
+                    subtree: true,
+                });
+
+                self._kanbanObserver = observer;
+            };
+
+            attach();
+            setTimeout(attach, 200);
+            setTimeout(attach, 800);
         },
 
         checkAccessAction: function (action) {
@@ -75,6 +133,18 @@ define('custom:views/case/list', [
             return $kanban.length ? $kanban : null;
         },
 
+        findKanbanHeader: function ($kanban, $headers, rawKey, index) {
+            if (rawKey) {
+                var $byName = $kanban.find('th.group-header[data-name="' + rawKey + '"]').first();
+
+                if ($byName.length) {
+                    return $byName;
+                }
+            }
+
+            return $headers.eq(index);
+        },
+
         decorateKanbanBoard: function () {
             try {
                 if (!this.$el || !this.$el.length) {
@@ -95,30 +165,19 @@ define('custom:views/case/list', [
                 $kanban.find('td.group-column').each(function (index) {
                     var $column = $(this);
                     var count = $column.find('.item').length;
-                    var $header = $headers.eq(index);
+                    var rawKey = String($column.attr('data-name') || '').trim();
+                    var statusKey = CaseStatusColors.resolveStatusKey(rawKey, index);
+                    var $header = self.findKanbanHeader($kanban, $headers, rawKey, index);
                     var $label = $header.find('.kanban-group-label');
 
-                    if (!$label.length) {
-                        return;
-                    }
-
-                    var rawKey = String(
-                        $column.attr('data-name')
-                        || $header.attr('data-name')
-                        || $header.attr('name')
-                        || ''
-                    ).trim();
-                    var statusKey = CaseStatusColors.resolveStatusKey(rawKey, index);
-
-                    if (!statusKey) {
+                    if (!statusKey || !$label.length) {
                         return;
                     }
 
                     CaseStatusColors.applyKanbanColumn($column, $header, $label, statusKey);
 
-                    var shortLabel = statusKey
-                        ? (self.translate(statusKey, 'caseTimelineShort', 'Case') || self.translate(statusKey, 'options', 'Case', 'status'))
-                        : '';
+                    var shortLabel = self.translate(statusKey, 'caseTimelineShort', 'Case')
+                        || self.translate(statusKey, 'options', 'Case', 'status');
                     var baseLabel = shortLabel || String($label.attr('data-base-label') || $label.text())
                         .replace(/\s*\(\d+\)\s*$/, '')
                         .trim();
@@ -150,6 +209,7 @@ define('custom:views/case/list', [
             if (!this.collection || !$kanban || !$kanban.length) {
                 return;
             }
+
             var self = this;
             var today = new Date();
 
