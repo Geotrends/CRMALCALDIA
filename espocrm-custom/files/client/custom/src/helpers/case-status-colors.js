@@ -144,7 +144,7 @@ define('custom:helpers/case-status-colors', [], function () {
         $header.attr('data-case-status', status).addClass('case-kanban-status-header');
 
         $column.css({
-            backgroundColor: colors.bg,
+            backgroundColor: 'transparent',
         });
 
         $header.css({
