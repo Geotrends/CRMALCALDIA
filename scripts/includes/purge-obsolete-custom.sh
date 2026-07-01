@@ -34,6 +34,7 @@ purge_obsolete_custom() {
     "$custom_target/Hooks/CaseObj/LimitRadicadoFieldEdit.php" \
     "$custom_target/Hooks/CaseObj/RestrictAsignadorCaseAccess.php" \
     "$custom_target/Hooks/CaseObj/SetEnProcesoOnPatrulleroAssignment.php" \
+    "$custom_target/Hooks/ActaVisita/SetEnProcesoOnActaVisitaSave.php" \
     "$custom_target/Hooks/CaseObj/SetPendienteRadicacionOnCaseCreate.php" \
     "$custom_target/Hooks/CaseObj/ValidateSolicitudCompletaOnSave.php" \
     "$custom_target/Tools/CaseObj/LegacyCaseFieldMirror.php" \

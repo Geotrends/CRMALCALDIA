@@ -12,8 +12,18 @@ class CaseActaVisitaHelper
     public const STATUS_EN_PROCESO = 'En proceso';
 
     /** @var string[] */
+    public const CONTENT_FIELDS = [
+        'objetoVisita',
+        'situacionEncontrada',
+        'analisisSituacion',
+        'conclusion',
+        'requerimientos',
+    ];
+
+    /** @var string[] */
     private const ADVANCE_TO_EN_PROCESO_FROM = [
         'Asignado',
+        'Assigned',
     ];
 
     public static function isActaWithContent(Entity $acta): bool
@@ -24,21 +34,21 @@ class CaseActaVisitaHelper
             return true;
         }
 
-        foreach (['objetoVisita', 'situacionEncontrada', 'conclusion'] as $field) {
+        foreach (self::CONTENT_FIELDS as $field) {
             if (trim((string) $acta->get($field)) !== '') {
                 return true;
             }
         }
 
-        return (bool) $acta->get('cFormatoActaVisitaPdfId');
+        if ((bool) $acta->get('cFormatoActaVisitaPdfId')) {
+            return true;
+        }
+
+        return trim((string) $acta->get('formatoManoAdjuntoIds')) !== '';
     }
 
     public static function canAdvanceCaseToEnProceso(Entity $case): bool
     {
-        if (!CaseRadicadoHelper::isRadicadoCompleto($case)) {
-            return false;
-        }
-
         $current = trim((string) $case->get('status'));
 
         return in_array($current, self::ADVANCE_TO_EN_PROCESO_FROM, true);

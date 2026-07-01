@@ -11,7 +11,7 @@ use Espo\ORM\Repository\Option\SaveOptions;
 /**
  * Acta de visita con contenido → caso pasa a En proceso (solo desde Asignado).
  */
-class SetEnProcesoOnActaVisitaSave implements AfterSave
+class SetEnProcesoOnActaVisita implements AfterSave
 {
     public static int $order = 48;
 
@@ -21,7 +21,7 @@ class SetEnProcesoOnActaVisitaSave implements AfterSave
 
     public function afterSave(Entity $entity, SaveOptions $options): void
     {
-        if ($options->get('skipCaseEnProcesoOnActa')) {
+        if ($options->get('skipCaseStatusUpdate') || $options->get('skipCaseEnProcesoOnActa')) {
             return;
         }
 
@@ -39,6 +39,9 @@ class SetEnProcesoOnActaVisitaSave implements AfterSave
 
         $case->set('status', CaseActaVisitaHelper::STATUS_EN_PROCESO);
 
-        $this->entityManager->saveEntity($case);
+        $this->entityManager->saveEntity($case, [
+            'skipCaseStatusUpdate' => true,
+            'skipPatrulleroCaseLimit' => true,
+        ]);
     }
 }
