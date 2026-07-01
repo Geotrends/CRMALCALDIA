@@ -39,23 +39,23 @@
   --crm-purple: #8b5cf6;
   --crm-purple-soft: #ede9fe;
 
-  /* Estados del caso — pasteles (sincronizado con case-status-colors.js) */
-  --crm-case-pendiente: #c2410c;
+  /* Estados del caso — 8 familias distintas: naranja, azul, rosa, violeta, amarillo, verde, marrón, gris */
+  --crm-case-pendiente: #9a3412;
   --crm-case-pendiente-soft: #ffedd5;
-  --crm-case-radicado: #1e40af;
+  --crm-case-radicado: #1e3a8a;
   --crm-case-radicado-soft: #dbeafe;
-  --crm-case-asignado: #0e7490;
-  --crm-case-asignado-soft: #cffafe;
-  --crm-case-en-proceso: #a21caf;
-  --crm-case-en-proceso-soft: #fae8ff;
-  --crm-case-visita: #4d7c0f;
-  --crm-case-visita-soft: #ecfccb;
-  --crm-case-aprobada: #15803d;
+  --crm-case-asignado: #9d174d;
+  --crm-case-asignado-soft: #fce7f3;
+  --crm-case-en-proceso: #5b21b6;
+  --crm-case-en-proceso-soft: #ede9fe;
+  --crm-case-visita: #854d0e;
+  --crm-case-visita-soft: #fef9c3;
+  --crm-case-aprobada: #166534;
   --crm-case-aprobada-soft: #dcfce7;
-  --crm-case-finalizado: #0f766e;
-  --crm-case-finalizado-soft: #ccfbf1;
-  --crm-case-cerrado: #64748b;
-  --crm-case-cerrado-soft: #f1f5f9;
+  --crm-case-finalizado: #6b4423;
+  --crm-case-finalizado-soft: #ede0d4;
+  --crm-case-cerrado: #334155;
+  --crm-case-cerrado-soft: #e2e8f0;
 
   /* Geometría */
   --crm-radius-sm: 8px;

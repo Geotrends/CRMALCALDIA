@@ -208,21 +208,21 @@ th.group-header[data-case-status] .kanban-group-title {
 }
 
 th.group-header[data-case-status="Pendiente de radicacion"],
-td.group-column[data-case-status="Pendiente de radicacion"] { --kanban-status-color: #ea580c; }
+td.group-column[data-case-status="Pendiente de radicacion"] { --kanban-status-color: #f97316; }
 th.group-header[data-case-status="Radicado"],
-td.group-column[data-case-status="Radicado"] { --kanban-status-color: #2563eb; }
+td.group-column[data-case-status="Radicado"] { --kanban-status-color: #3b82f6; }
 th.group-header[data-case-status="Asignado"],
-td.group-column[data-case-status="Asignado"] { --kanban-status-color: #0891b2; }
+td.group-column[data-case-status="Asignado"] { --kanban-status-color: #ec4899; }
 th.group-header[data-case-status="En proceso"],
-td.group-column[data-case-status="En proceso"] { --kanban-status-color: #c026d3; }
+td.group-column[data-case-status="En proceso"] { --kanban-status-color: #8b5cf6; }
 th.group-header[data-case-status="Visita realizada"],
-td.group-column[data-case-status="Visita realizada"] { --kanban-status-color: #65a30d; }
+td.group-column[data-case-status="Visita realizada"] { --kanban-status-color: #eab308; }
 th.group-header[data-case-status="Visita aprobada"],
-td.group-column[data-case-status="Visita aprobada"] { --kanban-status-color: #16a34a; }
+td.group-column[data-case-status="Visita aprobada"] { --kanban-status-color: #22c55e; }
 th.group-header[data-case-status="Finalizado"],
-td.group-column[data-case-status="Finalizado"] { --kanban-status-color: #0d9488; }
+td.group-column[data-case-status="Finalizado"] { --kanban-status-color: #a18072; }
 th.group-header[data-case-status="Proceso cerrado"],
-td.group-column[data-case-status="Proceso cerrado"] { --kanban-status-color: #78716c; }
+td.group-column[data-case-status="Proceso cerrado"] { --kanban-status-color: #64748b; }
 
 /* Kanban — color por estado (data-case-status desde list.js) */
 th.group-header[data-case-status="Pendiente de radicacion"] .kanban-group-label::before,
