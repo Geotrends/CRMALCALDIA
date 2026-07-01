@@ -131,7 +131,7 @@ define('custom:helpers/case-status-colors', [], function () {
     };
 
   /**
-   * Pinta columna y encabezado del kanban con los mismos tonos del listado (pasteles opacos).
+   * Pinta columna y encabezado del kanban con los mismos pasteles del listado/dashboard.
    */
     const applyKanbanColumn = function ($column, $header, $label, status) {
         const colors = get(status);
@@ -148,12 +148,13 @@ define('custom:helpers/case-status-colors', [], function () {
         });
 
         $header.css({
-            backgroundColor: colors.bg,
+            backgroundColor: 'transparent',
         });
 
         $header.children('div').css({
             backgroundColor: colors.bg,
             borderColor: colors.border,
+            color: colors.text,
         });
 
         if ($label && $label.length) {
@@ -165,7 +166,7 @@ define('custom:helpers/case-status-colors', [], function () {
             }
 
             $dot.css({
-                backgroundColor: colors.border,
+                backgroundColor: colors.text,
             });
 
             $label.find('.kanban-group-title').css({
@@ -174,7 +175,8 @@ define('custom:helpers/case-status-colors', [], function () {
         }
 
         $column.find('.item .panel').css({
-            borderLeft: '4px solid ' + colors.border,
+            borderLeft: '3px solid ' + colors.text,
+            borderLeftColor: colors.text,
         });
     };
 
