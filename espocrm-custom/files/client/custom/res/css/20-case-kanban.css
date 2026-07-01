@@ -173,6 +173,30 @@
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9);
 }
 
+/* Punto de color real (inyectado por JS) — reemplaza el ::before genérico */
+.case-kanban-status-dot {
+  display: block;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  margin-bottom: 6px;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.95);
+}
+
+.kanban-group-label:has(.case-kanban-status-dot)::before {
+  display: none !important;
+  content: none !important;
+}
+
+.case-kanban-status-header {
+  border-radius: var(--crm-radius-md) var(--crm-radius-md) 0 0;
+}
+
+.case-kanban-status-col {
+  border-radius: 0 0 var(--crm-radius-md) var(--crm-radius-md);
+}
+
 /* Kanban — color por estado (variable inline desde list.js + respaldo por data-case-status) */
 th.group-header[data-case-status] .kanban-group-label::before,
 td.group-column[data-case-status]::before {

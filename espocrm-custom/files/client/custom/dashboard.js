@@ -49,14 +49,14 @@
     ];
 
     var COLORES_ESTADO = {
-        'Pendiente de radicacion': '#ea580c',
-        'Radicado': '#2563eb',
-        'Asignado': '#0891b2',
-        'En proceso': '#c026d3',
-        'Visita realizada': '#65a30d',
-        'Visita aprobada': '#16a34a',
-        'Finalizado': '#0d9488',
-        'Proceso cerrado': '#78716c',
+        'Pendiente de radicacion': '#fb923c',
+        'Radicado': '#60a5fa',
+        'Asignado': '#22d3ee',
+        'En proceso': '#d946ef',
+        'Visita realizada': '#a3e635',
+        'Visita aprobada': '#4ade80',
+        'Finalizado': '#2dd4bf',
+        'Proceso cerrado': '#94a3b8',
     };
 
     var COLORES_SEMAFORO = {

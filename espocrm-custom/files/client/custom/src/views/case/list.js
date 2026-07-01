@@ -35,8 +35,20 @@ define('custom:views/case/list', [
                 this.$el.addClass('case-list-root');
             }
 
+            var self = this;
+
             this.decorateKanbanBoard();
             this.decorateListStatusLabels();
+
+            setTimeout(function () {
+                self.decorateKanbanBoard();
+                self.decorateListStatusLabels();
+            }, 0);
+
+            setTimeout(function () {
+                self.decorateKanbanBoard();
+                self.decorateListStatusLabels();
+            }, 200);
         },
 
         checkAccessAction: function (action) {
@@ -90,17 +102,19 @@ define('custom:views/case/list', [
                         return;
                     }
 
-                    var statusKey = String($column.attr('data-name') || '').trim();
+                    var rawKey = String(
+                        $column.attr('data-name')
+                        || $header.attr('data-name')
+                        || $header.attr('name')
+                        || ''
+                    ).trim();
+                    var statusKey = CaseStatusColors.resolveStatusKey(rawKey, index);
 
-                    $column.attr('data-case-status', statusKey);
-                    $header.attr('data-case-status', statusKey);
-
-                    var statusColors = CaseStatusColors.get(statusKey);
-
-                    if (statusColors) {
-                        $column.css('--kanban-status-color', statusColors.kanban);
-                        $header.css('--kanban-status-color', statusColors.kanban);
+                    if (!statusKey) {
+                        return;
                     }
+
+                    CaseStatusColors.applyKanbanColumn($column, $header, $label, statusKey);
 
                     var shortLabel = statusKey
                         ? (self.translate(statusKey, 'caseTimelineShort', 'Case') || self.translate(statusKey, 'options', 'Case', 'status'))

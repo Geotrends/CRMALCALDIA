@@ -1,57 +1,85 @@
 define('custom:helpers/case-status-colors', [], function () {
 
+    /** @type {string[]} */
+    const ORDERED_STATUSES = [
+        'Pendiente de radicacion',
+        'Radicado',
+        'Asignado',
+        'En proceso',
+        'Visita realizada',
+        'Visita aprobada',
+        'Finalizado',
+        'Proceso cerrado',
+    ];
+
     /**
-     * Paleta única por etapa — fondo, texto y borde bien separados en el círculo cromático.
-     * @type {Object<string, {bg: string, text: string, border: string, kanban: string}>}
+     * Paleta pastel — cada etapa con matiz distinto.
+     * @type {Object<string, {bg: string, text: string, border: string, kanban: string, kanbanCol: string, kanbanText: string}>}
      */
     const PALETTE = {
         'Pendiente de radicacion': {
-            bg: '#fed7aa',
-            text: '#9a3412',
-            border: '#ea580c',
-            kanban: '#ea580c',
+            bg: '#ffedd5',
+            text: '#c2410c',
+            border: '#fdba74',
+            kanban: '#fb923c',
+            kanbanCol: '#fff7ed',
+            kanbanText: '#c2410c',
         },
         'Radicado': {
-            bg: '#bfdbfe',
-            text: '#1e3a8a',
-            border: '#2563eb',
-            kanban: '#2563eb',
+            bg: '#dbeafe',
+            text: '#1e40af',
+            border: '#93c5fd',
+            kanban: '#60a5fa',
+            kanbanCol: '#eff6ff',
+            kanbanText: '#1d4ed8',
         },
         'Asignado': {
-            bg: '#a5f3fc',
-            text: '#155e75',
-            border: '#0891b2',
-            kanban: '#0891b2',
+            bg: '#cffafe',
+            text: '#0e7490',
+            border: '#67e8f9',
+            kanban: '#22d3ee',
+            kanbanCol: '#ecfeff',
+            kanbanText: '#0e7490',
         },
         'En proceso': {
-            bg: '#f5d0fe',
-            text: '#86198f',
-            border: '#c026d3',
-            kanban: '#c026d3',
+            bg: '#fae8ff',
+            text: '#a21caf',
+            border: '#e879f9',
+            kanban: '#d946ef',
+            kanbanCol: '#fdf4ff',
+            kanbanText: '#a21caf',
         },
         'Visita realizada': {
-            bg: '#d9f99d',
-            text: '#365314',
-            border: '#65a30d',
-            kanban: '#65a30d',
+            bg: '#ecfccb',
+            text: '#4d7c0f',
+            border: '#bef264',
+            kanban: '#a3e635',
+            kanbanCol: '#f7fee7',
+            kanbanText: '#4d7c0f',
         },
         'Visita aprobada': {
-            bg: '#bbf7d0',
-            text: '#14532d',
-            border: '#16a34a',
-            kanban: '#16a34a',
+            bg: '#dcfce7',
+            text: '#15803d',
+            border: '#86efac',
+            kanban: '#4ade80',
+            kanbanCol: '#f0fdf4',
+            kanbanText: '#15803d',
         },
         'Finalizado': {
-            bg: '#99f6e4',
-            text: '#115e59',
-            border: '#0d9488',
-            kanban: '#0d9488',
+            bg: '#ccfbf1',
+            text: '#0f766e',
+            border: '#5eead4',
+            kanban: '#2dd4bf',
+            kanbanCol: '#f0fdfa',
+            kanbanText: '#0f766e',
         },
         'Proceso cerrado': {
-            bg: '#e7e5e4',
-            text: '#44403c',
-            border: '#78716c',
-            kanban: '#78716c',
+            bg: '#f1f5f9',
+            text: '#64748b',
+            border: '#cbd5e1',
+            kanban: '#94a3b8',
+            kanbanCol: '#f8fafc',
+            kanbanText: '#64748b',
         },
     };
 
@@ -85,6 +113,20 @@ define('custom:helpers/case-status-colors', [], function () {
         return LABEL_CLASS[key] ? 'label-' + LABEL_CLASS[key] : null;
     };
 
+    const resolveStatusKey = function (columnKey, index) {
+        const key = String(columnKey || '').trim();
+
+        if (key && PALETTE[key]) {
+            return key;
+        }
+
+        if (typeof index === 'number' && ORDERED_STATUSES[index]) {
+            return ORDERED_STATUSES[index];
+        }
+
+        return '';
+    };
+
     const applyToLabel = function ($label, status) {
         if (!$label || !$label.length) {
             return;
@@ -104,7 +146,7 @@ define('custom:helpers/case-status-colors', [], function () {
                 backgroundColor: colors.bg,
                 color: colors.text,
                 borderLeft: '3px solid ' + colors.border,
-                fontWeight: '700',
+                fontWeight: '600',
             });
 
         if (labelClass) {
@@ -112,10 +154,56 @@ define('custom:helpers/case-status-colors', [], function () {
         }
     };
 
+  /**
+   * Pinta columna y encabezado del kanban con colores pastel (inline, sin depender de ::before).
+   */
+    const applyKanbanColumn = function ($column, $header, $label, status) {
+        const colors = get(status);
+
+        if (!colors || !$column || !$column.length) {
+            return;
+        }
+
+        $column.attr('data-case-status', status).addClass('case-kanban-status-col');
+        $header.attr('data-case-status', status).addClass('case-kanban-status-header');
+
+        $column.css({
+            backgroundColor: colors.kanbanCol,
+        });
+
+        $header.css({
+            backgroundColor: colors.kanbanCol,
+        });
+
+        if ($label && $label.length) {
+            var $dot = $label.find('.case-kanban-status-dot');
+
+            if (!$dot.length) {
+                $dot = $('<span class="case-kanban-status-dot" aria-hidden="true"></span>');
+                $label.prepend($dot);
+            }
+
+            $dot.css({
+                backgroundColor: colors.kanban,
+            });
+
+            $label.find('.kanban-group-title').css({
+                color: colors.kanbanText,
+            });
+        }
+
+        $column.find('.item .panel').css({
+            borderLeft: '4px solid ' + colors.kanban,
+        });
+    };
+
     return {
+        ORDERED_STATUSES: ORDERED_STATUSES,
         PALETTE: PALETTE,
         get: get,
         getLabelClass: getLabelClass,
+        resolveStatusKey: resolveStatusKey,
         applyToLabel: applyToLabel,
+        applyKanbanColumn: applyKanbanColumn,
     };
 });

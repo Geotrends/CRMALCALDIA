@@ -90,15 +90,15 @@
   border-left-color: var(--crm-case-cerrado) !important;
 }
 
-/* Respaldo por data-case-status (lista / detalle / kanban) */
-.label[data-case-status="Pendiente de radicacion"] { background: #fed7aa !important; color: #9a3412 !important; border-left-color: #ea580c !important; }
-.label[data-case-status="Radicado"] { background: #bfdbfe !important; color: #1e3a8a !important; border-left-color: #2563eb !important; }
-.label[data-case-status="Asignado"] { background: #a5f3fc !important; color: #155e75 !important; border-left-color: #0891b2 !important; }
-.label[data-case-status="En proceso"] { background: #f5d0fe !important; color: #86198f !important; border-left-color: #c026d3 !important; }
-.label[data-case-status="Visita realizada"] { background: #d9f99d !important; color: #365314 !important; border-left-color: #65a30d !important; }
-.label[data-case-status="Visita aprobada"] { background: #bbf7d0 !important; color: #14532d !important; border-left-color: #16a34a !important; }
-.label[data-case-status="Finalizado"] { background: #99f6e4 !important; color: #115e59 !important; border-left-color: #0d9488 !important; }
-.label[data-case-status="Proceso cerrado"] { background: #e7e5e4 !important; color: #44403c !important; border-left-color: #78716c !important; }
+/* Respaldo por data-case-status (lista / detalle) — pasteles */
+.label[data-case-status="Pendiente de radicacion"] { background: #ffedd5 !important; color: #c2410c !important; border-left-color: #fdba74 !important; }
+.label[data-case-status="Radicado"] { background: #dbeafe !important; color: #1e40af !important; border-left-color: #93c5fd !important; }
+.label[data-case-status="Asignado"] { background: #cffafe !important; color: #0e7490 !important; border-left-color: #67e8f9 !important; }
+.label[data-case-status="En proceso"] { background: #fae8ff !important; color: #a21caf !important; border-left-color: #e879f9 !important; }
+.label[data-case-status="Visita realizada"] { background: #ecfccb !important; color: #4d7c0f !important; border-left-color: #bef264 !important; }
+.label[data-case-status="Visita aprobada"] { background: #dcfce7 !important; color: #15803d !important; border-left-color: #86efac !important; }
+.label[data-case-status="Finalizado"] { background: #ccfbf1 !important; color: #0f766e !important; border-left-color: #5eead4 !important; }
+.label[data-case-status="Proceso cerrado"] { background: #f1f5f9 !important; color: #64748b !important; border-left-color: #cbd5e1 !important; }
 
 /* Side panels — borde neutro (sin franja verde) */
 .detail[data-scope="Case"] .side .panel,

@@ -39,23 +39,23 @@
   --crm-purple: #8b5cf6;
   --crm-purple-soft: #ede9fe;
 
-  /* Estados del caso — tonos bien separados (sincronizado con case-status-colors.js) */
-  --crm-case-pendiente: #ea580c;
-  --crm-case-pendiente-soft: #fed7aa;
-  --crm-case-radicado: #2563eb;
-  --crm-case-radicado-soft: #bfdbfe;
-  --crm-case-asignado: #0891b2;
-  --crm-case-asignado-soft: #a5f3fc;
-  --crm-case-en-proceso: #c026d3;
-  --crm-case-en-proceso-soft: #f5d0fe;
-  --crm-case-visita: #65a30d;
-  --crm-case-visita-soft: #d9f99d;
-  --crm-case-aprobada: #16a34a;
-  --crm-case-aprobada-soft: #bbf7d0;
-  --crm-case-finalizado: #0d9488;
-  --crm-case-finalizado-soft: #99f6e4;
-  --crm-case-cerrado: #78716c;
-  --crm-case-cerrado-soft: #e7e5e4;
+  /* Estados del caso — pasteles (sincronizado con case-status-colors.js) */
+  --crm-case-pendiente: #c2410c;
+  --crm-case-pendiente-soft: #ffedd5;
+  --crm-case-radicado: #1e40af;
+  --crm-case-radicado-soft: #dbeafe;
+  --crm-case-asignado: #0e7490;
+  --crm-case-asignado-soft: #cffafe;
+  --crm-case-en-proceso: #a21caf;
+  --crm-case-en-proceso-soft: #fae8ff;
+  --crm-case-visita: #4d7c0f;
+  --crm-case-visita-soft: #ecfccb;
+  --crm-case-aprobada: #15803d;
+  --crm-case-aprobada-soft: #dcfce7;
+  --crm-case-finalizado: #0f766e;
+  --crm-case-finalizado-soft: #ccfbf1;
+  --crm-case-cerrado: #64748b;
+  --crm-case-cerrado-soft: #f1f5f9;
 
   /* Geometría */
   --crm-radius-sm: 8px;
