@@ -21,14 +21,17 @@
 .field[data-name="status"] .label {
   font-size: var(--crm-font-size-sm) !important;
   padding: 4px 12px !important;
+  font-weight: 700 !important;
+  border-left: 3px solid transparent !important;
 }
 
-/* Lista y detalle — color distinto por estado */
+/* Lista y detalle — color distinto por estado (franja lateral para diferenciar mejor) */
 .label-casePendiente,
 .list[data-scope="Case"] .label-casePendiente,
 .detail[data-scope="Case"] .label-casePendiente {
   background: var(--crm-case-pendiente-soft) !important;
   color: var(--crm-case-pendiente) !important;
+  border-left-color: var(--crm-case-pendiente) !important;
 }
 
 .label-caseRadicado,
@@ -36,6 +39,7 @@
 .detail[data-scope="Case"] .label-caseRadicado {
   background: var(--crm-case-radicado-soft) !important;
   color: var(--crm-case-radicado) !important;
+  border-left-color: var(--crm-case-radicado) !important;
 }
 
 .label-caseAsignado,
@@ -43,6 +47,7 @@
 .detail[data-scope="Case"] .label-caseAsignado {
   background: var(--crm-case-asignado-soft) !important;
   color: var(--crm-case-asignado) !important;
+  border-left-color: var(--crm-case-asignado) !important;
 }
 
 .label-caseEnProceso,
@@ -50,6 +55,7 @@
 .detail[data-scope="Case"] .label-caseEnProceso {
   background: var(--crm-case-en-proceso-soft) !important;
   color: var(--crm-case-en-proceso) !important;
+  border-left-color: var(--crm-case-en-proceso) !important;
 }
 
 .label-caseVisitaRealizada,
@@ -57,6 +63,7 @@
 .detail[data-scope="Case"] .label-caseVisitaRealizada {
   background: var(--crm-case-visita-soft) !important;
   color: var(--crm-case-visita) !important;
+  border-left-color: var(--crm-case-visita) !important;
 }
 
 .label-caseVisitaAprobada,
@@ -64,6 +71,7 @@
 .detail[data-scope="Case"] .label-caseVisitaAprobada {
   background: var(--crm-case-aprobada-soft) !important;
   color: var(--crm-case-aprobada) !important;
+  border-left-color: var(--crm-case-aprobada) !important;
 }
 
 .label-caseFinalizado,
@@ -71,6 +79,7 @@
 .detail[data-scope="Case"] .label-caseFinalizado {
   background: var(--crm-case-finalizado-soft) !important;
   color: var(--crm-case-finalizado) !important;
+  border-left-color: var(--crm-case-finalizado) !important;
 }
 
 .label-caseCerrado,
@@ -78,6 +87,7 @@
 .detail[data-scope="Case"] .label-caseCerrado {
   background: var(--crm-case-cerrado-soft) !important;
   color: var(--crm-case-cerrado) !important;
+  border-left-color: var(--crm-case-cerrado) !important;
 }
 
 /* Side panels — borde neutro (sin franja verde) */
