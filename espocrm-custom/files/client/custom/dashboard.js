@@ -50,7 +50,7 @@
 
     var COLORES_ESTADO = {
         'Pendiente de radicacion': '#f97316',
-        'Radicado': '#3b82f6',
+        'Radicado': '#0ea5e9',
         'Asignado': '#ec4899',
         'En proceso': '#8b5cf6',
         'Visita realizada': '#eab308',

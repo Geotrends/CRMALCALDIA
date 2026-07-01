@@ -26,12 +26,12 @@ define('custom:helpers/case-status-colors', [], function () {
             kanbanText: '#9a3412',
         },
         'Radicado': {
-            bg: '#dbeafe',
-            text: '#1e3a8a',
-            border: '#93c5fd',
-            kanban: '#3b82f6',
-            kanbanCol: '#eff6ff',
-            kanbanText: '#1d4ed8',
+            bg: '#e0f2fe',
+            text: '#0369a1',
+            border: '#7dd3fc',
+            kanban: '#0ea5e9',
+            kanbanCol: '#f0f9ff',
+            kanbanText: '#0284c7',
         },
         'Asignado': {
             bg: '#fce7f3',

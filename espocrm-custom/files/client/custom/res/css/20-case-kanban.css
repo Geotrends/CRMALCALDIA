@@ -210,7 +210,7 @@ th.group-header[data-case-status] .kanban-group-title {
 th.group-header[data-case-status="Pendiente de radicacion"],
 td.group-column[data-case-status="Pendiente de radicacion"] { --kanban-status-color: #f97316; }
 th.group-header[data-case-status="Radicado"],
-td.group-column[data-case-status="Radicado"] { --kanban-status-color: #3b82f6; }
+td.group-column[data-case-status="Radicado"] { --kanban-status-color: #0ea5e9; }
 th.group-header[data-case-status="Asignado"],
 td.group-column[data-case-status="Asignado"] { --kanban-status-color: #ec4899; }
 th.group-header[data-case-status="En proceso"],
