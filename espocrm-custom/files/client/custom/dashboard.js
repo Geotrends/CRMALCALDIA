@@ -42,23 +42,23 @@
             timeZone: 'America/Bogota',
         });
 
-    /* Paleta pastel — gráficas del dashboard (alineada con estados del listado) */
+    /* Paleta apagada — gráficas del dashboard (pasteles suaves, sin neón) */
     var PALETA = [
-        '#dcfce7', '#e0f2fe', '#fce7f3', '#ede9fe',
-        '#fef9c3', '#ffedd5', '#d1e7dd', '#e2e8f0',
-        '#ccfbf1', '#fecdd3', '#e9d5ff', '#d9f99d',
+        '#9eb8a8', '#9eb5c8', '#b5a8b8', '#ada8c4',
+        '#c4b88a', '#c9b8a8', '#a8b0a0', '#b0b8c0',
+        '#9eb0b0', '#c4a8a0', '#b0a8c0', '#b0b89e',
     ];
 
-    /* Pasteles por estado — mismos tonos que el listado de casos */
+    /* Tonos apagados por estado — embudo del dashboard */
     var ESTADO_PALETTE = {
-        'Pendiente de radicacion': {bg: '#ffedd5', text: '#9a3412'},
-        'Radicado': {bg: '#e0f2fe', text: '#0369a1'},
-        'Asignado': {bg: '#fce7f3', text: '#9d174d'},
-        'En proceso': {bg: '#ede9fe', text: '#5b21b6'},
-        'Visita realizada': {bg: '#fef9c3', text: '#854d0e'},
-        'Visita aprobada': {bg: '#dcfce7', text: '#166534'},
-        'Finalizado': {bg: '#ede0d4', text: '#6b4423'},
-        'Proceso cerrado': {bg: '#e2e8f0', text: '#334155'},
+        'Pendiente de radicacion': {bg: '#d4c4b0', text: '#6b5340'},
+        'Radicado': {bg: '#a8c0d4', text: '#3d5a6e'},
+        'Asignado': {bg: '#c4a8b8', text: '#6e4a58'},
+        'En proceso': {bg: '#b0a8c4', text: '#524a66'},
+        'Visita realizada': {bg: '#c9c0a0', text: '#6b6240'},
+        'Visita aprobada': {bg: '#9eb8a8', text: '#3d5a48'},
+        'Finalizado': {bg: '#c4b8a8', text: '#5c5040'},
+        'Proceso cerrado': {bg: '#b0b8c0', text: '#4a525a'},
     };
 
     var COLORES_ESTADO = {
@@ -84,17 +84,17 @@
     };
 
     var COLORES_SEMAFORO = {
-        'Al día': '#bbf7d0',
-        'Próximo a vencer': '#fef08a',
-        'Vencido': '#fecaca',
-        'Sin fecha': '#e2e8f0',
+        'Al día': '#9ec4a8',
+        'Próximo a vencer': '#d4c48a',
+        'Vencido': '#c9a0a0',
+        'Sin fecha': '#c5ccd3',
     };
 
     var COLORES_CANAL = {
-        'Teléfono': '#cbd5e1',
-        'Correo': '#bae6fd',
-        'Personal': '#b8e6cf',
-        'Sin canal': '#f1f5f9',
+        'Teléfono': '#a8b0b8',
+        'Correo': '#9eb5c8',
+        'Personal': '#9eb8a8',
+        'Sin canal': '#d8dde3',
     };
 
     var CANAL_CATALOGO = [
@@ -291,11 +291,11 @@
     }
 
     function tonosPorValor(valores, rgb) {
-        var base = rgb || {r: 184, g: 230, b: 207};
+        var base = rgb || {r: 158, g: 181, b: 198};
         var max = Math.max.apply(null, valores.concat([1]));
 
         return valores.map(function (valor) {
-            var intensidad = 0.55 + (valor / max) * 0.4;
+            var intensidad = 0.72 + (valor / max) * 0.22;
 
             return 'rgba(' + base.r + ', ' + base.g + ', ' + base.b + ', ' + intensidad.toFixed(2) + ')';
         });
@@ -493,12 +493,12 @@
                 datasets: [{
                     label: cfg.label || 'Casos',
                     data: valores,
-                    borderColor: cfg.color || '#86efac',
-                    backgroundColor: cfg.fill || 'rgba(187, 247, 208, 0.35)',
+                    borderColor: cfg.color || '#8aa898',
+                    backgroundColor: cfg.fill || 'rgba(158, 184, 168, 0.28)',
                     fill: true,
                     tension: 0.35,
                     pointRadius: 4,
-                    pointBackgroundColor: cfg.color || '#86efac',
+                    pointBackgroundColor: cfg.color || '#8aa898',
                 }],
             },
             options: {
@@ -916,7 +916,7 @@
             } else {
                 dibujarBarras('grafica-tiempo', porDia.etiquetas, porDia.valores, {
                     etiquetaDataset: 'Ingreso diario',
-                    coloresPorValor: {r: 186, g: 230, b: 253},
+                    coloresPorValor: {r: 158, g: 181, b: 198},
                     borderRadiusBarra: {topLeft: 8, topRight: 8, bottomLeft: 2, bottomRight: 2},
                     maxBarThickness: 48,
                     unidad: 'caso(s)',
@@ -947,7 +947,7 @@
                     porDiaRadicados.valores,
                     {
                         etiquetaDataset: 'Radicados por día',
-                        colorBarra: '#bae6fd',
+                        colorBarra: '#9eb5c8',
                         unidad: 'radicado(s)',
                         ticksX: 11,
                         rotacionX: 45,
@@ -978,7 +978,7 @@
                     'grafica-sin-asignar',
                     ['Con patrullero', 'Sin asignar'],
                     [asignados, sinAsignar],
-                    ['rgba(184, 230, 207, 0.88)', 'rgba(226, 232, 240, 0.92)']
+                    ['rgba(158, 184, 168, 0.78)', 'rgba(197, 204, 211, 0.85)']
                 );
             }
 
