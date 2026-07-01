@@ -254,6 +254,14 @@ check_file "Scope Case — ACL confirmar visita" \
   "$CUSTOM/Resources/metadata/scopes/Case.json" \
   "confirmarVisitaRealizada" || errors=$((errors + 1))
 
+check_file "Kanban — ignorar columna En proceso" \
+  "$CUSTOM/Resources/metadata/scopes/Case.json" \
+  "kanbanStatusIgnoreList" || errors=$((errors + 1))
+
+check_file "Lista casos — radicado en kanban" \
+  "$CLIENT/src/views/case/list.js" \
+  "decorateKanbanRadicadoExpediente" || errors=$((errors + 1))
+
 if [ -f "$REPO_ROOT/.deploy-version" ]; then
   echo "OK: Versión en imagen → $(tr -d '\r\n' < "$REPO_ROOT/.deploy-version")"
 else

@@ -109,12 +109,21 @@
         {status: 'Pendiente de radicacion', label: 'Pendiente de radicación'},
         {status: 'Radicado', label: 'Radicado'},
         {status: 'Asignado', label: 'Asignado'},
-        {status: 'En proceso', label: 'En proceso'},
         {status: 'Visita realizada', label: 'Visita realizada'},
         {status: 'Visita aprobada', label: 'Visita aprobada'},
         {status: 'Finalizado', label: 'Finalizado'},
         {status: 'Proceso cerrado', label: 'Proceso cerrado'},
     ];
+
+    function normalizarEstadoEmbudo(status) {
+        var value = String(status || '').trim();
+
+        if (value === 'En proceso') {
+            return 'Visita realizada';
+        }
+
+        return value;
+    }
 
     var RECURSO_CATALOGO = [
         {valor: 'AIRE', siglas: 'AIR', etiqueta: 'Aire'},
@@ -852,7 +861,7 @@
             document.getElementById('total-casos').textContent = 'Total: ' + total;
 
             var porEstado = agrupar(casos, function (c) {
-                return c.status || 'Sin estado';
+                return normalizarEstadoEmbudo(c.status || 'Sin estado');
             });
 
             dibujarEmbudo('grafica-embudo', porEstado);

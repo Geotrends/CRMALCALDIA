@@ -1,7 +1,8 @@
 define('custom:views/case/list', [
     'views/list',
     'custom:helpers/case-status-colors',
-], function (Dep, CaseStatusColors) {
+    'custom:helpers/case-radicado-label',
+], function (Dep, CaseStatusColors, CaseRadicadoLabel) {
 
     return Dep.extend({
 
@@ -199,10 +200,70 @@ define('custom:views/case/list', [
                 });
 
                 this.decorateKanbanDueDates($kanban);
+                this.decorateKanbanRadicadoExpediente($kanban);
                 this.decorateListStatusLabels();
             } catch (e) {
                 // No bloquear la lista si falla el adorno visual del kanban.
             }
+        },
+
+        decorateKanbanRadicadoExpediente: function ($kanban) {
+            if (!this.collection || !$kanban || !$kanban.length) {
+                return;
+            }
+
+            var self = this;
+
+            $kanban.find('.item').each(function () {
+                var $item = $(this);
+                var id = $item.data('id');
+                var model = id ? self.collection.get(id) : null;
+
+                if (!model) {
+                    return;
+                }
+
+                var combined = CaseRadicadoLabel.getCombinedLabel(model);
+                var radicado = CaseRadicadoLabel.normalize(model.get('cNumeroRadicado'));
+                var expediente = CaseRadicadoLabel.normalize(model.get('cExpediente'));
+                var $radField = $item.find('.field[data-name="cNumeroRadicado"]');
+                var $expField = $item.find('.field[data-name="cExpediente"]');
+                var href = '#Case/view/' + encodeURIComponent(id);
+                var escapeHtml = function (value) {
+                    return $('<span>').text(value || '').html();
+                };
+
+                if (!$radField.length) {
+                    $item.find('.panel-body').prepend(
+                        '<div class="form-group">' +
+                        '<div class="field field-large" data-name="cNumeroRadicado">' +
+                        '<a href="' + href + '" class="link" title="' + escapeHtml(combined) + '">' +
+                        escapeHtml(combined) +
+                        '</a></div></div>'
+                    );
+                } else {
+                    var $link = $radField.find('a.link');
+
+                    if ($link.length) {
+                        $link.text(combined).attr('title', combined).attr('href', href);
+                    } else {
+                        $radField.text(combined);
+                    }
+
+                    $radField.closest('.form-group').show();
+                    $radField.show();
+                }
+
+                if ($expField.length) {
+                    if (radicado && expediente) {
+                        $expField.closest('.form-group').hide();
+                    } else if (expediente) {
+                        $expField.text('Exp. ' + expediente).closest('.form-group').show();
+                    } else {
+                        $expField.closest('.form-group').hide();
+                    }
+                }
+            });
         },
 
         decorateKanbanDueDates: function ($kanban) {

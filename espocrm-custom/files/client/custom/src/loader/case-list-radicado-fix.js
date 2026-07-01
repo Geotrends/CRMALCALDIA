@@ -44,7 +44,33 @@
 
         (root || document).querySelectorAll(
             '.cell[data-name="cNumeroRadicado"], td.cell-cNumeroRadicado, .field[data-name="cNumeroRadicado"]'
-        ).forEach(patchCell);
+        ).forEach(function (cell) {
+            patchCell(cell);
+
+            var item = cell.closest('.item');
+
+            if (!item || !item.getAttribute('data-id')) {
+                return;
+            }
+
+            var radicadoEl = cell.querySelector('a, span') || cell;
+            var text = (radicadoEl.textContent || '').trim();
+
+            if (text && text.indexOf('Exp.') === -1) {
+                var expField = item.querySelector('.field[data-name="cExpediente"]');
+
+                if (expField) {
+                    var expText = (expField.textContent || '').trim();
+
+                    if (expText && expText !== '—') {
+                        var combined = text + ' · Exp. ' + expText.replace(/^Exp\.\s*/i, '');
+                        radicadoEl.textContent = combined;
+                        radicadoEl.setAttribute('title', combined);
+                        expField.closest('.form-group').style.display = 'none';
+                    }
+                }
+            }
+        });
     }
 
     function startObserver() {

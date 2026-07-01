@@ -3,6 +3,10 @@
     "color": "#1d8a6e",
     "nameAttribute": "cNumeroRadicado",
     "kanbanViewMode": true,
+    "additionalAttributeList": [
+        "cNumeroRadicado",
+        "cExpediente"
+    ],
     "views": {
         "list": "custom:views/case/list",
         "detail": "custom:views/case/detail",

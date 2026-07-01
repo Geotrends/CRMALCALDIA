@@ -96,19 +96,19 @@ define('custom:views/case/fields/numero-radicado', [
         },
 
         getDisplayRadicado: function () {
-            if (this.mode === this.MODE_DETAIL || this.isListMode()) {
-                return CaseRadicadoLabel.getCombinedLabel(this.model);
+            if (this.useAssistant()) {
+                return CaseRadicadoLabel.getLabel(this.model, this.name);
             }
 
-            return CaseRadicadoLabel.getLabel(this.model, this.name);
+            return CaseRadicadoLabel.getCombinedLabel(this.model);
         },
 
         getValueForDisplay: function () {
-            if (this.isListMode() || this.mode === this.MODE_DETAIL) {
-                return this.getDisplayRadicado();
+            if (this.isEditMode() && this.useAssistant()) {
+                return Dep.prototype.getValueForDisplay.call(this);
             }
 
-            return Dep.prototype.getValueForDisplay.call(this);
+            return this.getDisplayRadicado();
         },
 
         getListDisplayData: function () {
@@ -146,7 +146,7 @@ define('custom:views/case/fields/numero-radicado', [
             var data = Dep.prototype.data.call(this);
             var mode = this.mode;
 
-            if (mode === 'list' || mode === 'listLink') {
+            if (mode === 'list' || mode === 'listLink' || mode === 'kanban') {
                 return _.extend(data, this.getListDisplayData());
             }
 

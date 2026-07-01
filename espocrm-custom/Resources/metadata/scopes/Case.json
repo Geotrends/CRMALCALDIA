@@ -1,6 +1,10 @@
 {
     "tab": true,
     "disabled": false,
+    "statusField": "status",
+    "kanbanStatusIgnoreList": [
+        "En proceso"
+    ],
     "aclActionList": [
         "create",
         "read",
