@@ -263,7 +263,7 @@ define('custom:helpers/asignador-assignment-ui', [
             '<div class="modal fade alcaldia-asignacion-modal" tabindex="-1">' +
             '<div class="modal-dialog"><div class="modal-content">' +
             '<div class="modal-header">' +
-            '<button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>' +
+            '<button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">&times;</button>' +
             '<h4 class="modal-title">' + escapeHtml(title) + '</h4>' +
             '</div>' +
             '<div class="modal-body">' +

@@ -425,16 +425,18 @@ body.alcaldia-asignador-asignar-page .edit[data-scope="Case"] .panel[data-name="
   resize: vertical;
 }
 
-/* Modal asignación: cerrar sin recuadro — solo la × */
-.alcaldia-asignacion-modal .modal-header .close {
-  background: none !important;
-  border: none !important;
+/* Modal asignación: cerrar sin recuadro — solo la × (anula Espo .modal-header .close>span) */
+.alcaldia-asignacion-modal .modal-header button.close {
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
   box-shadow: none !important;
   outline: none;
-  padding: 0;
+  padding: 0 !important;
   margin: 0;
-  min-width: 0;
-  min-height: 0;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  max-height: none !important;
   width: auto;
   height: auto;
   font-size: 28px;
@@ -442,14 +444,26 @@ body.alcaldia-asignador-asignar-page .edit[data-scope="Case"] .panel[data-name="
   line-height: 1;
   color: #64748b;
   opacity: 1;
+  float: right;
   -webkit-appearance: none;
   appearance: none;
 }
 
-.alcaldia-asignacion-modal .modal-header .close:hover,
-.alcaldia-asignacion-modal .modal-header .close:focus {
+.alcaldia-asignacion-modal .modal-header button.close > span {
+  display: inline !important;
+  height: auto !important;
+  max-height: none !important;
+  line-height: 1 !important;
   background: none !important;
   border: none !important;
+  padding: 0 !important;
+}
+
+.alcaldia-asignacion-modal .modal-header button.close:hover,
+.alcaldia-asignacion-modal .modal-header button.close:focus {
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
   box-shadow: none !important;
   color: #0f172a;
   opacity: 1;
