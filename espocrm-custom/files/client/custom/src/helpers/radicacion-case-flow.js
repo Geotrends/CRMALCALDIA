@@ -164,10 +164,14 @@ define('custom:helpers/radicacion-case-flow', [
             return;
         }
 
+        if (!recordView.$el || !recordView.$el.length) {
+            return;
+        }
+
         syncBodyClass(recordView, true);
 
         recordView.$el.find('.cell[data-name], .field[data-name]').each(function () {
-            const $cell = recordView.$(this);
+            const $cell = $(this);
             const field = $cell.data('name');
 
             if (!field || EDITABLE_FIELDS.indexOf(field) !== -1) {
@@ -192,7 +196,15 @@ define('custom:helpers/radicacion-case-flow', [
         const radicadoView = recordView.getFieldView('cNumeroRadicado');
 
         if (radicadoView && radicadoView.isRendered && radicadoView.isRendered()) {
-            radicadoView.reRender();
+            try {
+                const renderResult = radicadoView.reRender();
+
+                if (renderResult && typeof renderResult.catch === 'function') {
+                    renderResult.catch(function () {});
+                }
+            } catch (error) {
+                // Vista aún montándose.
+            }
         }
     };
 

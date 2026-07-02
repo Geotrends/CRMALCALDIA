@@ -13,8 +13,16 @@ define('custom:views/case/detail', [
             this.listenTo(this.model, 'change:cNumeroRadicado sync', function () {
                 var header = this.getHeaderView && this.getHeaderView();
 
-                if (header) {
-                    header.reRender();
+                if (header && typeof header.reRender === 'function') {
+                    try {
+                        var renderResult = header.reRender();
+
+                        if (renderResult && typeof renderResult.catch === 'function') {
+                            renderResult.catch(function () {});
+                        }
+                    } catch (error) {
+                        // noop
+                    }
                 }
 
                 this.updatePageTitle();

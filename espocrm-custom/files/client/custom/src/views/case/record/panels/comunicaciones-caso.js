@@ -84,8 +84,18 @@ define('custom:views/case/record/panels/comunicaciones-caso', [
         },
 
         reRenderIfNeeded: function () {
-            if (this.isRendered()) {
-                this.reRender();
+            if (!this.isRendered()) {
+                return;
+            }
+
+            try {
+                const renderResult = this.reRender();
+
+                if (renderResult && typeof renderResult.catch === 'function') {
+                    renderResult.catch(function () {});
+                }
+            } catch (error) {
+                // noop
             }
         },
 
