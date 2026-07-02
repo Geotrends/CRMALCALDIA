@@ -244,7 +244,23 @@ check_file "Acción confirmar visita realizada" \
 
 check_file "Panel acta — checkbox visita" \
   "$CLIENT/src/views/case/fields/acta-visita-action.js" \
-  "confirmarVisitaRealizada" || errors=$((errors + 1))
+  "isOperadorVisitaCampo" || errors=$((errors + 1))
+
+check_file "Historial usuario — servicio" \
+  "$CUSTOM/Tools/User/UserHistorialService.php" \
+  "build" || errors=$((errors + 1))
+
+check_file "Historial usuario — API" \
+  "$CUSTOM/Controllers/User.php" \
+  "historialActuaciones" || errors=$((errors + 1))
+
+check_file "Historial usuario — panel" \
+  "$CLIENT/src/views/user/record/panels/historial-usuario.js" \
+  "historialActuaciones" || errors=$((errors + 1))
+
+check_file "Layout User — panel historial" \
+  "$CUSTOM/Resources/layouts/User/detail.json" \
+  "historialActuaciones" || errors=$((errors + 1))
 
 check_file "Kanban — radicado combinado" \
   "$CLIENT/src/views/case/fields/numero-radicado.js" \

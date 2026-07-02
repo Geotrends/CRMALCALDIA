@@ -1,0 +1,66 @@
+[
+    {
+        "name": "historialActuaciones",
+        "style": "default",
+        "label": "Historial de actuaciones",
+        "rows": [
+            [
+                {
+                    "name": "cPanelHistorialUsuario",
+                    "view": "custom:views/user/record/panels/historial-usuario",
+                    "noLabel": true,
+                    "fullWidth": true
+                }
+            ]
+        ]
+    },
+    {
+        "label": "General",
+        "rows": [
+            [
+                {
+                    "name": "userName"
+                },
+                {
+                    "name": "name"
+                }
+            ],
+            [
+                {
+                    "name": "emailAddress"
+                },
+                {
+                    "name": "phoneNumber"
+                }
+            ],
+            [
+                {
+                    "name": "title"
+                },
+                {
+                    "name": "isActive"
+                }
+            ],
+            [
+                {
+                    "name": "roles",
+                    "fullWidth": true
+                }
+            ],
+            [
+                {
+                    "name": "teams",
+                    "fullWidth": true
+                }
+            ],
+            [
+                {
+                    "name": "type"
+                },
+                {
+                    "name": "defaultTeam"
+                }
+            ]
+        ]
+    }
+]

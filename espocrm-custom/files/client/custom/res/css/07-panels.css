@@ -44,13 +44,19 @@
 }
 
 .detail[data-scope="Contact"] .panel[data-name="expedienteUnico"] .field[data-name="cPanelExpediente"] .party-expediente,
-.detail[data-scope="Account"] .panel[data-name="expedienteUnico"] .field[data-name="cPanelExpediente"] .party-expediente {
+.detail[data-scope="Account"] .panel[data-name="expedienteUnico"] .field[data-name="cPanelExpediente"] .party-expediente,
+.detail[data-scope="User"] .panel[data-name="historialActuaciones"] .field[data-name="cPanelHistorialUsuario"] .party-expediente {
   padding: 4px 0 8px;
 }
 
 .detail[data-scope="Contact"] .panel[data-name="expedienteUnico"] .field[data-name="cPanelExpediente"] label.control-label,
-.detail[data-scope="Account"] .panel[data-name="expedienteUnico"] .field[data-name="cPanelExpediente"] label.control-label {
+.detail[data-scope="Account"] .panel[data-name="expedienteUnico"] .field[data-name="cPanelExpediente"] label.control-label,
+.detail[data-scope="User"] .panel[data-name="historialActuaciones"] .field[data-name="cPanelHistorialUsuario"] label.control-label {
   display: none;
+}
+
+.detail[data-scope="User"] .party-expediente-kpis {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .party-expediente.is-loading {
@@ -161,6 +167,10 @@
   background: #1d8a6e;
 }
 
+.party-expediente-item--asignacion .party-expediente-item__marker {
+  background: #0369a1;
+}
+
 .party-expediente-item--comunicacion .party-expediente-item__marker {
   background: #52667a;
 }
@@ -222,6 +232,11 @@
 .party-expediente-badge--acta {
   background: #ecfdf5;
   color: #1d8a6e;
+}
+
+.party-expediente-badge--asignacion {
+  background: #e0f2fe;
+  color: #0369a1;
 }
 
 .party-expediente-badge--comunicacion {

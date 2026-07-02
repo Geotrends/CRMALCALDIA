@@ -1,0 +1,11 @@
+{
+    "fields": {
+        "cPanelHistorialUsuario": {
+            "type": "text",
+            "notStorable": true,
+            "utility": true,
+            "readOnly": true,
+            "isCustom": true
+        }
+    }
+}
