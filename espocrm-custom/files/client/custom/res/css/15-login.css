@@ -222,25 +222,26 @@ body:not(.has-navbar) .container-centering {
   min-height: 48px !important;
   margin: 0 !important;
   padding: 0 24px !important;
-  border: none !important;
+  border: 1px solid #b5e6d1 !important;
   border-radius: 999px !important;
-  background: var(--crm-primary-dark, #2a5934) !important;
-  color: #fff !important;
+  background: linear-gradient(135deg, #eefaf5 0%, #d8f3e8 100%) !important;
+  color: #1a5c47 !important;
   font-size: 15px !important;
   font-weight: 700 !important;
   letter-spacing: 0.01em;
-  box-shadow: 0 8px 20px rgba(42, 89, 52, 0.28) !important;
-  transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease !important;
+  box-shadow: none !important;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease !important;
 }
 
 #login #btn-login:hover,
 #login #btn-login:focus,
 #login #btn-send:hover,
 #login #btn-send:focus {
-  background: var(--crm-primary, #1d8a6e) !important;
-  box-shadow: 0 10px 24px rgba(29, 138, 110, 0.32) !important;
-  transform: translateY(-1px);
-  color: #fff !important;
+  background: linear-gradient(135deg, #dff5ec 0%, #c8ebdc 100%) !important;
+  border-color: #9fd9c0 !important;
+  box-shadow: none !important;
+  transform: none;
+  color: #134a38 !important;
 }
 
 #login .cell[data-name="submit"] .btn-link {

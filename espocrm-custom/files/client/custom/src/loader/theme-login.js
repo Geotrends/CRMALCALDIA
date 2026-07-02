@@ -3,6 +3,36 @@
  */
 (function () {
     var LOGO_SRC = 'client/custom/res/img/logo-envigado.png';
+    var STYLE_ID = 'crm-login-pastel-style';
+
+    var LOGIN_BTN_CSS = '' +
+        'body.login-page #login #btn-login,' +
+        'body.login-page #login #btn-send,' +
+        'body:not(.has-navbar):has(#login) #login #btn-login,' +
+        'body:not(.has-navbar):has(#login) #login #btn-send{' +
+        'background:linear-gradient(135deg,#eefaf5 0%,#d8f3e8 100%)!important;' +
+        'border:1px solid #b5e6d1!important;color:#1a5c47!important;box-shadow:none!important;}' +
+        'body.login-page #login #btn-login:hover,' +
+        'body.login-page #login #btn-login:focus,' +
+        'body.login-page #login #btn-send:hover,' +
+        'body.login-page #login #btn-send:focus,' +
+        'body:not(.has-navbar):has(#login) #login #btn-login:hover,' +
+        'body:not(.has-navbar):has(#login) #login #btn-login:focus,' +
+        'body:not(.has-navbar):has(#login) #login #btn-send:hover,' +
+        'body:not(.has-navbar):has(#login) #login #btn-send:focus{' +
+        'background:linear-gradient(135deg,#dff5ec 0%,#c8ebdc 100%)!important;' +
+        'border-color:#9fd9c0!important;color:#134a38!important;transform:none!important;}';
+
+    function injectLoginStyles() {
+        if (document.getElementById(STYLE_ID)) {
+            return;
+        }
+
+        var style = document.createElement('style');
+        style.id = STYLE_ID;
+        style.textContent = LOGIN_BTN_CSS;
+        (document.head || document.documentElement).appendChild(style);
+    }
 
     function applyEnvigadoLogo() {
         document.querySelectorAll('#login .logo-container img.logo').forEach(function (img) {
@@ -35,6 +65,7 @@
     }
 
     function boot() {
+        injectLoginStyles();
         syncLoginPageClass();
         startObserver();
     }

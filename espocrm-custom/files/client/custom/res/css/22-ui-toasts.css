@@ -25,13 +25,34 @@
   gap: 14px;
   padding: 14px 16px;
   border-radius: var(--crm-radius-full);
-  background: var(--crm-surface);
-  border: 1px solid var(--crm-border-light);
-  box-shadow: var(--crm-shadow-lg);
+  background: linear-gradient(135deg, #eefaf5 0%, #f8fcfa 100%);
+  border: 1px solid #b5e6d1;
+  box-shadow: 0 8px 24px rgba(26, 92, 71, 0.08);
   opacity: 0;
   transform: translateX(24px);
   transition: opacity 0.28s ease, transform 0.28s ease;
   pointer-events: auto;
+}
+
+.crm-toast--success {
+  background: linear-gradient(135deg, #eefaf5 0%, #f4fbf8 100%);
+  border-color: #b5e6d1;
+}
+
+.crm-toast--warning {
+  background: linear-gradient(135deg, #fffbeb 0%, #fffdf5 100%);
+  border-color: #fde68a;
+}
+
+.crm-toast--danger {
+  background: linear-gradient(135deg, #fef2f2 0%, #fff8f8 100%);
+  border-color: #fecaca;
+}
+
+.crm-toast--info,
+.crm-toast--loading {
+  background: linear-gradient(135deg, #eff6ff 0%, #f8fbff 100%);
+  border-color: #bfdbfe;
 }
 
 .crm-toast--visible {
@@ -45,35 +66,40 @@
 }
 
 .crm-toast__icon {
-  flex: 0 0 36px;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
+  flex: 0 0 40px;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
+  font-size: 18px;
+  border: 1px solid transparent;
 }
 
 .crm-toast--success .crm-toast__icon {
-  background: var(--crm-success);
-  color: #fff;
+  background: linear-gradient(135deg, #d8f3e8 0%, #c8ebdc 100%);
+  color: #1a5c47;
+  border-color: #b5e6d1;
 }
 
 .crm-toast--warning .crm-toast__icon,
 .crm-toast--loading .crm-toast__icon {
-  background: var(--crm-warning);
-  color: #fff;
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  color: #b45309;
+  border-color: #fcd34d;
 }
 
 .crm-toast--danger .crm-toast__icon {
-  background: var(--crm-danger);
-  color: #fff;
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  color: #b91c1c;
+  border-color: #fca5a5;
 }
 
 .crm-toast--info .crm-toast__icon {
-  background: var(--crm-info);
-  color: #fff;
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  color: #1d4ed8;
+  border-color: #93c5fd;
 }
 
 .crm-toast__content {
@@ -212,4 +238,125 @@
   .crm-dialog-confirm .modal-footer .btn {
     width: 100%;
   }
+}
+
+/* ── Anuncios nativos EspoCRM (esquina inferior derecha) ── */
+#popup-notifications-container .popup-notification {
+  position: relative;
+  padding: 14px 16px 14px 58px !important;
+  border-radius: 16px !important;
+  border-width: 1px !important;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08) !important;
+  background: linear-gradient(135deg, #eefaf5 0%, #f8fcfa 100%) !important;
+  border-color: #b5e6d1 !important;
+}
+
+#popup-notifications-container .popup-notification::before {
+  content: '\f0f3';
+  position: absolute;
+  left: 14px;
+  top: 14px;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Font Awesome 5 Free', 'Font Awesome 6 Free';
+  font-weight: 900;
+  font-size: 16px;
+  line-height: 1;
+  background: linear-gradient(135deg, #d8f3e8 0%, #c8ebdc 100%);
+  color: #1a5c47;
+  border: 1px solid #b5e6d1;
+}
+
+#popup-notifications-container .popup-notification h4 {
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  color: #1a5c47 !important;
+  margin-bottom: 6px !important;
+}
+
+#popup-notifications-container .popup-notification-success {
+  background: linear-gradient(135deg, #eefaf5 0%, #f4fbf8 100%) !important;
+  border-color: #b5e6d1 !important;
+}
+
+#popup-notifications-container .popup-notification-success::before {
+  content: '\f058';
+  background: linear-gradient(135deg, #d8f3e8 0%, #c8ebdc 100%);
+  color: #1a5c47;
+  border-color: #b5e6d1;
+}
+
+#popup-notifications-container .popup-notification-success h4 {
+  color: #1a5c47 !important;
+}
+
+#popup-notifications-container .popup-notification-warning {
+  background: linear-gradient(135deg, #fffbeb 0%, #fffdf5 100%) !important;
+  border-color: #fde68a !important;
+}
+
+#popup-notifications-container .popup-notification-warning::before {
+  content: '\f071';
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  color: #b45309;
+  border-color: #fcd34d;
+}
+
+#popup-notifications-container .popup-notification-warning h4 {
+  color: #b45309 !important;
+}
+
+#popup-notifications-container .popup-notification-danger {
+  background: linear-gradient(135deg, #fef2f2 0%, #fff8f8 100%) !important;
+  border-color: #fecaca !important;
+}
+
+#popup-notifications-container .popup-notification-danger::before {
+  content: '\f06a';
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  color: #b91c1c;
+  border-color: #fca5a5;
+}
+
+#popup-notifications-container .popup-notification-danger h4 {
+  color: #b91c1c !important;
+}
+
+#popup-notifications-container .popup-notification-info {
+  background: linear-gradient(135deg, #eff6ff 0%, #f8fbff 100%) !important;
+  border-color: #bfdbfe !important;
+}
+
+#popup-notifications-container .popup-notification-info::before {
+  content: '\f05a';
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  color: #1d4ed8;
+  border-color: #93c5fd;
+}
+
+#popup-notifications-container .popup-notification-info h4 {
+  color: #1d4ed8 !important;
+}
+
+#popup-notifications-container .popup-notification-primary,
+#popup-notifications-container .popup-notification-default {
+  background: linear-gradient(135deg, #eefaf5 0%, #f4fbf8 100%) !important;
+  border-color: #b5e6d1 !important;
+}
+
+#popup-notifications-container .popup-notification-primary::before,
+#popup-notifications-container .popup-notification-default::before {
+  content: '\f0f3';
+  background: linear-gradient(135deg, #d8f3e8 0%, #c8ebdc 100%);
+  color: #1a5c47;
+  border-color: #b5e6d1;
+}
+
+#popup-notifications-container .popup-notification-primary h4,
+#popup-notifications-container .popup-notification-default h4 {
+  color: #1a5c47 !important;
 }
