@@ -9,7 +9,7 @@
     window.__crmThemeButtons = true;
 
     var STYLE_ID = 'crm-modern-buttons-style';
-    var VERSION = 'ui-buttons-toasts-2026-07-02-b2';
+    var VERSION = 'ui-pastel-buttons-2026-07-02';
 
     var INLINE_CSS = '' +
         'html.crm-modern-ui body .btn,' +
@@ -35,16 +35,16 @@
         'html.crm-modern-ui body .btn-primary,' +
         'html.crm-modern-ui body .btn.btn-primary,' +
         'html.crm-modern-ui body a.btn-primary{' +
-        'background:linear-gradient(135deg,#1d8a6e 0%,#2a5934 100%)!important;' +
-        'border:none!important;color:#fff!important;' +
-        'box-shadow:0 4px 16px rgba(29,138,110,.34)!important;' +
+        'background:linear-gradient(135deg,#eefaf5 0%,#d8f3e8 100%)!important;' +
+        'border:1px solid #b5e6d1!important;color:#1a5c47!important;' +
+        'box-shadow:0 4px 14px rgba(29,138,110,.12)!important;' +
         '}' +
         'html.crm-modern-ui body .btn-primary:hover,' +
         'html.crm-modern-ui body .btn.btn-primary:hover,' +
         'html.crm-modern-ui body a.btn-primary:hover{' +
-        'background:linear-gradient(135deg,#22a07f 0%,#1e4d32 100%)!important;' +
-        'color:#fff!important;transform:translateY(-1px);' +
-        'box-shadow:0 6px 22px rgba(29,138,110,.42)!important;' +
+        'background:linear-gradient(135deg,#dff5ec 0%,#c8ebdc 100%)!important;' +
+        'border-color:#9fd9c0!important;color:#134a38!important;transform:translateY(-1px);' +
+        'box-shadow:0 6px 18px rgba(29,138,110,.18)!important;' +
         '}' +
         'html.crm-modern-ui body .btn-default,' +
         'html.crm-modern-ui body .btn.btn-default{' +
@@ -54,8 +54,8 @@
         'html.crm-modern-ui body .btn.btn-default:hover{' +
         'background:#f8fafc!important;border-color:#d1ebe3!important;color:#2a5934!important;' +
         '}' +
-        'html.crm-modern-ui body .btn-success{background:linear-gradient(135deg,#22c55e,#16a34a)!important;border:none!important;color:#fff!important;}' +
-        'html.crm-modern-ui body .btn-danger{background:linear-gradient(135deg,#f87171,#ef4444)!important;border:none!important;color:#fff!important;}' +
+        'html.crm-modern-ui body .btn-success{background:linear-gradient(135deg,#dcfce7,#bbf7d0)!important;border:1px solid #86efac!important;color:#166534!important;}' +
+        'html.crm-modern-ui body .btn-danger{background:linear-gradient(135deg,#fee2e2,#fecaca)!important;border:1px solid #fca5a5!important;color:#b91c1c!important;}' +
         'html.crm-modern-ui body .btn-warning{background:linear-gradient(135deg,#fbbf24,#f59e0b)!important;border:none!important;color:#78350f!important;}' +
         'html.crm-modern-ui body .btn-link{border:none!important;background:transparent!important;box-shadow:none!important;color:#1d8a6e!important;}' +
         'html.crm-modern-ui body .btn-group{display:inline-flex!important;flex-wrap:wrap;gap:8px!important;vertical-align:middle;}' +
@@ -68,17 +68,23 @@
         'html.crm-modern-ui body a.btn.main-header-manu-action[data-name="create"],' +
         'html.crm-modern-ui body .header-buttons>a.btn[data-name="create"],' +
         'html.crm-modern-ui body .header-buttons>a.btn[data-action="create"]{' +
-        'background:linear-gradient(135deg,#1d8a6e 0%,#2a5934 100%)!important;' +
-        'border:none!important;color:#fff!important;' +
-        'box-shadow:0 4px 16px rgba(29,138,110,.34)!important;' +
+        'background:linear-gradient(135deg,#eefaf5 0%,#d8f3e8 100%)!important;' +
+        'border:1px solid #b5e6d1!important;color:#1a5c47!important;' +
+        'box-shadow:0 4px 14px rgba(29,138,110,.12)!important;' +
         'min-height:40px!important;padding:10px 24px!important;' +
         '}' +
         'html.crm-modern-ui body a.btn.action[data-name="create"]:hover,' +
         'html.crm-modern-ui body a.btn.action[data-action="create"]:hover{' +
-        'background:linear-gradient(135deg,#22a07f 0%,#1e4d32 100%)!important;color:#fff!important;' +
+        'background:linear-gradient(135deg,#dff5ec 0%,#c8ebdc 100%)!important;color:#134a38!important;' +
         '}' +
         'html.crm-modern-ui body a.btn.action[data-name="create"] .fas,' +
-        'html.crm-modern-ui body a.btn.action[data-action="create"] .fas{color:#fff!important;margin:0!important;}' +
+        'html.crm-modern-ui body a.btn.action[data-action="create"] .fas{color:#1a5c47!important;margin:0!important;}' +
+        'html.crm-modern-ui body .search-container .form-control,html.crm-modern-ui body .search-row .form-control{' +
+        'border-radius:9999px!important;border:1px solid #c5e8db!important;background:#f4fbf8!important;' +
+        'min-height:40px!important;padding-left:16px!important;padding-right:16px!important;}' +
+        'html.crm-modern-ui body .search-container .form-control:focus,html.crm-modern-ui body .search-row .form-control:focus{' +
+        'border-color:#8fd4be!important;background:#fff!important;box-shadow:0 0 0 3px rgba(168,230,207,.45)!important;}' +
+        'html.crm-modern-ui body .global-search-container .input-group{border-radius:9999px!important;border:1px solid #c5e8db!important;background:#f4fbf8!important;}' +
         'html.crm-modern-ui body .panel .btn-primary.btn-block,' +
         'html.crm-modern-ui body .comunicaciones-caso-panel .btn-primary,' +
         'html.crm-modern-ui body .modal-footer .btn{min-height:40px;}' +

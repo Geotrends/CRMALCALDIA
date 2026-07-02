@@ -484,18 +484,18 @@ body[data-navbar=side]:not(.side-menu-opened) #navbar .navbar-nav.navbar-right .
   max-width: 36vw !important;
   margin: 0 !important;
   padding: 0 4px 0 12px !important;
-  background: var(--crm-bg-elevated, #f8fafc) !important;
-  border: 1px solid var(--crm-border, #e2e8f0) !important;
-  border-radius: 10px !important;
-  box-shadow: var(--crm-shadow-xs) !important;
+  background: #f4fbf8 !important;
+  border: 1px solid #c5e8db !important;
+  border-radius: 9999px !important;
+  box-shadow: 0 2px 8px rgba(29, 138, 110, 0.08) !important;
   overflow: hidden !important;
   transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease !important;
 }
 
 body[data-navbar=side]:not(.side-menu-opened) #navbar .navbar-nav.navbar-right .global-search-container .input-group:focus-within {
   background: var(--crm-surface, #fff) !important;
-  border-color: var(--nav-accent) !important;
-  box-shadow: 0 0 0 3px rgba(29, 138, 110, 0.12) !important;
+  border-color: #8fd4be !important;
+  box-shadow: 0 0 0 3px rgba(168, 230, 207, 0.45) !important;
 }
 
 body[data-navbar=side]:not(.side-menu-opened) #navbar .navbar-nav.navbar-right input.global-search-input {

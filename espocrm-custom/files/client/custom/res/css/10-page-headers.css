@@ -140,19 +140,26 @@
 }
 
 .list > .search-container .form-control {
-  border-radius: var(--crm-radius-sm) !important;
-  border-color: var(--crm-border) !important;
-  min-height: 36px;
+  border-radius: var(--crm-radius-full) !important;
+  border: 1px solid #c5e8db !important;
+  background: #f4fbf8 !important;
+  min-height: 40px;
+  padding-left: 16px !important;
+  padding-right: 16px !important;
 }
 
 .list > .search-container .form-control:focus {
-  border-color: var(--crm-primary) !important;
-  box-shadow: 0 0 0 3px rgba(29, 138, 110, 0.12) !important;
+  border-color: #8fd4be !important;
+  background: #fff !important;
+  box-shadow: 0 0 0 3px rgba(168, 230, 207, 0.45) !important;
 }
 
 .list > .search-container .btn {
-  border-radius: var(--crm-radius-sm) !important;
+  border-radius: var(--crm-radius-full) !important;
   font-weight: 600 !important;
+  background: #eefaf5 !important;
+  border: 1px solid #c5e8db !important;
+  color: #1a5c47 !important;
 }
 
 /* Tabla — misma tarjeta, sin borde propio */
@@ -296,14 +303,14 @@
 .page-header .header-buttons a[data-name="create"],
 .page-header .header-buttons a[href*="/create"],
 .page-header .header-buttons a[href$="create"] {
-  background: linear-gradient(135deg, var(--crm-primary) 0%, var(--crm-primary-dark) 100%) !important;
-  border: none !important;
-  color: #fff !important;
+  background: linear-gradient(135deg, #eefaf5 0%, #d8f3e8 100%) !important;
+  border: 1px solid #b5e6d1 !important;
+  color: #1a5c47 !important;
   font-weight: 700 !important;
   font-size: var(--crm-font-size-sm) !important;
   padding: 10px 20px !important;
   border-radius: var(--crm-radius-full) !important;
-  box-shadow: 0 4px 14px rgba(29, 138, 110, 0.35) !important;
+  box-shadow: 0 4px 14px rgba(29, 138, 110, 0.12) !important;
   transition: transform var(--crm-transition), box-shadow var(--crm-transition) !important;
   display: inline-flex !important;
   align-items: center !important;
@@ -316,15 +323,16 @@
 .page-header .header-buttons a.action[data-action="create"]:hover,
 .page-header .header-buttons a[data-name="create"]:hover,
 .page-header .header-buttons a[href*="/create"]:hover {
-  background: linear-gradient(135deg, #22a07f 0%, var(--crm-primary-dark) 100%) !important;
-  color: #fff !important;
+  background: linear-gradient(135deg, #dff5ec 0%, #c8ebdc 100%) !important;
+  border-color: #9fd9c0 !important;
+  color: #134a38 !important;
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(29, 138, 110, 0.45) !important;
+  box-shadow: 0 6px 18px rgba(29, 138, 110, 0.18) !important;
 }
 
 .page-header .header-buttons a.action[data-action="create"] .fas,
 .page-header .header-buttons a[data-name="create"] .fas {
-  color: #fff !important;
+  color: #1a5c47 !important;
   margin-right: 4px;
 }
 
