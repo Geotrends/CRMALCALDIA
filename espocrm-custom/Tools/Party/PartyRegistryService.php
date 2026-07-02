@@ -24,6 +24,28 @@ class PartyRegistryService
         'cBarrioPerjudicante',
     ];
 
+    /** @var list<string> */
+    private const PETICIONARIO_CASE_FIELDS = [
+        'cNombrePeticionario',
+        'cApellidoPeticionario',
+        'cDocumentoPeticionario',
+        'cDireccionPeticionario',
+        'cTelefonoPeticionario',
+        'cCorreoPeticionario',
+        'cCanalDeReportePeticionario',
+        'cMunicipioPeticionario',
+        'cZonaAlcaldiaPeticionario',
+    ];
+
+    /** @var list<string> */
+    private const PERJUDICANTE_CASE_FIELDS = [
+        'cNombrePerjudicante',
+        'cApellidoPerjudicante',
+        'cDocumentoPerjudicante',
+        'cDireccionPerjudicante',
+        'cTelefonoPerjudicante',
+    ];
+
     private ?PartyCasosService $partyCasosService = null;
 
     public function __construct(
@@ -120,6 +142,148 @@ class PartyRegistryService
         }
 
         return null;
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    public function findLatestCasePartyFields(string $party, string $tipo, string $documento): ?array
+    {
+        $documento = trim($documento);
+
+        if ($documento === '' || !in_array($party, ['peticionario', 'perjudicante'], true)) {
+            return null;
+        }
+
+        $docField = $party === 'peticionario' ? 'cDocumentoPeticionario' : 'cDocumentoPerjudicante';
+        $tipoField = $party === 'peticionario' ? 'cTipoPersonaPeticionario' : 'cTipoPersonaPerjudicante';
+
+        foreach (DocumentNormalizer::candidates($documento) as $candidate) {
+            $case = $this->entityManager
+                ->getRDBRepository('Case')
+                ->where([
+                    $docField => $candidate,
+                    $tipoField => $tipo,
+                ])
+                ->order('createdAt', 'DESC')
+                ->findOne();
+
+            if ($case) {
+                return $party === 'peticionario'
+                    ? $this->mapCaseToPeticionarioFields($case)
+                    : $this->mapCaseToPerjudicanteFields($case);
+            }
+        }
+
+        $normalized = DocumentNormalizer::normalize($documento);
+
+        if ($normalized === '') {
+            return null;
+        }
+
+        $cases = $this->entityManager
+            ->getRDBRepository('Case')
+            ->where([
+                $tipoField => $tipo,
+                $docField . '!=' => '',
+            ])
+            ->order('createdAt', 'DESC')
+            ->limit(0, 2000)
+            ->find();
+
+        foreach ($cases as $case) {
+            $stored = DocumentNormalizer::normalize((string) $case->get($docField));
+
+            if ($stored !== '' && $stored === $normalized) {
+                return $party === 'peticionario'
+                    ? $this->mapCaseToPeticionarioFields($case)
+                    : $this->mapCaseToPerjudicanteFields($case);
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function mapCaseToPeticionarioFields(Entity $case): array
+    {
+        $data = [];
+
+        foreach (array_merge(
+            self::PETICIONARIO_CASE_FIELDS,
+            DireccionEstructuradaBuilder::PETICIONARIO_COMPONENT_FIELDS,
+            self::PETICIONARIO_EXTRA_FIELDS
+        ) as $field) {
+            $value = $this->cleanFieldValue($case->get($field));
+
+            if ($value !== '') {
+                $data[$field] = $value;
+            }
+        }
+
+        if ($case->get('contactId')) {
+            $data['contactId'] = $case->get('contactId');
+            $data['contactName'] = $case->get('contactName');
+        }
+
+        if ($case->get('accountId')) {
+            $data['accountId'] = $case->get('accountId');
+            $data['accountName'] = $case->get('accountName');
+        }
+
+        $built = DireccionEstructuradaBuilder::buildFromFields(
+            $case,
+            DireccionEstructuradaBuilder::PETICIONARIO_COMPONENT_FIELDS
+        );
+
+        if ($built !== '') {
+            $data['cDireccionPeticionario'] = $built;
+        }
+
+        return $data;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function mapCaseToPerjudicanteFields(Entity $case): array
+    {
+        $data = [];
+
+        foreach (array_merge(
+            self::PERJUDICANTE_CASE_FIELDS,
+            DireccionEstructuradaBuilder::PERJUDICANTE_COMPONENT_FIELDS,
+            self::PERJUDICANTE_EXTRA_FIELDS
+        ) as $field) {
+            $value = $this->cleanFieldValue($case->get($field));
+
+            if ($value !== '') {
+                $data[$field] = $value;
+            }
+        }
+
+        if ($case->get('cPerjudicanteContactId')) {
+            $data['cPerjudicanteContactId'] = $case->get('cPerjudicanteContactId');
+            $data['cPerjudicanteContactName'] = $case->get('cPerjudicanteContactName');
+        }
+
+        if ($case->get('cPerjudicanteCuentaId')) {
+            $data['cPerjudicanteCuentaId'] = $case->get('cPerjudicanteCuentaId');
+            $data['cPerjudicanteCuentaName'] = $case->get('cPerjudicanteCuentaName');
+        }
+
+        $built = DireccionEstructuradaBuilder::buildFromFields(
+            $case,
+            DireccionEstructuradaBuilder::PERJUDICANTE_COMPONENT_FIELDS
+        );
+
+        if ($built !== '') {
+            $data['cDireccionPerjudicante'] = $built;
+        }
+
+        return $data;
     }
 
     /**

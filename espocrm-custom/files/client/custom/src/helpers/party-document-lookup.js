@@ -2,7 +2,8 @@ define('custom:helpers/party-document-lookup', [
     'custom:helpers/persona-tipo-fields',
     'custom:helpers/direccion-estructurada',
     'custom:helpers/safe-ui-promise',
-], function (PersonaTipoFields, DireccionEstructurada, SafeUiPromise) {
+    'custom:helpers/nit-input',
+], function (PersonaTipoFields, DireccionEstructurada, SafeUiPromise, NitInput) {
 
     var DEBOUNCE_MS = 400;
     var MIN_DOCUMENT_LENGTH = 4;
@@ -36,6 +37,46 @@ define('custom:helpers/party-document-lookup', [
         return party === 'peticionario' ? PETICIONARIO_LINKED_FIELDS : PERJUDICANTE_LINKED_FIELDS;
     };
 
+    var normalizeDocumento = function (documento, tipo) {
+        var raw = String(documento || '').trim();
+
+        if (!raw) {
+            return '';
+        }
+
+        if (PersonaTipoFields.isJuridica(tipo)) {
+            return NitInput.format(raw) || raw;
+        }
+
+        var digits = raw.replace(/[^\d]/g, '');
+
+        return digits || raw;
+    };
+
+    var readDocumentFromDom = function (recordView, config) {
+        var $input = recordView.$el.find(
+            '[data-name="' + config.documento + '"] input, [data-name="' + config.documento + '"] textarea'
+        );
+
+        if (!$input.length) {
+            return String(recordView.model.get(config.documento) || '').trim();
+        }
+
+        var tipo = String(recordView.model.get(config.tipo) || '').trim();
+
+        return normalizeDocumento($input.val(), tipo);
+    };
+
+    var syncDocumentToModel = function (recordView, config) {
+        var documento = readDocumentFromDom(recordView, config);
+
+        if (documento !== String(recordView.model.get(config.documento) || '').trim()) {
+            recordView.model.set(config.documento, documento || null);
+        }
+
+        return documento;
+    };
+
     var setPartyLinkedState = function (recordView, party, linked) {
         if (!recordView.$el || !recordView.$el.length) {
             return;
@@ -58,12 +99,22 @@ define('custom:helpers/party-document-lookup', [
             : PersonaTipoFields.PERJUDICANTE;
     };
 
+    var refreshPartyFields = function (recordView, party) {
+        if (!recordView.isRendered || !recordView.isRendered()) {
+            return;
+        }
+
+        getLinkedFields(party).forEach(function (field) {
+            SafeUiPromise.safeReRender(recordView.getFieldView(field));
+        });
+    };
+
     var refreshLinkedAppearance = function (recordView, party, options) {
         options = options || {};
 
         var config = getPartyConfig(party);
         var tipo = String(recordView.model.get(config.tipo) || '').trim();
-        var documento = String(recordView.model.get(config.documento) || '').trim();
+        var documento = normalizeDocumento(recordView.model.get(config.documento), tipo);
         var key = party + '|' + tipo + '|' + documento;
 
         if (party === 'perjudicante' && !PersonaTipoFields.isInfractorKnown(tipo)) {
@@ -93,35 +144,10 @@ define('custom:helpers/party-document-lookup', [
         runLookup(recordView, config, party, {silent: true});
     };
 
-    var refreshAddressFields = function (recordView, party) {
-        var config = party === 'peticionario'
-            ? DireccionEstructurada.PETICIONARIO
-            : DireccionEstructurada.PERJUDICANTE;
-
-        DireccionEstructurada.applyToModel(recordView.model, config);
-
-        if (!recordView.isRendered || !recordView.isRendered()) {
-            return;
-        }
-
-        config.componentFields.forEach(function (field) {
-            var fieldView = recordView.getFieldView(field);
-
-            SafeUiPromise.safeReRender(fieldView);
-        });
-
-        var direccionView = recordView.getFieldView(config.target);
-
-        SafeUiPromise.safeReRender(direccionView);
-    };
-
     var runLookup = function (recordView, config, party, options) {
         options = options || {};
         var tipo = String(recordView.model.get(config.tipo) || '').trim();
-        var $input = recordView.$el.find('[data-name="' + config.documento + '"] input, [data-name="' + config.documento + '"] textarea');
-        var documento = String(
-            ($input.length ? $input.val() : null) || recordView.model.get(config.documento) || ''
-        ).trim();
+        var documento = syncDocumentToModel(recordView, config);
 
         if (party === 'perjudicante' && !PersonaTipoFields.isInfractorKnown(tipo)) {
             setPartyLinkedState(recordView, party, false);
@@ -149,10 +175,6 @@ define('custom:helpers/party-document-lookup', [
             setPartyLinkedState(recordView, party, false);
 
             return;
-        }
-
-        if (documento !== String(recordView.model.get(config.documento) || '').trim()) {
-            recordView.model.set(config.documento, documento, {silent: true});
         }
 
         var key = party + '|' + tipo + '|' + documento;
@@ -200,12 +222,12 @@ define('custom:helpers/party-document-lookup', [
 
             recordView._partyLookupCache[key] = true;
             recordView.model.set(response.data);
-            refreshAddressFields(recordView, party);
+            refreshPartyFields(recordView, party);
             setPartyLinkedState(recordView, party, true);
 
             if (!options.silent) {
                 Espo.Ui.warning(
-                    response.message || 'Ya existe este registro. Se cargaron los datos registrados.'
+                    response.message || 'Ya existe este registro. Se cargaron los datos registrados; puede editarlos si es necesario.'
                 );
             }
         }).catch(function (xhr) {
@@ -260,11 +282,26 @@ define('custom:helpers/party-document-lookup', [
             }
         };
 
+        var scheduleHandler = function (e) {
+            var $field = $(e.currentTarget).closest('[data-name]');
+            var fieldName = $field.attr('data-name');
+
+            if (fieldName === PersonaTipoFields.PETICIONARIO.documento) {
+                syncDocumentToModel(recordView, PersonaTipoFields.PETICIONARIO);
+            }
+
+            if (fieldName === PersonaTipoFields.PERJUDICANTE.documento) {
+                syncDocumentToModel(recordView, PersonaTipoFields.PERJUDICANTE);
+            }
+        };
+
         recordView.$el
-            .off('blur.partyLookup change.partyLookup', '[data-name="cDocumentoPeticionario"] input, [data-name="cDocumentoPeticionario"] textarea')
-            .off('blur.partyLookup change.partyLookup', '[data-name="cDocumentoPerjudicante"] input, [data-name="cDocumentoPerjudicante"] textarea')
+            .off('blur.partyLookup change.partyLookup keyup.partyLookup input.partyLookup', '[data-name="cDocumentoPeticionario"] input, [data-name="cDocumentoPeticionario"] textarea')
+            .off('blur.partyLookup change.partyLookup keyup.partyLookup input.partyLookup', '[data-name="cDocumentoPerjudicante"] input, [data-name="cDocumentoPerjudicante"] textarea')
             .on('blur.partyLookup change.partyLookup', '[data-name="cDocumentoPeticionario"] input, [data-name="cDocumentoPeticionario"] textarea', handler)
-            .on('blur.partyLookup change.partyLookup', '[data-name="cDocumentoPerjudicante"] input, [data-name="cDocumentoPerjudicante"] textarea', handler);
+            .on('blur.partyLookup change.partyLookup', '[data-name="cDocumentoPerjudicante"] input, [data-name="cDocumentoPerjudicante"] textarea', handler)
+            .on('keyup.partyLookup input.partyLookup', '[data-name="cDocumentoPeticionario"] input, [data-name="cDocumentoPeticionario"] textarea', scheduleHandler)
+            .on('keyup.partyLookup input.partyLookup', '[data-name="cDocumentoPerjudicante"] input, [data-name="cDocumentoPerjudicante"] textarea', scheduleHandler);
     };
 
     var setup = function (recordView) {

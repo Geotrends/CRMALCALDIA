@@ -32,6 +32,18 @@ errors=0
 echo "==> Verificación deploy custom (APP_ROOT=$APP_ROOT)"
 echo ""
 
+check_file "Lookup duplicados — bindDom en edición caso" \
+  "$CLIENT/src/views/case/record/edit.js" \
+  "PartyDocumentLookup.bindDom" || errors=$((errors + 1))
+
+check_file "Lookup duplicados — API buscarParte" \
+  "$CUSTOM/Controllers/CaseObj.php" \
+  "findLatestCasePartyFields" || errors=$((errors + 1))
+
+check_file "Lookup duplicados — servicio registro" \
+  "$CUSTOM/Tools/Party/PartyRegistryService.php" \
+  "findLatestCasePartyFields" || errors=$((errors + 1))
+
 check_file "scriptList — promise-console-guard" \
   "$CUSTOM/Resources/metadata/app/client.json" \
   "promise-console-guard.js" || errors=$((errors + 1))

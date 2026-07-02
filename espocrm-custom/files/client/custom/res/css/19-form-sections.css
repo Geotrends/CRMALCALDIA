@@ -120,17 +120,18 @@
   box-shadow: 0 0 0 3px rgba(100, 116, 139, 0.15) !important;
 }
 
-/* Solo gris cuando la persona ya existe en el registro (duplicado vinculado) */
+/* Datos cargados de un registro existente: resaltado suave, siguen editables */
 .edit .party-registry-linked .form-control,
 .edit .party-registry-linked .selectize-input,
 .edit .party-registry-linked textarea.form-control {
-  background: var(--crm-form-value-bg) !important;
-  color: var(--crm-text-secondary) !important;
-  cursor: default;
+  background: #f0f9ff !important;
+  color: var(--crm-text-primary) !important;
+  border-color: #93c5fd !important;
+  cursor: text;
 }
 
 .edit .party-registry-linked .selectize-input {
-  opacity: 0.92;
+  opacity: 1;
 }
 
 /* ── Lectura (detalle): ficha organizada por sección (sin caja por campo) ── */

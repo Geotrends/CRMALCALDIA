@@ -202,6 +202,7 @@ define('custom:views/case/record/edit', [
 
         afterRender: function () {
             Dep.prototype.afterRender.call(this);
+            PartyDocumentLookup.bindDom(this);
             InspeccionCaseFlow.schedule(this);
             RadicacionCaseFlow.schedule(this);
             AsignadorCaseFlow.schedule(this);
