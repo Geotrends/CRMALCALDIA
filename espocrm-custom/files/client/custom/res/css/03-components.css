@@ -267,3 +267,52 @@
   background: var(--crm-info-soft) !important;
   color: #1e40af !important;
 }
+
+/* ── Aviso inactividad sesión ── */
+.crm-session-idle-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 12000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(15, 23, 42, 0.55);
+}
+
+.crm-session-idle-modal__dialog {
+  width: min(100%, 440px);
+  background: var(--crm-bg-elevated, #fff);
+  border: 1px solid var(--crm-border-light, #e2e8f0);
+  border-radius: var(--crm-radius-lg, 12px);
+  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.18);
+  overflow: hidden;
+}
+
+.crm-session-idle-modal__header {
+  padding: 18px 22px 0;
+}
+
+.crm-session-idle-modal__header h4 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--crm-text, #0f172a);
+}
+
+.crm-session-idle-modal__body {
+  padding: 14px 22px 6px;
+  color: var(--crm-text-muted, #475569);
+  line-height: 1.5;
+}
+
+.crm-session-idle-modal__body p {
+  margin: 0;
+}
+
+.crm-session-idle-modal__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 22px 20px;
+}

@@ -32,9 +32,17 @@ errors=0
 echo "==> Verificación deploy custom (APP_ROOT=$APP_ROOT)"
 echo ""
 
-check_file "scriptList sin flujos por rol" \
+check_file "scriptList — session-security" \
   "$CUSTOM/Resources/metadata/app/client.json" \
-  "theme-login.js" || errors=$((errors + 1))
+  "session-security.js" || errors=$((errors + 1))
+
+check_file "Loader seguridad de sesión" \
+  "$CLIENT/src/loader/session-security.js" \
+  "crm-open-tabs" || errors=$((errors + 1))
+
+check_file "CSS aviso inactividad sesión" \
+  "$CLIENT/res/css/03-components.css" \
+  "crm-session-idle-modal" || errors=$((errors + 1))
 
 if grep -q "case-radicacion-flow.js\|alcaldia-profile-sync.js\|case-create-guard.js" "$CUSTOM/Resources/metadata/app/client.json" 2>/dev/null; then
   echo "FALTA: scriptList aún referencia loaders de flujo por roles"
