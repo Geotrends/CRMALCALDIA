@@ -1,4 +1,6 @@
-define('custom:helpers/case-create-form', [], function () {
+define('custom:helpers/case-create-form', [
+    'custom:helpers/safe-ui-promise',
+], function (SafeUiPromise) {
 
     const DETAIL_ONLY_PANELS = [
         'radicacionCaso',
@@ -123,13 +125,9 @@ define('custom:helpers/case-create-form', [], function () {
 
         return Promise.all(tasks).then(function () {
             DEFAULT_LINK_FIELDS.forEach(function (field) {
-                const fieldView = recordView.getFieldView(field);
-
-                if (fieldView && fieldView.isRendered && fieldView.isRendered()) {
-                    fieldView.reRender();
-                }
+                SafeUiPromise.safeReRender(recordView.getFieldView(field));
             });
-        });
+        }).catch(function () {});
     };
 
     const applyServerDefaults = function (recordView, data) {
@@ -156,11 +154,7 @@ define('custom:helpers/case-create-form', [], function () {
         });
 
         ['cFechaCaso'].concat(DEFAULT_LINK_FIELDS).forEach(function (field) {
-            const fieldView = recordView.getFieldView(field);
-
-            if (fieldView && fieldView.isRendered && fieldView.isRendered()) {
-                fieldView.reRender();
-            }
+            SafeUiPromise.safeReRender(recordView.getFieldView(field));
         });
     };
 

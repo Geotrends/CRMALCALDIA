@@ -1,7 +1,8 @@
 define('custom:views/case/fields/direccion-computada', [
     'views/fields/varchar',
     'custom:helpers/direccion-estructurada',
-], function (Dep, DireccionEstructurada) {
+    'custom:helpers/safe-ui-promise',
+], function (Dep, DireccionEstructurada, SafeUiPromise) {
 
     return Dep.extend({
 
@@ -40,9 +41,7 @@ define('custom:views/case/fields/direccion-computada', [
         },
 
         reRenderIfRendered: function () {
-            if (this.isRendered()) {
-                this.reRender();
-            }
+            SafeUiPromise.safeReRender(this);
         },
 
         syncToModel: function () {

@@ -1,4 +1,7 @@
-define('custom:views/comunicacion-caso/fields/destinatario-sugerencias', ['views/fields/base'], function (Dep) {
+define('custom:views/comunicacion-caso/fields/destinatario-sugerencias', [
+    'views/fields/base',
+    'custom:helpers/safe-ui-promise',
+], function (Dep, SafeUiPromise) {
 
     return Dep.extend({
 
@@ -130,9 +133,7 @@ define('custom:views/comunicacion-caso/fields/destinatario-sugerencias', ['views
         },
 
         reRenderIfNeeded: function () {
-            if (this.isRendered()) {
-                this.reRender();
-            }
+            SafeUiPromise.safeReRender(this);
         },
     });
 });

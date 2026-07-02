@@ -67,12 +67,7 @@ define('custom:views/case/record/panels/actuo-archivo', [
                 this.actuoIsEditMode = ActuoArchivoCaseStatus.isActuoDiligenciado(actuo);
 
                 if (this.isRendered()) {
-                    const renderResult = this.reRender();
-
-                    if (renderResult && typeof renderResult.catch === 'function') {
-                        renderResult.catch(function () {});
-                    }
-
+                    SafeUiPromise.safeReRender(this);
                     this.bindButton();
                 }
             }).catch(function () {

@@ -1,4 +1,7 @@
-define('custom:views/user/record/panels/historial-usuario', ['views/fields/base'], function (Dep) {
+define('custom:views/user/record/panels/historial-usuario', [
+    'views/fields/base',
+    'custom:helpers/safe-ui-promise',
+], function (Dep, SafeUiPromise) {
 
     var tipoLabel = function (tipo) {
         var labels = {
@@ -128,9 +131,7 @@ define('custom:views/user/record/panels/historial-usuario', ['views/fields/base'
         },
 
         reRenderIfNeeded: function () {
-            if (this.isRendered()) {
-                this.reRender();
-            }
+            SafeUiPromise.safeReRender(this);
         },
 
         bindActions: function () {

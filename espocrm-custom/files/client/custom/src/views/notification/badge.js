@@ -1,4 +1,7 @@
-define('custom:views/notification/badge', ['views/notification/badge'], function (Dep) {
+define('custom:views/notification/badge', [
+    'views/notification/badge',
+    'custom:helpers/safe-ui-promise',
+], function (Dep, SafeUiPromise) {
 
     var getAckStorageKey = function (userId) {
         return 'crm-notif-ack-count-' + (userId || '');
@@ -40,7 +43,13 @@ define('custom:views/notification/badge', ['views/notification/badge'], function
                 return;
             }
 
-            var count = await Espo.Ajax.getRequest('Notification/action/notReadCount');
+            var count = 0;
+
+            try {
+                count = await Espo.Ajax.getRequest('Notification/action/notReadCount');
+            } catch (error) {
+                return;
+            }
 
             if (!isFirstCheck && count > this.unreadCount) {
                 var blockSound = localStorage.getItem('messageBlockPlayNotificationSound');

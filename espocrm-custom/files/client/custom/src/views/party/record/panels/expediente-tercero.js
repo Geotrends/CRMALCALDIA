@@ -1,4 +1,7 @@
-define('custom:views/party/record/panels/expediente-tercero', ['views/fields/base'], function (Dep) {
+define('custom:views/party/record/panels/expediente-tercero', [
+    'views/fields/base',
+    'custom:helpers/safe-ui-promise',
+], function (Dep, SafeUiPromise) {
 
         var tipoLabel = function (tipo) {
         var labels = {
@@ -132,9 +135,7 @@ define('custom:views/party/record/panels/expediente-tercero', ['views/fields/bas
         },
 
         reRenderIfNeeded: function () {
-            if (this.isRendered()) {
-                this.reRender();
-            }
+            SafeUiPromise.safeReRender(this);
         },
 
         bindActions: function () {

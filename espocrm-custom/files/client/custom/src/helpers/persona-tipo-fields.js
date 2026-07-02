@@ -1,4 +1,6 @@
-define('custom:helpers/persona-tipo-fields', [], function () {
+define('custom:helpers/persona-tipo-fields', [
+    'custom:helpers/safe-ui-promise',
+], function (SafeUiPromise) {
 
     const PERSONA_JURIDICA = 'Persona jurídica';
     const PERSONA_NATURAL = 'Persona natural';
@@ -197,7 +199,7 @@ define('custom:helpers/persona-tipo-fields', [], function () {
                     }
 
                     if (fieldView.isRendered()) {
-                        fieldView.reRender();
+                        SafeUiPromise.safeReRender(fieldView);
                     }
                 }
             }

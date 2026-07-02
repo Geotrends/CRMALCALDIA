@@ -1,4 +1,6 @@
-define('custom:helpers/direccion-estructurada', [], function () {
+define('custom:helpers/direccion-estructurada', [
+    'custom:helpers/safe-ui-promise',
+], function (SafeUiPromise) {
 
     const LETTER_OPTIONS = ['', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
 
@@ -108,9 +110,7 @@ define('custom:helpers/direccion-estructurada', [], function () {
 
         const fieldView = recordView.getFieldView(target);
 
-        if (fieldView && typeof fieldView.reRender === 'function') {
-            fieldView.reRender();
-        }
+        SafeUiPromise.safeReRender(fieldView);
     };
 
     const setup = function (recordView) {

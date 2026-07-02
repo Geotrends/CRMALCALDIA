@@ -136,7 +136,7 @@ define('custom:views/home', ['views/dashboard'], function (Dep) {
                 if (self.isRendered()) {
                     self.renderCustomPanels();
                 }
-            });
+            }).catch(function () {});
 
             this.sanitizeDashboardPreferences();
             Dep.prototype.setup.call(this);

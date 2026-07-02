@@ -3,7 +3,8 @@ define('custom:views/fields/party-document', [
     'custom:helpers/numeric-input',
     'custom:helpers/nit-input',
     'custom:helpers/persona-tipo-fields',
-], function (Dep, NumericInput, NitInput, PersonaTipoFields) {
+    'custom:helpers/safe-ui-promise',
+], function (Dep, NumericInput, NitInput, PersonaTipoFields, SafeUiPromise) {
 
     return Dep.extend({
 
@@ -21,7 +22,7 @@ define('custom:views/fields/party-document', [
                     return;
                 }
 
-                this.reRender();
+                SafeUiPromise.safeReRender(this);
             });
         },
 
