@@ -46,18 +46,18 @@
             'html.crm-modern-ui body a.btn.action[data-name="create"] .fas,html.crm-modern-ui body a.btn.action[data-action="create"] .fas{color:#1a5c47!important;margin:0!important;}' +
             'html.crm-modern-ui body .search-container .form-control,html.crm-modern-ui body .search-row .form-control,' +
             'html.crm-modern-ui body .list>.search-container .form-control,html.crm-modern-ui body .record .search-container .form-control{' +
-            'border-radius:9999px!important;border:1px solid #c5e8db!important;background:#f4fbf8!important;' +
+            'border-radius:9999px!important;border:1px solid #e2e8f0!important;background:#fff!important;' +
             'min-height:40px!important;padding-left:16px!important;padding-right:16px!important;box-shadow:none!important;}' +
             'html.crm-modern-ui body .search-container .form-control:focus,html.crm-modern-ui body .search-row .form-control:focus{' +
-            'border-color:#8fd4be!important;background:#fff!important;box-shadow:none!important;outline:none!important;}' +
+            'border-color:#cbd5e1!important;background:#fff!important;box-shadow:none!important;outline:none!important;}' +
             'html.crm-modern-ui body .search-container .btn,html.crm-modern-ui body .search-row .btn{' +
-            'border-radius:9999px!important;background:#eefaf5!important;border:1px solid #c5e8db!important;color:#1a5c47!important;box-shadow:none!important;}' +
+            'border-radius:9999px!important;background:#fff!important;border:1px solid #e2e8f0!important;color:#475569!important;box-shadow:none!important;}' +
             'html.crm-modern-ui body .search-row{display:flex!important;flex-wrap:wrap!important;align-items:center!important;gap:12px!important;}' +
             'html.crm-modern-ui body .search-row>.form-group{margin:0 6px!important;padding:0 4px!important;}' +
             'html.crm-modern-ui body .search-row .input-group{display:flex!important;align-items:center!important;gap:10px!important;width:100%!important;border:none!important;box-shadow:none!important;background:transparent!important;}' +
             'html.crm-modern-ui body .search-row .input-group>.form-control{flex:1 1 auto!important;min-width:140px!important;}' +
             'html.crm-modern-ui body .search-row .input-group>.input-group-btn,html.crm-modern-ui body .search-row .input-group>.input-group-btn.left-dropdown{width:auto!important;float:none!important;margin:0!important;}' +
-            'html.crm-modern-ui body .global-search-container .input-group{border-radius:9999px!important;border:1px solid #c5e8db!important;background:#f4fbf8!important;box-shadow:none!important;}' +
+            'html.crm-modern-ui body .global-search-container .input-group{border-radius:9999px!important;border:1px solid #e2e8f0!important;background:#fff!important;box-shadow:none!important;}' +
             'html.crm-modern-ui body .pagination>li>a,html.crm-modern-ui body #navbar a.minimizer{border-radius:8px!important;}';
 
         var style = document.createElement('style');

@@ -484,8 +484,8 @@ body[data-navbar=side]:not(.side-menu-opened) #navbar .navbar-nav.navbar-right .
   max-width: 36vw !important;
   margin: 0 !important;
   padding: 0 4px 0 12px !important;
-  background: #f4fbf8 !important;
-  border: 1px solid #c5e8db !important;
+  background: #fff !important;
+  border: 1px solid #e2e8f0 !important;
   border-radius: 9999px !important;
   box-shadow: none !important;
   overflow: hidden !important;
@@ -494,7 +494,7 @@ body[data-navbar=side]:not(.side-menu-opened) #navbar .navbar-nav.navbar-right .
 
 body[data-navbar=side]:not(.side-menu-opened) #navbar .navbar-nav.navbar-right .global-search-container .input-group:focus-within {
   background: var(--crm-surface, #fff) !important;
-  border-color: #8fd4be !important;
+  border-color: #cbd5e1 !important;
   box-shadow: none !important;
 }
 

@@ -426,8 +426,8 @@ a.btn-primary:hover {
 .modal .search-container .form-control,
 .filter .form-control[data-name="textFilter"] {
   border-radius: var(--crm-radius-full) !important;
-  border: 1px solid #c5e8db !important;
-  background: #f4fbf8 !important;
+  border: 1px solid #e2e8f0 !important;
+  background: #fff !important;
   min-height: 40px !important;
   padding-left: 16px !important;
   padding-right: 16px !important;
@@ -438,7 +438,7 @@ a.btn-primary:hover {
 .search-container .form-control:focus,
 .search-row .form-control:focus,
 .record .search-container .form-control:focus {
-  border-color: #8fd4be !important;
+  border-color: #cbd5e1 !important;
   background: #fff !important;
   box-shadow: none !important;
   outline: none !important;
@@ -447,16 +447,16 @@ a.btn-primary:hover {
 .list > .search-container .btn,
 .search-row .btn-group.search-buttons .btn {
   border-radius: var(--crm-radius-full) !important;
-  background: #eefaf5 !important;
-  border: 1px solid #c5e8db !important;
-  color: #1a5c47 !important;
+  background: #fff !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #475569 !important;
 }
 
 .list > .search-container .btn:hover,
 .search-row .btn-group.search-buttons .btn:hover {
-  background: #dff5ec !important;
-  border-color: #9fd9c0 !important;
-  color: #134a38 !important;
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #334155 !important;
 }
 
 /* Búsqueda — separación entre filtro, campo y botones */
