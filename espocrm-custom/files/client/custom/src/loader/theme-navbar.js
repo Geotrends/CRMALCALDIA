@@ -63,8 +63,8 @@
             'position:absolute!important;top:-4px!important;right:-4px!important;z-index:3!important;' +
             'min-width:18px!important;height:18px!important;padding:0 5px!important;' +
             'font-size:10px!important;font-weight:800!important;line-height:18px!important;' +
-            'color:#fff!important;background:#f59e0b!important;border:2px solid #fff!important;' +
-            'border-radius:9999px!important;box-shadow:0 2px 6px rgba(245,158,11,.45)!important;' +
+            'color:#1a5c47!important;background:linear-gradient(135deg,#eefaf5 0%,#d8f3e8 100%)!important;border:2px solid #b5e6d1!important;' +
+            'border-radius:9999px!important;box-shadow:0 2px 6px rgba(26,92,71,.15)!important;' +
             'display:inline-flex!important;align-items:center!important;justify-content:center!important;clip-path:none!important;}' +
             'html.crm-modern-ui body #navbar .notifications-button .number-badge::before{content:none!important;display:none!important;}' +
             'html.crm-modern-ui body #navbar .notifications-button .number-badge.hidden{display:none!important;}' +
