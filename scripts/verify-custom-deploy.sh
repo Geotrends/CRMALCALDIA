@@ -46,7 +46,7 @@ check_file "scriptList — session-security" \
 
 check_file "Loader seguridad de sesión" \
   "$CLIENT/src/loader/session-security.js" \
-  "crm-open-tabs" || errors=$((errors + 1))
+  "handleUnauthorized" || errors=$((errors + 1))
 
 check_file "CSS aviso inactividad sesión" \
   "$CLIENT/res/css/03-components.css" \

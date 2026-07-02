@@ -188,7 +188,58 @@
         unregisterTab();
         destroyAuthToken();
         clearEspoStorage();
+        sessionStorage.removeItem(SESSION_KEY);
+        sessionStorage.removeItem(LOGIN_PENDING_KEY);
         window.location.replace(getBasePath());
+    }
+
+    function handleUnauthorized() {
+        if (loggingOut || document.querySelector('#login')) {
+            return;
+        }
+
+        forceLogout();
+    }
+
+    function isUnauthorizedRejection(reason) {
+        if (!reason || typeof reason !== 'object') {
+            return false;
+        }
+
+        var status = reason.status || reason.statusCode;
+
+        return status === 401;
+    }
+
+    function bindUnauthorizedHandlers() {
+        window.addEventListener('unhandledrejection', function (event) {
+            if (!isUnauthorizedRejection(event.reason)) {
+                return;
+            }
+
+            event.preventDefault();
+            handleUnauthorized();
+        });
+
+        var bindAjaxUnauthorizedHandler = function (attempt) {
+            if (window.jQuery) {
+                window.jQuery(document).ajaxError(function (event, xhr) {
+                    if (xhr && xhr.status === 401) {
+                        handleUnauthorized();
+                    }
+                });
+
+                return;
+            }
+
+            if (attempt < 60) {
+                window.setTimeout(function () {
+                    bindAjaxUnauthorizedHandler(attempt + 1);
+                }, 500);
+            }
+        };
+
+        bindAjaxUnauthorizedHandler(0);
     }
 
     function getTabId() {
@@ -395,6 +446,7 @@
 
         started = true;
         sessionStorage.setItem(SESSION_KEY, '1');
+        bindUnauthorizedHandlers();
         heartbeat();
         heartbeatTimer = window.setInterval(heartbeat, HEARTBEAT_MS);
         bindActivityListeners();
