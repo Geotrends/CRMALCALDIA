@@ -163,6 +163,5 @@
         "cExpediente": {
             "view": "custom:views/case/fields/expediente"
         }
-    },
-    "listPagination": true
+    }
 }

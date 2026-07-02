@@ -44,9 +44,9 @@ check_file "Lookup duplicados — servicio registro" \
   "$CUSTOM/Tools/Party/PartyRegistryService.php" \
   "lookupPartyFields" || errors=$((errors + 1))
 
-check_file "Casos terceros — paginación en panel" \
+check_file "Casos terceros — panel relación estable" \
   "$CLIENT/src/views/party/record/panels/casos-relacion.js" \
-  "recordsPerPage = PAGE_SIZE" || errors=$((errors + 1))
+  "recordsPerPage = 5" || errors=$((errors + 1))
 
 check_file "scriptList — promise-console-guard" \
   "$CUSTOM/Resources/metadata/app/client.json" \
