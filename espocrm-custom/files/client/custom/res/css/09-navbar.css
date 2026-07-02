@@ -406,24 +406,50 @@ body[data-navbar=side] #navbar .navbar-nav.navbar-right > li > a.notifications-b
 /* Badge de notificaciones no leídas */
 body[data-navbar=side] #navbar .navbar-nav.navbar-right .notifications-badge-container {
   position: relative !important;
+  overflow: visible !important;
 }
 
+body[data-navbar=side] #navbar .navbar-nav.navbar-right > li > a.notifications-button {
+  position: relative !important;
+  overflow: visible !important;
+}
+
+body[data-navbar=side] #navbar .notifications-button .number-badge,
 body[data-navbar=side] #navbar .navbar-nav.navbar-right .notifications-badge-container .number-badge {
   position: absolute !important;
-  top: 4px !important;
-  right: 4px !important;
-  min-width: 16px !important;
-  height: 16px !important;
-  padding: 0 4px !important;
+  top: -4px !important;
+  right: -4px !important;
+  z-index: 3 !important;
+  min-width: 18px !important;
+  height: 18px !important;
+  padding: 0 5px !important;
   font-size: 10px !important;
-  font-weight: 700 !important;
-  line-height: 16px !important;
+  font-weight: 800 !important;
+  line-height: 18px !important;
   text-align: center !important;
   color: #fff !important;
-  background: var(--crm-danger, #ef4444) !important;
+  background: #f59e0b !important;
   border: 2px solid #fff !important;
-  border-radius: var(--crm-radius-full, 9999px) !important;
-  box-shadow: 0 1px 3px rgba(239, 68, 68, 0.35) !important;
+  border-radius: 9999px !important;
+  box-shadow: 0 2px 6px rgba(245, 158, 11, 0.45) !important;
+  clip-path: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+
+body[data-navbar=side] #navbar .notifications-button .number-badge::before,
+body[data-navbar=side] #navbar .navbar-nav.navbar-right .notifications-badge-container .number-badge::before {
+  content: none !important;
+  display: none !important;
+}
+
+body[data-navbar=side] #navbar .notifications-button .number-badge.hidden,
+body[data-navbar=side] #navbar .navbar-nav.navbar-right .notifications-badge-container .number-badge.hidden {
+  display: none !important;
 }
 
 /* Evitar que overflow del sidebar recorte la barra superior (barra fija fuera del panel) */

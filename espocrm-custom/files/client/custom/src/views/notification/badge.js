@@ -1,41 +1,21 @@
 define('custom:views/notification/badge', [
     'views/notification/badge',
-    'custom:helpers/safe-ui-promise',
-], function (Dep, SafeUiPromise) {
-
-    var getAckStorageKey = function (userId) {
-        return 'crm-notif-ack-count-' + (userId || '');
-    };
+], function (Dep) {
 
     return Dep.extend({
 
-        setup: function () {
-            Dep.prototype.setup.call(this);
+        showNotRead: function (count) {
+            var display = count > 99 ? '99+' : String(count);
 
-            var userId = this.getUser().id;
-            var stored = sessionStorage.getItem(getAckStorageKey(userId));
+            this.$badge = this.$badge || this.$el.find('.notifications-button');
+            this.$number = this.$number || this.$el.find('.number-badge');
 
-            this.acknowledgedUnreadCount = stored !== null && stored !== ''
-                ? parseInt(stored, 10)
-                : 0;
+            this.$badge.attr('title', this.translate('New notifications') + ': ' + count);
+            this.$number.removeClass('hidden').text(display);
 
-            if (isNaN(this.acknowledgedUnreadCount)) {
-                this.acknowledgedUnreadCount = 0;
+            if (this.getHelper().pageTitle && typeof this.getHelper().pageTitle.setNotificationNumber === 'function') {
+                this.getHelper().pageTitle.setNotificationNumber(count);
             }
-        },
-
-        acknowledgeNotifications: function () {
-            this.acknowledgedUnreadCount = this.unreadCount || 0;
-            sessionStorage.setItem(
-                getAckStorageKey(this.getUser().id),
-                String(this.acknowledgedUnreadCount)
-            );
-            this.hideNotRead();
-        },
-
-        resetAcknowledgement: function () {
-            this.acknowledgedUnreadCount = 0;
-            sessionStorage.setItem(getAckStorageKey(this.getUser().id), '0');
         },
 
         checkUpdates: async function (isFirstCheck) {
@@ -65,20 +45,7 @@ define('custom:views/notification/badge', [
 
             this.unreadCount = count;
 
-            if (count === 0) {
-                this.resetAcknowledgement();
-                this.hideNotRead();
-
-                return;
-            }
-
-            if (isFirstCheck) {
-                this.showNotRead(count);
-
-                return;
-            }
-
-            if (count > this.acknowledgedUnreadCount) {
+            if (count) {
                 this.showNotRead(count);
 
                 return;
@@ -108,9 +75,7 @@ define('custom:views/notification/badge', [
                 self.listenTo(view, 'all-read', function () {
                     self._panelMarkedRead = true;
                     self.unreadCount = 0;
-                    self.resetAcknowledgement();
                     self.hideNotRead();
-                    self.$el.find('.badge-circle-warning').remove();
                     self.broadcastNotificationsRead();
                 });
 
@@ -145,10 +110,6 @@ define('custom:views/notification/badge', [
         },
 
         closeNotifications: function () {
-            if (!this._panelMarkedRead && this.unreadCount > 0) {
-                this.acknowledgeNotifications();
-            }
-
             Dep.prototype.closeNotifications.call(this);
             this._panelMarkedRead = false;
         },

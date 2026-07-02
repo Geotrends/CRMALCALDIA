@@ -9,7 +9,7 @@
     window.__crmThemeButtons = true;
 
     var STYLE_ID = 'crm-modern-buttons-style';
-    var VERSION = 'ui-status-icons-2026-07-02';
+    var VERSION = 'ui-notif-count-2026-07-02';
 
     var INLINE_CSS = '' +
         'html.crm-modern-ui body .btn,' +
@@ -91,11 +91,11 @@
         'html.crm-modern-ui body .panel .btn-primary.btn-block,' +
         'html.crm-modern-ui body .comunicaciones-caso-panel .btn-primary,' +
         'html.crm-modern-ui body .modal-footer .btn{min-height:40px;}' +
-        'html.crm-modern-ui body .badge,' +
+        'html.crm-modern-ui body .badge:not(.number-badge),' +
         'html.crm-modern-ui body .label{' +
         'border-radius:9999px!important;font-weight:700!important;' +
         'padding:5px 12px 5px 30px!important;position:relative;display:inline-flex!important;align-items:center!important;clip-path:none!important;}' +
-        'html.crm-modern-ui body .badge::before,' +
+        'html.crm-modern-ui body .badge:not(.number-badge)::before,' +
         'html.crm-modern-ui body .label::before{' +
         'position:absolute;left:10px;top:50%;transform:translateY(-50%);border:none;' +
         'font-family:"Font Awesome 5 Free","Font Awesome 6 Free";font-weight:900;font-size:11px;line-height:1;opacity:1;}' +
@@ -121,6 +121,16 @@
         'html.crm-modern-ui body .label[data-case-status="Proceso cerrado"]::before{content:"\\f023";}' +
         'html.crm-modern-ui body .party-expediente-badge{padding:3px 10px!important;}' +
         'html.crm-modern-ui body .party-expediente-badge::before{content:none!important;display:none!important;}' +
+        'html.crm-modern-ui body #navbar .notifications-button .number-badge{' +
+        'position:absolute!important;top:-4px!important;right:-4px!important;z-index:3!important;' +
+        'min-width:18px!important;height:18px!important;padding:0 5px!important;' +
+        'font-size:10px!important;font-weight:800!important;line-height:18px!important;' +
+        'color:#fff!important;background:#f59e0b!important;border:2px solid #fff!important;' +
+        'border-radius:9999px!important;box-shadow:0 2px 6px rgba(245,158,11,.45)!important;' +
+        'display:inline-flex!important;align-items:center!important;justify-content:center!important;clip-path:none!important;}' +
+        'html.crm-modern-ui body #navbar .notifications-button .number-badge::before{content:none!important;display:none!important;}' +
+        'html.crm-modern-ui body #navbar .notifications-button .number-badge.hidden{display:none!important;}' +
+        'html.crm-modern-ui body #navbar .notifications-button{position:relative!important;overflow:visible!important;}' +
         'html.crm-modern-ui body .pagination>li>a,' +
         'html.crm-modern-ui body #navbar a.minimizer{border-radius:8px!important;}';
 

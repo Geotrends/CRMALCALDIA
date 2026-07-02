@@ -210,8 +210,8 @@ a.btn-primary:hover {
   min-height: 40px;
 }
 
-/* ── Badges / estados — píldora con icono ── */
-.badge,
+/* ── Badges / estados — píldora con icono (excepto contador de notificaciones) ── */
+.badge:not(.number-badge),
 .label {
   border-radius: var(--crm-radius-full) !important;
   display: inline-flex !important;
@@ -230,7 +230,7 @@ a.btn-primary:hover {
   clip-path: none !important;
 }
 
-.badge::before,
+.badge:not(.number-badge)::before,
 .label::before {
   content: none;
   position: absolute;
@@ -251,33 +251,33 @@ a.btn-primary:hover {
 }
 
 .label-success::before,
-.badge-success::before {
+.badge-success:not(.number-badge)::before {
   content: '\f00c';
 }
 
 .label-warning::before,
-.badge-warning::before {
+.badge-warning:not(.number-badge)::before {
   content: '\f071';
 }
 
 .label-danger::before,
-.badge-danger::before {
+.badge-danger:not(.number-badge)::before {
   content: '\f00d';
 }
 
 .label-info::before,
-.badge-info::before {
+.badge-info:not(.number-badge)::before {
   content: '\f05a';
 }
 
 .label-success::after,
-.badge-success::after,
+.badge-success:not(.number-badge)::after,
 .label-warning::after,
-.badge-warning::after,
+.badge-warning:not(.number-badge)::after,
 .label-danger::after,
-.badge-danger::after,
+.badge-danger:not(.number-badge)::after,
 .label-info::after,
-.badge-info::after {
+.badge-info:not(.number-badge)::after {
   content: none !important;
   display: none !important;
 }
