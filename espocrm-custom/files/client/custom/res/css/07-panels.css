@@ -215,12 +215,18 @@
 .party-expediente-badge {
   display: inline-flex;
   align-items: center;
-  padding: 2px 8px;
+  padding: 3px 10px;
   border-radius: 999px;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.02em;
   text-transform: uppercase;
+  clip-path: none;
+}
+
+.party-expediente-badge::before {
+  content: none;
+  display: none;
 }
 
 .party-expediente-badge--rol {

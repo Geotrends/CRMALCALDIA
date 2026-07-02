@@ -9,7 +9,7 @@
     window.__crmThemeButtons = true;
 
     var STYLE_ID = 'crm-modern-buttons-style';
-    var VERSION = 'ui-pastel-buttons-2026-07-02';
+    var VERSION = 'ui-status-icons-2026-07-02';
 
     var INLINE_CSS = '' +
         'html.crm-modern-ui body .btn,' +
@@ -94,13 +94,33 @@
         'html.crm-modern-ui body .badge,' +
         'html.crm-modern-ui body .label{' +
         'border-radius:9999px!important;font-weight:700!important;' +
-        'padding:5px 12px 5px 28px!important;position:relative;display:inline-flex!important;align-items:center!important;' +
-        '}' +
-        'html.crm-modern-ui body .label::before,' +
-        'html.crm-modern-ui body .badge::before{' +
-        'content:"";position:absolute;left:10px;top:50%;width:12px;height:12px;margin-top:-6px;' +
-        'border:2px solid currentColor;transform:rotate(45deg);border-radius:2px;opacity:.85;' +
-        '}' +
+        'padding:5px 12px 5px 30px!important;position:relative;display:inline-flex!important;align-items:center!important;clip-path:none!important;}' +
+        'html.crm-modern-ui body .badge::before,' +
+        'html.crm-modern-ui body .label::before{' +
+        'position:absolute;left:10px;top:50%;transform:translateY(-50%);border:none;' +
+        'font-family:"Font Awesome 5 Free","Font Awesome 6 Free";font-weight:900;font-size:11px;line-height:1;opacity:1;}' +
+        'html.crm-modern-ui body .label-success::before,html.crm-modern-ui body .badge-success::before{content:"\\f00c";}' +
+        'html.crm-modern-ui body .label-warning::before,html.crm-modern-ui body .badge-warning::before{content:"\\f071";}' +
+        'html.crm-modern-ui body .label-danger::before,html.crm-modern-ui body .badge-danger::before{content:"\\f00d";}' +
+        'html.crm-modern-ui body .label-info::before,html.crm-modern-ui body .badge-info::before{content:"\\f05a";}' +
+        'html.crm-modern-ui body .label-casePendiente::before,' +
+        'html.crm-modern-ui body .label[data-case-status="Pendiente de radicacion"]::before{content:"\\f017";}' +
+        'html.crm-modern-ui body .label-caseRadicado::before,' +
+        'html.crm-modern-ui body .label[data-case-status="Radicado"]::before{content:"\\f15c";}' +
+        'html.crm-modern-ui body .label-caseAsignado::before,' +
+        'html.crm-modern-ui body .label[data-case-status="Asignado"]::before{content:"\\f4fc";}' +
+        'html.crm-modern-ui body .label-caseEnProceso::before,' +
+        'html.crm-modern-ui body .label[data-case-status="En proceso"]::before{content:"\\f085";}' +
+        'html.crm-modern-ui body .label-caseVisitaRealizada::before,' +
+        'html.crm-modern-ui body .label[data-case-status="Visita realizada"]::before{content:"\\f3c5";}' +
+        'html.crm-modern-ui body .label-caseVisitaAprobada::before,' +
+        'html.crm-modern-ui body .label[data-case-status="Visita aprobada"]::before{content:"\\f058";}' +
+        'html.crm-modern-ui body .label-caseFinalizado::before,' +
+        'html.crm-modern-ui body .label[data-case-status="Finalizado"]::before{content:"\\f11e";}' +
+        'html.crm-modern-ui body .label-caseCerrado::before,' +
+        'html.crm-modern-ui body .label[data-case-status="Proceso cerrado"]::before{content:"\\f023";}' +
+        'html.crm-modern-ui body .party-expediente-badge{padding:3px 10px!important;}' +
+        'html.crm-modern-ui body .party-expediente-badge::before{content:none!important;display:none!important;}' +
         'html.crm-modern-ui body .pagination>li>a,' +
         'html.crm-modern-ui body #navbar a.minimizer{border-radius:8px!important;}';
 

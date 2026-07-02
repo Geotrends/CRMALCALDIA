@@ -20,12 +20,53 @@
 /* Estado del caso */
 .field[data-name="status"] .label {
   font-size: var(--crm-font-size-sm) !important;
-  padding: 4px 12px !important;
+  padding: 5px 12px 5px 30px !important;
   font-weight: 700 !important;
-  border-left: 3px solid transparent !important;
+  border-left: none !important;
 }
 
-/* Lista y detalle — color distinto por estado (franja lateral para diferenciar mejor) */
+/* Iconos por estado del caso */
+.label-casePendiente::before,
+.label[data-case-status="Pendiente de radicacion"]::before {
+  content: '\f017';
+}
+
+.label-caseRadicado::before,
+.label[data-case-status="Radicado"]::before {
+  content: '\f15c';
+}
+
+.label-caseAsignado::before,
+.label[data-case-status="Asignado"]::before {
+  content: '\f4fc';
+}
+
+.label-caseEnProceso::before,
+.label[data-case-status="En proceso"]::before {
+  content: '\f085';
+}
+
+.label-caseVisitaRealizada::before,
+.label[data-case-status="Visita realizada"]::before {
+  content: '\f3c5';
+}
+
+.label-caseVisitaAprobada::before,
+.label[data-case-status="Visita aprobada"]::before {
+  content: '\f058';
+}
+
+.label-caseFinalizado::before,
+.label[data-case-status="Finalizado"]::before {
+  content: '\f11e';
+}
+
+.label-caseCerrado::before,
+.label[data-case-status="Proceso cerrado"]::before {
+  content: '\f023';
+}
+
+/* Lista y detalle — color distinto por estado */
 .label-casePendiente,
 .list[data-scope="Case"] .label-casePendiente,
 .detail[data-scope="Case"] .label-casePendiente {
