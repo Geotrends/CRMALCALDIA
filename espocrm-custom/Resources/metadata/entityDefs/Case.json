@@ -817,7 +817,25 @@
             "isCustom": true
         }
     },
-    "links": {
+    "collection": {
+    "orderBy": "cFechaCaso",
+    "order": "desc",
+    "textFilterFields": [
+      "cNumeroRadicado",
+      "cExpediente",
+      "cNombrePeticionario",
+      "cApellidoPeticionario",
+      "cDocumentoPeticionario",
+      "cNombrePerjudicante",
+      "cApellidoPerjudicante",
+      "cDocumentoPerjudicante",
+      "status",
+      "cCanalDeReportePeticionario",
+      "cBarrioPeticionario",
+      "cBarrioPerjudicante"
+    ]
+  },
+  "links": {
         "cRecibidaPor": {
             "type": "belongsTo",
             "entity": "User"
