@@ -1,7 +1,8 @@
 define('custom:views/case/edit', [
     'views/edit',
     'custom:helpers/case-radicado-label',
-], function (Dep, CaseRadicadoLabel) {
+    'custom:helpers/safe-ui-promise',
+], function (Dep, CaseRadicadoLabel, SafeUiPromise) {
 
     return Dep.extend({
 
@@ -14,7 +15,7 @@ define('custom:views/case/edit', [
                 var header = this.getHeaderView && this.getHeaderView();
 
                 if (header) {
-                    header.reRender();
+                    SafeUiPromise.safeReRender(header);
                 }
 
                 this.updatePageTitle();

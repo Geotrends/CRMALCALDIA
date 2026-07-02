@@ -1,4 +1,7 @@
-define('custom:views/notification/panel', ['views/notification/panel'], function (Dep) {
+define('custom:views/notification/panel', [
+    'views/notification/panel',
+    'custom:helpers/safe-ui-promise',
+], function (Dep, SafeUiPromise) {
 
     return Dep.extend({
 
@@ -62,7 +65,7 @@ define('custom:views/notification/panel', ['views/notification/panel'], function
                     var listView = self.getView('list');
 
                     if (listView && typeof listView.reRender === 'function') {
-                        return listView.reRender();
+                        return SafeUiPromise.absorb(listView.reRender());
                     }
                 })
                 .catch(function () {

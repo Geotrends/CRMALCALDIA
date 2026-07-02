@@ -3,7 +3,8 @@ define('custom:views/case/record/panels/actuo-archivo', [
     'custom:helpers/actuo-archivo-modal',
     'custom:helpers/actuo-archivo-case-status',
     'custom:helpers/radicacion-fields',
-], function (Dep, ActuoArchivoModal, ActuoArchivoCaseStatus, RadicacionFields) {
+    'custom:helpers/safe-ui-promise',
+], function (Dep, ActuoArchivoModal, ActuoArchivoCaseStatus, RadicacionFields, SafeUiPromise) {
 
     return Dep.extend({
 
@@ -55,7 +56,7 @@ define('custom:views/case/record/panels/actuo-archivo', [
                 this.actuoIsEditMode = false;
 
                 if (this.isRendered()) {
-                    this.reRender();
+                    SafeUiPromise.safeReRender(this);
                     this.bindButton();
                 }
 

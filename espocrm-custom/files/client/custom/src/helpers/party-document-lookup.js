@@ -1,7 +1,8 @@
 define('custom:helpers/party-document-lookup', [
     'custom:helpers/persona-tipo-fields',
     'custom:helpers/direccion-estructurada',
-], function (PersonaTipoFields, DireccionEstructurada) {
+    'custom:helpers/safe-ui-promise',
+], function (PersonaTipoFields, DireccionEstructurada, SafeUiPromise) {
 
     var DEBOUNCE_MS = 400;
     var MIN_DOCUMENT_LENGTH = 4;
@@ -106,16 +107,12 @@ define('custom:helpers/party-document-lookup', [
         config.componentFields.forEach(function (field) {
             var fieldView = recordView.getFieldView(field);
 
-            if (fieldView && typeof fieldView.reRender === 'function') {
-                fieldView.reRender();
-            }
+            SafeUiPromise.safeReRender(fieldView);
         });
 
         var direccionView = recordView.getFieldView(config.target);
 
-        if (direccionView && typeof direccionView.reRender === 'function') {
-            direccionView.reRender();
-        }
+        SafeUiPromise.safeReRender(direccionView);
     };
 
     var runLookup = function (recordView, config, party, options) {
@@ -173,9 +170,8 @@ define('custom:helpers/party-document-lookup', [
         if (recordView._partyLookupRequests[party]) {
             var pending = recordView._partyLookupRequests[party];
 
-            if (pending && typeof pending.abort === 'function') {
-                pending.abort();
-            }
+            SafeUiPromise.abortAjaxRequest(pending);
+            recordView._partyLookupRequests[party] = null;
         }
 
         var url = 'Case/action/buscarParte'

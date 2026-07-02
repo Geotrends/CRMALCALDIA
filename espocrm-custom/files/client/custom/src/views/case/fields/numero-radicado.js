@@ -3,7 +3,8 @@ define('custom:views/case/fields/numero-radicado', [
     'custom:helpers/radicado-catalog',
     'custom:helpers/case-radicado-label',
     'custom:helpers/radicacion-fields',
-], function (Dep, RadicadoCatalog, CaseRadicadoLabel, RadicacionFields) {
+    'custom:helpers/safe-ui-promise',
+], function (Dep, RadicadoCatalog, CaseRadicadoLabel, RadicacionFields, SafeUiPromise) {
 
     return Dep.extend({
 
@@ -24,7 +25,7 @@ define('custom:views/case/fields/numero-radicado', [
                     return;
                 }
 
-                self.reRender();
+                SafeUiPromise.safeReRender(self);
             });
 
             if (!this.useAssistant()) {
@@ -40,7 +41,7 @@ define('custom:views/case/fields/numero-radicado', [
 
             this.listenTo(this.model, 'change:cExpediente', function () {
                 if (this.isRendered()) {
-                    this.reRender();
+                    SafeUiPromise.safeReRender(this);
                 }
             });
         },
@@ -191,7 +192,7 @@ define('custom:views/case/fields/numero-radicado', [
 
                 this._expedienteDirty = false;
                 this.model.set('cRadicadoModo', modo);
-                this.reRender();
+                SafeUiPromise.safeReRender(this);
             }.bind(this));
 
             this.$el.find('[data-role="anio"]').on('change.radicadoAssistant keyup.radicadoAssistant', function () {
@@ -271,9 +272,8 @@ define('custom:views/case/fields/numero-radicado', [
                 + '&anio=' + encodeURIComponent(anio)
                 + (this.model.id ? '&caseId=' + encodeURIComponent(this.model.id) : '');
 
-            if (this._fetchRequest && typeof this._fetchRequest.abort === 'function') {
-                this._fetchRequest.abort();
-            }
+            SafeUiPromise.abortAjaxRequest(this._fetchRequest);
+            this._fetchRequest = null;
 
             this._fetchRequest = Espo.Ajax.getRequest(url);
 
@@ -293,8 +293,8 @@ define('custom:views/case/fields/numero-radicado', [
                 var recordView = this.getRecordView();
                 var expedienteView = recordView ? recordView.getFieldView('cExpediente') : null;
 
-                if (expedienteView && expedienteView.isRendered && expedienteView.isRendered()) {
-                    expedienteView.reRender();
+                if (expedienteView) {
+                    SafeUiPromise.safeReRender(expedienteView);
                 }
 
                 this.toggleExpedienteField();
