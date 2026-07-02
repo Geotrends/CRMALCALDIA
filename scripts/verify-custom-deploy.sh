@@ -46,7 +46,7 @@ check_file "Lookup duplicados — servicio registro" \
 
 check_file "Casos terceros — barra de búsqueda" \
   "$CLIENT/src/views/party/record/panels/casos-relacion.js" \
-  "partyCasosSearch" || errors=$((errors + 1))
+  "scheduleSearchBarRefresh" || errors=$((errors + 1))
 
 check_file "Casos terceros — paginación 5 por página" \
   "$CLIENT/src/views/party/record/panels/casos-relacion.js" \

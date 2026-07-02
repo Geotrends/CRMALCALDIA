@@ -332,9 +332,10 @@
   font-size: 13px;
 }
 
-/* Paneles Casos (peticionario / infractor) en Contact y Account */
-.party-casos-panel-tools {
-  margin: 0 0 10px;
+.detail[data-scope="Contact"] .panel .party-casos-panel-tools,
+.detail[data-scope="Account"] .panel .party-casos-panel-tools {
+  margin: 0 0 12px;
+  padding: 0 2px;
 }
 
 .party-casos-search {

@@ -16,13 +16,17 @@ define('custom:views/party/record/panels/casos-relacion', ['views/record/panels/
 
     return Dep.extend({
 
-        templateContent:
-            SEARCH_BAR_HTML +
-            '<div class="list-container"></div>',
+        className: 'party-casos-relacion-panel',
 
         setup: function () {
             this.recordsPerPage = PAGE_SIZE;
             this._partyCasosSearchText = '';
+
+            // EspoCRM 9: la clase base define `template` y ignora templateContent del extend.
+            this.template = false;
+            this.templateContent =
+                SEARCH_BAR_HTML +
+                '<div class="list-container"></div>';
 
             var self = this;
             var originalCreateView = this.createView;
@@ -39,8 +43,7 @@ define('custom:views/party/record/panels/casos-relacion', ['views/record/panels/
 
                 if (name === 'list' && result && typeof result.then === 'function') {
                     result.then(function () {
-                        self.ensureSearchBar();
-                        self.bindCasosSearch();
+                        self.scheduleSearchBarRefresh();
                     });
                 }
 
@@ -60,31 +63,107 @@ define('custom:views/party/record/panels/casos-relacion', ['views/record/panels/
             if (this.buttonList) {
                 this.buttonList = [];
             }
+
+            this.once('after:render', function () {
+                self.scheduleSearchBarRefresh();
+            });
+
+            this.on('show', function () {
+                self.scheduleSearchBarRefresh();
+            });
+
+            this.bindCollectionRefresh();
         },
 
-        afterRender: function () {
-            Dep.prototype.afterRender.apply(this, arguments);
+        bindCollectionRefresh: function () {
+            var self = this;
+
+            var tryBind = function () {
+                if (!self.collection || self._partyCasosCollectionBound) {
+                    return;
+                }
+
+                self._partyCasosCollectionBound = true;
+
+                self.listenTo(self.collection, 'sync reset', function () {
+                    self.scheduleSearchBarRefresh();
+                });
+            };
+
+            tryBind();
+            setTimeout(tryBind, 300);
+            setTimeout(tryBind, 1500);
+        },
+
+        scheduleSearchBarRefresh: function () {
+            var self = this;
+
             this.ensureSearchBar();
             this.bindCasosSearch();
+
+            setTimeout(function () {
+                self.ensureSearchBar();
+                self.bindCasosSearch();
+            }, 50);
+
+            setTimeout(function () {
+                self.ensureSearchBar();
+                self.bindCasosSearch();
+            }, 400);
+        },
+
+        getPanelElement: function () {
+            var $panel = this.$el.closest('.panel.party-casos-relacion-panel');
+
+            if (!$panel.length) {
+                $panel = this.$el.closest('.panel');
+            }
+
+            return $panel;
         },
 
         ensureSearchBar: function () {
+            var $panel = this.getPanelElement();
+
+            if ($panel.length && $panel.find('[data-action="partyCasosSearch"]').length) {
+                return;
+            }
+
             if (this.$el.find('[data-action="partyCasosSearch"]').length) {
+                return;
+            }
+
+            var $body = $panel.children('.panel-body');
+
+            if ($body.length) {
+                $body.prepend(SEARCH_BAR_HTML);
+
                 return;
             }
 
             var $container = this.$el.find('.list-container').first();
 
-            if (!$container.length) {
+            if (!$container.length && this.$el.hasClass('list-container')) {
                 $container = this.$el;
             }
 
-            $container.before(SEARCH_BAR_HTML);
+            if ($container.length) {
+                $container.before(SEARCH_BAR_HTML);
+
+                return;
+            }
+
+            this.$el.prepend(SEARCH_BAR_HTML);
         },
 
         bindCasosSearch: function () {
             var self = this;
-            var $input = this.$el.find('[data-action="partyCasosSearch"]');
+            var $panel = this.getPanelElement();
+            var $input = $panel.find('[data-action="partyCasosSearch"]');
+
+            if (!$input.length) {
+                $input = this.$el.find('[data-action="partyCasosSearch"]');
+            }
 
             if (!$input.length) {
                 return;
