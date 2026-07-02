@@ -1,0 +1,74 @@
+/**
+ * Categorías de documentos / formatos — iconos y colores alusivos.
+ */
+
+.label-docFormatoSolicitud,
+.label-docActaVisita,
+.label-docActuoArchivo,
+.label-docExcelOficial {
+  padding: 5px 12px 5px 30px !important;
+}
+
+.label-docFormatoSolicitud::before,
+.label-docActaVisita::before,
+.label-docActuoArchivo::before,
+.label-docExcelOficial::before {
+  font-family: 'Font Awesome 5 Free', 'Font Awesome 6 Free';
+  font-weight: 900;
+  font-size: 11px;
+  line-height: 1;
+}
+
+/* Formato de solicitud — documento */
+.label-docFormatoSolicitud {
+  background: #eff6ff !important;
+  color: #1d4ed8 !important;
+}
+
+.label-docFormatoSolicitud::before {
+  content: '\f15c';
+}
+
+/* Acta de visita — verificación en campo */
+.label-docActaVisita {
+  background: #eefaf5 !important;
+  color: #1a5c47 !important;
+}
+
+.label-docActaVisita::before {
+  content: '\f46d';
+}
+
+/* Acto de archivo — resolución / archivo */
+.label-docActuoArchivo {
+  background: #fff7ed !important;
+  color: #9a3412 !important;
+}
+
+.label-docActuoArchivo::before {
+  content: '\f187';
+}
+
+/* Excel oficial Alcaldía */
+.label-docExcelOficial {
+  background: #ecfdf5 !important;
+  color: #166534 !important;
+}
+
+.label-docExcelOficial::before {
+  content: '\f1c3';
+  font-family: 'Font Awesome 6 Brands', 'Font Awesome 5 Brands', 'Font Awesome 5 Free';
+  font-weight: 400;
+}
+
+.list[data-scope="Document"] .label-docFormatoSolicitud,
+.list[data-scope="Document"] .label-docActaVisita,
+.list[data-scope="Document"] .label-docActuoArchivo,
+.list[data-scope="Document"] .label-docExcelOficial,
+.detail[data-scope="Document"] .label-docFormatoSolicitud,
+.detail[data-scope="Document"] .label-docActaVisita,
+.detail[data-scope="Document"] .label-docActuoArchivo,
+.detail[data-scope="Document"] .label-docExcelOficial {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+}

@@ -14,10 +14,10 @@
             "audited": true,
             "displayAsLabel": true,
             "style": {
-                "Formato solicitud": "primary",
-                "Acta de visita": "success",
-                "Actuo archivo": "warning",
-                "Excel oficial": "info"
+                "Formato solicitud": "docFormatoSolicitud",
+                "Acta de visita": "docActaVisita",
+                "Actuo archivo": "docActuoArchivo",
+                "Excel oficial": "docExcelOficial"
             }
         },
         "cPanelExcelOnlyOffice": {

@@ -9,7 +9,7 @@
     window.__crmThemeButtons = true;
 
     var STYLE_ID = 'crm-modern-buttons-style';
-    var VERSION = 'ui-toast-icons-2026-07-02';
+    var VERSION = 'ui-doc-category-icons-2026-07-02';
 
     var INLINE_CSS = '' +
         'html.crm-modern-ui body .btn,' +
