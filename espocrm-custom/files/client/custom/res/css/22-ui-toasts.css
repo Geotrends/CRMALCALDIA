@@ -49,10 +49,14 @@
   border-color: #fecaca;
 }
 
-.crm-toast--info,
-.crm-toast--loading {
+.crm-toast--info {
   background: linear-gradient(135deg, #eff6ff 0%, #f8fbff 100%);
   border-color: #bfdbfe;
+}
+
+.crm-toast--loading {
+  background: linear-gradient(135deg, #eefaf5 0%, #f4fbf8 100%);
+  border-color: #b5e6d1;
 }
 
 .crm-toast--visible {
@@ -83,11 +87,16 @@
   border-color: #b5e6d1;
 }
 
-.crm-toast--warning .crm-toast__icon,
-.crm-toast--loading .crm-toast__icon {
+.crm-toast--warning .crm-toast__icon {
   background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
   color: #b45309;
   border-color: #fcd34d;
+}
+
+.crm-toast--loading .crm-toast__icon {
+  background: linear-gradient(135deg, #d8f3e8 0%, #c8ebdc 100%);
+  color: #1a5c47;
+  border-color: #b5e6d1;
 }
 
 .crm-toast--danger .crm-toast__icon {

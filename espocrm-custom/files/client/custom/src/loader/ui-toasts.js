@@ -67,6 +67,55 @@
         activeToastId = null;
     }
 
+    function normalizeText(text) {
+        return String(text || '')
+            .trim()
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '');
+    }
+
+    function isLoadingMessage(text) {
+        var normalized = normalizeText(text);
+
+        if (!normalized || normalized === '...') {
+            return true;
+        }
+
+        var loadingPatterns = [
+            'guardando',
+            'procesando',
+            'cargando',
+            'por favor espere',
+            'please wait',
+            'espere un momento',
+            'un momento',
+        ];
+
+        return loadingPatterns.some(function (pattern) {
+            return normalized.indexOf(pattern) !== -1;
+        });
+    }
+
+    function isSuccessMessage(text) {
+        var normalized = normalizeText(text);
+
+        var successPatterns = [
+            'guardado',
+            'saved',
+            'exito',
+            'correctamente',
+            'completado',
+            'actualizado',
+            'creado',
+            'eliminado',
+        ];
+
+        return successPatterns.some(function (pattern) {
+            return normalized.indexOf(pattern) !== -1;
+        });
+    }
+
     function parseMessage(raw) {
         var text = String(raw || '').trim();
 
@@ -83,10 +132,12 @@
                 return line.trim();
             }).filter(Boolean);
 
+            var title = lines[0] || text;
+
             return {
-                title: lines[0] || text,
+                title: title,
                 subtitle: lines.slice(1).join(' '),
-                loading: false,
+                loading: isLoadingMessage(title),
             };
         }
 
@@ -95,36 +146,60 @@
             var paragraphs = $parsed.find('p');
 
             if (paragraphs.length > 1) {
+                var htmlTitle = $(paragraphs[0]).text();
+
                 return {
-                    title: $(paragraphs[0]).text(),
+                    title: htmlTitle,
                     subtitle: paragraphs.slice(1).map(function () {
                         return $(this).text();
                     }).get().join(' '),
-                    loading: false,
+                    loading: isLoadingMessage(htmlTitle),
                 };
             }
 
+            var plain = $parsed.text() || text;
+
             return {
-                title: $parsed.text() || text,
+                title: plain,
                 subtitle: '',
-                loading: false,
+                loading: isLoadingMessage(plain),
             };
         }
 
         return {
             title: text,
             subtitle: '',
-            loading: false,
+            loading: isLoadingMessage(text),
         };
+    }
+
+    function resolveToastType(type, meta) {
+        if (meta.loading) {
+            return 'loading';
+        }
+
+        if (type === 'error') {
+            return 'danger';
+        }
+
+        if (type === 'success' || isSuccessMessage(meta.title)) {
+            return 'success';
+        }
+
+        if (type === 'danger' || type === 'info' || type === 'warning') {
+            return type;
+        }
+
+        return 'info';
     }
 
     function buildToast(type, raw, options) {
         var meta = parseMessage(raw);
-        var toastType = meta.loading ? 'loading' : (type || 'warning');
+        var toastType = resolveToastType(type, meta);
         var icons = {
             success: 'fa-circle-check',
             warning: 'fa-triangle-exclamation',
-            danger: 'fa-octagon-exclamation',
+            danger: 'fa-circle-xmark',
             info: 'fa-circle-info',
             loading: 'fa-spinner fa-spin',
         };
