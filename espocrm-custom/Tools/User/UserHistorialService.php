@@ -2,13 +2,15 @@
 
 namespace Espo\Custom\Tools\User;
 
-use Espo\Custom\Tools\CaseObj\CaseVencimientoHelper;
 use Espo\ORM\Entity;
 use Espo\ORM\EntityManager;
 
 class UserHistorialService
 {
     private const ESTADOS_FIN = ['Finalizado', 'Proceso cerrado'];
+
+    /** @var array<string, bool> */
+    private array $seenActuaciones = [];
 
     public function __construct(
         private EntityManager $entityManager
@@ -22,6 +24,7 @@ class UserHistorialService
      */
     public function build(string $userId, callable $canReadCase, callable $canReadEntity): array
     {
+        $this->seenActuaciones = [];
         $caseMap = $this->collectCases($userId, $canReadCase);
         $caseSummaries = [];
         $actuaciones = [];
@@ -30,6 +33,7 @@ class UserHistorialService
             'activos' => 0,
             'actas' => 0,
             'asignaciones' => 0,
+            'accionesSistema' => 0,
         ];
 
         foreach ($caseMap as $case) {
@@ -48,66 +52,24 @@ class UserHistorialService
                 'id' => $caseId,
                 'label' => $caseLabel,
                 'status' => $status,
-                'rol' => 'Asignado',
+                'rol' => $this->resolveCaseRol($case, $userId),
                 'expediente' => (string) $case->get('cExpediente'),
                 'fechaCaso' => substr((string) $case->get('cFechaCaso'), 0, 10),
             ];
-
-            foreach ($this->fetchActas($caseId) as $acta) {
-                if (!$canReadEntity($acta)) {
-                    continue;
-                }
-
-                $stats['actas']++;
-                $actuaciones[] = $this->actuacion(
-                    'acta',
-                    $this->normalizeDate((string) ($acta->get('fechaVisita') ?: $acta->get('fecha') ?: $acta->get('createdAt'))),
-                    'Acta de visita',
-                    'Estado: ' . (string) $acta->get('estado'),
-                    $caseId,
-                    $caseLabel,
-                    'ActaVisita',
-                    $acta->getId(),
-                    'Patrullero asignado'
-                );
-            }
-
-            foreach ($this->fetchActuos($caseId) as $actuo) {
-                if (!$canReadEntity($actuo)) {
-                    continue;
-                }
-
-                $actuaciones[] = $this->actuacion(
-                    'actuo',
-                    $this->normalizeDate((string) ($actuo->get('fechaAuto') ?: $actuo->get('createdAt'))),
-                    'Auto de archivo',
-                    'Estado: ' . (string) $actuo->get('estado'),
-                    $caseId,
-                    $caseLabel,
-                    'ActuoArchivo',
-                    $actuo->getId(),
-                    'Patrullero asignado'
-                );
-            }
         }
 
-        foreach ($this->fetchAsignaciones($userId) as $historial) {
+        foreach ($this->fetchAsignacionesRecibidas($userId) as $historial) {
             if (!$canReadEntity($historial)) {
                 continue;
             }
 
-            $caseId = (string) $historial->get('caseId');
+            $case = $this->resolveCaseFromHistorial($historial, $canReadCase);
 
-            if ($caseId === '') {
+            if (!$case) {
                 continue;
             }
 
-            $case = $this->entityManager->getEntityById('Case', $caseId);
-
-            if (!$case || !$canReadCase($case)) {
-                continue;
-            }
-
+            $caseId = $case->getId();
             $caseLabel = $this->caseLabel($case);
             $stats['asignaciones']++;
 
@@ -119,17 +81,114 @@ class UserHistorialService
                 $descripcion .= ' · Motivo: ' . $motivo;
             }
 
-            $actuaciones[] = $this->actuacion(
+            $this->pushActuacion($actuaciones, $this->actuacion(
                 'asignacion',
                 $this->normalizeDate((string) ($historial->get('fecha') ?: $historial->get('createdAt'))),
-                'Asignación de caso',
+                'Asignación recibida',
                 $descripcion,
                 $caseId,
                 $caseLabel,
                 'AsignacionHistorial',
                 $historial->getId(),
                 'Responsable'
-            );
+            ));
+        }
+
+        foreach ($this->fetchAsignacionesRealizadas($userId) as $historial) {
+            if (!$canReadEntity($historial)) {
+                continue;
+            }
+
+            $case = $this->resolveCaseFromHistorial($historial, $canReadCase);
+
+            if (!$case) {
+                continue;
+            }
+
+            $caseId = $case->getId();
+            $caseLabel = $this->caseLabel($case);
+            $stats['accionesSistema']++;
+
+            $nuevo = trim((string) $historial->get('responsableNuevoName'));
+            $motivo = trim((string) $historial->get('motivo'));
+            $descripcion = 'Nuevo responsable: ' . ($nuevo !== '' ? $nuevo : '—');
+
+            if ($motivo !== '') {
+                $descripcion .= ' · Motivo: ' . $motivo;
+            }
+
+            $this->pushActuacion($actuaciones, $this->actuacion(
+                'sistema',
+                $this->normalizeDate((string) ($historial->get('fecha') ?: $historial->get('createdAt'))),
+                'Asignación realizada en el sistema',
+                $descripcion,
+                $caseId,
+                $caseLabel,
+                'AsignacionHistorial',
+                $historial->getId(),
+                'Asignó'
+            ));
+        }
+
+        foreach ($this->fetchActasByUser($userId) as $acta) {
+            if (!$canReadEntity($acta)) {
+                continue;
+            }
+
+            $case = $this->resolveCaseFromActa($acta, $canReadCase);
+
+            if (!$case) {
+                continue;
+            }
+
+            $caseId = $case->getId();
+            $caseLabel = $this->caseLabel($case);
+            $stats['actas']++;
+
+            $createdById = (string) $acta->get('createdById');
+            $modifiedById = (string) $acta->get('modifiedById');
+            $titulo = $createdById === $userId ? 'Acta de visita diligenciada' : 'Acta de visita actualizada';
+            $rol = $createdById === $userId ? 'Diligenció' : 'Editó';
+
+            $this->pushActuacion($actuaciones, $this->actuacion(
+                'acta',
+                $this->normalizeDate((string) ($acta->get('fechaVisita') ?: $acta->get('fecha') ?: $acta->get('modifiedAt') ?: $acta->get('createdAt'))),
+                $titulo,
+                'Estado: ' . (string) $acta->get('estado'),
+                $caseId,
+                $caseLabel,
+                'ActaVisita',
+                $acta->getId(),
+                $rol
+            ));
+        }
+
+        foreach ($this->fetchActuosByUser($userId) as $actuo) {
+            if (!$canReadEntity($actuo)) {
+                continue;
+            }
+
+            $case = $this->resolveCaseFromActuo($actuo, $canReadCase);
+
+            if (!$case) {
+                continue;
+            }
+
+            $caseId = $case->getId();
+            $caseLabel = $this->caseLabel($case);
+            $stats['accionesSistema']++;
+
+            $this->pushActuacion($actuaciones, $this->actuacion(
+                'actuo',
+                $this->normalizeDate((string) ($actuo->get('fechaAuto') ?: $actuo->get('createdAt'))),
+                'Auto de archivo registrado',
+                'Estado: ' . (string) $actuo->get('estado'),
+                $caseId,
+                $caseLabel,
+                'ActuoArchivo',
+                $actuo->getId(),
+                'Diligenció'
+            ));
         }
 
         foreach ($this->fetchComunicaciones($userId) as $comunicacion) {
@@ -137,25 +196,22 @@ class UserHistorialService
                 continue;
             }
 
-            $caseId = (string) $comunicacion->get('caseId');
+            $case = $this->resolveCaseFromComunicacion($comunicacion, $canReadCase);
 
-            if ($caseId === '') {
+            if (!$case) {
                 continue;
             }
 
-            $case = $this->entityManager->getEntityById('Case', $caseId);
-
-            if (!$case || !$canReadCase($case)) {
-                continue;
-            }
-
+            $caseId = $case->getId();
             $caseLabel = $this->caseLabel($case);
+            $stats['accionesSistema']++;
+
             $tipo = trim((string) $comunicacion->get('tipo'));
             $titulo = $tipo !== '' ? 'Comunicación: ' . $tipo : 'Comunicación registrada';
             $asunto = trim((string) $comunicacion->get('asunto'));
             $descripcion = $asunto !== '' ? $asunto : 'Registro de comunicación en el caso';
 
-            $actuaciones[] = $this->actuacion(
+            $this->pushActuacion($actuaciones, $this->actuacion(
                 'comunicacion',
                 $this->normalizeDate((string) ($comunicacion->get('fecha') ?: $comunicacion->get('createdAt'))),
                 $titulo,
@@ -165,7 +221,18 @@ class UserHistorialService
                 'ComunicacionCaso',
                 $comunicacion->getId(),
                 'Registró'
-            );
+            ));
+        }
+
+        foreach ($this->fetchCaseNotesByUser($userId) as $note) {
+            $parsed = $this->parseCaseNote($note, $userId, $canReadCase);
+
+            if ($parsed === null) {
+                continue;
+            }
+
+            $stats['accionesSistema']++;
+            $this->pushActuacion($actuaciones, $parsed);
         }
 
         usort($actuaciones, static function (array $a, array $b): int {
@@ -192,6 +259,14 @@ class UserHistorialService
     {
         $map = [];
 
+        $addCase = function (?Entity $case) use (&$map, $canReadCase): void {
+            if (!$case || !$case->getId() || !$canReadCase($case)) {
+                return;
+            }
+
+            $map[$case->getId()] = $case;
+        };
+
         $currentCases = $this->entityManager
             ->getRDBRepository('Case')
             ->where(['assignedUserId' => $userId])
@@ -199,16 +274,27 @@ class UserHistorialService
             ->find();
 
         foreach ($currentCases as $case) {
-            if (!$canReadCase($case)) {
-                continue;
-            }
+            $addCase($case);
+        }
 
-            $map[$case->getId()] = $case;
+        $createdCases = $this->entityManager
+            ->getRDBRepository('Case')
+            ->where(['createdById' => $userId])
+            ->order('createdAt', 'DESC')
+            ->find();
+
+        foreach ($createdCases as $case) {
+            $addCase($case);
         }
 
         $historialRows = $this->entityManager
             ->getRDBRepository('AsignacionHistorial')
-            ->where(['responsableNuevoId' => $userId])
+            ->where([
+                'OR' => [
+                    ['responsableNuevoId' => $userId],
+                    ['asignadoPorId' => $userId],
+                ],
+            ])
             ->order('fecha', 'DESC')
             ->find();
 
@@ -219,14 +305,293 @@ class UserHistorialService
                 continue;
             }
 
-            $case = $this->entityManager->getEntityById('Case', $caseId);
+            $addCase($this->entityManager->getEntityById('Case', $caseId));
+        }
 
-            if ($case && $canReadCase($case)) {
-                $map[$caseId] = $case;
+        foreach ($this->fetchCaseNotesByUser($userId) as $note) {
+            $caseId = (string) $note->get('parentId');
+
+            if ($caseId === '' || isset($map[$caseId])) {
+                continue;
             }
+
+            $addCase($this->entityManager->getEntityById('Case', $caseId));
         }
 
         return $map;
+    }
+
+    private function resolveCaseRol(Entity $case, string $userId): string
+    {
+        if ((string) $case->get('createdById') === $userId) {
+            return 'Creador';
+        }
+
+        if ((string) $case->get('assignedUserId') === $userId) {
+            return 'Asignado';
+        }
+
+        return 'Participó';
+    }
+
+    /**
+     * @param callable(Entity): bool $canReadCase
+     */
+    private function resolveCaseFromHistorial(Entity $historial, callable $canReadCase): ?Entity
+    {
+        $caseId = (string) $historial->get('caseId');
+
+        if ($caseId === '') {
+            return null;
+        }
+
+        $case = $this->entityManager->getEntityById('Case', $caseId);
+
+        if (!$case || !$canReadCase($case)) {
+            return null;
+        }
+
+        return $case;
+    }
+
+    /**
+     * @param callable(Entity): bool $canReadCase
+     */
+    private function resolveCaseFromActa(Entity $acta, callable $canReadCase): ?Entity
+    {
+        $caseId = (string) $acta->get('caseId');
+
+        if ($caseId === '') {
+            return null;
+        }
+
+        $case = $this->entityManager->getEntityById('Case', $caseId);
+
+        if (!$case || !$canReadCase($case)) {
+            return null;
+        }
+
+        return $case;
+    }
+
+    /**
+     * @param callable(Entity): bool $canReadCase
+     */
+    private function resolveCaseFromActuo(Entity $actuo, callable $canReadCase): ?Entity
+    {
+        $caseId = (string) $actuo->get('caseId');
+
+        if ($caseId === '') {
+            return null;
+        }
+
+        $case = $this->entityManager->getEntityById('Case', $caseId);
+
+        if (!$case || !$canReadCase($case)) {
+            return null;
+        }
+
+        return $case;
+    }
+
+    /**
+     * @param callable(Entity): bool $canReadCase
+     */
+    private function resolveCaseFromComunicacion(Entity $comunicacion, callable $canReadCase): ?Entity
+    {
+        $caseId = (string) $comunicacion->get('caseId');
+
+        if ($caseId === '') {
+            return null;
+        }
+
+        $case = $this->entityManager->getEntityById('Case', $caseId);
+
+        if (!$case || !$canReadCase($case)) {
+            return null;
+        }
+
+        return $case;
+    }
+
+    /**
+     * @param callable(Entity): bool $canReadCase
+     *
+     * @return array<string, mixed>|null
+     */
+    private function parseCaseNote(Entity $note, string $userId, callable $canReadCase): ?array
+    {
+        $caseId = (string) $note->get('parentId');
+
+        if ($caseId === '') {
+            return null;
+        }
+
+        $case = $this->entityManager->getEntityById('Case', $caseId);
+
+        if (!$case || !$canReadCase($case)) {
+            return null;
+        }
+
+        $caseLabel = $this->caseLabel($case);
+        $fecha = $this->normalizeDate((string) $note->get('createdAt'));
+        $type = (string) $note->get('type');
+        $data = $this->normalizeData($note->get('data'));
+
+        if ($type === 'Create') {
+            return $this->actuacion(
+                'sistema',
+                $fecha,
+                'Caso creado en el sistema',
+                'Registro inicial del caso',
+                $caseId,
+                $caseLabel,
+                'Case',
+                $caseId,
+                'Creó'
+            );
+        }
+
+        if ($type !== 'Update' && $type !== 'Post') {
+            return null;
+        }
+
+        $fields = $this->normalizeList($data['fields'] ?? []);
+        $attributes = $this->normalizeData($data['attributes'] ?? null);
+        $became = $this->normalizeData($attributes['became'] ?? null);
+        $was = $this->normalizeData($attributes['was'] ?? null);
+
+        if (in_array('status', $fields, true) && !empty($became['status'])) {
+            $status = (string) $became['status'];
+            $descripcion = 'Estado: ' . $status;
+
+            if (!empty($was['status'])) {
+                $descripcion = 'De ' . (string) $was['status'] . ' a ' . $status;
+            }
+
+            return $this->actuacion(
+                'sistema',
+                $fecha,
+                'Cambio de estado en el sistema',
+                $descripcion,
+                $caseId,
+                $caseLabel,
+                'Case',
+                $caseId,
+                'Actualizó'
+            );
+        }
+
+        if ($this->hasAnyField($fields, ['cNumeroRadicado', 'cExpediente'])) {
+            $radicado = trim((string) ($became['cNumeroRadicado'] ?? $case->get('cNumeroRadicado')));
+            $expediente = trim((string) ($became['cExpediente'] ?? $case->get('cExpediente')));
+            $descripcion = trim($radicado . ($expediente !== '' ? ' · Exp. ' . $expediente : ''));
+
+            return $this->actuacion(
+                'sistema',
+                $fecha,
+                'Radicación en el sistema',
+                $descripcion !== '' ? $descripcion : 'Radicado y expediente registrados',
+                $caseId,
+                $caseLabel,
+                'Case',
+                $caseId,
+                'Radicó'
+            );
+        }
+
+        if (in_array('assignedUserId', $fields, true)) {
+            return null;
+        }
+
+        if ($fields === []) {
+            return null;
+        }
+
+        $labels = $this->humanizeFields($fields);
+
+        return $this->actuacion(
+            'sistema',
+            $fecha,
+            'Actualización en el sistema',
+            $labels !== '' ? 'Campos: ' . $labels : 'Modificación del caso',
+            $caseId,
+            $caseLabel,
+            'Case',
+            $caseId,
+            'Editó'
+        );
+    }
+
+    /**
+     * @param array<int, string> $fields
+     */
+    private function hasAnyField(array $fields, array $needles): bool
+    {
+        foreach ($needles as $needle) {
+            if (in_array($needle, $fields, true)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param array<int, string> $fields
+     */
+    private function humanizeFields(array $fields): string
+    {
+        $map = [
+            'status' => 'estado',
+            'assignedUserId' => 'responsable',
+            'cNumeroRadicado' => 'radicado',
+            'cExpediente' => 'expediente',
+            'cMotivoReasignacion' => 'motivo de reasignación',
+            'cFechaVencimiento' => 'fecha de vencimiento',
+            'description' => 'descripción',
+            'name' => 'nombre',
+        ];
+
+        $labels = [];
+
+        foreach ($fields as $field) {
+            $labels[] = $map[$field] ?? $field;
+        }
+
+        return implode(', ', array_slice($labels, 0, 4));
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return array<string, mixed>
+     */
+    private function normalizeData(mixed $value): array
+    {
+        if ($value instanceof \stdClass) {
+            return get_object_vars($value);
+        }
+
+        return is_array($value) ? $value : [];
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return array<int, string>
+     */
+    private function normalizeList(mixed $value): array
+    {
+        if ($value instanceof \stdClass) {
+            $value = get_object_vars($value);
+        }
+
+        if (!is_array($value)) {
+            return [];
+        }
+
+        return array_values(array_filter(array_map('strval', $value)));
     }
 
     private function caseLabel(Entity $case): string
@@ -261,6 +626,28 @@ class UserHistorialService
     }
 
     /**
+     * @param array<int, array<string, mixed>> $actuaciones
+     * @param array<string, mixed> $item
+     */
+    private function pushActuacion(array &$actuaciones, array $item): void
+    {
+        $key = implode('|', [
+            (string) ($item['tipo'] ?? ''),
+            (string) ($item['entityType'] ?? ''),
+            (string) ($item['entityId'] ?? ''),
+            substr((string) ($item['fecha'] ?? ''), 0, 16),
+            (string) ($item['titulo'] ?? ''),
+        ]);
+
+        if (isset($this->seenActuaciones[$key])) {
+            return;
+        }
+
+        $this->seenActuaciones[$key] = true;
+        $actuaciones[] = $item;
+    }
+
+    /**
      * @return array<string, mixed>
      */
     private function actuacion(
@@ -288,31 +675,46 @@ class UserHistorialService
     }
 
     /** @return iterable<Entity> */
-    private function fetchActas(string $caseId): iterable
+    private function fetchActasByUser(string $userId): iterable
     {
         return $this->entityManager
             ->getRDBRepository('ActaVisita')
-            ->where(['caseId' => $caseId])
-            ->order('createdAt', 'DESC')
+            ->where([
+                'OR' => [
+                    ['createdById' => $userId],
+                    ['modifiedById' => $userId],
+                ],
+            ])
+            ->order('modifiedAt', 'DESC')
             ->find();
     }
 
     /** @return iterable<Entity> */
-    private function fetchActuos(string $caseId): iterable
+    private function fetchActuosByUser(string $userId): iterable
     {
         return $this->entityManager
             ->getRDBRepository('ActuoArchivo')
-            ->where(['caseId' => $caseId])
+            ->where(['createdById' => $userId])
             ->order('createdAt', 'DESC')
             ->find();
     }
 
     /** @return iterable<Entity> */
-    private function fetchAsignaciones(string $userId): iterable
+    private function fetchAsignacionesRecibidas(string $userId): iterable
     {
         return $this->entityManager
             ->getRDBRepository('AsignacionHistorial')
             ->where(['responsableNuevoId' => $userId])
+            ->order('fecha', 'DESC')
+            ->find();
+    }
+
+    /** @return iterable<Entity> */
+    private function fetchAsignacionesRealizadas(string $userId): iterable
+    {
+        return $this->entityManager
+            ->getRDBRepository('AsignacionHistorial')
+            ->where(['asignadoPorId' => $userId])
             ->order('fecha', 'DESC')
             ->find();
     }
@@ -324,6 +726,21 @@ class UserHistorialService
             ->getRDBRepository('ComunicacionCaso')
             ->where(['createdById' => $userId])
             ->order('fecha', 'DESC')
+            ->find();
+    }
+
+    /** @return iterable<Entity> */
+    private function fetchCaseNotesByUser(string $userId): iterable
+    {
+        return $this->entityManager
+            ->getRDBRepository('Note')
+            ->select(['id', 'type', 'data', 'createdAt', 'parentId', 'parentType', 'createdById'])
+            ->where([
+                'createdById' => $userId,
+                'parentType' => 'Case',
+            ])
+            ->order('createdAt', 'DESC')
+            ->limit(0, 400)
             ->find();
     }
 }

@@ -7,6 +7,7 @@ define('custom:views/user/record/panels/historial-usuario', ['views/fields/base'
             actuo: 'Actuo',
             asignacion: 'Asignación',
             comunicacion: 'Comunicación',
+            sistema: 'Sistema',
         };
 
         return labels[tipo] || tipo;
@@ -28,6 +29,7 @@ define('custom:views/user/record/panels/historial-usuario', ['views/fields/base'
                     activos: 0,
                     actas: 0,
                     asignaciones: 0,
+                    accionesSistema: 0,
                 },
                 casos: [],
                 actuaciones: [],

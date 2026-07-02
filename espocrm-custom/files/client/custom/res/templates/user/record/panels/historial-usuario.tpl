@@ -24,6 +24,10 @@
                     <span class="party-expediente-kpi__value">{{historial.resumen.asignaciones}}</span>
                     <span class="party-expediente-kpi__label">Asignaciones</span>
                 </div>
+                <div class="party-expediente-kpi">
+                    <span class="party-expediente-kpi__value">{{historial.resumen.accionesSistema}}</span>
+                    <span class="party-expediente-kpi__label">En el sistema</span>
+                </div>
             </div>
 
             {{#if historial.casos.length}}
