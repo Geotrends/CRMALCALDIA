@@ -2,63 +2,8 @@
  * Componentes reutilizables — botones, badges, cards, tablas
  */
 
-/* ── Botones ── */
-.btn {
-  border-radius: var(--crm-radius-sm) !important;
-  font-weight: 600 !important;
-  font-size: var(--crm-font-size-sm) !important;
-  transition: all var(--crm-transition) !important;
-  border: 1px solid transparent !important;
-}
-
-.btn-primary,
-.btn.btn-primary {
-  background: var(--crm-primary) !important;
-  border-color: var(--crm-primary) !important;
-  color: var(--crm-text-inverse) !important;
-  box-shadow: 0 2px 8px rgba(29, 138, 110, 0.25) !important;
-}
-
-.btn-primary:hover,
-.btn-primary:focus,
-.btn.btn-primary:hover {
-  background: var(--crm-primary-dark) !important;
-  border-color: var(--crm-primary-dark) !important;
-  box-shadow: 0 4px 12px rgba(29, 138, 110, 0.35) !important;
-  transform: translateY(-1px);
-}
-
-.btn-default,
-.btn.btn-default {
-  background: var(--crm-surface) !important;
-  border-color: var(--crm-border) !important;
-  color: var(--crm-text-secondary) !important;
-}
-
-.btn-default:hover {
-  background: var(--crm-surface-hover) !important;
-  border-color: var(--crm-primary-soft) !important;
-  color: var(--crm-primary) !important;
-}
-
-.btn-link {
-  color: var(--crm-primary) !important;
-  font-weight: 600 !important;
-}
-
-.btn-success {
-  background: var(--crm-success) !important;
-  border-color: var(--crm-success) !important;
-}
-
-.btn-danger {
-  background: var(--crm-danger) !important;
-  border-color: var(--crm-danger) !important;
-}
-
-.btn-group .btn {
-  box-shadow: none !important;
-}
+/* ── Botones y badges modernos (ver también 23-buttons.css) ── */
+@import url('23-buttons.css');
 
 /* Botones Guardar / Cancelar / menú — separados (no pegados) */
 .edit .button-container.record-buttons .btn-group,
@@ -75,7 +20,7 @@
 .detail .button-container.record-buttons .btn-group > .btn,
 .edit .detail-button-container .btn-group > .btn,
 .detail .detail-button-container .btn-group > .btn {
-  border-radius: var(--crm-radius-sm) !important;
+  border-radius: var(--crm-radius-full) !important;
   margin-left: 0 !important;
   float: none !important;
 }
@@ -118,45 +63,6 @@
   border: 1px solid var(--crm-border-light) !important;
   border-radius: var(--crm-radius-md) !important;
   box-shadow: none !important;
-}
-
-/* ── Badges / Pills ── */
-.badge,
-.label {
-  border-radius: var(--crm-radius-full) !important;
-  font-weight: 600 !important;
-  font-size: var(--crm-font-size-xs) !important;
-  padding: 3px 10px !important;
-  letter-spacing: 0.02em;
-}
-
-.label-success,
-.badge-success {
-  background: var(--crm-success-soft) !important;
-  color: var(--crm-success) !important;
-}
-
-.label-warning,
-.badge-warning {
-  background: var(--crm-warning-soft) !important;
-  color: #b45309 !important;
-}
-
-.label-danger,
-.badge-danger {
-  background: var(--crm-danger-soft) !important;
-  color: var(--crm-danger) !important;
-}
-
-.label-info,
-.badge-info {
-  background: var(--crm-info-soft) !important;
-  color: var(--crm-info) !important;
-}
-
-.label-primary {
-  background: var(--crm-primary-light) !important;
-  color: var(--crm-primary-dark) !important;
 }
 
 /* ── Tablas ── */

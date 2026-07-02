@@ -2,7 +2,7 @@
  * Fuerza etiquetas Persona natural / Persona jurídica en toda la UI.
  */
 (function () {
-    var PATCH_VERSION = '8';
+    var PATCH_VERSION = '9';
     var STORAGE_KEY = 'espo-personas-i18n-version';
 
     var PATCH = {
@@ -66,6 +66,9 @@
             }
         },
         Case: {
+            labels: {
+                'Create Case': 'Crear caso'
+            },
             fields: {
                 contact: 'Persona natural (peticionario)',
                 account: 'Persona jurídica (peticionario)',
@@ -125,7 +128,9 @@
         'Crear Contacto': 'Crear persona natural',
         'Crear Cuenta': 'Crear persona jurídica',
         'Create Contact': 'Crear persona natural',
-        'Create Account': 'Crear persona jurídica'
+        'Create Account': 'Crear persona jurídica',
+        'Create Case': 'Crear caso',
+        'Crear ticket': 'Crear caso'
     };
 
     function mergeScope(target, source) {
@@ -159,7 +164,7 @@
 
     function patchDomLabels() {
         document.querySelectorAll(
-            '#navbar a, #navbar .item-label, .page-header h3, .header-title, .breadcrumb a, .panel-heading .panel-title'
+            '#navbar a, #navbar .item-label, .page-header h3, .header-title, .breadcrumb a, .panel-heading .panel-title, .page-header .header-buttons a, .page-header .header-buttons button, button.btn, a.btn'
         ).forEach(function (el) {
             var text = (el.textContent || '').trim();
 
@@ -196,6 +201,20 @@
 
             if (navbar) {
                 window.__espoPersonasNavbarObserver.observe(navbar, {
+                    childList: true,
+                    subtree: true,
+                });
+            }
+        }
+
+        if (!window.__espoPersonasContentObserver) {
+            window.__espoPersonasContentObserver = new MutationObserver(function () {
+                patchDomLabels();
+            });
+            var content = document.querySelector('#content');
+
+            if (content) {
+                window.__espoPersonasContentObserver.observe(content, {
                     childList: true,
                     subtree: true,
                 });

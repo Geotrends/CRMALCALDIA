@@ -75,6 +75,7 @@
     "enSeguimiento": "En seguimiento"
   },
   "labels": {
+    "Create Case": "Crear caso",
     "Formato solicitud": "Formato solicitud",
     "downloadFormatoPdf": "Descargar PDF",
     "formatoSolicitudHelp": "El formato está listo. Puede descargar el PDF.",

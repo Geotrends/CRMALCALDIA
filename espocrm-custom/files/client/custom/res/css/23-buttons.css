@@ -1,0 +1,424 @@
+/**
+ * Botones y badges — estilo moderno (píldora + gradiente + esquinas biseladas).
+ * Solo apariencia; no altera data-action ni comportamiento.
+ */
+
+/* ── Base botón ── */
+.btn,
+button.btn,
+a.btn {
+  border-radius: var(--crm-radius-full) !important;
+  font-weight: 700 !important;
+  font-size: var(--crm-font-size-sm) !important;
+  letter-spacing: 0.01em;
+  line-height: 1.25 !important;
+  padding: 10px 22px !important;
+  transition:
+    transform var(--crm-transition),
+    box-shadow var(--crm-transition),
+    background var(--crm-transition),
+    border-color var(--crm-transition),
+    color var(--crm-transition) !important;
+  border: 1px solid transparent !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  text-align: center !important;
+  white-space: nowrap;
+  box-shadow: var(--crm-shadow-sm);
+}
+
+.btn .fas,
+.btn .far,
+.btn .fab {
+  font-size: 0.95em;
+  line-height: 1;
+}
+
+.btn-sm {
+  padding: 8px 18px !important;
+  font-size: 12px !important;
+}
+
+.btn-xs,
+.btn-xs-wide,
+.btn-s-wide {
+  padding: 7px 16px !important;
+  font-size: 12px !important;
+}
+
+.btn-lg {
+  padding: 12px 28px !important;
+  font-size: 15px !important;
+}
+
+.btn-block {
+  width: 100% !important;
+}
+
+/* ── Primario — gradiente verde ── */
+.btn-primary,
+.btn.btn-primary,
+a.btn-primary {
+  background: linear-gradient(135deg, var(--crm-primary) 0%, var(--crm-primary-dark) 100%) !important;
+  border-color: transparent !important;
+  color: var(--crm-text-inverse) !important;
+  box-shadow: 0 4px 16px rgba(29, 138, 110, 0.34) !important;
+}
+
+.btn-primary:hover,
+.btn-primary:focus,
+.btn.btn-primary:hover,
+.btn.btn-primary:focus,
+a.btn-primary:hover {
+  background: linear-gradient(135deg, #22a07f 0%, var(--crm-primary-deep) 100%) !important;
+  border-color: transparent !important;
+  color: #fff !important;
+  box-shadow: 0 6px 22px rgba(29, 138, 110, 0.42) !important;
+  transform: translateY(-1px);
+}
+
+.btn-primary:active,
+.btn.btn-primary:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 10px rgba(29, 138, 110, 0.28) !important;
+}
+
+/* ── Secundario / default ── */
+.btn-default,
+.btn.btn-default {
+  background: var(--crm-surface) !important;
+  border-color: var(--crm-border) !important;
+  color: var(--crm-text-secondary) !important;
+  box-shadow: var(--crm-shadow-xs) !important;
+}
+
+.btn-default:hover,
+.btn-default:focus,
+.btn.btn-default:hover {
+  background: var(--crm-surface-hover) !important;
+  border-color: var(--crm-primary-soft) !important;
+  color: var(--crm-primary-dark) !important;
+  transform: translateY(-1px);
+}
+
+/* ── Semánticos ── */
+.btn-success,
+.btn.btn-success {
+  background: linear-gradient(135deg, #22c55e 0%, var(--crm-success) 100%) !important;
+  border-color: transparent !important;
+  color: #fff !important;
+  box-shadow: 0 4px 14px rgba(22, 163, 74, 0.28) !important;
+}
+
+.btn-danger,
+.btn.btn-danger {
+  background: linear-gradient(135deg, #f87171 0%, var(--crm-danger) 100%) !important;
+  border-color: transparent !important;
+  color: #fff !important;
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.28) !important;
+}
+
+.btn-warning,
+.btn.btn-warning {
+  background: linear-gradient(135deg, #fbbf24 0%, var(--crm-warning) 100%) !important;
+  border-color: transparent !important;
+  color: #78350f !important;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.24) !important;
+}
+
+.btn-info,
+.btn.btn-info {
+  background: linear-gradient(135deg, #60a5fa 0%, var(--crm-info) 100%) !important;
+  border-color: transparent !important;
+  color: #fff !important;
+}
+
+.btn-link {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: var(--crm-primary) !important;
+  padding-left: 8px !important;
+  padding-right: 8px !important;
+}
+
+.btn-link:hover {
+  color: var(--crm-primary-dark) !important;
+  transform: none;
+}
+
+/* ── Grupos — separados, no pegados ── */
+.btn-group {
+  display: inline-flex !important;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px !important;
+  vertical-align: middle;
+}
+
+.btn-group > .btn,
+.btn-group > .btn-group > .btn {
+  border-radius: var(--crm-radius-full) !important;
+  margin-left: 0 !important;
+  float: none !important;
+}
+
+.btn-group .btn + .btn,
+.btn-group .btn + .btn-group,
+.btn-group .btn-group + .btn,
+.btn-group .btn-group + .btn-group {
+  margin-left: 0 !important;
+}
+
+.btn-group.open .dropdown-toggle {
+  box-shadow: none !important;
+}
+
+/* ── Cabecera Crear ── */
+.page-header .header-buttons a.action[data-action="create"],
+.page-header .header-buttons a.main-header-manu-action[data-action="create"],
+.page-header .header-buttons a[data-name="create"],
+.page-header .header-buttons a[href*="/create"],
+.page-header .header-buttons a[href$="create"],
+.page-header .header-buttons .btn-primary {
+  border-radius: var(--crm-radius-full) !important;
+  padding: 11px 24px !important;
+  min-height: 42px;
+}
+
+.page-header .header-buttons a.action[data-action="create"] .fas,
+.page-header .header-buttons a[data-name="create"] .fas {
+  margin-right: 0 !important;
+}
+
+/* ── Paneles / acciones de caso ── */
+.panel .btn-primary.btn-block,
+.comunicaciones-caso-panel .btn-primary,
+.case-acta-visita-btn,
+.detail .button-container .btn,
+.edit .button-container .btn,
+.modal-footer .btn {
+  min-height: 40px;
+}
+
+/* ── Badges / estados — esquinas biseladas ── */
+.badge,
+.label,
+.party-expediente-badge {
+  --crm-badge-notch: 7px;
+  clip-path: polygon(
+    var(--crm-badge-notch) 0%,
+    calc(100% - var(--crm-badge-notch)) 0%,
+    100% var(--crm-badge-notch),
+    100% calc(100% - var(--crm-badge-notch)),
+    calc(100% - var(--crm-badge-notch)) 100%,
+    var(--crm-badge-notch) 100%,
+    0% calc(100% - var(--crm-badge-notch)),
+    0% var(--crm-badge-notch)
+  );
+  border-radius: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  position: relative;
+  font-weight: 700 !important;
+  font-size: 11px !important;
+  letter-spacing: 0.03em;
+  text-transform: none;
+  padding: 6px 14px 6px 34px !important;
+  border: none !important;
+  line-height: 1.3 !important;
+  vertical-align: middle;
+  box-shadow: var(--crm-shadow-xs);
+}
+
+.badge::before,
+.label::before,
+.party-expediente-badge::before {
+  content: '';
+  position: absolute;
+  left: 11px;
+  top: 50%;
+  width: 13px;
+  height: 13px;
+  margin-top: -6.5px;
+  border: 2px solid currentColor;
+  transform: rotate(45deg);
+  border-radius: 2px;
+  opacity: 0.9;
+  box-sizing: border-box;
+}
+
+.label-success,
+.badge-success {
+  background: var(--crm-success-soft) !important;
+  color: #166534 !important;
+}
+
+.label-success::after,
+.badge-success::after {
+  content: '✓';
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-52%);
+  font-size: 10px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.label-warning,
+.badge-warning {
+  background: var(--crm-warning-soft) !important;
+  color: #b45309 !important;
+}
+
+.label-warning::after,
+.badge-warning::after {
+  content: '!';
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-54%);
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.label-danger,
+.badge-danger {
+  background: var(--crm-danger-soft) !important;
+  color: #b91c1c !important;
+}
+
+.label-danger::after,
+.badge-danger::after {
+  content: '×';
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-56%);
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.label-info,
+.badge-info {
+  background: var(--crm-info-soft) !important;
+  color: #1d4ed8 !important;
+}
+
+.label-info::after,
+.badge-info::after {
+  content: 'i';
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-54%);
+  font-size: 10px;
+  font-weight: 900;
+  font-style: italic;
+  line-height: 1;
+}
+
+.label-primary {
+  background: var(--crm-primary-light) !important;
+  color: var(--crm-primary-dark) !important;
+}
+
+.label-default,
+.badge-default {
+  background: #f1f5f9 !important;
+  color: #475569 !important;
+}
+
+/* Estados de caso — sin franja lateral, heredan biselado */
+.field[data-name="status"] .label,
+.list[data-scope="Case"] .label[data-case-status],
+.detail[data-scope="Case"] .field[data-name="status"] .label {
+  border-left: none !important;
+  font-size: 12px !important;
+  padding: 6px 14px 6px 34px !important;
+}
+
+.edit .button-container.record-buttons .btn-group > .btn,
+.detail .button-container.record-buttons .btn-group > .btn,
+.edit .detail-button-container .btn-group > .btn,
+.detail .detail-button-container .btn-group > .btn {
+  border-radius: var(--crm-radius-full) !important;
+}
+
+/* Excepciones — controles compactos que no deben ser píldora */
+.pagination > li > a,
+.pagination > li > span,
+#navbar a.minimizer,
+.fc-button,
+.daterangepicker .btn,
+.input-group-btn > .btn,
+.search-row .btn-group.search-buttons .btn {
+  border-radius: var(--crm-radius-sm) !important;
+}
+
+.search-row .btn-group.search-buttons {
+  gap: 4px !important;
+}
+
+.search-row .btn-group.search-buttons > .btn {
+  padding: 7px 12px !important;
+}
+
+/* Enlaces Crear en cabecera (no siempre llevan .btn) */
+.page-header .header-buttons a.action[data-action="create"],
+.page-header .header-buttons a.main-header-manu-action[data-action="create"],
+.page-header .header-buttons a[data-name="create"],
+.page-header .header-buttons a[href*="/create"],
+.page-header .header-buttons a[href$="create"] {
+  background: linear-gradient(135deg, var(--crm-primary) 0%, var(--crm-primary-dark) 100%) !important;
+  border: none !important;
+  color: #fff !important;
+  font-weight: 700 !important;
+  font-size: var(--crm-font-size-sm) !important;
+  padding: 11px 24px !important;
+  border-radius: var(--crm-radius-full) !important;
+  box-shadow: 0 4px 16px rgba(29, 138, 110, 0.34) !important;
+  transition: transform var(--crm-transition), box-shadow var(--crm-transition) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  line-height: 1.2 !important;
+  text-decoration: none !important;
+  min-height: 42px;
+}
+
+.page-header .header-buttons a.action[data-action="create"]:hover,
+.page-header .header-buttons a[data-name="create"]:hover,
+.page-header .header-buttons a[href*="/create"]:hover {
+  background: linear-gradient(135deg, #22a07f 0%, var(--crm-primary-deep) 100%) !important;
+  color: #fff !important;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 22px rgba(29, 138, 110, 0.42) !important;
+}
+
+.page-header .header-buttons a.action[data-action="create"] .fas,
+.page-header .header-buttons a[data-name="create"] .fas {
+  color: #fff !important;
+  margin-right: 0 !important;
+}
+
+@media (max-width: 768px) {
+  .btn,
+  button.btn,
+  a.btn {
+    padding: 9px 18px !important;
+  }
+
+  .page-header .header-buttons a.action[data-action="create"],
+  .page-header .header-buttons a[data-name="create"] {
+    width: 100%;
+    justify-content: center !important;
+  }
+}

@@ -1,0 +1,215 @@
+/**
+ * Toasts y diálogos de confirmación personalizados.
+ */
+
+/* Ocultar banner nativo si carga tarde el parche */
+#notification.alert {
+  display: none !important;
+}
+
+.crm-toast-stack {
+  position: fixed;
+  top: 88px;
+  right: 24px;
+  z-index: 4000;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: min(420px, calc(100vw - 32px));
+  pointer-events: none;
+}
+
+.crm-toast {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: var(--crm-radius-full);
+  background: var(--crm-surface);
+  border: 1px solid var(--crm-border-light);
+  box-shadow: var(--crm-shadow-lg);
+  opacity: 0;
+  transform: translateX(24px);
+  transition: opacity 0.28s ease, transform 0.28s ease;
+  pointer-events: auto;
+}
+
+.crm-toast--visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.crm-toast--hide {
+  opacity: 0;
+  transform: translateX(24px);
+}
+
+.crm-toast__icon {
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+.crm-toast--success .crm-toast__icon {
+  background: var(--crm-success);
+  color: #fff;
+}
+
+.crm-toast--warning .crm-toast__icon,
+.crm-toast--loading .crm-toast__icon {
+  background: var(--crm-warning);
+  color: #fff;
+}
+
+.crm-toast--danger .crm-toast__icon {
+  background: var(--crm-danger);
+  color: #fff;
+}
+
+.crm-toast--info .crm-toast__icon {
+  background: var(--crm-info);
+  color: #fff;
+}
+
+.crm-toast__content {
+  flex: 1;
+  min-width: 0;
+  padding-top: 2px;
+}
+
+.crm-toast__title {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--crm-text);
+}
+
+.crm-toast__subtitle {
+  margin-top: 2px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--crm-text-muted);
+}
+
+.crm-toast__close {
+  flex: 0 0 auto;
+  border: 0;
+  background: transparent;
+  color: var(--crm-text-muted);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background var(--crm-transition), color var(--crm-transition);
+}
+
+.crm-toast__close:hover,
+.crm-toast__close:focus {
+  background: var(--crm-bg);
+  color: var(--crm-text-secondary);
+}
+
+/* ── Confirmación ── */
+.crm-dialog-confirm .modal-dialog {
+  width: min(100%, 440px);
+  margin: 10vh auto;
+}
+
+.crm-dialog-confirm .modal-content {
+  border: 1px solid var(--crm-border-light);
+  border-radius: var(--crm-radius-xl);
+  box-shadow: var(--crm-shadow-lg);
+  overflow: hidden;
+}
+
+.crm-dialog-confirm .modal-body {
+  padding: 28px 28px 12px;
+}
+
+.crm-confirm-body {
+  text-align: center;
+}
+
+.crm-confirm-icon {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 16px;
+  border-radius: 50%;
+  background: var(--crm-danger-soft);
+  color: var(--crm-danger);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.crm-confirm-title {
+  margin: 0 0 8px;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--crm-text);
+}
+
+.crm-confirm-message {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--crm-text-secondary);
+}
+
+.crm-dialog-confirm .modal-footer {
+  border-top: none;
+  padding: 8px 24px 24px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.crm-dialog-confirm .modal-footer .btn-group {
+  display: inline-flex;
+  gap: 10px;
+  float: none !important;
+}
+
+.crm-dialog-confirm .modal-footer .btn {
+  border-radius: var(--crm-radius-full) !important;
+  min-width: 132px;
+  font-weight: 600 !important;
+  padding: 10px 18px !important;
+}
+
+.crm-dialog-confirm .modal-footer .btn-default {
+  background: var(--crm-surface) !important;
+  border-color: var(--crm-border) !important;
+  color: var(--crm-text-secondary) !important;
+}
+
+.crm-dialog-confirm .modal-footer .btn-danger {
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.28);
+}
+
+@media (max-width: 640px) {
+  .crm-toast-stack {
+    top: auto;
+    bottom: 20px;
+    right: 16px;
+    left: 16px;
+    width: auto;
+  }
+
+  .crm-dialog-confirm .modal-footer {
+    flex-direction: column-reverse;
+  }
+
+  .crm-dialog-confirm .modal-footer .btn {
+    width: 100%;
+  }
+}

@@ -1,13 +1,17 @@
 {
     "cssList": [
-        "client/custom/res/css/main.css"
+        "client/custom/res/css/main.css",
+        "client/custom/res/css/22-ui-toasts.css",
+        "client/custom/res/css/23-buttons.css"
     ],
     "scriptList": [
         "client/custom/src/loader/promise-console-guard.js",
+        "client/custom/src/loader/theme-buttons.js",
         "client/custom/src/loader/theme-login.js",
         "client/custom/src/loader/i18n-personas.js",
         "client/custom/src/loader/case-list-radicado-fix.js",
         "client/custom/src/loader/notification-views.js",
+        "client/custom/src/loader/ui-toasts.js",
         "client/custom/src/loader/theme-navbar.js",
         "client/custom/src/loader/session-security.js"
     ]

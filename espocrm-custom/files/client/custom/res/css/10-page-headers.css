@@ -302,7 +302,7 @@
   font-weight: 700 !important;
   font-size: var(--crm-font-size-sm) !important;
   padding: 10px 20px !important;
-  border-radius: var(--crm-radius-md) !important;
+  border-radius: var(--crm-radius-full) !important;
   box-shadow: 0 4px 14px rgba(29, 138, 110, 0.35) !important;
   transition: transform var(--crm-transition), box-shadow var(--crm-transition) !important;
   display: inline-flex !important;
