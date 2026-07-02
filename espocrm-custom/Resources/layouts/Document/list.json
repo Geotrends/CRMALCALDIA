@@ -4,10 +4,6 @@
         "link": true
     },
     {
-        "name": "cCategoria",
-        "width": 18
-    },
-    {
         "name": "status",
         "width": 12
     },
