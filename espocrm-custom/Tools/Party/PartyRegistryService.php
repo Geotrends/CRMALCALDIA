@@ -159,6 +159,39 @@ class PartyRegistryService
             return null;
         }
 
+        $data = $this->buildRolePartyLookupData($party, $tipo, $documento);
+        $sourceParty = $data ? $party : null;
+
+        $alternateParty = $party === 'peticionario' ? 'perjudicante' : 'peticionario';
+        $alternateData = $this->buildRolePartyLookupData($alternateParty, $tipo, $documento);
+
+        if ($alternateData) {
+            $alternateMapped = $this->translatePartyFields($alternateData, $alternateParty, $party);
+
+            if ($data) {
+                $data = $this->mergePartyFieldData($alternateMapped, $data);
+            } else {
+                $data = $alternateMapped;
+                $sourceParty = $alternateParty;
+            }
+        }
+
+        if (!$data) {
+            return null;
+        }
+
+        if ($sourceParty && $sourceParty !== $party) {
+            $data['_sourceParty'] = $sourceParty;
+        }
+
+        return $data;
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function buildRolePartyLookupData(string $party, string $tipo, string $documento): ?array
+    {
         $caseData = $this->findLatestCasePartyFields($party, $tipo, $documento);
         $registryData = $this->lookupRegistryPartyFields($party, $tipo, $documento);
 
@@ -175,6 +208,55 @@ class PartyRegistryService
         }
 
         return $this->mergePartyFieldData($registryData, $caseData);
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
+     */
+    private function translatePartyFields(array $data, string $fromParty, string $toParty): array
+    {
+        if ($fromParty === $toParty) {
+            return $data;
+        }
+
+        $fromSuffix = $fromParty === 'peticionario' ? 'Peticionario' : 'Perjudicante';
+        $toSuffix = $toParty === 'peticionario' ? 'Peticionario' : 'Perjudicante';
+        $mapped = [];
+
+        foreach ($data as $key => $value) {
+            if (!is_string($key) || !str_contains($key, $fromSuffix)) {
+                continue;
+            }
+
+            $mapped[str_replace($fromSuffix, $toSuffix, $key)] = $value;
+        }
+
+        if ($fromParty === 'peticionario' && $toParty === 'perjudicante') {
+            if (!empty($data['contactId'])) {
+                $mapped['cPerjudicanteContactId'] = $data['contactId'];
+                $mapped['cPerjudicanteContactName'] = $data['contactName'] ?? null;
+            }
+
+            if (!empty($data['accountId'])) {
+                $mapped['cPerjudicanteCuentaId'] = $data['accountId'];
+                $mapped['cPerjudicanteCuentaName'] = $data['accountName'] ?? null;
+            }
+        }
+
+        if ($fromParty === 'perjudicante' && $toParty === 'peticionario') {
+            if (!empty($data['cPerjudicanteContactId'])) {
+                $mapped['contactId'] = $data['cPerjudicanteContactId'];
+                $mapped['contactName'] = $data['cPerjudicanteContactName'] ?? null;
+            }
+
+            if (!empty($data['cPerjudicanteCuentaId'])) {
+                $mapped['accountId'] = $data['cPerjudicanteCuentaId'];
+                $mapped['accountName'] = $data['cPerjudicanteCuentaName'] ?? null;
+            }
+        }
+
+        return $mapped;
     }
 
     /**
@@ -317,17 +399,20 @@ class PartyRegistryService
      */
     private function findLatestCaseFieldsForContactInParty(Entity $contact, string $party): ?array
     {
-        foreach ($this->getPartyCasosService()->findCasosForContact($contact->getId()) as $case) {
-            if (!$this->caseMatchesPartyRole($case, $contact, $party, 'Contact')) {
-                continue;
-            }
+        $data = $this->findLatestCaseFieldsForEntityInParty($contact, $party, 'Contact');
 
-            return $party === 'peticionario'
-                ? $this->mapCaseToPeticionarioFields($case)
-                : $this->mapCaseToPerjudicanteFields($case);
+        if ($data) {
+            return $data;
         }
 
-        return null;
+        $alternateParty = $party === 'peticionario' ? 'perjudicante' : 'peticionario';
+        $alternateData = $this->findLatestCaseFieldsForEntityInParty($contact, $alternateParty, 'Contact');
+
+        if (!$alternateData) {
+            return null;
+        }
+
+        return $this->translatePartyFields($alternateData, $alternateParty, $party);
     }
 
     /**
@@ -335,8 +420,33 @@ class PartyRegistryService
      */
     private function findLatestCaseFieldsForAccountInParty(Entity $account, string $party): ?array
     {
-        foreach ($this->getPartyCasosService()->findCasosForAccount($account->getId()) as $case) {
-            if (!$this->caseMatchesPartyRole($case, $account, $party, 'Account')) {
+        $data = $this->findLatestCaseFieldsForEntityInParty($account, $party, 'Account');
+
+        if ($data) {
+            return $data;
+        }
+
+        $alternateParty = $party === 'peticionario' ? 'perjudicante' : 'peticionario';
+        $alternateData = $this->findLatestCaseFieldsForEntityInParty($account, $alternateParty, 'Account');
+
+        if (!$alternateData) {
+            return null;
+        }
+
+        return $this->translatePartyFields($alternateData, $alternateParty, $party);
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function findLatestCaseFieldsForEntityInParty(Entity $entity, string $party, string $entityType): ?array
+    {
+        $cases = $entityType === 'Contact'
+            ? $this->getPartyCasosService()->findCasosForContact($entity->getId())
+            : $this->getPartyCasosService()->findCasosForAccount($entity->getId());
+
+        foreach ($cases as $case) {
+            if (!$this->caseMatchesPartyRole($case, $entity, $party, $entityType)) {
                 continue;
             }
 
@@ -535,13 +645,26 @@ class PartyRegistryService
             : $this->getPartyCasosService()->findCasosForAccount($partyEntity->getId());
 
         foreach ($cases as $case) {
-            if (!$this->caseMatchesPartyRole($case, $partyEntity, $party, $entityType)) {
-                continue;
+            $caseFields = null;
+
+            if ($this->caseMatchesPartyRole($case, $partyEntity, $party, $entityType)) {
+                $caseFields = $party === 'peticionario'
+                    ? $this->mapCaseToPeticionarioFields($case)
+                    : $this->mapCaseToPerjudicanteFields($case);
+            } else {
+                $alternateParty = $party === 'peticionario' ? 'perjudicante' : 'peticionario';
+
+                if ($this->caseMatchesPartyRole($case, $partyEntity, $alternateParty, $entityType)) {
+                    $alternateFields = $alternateParty === 'peticionario'
+                        ? $this->mapCaseToPeticionarioFields($case)
+                        : $this->mapCaseToPerjudicanteFields($case);
+                    $caseFields = $this->translatePartyFields($alternateFields, $alternateParty, $party);
+                }
             }
 
-            $caseFields = $party === 'peticionario'
-                ? $this->mapCaseToPeticionarioFields($case)
-                : $this->mapCaseToPerjudicanteFields($case);
+            if (!$caseFields) {
+                continue;
+            }
 
             $data = $this->mergePartyFieldData($data, $caseFields);
 

@@ -143,12 +143,22 @@ class CaseObj extends BaseCaseObj
 
         $roleLabel = $party === 'peticionario' ? 'peticionario' : 'infractor (perjudicante)';
         $docLabel = $tipo === PartyRegistryService::PERSONA_JURIDICA ? 'NIT' : 'cédula';
+        $message = 'Ya existe este ' . $docLabel . ' registrado. Se cargaron los datos disponibles';
+
+        if (!empty($data['_sourceParty']) && $data['_sourceParty'] !== $party) {
+            $sourceLabel = $data['_sourceParty'] === 'peticionario' ? 'peticionario' : 'infractor';
+            $message .= ' del rol ' . $sourceLabel;
+        } else {
+            $message .= ' como ' . $roleLabel;
+        }
+
+        $message .= '; puede editarlos si es necesario.';
+        unset($data['_sourceParty']);
 
         return [
             'found' => true,
             'entityType' => 'Party',
-            'message' => 'Ya existe este ' . $docLabel . ' como ' . $roleLabel
-                . '. Se cargaron los datos registrados en ese rol; puede editarlos si es necesario.',
+            'message' => $message,
             'data' => $data,
         ];
     }

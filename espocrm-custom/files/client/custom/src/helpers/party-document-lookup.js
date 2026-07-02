@@ -123,6 +123,31 @@ define('custom:helpers/party-document-lookup', [
         });
     };
 
+    var refreshPartyUi = function (recordView, party) {
+        PersonaTipoFields.applyLabels(recordView);
+
+        [DireccionEstructurada.PETICIONARIO, DireccionEstructurada.PERJUDICANTE].forEach(function (config) {
+            DireccionEstructurada.applyToModel(recordView.model, config);
+        });
+
+        refreshPartyFields(recordView, party);
+
+        setTimeout(function () {
+            if (!recordView.isRendered || !recordView.isRendered()) {
+                return;
+            }
+
+            PersonaTipoFields.applyLabels(recordView);
+            refreshPartyFields(recordView, party);
+
+            var target = party === 'peticionario'
+                ? DireccionEstructurada.PETICIONARIO.target
+                : DireccionEstructurada.PERJUDICANTE.target;
+
+            SafeUiPromise.safeReRender(recordView.getFieldView(target));
+        }, 80);
+    };
+
     var applyPartyData = function (recordView, party, data) {
         var patch = {};
         var fields = getLinkedFields(party).concat(
@@ -263,7 +288,7 @@ define('custom:helpers/party-document-lookup', [
 
             recordView._partyLookupCache[key] = true;
             applyPartyData(recordView, party, response.data);
-            refreshPartyFields(recordView, party);
+            refreshPartyUi(recordView, party);
             setPartyLinkedState(recordView, party, true);
 
             if (!options.silent) {
