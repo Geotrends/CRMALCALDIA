@@ -33,6 +33,20 @@ define('custom:helpers/party-document-lookup', [
 
     var PERJUDICANTE_LINKED_FIELDS = PersonaTipoFields.INFRACTOR_DETAIL_FIELDS.slice();
 
+    var PETICIONARIO_LINK_IDS = [
+        'contactId',
+        'contactName',
+        'accountId',
+        'accountName',
+    ];
+
+    var PERJUDICANTE_LINK_IDS = [
+        'cPerjudicanteContactId',
+        'cPerjudicanteContactName',
+        'cPerjudicanteCuentaId',
+        'cPerjudicanteCuentaName',
+    ];
+
     var getLinkedFields = function (party) {
         return party === 'peticionario' ? PETICIONARIO_LINKED_FIELDS : PERJUDICANTE_LINKED_FIELDS;
     };
@@ -107,6 +121,33 @@ define('custom:helpers/party-document-lookup', [
         getLinkedFields(party).forEach(function (field) {
             SafeUiPromise.safeReRender(recordView.getFieldView(field));
         });
+    };
+
+    var applyPartyData = function (recordView, party, data) {
+        var patch = {};
+        var fields = getLinkedFields(party).concat(
+            party === 'peticionario' ? PETICIONARIO_LINK_IDS : PERJUDICANTE_LINK_IDS
+        );
+
+        fields.forEach(function (field) {
+            if (data[field] === undefined || data[field] === null || data[field] === '') {
+                return;
+            }
+
+            patch[field] = data[field];
+        });
+
+        if (Object.keys(patch).length) {
+            recordView.model.set(patch);
+        }
+    };
+
+    var getLookupMessage = function (party, tipo) {
+        var roleLabel = party === 'peticionario' ? 'peticionario' : 'infractor';
+        var docLabel = PersonaTipoFields.isJuridica(tipo) ? 'NIT' : 'cédula';
+
+        return 'Ya existe este ' + docLabel + ' como ' + roleLabel
+            + '. Se cargaron los datos de ese rol; puede editarlos si es necesario.';
     };
 
     var refreshLinkedAppearance = function (recordView, party, options) {
@@ -221,13 +262,13 @@ define('custom:helpers/party-document-lookup', [
             }
 
             recordView._partyLookupCache[key] = true;
-            recordView.model.set(response.data);
+            applyPartyData(recordView, party, response.data);
             refreshPartyFields(recordView, party);
             setPartyLinkedState(recordView, party, true);
 
             if (!options.silent) {
                 Espo.Ui.warning(
-                    response.message || 'Ya existe este registro. Se cargaron los datos registrados; puede editarlos si es necesario.'
+                    response.message || getLookupMessage(party, tipo)
                 );
             }
         }).catch(function (xhr) {

@@ -135,70 +135,22 @@ class CaseObj extends BaseCaseObj
         }
 
         $service = new PartyRegistryService($this->entityManager);
+        $data = $service->lookupPartyFields($party, $tipo, $documento);
 
-        if ($tipo === PartyRegistryService::PERSONA_JURIDICA) {
-            $account = $service->findAccountByNit($documento);
-
-            if ($account) {
-                $data = $party === 'peticionario'
-                    ? $service->mapAccountToPeticionarioFields($account)
-                    : $service->mapAccountToPerjudicanteFields($account);
-
-                return [
-                    'found' => true,
-                    'entityType' => 'Account',
-                    'id' => $account->getId(),
-                    'message' => $party === 'peticionario'
-                        ? 'Ya existe una persona jurídica con este NIT. Se cargaron los datos registrados; puede editarlos si es necesario.'
-                        : 'Ya existe una persona jurídica (infractor) con este NIT. Se cargaron los datos registrados; puede editarlos si es necesario.',
-                    'data' => $data,
-                ];
-            }
-
-            $caseData = $service->findLatestCasePartyFields($party, $tipo, $documento);
-
-            if ($caseData) {
-                return [
-                    'found' => true,
-                    'entityType' => 'Case',
-                    'message' => 'Ya existe un caso con este NIT. Se cargaron los datos del registro anterior; puede editarlos si es necesario.',
-                    'data' => $caseData,
-                ];
-            }
-
+        if (!$data) {
             return ['found' => false];
         }
 
-        $contact = $service->findContactByDocument($documento);
+        $roleLabel = $party === 'peticionario' ? 'peticionario' : 'infractor (perjudicante)';
+        $docLabel = $tipo === PartyRegistryService::PERSONA_JURIDICA ? 'NIT' : 'cédula';
 
-        if ($contact) {
-            $data = $party === 'peticionario'
-                ? $service->mapContactToPeticionarioFields($contact)
-                : $service->mapContactToPerjudicanteFields($contact);
-
-            return [
-                'found' => true,
-                'entityType' => 'Contact',
-                'id' => $contact->getId(),
-                'message' => $party === 'peticionario'
-                    ? 'Ya existe una persona natural con esta cédula. Se cargaron los datos registrados; puede editarlos si es necesario.'
-                    : 'Ya existe una persona natural (infractor) con esta cédula. Se cargaron los datos registrados; puede editarlos si es necesario.',
-                'data' => $data,
-            ];
-        }
-
-        $caseData = $service->findLatestCasePartyFields($party, $tipo, $documento);
-
-        if ($caseData) {
-            return [
-                'found' => true,
-                'entityType' => 'Case',
-                'message' => 'Ya existe un caso con esta cédula. Se cargaron los datos del registro anterior; puede editarlos si es necesario.',
-                'data' => $caseData,
-            ];
-        }
-
-        return ['found' => false];
+        return [
+            'found' => true,
+            'entityType' => 'Party',
+            'message' => 'Ya existe este ' . $docLabel . ' como ' . $roleLabel
+                . '. Se cargaron los datos registrados en ese rol; puede editarlos si es necesario.',
+            'data' => $data,
+        ];
     }
 
     /**

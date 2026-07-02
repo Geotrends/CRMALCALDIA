@@ -38,11 +38,11 @@ check_file "Lookup duplicados — bindDom en edición caso" \
 
 check_file "Lookup duplicados — API buscarParte" \
   "$CUSTOM/Controllers/CaseObj.php" \
-  "findLatestCasePartyFields" || errors=$((errors + 1))
+  "lookupPartyFields" || errors=$((errors + 1))
 
 check_file "Lookup duplicados — servicio registro" \
   "$CUSTOM/Tools/Party/PartyRegistryService.php" \
-  "findLatestCasePartyFields" || errors=$((errors + 1))
+  "lookupPartyFields" || errors=$((errors + 1))
 
 check_file "scriptList — promise-console-guard" \
   "$CUSTOM/Resources/metadata/app/client.json" \

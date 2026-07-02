@@ -147,6 +147,89 @@ class PartyRegistryService
     /**
      * @return array<string, mixed>|null
      */
+    public function lookupPartyFields(string $party, string $tipo, string $documento): ?array
+    {
+        $documento = trim($documento);
+
+        if ($documento === '' || !in_array($party, ['peticionario', 'perjudicante'], true)) {
+            return null;
+        }
+
+        if (!in_array($tipo, [self::PERSONA_NATURAL, self::PERSONA_JURIDICA], true)) {
+            return null;
+        }
+
+        $caseData = $this->findLatestCasePartyFields($party, $tipo, $documento);
+        $registryData = $this->lookupRegistryPartyFields($party, $tipo, $documento);
+
+        if (!$caseData && !$registryData) {
+            return null;
+        }
+
+        if (!$registryData) {
+            return $caseData;
+        }
+
+        if (!$caseData) {
+            return $registryData;
+        }
+
+        return $this->mergePartyFieldData($registryData, $caseData);
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function lookupRegistryPartyFields(string $party, string $tipo, string $documento): ?array
+    {
+        if ($tipo === self::PERSONA_JURIDICA) {
+            $account = $this->findAccountByNit($documento);
+
+            if (!$account) {
+                return null;
+            }
+
+            return $party === 'peticionario'
+                ? $this->mapAccountToPeticionarioFields($account)
+                : $this->mapAccountToPerjudicanteFields($account);
+        }
+
+        $contact = $this->findContactByDocument($documento);
+
+        if (!$contact) {
+            return null;
+        }
+
+        return $party === 'peticionario'
+            ? $this->mapContactToPeticionarioFields($contact)
+            : $this->mapContactToPerjudicanteFields($contact);
+    }
+
+    /**
+     * @param array<string, mixed> $base
+     * @param array<string, mixed> $overlay
+     * @return array<string, mixed>
+     */
+    private function mergePartyFieldData(array $base, array $overlay): array
+    {
+        foreach ($overlay as $key => $value) {
+            if ($value === null || $value === '') {
+                continue;
+            }
+
+            if ($this->cleanFieldValue($value) === '') {
+                continue;
+            }
+
+            $base[$key] = $value;
+        }
+
+        return $base;
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
     public function findLatestCasePartyFields(string $party, string $tipo, string $documento): ?array
     {
         $documento = trim($documento);
@@ -155,6 +238,35 @@ class PartyRegistryService
             return null;
         }
 
+        $case = $this->findLatestCaseByPartyDocument($party, $tipo, $documento);
+
+        if ($case) {
+            return $party === 'peticionario'
+                ? $this->mapCaseToPeticionarioFields($case)
+                : $this->mapCaseToPerjudicanteFields($case);
+        }
+
+        if ($tipo === self::PERSONA_JURIDICA) {
+            $account = $this->findAccountByNit($documento);
+
+            if ($account) {
+                return $this->findLatestCaseFieldsForAccountInParty($account, $party);
+            }
+
+            return null;
+        }
+
+        $contact = $this->findContactByDocument($documento);
+
+        if ($contact) {
+            return $this->findLatestCaseFieldsForContactInParty($contact, $party);
+        }
+
+        return null;
+    }
+
+    private function findLatestCaseByPartyDocument(string $party, string $tipo, string $documento): ?Entity
+    {
         $docField = $party === 'peticionario' ? 'cDocumentoPeticionario' : 'cDocumentoPerjudicante';
         $tipoField = $party === 'peticionario' ? 'cTipoPersonaPeticionario' : 'cTipoPersonaPerjudicante';
 
@@ -169,9 +281,7 @@ class PartyRegistryService
                 ->findOne();
 
             if ($case) {
-                return $party === 'peticionario'
-                    ? $this->mapCaseToPeticionarioFields($case)
-                    : $this->mapCaseToPerjudicanteFields($case);
+                return $case;
             }
         }
 
@@ -195,10 +305,44 @@ class PartyRegistryService
             $stored = DocumentNormalizer::normalize((string) $case->get($docField));
 
             if ($stored !== '' && $stored === $normalized) {
-                return $party === 'peticionario'
-                    ? $this->mapCaseToPeticionarioFields($case)
-                    : $this->mapCaseToPerjudicanteFields($case);
+                return $case;
             }
+        }
+
+        return null;
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function findLatestCaseFieldsForContactInParty(Entity $contact, string $party): ?array
+    {
+        foreach ($this->getPartyCasosService()->findCasosForContact($contact->getId()) as $case) {
+            if (!$this->caseMatchesPartyRole($case, $contact, $party, 'Contact')) {
+                continue;
+            }
+
+            return $party === 'peticionario'
+                ? $this->mapCaseToPeticionarioFields($case)
+                : $this->mapCaseToPerjudicanteFields($case);
+        }
+
+        return null;
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function findLatestCaseFieldsForAccountInParty(Entity $account, string $party): ?array
+    {
+        foreach ($this->getPartyCasosService()->findCasosForAccount($account->getId()) as $case) {
+            if (!$this->caseMatchesPartyRole($case, $account, $party, 'Account')) {
+                continue;
+            }
+
+            return $party === 'peticionario'
+                ? $this->mapCaseToPeticionarioFields($case)
+                : $this->mapCaseToPerjudicanteFields($case);
         }
 
         return null;
@@ -390,40 +534,16 @@ class PartyRegistryService
             ? $this->getPartyCasosService()->findCasosForContact($partyEntity->getId())
             : $this->getPartyCasosService()->findCasosForAccount($partyEntity->getId());
 
-        $componentFields = $party === 'peticionario'
-            ? DireccionEstructuradaBuilder::PETICIONARIO_COMPONENT_FIELDS
-            : DireccionEstructuradaBuilder::PERJUDICANTE_COMPONENT_FIELDS;
-
-        $extraFields = $party === 'peticionario'
-            ? self::PETICIONARIO_EXTRA_FIELDS
-            : self::PERJUDICANTE_EXTRA_FIELDS;
-
-        $direccionField = $party === 'peticionario'
-            ? 'cDireccionPeticionario'
-            : 'cDireccionPerjudicante';
-
         foreach ($cases as $case) {
             if (!$this->caseMatchesPartyRole($case, $partyEntity, $party, $entityType)) {
                 continue;
             }
 
-            if (!$this->caseHasStructuredAddress($case, $componentFields)) {
-                continue;
-            }
+            $caseFields = $party === 'peticionario'
+                ? $this->mapCaseToPeticionarioFields($case)
+                : $this->mapCaseToPerjudicanteFields($case);
 
-            foreach (array_merge($componentFields, $extraFields) as $field) {
-                $value = $this->cleanFieldValue($case->get($field));
-
-                if ($value !== '') {
-                    $data[$field] = $value;
-                }
-            }
-
-            $built = DireccionEstructuradaBuilder::buildFromFields($case, $componentFields);
-
-            if ($built !== '') {
-                $data[$direccionField] = $built;
-            }
+            $data = $this->mergePartyFieldData($data, $caseFields);
 
             break;
         }
@@ -447,20 +567,6 @@ class PartyRegistryService
         }
 
         return $rol === 'Infractor';
-    }
-
-    /**
-     * @param list<string> $componentFields
-     */
-    private function caseHasStructuredAddress(Entity $case, array $componentFields): bool
-    {
-        foreach ($componentFields as $field) {
-            if ($this->cleanFieldValue($case->get($field)) !== '') {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     private function cleanFieldValue(mixed $value): string
