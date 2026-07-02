@@ -3,6 +3,7 @@
         "client/custom/res/css/main.css"
     ],
     "scriptList": [
+        "client/custom/src/loader/promise-console-guard.js",
         "client/custom/src/loader/theme-login.js",
         "client/custom/src/loader/i18n-personas.js",
         "client/custom/src/loader/case-list-radicado-fix.js",

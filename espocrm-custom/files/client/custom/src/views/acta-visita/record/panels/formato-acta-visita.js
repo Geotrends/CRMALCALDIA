@@ -1,7 +1,8 @@
 define('custom:views/acta-visita/record/panels/formato-acta-visita', [
     'views/record/panels/side',
     'custom:helpers/formato-acta-visita-access',
-], function (Dep, FormatoActaVisitaAccess) {
+    'custom:helpers/safe-ui-promise',
+], function (Dep, FormatoActaVisitaAccess, SafeUiPromise) {
 
     return Dep.extend({
 
@@ -11,7 +12,7 @@ define('custom:views/acta-visita/record/panels/formato-acta-visita', [
             Dep.prototype.setup.call(this);
 
             this.listenTo(this.model, 'change:cFormatoActaVisitaPdfId', function () {
-                this.reRender();
+                SafeUiPromise.safeReRender(this);
                 this.togglePanel();
             });
         },

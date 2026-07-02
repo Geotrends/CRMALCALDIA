@@ -1,7 +1,8 @@
 define('custom:views/actuo-archivo/record/panels/formato-actuo-archivo', [
     'views/record/panels/side',
     'custom:helpers/formato-actuo-archivo-access',
-], function (Dep, FormatoActuoArchivoAccess) {
+    'custom:helpers/safe-ui-promise',
+], function (Dep, FormatoActuoArchivoAccess, SafeUiPromise) {
 
     return Dep.extend({
 
@@ -11,7 +12,7 @@ define('custom:views/actuo-archivo/record/panels/formato-actuo-archivo', [
             Dep.prototype.setup.call(this);
 
             this.listenTo(this.model, 'change:cFormatoActuoArchivoPdfId', function () {
-                this.reRender();
+                SafeUiPromise.safeReRender(this);
                 this.togglePanel();
             });
         },

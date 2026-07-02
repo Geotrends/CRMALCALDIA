@@ -1,6 +1,7 @@
 define('custom:helpers/radicacion-case-flow', [
     'custom:helpers/radicacion-fields',
-], function (RadicacionFields) {
+    'custom:helpers/safe-ui-promise',
+], function (RadicacionFields, SafeUiPromise) {
 
     const BODY_CLASS = 'alcaldia-radicacion-edit-mode';
     const DETAIL_CLASS = 'alcaldia-radicacion-detail-ui';
@@ -195,16 +196,8 @@ define('custom:helpers/radicacion-case-flow', [
 
         const radicadoView = recordView.getFieldView('cNumeroRadicado');
 
-        if (radicadoView && radicadoView.isRendered && radicadoView.isRendered()) {
-            try {
-                const renderResult = radicadoView.reRender();
-
-                if (renderResult && typeof renderResult.catch === 'function') {
-                    renderResult.catch(function () {});
-                }
-            } catch (error) {
-                // Vista aún montándose.
-            }
+        if (radicadoView) {
+            SafeUiPromise.safeReRender(radicadoView);
         }
     };
 

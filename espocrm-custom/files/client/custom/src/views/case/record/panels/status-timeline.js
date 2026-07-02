@@ -2,7 +2,8 @@ define('custom:views/case/record/panels/status-timeline', [
     'view',
     'custom:helpers/case-status-timeline',
     'custom:helpers/case-detail-panels',
-], function (Dep, CaseStatusTimeline, CaseDetailPanels) {
+    'custom:helpers/safe-ui-promise',
+], function (Dep, CaseStatusTimeline, CaseDetailPanels, SafeUiPromise) {
 
     return Dep.extend({
 
@@ -42,11 +43,7 @@ define('custom:views/case/record/panels/status-timeline', [
                 this.timelineData = data.timeline;
 
                 if (this.isRendered()) {
-                    const renderResult = this.reRender();
-
-                    if (renderResult && typeof renderResult.catch === 'function') {
-                        renderResult.catch(function () {});
-                    }
+                    SafeUiPromise.safeReRender(this);
                 }
             }).catch(function () {});
         },

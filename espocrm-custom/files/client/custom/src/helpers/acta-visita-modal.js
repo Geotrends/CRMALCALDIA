@@ -98,11 +98,7 @@ define('custom:helpers/acta-visita-modal', [
             }).catch(function () {
                 // Modal cerrado o cancelado — comportamiento esperado.
             });
-        }).catch(function (error) {
-            if (error && error.message) {
-                console.error(error);
-            }
-
+        }).catch(function () {
             Espo.Ui.error('No se pudo cargar el acta de visita.');
         });
     };

@@ -2,7 +2,8 @@ define('custom:views/case/record/panels/case-cronograma', [
     'view',
     'custom:helpers/case-cronograma',
     'custom:helpers/case-detail-panels',
-], function (Dep, CaseCronograma, CaseDetailPanels) {
+    'custom:helpers/safe-ui-promise',
+], function (Dep, CaseCronograma, CaseDetailPanels, SafeUiPromise) {
 
     return Dep.extend({
 
@@ -42,11 +43,7 @@ define('custom:views/case/record/panels/case-cronograma', [
                 this.cronogramaData = data.cronograma;
 
                 if (this.isRendered()) {
-                    const renderResult = this.reRender();
-
-                    if (renderResult && typeof renderResult.catch === 'function') {
-                        renderResult.catch(function () {});
-                    }
+                    SafeUiPromise.safeReRender(this);
                 }
             }).catch(function () {});
         },

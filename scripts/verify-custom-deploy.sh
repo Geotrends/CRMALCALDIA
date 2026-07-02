@@ -32,6 +32,14 @@ errors=0
 echo "==> Verificación deploy custom (APP_ROOT=$APP_ROOT)"
 echo ""
 
+check_file "scriptList — promise-console-guard" \
+  "$CUSTOM/Resources/metadata/app/client.json" \
+  "promise-console-guard.js" || errors=$((errors + 1))
+
+check_file "Loader guard de promesas consola" \
+  "$CLIENT/src/loader/promise-console-guard.js" \
+  "unhandledrejection" || errors=$((errors + 1))
+
 check_file "scriptList — session-security" \
   "$CUSTOM/Resources/metadata/app/client.json" \
   "session-security.js" || errors=$((errors + 1))

@@ -4,7 +4,8 @@ define('custom:views/case/fields/acta-visita-action', [
     'custom:helpers/radicacion-fields',
     'custom:helpers/acta-visita-case-status',
     'custom:helpers/acta-visita-modal',
-], function (Dep, PatrulleroActa, RadicacionFields, ActaVisitaCaseStatus, ActaVisitaModal) {
+    'custom:helpers/safe-ui-promise',
+], function (Dep, PatrulleroActa, RadicacionFields, ActaVisitaCaseStatus, ActaVisitaModal, SafeUiPromise) {
 
     return Dep.extend({
 
@@ -189,7 +190,7 @@ define('custom:views/case/fields/acta-visita-action', [
                         });
                 } catch (error) {
                     self._actaStateLoading = false;
-                    console.error(error);
+                    self.applyActaState(null, false);
                 }
             });
         },
@@ -228,11 +229,7 @@ define('custom:views/case/fields/acta-visita-action', [
 
             if (!hadPanel && showPanel) {
                 this.$el.data('actaPanelVisible', true);
-                const renderResult = this.reRender();
-
-                if (renderResult && typeof renderResult.catch === 'function') {
-                    renderResult.catch(function () {});
-                }
+                SafeUiPromise.safeReRender(this);
 
                 this.bindUi();
 

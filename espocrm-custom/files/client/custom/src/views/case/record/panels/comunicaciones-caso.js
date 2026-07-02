@@ -1,7 +1,8 @@
 define('custom:views/case/record/panels/comunicaciones-caso', [
     'views/record/panels/side',
     'custom:helpers/comunicacion-caso-modal',
-], function (Dep, ComunicacionCasoModal) {
+    'custom:helpers/safe-ui-promise',
+], function (Dep, ComunicacionCasoModal, SafeUiPromise) {
 
     return Dep.extend({
 
@@ -89,11 +90,7 @@ define('custom:views/case/record/panels/comunicaciones-caso', [
             }
 
             try {
-                const renderResult = this.reRender();
-
-                if (renderResult && typeof renderResult.catch === 'function') {
-                    renderResult.catch(function () {});
-                }
+                SafeUiPromise.safeReRender(this);
             } catch (error) {
                 // noop
             }

@@ -1,7 +1,8 @@
 define('custom:views/case/fields/formato-generado-docs', [
     'views/fields/base',
     'custom:helpers/case-documentos',
-], function (Dep, CaseDocumentos) {
+    'custom:helpers/safe-ui-promise',
+], function (Dep, CaseDocumentos, SafeUiPromise) {
 
     return Dep.extend({
 
@@ -66,11 +67,7 @@ define('custom:views/case/fields/formato-generado-docs', [
                 });
 
                 if (this.isRendered()) {
-                    const renderResult = this.reRender();
-
-                    if (renderResult && typeof renderResult.catch === 'function') {
-                        renderResult.catch(function () {});
-                    }
+                    SafeUiPromise.safeReRender(this);
                 }
 
                 return this.documentos;

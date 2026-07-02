@@ -988,7 +988,6 @@
             hideDashboardLoading();
         })
         .catch(function (err) {
-            console.error('Dashboard error:', err);
             estado.textContent = 'Error al leer casos: ' + (err.message || err);
             estado.classList.add('error');
             hideDashboardLoading();

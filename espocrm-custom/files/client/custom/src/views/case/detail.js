@@ -1,7 +1,8 @@
 define('custom:views/case/detail', [
     'views/detail',
     'custom:helpers/case-radicado-label',
-], function (Dep, CaseRadicadoLabel) {
+    'custom:helpers/safe-ui-promise',
+], function (Dep, CaseRadicadoLabel, SafeUiPromise) {
 
     return Dep.extend({
 
@@ -14,15 +15,7 @@ define('custom:views/case/detail', [
                 var header = this.getHeaderView && this.getHeaderView();
 
                 if (header && typeof header.reRender === 'function') {
-                    try {
-                        var renderResult = header.reRender();
-
-                        if (renderResult && typeof renderResult.catch === 'function') {
-                            renderResult.catch(function () {});
-                        }
-                    } catch (error) {
-                        // noop
-                    }
+                    SafeUiPromise.safeReRender(header);
                 }
 
                 this.updatePageTitle();
