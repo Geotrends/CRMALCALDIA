@@ -24,8 +24,8 @@
         'justify-content:center!important;' +
         'gap:8px!important;' +
         'line-height:1.25!important;' +
-        'box-shadow:0 2px 8px rgba(15,23,42,.08)!important;' +
-        'transition:transform .15s ease,box-shadow .15s ease,background .15s ease!important;' +
+        'box-shadow:none!important;' +
+        'transition:background .15s ease,border-color .15s ease,color .15s ease!important;' +
         '}' +
         'html.crm-modern-ui body .btn-sm{padding:8px 18px!important;font-size:12px!important;}' +
         'html.crm-modern-ui body .btn-xs,' +
@@ -37,14 +37,14 @@
         'html.crm-modern-ui body a.btn-primary{' +
         'background:linear-gradient(135deg,#eefaf5 0%,#d8f3e8 100%)!important;' +
         'border:1px solid #b5e6d1!important;color:#1a5c47!important;' +
-        'box-shadow:0 4px 14px rgba(29,138,110,.12)!important;' +
+        'box-shadow:none!important;' +
         '}' +
         'html.crm-modern-ui body .btn-primary:hover,' +
         'html.crm-modern-ui body .btn.btn-primary:hover,' +
         'html.crm-modern-ui body a.btn-primary:hover{' +
         'background:linear-gradient(135deg,#dff5ec 0%,#c8ebdc 100%)!important;' +
-        'border-color:#9fd9c0!important;color:#134a38!important;transform:translateY(-1px);' +
-        'box-shadow:0 6px 18px rgba(29,138,110,.18)!important;' +
+        'border-color:#9fd9c0!important;color:#134a38!important;transform:none!important;' +
+        'box-shadow:none!important;' +
         '}' +
         'html.crm-modern-ui body .btn-default,' +
         'html.crm-modern-ui body .btn.btn-default{' +
@@ -70,7 +70,7 @@
         'html.crm-modern-ui body .header-buttons>a.btn[data-action="create"]{' +
         'background:linear-gradient(135deg,#eefaf5 0%,#d8f3e8 100%)!important;' +
         'border:1px solid #b5e6d1!important;color:#1a5c47!important;' +
-        'box-shadow:0 4px 14px rgba(29,138,110,.12)!important;' +
+        'box-shadow:none!important;' +
         'min-height:40px!important;padding:10px 24px!important;' +
         '}' +
         'html.crm-modern-ui body a.btn.action[data-name="create"]:hover,' +
@@ -81,10 +81,13 @@
         'html.crm-modern-ui body a.btn.action[data-action="create"] .fas{color:#1a5c47!important;margin:0!important;}' +
         'html.crm-modern-ui body .search-container .form-control,html.crm-modern-ui body .search-row .form-control{' +
         'border-radius:9999px!important;border:1px solid #c5e8db!important;background:#f4fbf8!important;' +
-        'min-height:40px!important;padding-left:16px!important;padding-right:16px!important;}' +
+        'min-height:40px!important;padding-left:16px!important;padding-right:16px!important;box-shadow:none!important;}' +
         'html.crm-modern-ui body .search-container .form-control:focus,html.crm-modern-ui body .search-row .form-control:focus{' +
-        'border-color:#8fd4be!important;background:#fff!important;box-shadow:0 0 0 3px rgba(168,230,207,.45)!important;}' +
-        'html.crm-modern-ui body .global-search-container .input-group{border-radius:9999px!important;border:1px solid #c5e8db!important;background:#f4fbf8!important;}' +
+        'border-color:#8fd4be!important;background:#fff!important;box-shadow:none!important;outline:none!important;}' +
+        'html.crm-modern-ui body .search-row{display:flex!important;flex-wrap:wrap!important;align-items:center!important;gap:12px!important;}' +
+        'html.crm-modern-ui body .search-row>.form-group{margin:0 6px!important;padding:0 4px!important;}' +
+        'html.crm-modern-ui body .search-row .input-group{display:flex!important;align-items:center!important;gap:10px!important;width:100%!important;box-shadow:none!important;border:none!important;background:transparent!important;}' +
+        'html.crm-modern-ui body .global-search-container .input-group{border-radius:9999px!important;border:1px solid #c5e8db!important;background:#f4fbf8!important;box-shadow:none!important;}' +
         'html.crm-modern-ui body .panel .btn-primary.btn-block,' +
         'html.crm-modern-ui body .comunicaciones-caso-panel .btn-primary,' +
         'html.crm-modern-ui body .modal-footer .btn{min-height:40px;}' +

@@ -132,7 +132,7 @@
   display: flex !important;
   align-items: center !important;
   flex-wrap: wrap !important;
-  gap: 8px !important;
+  gap: 12px !important;
 }
 
 .list > .search-container .form-group {
@@ -151,7 +151,8 @@
 .list > .search-container .form-control:focus {
   border-color: #8fd4be !important;
   background: #fff !important;
-  box-shadow: 0 0 0 3px rgba(168, 230, 207, 0.45) !important;
+  box-shadow: none !important;
+  outline: none !important;
 }
 
 .list > .search-container .btn {
@@ -310,8 +311,8 @@
   font-size: var(--crm-font-size-sm) !important;
   padding: 10px 20px !important;
   border-radius: var(--crm-radius-full) !important;
-  box-shadow: 0 4px 14px rgba(29, 138, 110, 0.12) !important;
-  transition: transform var(--crm-transition), box-shadow var(--crm-transition) !important;
+  box-shadow: none !important;
+  transition: background var(--crm-transition), border-color var(--crm-transition), color var(--crm-transition) !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -326,8 +327,8 @@
   background: linear-gradient(135deg, #dff5ec 0%, #c8ebdc 100%) !important;
   border-color: #9fd9c0 !important;
   color: #134a38 !important;
-  transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(29, 138, 110, 0.18) !important;
+  transform: none;
+  box-shadow: none !important;
 }
 
 .page-header .header-buttons a.action[data-action="create"] .fas,
