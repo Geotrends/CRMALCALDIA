@@ -332,37 +332,6 @@
   font-size: 13px;
 }
 
-.detail[data-scope="Contact"] .panel .party-casos-panel-tools,
-.detail[data-scope="Account"] .panel .party-casos-panel-tools {
-  margin: 0 0 12px;
-  padding: 0 2px;
-}
-
-.party-casos-search {
-  position: relative;
-  max-width: 420px;
-}
-
-.party-casos-search__icon {
-  position: absolute;
-  left: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--crm-text-muted, #6b7280);
-  font-size: 12px;
-  pointer-events: none;
-}
-
-.party-casos-search__input {
-  padding-left: 30px !important;
-  border-radius: var(--crm-radius-md, 8px) !important;
-}
-
-.detail[data-scope="Contact"] .panel .party-casos-panel-tools + .list-container .pagination,
-.detail[data-scope="Account"] .panel .party-casos-panel-tools + .list-container .pagination {
-  margin-top: 8px;
-}
-
 .detail[data-scope="Contact"] .panel .list-container .list-buttons-container,
 .detail[data-scope="Account"] .panel .list-container .list-buttons-container {
   margin-top: 4px;

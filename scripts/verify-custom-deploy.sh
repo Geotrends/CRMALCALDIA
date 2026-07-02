@@ -44,17 +44,9 @@ check_file "Lookup duplicados — servicio registro" \
   "$CUSTOM/Tools/Party/PartyRegistryService.php" \
   "lookupPartyFields" || errors=$((errors + 1))
 
-check_file "Casos terceros — barra de búsqueda" \
+check_file "Casos terceros — paginación en panel" \
   "$CLIENT/src/views/party/record/panels/casos-relacion.js" \
-  "scheduleSearchBarRefresh" || errors=$((errors + 1))
-
-check_file "Casos terceros — paginación 5 por página" \
-  "$CLIENT/src/views/party/record/panels/casos-relacion.js" \
-  "pagination = true" || errors=$((errors + 1))
-
-check_file "Casos terceros — textFilter en Case" \
-  "$CUSTOM/Resources/metadata/entityDefs/Case.json" \
-  "textFilterFields" || errors=$((errors + 1))
+  "recordsPerPage = PAGE_SIZE" || errors=$((errors + 1))
 
 check_file "scriptList — promise-console-guard" \
   "$CUSTOM/Resources/metadata/app/client.json" \

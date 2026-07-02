@@ -32,7 +32,7 @@
             "label": "Casos (peticionario)",
             "create": false,
             "select": false,
-            "view": false,
+            "view": true,
             "rowActionsView": "views/record/row-actions/view-only",
             "unlinkDisabled": true
         },
@@ -43,7 +43,7 @@
             "label": "Casos (infractor)",
             "create": false,
             "select": false,
-            "view": false,
+            "view": true,
             "rowActionsView": "views/record/row-actions/view-only",
             "unlinkDisabled": true
         }
