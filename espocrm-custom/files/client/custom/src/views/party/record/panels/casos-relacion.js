@@ -3,9 +3,22 @@ define('custom:views/party/record/panels/casos-relacion', ['views/record/panels/
     var PAGE_SIZE = 5;
     var DEBOUNCE_MS = 350;
 
+    var SEARCH_BAR_HTML =
+        '<div class="party-casos-panel-tools">' +
+            '<div class="party-casos-search">' +
+                '<span class="fas fa-search party-casos-search__icon" aria-hidden="true"></span>' +
+                '<input type="search" class="form-control input-sm party-casos-search__input" ' +
+                    'data-action="partyCasosSearch" ' +
+                    'placeholder="Buscar por radicado, expediente, estado..." ' +
+                    'aria-label="Buscar casos" />' +
+            '</div>' +
+        '</div>';
+
     return Dep.extend({
 
-        template: 'custom:party/record/panels/casos-relacion',
+        templateContent:
+            SEARCH_BAR_HTML +
+            '<div class="list-container"></div>',
 
         setup: function () {
             this.recordsPerPage = PAGE_SIZE;
@@ -22,7 +35,16 @@ define('custom:views/party/record/panels/casos-relacion', ['views/record/panels/
                     options.showMore = false;
                 }
 
-                return originalCreateView.call(self, name, view, options, callback);
+                var result = originalCreateView.call(self, name, view, options, callback);
+
+                if (name === 'list' && result && typeof result.then === 'function') {
+                    result.then(function () {
+                        self.ensureSearchBar();
+                        self.bindCasosSearch();
+                    });
+                }
+
+                return result;
             };
 
             Dep.prototype.setup.call(this);
@@ -42,7 +64,22 @@ define('custom:views/party/record/panels/casos-relacion', ['views/record/panels/
 
         afterRender: function () {
             Dep.prototype.afterRender.apply(this, arguments);
+            this.ensureSearchBar();
             this.bindCasosSearch();
+        },
+
+        ensureSearchBar: function () {
+            if (this.$el.find('[data-action="partyCasosSearch"]').length) {
+                return;
+            }
+
+            var $container = this.$el.find('.list-container').first();
+
+            if (!$container.length) {
+                $container = this.$el;
+            }
+
+            $container.before(SEARCH_BAR_HTML);
         },
 
         bindCasosSearch: function () {
