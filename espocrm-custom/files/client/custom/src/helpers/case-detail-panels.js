@@ -21,16 +21,25 @@ define('custom:helpers/case-detail-panels', [
                     return null;
                 }
 
-                return {
-                    timeline: CaseStatusTimeline.buildFromRaw(view, raw.timeline || {}),
-                    cronograma: CaseCronograma.buildFromRaw(view, raw.cronograma || {}),
-                };
+                try {
+                    return {
+                        timeline: CaseStatusTimeline.buildFromRaw(view, raw.timeline || {}),
+                        cronograma: CaseCronograma.buildFromRaw(view, raw.cronograma || {}),
+                    };
+                } catch (error) {
+                    return null;
+                }
             });
         }).then(function (data) {
             if (data) {
                 return data;
             }
 
+            return {
+                timeline: CaseStatusTimeline.createPlaceholder(view),
+                cronograma: CaseCronograma.createPlaceholder(view),
+            };
+        }).catch(function () {
             return {
                 timeline: CaseStatusTimeline.createPlaceholder(view),
                 cronograma: CaseCronograma.createPlaceholder(view),

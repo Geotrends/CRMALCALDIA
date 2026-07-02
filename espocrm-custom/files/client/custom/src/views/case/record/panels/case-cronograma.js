@@ -42,9 +42,13 @@ define('custom:views/case/record/panels/case-cronograma', [
                 this.cronogramaData = data.cronograma;
 
                 if (this.isRendered()) {
-                    this.reRender();
+                    const renderResult = this.reRender();
+
+                    if (renderResult && typeof renderResult.catch === 'function') {
+                        renderResult.catch(function () {});
+                    }
                 }
-            });
+            }).catch(function () {});
         },
     });
 });

@@ -71,13 +71,13 @@ define('custom:helpers/comunicacion-caso-modal', [
         if (!host || !caseModel || !caseModel.id) {
             Espo.Ui.error('No se pudo abrir el formulario de comunicación.');
 
-            return Promise.reject();
+            return Promise.resolve();
         }
 
         if (host.getAcl && !host.getAcl().check('ComunicacionCaso', 'create')) {
             Espo.Ui.error('No tiene permiso para registrar comunicaciones. Cierre sesión y vuelva a entrar.');
 
-            return Promise.reject();
+            return Promise.resolve();
         }
 
         var helper = new RecordModalHelper();
@@ -110,9 +110,11 @@ define('custom:helpers/comunicacion-caso-modal', [
             },
             afterSave: afterSave,
         }).catch(function (error) {
-            Espo.Ui.error(extractErrorMessage(error));
+            if (error) {
+                Espo.Ui.error(extractErrorMessage(error));
+            }
 
-            return Promise.reject(error);
+            return Promise.resolve();
         });
     };
 
@@ -124,13 +126,13 @@ define('custom:helpers/comunicacion-caso-modal', [
         if (!host || !id) {
             Espo.Ui.error('No se pudo abrir la comunicación.');
 
-            return Promise.reject();
+            return Promise.resolve();
         }
 
         if (host.getAcl && !host.getAcl().check('ComunicacionCaso', 'edit')) {
             Espo.Ui.error('No tiene permiso para editar comunicaciones.');
 
-            return Promise.reject();
+            return Promise.resolve();
         }
 
         var helper = new RecordModalHelper();
@@ -147,9 +149,11 @@ define('custom:helpers/comunicacion-caso-modal', [
             fullFormDisabled: true,
             afterSave: afterSave,
         }).catch(function (error) {
-            Espo.Ui.error(extractErrorMessage(error));
+            if (error) {
+                Espo.Ui.error(extractErrorMessage(error));
+            }
 
-            return Promise.reject(error);
+            return Promise.resolve();
         });
     };
 

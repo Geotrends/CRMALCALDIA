@@ -90,10 +90,8 @@ define('custom:helpers/actuo-archivo-modal', [
                     layoutName: 'edit',
                     fullFormDisabled: true,
                     afterSave: afterSave,
-                }).catch(function (error) {
-                    if (error && error.message) {
-                        console.error(error);
-                    }
+                }).catch(function () {
+                    // Modal cerrado o cancelado — comportamiento esperado.
                 });
 
                 return;

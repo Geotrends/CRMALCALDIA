@@ -42,9 +42,13 @@ define('custom:views/case/record/panels/status-timeline', [
                 this.timelineData = data.timeline;
 
                 if (this.isRendered()) {
-                    this.reRender();
+                    const renderResult = this.reRender();
+
+                    if (renderResult && typeof renderResult.catch === 'function') {
+                        renderResult.catch(function () {});
+                    }
                 }
-            });
+            }).catch(function () {});
         },
     });
 });

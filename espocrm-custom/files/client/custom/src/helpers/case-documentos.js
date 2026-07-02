@@ -109,6 +109,8 @@ define('custom:helpers/case-documentos', [
             pushActuoDocument(docs, user, model, basePath, actuo);
 
             return docs;
+        }).catch(function () {
+            return [];
         });
     };
 

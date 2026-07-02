@@ -66,11 +66,19 @@ define('custom:views/case/fields/formato-generado-docs', [
                 });
 
                 if (this.isRendered()) {
-                    this.reRender();
+                    const renderResult = this.reRender();
+
+                    if (renderResult && typeof renderResult.catch === 'function') {
+                        renderResult.catch(function () {});
+                    }
                 }
 
                 return this.documentos;
-            });
+            }).catch(function () {
+                this.documentos = [];
+
+                return this.documentos;
+            }.bind(this));
         },
     });
 });

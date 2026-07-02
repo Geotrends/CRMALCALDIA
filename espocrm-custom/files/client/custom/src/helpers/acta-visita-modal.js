@@ -75,10 +75,8 @@ define('custom:helpers/acta-visita-modal', [
                     layoutName: 'edit',
                     fullFormDisabled: true,
                     afterSave: afterSave,
-                }).catch(function (error) {
-                    if (error && error.message) {
-                        console.error(error);
-                    }
+                }).catch(function () {
+                    // Modal cerrado o cancelado — comportamiento esperado.
                 });
 
                 return;
@@ -97,10 +95,8 @@ define('custom:helpers/acta-visita-modal', [
                     link: 'case',
                 },
                 afterSave: afterSave,
-            }).catch(function (error) {
-                if (error && error.message) {
-                    console.error(error);
-                }
+            }).catch(function () {
+                // Modal cerrado o cancelado — comportamiento esperado.
             });
         }).catch(function (error) {
             if (error && error.message) {

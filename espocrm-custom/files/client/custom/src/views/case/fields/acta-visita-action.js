@@ -228,7 +228,12 @@ define('custom:views/case/fields/acta-visita-action', [
 
             if (!hadPanel && showPanel) {
                 this.$el.data('actaPanelVisible', true);
-                this.reRender();
+                const renderResult = this.reRender();
+
+                if (renderResult && typeof renderResult.catch === 'function') {
+                    renderResult.catch(function () {});
+                }
+
                 this.bindUi();
 
                 return;
