@@ -8,8 +8,28 @@
     "color": [0.65, 0.65, 0.65],
     "coverPad": 1.0
   },
+  "bodyLineStyle": {
+    "width": 0.25,
+    "color": [0.55, 0.55, 0.55]
+  },
   "restyleHeaderBorders": true,
   "headerBorderRegion": [78, 34, 534, 122],
+  "restyleBodyLines": true,
+  "uniformBodyLines": [
+    { "from": [326.8, 290.8], "to": [463.1, 290.8], "trimFrom": 512.8 },
+    { "from": [85.2, 304.8], "to": [463.1, 304.8] },
+    { "from": [85.2, 318.8], "to": [463.1, 318.8] },
+    { "from": [85.2, 360.8], "to": [463.1, 360.8], "trimFrom": 469.1 },
+    { "from": [85.2, 374.8], "to": [463.1, 374.8], "trimFrom": 469.1 },
+    { "from": [85.2, 388.8], "to": [463.1, 388.8], "trimFrom": 469.1 },
+    { "from": [85.2, 402.8], "to": [463.1, 402.8], "trimFrom": 469.1 },
+    { "from": [85.2, 416.8], "to": [463.1, 416.8], "trimFrom": 469.1 },
+    { "from": [85.2, 430.8], "to": [463.1, 430.8], "trimFrom": 469.1 },
+    { "from": [85.2, 444.8], "to": [463.1, 444.8], "trimFrom": 469.1 },
+    { "from": [85.2, 458.8], "to": [463.1, 458.8], "trimFrom": 469.1 },
+    { "from": [85.2, 472.8], "to": [463.1, 472.8], "trimFrom": 469.1 },
+    { "from": [85.2, 486.8], "to": [463.1, 486.8], "trimFrom": 469.1 }
+  ],
   "fieldPadding": { "left": 1, "right": 1, "top": 0, "bottom": 0 },
   "defaultFieldAlign": "left",
   "defaultFieldValign": "bottom",
@@ -34,6 +54,15 @@
       "labelFontName": "helv",
       "labelFontSize": 12,
       "labelValign": "bottom"
+    },
+    "consecutivoInternoCaption": {
+      "coverRect": [375, 246, 518, 253],
+      "label": "(Consecutivo  interno)",
+      "labelRect": [343.6, 246, 487.6, 253],
+      "labelAlign": "center",
+      "labelFontName": "helv",
+      "labelFontSize": 12,
+      "labelValign": "center"
     }
   },
   "fields": {

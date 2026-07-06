@@ -84,6 +84,32 @@ def field_rect(line, pad_x=0.0, baseline_offset=4.0):
     ]
 
 
+def build_uniform_body_lines(referencia, motivo):
+    uniform_right = round(referencia[-1]["x1"], 1)
+    full_left = round(referencia[-1]["x0"], 1)
+    lines = []
+
+    ref_first = referencia[0]
+    first = {
+        "from": [round(ref_first["x0"], 1), ref_first["y"]],
+        "to": [uniform_right, ref_first["y"]],
+    }
+    if ref_first["x1"] > uniform_right + 0.5:
+        first["trimFrom"] = round(ref_first["x1"], 1)
+    lines.append(first)
+
+    for row in referencia[1:] + motivo:
+        item = {
+            "from": [full_left, row["y"]],
+            "to": [uniform_right, row["y"]],
+        }
+        if row["x1"] > uniform_right + 0.5:
+            item["trimFrom"] = round(row["x1"], 1)
+        lines.append(item)
+
+    return lines
+
+
 def build_layout(page):
     rect = page.rect
     all_lines = underscore_lines(page)
@@ -141,6 +167,12 @@ def build_layout(page):
         },
         "restyleHeaderBorders": True,
         "headerBorderRegion": [78, 34, 534, 122],
+        "bodyLineStyle": {
+            "width": 0.25,
+            "color": [0.55, 0.55, 0.55],
+        },
+        "restyleBodyLines": True,
+        "uniformBodyLines": build_uniform_body_lines(referencia, motivo),
         "fieldPadding": {"left": 1, "right": 1, "top": 0, "bottom": 0},
         "defaultFieldAlign": "left",
         "defaultFieldValign": "bottom",
@@ -163,7 +195,21 @@ def build_layout(page):
                 "labelFontName": "helv",
                 "labelFontSize": 12,
                 "labelValign": "bottom",
-            }
+            },
+            "consecutivoInternoCaption": {
+                "coverRect": [375, 246, 518, 253],
+                "label": "(Consecutivo  interno)",
+                "labelRect": [
+                    round(consecutivo["x0"], 1),
+                    246,
+                    round(consecutivo["x1"], 1),
+                    253,
+                ],
+                "labelAlign": "center",
+                "labelFontName": "helv",
+                "labelFontSize": 12,
+                "labelValign": "center",
+            },
         },
         "fields": {
             "numeroRadicado": {

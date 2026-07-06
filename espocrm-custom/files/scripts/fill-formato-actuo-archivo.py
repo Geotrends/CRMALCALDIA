@@ -207,6 +207,22 @@ def scaled_layout_for_page(layout, page):
         key: scale_field_def(rect_def, sx, sy)
         for key, rect_def in layout.get("textBoxes", {}).items()
     }
+    scaled["labels"] = {
+        key: scale_field_def(label_def, sx, sy)
+        for key, label_def in layout.get("labels", {}).items()
+    }
+    scaled["uniformBodyLines"] = [
+        {
+            "from": [line["from"][0] * sx, line["from"][1] * sy],
+            "to": [line["to"][0] * sx, line["to"][1] * sy],
+            **(
+                {"trimFrom": float(line["trimFrom"]) * sx}
+                if "trimFrom" in line
+                else {}
+            ),
+        }
+        for line in layout.get("uniformBodyLines", [])
+    ]
 
     return scaled
 
@@ -245,6 +261,7 @@ def fill_pdf(template_path, output_path, data):
     values = apply_modo(build_field_values(data), data, layout)
 
     overlay.restyle_template_borders(page, layout)
+    overlay.restyle_uniform_body_lines(page, layout)
 
     for _key, label_def in layout.get("labels", {}).items():
         overlay.put_static_label(page, label_def, layout)

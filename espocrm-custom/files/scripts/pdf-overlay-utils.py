@@ -442,6 +442,31 @@ def put_line(page, line_def, layout=None):
     )
 
 
+def restyle_uniform_body_lines(page, layout=None):
+    layout = layout or {}
+    if not layout.get("restyleBodyLines"):
+        return
+
+    width, color, cover_pad = border_style(layout, layout.get("bodyLineStyle"))
+
+    for line_def in layout.get("uniformBodyLines", []):
+        x0, y0 = line_def["from"]
+        x1, y1 = line_def["to"]
+        trim_from = float(line_def.get("trimFrom", x1))
+
+        if trim_from > x1 + 0.5:
+            cover = fitz.Rect(x1 - 0.5, y0 - cover_pad, trim_from + cover_pad, y0 + cover_pad)
+            page.draw_rect(cover, color=(1, 1, 1), fill=(1, 1, 1), overlay=True)
+
+        page.draw_line(
+            fitz.Point(float(x0), float(y0)),
+            fitz.Point(float(x1), float(y1)),
+            color=color,
+            width=width,
+            overlay=True,
+        )
+
+
 def restyle_template_borders(page, layout=None):
     layout = layout or {}
     region = layout.get("headerBorderRegion")
