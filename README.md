@@ -398,6 +398,7 @@ Para demos al cliente, preferir usuarios de rol (no `admin`).
 | Comando | Cuándo usarlo |
 |---------|----------------|
 | `bash scripts/verify-custom-deploy.sh` | Tras deploy local (`docker exec espocrm bash …` en producción) |
+| `docker exec espocrm php /opt/bootstrap/repo/scripts/roles/configure-role-inspeccion.php` | Reparar permisos del rol Inspección (solo **dentro** del contenedor) |
 | `docker compose logs espocrm` | Errores de arranque o auto-deploy |
 | `docker compose ps` | Estado de contenedores |
 

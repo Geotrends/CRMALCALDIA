@@ -3,6 +3,7 @@
 namespace Espo\Custom\Tools\CaseObj;
 
 use Espo\ORM\Entity;
+use Espo\ORM\EntityManager;
 
 /**
  * Criterios compartidos entre timeline/cronograma y transición de estado del caso.
@@ -102,5 +103,17 @@ class CaseActaVisitaHelper
     public static function isVisitaConfirmadaStatus(string $status): bool
     {
         return in_array(trim($status), self::VISITA_CONFIRMADA_STATUSES, true);
+    }
+
+    public static function findLatestActaForCase(EntityManager $entityManager, string $caseId): ?Entity
+    {
+        $actas = $entityManager
+            ->getRDBRepository('ActaVisita')
+            ->where(['caseId' => $caseId])
+            ->order('modifiedAt', 'DESC')
+            ->limit(0, 1)
+            ->find();
+
+        return $actas[0] ?? null;
     }
 }

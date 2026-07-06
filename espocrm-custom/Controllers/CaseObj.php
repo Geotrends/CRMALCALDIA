@@ -354,10 +354,6 @@ class CaseObj extends BaseCaseObj
      */
     public function postActionConfirmarVisitaAprobada(Request $request): array
     {
-        if (!$this->acl->check('Case', 'confirmarVisitaAprobada')) {
-            throw new Forbidden();
-        }
-
         $body = $request->getParsedBody();
         $id = '';
 
@@ -402,11 +398,7 @@ class CaseObj extends BaseCaseObj
             throw new BadRequest('El caso debe estar en estado Visita realizada.');
         }
 
-        $acta = $this->entityManager
-            ->getRDBRepository('ActaVisita')
-            ->where(['caseId' => $case->getId()])
-            ->order('modifiedAt', 'DESC')
-            ->findOne();
+        $acta = CaseActaVisitaHelper::findLatestActaForCase($this->entityManager, $case->getId());
 
         if (!$acta || !CaseActaVisitaHelper::isActaWithContent($acta)) {
             throw new BadRequest('Debe existir un acta de visita diligenciada.');
@@ -421,8 +413,12 @@ class CaseObj extends BaseCaseObj
 
         if (trim((string) $acta->get('estado')) !== 'Aprobada') {
             $acta->set('estado', 'Aprobada');
+
             $this->entityManager->saveEntity($acta, [
-                'skipHooks' => false,
+                'skipFormatoActaVisita' => true,
+                'skipActaVisitaExcel' => true,
+                'skipCaseStatusUpdate' => true,
+                'skipCaseEnProcesoOnActa' => true,
             ]);
         }
 

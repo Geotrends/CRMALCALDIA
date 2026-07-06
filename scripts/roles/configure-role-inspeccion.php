@@ -3,7 +3,8 @@
 /**
  * Permisos del rol Inspección (solo este rol; el resto queda con acceso amplio hasta configurarse).
  *
- * docker exec espocrm php /tmp/configure-role-inspeccion.php
+ * Ejecutar DENTRO del contenedor Docker (no en la Mac sin Docker):
+ *   docker exec espocrm php /opt/bootstrap/repo/scripts/roles/configure-role-inspeccion.php
  */
 
 require_once '/var/www/html/bootstrap.php';
