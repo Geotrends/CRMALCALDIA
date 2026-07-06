@@ -240,6 +240,8 @@ def fill_pdf(template_path, output_path, data):
     layout = scaled_layout_for_page(layout, page)
     values = apply_modo(build_field_values(data), data, layout)
 
+    overlay.restyle_template_borders(page, layout)
+
     for key, field_def in layout.get("fields", {}).items():
         overlay.put_fitted_field(page, field_def, values.get(key), layout)
 

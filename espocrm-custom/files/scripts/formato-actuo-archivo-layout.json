@@ -1,23 +1,18 @@
 {
-  "pageSize": [
-    612.1,
-    792.1
-  ],
+  "pageSize": [612.0, 792.0],
   "fontSize": 10,
   "minFontSize": 7,
-  "textColor": [
-    0,
-    0,
-    0
-  ],
-  "fieldPadding": {
-    "left": 2,
-    "right": 2,
-    "top": 0,
-    "bottom": 0
+  "textColor": [0, 0, 0],
+  "borderStyle": {
+    "width": 0.35,
+    "color": [0.55, 0.55, 0.55],
+    "coverPad": 1.5
   },
+  "restyleHeaderBorders": true,
+  "headerBorderRegion": [78, 34, 534, 122],
+  "fieldPadding": { "left": 2, "right": 4, "top": 0, "bottom": 0 },
   "defaultFieldAlign": "left",
-  "defaultFieldValign": "bottom",
+  "defaultFieldValign": "center",
   "fieldSingleLine": true,
   "truncateOverflow": true,
   "ellipsis": "...",
@@ -33,92 +28,43 @@
   ],
   "fields": {
     "numeroRadicado": {
-      "rect": [
-        99.0,
-        198.6,
-        300.2,
-        210.6
-      ],
-      "align": "center",
-      "valign": "bottom"
+      "rect": [86, 223, 228, 237],
+      "align": "center"
     },
     "consecutivoInterno": {
-      "rect": [
-        324.2,
-        198.6,
-        513.1,
-        210.6
-      ],
-      "align": "center",
-      "valign": "bottom"
+      "rect": [344, 223, 486, 237],
+      "align": "center"
     },
     "fechaDada": {
-      "rect": [
-        220.4,
-        488.4,
-        513.1,
-        500.4
-      ],
-      "align": "left",
-      "valign": "bottom",
-      "fontSize": 10
+      "rect": [231, 517, 406, 531],
+      "align": "left"
     },
     "inspectorNombre": {
-      "rect": [
-        120,
-        543.6,
-        492.1,
-        555.6
-      ],
-      "align": "center",
-      "valign": "bottom"
+      "rect": [170, 578, 444, 592],
+      "align": "center"
     }
   },
   "textBoxes": {
     "referencia": {
-      "rect": [
-        99.0,
-        251.8,
-        513.1,
-        307.8
-      ],
+      "rect": [87, 278, 513, 326],
       "align": "left",
       "singleLine": false,
       "ruledText": true,
-      "lineSpacing": 13.8,
-      "firstBaselineY": 265.8,
-      "firstLineXOffset": 241.4,
+      "lineSpacing": 14,
+      "firstBaselineY": 290.8,
+      "firstLineXOffset": 241.6,
       "maxLines": 3,
       "fontSize": 9,
       "minFontSize": 7,
-      "padding": {
-        "left": 2,
-        "right": 2,
-        "top": 0,
-        "bottom": 0
-      }
+      "padding": { "left": 2, "right": 4, "top": 0, "bottom": 0 }
     },
     "motivoArchivo": {
-      "rect": [
-        99.0,
-        307.0,
-        513.1,
-        486.4
-      ],
+      "rect": [87, 352, 513, 491],
       "align": "left",
       "singleLine": false,
-      "ruledText": true,
-      "lineSpacing": 13.8,
-      "firstBaselineY": 321.0,
-      "firstLineXOffset": 233.4,
-      "maxLines": 11,
+      "valign": "top",
       "fontSize": 10,
-      "padding": {
-        "left": 2,
-        "right": 2,
-        "top": 0,
-        "bottom": 0
-      }
+      "padding": { "left": 2, "right": 4, "top": 2, "bottom": 0 }
     }
   }
 }
