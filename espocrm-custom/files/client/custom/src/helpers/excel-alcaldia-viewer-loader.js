@@ -8,7 +8,7 @@ define('custom:helpers/excel-alcaldia-viewer-loader', [], function () {
                 return;
             }
 
-            Espo.Ajax.getRequest('?entryPoint=ExcelAlcaldiaViewerPreview')
+            Espo.Ajax.getRequest('Document/action/excelAlcaldiaPreview')
                 .then(function (data) {
                     if (!data || !data.html) {
                         reject(new Error('empty'));

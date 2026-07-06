@@ -84,11 +84,12 @@ def main() -> int:
         if index >= MAX_ROWS:
             break
 
-        if not any(cell is not None and str(cell).strip() != "" for cell in row):
-            if index > 1:
-                break
-
         rows.append(tuple(row))
+
+    while rows and not any(
+        cell is not None and str(cell).strip() != "" for cell in rows[-1]
+    ):
+        rows.pop()
 
     workbook.close()
 
