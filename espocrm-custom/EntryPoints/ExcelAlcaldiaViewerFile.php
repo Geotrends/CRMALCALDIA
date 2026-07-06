@@ -64,17 +64,18 @@ class ExcelAlcaldiaViewerFile implements EntryPoint
 
     private function isOfficialExcelAttachment(Attachment $attachment): bool
     {
-        if ($attachment->get('parentType') !== 'Document' || !$attachment->get('parentId')) {
-            return false;
-        }
-
-        $document = $this->entityManager->getEntityById('Document', $attachment->get('parentId'));
+        $document = $this->entityManager
+            ->getRDBRepository('Document')
+            ->where([
+                'cCategoria' => ExcelAlcaldiaDocumentSync::CATEGORIA,
+                'name' => ExcelAlcaldiaDocumentSync::DOCUMENT_NAME,
+            ])
+            ->findOne();
 
         if (!$document) {
             return false;
         }
 
-        return (string) $document->get('cCategoria') === ExcelAlcaldiaDocumentSync::CATEGORIA
-            && (string) $document->get('name') === ExcelAlcaldiaDocumentSync::DOCUMENT_NAME;
+        return (string) $document->get('fileId') === (string) $attachment->getId();
     }
 }

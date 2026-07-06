@@ -1,0 +1,12 @@
+{
+    "labels": {
+        "excelViewerTitle": "Official Excel Registry — Envigado",
+        "excelViewerHelp": "Open the registry in a wide window without downloading the file. Use Refresh after filing a new case.",
+        "excelViewerOpen": "View Excel registry",
+        "excelViewerDownload": "Download file",
+        "excelViewerRefresh": "Refresh",
+        "excelViewerNoFile": "No Excel file attached yet.",
+        "excelViewerForbidden": "You do not have permission to view the official Excel registry.",
+        "excelViewerLoadError": "Could not load the Excel file. Try again or download the file."
+    }
+}

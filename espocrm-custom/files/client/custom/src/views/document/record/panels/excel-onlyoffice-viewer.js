@@ -65,7 +65,7 @@ define('custom:views/document/record/panels/excel-onlyoffice-viewer', [
             const fileId = this.model.get('fileId');
 
             if (!fileId) {
-                Espo.Ui.warning(this.translate('excelViewerNoFile', 'Document', 'labels'));
+                Espo.Ui.warning(this.translate('excelViewerNoFile', 'labels', 'Document'));
 
                 return;
             }
@@ -75,7 +75,7 @@ define('custom:views/document/record/panels/excel-onlyoffice-viewer', [
             this.createView('dialog', 'custom:views/modals/excel-alcaldia-viewer', {
                 fileId: fileId,
                 title: this.model.get('name')
-                    || this.translate('excelViewerTitle', 'Document', 'labels'),
+                    || this.translate('excelViewerTitle', 'labels', 'Document'),
             }, function (view) {
                 view.render();
                 self.listenToOnce(view, 'remove', function () {});

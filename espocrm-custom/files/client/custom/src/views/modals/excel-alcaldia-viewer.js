@@ -15,12 +15,12 @@ define('custom:views/modals/excel-alcaldia-viewer', [
             Dep.prototype.setup.call(this);
 
             this.headerText = this.options.title
-                || this.translate('excelViewerTitle', 'Document', 'labels');
+                || this.translate('excelViewerTitle', 'labels', 'Document');
 
             this.buttonList = [
                 {
                     name: 'refresh',
-                    label: this.translate('excelViewerRefresh', 'Document', 'labels'),
+                    label: this.translate('excelViewerRefresh', 'labels', 'Document'),
                     style: 'default',
                 },
                 {
@@ -39,7 +39,7 @@ define('custom:views/modals/excel-alcaldia-viewer', [
 
         loadSheet: function () {
             if (!this.fileId) {
-                this.showError(this.translate('excelViewerLoadError', 'Document', 'labels'));
+                this.showError(this.translate('excelViewerLoadError', 'labels', 'Document'));
 
                 return;
             }
@@ -51,7 +51,7 @@ define('custom:views/modals/excel-alcaldia-viewer', [
                 fileId: this.fileId,
                 $container: $container,
             }).catch(() => {
-                this.showError(this.translate('excelViewerLoadError', 'Document', 'labels'));
+                this.showError(this.translate('excelViewerLoadError', 'labels', 'Document'));
             });
         },
 

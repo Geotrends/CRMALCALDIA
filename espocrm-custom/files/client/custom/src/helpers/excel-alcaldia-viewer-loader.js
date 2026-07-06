@@ -8,6 +8,12 @@ define('custom:helpers/excel-alcaldia-viewer-loader', [], function () {
             + 'client/custom/lib/xlsx.mini.min.js';
     };
 
+    const getAuthHeader = function () {
+        const raw = localStorage.getItem('espo-user-auth');
+
+        return raw || null;
+    };
+
     const loadSheetJs = function (basePath) {
         if (window.XLSX) {
             return Promise.resolve(window.XLSX);
@@ -45,15 +51,32 @@ define('custom:helpers/excel-alcaldia-viewer-loader', [], function () {
         const url = String(basePath || '').replace(/\/?$/, '/')
             + '?entryPoint=ExcelAlcaldiaViewerFile&id=' + encodeURIComponent(fileId);
 
-        return fetch(url, {
-            method: 'GET',
-            credentials: 'same-origin',
-        }).then(function (response) {
-            if (!response.ok) {
-                throw new Error('download');
+        return new Promise(function (resolve, reject) {
+            const xhr = new XMLHttpRequest();
+
+            xhr.open('GET', url, true);
+            xhr.responseType = 'arraybuffer';
+
+            const authHeader = getAuthHeader();
+
+            if (authHeader) {
+                xhr.setRequestHeader('Espo-Authorization', authHeader);
             }
 
-            return response.arrayBuffer();
+            xhr.withCredentials = true;
+            xhr.onload = function () {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    resolve(xhr.response);
+
+                    return;
+                }
+
+                reject(new Error('download:' + xhr.status));
+            };
+            xhr.onerror = function () {
+                reject(new Error('download'));
+            };
+            xhr.send();
         });
     };
 
