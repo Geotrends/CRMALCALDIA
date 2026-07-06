@@ -239,18 +239,18 @@ def fill_pdf(template_path, output_path, data):
     layout = scaled_layout_for_page(layout, page)
     values = apply_modo(build_field_values(data), data, layout)
 
+    overlay.restyle_template_borders(page, layout)
+
     for key, field_def in layout.get("fields", {}).items():
         overlay.put_fitted_field(page, field_def, values.get(key), layout)
 
     for key, rect_def in layout.get("textBoxes", {}).items():
         if isinstance(rect_def, dict):
-            rect = rect_def.get("rect")
             field_def = rect_def
         else:
-            rect = rect_def
-            field_def = {"align": "left", "singleLine": False}
+            field_def = {"rect": rect_def, "align": "left", "singleLine": False}
 
-        overlay.put_fitted_textbox(page, rect, values.get(key), layout, field_def)
+        overlay.put_fitted_textbox(page, field_def.get("rect"), values.get(key), layout, field_def)
 
     doc.save(output_path)
     doc.close()
