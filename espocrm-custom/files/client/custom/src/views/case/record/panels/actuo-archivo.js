@@ -45,6 +45,7 @@ define('custom:views/case/record/panels/actuo-archivo', [
                 if (this.isRendered()) {
                     SafeUiPromise.safeReRender(this);
                     this.bindButton();
+                    this.togglePanel();
                 }
 
                 return;
@@ -56,9 +57,14 @@ define('custom:views/case/record/panels/actuo-archivo', [
                 if (this.isRendered()) {
                     SafeUiPromise.safeReRender(this);
                     this.bindButton();
+                    this.togglePanel();
                 }
             }).catch(function () {
                 this.actuoIsEditMode = false;
+
+                if (this.isRendered()) {
+                    this.togglePanel();
+                }
             }.bind(this));
         },
 
