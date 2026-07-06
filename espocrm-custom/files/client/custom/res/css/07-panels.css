@@ -33,8 +33,19 @@
   color: var(--crm-danger) !important;
 }
 
-.side .panel .btn-primary .fas {
-  color: var(--crm-text-inverse) !important;
+.side .panel .btn-primary .fas,
+.side .panel .btn-primary .far,
+.side .panel .btn-primary .fa {
+  color: #134a38 !important;
+}
+
+.side .panel .btn-primary:hover .fas,
+.side .panel .btn-primary:hover .far,
+.side .panel .btn-primary:hover .fa,
+.side .panel .btn-primary:focus .fas,
+.side .panel .btn-primary:focus .far,
+.side .panel .btn-primary:focus .fa {
+  color: #0f3d2e !important;
 }
 
 /* Modales acta / auto */

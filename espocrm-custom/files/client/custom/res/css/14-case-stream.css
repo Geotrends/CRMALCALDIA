@@ -146,6 +146,15 @@
   max-width: 100%;
 }
 
+.detail[data-scope="Case"] .panel[data-name="actaVisita"] .case-acta-visita-btn.btn-primary .fas,
+.detail[data-scope="Case"] .panel[data-name="actaVisita"] .case-acta-visita-btn.btn-primary .fa,
+.detail[data-scope="Case"] .panel[data-panel-name="actaVisitaPanel"] .case-acta-visita-btn.btn-primary .fas,
+.detail[data-scope="Case"] .panel[data-panel-name="actaVisitaPanel"] .case-acta-visita-btn.btn-primary .fa,
+.comunicaciones-caso-panel .btn-primary .fas,
+.comunicaciones-caso-panel .btn-primary .fa {
+  color: #134a38 !important;
+}
+
 .detail[data-scope="Case"] .panel[data-name="actaVisita"] .case-acta-visita-btn:disabled {
   opacity: 0.55;
   cursor: not-allowed;
@@ -199,8 +208,10 @@
 }
 
 .detail[data-scope="Case"] .panel[data-name="actuoArchivoPanel"] .case-actuo-archivo-btn--primary .fas,
-.detail[data-scope="Case"] .panel[data-panel-name="actuoArchivoPanel"] .case-actuo-archivo-btn--primary .fas {
-  color: #1a5c47 !important;
+.detail[data-scope="Case"] .panel[data-panel-name="actuoArchivoPanel"] .case-actuo-archivo-btn--primary .fas,
+.detail[data-scope="Case"] .panel[data-name="actuoArchivoPanel"] .case-actuo-archivo-btn--primary .fa,
+.detail[data-scope="Case"] .panel[data-panel-name="actuoArchivoPanel"] .case-actuo-archivo-btn--primary .fa {
+  color: #134a38 !important;
 }
 
 .detail[data-scope="Case"] .panel[data-name="actuoArchivoPanel"] .case-actuo-archivo-btn--print,

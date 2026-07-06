@@ -87,9 +87,20 @@ a.btn-primary:hover {
 
 .btn-primary .fas,
 .btn-primary .far,
+.btn-primary .fa,
 .btn.btn-primary .fas,
-.btn.btn-primary .far {
-  color: #1a5c47 !important;
+.btn.btn-primary .far,
+.btn.btn-primary .fa {
+  color: #134a38 !important;
+}
+
+.btn-primary:hover .fas,
+.btn-primary:hover .far,
+.btn-primary:hover .fa,
+.btn.btn-primary:hover .fas,
+.btn.btn-primary:hover .far,
+.btn.btn-primary:hover .fa {
+  color: #0f3d2e !important;
 }
 
 /* ── Secundario / default ── */
