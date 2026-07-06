@@ -211,6 +211,12 @@ def scaled_layout_for_page(layout, page):
         scale_field_def(cover_def, sx, sy) if isinstance(cover_def, dict) else {"rect": scale_rect(cover_def, sx, sy)}
         for cover_def in layout.get("templateCovers", [])
     ]
+    scaled["labels"] = {
+        key: scale_field_def(label_def, sx, sy)
+        for key, label_def in layout.get("labels", {}).items()
+    }
+    if layout.get("headerBorderRegion"):
+        scaled["headerBorderRegion"] = scale_rect(layout["headerBorderRegion"], sx, sy)
 
     return scaled
 
@@ -248,14 +254,23 @@ def fill_pdf(template_path, output_path, data):
     layout = scaled_layout_for_page(layout, page)
     values = apply_modo(build_field_values(data), data, layout)
 
-    for cover_def in layout.get("templateCovers", []):
-        rect = cover_def.get("rect", cover_def)
-        overlay.cover_rect(page, rect, cover_def if isinstance(cover_def, dict) else None)
+    cover_defs = list(layout.get("templateCovers", []))
+    for label_def in layout.get("labels", {}).values():
+        cover = label_def.get("coverRect")
+        if cover:
+            cover_defs.append({**label_def, "rect": cover})
+        for extra_cover in label_def.get("coverRects", []):
+            cover_defs.append({**label_def, "rect": extra_cover})
 
+    overlay.cover_rects_batch(page, cover_defs)
     overlay.restyle_template_borders(page, layout)
 
     for _key, label_def in layout.get("labels", {}).items():
-        overlay.put_static_label(page, label_def, layout)
+        label_without_cover = dict(label_def)
+        label_without_cover.pop("coverRect", None)
+        label_without_cover.pop("coverRects", None)
+        label_without_cover.pop("coverMode", None)
+        overlay.put_static_label(page, label_without_cover, layout)
 
     for key, field_def in layout.get("fields", {}).items():
         overlay.put_fitted_field(page, field_def, values.get(key), layout)

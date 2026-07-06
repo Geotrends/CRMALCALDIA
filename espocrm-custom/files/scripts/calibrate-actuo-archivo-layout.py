@@ -84,30 +84,58 @@ def field_rect(line, pad_x=0.0, baseline_offset=4.0):
     ]
 
 
-def build_uniform_body_lines(referencia, motivo):
-    uniform_right = round(referencia[-1]["x1"], 1)
-    full_left = round(referencia[-1]["x0"], 1)
-    lines = []
+def build_uniform_covers(all_lines, uniform_x1, envigado_line=None):
+    covers = []
 
-    ref_first = referencia[0]
-    first = {
-        "from": [round(ref_first["x0"], 1), ref_first["y"]],
-        "to": [uniform_right, ref_first["y"]],
+    if envigado_line:
+        covers.append(
+            {
+                "rect": [
+                    257,
+                    round(envigado_line["y"] - 3.0, 1),
+                    535,
+                    round(envigado_line["y"] + 11.4, 1),
+                ],
+                "coverMode": "redact",
+            }
+        )
+
+    for line in all_lines:
+        if line["x1"] <= uniform_x1 + 0.5:
+            continue
+        if envigado_line and line["y"] < 180.0:
+            continue
+
+        covers.append(
+            {
+                "rect": [
+                    uniform_x1,
+                    round(line["y"] - 1.5, 1),
+                    round(line["x1"] + 1.0, 1),
+                    round(line["y"] + 1.5, 1),
+                ],
+                "coverMode": "redact",
+            }
+        )
+
+    return covers
+
+
+def consecutivo_interno_label(consecutivo_line):
+    y_line = consecutivo_line["y"]
+    label_left = round(consecutivo_line["x0"], 1)
+    label_right = round(label_left + 132.0, 1)
+
+    return {
+        "coverRect": [340, round(y_line + 9.7, 1), 492, round(y_line + 20.7, 1)],
+        "coverMode": "redact",
+        "label": "(Consecutivo  interno)",
+        "labelRect": [label_left, round(y_line + 11.7, 1), label_right, round(y_line + 17.7, 1)],
+        "labelAlign": "center",
+        "labelFontName": "helv",
+        "labelFontSize": 12,
+        "labelValign": "bottom",
     }
-    if ref_first["x1"] > uniform_right + 0.5:
-        first["trimFrom"] = round(ref_first["x1"], 1)
-    lines.append(first)
-
-    for row in referencia[1:] + motivo:
-        item = {
-            "from": [full_left, row["y"]],
-            "to": [uniform_right, row["y"]],
-        }
-        if row["x1"] > uniform_right + 0.5:
-            item["trimFrom"] = round(row["x1"], 1)
-        lines.append(item)
-
-    return lines
 
 
 def build_layout(page):
@@ -155,6 +183,8 @@ def build_layout(page):
                 round(envigado_line["y"] + 10.2, 1),
             ]
 
+    uniform_x1 = round(referencia[-1]["x1"], 1)
+
     return {
         "pageSize": [round(rect.width, 1), round(rect.height, 1)],
         "fontSize": 10,
@@ -167,12 +197,6 @@ def build_layout(page):
         },
         "restyleHeaderBorders": True,
         "headerBorderRegion": [78, 34, 534, 122],
-        "bodyLineStyle": {
-            "width": 0.25,
-            "color": [0.55, 0.55, 0.55],
-        },
-        "restyleBodyLines": True,
-        "uniformBodyLines": build_uniform_body_lines(referencia, motivo),
         "fieldPadding": {"left": 1, "right": 1, "top": 0, "bottom": 0},
         "defaultFieldAlign": "left",
         "defaultFieldValign": "bottom",
@@ -196,26 +220,9 @@ def build_layout(page):
                 "labelFontSize": 12,
                 "labelValign": "bottom",
             },
-            "consecutivoInternoCaption": {
-                "coverRect": [
-                    round(consecutivo["x0"] - 16, 1),
-                    244,
-                    round(consecutivo["x1"] + 38, 1),
-                    255,
-                ],
-                "label": "(Consecutivo  interno)",
-                "labelRect": [
-                    round(consecutivo["x0"] - 12, 1),
-                    246,
-                    round(consecutivo["x1"] - 12, 1),
-                    253,
-                ],
-                "labelAlign": "center",
-                "labelFontName": "helv",
-                "labelFontSize": 12,
-                "labelValign": "center",
-            },
+            "consecutivoInternoLabel": consecutivo_interno_label(consecutivo),
         },
+        "templateCovers": build_uniform_covers(all_lines, uniform_x1, envigado_line),
         "fields": {
             "numeroRadicado": {
                 "rect": field_rect(radicado),
@@ -257,7 +264,7 @@ def build_layout(page):
                 "rect": [
                     round(radicado["x0"], 1),
                     round(referencia[0]["y"] - 2.0, 1),
-                    round(referencia[-1]["x1"], 1),
+                    uniform_x1,
                     round(referencia[-1]["y"] + 2.0, 1),
                 ],
                 "align": "left",
@@ -277,7 +284,7 @@ def build_layout(page):
                 "rect": [
                     round(motivo[0]["x0"], 1),
                     round(motivo[0]["y"] - 2.0, 1),
-                    round(referencia[-1]["x1"], 1),
+                    uniform_x1,
                     round(motivo[-1]["y"] + 2.0, 1),
                 ],
                 "align": "left",

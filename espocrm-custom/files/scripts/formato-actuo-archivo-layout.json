@@ -36,9 +36,10 @@
       "labelValign": "bottom"
     },
     "consecutivoInternoLabel": {
-      "coverRect": [378, 246.5, 518, 251.5],
+      "coverRect": [340, 243.5, 492, 255.5],
+      "coverMode": "redact",
       "label": "(Consecutivo  interno)",
-      "labelRect": [343.6, 246.5, 487.6, 251.5],
+      "labelRect": [343.6, 246.5, 475.6, 252.5],
       "labelAlign": "center",
       "labelFontName": "helv",
       "labelFontSize": 12,
@@ -46,18 +47,21 @@
     }
   },
   "templateCovers": [
-    { "rect": [463.1, 289.3, 513.0, 292.3] },
-    { "rect": [463.1, 345.3, 526.0, 348.3] },
-    { "rect": [463.1, 359.3, 470.0, 362.3] },
-    { "rect": [463.1, 373.3, 470.0, 376.3] },
-    { "rect": [463.1, 387.3, 470.0, 390.3] },
-    { "rect": [463.1, 401.3, 470.0, 404.3] },
-    { "rect": [463.1, 415.3, 470.0, 418.3] },
-    { "rect": [463.1, 429.3, 470.0, 432.3] },
-    { "rect": [463.1, 443.3, 470.0, 446.3] },
-    { "rect": [463.1, 457.3, 470.0, 460.3] },
-    { "rect": [463.1, 471.3, 470.0, 474.3] },
-    { "rect": [463.1, 485.3, 470.0, 488.3] }
+    { "rect": [257, 161.8, 535, 176.2], "coverMode": "redact" },
+    { "rect": [463.1, 289.3, 513.0, 292.3], "coverMode": "redact" },
+    { "rect": [463.1, 303.3, 470.0, 306.3], "coverMode": "redact" },
+    { "rect": [463.1, 317.3, 470.0, 320.3], "coverMode": "redact" },
+    { "rect": [463.1, 345.3, 526.0, 348.3], "coverMode": "redact" },
+    { "rect": [463.1, 359.3, 470.0, 362.3], "coverMode": "redact" },
+    { "rect": [463.1, 373.3, 470.0, 376.3], "coverMode": "redact" },
+    { "rect": [463.1, 387.3, 470.0, 390.3], "coverMode": "redact" },
+    { "rect": [463.1, 401.3, 470.0, 404.3], "coverMode": "redact" },
+    { "rect": [463.1, 415.3, 470.0, 418.3], "coverMode": "redact" },
+    { "rect": [463.1, 429.3, 470.0, 432.3], "coverMode": "redact" },
+    { "rect": [463.1, 443.3, 470.0, 446.3], "coverMode": "redact" },
+    { "rect": [463.1, 457.3, 470.0, 460.3], "coverMode": "redact" },
+    { "rect": [463.1, 471.3, 470.0, 474.3], "coverMode": "redact" },
+    { "rect": [463.1, 485.3, 470.0, 488.3], "coverMode": "redact" }
   ],
   "fields": {
     "numeroRadicado": {

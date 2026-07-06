@@ -166,12 +166,6 @@ generate_pdf_if_missing "$TEMPLATES_TARGET/ActaVisita2.docx" "$TEMPLATES_TARGET/
 generate_pdf_if_missing "$TEMPLATES_TARGET/ActuoArchivo.docx" "$TEMPLATES_TARGET/ActuoArchivo-template.pdf" "lo-tpl-actuo"
 [ -f "$TEMPLATES_TARGET/ActuoArchivo.pdf" ] && mv "$TEMPLATES_TARGET/ActuoArchivo.pdf" "$TEMPLATES_TARGET/ActuoArchivo-template.pdf"
 
-if [ -f "$TEMPLATES_TARGET/ActuoArchivo-template.pdf" ] && [ -f "$CUSTOM_TARGET/files/scripts/calibrate-actuo-archivo-layout.py" ]; then
-  echo "Calibrando layout del auto de archivo desde PDF plantilla..."
-  python3 "$CUSTOM_TARGET/files/scripts/calibrate-actuo-archivo-layout.py" \
-    "$TEMPLATES_TARGET/ActuoArchivo-template.pdf" || true
-fi
-
 echo "Setting permissions..."
 chown -R www-data:www-data "$APP_ROOT/data" "$CUSTOM_TARGET" "$CLIENT_TARGET"
 

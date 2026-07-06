@@ -369,6 +369,33 @@ def cover_rect(page, rect, field_def=None):
     page.draw_rect(box, color=(1, 1, 1), fill=(1, 1, 1), overlay=True)
 
 
+def cover_rects_batch(page, cover_defs):
+    redact_boxes = []
+    fill_boxes = []
+
+    for cover_def in cover_defs or []:
+        if isinstance(cover_def, dict):
+            rect = cover_def.get("rect", cover_def)
+            mode = cover_def.get("coverMode", "fill")
+        else:
+            rect = cover_def
+            mode = "fill"
+
+        box = fitz.Rect(*rect)
+        if mode == "redact":
+            redact_boxes.append(box)
+        else:
+            fill_boxes.append(box)
+
+    for box in redact_boxes:
+        page.add_redact_annot(box, fill=(1, 1, 1))
+    if redact_boxes:
+        page.apply_redactions()
+
+    for box in fill_boxes:
+        page.draw_rect(box, color=(1, 1, 1), fill=(1, 1, 1), overlay=True)
+
+
 def put_static_label(page, field_def, layout):
     covers = list(field_def.get("coverRects") or [])
     cover = field_def.get("coverRect")
@@ -440,32 +467,6 @@ def put_line(page, line_def, layout=None):
         width=width,
         overlay=True,
     )
-
-
-def restyle_uniform_body_lines(page, layout=None):
-    layout = layout or {}
-    if not layout.get("restyleBodyLines"):
-        return
-
-    width, color, cover_pad = border_style(layout, layout.get("bodyLineStyle"))
-
-    for line_def in layout.get("uniformBodyLines", []):
-        x0, y0 = line_def["from"]
-        x1, y1 = line_def["to"]
-        trim_from = float(line_def.get("trimFrom", x1))
-        cover_right = max(float(x1), trim_from)
-
-        # Tapar guiones originales de la plantilla en todo el tramo del renglón.
-        cover = fitz.Rect(float(x0) - 0.5, y0 - cover_pad, cover_right + cover_pad, y0 + cover_pad)
-        page.draw_rect(cover, color=(1, 1, 1), fill=(1, 1, 1), overlay=True)
-
-        page.draw_line(
-            fitz.Point(float(x0), float(y0)),
-            fitz.Point(float(x1), float(y1)),
-            color=color,
-            width=width,
-            overlay=True,
-        )
 
 
 def restyle_template_borders(page, layout=None):
