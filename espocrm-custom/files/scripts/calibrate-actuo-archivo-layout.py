@@ -105,18 +105,29 @@ def build_layout(page):
     inspector = tail[-1]
     ref_first = referencia[0]
     ref_offset = round(ref_first["x0"] - radicado["x0"], 1)
-    ref_first_width = round(ref_first["x1"] - ref_first["x0"], 1)
+    ref_first_width = round(min(ref_first["x1"], referencia[-1]["x1"]) - ref_first["x0"], 1)
     ref_spacing = round(referencia[1]["y"] - referencia[0]["y"], 1) if len(referencia) > 1 else 14.0
     motivo_spacing = round(motivo[1]["y"] - motivo[0]["y"], 1) if len(motivo) > 1 else 14.0
 
-    colombia_rect = [146, 163, 255, 175]
+    colombia_rect = [148, 163, 256, 175]
     if envigado_line:
-        colombia_rect = [
-            round(envigado_line["x0"] + 60, 1),
-            round(envigado_line["y"] - 4.4, 1),
-            round(envigado_line["x0"] + 170, 1),
-            round(envigado_line["y"] + 10.2, 1),
-        ]
+        # Centrar «Colombia,» sobre el espacio de guiones tras «Envigado,»
+        short_underscore = next(
+            (
+                line
+                for line in all_lines
+                if abs(line["y"] - envigado_line["y"]) <= 1.5
+                and line["x0"] > envigado_line["x0"] + 40
+            ),
+            None,
+        )
+        if short_underscore:
+            colombia_rect = [
+                round(short_underscore["x0"], 1),
+                round(envigado_line["y"] - 1.8, 1),
+                round(short_underscore["x1"], 1),
+                round(envigado_line["y"] + 10.2, 1),
+            ]
 
     return {
         "pageSize": [round(rect.width, 1), round(rect.height, 1)],
@@ -141,7 +152,7 @@ def build_layout(page):
             "colombia": {
                 "label": "Colombia,",
                 "labelRect": colombia_rect,
-                "labelAlign": "left",
+                "labelAlign": "center",
                 "labelFontSize": 12,
                 "labelValign": "bottom",
             }
@@ -160,13 +171,23 @@ def build_layout(page):
                 "fontSize": 10,
             },
             "fechaDada": {
-                "rect": field_rect(fecha),
-                "align": "left",
+                "rect": [
+                    round(fecha["x0"], 1),
+                    round(fecha["y"] + 3.0, 1),
+                    round(fecha["x1"], 1),
+                    round(fecha["y"] + 8.0, 1),
+                ],
+                "align": "center",
                 "valign": "bottom",
                 "fontSize": 10,
             },
             "inspectorNombre": {
-                "rect": field_rect(inspector),
+                "rect": [
+                    round(inspector["x0"], 1),
+                    round(inspector["y"] + 3.0, 1),
+                    round(inspector["x1"], 1),
+                    round(inspector["y"] + 8.0, 1),
+                ],
                 "align": "center",
                 "valign": "bottom",
                 "fontSize": 10,
@@ -197,7 +218,7 @@ def build_layout(page):
                 "rect": [
                     round(motivo[0]["x0"], 1),
                     round(motivo[0]["y"] - 2.0, 1),
-                    round(motivo[0]["x1"], 1),
+                    round(referencia[-1]["x1"], 1),
                     round(motivo[-1]["y"] + 2.0, 1),
                 ],
                 "align": "left",

@@ -22,8 +22,8 @@
   "labels": {
     "colombia": {
       "label": "Colombia,",
-      "labelRect": [146, 163, 255, 175],
-      "labelAlign": "left",
+      "labelRect": [148, 163, 256, 175],
+      "labelAlign": "center",
       "labelFontSize": 12,
       "labelValign": "bottom"
     }
@@ -42,13 +42,13 @@
       "fontSize": 10
     },
     "fechaDada": {
-      "rect": [230.3, 525.8, 407.1, 529.8],
-      "align": "left",
+      "rect": [229.3, 527.8, 408.1, 532.8],
+      "align": "center",
       "valign": "bottom",
       "fontSize": 10
     },
     "inspectorNombre": {
-      "rect": [169.1, 586.4, 443.1, 590.4],
+      "rect": [168.1, 587.4, 444.1, 592.4],
       "align": "center",
       "valign": "bottom",
       "fontSize": 10
@@ -64,14 +64,14 @@
       "firstBaselineY": 290.8,
       "baselineAdjust": 9.2,
       "firstLineXOffset": 241.6,
-      "firstLineWidth": 186.0,
+      "firstLineWidth": 136.3,
       "maxLines": 3,
       "fontSize": 9,
       "minFontSize": 7,
       "padding": { "left": 0, "right": 0, "top": 0, "bottom": 0 }
     },
     "motivoArchivo": {
-      "rect": [85.2, 358.8, 469.1, 488.8],
+      "rect": [85.2, 358.8, 463.1, 488.8],
       "align": "left",
       "singleLine": false,
       "ruledText": true,
