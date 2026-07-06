@@ -8,28 +8,8 @@
     "color": [0.65, 0.65, 0.65],
     "coverPad": 1.0
   },
-  "bodyLineStyle": {
-    "width": 0.25,
-    "color": [0.55, 0.55, 0.55]
-  },
   "restyleHeaderBorders": true,
   "headerBorderRegion": [78, 34, 534, 122],
-  "restyleBodyLines": true,
-  "uniformBodyLines": [
-    { "from": [326.8, 290.8], "to": [463.1, 290.8], "trimFrom": 512.8 },
-    { "from": [85.2, 304.8], "to": [463.1, 304.8] },
-    { "from": [85.2, 318.8], "to": [463.1, 318.8] },
-    { "from": [85.2, 360.8], "to": [463.1, 360.8], "trimFrom": 469.1 },
-    { "from": [85.2, 374.8], "to": [463.1, 374.8], "trimFrom": 469.1 },
-    { "from": [85.2, 388.8], "to": [463.1, 388.8], "trimFrom": 469.1 },
-    { "from": [85.2, 402.8], "to": [463.1, 402.8], "trimFrom": 469.1 },
-    { "from": [85.2, 416.8], "to": [463.1, 416.8], "trimFrom": 469.1 },
-    { "from": [85.2, 430.8], "to": [463.1, 430.8], "trimFrom": 469.1 },
-    { "from": [85.2, 444.8], "to": [463.1, 444.8], "trimFrom": 469.1 },
-    { "from": [85.2, 458.8], "to": [463.1, 458.8], "trimFrom": 469.1 },
-    { "from": [85.2, 472.8], "to": [463.1, 472.8], "trimFrom": 469.1 },
-    { "from": [85.2, 486.8], "to": [463.1, 486.8], "trimFrom": 469.1 }
-  ],
   "fieldPadding": { "left": 1, "right": 1, "top": 0, "bottom": 0 },
   "defaultFieldAlign": "left",
   "defaultFieldValign": "bottom",
@@ -55,16 +35,30 @@
       "labelFontSize": 12,
       "labelValign": "bottom"
     },
-    "consecutivoInternoCaption": {
-      "coverRect": [328, 244, 525, 255],
+    "consecutivoInternoLabel": {
+      "coverRect": [378, 246.5, 518, 251.5],
       "label": "(Consecutivo  interno)",
-      "labelRect": [332, 246, 476, 253],
+      "labelRect": [343.6, 246.5, 487.6, 251.5],
       "labelAlign": "center",
       "labelFontName": "helv",
       "labelFontSize": 12,
-      "labelValign": "center"
+      "labelValign": "bottom"
     }
   },
+  "templateCovers": [
+    { "rect": [463.1, 289.3, 513.0, 292.3] },
+    { "rect": [463.1, 345.3, 526.0, 348.3] },
+    { "rect": [463.1, 359.3, 470.0, 362.3] },
+    { "rect": [463.1, 373.3, 470.0, 376.3] },
+    { "rect": [463.1, 387.3, 470.0, 390.3] },
+    { "rect": [463.1, 401.3, 470.0, 404.3] },
+    { "rect": [463.1, 415.3, 470.0, 418.3] },
+    { "rect": [463.1, 429.3, 470.0, 432.3] },
+    { "rect": [463.1, 443.3, 470.0, 446.3] },
+    { "rect": [463.1, 457.3, 470.0, 460.3] },
+    { "rect": [463.1, 471.3, 470.0, 474.3] },
+    { "rect": [463.1, 485.3, 470.0, 488.3] }
+  ],
   "fields": {
     "numeroRadicado": {
       "rect": [86.2, 233.2, 228.1, 237.2],
