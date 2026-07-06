@@ -163,6 +163,8 @@ generate_pdf_if_missing "$TEMPLATES_TARGET/FormatoSolicitud.doc" "$TEMPLATES_TAR
 [ -f "$TEMPLATES_TARGET/FormatoSolicitud.pdf" ] && mv "$TEMPLATES_TARGET/FormatoSolicitud.pdf" "$TEMPLATES_TARGET/FormatoSolicitud-template.pdf"
 generate_pdf_if_missing "$TEMPLATES_TARGET/ActaVisita2.docx" "$TEMPLATES_TARGET/ActaVisita2-template.pdf" "lo-tpl-acta"
 [ -f "$TEMPLATES_TARGET/ActaVisita2.pdf" ] && mv "$TEMPLATES_TARGET/ActaVisita2.pdf" "$TEMPLATES_TARGET/ActaVisita2-template.pdf"
+generate_pdf_if_missing "$TEMPLATES_TARGET/ActuoArchivo.docx" "$TEMPLATES_TARGET/ActuoArchivo-template.pdf" "lo-tpl-actuo"
+[ -f "$TEMPLATES_TARGET/ActuoArchivo.pdf" ] && mv "$TEMPLATES_TARGET/ActuoArchivo.pdf" "$TEMPLATES_TARGET/ActuoArchivo-template.pdf"
 
 echo "Setting permissions..."
 chown -R www-data:www-data "$APP_ROOT/data" "$CUSTOM_TARGET" "$CLIENT_TARGET"

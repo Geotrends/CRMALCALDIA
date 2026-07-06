@@ -19,6 +19,7 @@
         "timeline",
         "cronograma",
         "panelesDetalle",
-        "confirmarVisitaRealizada"
+        "confirmarVisitaRealizada",
+        "confirmarVisitaAprobada"
     ]
 }

@@ -17,7 +17,10 @@ define('custom:views/case/fields/acta-visita-action', [
             this.actaIsEditMode = false;
             this.canUseTools = false;
             this.visitaConfirmada = false;
+            this.visitaAprobada = false;
+            this.showVisitaAprobacion = false;
             this.requiresVisitaCheck = false;
+            this.showVisitaCheck = false;
             this.stateReady = false;
             this._actaStateLoading = false;
             this._visitaMarcadaLocal = false;
@@ -54,6 +57,31 @@ define('custom:views/case/fields/acta-visita-action', [
 
         resolveVisitaConfirmada: function () {
             return ActaVisitaCaseStatus.isVisitaConfirmada(this.model);
+        },
+
+        resolveVisitaAprobada: function () {
+            const status = String(this.model.get('status') || '').trim();
+
+            return ['Visita aprobada', 'Finalizado', 'Proceso cerrado'].includes(status);
+        },
+
+        canApproveVisita: function (user) {
+            if (!user) {
+                return false;
+            }
+
+            if (user.isAdmin && user.isAdmin()) {
+                return true;
+            }
+
+            return RadicacionFields.isInspeccionUser(user);
+        },
+
+        resolveShowVisitaAprobacion: function (user) {
+            return this.canApproveVisita(user)
+                && String(this.model.get('status') || '').trim() === 'Visita realizada'
+                && this.actaIsEditMode
+                && !this.resolveVisitaAprobada();
         },
 
         isVisitaHabilitada: function () {
@@ -113,6 +141,11 @@ define('custom:views/case/fields/acta-visita-action', [
                 helpText: this.resolveHelpText(user),
                 buttonLabelDigital: this.resolveButtonLabelDigital(),
                 buttonLabelManual: this.translateCaseLabel('imprimirActaVisitaManual'),
+                showVisitaAprobacion: this.showVisitaAprobacion,
+                visitaAprobada: this.visitaAprobada,
+                visitaAprobadaDisabled: this.visitaAprobada,
+                visitaAprobadaLabel: this.translateCaseLabel('visitaAprobadaCheck'),
+                visitaAprobadaHelp: this.translateCaseLabel('visitaAprobadaCheckHelp'),
             };
         },
 
@@ -199,6 +232,8 @@ define('custom:views/case/fields/acta-visita-action', [
             this.actaIsEditMode = ActaVisitaCaseStatus.isActaDiligenciada(acta);
             this.canUseTools = !!canUse;
             this.visitaConfirmada = this.resolveVisitaConfirmada();
+            this.visitaAprobada = this.resolveVisitaAprobada();
+            this.showVisitaAprobacion = this.resolveShowVisitaAprobacion(this.getUser());
 
             if (this.actaIsEditMode || this.visitaConfirmada) {
                 this._visitaMarcadaLocal = true;
@@ -247,6 +282,11 @@ define('custom:views/case/fields/acta-visita-action', [
             this.$el.find('.case-visita-visita-check-help').text(data.visitaCheckHelp || '');
             this.$el.find('.case-acta-visita-help').text(data.helpText || '');
             this.$el.find('.case-visita-realizada-check').toggle(!!data.showVisitaCheck);
+            this.$el.find('.case-visita-aprobada-check').toggle(!!data.showVisitaAprobacion);
+            this.$el.find('.case-visita-aprobada-help').text(data.visitaAprobadaHelp || '');
+            this.$el.find('.case-visita-aprobada-checkbox')
+                .prop('checked', !!data.visitaAprobada)
+                .prop('disabled', !!data.visitaAprobada);
             this.$el.find('.case-acta-visita-actions').toggle(!!data.showActions);
             this.$el.find('.case-acta-visita-help').toggle(!!data.showActions);
 
@@ -279,6 +319,7 @@ define('custom:views/case/fields/acta-visita-action', [
         bindUi: function () {
             this.bindButtons();
             this.bindVisitaCheckbox();
+            this.bindVisitaAprobadaCheckbox();
         },
 
         bindVisitaCheckbox: function () {
@@ -302,6 +343,84 @@ define('custom:views/case/fields/acta-visita-action', [
 
                 self._visitaMarcadaLocal = $(e.currentTarget).is(':checked');
                 self.refreshViewState();
+            });
+        },
+
+        bindVisitaAprobadaCheckbox: function () {
+            if (!this.$el || !this.$el.length) {
+                return;
+            }
+
+            const self = this;
+
+            this.$el.find('[data-action="aprobarVisita"]').off('change.visitaAprobada');
+
+            this.$el.find('[data-action="aprobarVisita"]').on('change.visitaAprobada', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const $checkbox = $(e.currentTarget);
+
+                if (self.resolveVisitaAprobada()) {
+                    $checkbox.prop('checked', true);
+
+                    return;
+                }
+
+                if (!$checkbox.is(':checked')) {
+                    return;
+                }
+
+                Espo.Ui.confirm(
+                    self.translateCaseLabel('visitaAprobadaConfirmQuestion'),
+                    function () {
+                        self.actionConfirmarVisitaAprobada($checkbox);
+                    },
+                    function () {
+                        $checkbox.prop('checked', false);
+                    }
+                );
+            });
+        },
+
+        actionConfirmarVisitaAprobada: function ($checkbox) {
+            const self = this;
+
+            if (!this.model.id) {
+                Espo.Ui.error(this.translate('Error'));
+
+                if ($checkbox) {
+                    $checkbox.prop('checked', false);
+                }
+
+                return;
+            }
+
+            Espo.Ui.notify(this.translate('pleaseWait', 'messages'));
+
+            Espo.Ajax.postRequest('Case/action/confirmarVisitaAprobada', {
+                id: this.model.id,
+            }).then(function (response) {
+                Espo.Ui.notify(false);
+
+                if (response && response.alreadyApproved) {
+                    Espo.Ui.info(self.translateCaseLabel('visitaAprobadaConfirmSuccess'));
+
+                    return;
+                }
+
+                Espo.Ui.success(self.translateCaseLabel('visitaAprobadaConfirmSuccess'));
+                self.model.fetch().then(function () {
+                    ActaVisitaCaseStatus.invalidateCache(self.model.id);
+                    self.scheduleLoadActaState();
+                });
+            }).catch(function () {
+                Espo.Ui.notify(false);
+                Espo.Ui.error(self.translateCaseLabel('visitaAprobadaConfirmError'));
+
+                if ($checkbox) {
+                    $checkbox.prop('checked', false);
+                }
             });
         },
 

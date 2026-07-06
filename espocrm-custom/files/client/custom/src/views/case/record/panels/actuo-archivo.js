@@ -34,7 +34,8 @@ define('custom:views/case/record/panels/actuo-archivo', [
         },
 
         canManageActuo: function () {
-            return FormatoActuoArchivoCaseAccess.canManageActuoFromCase(this.getUser());
+            return FormatoActuoArchivoCaseAccess.canManageActuoFromCase(this.getUser())
+                && FormatoActuoArchivoCaseAccess.isCaseReadyForActuo(this.model);
         },
 
         loadActuoState: function () {

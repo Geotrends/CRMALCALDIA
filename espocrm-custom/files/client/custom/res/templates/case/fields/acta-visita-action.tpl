@@ -14,6 +14,20 @@
     <p class="text-muted small case-visita-visita-check-help">{{visitaCheckHelp}}</p>
 </div>
 {{/if}}
+{{#if showVisitaAprobacion}}
+<div class="case-visita-aprobada-check form-group">
+    <label class="case-visita-aprobada-check-label">
+        <input
+            type="checkbox"
+            class="case-visita-aprobada-checkbox"
+            data-action="aprobarVisita"
+            {{#if visitaAprobada}}checked disabled{{/if}}
+        />
+        <span>{{visitaAprobadaLabel}}</span>
+    </label>
+    <p class="text-muted small case-visita-aprobada-help">{{visitaAprobadaHelp}}</p>
+</div>
+{{/if}}
 {{#if showActions}}
 <p class="text-muted small case-acta-visita-help">{{helpText}}</p>
 <div class="btn-group-vertical w-100 case-acta-visita-actions">

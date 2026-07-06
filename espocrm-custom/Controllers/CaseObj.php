@@ -347,6 +347,92 @@ class CaseObj extends BaseCaseObj
         ];
     }
 
+    /**
+     * POST Case/action/confirmarVisitaAprobada  body: { "id": "caseId" }
+     *
+     * @return array<string, mixed>
+     */
+    public function postActionConfirmarVisitaAprobada(Request $request): array
+    {
+        if (!$this->acl->check('Case', 'confirmarVisitaAprobada')) {
+            throw new Forbidden();
+        }
+
+        $body = $request->getParsedBody();
+        $id = '';
+
+        if (is_object($body)) {
+            $id = trim((string) ($body->id ?? ''));
+        } elseif (is_array($body)) {
+            $id = trim((string) ($body['id'] ?? ''));
+        }
+
+        if ($id === '') {
+            throw new BadRequest('ID requerido.');
+        }
+
+        $case = $this->entityManager->getEntityById('Case', $id);
+
+        if (!$case) {
+            throw new NotFound();
+        }
+
+        if (!$this->acl->checkEntityRead($case)) {
+            throw new Forbidden();
+        }
+
+        $user = $this->getUser();
+        $profile = $this->injectableFactory->create(AlcaldiaUserProfile::class);
+
+        if (!$user->isAdmin() && !$profile->isInspeccion($user)) {
+            throw new Forbidden('Solo Inspección puede aprobar la visita.');
+        }
+
+        $currentStatus = trim((string) $case->get('status'));
+
+        if (CaseActaVisitaHelper::isVisitaAprobadaStatus($currentStatus)) {
+            return [
+                'success' => true,
+                'status' => $currentStatus,
+                'alreadyApproved' => true,
+            ];
+        }
+
+        if (!CaseActaVisitaHelper::canAdvanceCaseToVisitaAprobada($case)) {
+            throw new BadRequest('El caso debe estar en estado Visita realizada.');
+        }
+
+        $acta = $this->entityManager
+            ->getRDBRepository('ActaVisita')
+            ->where(['caseId' => $case->getId()])
+            ->order('modifiedAt', 'DESC')
+            ->findOne();
+
+        if (!$acta || !CaseActaVisitaHelper::isActaWithContent($acta)) {
+            throw new BadRequest('Debe existir un acta de visita diligenciada.');
+        }
+
+        $case->set('status', CaseActaVisitaHelper::STATUS_VISITA_APROBADA);
+
+        $this->entityManager->saveEntity($case, [
+            'skipCaseStatusUpdate' => true,
+            'skipPatrulleroCaseLimit' => true,
+        ]);
+
+        if (trim((string) $acta->get('estado')) !== 'Aprobada') {
+            $acta->set('estado', 'Aprobada');
+            $this->entityManager->saveEntity($acta, [
+                'skipHooks' => false,
+            ]);
+        }
+
+        return [
+            'success' => true,
+            'status' => CaseActaVisitaHelper::STATUS_VISITA_APROBADA,
+            'alreadyApproved' => false,
+        ];
+    }
+
     private function canUseRadicadoAssistant(User $user): bool
     {
         if ($user->isAdmin()) {

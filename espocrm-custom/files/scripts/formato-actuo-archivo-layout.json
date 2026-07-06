@@ -1,0 +1,68 @@
+{
+  "pageSize": [612.0, 792.0],
+  "fontSize": 10,
+  "minFontSize": 7,
+  "textColor": [0, 0, 0],
+  "fieldPadding": { "left": 2, "right": 4, "top": 0, "bottom": 2 },
+  "defaultFieldAlign": "left",
+  "defaultFieldValign": "center",
+  "fieldSingleLine": true,
+  "truncateOverflow": true,
+  "ellipsis": "...",
+  "autoFields": [
+    "fechaAuto",
+    "numeroRadicado",
+    "consecutivoInterno",
+    "referencia",
+    "fechaDada",
+    "inspectorNombre"
+  ],
+  "manualFields": [
+    "motivoArchivo"
+  ],
+  "fields": {
+    "fechaAuto": {
+      "rect": [145, 92, 360, 110],
+      "align": "left",
+      "valign": "center"
+    },
+    "numeroRadicado": {
+      "rect": [88, 158, 292, 176],
+      "align": "center",
+      "valign": "center"
+    },
+    "consecutivoInterno": {
+      "rect": [318, 158, 524, 176],
+      "align": "center",
+      "valign": "center"
+    },
+    "referencia": {
+      "rect": [88, 232, 524, 248],
+      "align": "left",
+      "valign": "center"
+    },
+    "fechaDada": {
+      "rect": [210, 454, 430, 472],
+      "align": "left",
+      "valign": "center"
+    },
+    "inspectorNombre": {
+      "rect": [140, 508, 472, 526],
+      "align": "center",
+      "valign": "center"
+    }
+  },
+  "textBoxes": {
+    "motivoArchivo": {
+      "rect": [88, 288, 524, 432],
+      "align": "left",
+      "singleLine": false,
+      "ruledText": true,
+      "lineSpacing": 14.0,
+      "firstBaselineY": 296.0,
+      "maxLines": 10,
+      "fontSize": 10,
+      "padding": { "left": 2, "right": 4, "top": 0, "bottom": 0 }
+    }
+  }
+}

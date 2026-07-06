@@ -80,6 +80,21 @@ docker exec espocrm bash -c '
   fi
 '
 
+echo 'Generando PDF plantilla ActuoArchivo (si falta)...'
+docker exec espocrm bash -c '
+  tpl="/var/www/html/custom/Espo/Custom/files/templates"
+  pdf="$tpl/ActuoArchivo-template.pdf"
+  doc="$tpl/ActuoArchivo.docx"
+  if [ ! -f "$pdf" ] && [ -f "$doc" ]; then
+    profile="/tmp/lo-tpl-actuo-$$"
+    mkdir -p "$profile"
+    soffice --headless --invisible --nologo -env:UserInstallation=file://$profile --convert-to pdf --outdir "$tpl" "$doc" 2>/dev/null || true
+    if [ -f "$tpl/ActuoArchivo.pdf" ]; then
+      mv "$tpl/ActuoArchivo.pdf" "$pdf"
+    fi
+  fi
+'
+
 echo 'Verificando openpyxl (export Excel casos)...'
 docker exec espocrm bash -c 'python3 -c "import openpyxl" 2>/dev/null || (apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get install -y -qq python3-openpyxl)'
 

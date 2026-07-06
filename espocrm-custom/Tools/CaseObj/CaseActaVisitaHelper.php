@@ -11,6 +11,8 @@ class CaseActaVisitaHelper
 {
     public const STATUS_VISITA_REALIZADA = 'Visita realizada';
 
+    public const STATUS_VISITA_APROBADA = 'Visita aprobada';
+
     /** @deprecated Legacy — nuevos casos pasan directo a Visita realizada */
     public const STATUS_EN_PROCESO = 'En proceso';
 
@@ -28,6 +30,18 @@ class CaseActaVisitaHelper
         'Asignado',
         'Assigned',
         'En proceso',
+    ];
+
+    /** @var string[] */
+    private const ADVANCE_TO_VISITA_APROBADA_FROM = [
+        'Visita realizada',
+    ];
+
+    /** @var string[] */
+    private const VISITA_APROBADA_STATUSES = [
+        'Visita aprobada',
+        'Finalizado',
+        'Proceso cerrado',
     ];
 
     /** @var string[] */
@@ -71,6 +85,18 @@ class CaseActaVisitaHelper
     public static function canAdvanceCaseToEnProceso(Entity $case): bool
     {
         return self::canAdvanceCaseToVisitaRealizada($case);
+    }
+
+    public static function canAdvanceCaseToVisitaAprobada(Entity $case): bool
+    {
+        $current = trim((string) $case->get('status'));
+
+        return in_array($current, self::ADVANCE_TO_VISITA_APROBADA_FROM, true);
+    }
+
+    public static function isVisitaAprobadaStatus(string $status): bool
+    {
+        return in_array(trim($status), self::VISITA_APROBADA_STATUSES, true);
     }
 
     public static function isVisitaConfirmadaStatus(string $status): bool

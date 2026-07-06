@@ -61,6 +61,7 @@ $data['Case'] = [
     'cronograma' => 'yes',
     'panelesDetalle' => 'yes',
     'confirmarVisitaRealizada' => 'yes',
+    'confirmarVisitaAprobada' => 'no',
 ];
 
 $data['ActaVisita'] = [

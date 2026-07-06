@@ -2,6 +2,20 @@ define('custom:helpers/formato-actuo-archivo-case-access', [
     'custom:helpers/radicacion-fields',
 ], function (RadicacionFields) {
 
+    const ACTUO_READY_STATUSES = [
+        'Visita aprobada',
+        'Finalizado',
+        'Proceso cerrado',
+    ];
+
+    const isCaseReadyForActuo = function (model) {
+        if (!model) {
+            return false;
+        }
+
+        return ACTUO_READY_STATUSES.includes(String(model.get('status') || '').trim());
+    };
+
     const canManageActuoFromCase = function (user) {
         if (!user) {
             return false;
@@ -32,8 +46,7 @@ define('custom:helpers/formato-actuo-archivo-case-access', [
     };
 
     const canDownloadManualWordFromCase = function (user, model) {
-        return !!model
-            && !!model.id
+        return isCaseReadyForActuo(model)
             && canManageActuoFromCase(user);
     };
 
@@ -41,5 +54,6 @@ define('custom:helpers/formato-actuo-archivo-case-access', [
         canDownloadFormatoActuoArchivoFromCase: canDownloadFormatoActuoArchivoFromCase,
         canDownloadManualWordFromCase: canDownloadManualWordFromCase,
         canManageActuoFromCase: canManageActuoFromCase,
+        isCaseReadyForActuo: isCaseReadyForActuo,
     };
 });

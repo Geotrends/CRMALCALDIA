@@ -274,6 +274,14 @@ check_file "Acción confirmar visita realizada" \
   "$CUSTOM/Controllers/CaseObj.php" \
   "confirmarVisitaRealizada" || errors=$((errors + 1))
 
+check_file "Acción confirmar visita aprobada" \
+  "$CUSTOM/Controllers/CaseObj.php" \
+  "confirmarVisitaAprobada" || errors=$((errors + 1))
+
+check_file "Layout auto de archivo PDF" \
+  "$CUSTOM/files/scripts/formato-actuo-archivo-layout.json" \
+  "motivoArchivo" || errors=$((errors + 1))
+
 check_file "Panel acta — checkbox visita" \
   "$CLIENT/src/views/case/fields/acta-visita-action.js" \
   "isOperadorVisitaCampo" || errors=$((errors + 1))
@@ -301,6 +309,10 @@ check_file "Kanban — radicado combinado" \
 check_file "Scope Case — ACL confirmar visita" \
   "$CUSTOM/Resources/metadata/scopes/Case.json" \
   "confirmarVisitaRealizada" || errors=$((errors + 1))
+
+check_file "Scope Case — ACL visita aprobada" \
+  "$CUSTOM/Resources/metadata/scopes/Case.json" \
+  "confirmarVisitaAprobada" || errors=$((errors + 1))
 
 check_file "Kanban — ignorar columna En proceso" \
   "$CUSTOM/Resources/metadata/scopes/Case.json" \

@@ -276,6 +276,12 @@ class FormatoActuoArchivoGenerator
 
     private function getTemplatePath(): string
     {
+        $pdf = realpath(__DIR__ . '/../../files/templates/ActuoArchivo-template.pdf');
+
+        if ($pdf) {
+            return $pdf;
+        }
+
         return realpath(__DIR__ . '/../../files/templates/ActuoArchivo.docx') ?: '';
     }
 
