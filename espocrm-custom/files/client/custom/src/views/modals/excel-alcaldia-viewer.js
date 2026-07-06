@@ -47,8 +47,6 @@ define('custom:views/modals/excel-alcaldia-viewer', [
             const $container = this.$el.find('.excel-alcaldia-modal__content');
 
             ExcelViewerLoader.loadAndRender({
-                basePath: this.getBasePath(),
-                fileId: this.fileId,
                 $container: $container,
             }).catch(() => {
                 this.showError(this.translate('excelViewerLoadError', 'labels', 'Document'));
