@@ -26,6 +26,8 @@ define('custom:views/case/fields/formato-generado-docs', [
                 documentos: this.documentos,
                 hasDocumentos: this.documentos.length > 0,
                 emptyText: this.translate('formatoGeneradoEmpty', 'labels', 'Case'),
+                previewTitle: this.translate('formatoGeneradoPreview', 'labels', 'Case'),
+                downloadTitle: this.translate('formatoGeneradoDownload', 'labels', 'Case'),
             };
         },
 
@@ -37,6 +39,43 @@ define('custom:views/case/fields/formato-generado-docs', [
             if ($cell.length) {
                 $cell.find('label.control-label').addClass('hidden');
             }
+
+            this.bindDocumentActions();
+        },
+
+        bindDocumentActions: function () {
+            const self = this;
+
+            this.$el.find('[data-action="previewFormato"]').off('click.formatoPreview');
+            this.$el.find('[data-action="previewFormato"]').on('click.formatoPreview', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const url = $(e.currentTarget).data('previewUrl');
+
+                if (!url) {
+                    return;
+                }
+
+                self.openPreview(url);
+            });
+        },
+
+        openPreview: function (url) {
+            Espo.Ui.notify(this.translate('pleaseWait', 'messages'));
+
+            const previewWindow = window.open(url, '_blank');
+
+            if (!previewWindow) {
+                Espo.Ui.error(this.translate('formatoGeneradoPreviewBlocked', 'labels', 'Case'));
+                Espo.Ui.notify(false);
+
+                return;
+            }
+
+            window.setTimeout(function () {
+                Espo.Ui.notify(false);
+            }, 1500);
         },
 
         scheduleLoadDocumentos: function () {
@@ -61,13 +100,15 @@ define('custom:views/case/fields/formato-generado-docs', [
                         key: doc.key,
                         label: this.translate(doc.labelKey, 'labels', 'Case'),
                         name: doc.name,
-                        url: doc.url,
+                        downloadUrl: doc.downloadUrl,
+                        previewUrl: doc.previewUrl,
                         icon: doc.icon,
                     };
                 });
 
                 if (this.isRendered()) {
                     SafeUiPromise.safeReRender(this);
+                    this.bindDocumentActions();
                 }
 
                 return this.documentos;

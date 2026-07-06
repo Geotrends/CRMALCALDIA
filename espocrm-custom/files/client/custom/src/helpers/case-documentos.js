@@ -28,17 +28,47 @@ define('custom:helpers/case-documentos', [
         return String(value || '').trim() !== '';
     };
 
-    const buildEntryPointUrl = function (basePath, entryPoint, caseId, format, modo) {
+    const buildEntryPointUrl = function (basePath, entryPoint, caseId, options) {
+        const opts = options || {};
+        const format = opts.format || 'pdf';
+        const modo = opts.modo || '';
+        const inline = !!opts.inline;
+
         let url = basePath
             + '?entryPoint=' + encodeURIComponent(entryPoint)
             + '&id=' + encodeURIComponent(caseId)
-            + '&format=' + encodeURIComponent(format || 'pdf');
+            + '&format=' + encodeURIComponent(format);
 
         if (modo) {
             url += '&modo=' + encodeURIComponent(modo);
         }
 
+        if (inline) {
+            url += '&inline=1';
+        }
+
         return url;
+    };
+
+    const buildDocumentEntry = function (config) {
+        const downloadUrl = buildEntryPointUrl(config.basePath, config.entryPoint, config.caseId, {
+            format: config.format || 'pdf',
+            modo: config.modo || '',
+            inline: false,
+        });
+
+        return {
+            key: config.key,
+            labelKey: config.labelKey,
+            name: config.name,
+            downloadUrl: downloadUrl,
+            previewUrl: buildEntryPointUrl(config.basePath, config.entryPoint, config.caseId, {
+                format: config.format || 'pdf',
+                modo: config.modo || '',
+                inline: true,
+            }),
+            icon: config.icon || 'fas fa-file-pdf text-danger',
+        };
     };
 
     const canShowSolicitudDocument = function (user, model) {
@@ -47,18 +77,19 @@ define('custom:helpers/case-documentos', [
             && FormatoSolicitudAccess.isFormatoSolicitudHabilitado(model);
     };
 
-    const pushSolicitudDocument = function (docs, user, model, basePath, acta) {
+    const pushSolicitudDocument = function (docs, user, model, basePath) {
         if (!canShowSolicitudDocument(user, model)) {
             return;
         }
 
-        docs.push({
+        docs.push(buildDocumentEntry({
             key: 'solicitud',
             labelKey: 'formatoGeneradoSolicitud',
             name: model.get('cFormatoSolicitudPdfName') || 'FormatoSolicitud.pdf',
-            url: buildEntryPointUrl(basePath, 'FormatoSolicitud', model.id, 'pdf'),
-            icon: 'fas fa-file-pdf text-danger',
-        });
+            basePath: basePath,
+            entryPoint: 'FormatoSolicitud',
+            caseId: model.id,
+        }));
     };
 
     const pushActaDocument = function (docs, user, model, basePath, acta) {
@@ -69,50 +100,61 @@ define('custom:helpers/case-documentos', [
 
         const fileName = getValue(acta, 'cFormatoActaVisitaPdfName') || 'ActaVisita.pdf';
 
-        docs.push({
+        docs.push(buildDocumentEntry({
             key: 'acta',
             labelKey: 'formatoGeneradoActa',
             name: fileName,
-            url: buildEntryPointUrl(basePath, 'FormatoActaVisitaCaso', model.id, 'pdf'),
-            icon: 'fas fa-file-pdf text-danger',
-        });
+            basePath: basePath,
+            entryPoint: 'FormatoActaVisitaCaso',
+            caseId: model.id,
+        }));
     };
 
-    const pushActuoDocument = function (docs, user, model, basePath, actuo) {
-        if (!actuo
-            || !FormatoActuoArchivoCaseAccess.canDownloadFormatoActuoArchivoFromCase(user, model)
-            || !ActuoArchivoCaseStatus.isFormatoActuoHabilitado(actuo)) {
-            return;
-        }
-
-        const fileName = getValue(actuo, 'cFormatoActuoArchivoPdfName') || 'AutoArchivo.pdf';
-
-        docs.push({
-            key: 'actuo',
-            labelKey: 'formatoGeneradoActuo',
-            name: fileName,
-            url: buildEntryPointUrl(basePath, 'FormatoActuoArchivoCaso', model.id, 'pdf'),
-            icon: 'fas fa-file-pdf text-danger',
-        });
-    };
-
-    const pushActuoWordDocument = function (docs, user, model, basePath) {
-        if (!FormatoActuoArchivoCaseAccess.canDownloadManualWordFromCase(user, model)) {
+    const pushActuoDocuments = function (docs, user, model, basePath, actuo) {
+        if (!user || !model) {
             return;
         }
 
         const radicado = String(getValue(model, 'cNumeroRadicado') || '').trim();
-        const fileName = radicado
-            ? 'AutoArchivo-' + radicado + '-editable.docx'
-            : 'AutoArchivo-editable.docx';
+        const status = String(getValue(model, 'status') || '').trim();
+        const isFinalizado = status === 'Finalizado';
 
-        docs.push({
-            key: 'actuo-word',
-            labelKey: 'formatoGeneradoActuoWord',
+        if (isFinalizado
+            && actuo
+            && FormatoActuoArchivoCaseAccess.canDownloadFormatoActuoArchivoFromCase(user, model)
+            && ActuoArchivoCaseStatus.isFormatoActuoHabilitado(actuo)) {
+            const fileName = getValue(actuo, 'cFormatoActuoArchivoPdfName') || 'AutoArchivo.pdf';
+
+            docs.push(buildDocumentEntry({
+                key: 'actuo',
+                labelKey: 'formatoGeneradoActuo',
+                name: fileName,
+                basePath: basePath,
+                entryPoint: 'FormatoActuoArchivoCaso',
+                caseId: model.id,
+                modo: 'digital',
+            }));
+
+            return;
+        }
+
+        if (!FormatoActuoArchivoCaseAccess.isCaseReadyForActuo(model)) {
+            return;
+        }
+
+        const fileName = radicado
+            ? 'AutoArchivo-' + radicado + '.pdf'
+            : 'AutoArchivo.pdf';
+
+        docs.push(buildDocumentEntry({
+            key: 'actuo-manual',
+            labelKey: 'formatoGeneradoActuo',
             name: fileName,
-            url: buildEntryPointUrl(basePath, 'FormatoActuoArchivoCaso', model.id, 'docx', 'manual'),
-            icon: 'fas fa-file-word text-primary',
-        });
+            basePath: basePath,
+            entryPoint: 'FormatoActuoArchivoCaso',
+            caseId: model.id,
+            modo: 'manual',
+        }));
     };
 
     const fetchDocumentos = function (model, user, basePath) {
@@ -129,14 +171,15 @@ define('custom:helpers/case-documentos', [
             const acta = results[0];
             const actuo = results[1];
 
-            pushSolicitudDocument(docs, user, model, basePath, acta);
+            pushSolicitudDocument(docs, user, model, basePath);
             pushActaDocument(docs, user, model, basePath, acta);
-            pushActuoWordDocument(docs, user, model, basePath);
-            pushActuoDocument(docs, user, model, basePath, actuo);
+            pushActuoDocuments(docs, user, model, basePath, actuo);
 
             return docs;
         }).catch(function () {
-            return [];
+            pushSolicitudDocument(docs, user, model, basePath);
+
+            return docs;
         });
     };
 

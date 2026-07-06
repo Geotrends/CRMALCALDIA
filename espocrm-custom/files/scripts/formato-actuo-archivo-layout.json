@@ -22,44 +22,58 @@
   ],
   "fields": {
     "fechaAuto": {
-      "rect": [145, 92, 360, 110],
+      "coverRect": [112, 124, 405, 142],
+      "coverMode": "redact",
+      "rect": [115, 126, 402, 140],
       "align": "left",
       "valign": "center"
     },
     "numeroRadicado": {
-      "rect": [88, 158, 292, 176],
+      "coverRect": [84, 186, 298, 206],
+      "coverMode": "redact",
+      "rect": [88, 188, 294, 204],
       "align": "center",
       "valign": "center"
     },
     "consecutivoInterno": {
-      "rect": [318, 158, 524, 176],
+      "coverRect": [312, 186, 528, 206],
+      "coverMode": "redact",
+      "rect": [316, 188, 524, 204],
       "align": "center",
       "valign": "center"
     },
     "referencia": {
-      "rect": [88, 232, 524, 248],
+      "coverRect": [84, 236, 528, 256],
+      "coverMode": "redact",
+      "rect": [88, 238, 524, 254],
       "align": "left",
-      "valign": "center"
+      "valign": "center",
+      "fontSize": 9,
+      "minFontSize": 6
     },
     "fechaDada": {
-      "rect": [210, 454, 430, 472],
+      "coverRect": [244, 446, 522, 464],
+      "coverMode": "redact",
+      "rect": [248, 448, 518, 462],
       "align": "left",
       "valign": "center"
     },
     "inspectorNombre": {
-      "rect": [140, 508, 472, 526],
+      "coverRect": [132, 512, 480, 532],
+      "coverMode": "redact",
+      "rect": [136, 514, 476, 530],
       "align": "center",
       "valign": "center"
     }
   },
   "textBoxes": {
     "motivoArchivo": {
-      "rect": [88, 288, 524, 432],
+      "rect": [88, 276, 524, 418],
       "align": "left",
       "singleLine": false,
       "ruledText": true,
-      "lineSpacing": 14.0,
-      "firstBaselineY": 296.0,
+      "lineSpacing": 13.5,
+      "firstBaselineY": 284.0,
       "maxLines": 10,
       "fontSize": 10,
       "padding": { "left": 2, "right": 4, "top": 0, "bottom": 0 }

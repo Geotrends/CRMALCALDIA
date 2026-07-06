@@ -124,6 +124,87 @@ def load_layout():
         return json.load(handle)
 
 
+def layout_scale(page, layout):
+    page_w = float(page.rect.width)
+    page_h = float(page.rect.height)
+    layout_w, layout_h = layout.get("pageSize", [page_w, page_h])
+
+    if layout_w <= 0 or layout_h <= 0:
+        return 1.0, 1.0
+
+    return page_w / float(layout_w), page_h / float(layout_h)
+
+
+def scale_value(value, scale):
+    if isinstance(value, (int, float)):
+        return float(value) * scale
+
+    return value
+
+
+def scale_rect(rect, sx, sy):
+    if not rect or len(rect) < 4:
+        return rect
+
+    return [rect[0] * sx, rect[1] * sy, rect[2] * sx, rect[3] * sy]
+
+
+def scale_padding(padding, sx, sy):
+    if not isinstance(padding, dict):
+        return padding
+
+    scaled = dict(padding)
+
+    if "left" in scaled:
+        scaled["left"] = scale_value(scaled["left"], sx)
+    if "right" in scaled:
+        scaled["right"] = scale_value(scaled["right"], sx)
+    if "top" in scaled:
+        scaled["top"] = scale_value(scaled["top"], sy)
+    if "bottom" in scaled:
+        scaled["bottom"] = scale_value(scaled["bottom"], sy)
+
+    return scaled
+
+
+def scale_field_def(field_def, sx, sy):
+    if not isinstance(field_def, dict):
+        return {"rect": scale_rect(field_def, sx, sy)}
+
+    scaled = dict(field_def)
+
+    if "rect" in scaled:
+        scaled["rect"] = scale_rect(scaled["rect"], sx, sy)
+    if "coverRect" in scaled:
+        scaled["coverRect"] = scale_rect(scaled["coverRect"], sx, sy)
+    if "labelRect" in scaled:
+        scaled["labelRect"] = scale_rect(scaled["labelRect"], sx, sy)
+    if "firstBaselineY" in scaled:
+        scaled["firstBaselineY"] = scale_value(scaled["firstBaselineY"], sy)
+    if "lineSpacing" in scaled:
+        scaled["lineSpacing"] = scale_value(scaled["lineSpacing"], sy)
+    if "padding" in scaled:
+        scaled["padding"] = scale_padding(scaled["padding"], sx, sy)
+
+    return scaled
+
+
+def scaled_layout_for_page(layout, page):
+    sx, sy = layout_scale(page, layout)
+    scaled = dict(layout)
+
+    scaled["fields"] = {
+        key: scale_field_def(field_def, sx, sy)
+        for key, field_def in layout.get("fields", {}).items()
+    }
+    scaled["textBoxes"] = {
+        key: scale_field_def(rect_def, sx, sy)
+        for key, rect_def in layout.get("textBoxes", {}).items()
+    }
+
+    return scaled
+
+
 def apply_modo(values, data, layout):
     modo = str(data.get("modo") or data.get("modoDiligenciamiento") or "digital").strip().lower()
     if modo != "manual":
@@ -155,6 +236,7 @@ def fill_pdf(template_path, output_path, data):
     layout = load_layout()
     doc = fitz.open(template_path)
     page = doc[0]
+    layout = scaled_layout_for_page(layout, page)
     values = apply_modo(build_field_values(data), data, layout)
 
     for key, field_def in layout.get("fields", {}).items():

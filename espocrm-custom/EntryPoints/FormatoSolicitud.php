@@ -19,6 +19,7 @@ class FormatoSolicitud implements EntryPoint
     {
         $id = $request->getQueryParam('id');
         $format = 'pdf';
+        $inline = $request->getQueryParam('inline') === '1';
 
         if (!$id) {
             throw new BadRequest("No id.");
@@ -26,9 +27,10 @@ class FormatoSolicitud implements EntryPoint
 
         $file = $this->generator->generate($id, $format);
         $stream = Utils::streamFor(fopen($file['path'], 'rb'));
+        $disposition = $inline ? 'inline' : 'attachment';
 
         $response
-            ->setHeader('Content-Disposition', 'attachment; filename="' . $file['name'] . '"')
+            ->setHeader('Content-Disposition', $disposition . '; filename="' . $file['name'] . '"')
             ->setHeader('Content-Type', $file['type'])
             ->setHeader('Content-Length', (string) filesize($file['path']))
             ->setBody($stream);

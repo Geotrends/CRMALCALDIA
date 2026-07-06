@@ -185,23 +185,15 @@ class FormatoActaVisitaGenerator
 
     public function canDownloadFormatoFromCase(Entity $case): bool
     {
-        if ($this->user->isAdmin()) {
-            return true;
-        }
-
-        if ($this->profile->isInspeccion($this->user)) {
-            return $this->isCaseReadyForActa($case);
-        }
-
         if (!$this->isCaseReadyForActa($case)) {
             return false;
         }
 
-        if ($this->profile->isPatrullero($this->user)) {
-            return (string) $case->get('assignedUserId') === (string) $this->user->getId();
+        if ($this->user->isAdmin()) {
+            return true;
         }
 
-        return false;
+        return $this->acl->checkEntityRead($case);
     }
 
     private function isFormatoActaHabilitadoForCase(Entity $case, ?Entity $acta): bool

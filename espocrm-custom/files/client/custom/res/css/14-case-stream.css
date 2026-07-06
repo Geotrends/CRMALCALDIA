@@ -39,14 +39,11 @@
   border-radius: 8px;
   background: var(--crm-bg-elevated, #f8fafb);
   color: inherit;
-  text-decoration: none;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .detail[data-scope="Case"] .panel[data-name="formatoGenerado"] .case-formato-generado-doc:hover {
-  border-color: var(--crm-border, #dce3eb);
+  border-color: var(--crm-primary-soft, #b5e6d1);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  text-decoration: none;
 }
 
 .detail[data-scope="Case"] .panel[data-name="formatoGenerado"] .case-formato-generado-doc-body {
@@ -72,9 +69,30 @@
   flex-shrink: 0;
 }
 
-.detail[data-scope="Case"] .panel[data-name="formatoGenerado"] .case-formato-generado-doc-action {
-  color: var(--crm-text-secondary, #475569);
+.detail[data-scope="Case"] .panel[data-name="formatoGenerado"] .case-formato-generado-doc-action,
+.detail[data-scope="Case"] .panel[data-name="formatoGenerado"] .case-formato-generado-doc-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   flex-shrink: 0;
+}
+
+.detail[data-scope="Case"] .panel[data-name="formatoGenerado"] .case-formato-generado-doc-btn {
+  color: var(--crm-text-secondary, #475569) !important;
+  padding: 6px 8px !important;
+  min-width: 34px;
+  border-radius: 8px !important;
+}
+
+.detail[data-scope="Case"] .panel[data-name="formatoGenerado"] .case-formato-generado-doc-btn:hover,
+.detail[data-scope="Case"] .panel[data-name="formatoGenerado"] .case-formato-generado-doc-btn:focus {
+  color: #134a38 !important;
+  background: #eefaf5 !important;
+}
+
+.detail[data-scope="Case"] .panel[data-name="formatoGenerado"] .case-formato-generado-doc-btn .fas {
+  color: inherit !important;
+  font-size: 15px;
 }
 
 .detail[data-scope="Case"] .panel[data-name="actaVisita"] .field[data-name="cPanelActaVisita"] > .cell > label.control-label,
