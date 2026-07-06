@@ -305,89 +305,80 @@
   font-size: 13px;
 }
 
-.excel-alcaldia-modal-dialog.modal.in,
-.excel-alcaldia-modal-dialog .modal-dialog,
-.excel-alcaldia-modal-dialog .modal-content,
-.excel-alcaldia-modal-dialog .modal-body,
-.excel-alcaldia-modal-body,
-.excel-alcaldia-modal__content {
-  overflow: hidden !important;
-}
-
 .excel-alcaldia-modal-dialog .modal-dialog {
   width: 96vw;
   max-width: 96vw;
   margin: 20px auto;
 }
 
+.excel-alcaldia-modal-dialog .modal-content,
+.excel-alcaldia-modal-dialog .body {
+  overflow: hidden;
+}
+
 .excel-alcaldia-modal-dialog .modal-body {
   padding: 12px 16px 16px;
   max-height: calc(100vh - 140px);
+  overflow: hidden;
   display: flex;
   flex-direction: column;
+}
+
+.excel-alcaldia-modal-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .excel-alcaldia-modal__content {
-  flex: 1 1 auto;
+  flex: 1;
   min-height: 0;
   display: flex;
   flex-direction: column;
-}
-
-.excel-alcaldia-viewport {
-  flex: 1 1 auto;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  height: calc(100vh - 220px);
-  max-height: calc(100vh - 220px);
-}
-
-.excel-alcaldia-head-wrap {
-  flex: 0 0 auto;
   overflow: hidden;
-  border: 1px solid #b8dcc8;
-  border-bottom: none;
-  border-radius: var(--crm-radius-md) var(--crm-radius-md) 0 0;
-  background: #f4fbf6;
 }
 
-.excel-alcaldia-head-scroll {
-  overflow: hidden;
+.excel-alcaldia-sheet-label {
+  flex-shrink: 0;
+  margin-bottom: 8px;
+  font-size: 12px;
 }
 
 .excel-alcaldia-scroll {
-  flex: 1 1 auto;
+  flex: 1;
   min-height: 0;
   overflow: auto;
-  border: 1px solid #b8dcc8;
-  border-radius: 0 0 var(--crm-radius-md) var(--crm-radius-md);
+  border: 1px solid var(--crm-border);
+  border-radius: var(--crm-radius-md);
   background: #fff;
   scrollbar-width: thin;
-  scrollbar-color: #5cb87a #e5f5ea;
+  scrollbar-color: #5fa97a #e6f4eb;
 }
 
 .excel-alcaldia-scroll::-webkit-scrollbar {
-  width: 14px;
-  height: 14px;
+  width: 11px;
+  height: 11px;
 }
 
 .excel-alcaldia-scroll::-webkit-scrollbar-track {
-  background: #e5f5ea;
+  background: #e6f4eb;
+  border-radius: 8px;
 }
 
 .excel-alcaldia-scroll::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #72c98f 0%, #4fa86d 100%);
+  background: #5fa97a;
   border-radius: 8px;
-  border: 3px solid #e5f5ea;
+  border: 2px solid #e6f4eb;
 }
 
 .excel-alcaldia-scroll::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #5fb97d 0%, #3f9660 100%);
+  background: #4f9469;
 }
 
 .excel-alcaldia-scroll::-webkit-scrollbar-corner {
-  background: #e5f5ea;
+  background: #e6f4eb;
 }
 
 .excel-alcaldia-table {
@@ -398,31 +389,38 @@
   border-spacing: 0;
 }
 
-.excel-alcaldia-head-wrap .excel-alcaldia-table {
-  margin-bottom: 0 !important;
-  border-bottom: none !important;
-}
-
-.excel-alcaldia-scroll .excel-alcaldia-table thead {
-  display: none;
-}
-
 .excel-alcaldia-table thead th {
-  background: #e8f6ec;
-  color: #1f4d33;
+  background: #eef2f7;
+  color: #1f2937;
   font-weight: 600;
+}
+
+.excel-alcaldia-sticky-bar {
+  position: fixed;
+  z-index: 1065;
+  overflow: hidden;
+  pointer-events: none;
+  background: #eef2f7;
+  border-bottom: 1px solid #c5cdd8;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.12);
+}
+
+.excel-alcaldia-sticky-bar.is-hidden {
+  display: none !important;
+}
+
+.excel-alcaldia-sticky-bar__track {
+  overflow: hidden;
+}
+
+.excel-alcaldia-sticky-bar .excel-alcaldia-table thead th {
+  background: #eef2f7;
 }
 
 .excel-alcaldia-table td,
 .excel-alcaldia-table th {
   padding: 4px 8px !important;
   vertical-align: middle;
-}
-
-.excel-alcaldia-sheet-label {
-  flex: 0 0 auto;
-  margin-bottom: 8px;
-  font-size: 12px;
 }
 
 .excel-alcaldia-empty {

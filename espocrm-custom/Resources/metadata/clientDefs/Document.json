@@ -10,5 +10,10 @@
         "filter": "todosPlantillas"
     },
     "defaultSortBy": "cCategoria",
-    "defaultOrder": "asc"
+    "defaultOrder": "asc",
+    "relationshipPanels": {
+        "accounts": {
+            "disabled": true
+        }
+    }
 }
