@@ -3,16 +3,9 @@
   "fontSize": 10,
   "minFontSize": 7,
   "textColor": [0, 0, 0],
-  "borderStyle": {
-    "width": 0.35,
-    "color": [0.55, 0.55, 0.55],
-    "coverPad": 1.5
-  },
-  "restyleHeaderBorders": true,
-  "headerBorderRegion": [78, 34, 534, 122],
-  "fieldPadding": { "left": 2, "right": 4, "top": 0, "bottom": 0 },
+  "fieldPadding": { "left": 1, "right": 1, "top": 0, "bottom": 0 },
   "defaultFieldAlign": "left",
-  "defaultFieldValign": "center",
+  "defaultFieldValign": "bottom",
   "fieldSingleLine": true,
   "truncateOverflow": true,
   "ellipsis": "...",
@@ -28,48 +21,66 @@
   ],
   "labels": {
     "colombia": {
-      "label": " Colombia,",
-      "labelRect": [145, 158, 235, 172],
+      "label": "Colombia,",
+      "labelRect": [146, 163, 255, 175],
       "labelAlign": "left",
-      "labelFontSize": 12
+      "labelFontSize": 12,
+      "labelValign": "bottom"
     }
   },
   "fields": {
     "numeroRadicado": {
-      "rect": [86, 223, 228, 237],
-      "align": "center"
+      "rect": [86.2, 231.8, 228.1, 235.8],
+      "align": "center",
+      "valign": "bottom",
+      "fontSize": 10
     },
     "consecutivoInterno": {
-      "rect": [344, 223, 486, 237],
-      "align": "center"
+      "rect": [344.6, 231.8, 486.6, 235.8],
+      "align": "center",
+      "valign": "bottom",
+      "fontSize": 10
     },
     "fechaDada": {
-      "rect": [230, 517, 408, 533],
+      "rect": [230.3, 525.8, 407.1, 529.8],
       "align": "left",
-      "valign": "bottom"
+      "valign": "bottom",
+      "fontSize": 10
     },
     "inspectorNombre": {
-      "rect": [170, 578, 444, 592],
-      "align": "center"
+      "rect": [169.1, 586.4, 443.1, 590.4],
+      "align": "center",
+      "valign": "bottom",
+      "fontSize": 10
     }
   },
   "textBoxes": {
     "referencia": {
-      "rect": [87, 278, 513, 326],
+      "rect": [85.2, 288.8, 463.1, 320.8],
       "align": "left",
       "singleLine": false,
-      "valign": "top",
+      "ruledText": true,
+      "lineSpacing": 14.0,
+      "firstBaselineY": 290.8,
+      "baselineAdjust": 9.2,
+      "firstLineXOffset": 241.6,
+      "firstLineWidth": 186.0,
+      "maxLines": 3,
       "fontSize": 9,
       "minFontSize": 7,
-      "padding": { "left": 2, "right": 4, "top": 18, "bottom": 0 }
+      "padding": { "left": 0, "right": 0, "top": 0, "bottom": 0 }
     },
     "motivoArchivo": {
-      "rect": [87, 352, 513, 491],
+      "rect": [85.2, 358.8, 469.1, 488.8],
       "align": "left",
       "singleLine": false,
-      "valign": "top",
+      "ruledText": true,
+      "lineSpacing": 14.0,
+      "firstBaselineY": 360.8,
+      "baselineAdjust": 10.0,
+      "maxLines": 10,
       "fontSize": 10,
-      "padding": { "left": 2, "right": 4, "top": 2, "bottom": 0 }
+      "padding": { "left": 0, "right": 0, "top": 0, "bottom": 0 }
     }
   }
 }

@@ -295,7 +295,7 @@ def put_ruled_multiline_text(page, box, text, layout, field_def, fontname, fonts
         first_line_width = box.width
 
     if first_baseline_y is not None:
-        y = float(first_baseline_y)
+        y = float(first_baseline_y) + float(field_def.get("baselineAdjust", 0))
     else:
         y = box.y0 + float(field_def.get("firstLineOffset", fontsize * 0.85))
 
@@ -386,6 +386,7 @@ def put_static_label(page, field_def, layout):
     label_def = {
         "rect": label_rect,
         "align": field_def.get("labelAlign", "left"),
+        "valign": field_def.get("labelValign", "bottom"),
         "fontName": field_def.get("labelFontName", "hebo"),
     }
     label_layout = dict(layout)
@@ -405,6 +406,7 @@ def put_fitted_field(page, field_def, text, layout):
         label_def = {
             "rect": label_rect,
             "align": field_def.get("labelAlign", "left"),
+            "valign": field_def.get("labelValign", "bottom"),
             "fontName": field_def.get("labelFontName", "hebo"),
         }
         label_layout = dict(layout)

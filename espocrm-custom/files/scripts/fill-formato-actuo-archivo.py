@@ -183,6 +183,10 @@ def scale_field_def(field_def, sx, sy):
         scaled["firstBaselineY"] = scale_value(scaled["firstBaselineY"], sy)
     if "firstLineXOffset" in scaled:
         scaled["firstLineXOffset"] = scale_value(scaled["firstLineXOffset"], sx)
+    if "firstLineWidth" in scaled:
+        scaled["firstLineWidth"] = scale_value(scaled["firstLineWidth"], sx)
+    if "baselineAdjust" in scaled:
+        scaled["baselineAdjust"] = scale_value(scaled["baselineAdjust"], sy)
     if "lineSpacing" in scaled:
         scaled["lineSpacing"] = scale_value(scaled["lineSpacing"], sy)
     if "padding" in scaled:
@@ -239,8 +243,6 @@ def fill_pdf(template_path, output_path, data):
     page = doc[0]
     layout = scaled_layout_for_page(layout, page)
     values = apply_modo(build_field_values(data), data, layout)
-
-    overlay.restyle_template_borders(page, layout)
 
     for _key, label_def in layout.get("labels", {}).items():
         overlay.put_static_label(page, label_def, layout)

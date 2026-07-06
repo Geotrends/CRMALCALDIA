@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Genera formato-actuo-archivo-layout.json a partir del PDF plantilla real
-(detecta renglones de guiones bajos en el texto).
+Genera formato-actuo-archivo-layout.json a partir del PDF plantilla real.
+Detecta renglones por guiones bajos del texto (sin alargar líneas de la plantilla).
 
 Uso:
   python3 calibrate-actuo-archivo-layout.py [ruta/ActuoArchivo-template.pdf]
@@ -75,18 +75,19 @@ def split_radicado_lines(lines):
     return same_row[0], same_row[1], remaining
 
 
-def field_rect(line, pad_x=1.0, pad_y=12.0):
+def field_rect(line, pad_x=0.0, baseline_offset=2.0):
     return [
         round(line["x0"] + pad_x, 1),
-        round(line["y"] - pad_y, 1),
+        round(line["y"] + baseline_offset - 3.0, 1),
         round(line["x1"] - pad_x, 1),
-        round(line["y"] + 2.0, 1),
+        round(line["y"] + baseline_offset, 1),
     ]
 
 
 def build_layout(page):
     rect = page.rect
     all_lines = underscore_lines(page)
+    envigado_line = next((line for line in all_lines if line["y"] < 180.0), None)
     lines = body_underscore_lines(all_lines)
 
     if len(lines) < 8:
@@ -104,23 +105,27 @@ def build_layout(page):
     inspector = tail[-1]
     ref_first = referencia[0]
     ref_offset = round(ref_first["x0"] - radicado["x0"], 1)
-    page_right = max(consecutivo["x1"], motivo[-1]["x1"], inspector["x1"])
+    ref_first_width = round(ref_first["x1"] - ref_first["x0"], 1)
+    ref_spacing = round(referencia[1]["y"] - referencia[0]["y"], 1) if len(referencia) > 1 else 14.0
+    motivo_spacing = round(motivo[1]["y"] - motivo[0]["y"], 1) if len(motivo) > 1 else 14.0
+
+    colombia_rect = [146, 163, 255, 175]
+    if envigado_line:
+        colombia_rect = [
+            round(envigado_line["x0"] + 60, 1),
+            round(envigado_line["y"] - 4.4, 1),
+            round(envigado_line["x0"] + 170, 1),
+            round(envigado_line["y"] + 10.2, 1),
+        ]
 
     return {
         "pageSize": [round(rect.width, 1), round(rect.height, 1)],
         "fontSize": 10,
         "minFontSize": 7,
         "textColor": [0, 0, 0],
-        "borderStyle": {
-            "width": 0.35,
-            "color": [0.55, 0.55, 0.55],
-            "coverPad": 1.5,
-        },
-        "restyleHeaderBorders": True,
-        "headerBorderRegion": [78, 34, 534, 122],
-        "fieldPadding": {"left": 2, "right": 4, "top": 0, "bottom": 0},
+        "fieldPadding": {"left": 1, "right": 1, "top": 0, "bottom": 0},
         "defaultFieldAlign": "left",
-        "defaultFieldValign": "center",
+        "defaultFieldValign": "bottom",
         "fieldSingleLine": True,
         "truncateOverflow": True,
         "ellipsis": "...",
@@ -134,58 +139,76 @@ def build_layout(page):
         "manualFields": ["motivoArchivo"],
         "labels": {
             "colombia": {
-                "label": " Colombia,",
-                "labelRect": [145, 158, 235, 172],
+                "label": "Colombia,",
+                "labelRect": colombia_rect,
                 "labelAlign": "left",
                 "labelFontSize": 12,
+                "labelValign": "bottom",
             }
         },
         "fields": {
             "numeroRadicado": {
                 "rect": field_rect(radicado),
                 "align": "center",
+                "valign": "bottom",
+                "fontSize": 10,
             },
             "consecutivoInterno": {
                 "rect": field_rect(consecutivo),
                 "align": "center",
+                "valign": "bottom",
+                "fontSize": 10,
             },
             "fechaDada": {
-                "rect": field_rect(fecha, pad_y=10.0),
+                "rect": field_rect(fecha),
                 "align": "left",
                 "valign": "bottom",
+                "fontSize": 10,
             },
             "inspectorNombre": {
                 "rect": field_rect(inspector),
                 "align": "center",
+                "valign": "bottom",
+                "fontSize": 10,
             },
         },
         "textBoxes": {
             "referencia": {
                 "rect": [
                     round(radicado["x0"], 1),
-                    round(referencia[0]["y"] - 12.8, 1),
-                    round(page_right, 1),
-                    round(referencia[-1]["y"] + 7.2, 1),
+                    round(referencia[0]["y"] - 2.0, 1),
+                    round(referencia[-1]["x1"], 1),
+                    round(referencia[-1]["y"] + 2.0, 1),
                 ],
                 "align": "left",
                 "singleLine": False,
-                "valign": "top",
+                "ruledText": True,
+                "lineSpacing": ref_spacing,
+                "firstBaselineY": ref_first["y"],
+                "baselineAdjust": 9.2,
+                "firstLineXOffset": ref_offset,
+                "firstLineWidth": ref_first_width,
+                "maxLines": len(referencia),
                 "fontSize": 9,
                 "minFontSize": 7,
-                "padding": {"left": 2, "right": 4, "top": 18, "bottom": 0},
+                "padding": {"left": 0, "right": 0, "top": 0, "bottom": 0},
             },
             "motivoArchivo": {
                 "rect": [
                     round(motivo[0]["x0"], 1),
-                    round(motivo[0]["y"] - 8.8, 1),
+                    round(motivo[0]["y"] - 2.0, 1),
                     round(motivo[0]["x1"], 1),
-                    round(motivo[-1]["y"] + 4.2, 1),
+                    round(motivo[-1]["y"] + 2.0, 1),
                 ],
                 "align": "left",
                 "singleLine": False,
-                "valign": "top",
+                "ruledText": True,
+                "lineSpacing": motivo_spacing,
+                "firstBaselineY": motivo[0]["y"],
+                "baselineAdjust": 10.0,
+                "maxLines": len(motivo),
                 "fontSize": 10,
-                "padding": {"left": 2, "right": 4, "top": 2, "bottom": 0},
+                "padding": {"left": 0, "right": 0, "top": 0, "bottom": 0},
             },
         },
         "_detectedLines": lines,
