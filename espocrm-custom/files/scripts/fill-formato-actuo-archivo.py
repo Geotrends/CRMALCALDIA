@@ -242,6 +242,9 @@ def fill_pdf(template_path, output_path, data):
 
     overlay.restyle_template_borders(page, layout)
 
+    for _key, label_def in layout.get("labels", {}).items():
+        overlay.put_static_label(page, label_def, layout)
+
     for key, field_def in layout.get("fields", {}).items():
         overlay.put_fitted_field(page, field_def, values.get(key), layout)
 

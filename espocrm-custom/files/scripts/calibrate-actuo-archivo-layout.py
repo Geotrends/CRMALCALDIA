@@ -132,6 +132,14 @@ def build_layout(page):
             "inspectorNombre",
         ],
         "manualFields": ["motivoArchivo"],
+        "labels": {
+            "colombia": {
+                "label": " Colombia,",
+                "labelRect": [145, 158, 235, 172],
+                "labelAlign": "left",
+                "labelFontSize": 12,
+            }
+        },
         "fields": {
             "numeroRadicado": {
                 "rect": field_rect(radicado),
@@ -142,8 +150,9 @@ def build_layout(page):
                 "align": "center",
             },
             "fechaDada": {
-                "rect": field_rect(fecha),
+                "rect": field_rect(fecha, pad_y=10.0),
                 "align": "left",
+                "valign": "bottom",
             },
             "inspectorNombre": {
                 "rect": field_rect(inspector),
@@ -160,16 +169,10 @@ def build_layout(page):
                 ],
                 "align": "left",
                 "singleLine": False,
-                "ruledText": True,
-                "lineSpacing": round(referencia[1]["y"] - referencia[0]["y"], 1)
-                if len(referencia) > 1
-                else 14.0,
-                "firstBaselineY": ref_first["y"],
-                "firstLineXOffset": ref_offset,
-                "maxLines": len(referencia),
+                "valign": "top",
                 "fontSize": 9,
                 "minFontSize": 7,
-                "padding": {"left": 2, "right": 4, "top": 0, "bottom": 0},
+                "padding": {"left": 2, "right": 4, "top": 18, "bottom": 0},
             },
             "motivoArchivo": {
                 "rect": [

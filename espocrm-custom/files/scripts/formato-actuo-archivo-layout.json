@@ -26,6 +26,14 @@
   "manualFields": [
     "motivoArchivo"
   ],
+  "labels": {
+    "colombia": {
+      "label": " Colombia,",
+      "labelRect": [145, 158, 235, 172],
+      "labelAlign": "left",
+      "labelFontSize": 12
+    }
+  },
   "fields": {
     "numeroRadicado": {
       "rect": [86, 223, 228, 237],
@@ -36,8 +44,9 @@
       "align": "center"
     },
     "fechaDada": {
-      "rect": [231, 517, 406, 531],
-      "align": "left"
+      "rect": [230, 517, 408, 533],
+      "align": "left",
+      "valign": "bottom"
     },
     "inspectorNombre": {
       "rect": [170, 578, 444, 592],
@@ -49,14 +58,10 @@
       "rect": [87, 278, 513, 326],
       "align": "left",
       "singleLine": false,
-      "ruledText": true,
-      "lineSpacing": 14,
-      "firstBaselineY": 290.8,
-      "firstLineXOffset": 241.6,
-      "maxLines": 3,
+      "valign": "top",
       "fontSize": 9,
       "minFontSize": 7,
-      "padding": { "left": 2, "right": 4, "top": 0, "bottom": 0 }
+      "padding": { "left": 2, "right": 4, "top": 18, "bottom": 0 }
     },
     "motivoArchivo": {
       "rect": [87, 352, 513, 491],
