@@ -2,7 +2,8 @@
 
 **Referencia:** propuesta técnica vs. implementación actual  
 **Alcance:** objetivos 1 a 22  
-**Entorno de referencia:** EspoCRM custom en Docker (`http://localhost:8080`)  
+**Entorno de referencia:** EspoCRM custom en Docker (`http://localhost:8080`) y Dokploy (producción)  
+**Última revisión documental:** 2 de julio de 2026  
 **Datos al momento de la revisión:** 7 casos, 3 actas de visita, 3 plantillas documentales, 5 usuarios operativos
 
 ---
@@ -128,9 +129,9 @@
 | Actividad | Estado | Qué hay hoy | Qué falta |
 |-----------|--------|-------------|-----------|
 | Definir eventos notificables | Listo | Nueva solicitud, radicado, asignación, vencimiento, finalizado. | — |
-| Crear plantillas de mensaje | Parcial | Mensajes en hooks PHP y vista custom de notificaciones (campana). | **Matriz formal** de plantillas (texto estándar por evento, variables, canal campana/email). |
+| Crear plantillas de mensaje | Parcial | Mensajes en hooks PHP; vista custom de notificaciones (campana); **toasts laterales** con icono y fondo pastel según tipo de mensaje (`ui-toasts.js`, `22-ui-toasts.css`); badge de campana con **contador visible** en verde pastel. | **Matriz formal** de plantillas (texto estándar por evento, variables, canal campana/email). |
 | Configurar destinatarios | Listo | Por rol/usuario en hooks. | — |
-| Probar notificaciones internas y externas | Parcial | Campana operativa en todos los eventos clave. | Email externo depende de **SMTP** configurado; no probado end-to-end por correo. |
+| Probar notificaciones internas y externas | Parcial | Campana operativa en todos los eventos clave; anuncios nativos EspoCRM (esquina inferior derecha) con estilo pastel. | Email externo depende de **SMTP** configurado; no probado end-to-end por correo. |
 
 
 ---
@@ -143,10 +144,10 @@
 
 | Actividad | Estado | Qué hay hoy | Qué falta |
 |-----------|--------|-------------|-----------|
-| Definir tipos documentales | Listo | Formato solicitud, Acta de visita, Actuo archivo. | — |
+| Definir tipos documentales | Listo | Formato solicitud, Acta de visita, Actuo archivo, Excel oficial. | — |
 | Cargar archivos por caso | Parcial | PDFs generados automáticamente al guardar. | Carga manual **estandarizada** de otros tipos de archivo (anexos, evidencias). |
-| Indexar documentos | Parcial | Categorías + adjuntos nativos EspoCRM. | Índice/búsqueda documental **avanzada** (metadatos institucionales, palabras clave). |
-| Organizar docs técnicos y administrativos | Parcial | Módulo Documentos + PDFs en cada caso. | Clasificación explícita **técnico vs administrativo** (carpetas, reglas o tipos dedicados). |
+| Indexar documentos | Parcial | Categorías internas (`cCategoria`) + adjuntos nativos EspoCRM; iconos por tipo en detalle (`24-document-categories.css`). | Índice/búsqueda documental **avanzada** (metadatos institucionales, palabras clave). |
+| Organizar docs técnicos y administrativos | Parcial | Módulo Documentos + PDFs en cada caso; **lista de plantillas sin columna Categoría** (el nombre identifica el formato). | Clasificación explícita **técnico vs administrativo** (carpetas, reglas o tipos dedicados). |
 | Validar consulta y descarga | Listo | Entry points PDF + listado Documentos. | — |
 
 
@@ -178,11 +179,11 @@
 
 | Actividad | Estado | Qué hay hoy en el CRM | Qué falta |
 |-----------|--------|------------------------|-----------|
-| Preparar casos de prueba | Parcial | 7 casos, 3 actas, 5 usuarios operativos (juan, edwin, julian, 2 patrulleros). | Paquete **formal de casos UAT** (escenarios escritos con datos y resultado esperado). |
+| Preparar casos de prueba | Parcial | 7 casos, 3 actas, 5 usuarios operativos; escenarios UAT informales (p. ej. queja por residuos en Pantanillo). | Paquete **formal de casos UAT** (escenarios escritos con datos y resultado esperado). |
 | Ejecutar sesión UAT | Pendiente | — | Acta o registro de sesión UAT con usuarios reales. |
 | Registrar hallazgos | Pendiente | — | Matriz de hallazgos (bug, mejora, observación). |
-| Priorizar ajustes | Pendiente | Ajustes hechos en desarrollo iterativo. | Priorización **formal** post-UAT (crítico / medio / bajo). |
-| Cerrar errores críticos | Parcial | Varios bugs corregidos (radicado, notificaciones, documentos, equipos). | Trazabilidad UAT: qué error se cerró, cuándo y quién validó. |
+| Priorizar ajustes | Pendiente | Ajustes hechos en desarrollo iterativo (incl. capa UI jul 2026). | Priorización **formal** post-UAT (crítico / medio / bajo). |
+| Cerrar errores críticos | Parcial | Varios bugs corregidos (radicado, notificaciones, documentos, equipos); **mejoras UI** (toasts, botones, estados, login, campana). | Trazabilidad UAT: qué error se cerró, cuándo y quién validó. |
 
 
 ---
@@ -327,7 +328,7 @@
 |-----------|--------|------------------------|-----------|
 | Definir campos obligatorios | Listo | Hooks: solicitud completa, persona tipo, enums, radicado. | — |
 | Validar formatos | Listo | Documento/NIT, siglas radicado, placeholders. | — |
-| Implementar mensajes de error | Listo | Mensajes claros al usuario por rol y campo. | — |
+| Implementar mensajes de error | Listo | Mensajes claros al usuario por rol y campo; **toasts laterales** (éxito, error, carga, info) y diálogos de confirmación personalizados en lugar del banner superior nativo. | — |
 | Probar datos inválidos | Listo | Sistema rechaza datos inválidos al guardar. | — |
 
 
@@ -387,6 +388,26 @@
 
 | Actividad | Estado | Qué hay hoy en el CRM | Qué falta |
 |-----------|--------|------------------------|-----------|
-| Revisar rutas públicas | Parcial | Login obligatorio; PDFs vía sesión autenticada. | Auditoría **documentada** de rutas públicas y entry points. |
+| Revisar rutas públicas | Parcial | Login obligatorio; PDFs vía sesión autenticada; pantalla de login con identidad Envigado y botón **verde pastel**. | Auditoría **documentada** de rutas públicas y entry points. |
 | Validar autenticación obligatoria | Listo | Usuario/contraseña; usuarios internos activos. | — |
 | Documentar restricción de acceso | Pendiente | Comportamiento implementado en el sistema. | Acta o informe formal de verificación de acceso exclusivo institucional. |
+
+---
+
+# Complemento transversal — Interfaz de usuario institucional (jul 2026)
+
+Mejoras de **solo apariencia y UX** (no alteran reglas de negocio ni permisos). Carga vía `Resources/metadata/app/client.json` (`cssList`, `scriptList`) y loaders con CSS inline de respaldo para producción (`theme-navbar.js`, `theme-buttons.js`, `theme-login.js`).
+
+| Área | Estado | Implementación | Notas |
+|------|--------|----------------|-------|
+| Botones y acciones primarias | Listo | Píldora, verde pastel, sin sombras (`23-buttons.css`, loaders) | Incluye «Crear caso», cabeceras de lista |
+| Barras de búsqueda | Listo | Ovaladas, fondo blanco, espaciado entre filtro / input / lupa | Global y listas |
+| Estados del caso (badges) | Listo | Icono Font Awesome por estado; sin rombo (`06-case.css`) | 8 estados del flujo |
+| Toasts y confirmaciones | Listo | Panel derecho; icono según mensaje (spinner en «Guardando…», check en éxito, etc.) | `ui-toasts.js`, `22-ui-toasts.css` |
+| Campana de notificaciones | Listo | Contador numérico visible; badge verde pastel | `badge.js`, `09-navbar.css` |
+| Login | Listo | Botón iniciar sesión verde pastel; logo Envigado | `15-login.css`, `theme-login.js` |
+| Kanban y navbar lateral | Listo | Estilo slim + barra superior fija | `09-navbar.css`, `20-case-kanban.css` |
+| Categorías documentales (detalle) | Listo | Iconos por tipo (solicitud, acta, actuo, Excel) | Lista de plantillas **sin** columna Categoría |
+| i18n menú | Listo | «Crear caso» (no «Crear ticket») | `i18n-personas.js`, traducciones Case |
+
+**Verificación rápida post-deploy:** recarga forzada (`Ctrl+Shift+R`); comprobar `.deploy-version` en repo; revisar que `theme-navbar.js` y `ui-toasts.js` estén en `scriptList`.

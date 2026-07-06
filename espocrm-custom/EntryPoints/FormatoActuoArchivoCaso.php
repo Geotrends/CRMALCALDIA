@@ -18,17 +18,24 @@ class FormatoActuoArchivoCaso implements EntryPoint
     public function run(Request $request, Response $response): void
     {
         $id = $request->getQueryParam('id');
-        $format = 'pdf';
+        $format = strtolower((string) ($request->getQueryParam('format') ?? 'pdf'));
+        $modo = (string) ($request->getQueryParam('modo') ?? 'digital');
+        $inline = $request->getQueryParam('inline') === '1';
 
         if (!$id) {
             throw new BadRequest('No id.');
         }
 
-        $file = $this->generator->generateForCase($id, $format);
+        if (!in_array($format, ['pdf', 'docx'], true)) {
+            throw new BadRequest('Formato no válido. Use pdf o docx.');
+        }
+
+        $file = $this->generator->generateForCase($id, $format, false, $modo);
         $stream = Utils::streamFor(fopen($file['path'], 'rb'));
+        $disposition = $inline ? 'inline' : 'attachment';
 
         $response
-            ->setHeader('Content-Disposition', 'attachment; filename="' . $file['name'] . '"')
+            ->setHeader('Content-Disposition', $disposition . '; filename="' . $file['name'] . '"')
             ->setHeader('Content-Type', $file['type'])
             ->setHeader('Content-Length', (string) filesize($file['path']))
             ->setBody($stream);

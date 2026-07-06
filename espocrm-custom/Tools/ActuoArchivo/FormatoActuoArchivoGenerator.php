@@ -7,6 +7,7 @@ use Espo\Core\Exceptions\BadRequest;
 use Espo\Core\Exceptions\Error;
 use Espo\Core\Exceptions\Forbidden;
 use Espo\Core\Utils\Config;
+use Espo\Custom\Tools\App\AlcaldiaDateTimeHelper;
 use Espo\Entities\Role;
 use Espo\Entities\User;
 use Espo\ORM\Entity;
@@ -59,8 +60,12 @@ class FormatoActuoArchivoGenerator
     /**
      * @return array{path: string, name: string, type: string}
      */
-    public function generateForCase(string $caseId, string $format, bool $internal = false): array
-    {
+    public function generateForCase(
+        string $caseId,
+        string $format,
+        bool $internal = false,
+        string $modo = 'digital'
+    ): array {
         /** @var ?Entity $case */
         $case = $this->entityManager->getEntityById('Case', $caseId);
 
@@ -72,18 +77,26 @@ class FormatoActuoArchivoGenerator
             throw new Forbidden();
         }
 
-        if (!$internal && !$this->canDownloadFormatoFromCase($case)) {
-            throw new Forbidden();
-        }
+        $modo = strtolower($modo) === 'manual' ? 'manual' : 'digital';
 
-        $actuo = $this->resolveActuoForCase($caseId);
+        if ($modo === 'manual') {
+            $payload = $this->buildPayloadManualFromCase($case);
+        } else {
+            if (!$internal && !$this->canDownloadFormatoFromCase($case)) {
+                throw new Forbidden();
+            }
 
-        if (!$actuo) {
-            throw new Forbidden('No hay auto de archivo diligenciado para este caso.');
-        }
+            $actuo = $this->resolveActuoForCase($caseId);
 
-        if (!$internal && !$this->isFormatoHabilitado($actuo)) {
-            throw new Forbidden('El formato de auto de archivo aún no está habilitado.');
+            if (!$actuo) {
+                throw new Forbidden('No hay auto de archivo diligenciado para este caso.');
+            }
+
+            if (!$internal && !$this->isFormatoHabilitado($actuo)) {
+                throw new Forbidden('El formato de auto de archivo aún no está habilitado.');
+            }
+
+            $payload = $this->buildPayload($actuo);
         }
 
         $slug = preg_replace(
@@ -92,7 +105,11 @@ class FormatoActuoArchivoGenerator
             trim((string) $case->get('cNumeroRadicado')) ?: $caseId
         ) ?: 'caso';
 
-        return $this->runGenerator($format, $this->buildPayload($actuo), $slug);
+        if ($modo === 'manual') {
+            $slug .= '-manual';
+        }
+
+        return $this->runGenerator($format, $payload, $slug);
     }
 
     public function isFormatoHabilitado(?Entity $actuo): bool
@@ -126,8 +143,8 @@ class FormatoActuoArchivoGenerator
     {
         $format = strtolower($format);
 
-        if ($format !== 'pdf') {
-            throw new BadRequest('Formato no válido. Use pdf.');
+        if (!in_array($format, ['pdf', 'docx'], true)) {
+            throw new BadRequest('Formato no válido. Use pdf o docx.');
         }
 
         $templatePath = $this->getTemplatePath();
@@ -265,6 +282,45 @@ class FormatoActuoArchivoGenerator
     private function getScriptPath(): string
     {
         return realpath(__DIR__ . '/../../files/scripts/fill-formato-actuo-archivo.py') ?: '';
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function buildPayloadManualFromCase(Entity $case): array
+    {
+        return [
+            'modo' => 'manual',
+            'preserveBlanks' => true,
+            'fechaAuto' => AlcaldiaDateTimeHelper::storageDateString(),
+            'fechaDada' => AlcaldiaDateTimeHelper::storageDateString(),
+            'numeroRadicado' => trim((string) $case->get('cNumeroRadicado')),
+            'consecutivoInterno' => trim((string) $case->get('cExpediente')),
+            'referencia' => $this->buildReferenciaFromCase($case),
+            'motivoArchivo' => '',
+            'inspectorNombre' => trim((string) $this->user->get('name')),
+            'inspectorCargo' => 'Inspector de Policía para Asuntos Ambientales',
+        ];
+    }
+
+    private function buildReferenciaFromCase(Entity $case): string
+    {
+        $parts = array_filter([
+            trim((string) $case->get('cRecursoTema')),
+            trim((string) $case->get('cAsunto')),
+        ], static fn (string $value): bool => $value !== '' && $value !== 'Seleccione una opción');
+
+        if ($parts !== []) {
+            return implode(' — ', $parts);
+        }
+
+        $description = trim((string) $case->get('description'));
+
+        if ($description !== '') {
+            return mb_substr($description, 0, 500);
+        }
+
+        return '';
     }
 
     /**

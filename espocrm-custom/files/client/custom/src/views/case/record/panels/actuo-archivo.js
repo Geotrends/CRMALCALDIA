@@ -77,6 +77,8 @@ define('custom:views/case/record/panels/actuo-archivo', [
 
         bindButton: function () {
             this.$el.find('[data-action="llenarActuoArchivo"]').off('click.actuo');
+            this.$el.find('[data-action="imprimirActuoManual"]').off('click.actuoManual');
+            this.$el.find('[data-action="descargarActuoWord"]').off('click.actuoWord');
 
             this.$el.find('[data-action="llenarActuoArchivo"]').on('click.actuo', (e) => {
                 e.preventDefault();
@@ -86,6 +88,66 @@ define('custom:views/case/record/panels/actuo-archivo', [
                     onAfterSave: () => this.loadActuoState(),
                 });
             });
+
+            this.$el.find('[data-action="imprimirActuoManual"]').on('click.actuoManual', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.actionImprimirActuoManual();
+            });
+
+            this.$el.find('[data-action="descargarActuoWord"]').on('click.actuoWord', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.actionDescargarActuoWord();
+            });
+        },
+
+        actionImprimirActuoManual: function () {
+            this.openFormatoUrl('manual', 'pdf', true);
+        },
+
+        actionDescargarActuoWord: function () {
+            this.openFormatoUrl('manual', 'docx', false);
+        },
+
+        openFormatoUrl: function (modo, format, inline) {
+            if (!this.model.id) {
+                Espo.Ui.error(this.translate('Error'));
+
+                return;
+            }
+
+            const url = this.getBasePath()
+                + '?entryPoint=FormatoActuoArchivoCaso'
+                + '&id=' + encodeURIComponent(this.model.id)
+                + '&modo=' + encodeURIComponent(modo)
+                + '&format=' + encodeURIComponent(format)
+                + (inline ? '&inline=1' : '');
+
+            Espo.Ui.notify(this.translate('pleaseWait', 'messages'));
+
+            if (inline) {
+                const printWindow = window.open(url, '_blank');
+
+                if (!printWindow) {
+                    Espo.Ui.error(this.translate('actuoArchivoPrintBlocked', 'Case'));
+                    Espo.Ui.notify(false);
+
+                    return;
+                }
+
+                window.setTimeout(() => {
+                    Espo.Ui.notify(false);
+                }, 2000);
+
+                return;
+            }
+
+            window.location.assign(url);
+
+            window.setTimeout(() => {
+                Espo.Ui.notify(false);
+            }, 5000);
         },
 
         togglePanel: function () {
@@ -115,6 +177,8 @@ define('custom:views/case/record/panels/actuo-archivo', [
                 buttonLabel: this.actuoIsEditMode
                     ? this.translate('editarActuoArchivo', 'Case')
                     : this.translate('llenarActuoArchivo', 'Case'),
+                printLabel: this.translate('imprimirActuoArchivoManual', 'Case'),
+                wordLabel: this.translate('descargarActuoArchivoWord', 'Case'),
             };
         },
     });

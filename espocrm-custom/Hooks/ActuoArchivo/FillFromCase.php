@@ -81,7 +81,8 @@ class FillFromCase implements BeforeSave
     {
         $parts = array_filter([
             trim((string) $case->get('cRecursoTema')),
-        ]);
+            trim((string) $case->get('cAsunto')),
+        ], static fn (string $value): bool => $value !== '' && $value !== 'Seleccione una opción');
 
         if ($parts !== []) {
             return implode(' — ', $parts);

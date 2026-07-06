@@ -191,6 +191,9 @@ def format_date_spanish(date_str):
 
 def fill_doc(template_path, output_path, data):
     proc, port = start_soffice()
+    preserve_blanks = bool(data.get("preserveBlanks")) or str(
+        data.get("modo") or ""
+    ).strip().lower() == "manual"
 
     try:
         shutil.copy2(template_path, output_path)
@@ -208,7 +211,8 @@ def fill_doc(template_path, output_path, data):
         radicado = (data.get("numeroRadicado") or "").strip()
         consecutivo = (data.get("consecutivoInterno") or "").strip()
 
-        replace_regex(doc, r"^_+\s+_+$", "")
+        if not preserve_blanks:
+            replace_regex(doc, r"^_+\s+_+$", "")
         replace_labels_with_stacked_values(doc, radicado, consecutivo)
 
         referencia = (data.get("referencia") or "").strip()
@@ -243,7 +247,8 @@ def fill_doc(template_path, output_path, data):
             "Inspector de Policía para Asuntos Ambientales"
         )
 
-        clear_underscore_lines(doc)
+        if not preserve_blanks:
+            clear_underscore_lines(doc)
 
         found = find_first(doc, r"Inspector de Policía para Asuntos Ambientales")
 

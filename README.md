@@ -22,7 +22,8 @@ Sistema de gestión de quejas ambientales basado en **EspoCRM** + **PostgreSQL**
 7. [Ramas y flujo de trabajo Git](#ramas-y-flujo-de-trabajo-git)
 8. [Usuarios de prueba](#usuarios-de-prueba)
 9. [Verificación y diagnóstico](#verificación-y-diagnóstico)
-10. [Documentación adicional](#documentación-adicional)
+10. [Interfaz de usuario (tema institucional)](#interfaz-de-usuario-tema-institucional)
+11. [Documentación adicional](#documentación-adicional)
 
 ---
 
@@ -58,7 +59,7 @@ CRMALCALDIA/
 | **`sql/`** | `esquema.sql` — volcado de referencia del esquema PostgreSQL. La fuente de verdad en runtime es la metadata de EspoCRM, no este archivo. |
 | **`docs/`** | Consultas SQL de validación (`CONSULTAS-BD-VALIDACION.md`) y mapa de cumplimiento de objetivos (`ESTADO-CUMPLIMIENTO-OBJETIVOS.md`). |
 | **`backups/`** | `despliegue-inicial/env.txt` — plantilla de variables para Dokploy o `.env` local. |
-| **`.deploy-version`** | Texto corto (ej. `dashboard-embudo-colores-listado-2026-07-01`) que el contenedor compara para saber si debe volver a aplicar el custom. Se actualiza en cada cambio relevante. |
+| **`.deploy-version`** | Texto corto (ej. `ui-doc-list-no-categoria-2026-07-02`) que el contenedor compara para saber si debe volver a aplicar el custom. **Actualízalo** en cada cambio relevante de frontend o metadata. |
 
 ---
 
@@ -79,8 +80,34 @@ espocrm-custom/
 │   └── layouts/         # Diseño de formularios y listas
 └── files/
     ├── client/custom/   # Frontend: vistas, helpers, CSS, dashboard, .tpl
+    │   ├── res/css/     # Hoja principal main.css + módulos 01–24
+    │   └── src/loader/  # Scripts que cargan tema, toasts, i18n, navbar
     └── scripts/         # Python: relleno de formatos Word → PDF
 ```
+
+### Frontend — loaders registrados en `client.json`
+
+| Script | Función |
+|--------|---------|
+| `theme-navbar.js` | Navbar lateral, barra superior, CSS inline de respaldo (botones, búsqueda, campana) |
+| `theme-buttons.js` | Botones/badge verde pastel; carga `22-ui-toasts.css` y `23-buttons.css` |
+| `theme-login.js` | Pantalla de login (logo Envigado, botón verde pastel) |
+| `ui-toasts.js` | Toasts y confirmaciones laterales (reemplaza banner superior) |
+| `i18n-personas.js` | Traducciones de menú («Crear caso», etc.) |
+| `notification-views.js` | Panel de notificaciones custom |
+| `session-security.js` | Sesión y cierre de pestañas |
+
+### Frontend — CSS principal (`files/client/custom/res/css/`)
+
+| Archivo | Contenido |
+|---------|-----------|
+| `main.css` | Importa todos los módulos (punto de entrada en `cssList`) |
+| `22-ui-toasts.css` | Toasts, confirmaciones, anuncios nativos EspoCRM |
+| `23-buttons.css` | Botones píldora, badges de estado, búsquedas |
+| `06-case.css` | Estados del caso con iconos |
+| `09-navbar.css` | Navbar, campana con contador |
+| `15-login.css` | Pantalla de inicio de sesión |
+| `24-document-categories.css` | Iconos de categoría documental (detalle) |
 
 En runtime, todo esto se copia a `/var/www/html/custom/Espo/Custom` dentro del contenedor EspoCRM.
 
@@ -340,6 +367,7 @@ git commit -m "Descripción clara del cambio"
 git push origin main
 
 # Actualizar .deploy-version cuando el cambio afecte custom en producción
+echo "ui-mi-cambio-$(date +%Y-%m-%d)" > .deploy-version
 ```
 
 No uses ramas largas paralelas sin merge a `main`: Dokploy solo despliega lo que esté en `main`.
@@ -374,6 +402,36 @@ Para demos al cliente, preferir usuarios de rol (no `admin`).
 | `docker compose ps` | Estado de contenedores |
 
 El script de verificación comprueba, entre otras cosas: acciones custom del Case, kanban, timeline, colores y archivos clave del frontend.
+
+### Checklist visual post-deploy (UI)
+
+Tras **Redeploy + Ctrl+Shift+R**, revisar en el navegador:
+
+| Elemento | Esperado |
+|----------|----------|
+| Botón **Crear caso** | Verde pastel, forma píldora |
+| Búsquedas (lista y navbar) | Ovaladas, fondo blanco |
+| Estados en lista/detalle | Píldora con **icono** (no rombo) |
+| Campana notificaciones | Número visible, badge verde pastel |
+| Guardar registro | Toast derecho con **spinner** («Guardando…») |
+| Guardado exitoso | Toast con check verde |
+| Login | Botón «Iniciar sesión» verde pastel |
+| Lista Documentos (plantillas) | Sin columna **Categoría** |
+
+Si la UI no cambia: confirmar push a `main`, rebuild en Dokploy, `.deploy-version` actualizado y que `client.json` incluya `theme-navbar.js`, `theme-buttons.js` y `ui-toasts.js` en `scriptList`.
+
+---
+
+## Interfaz de usuario (tema institucional)
+
+La capa visual es **solo presentación**; no modifica permisos ni flujos de negocio.
+
+- **Colores:** verde pastel institucional (`#eefaf5` → `#d8f3e8`, texto `#1a5c47`).
+- **Toasts:** esquina superior derecha; icono alusivo al mensaje (carga, éxito, error, info).
+- **Producción:** además de `cssList`, varios estilos se inyectan por JavaScript para evitar caché obsoleto (`theme-navbar.js`, `theme-buttons.js`).
+- **Metadata UI:** layouts en `Resources/layouts/`; cambios de columnas (ej. quitar Categoría en `Document/list.json`) requieren rebuild/clear-cache de EspoCRM.
+
+Detalle de cumplimiento por objetivo del proyecto: `docs/ESTADO-CUMPLIMIENTO-OBJETIVOS.md` (sección *Complemento transversal — Interfaz de usuario institucional*).
 
 ---
 
