@@ -195,6 +195,20 @@ def scale_field_def(field_def, sx, sy):
     return scaled
 
 
+def scale_line_def(line_def, sx, sy):
+    if not isinstance(line_def, dict):
+        return line_def
+
+    scaled = dict(line_def)
+    if "from" in scaled:
+        scaled["from"] = [scale_value(scaled["from"][0], sx), scale_value(scaled["from"][1], sy)]
+    if "to" in scaled:
+        scaled["to"] = [scale_value(scaled["to"][0], sx), scale_value(scaled["to"][1], sy)]
+    if "trimFrom" in scaled:
+        scaled["trimFrom"] = scale_value(scaled["trimFrom"], sx)
+    return scaled
+
+
 def scaled_layout_for_page(layout, page):
     sx, sy = layout_scale(page, layout)
     scaled = dict(layout)
@@ -217,6 +231,7 @@ def scaled_layout_for_page(layout, page):
     }
     if layout.get("headerBorderRegion"):
         scaled["headerBorderRegion"] = scale_rect(layout["headerBorderRegion"], sx, sy)
+    scaled["lines"] = [scale_line_def(line_def, sx, sy) for line_def in layout.get("lines", [])]
 
     return scaled
 
@@ -263,6 +278,10 @@ def fill_pdf(template_path, output_path, data):
             cover_defs.append({**label_def, "rect": extra_cover})
 
     overlay.cover_rects_batch(page, cover_defs)
+
+    for line_def in layout.get("lines", []):
+        overlay.put_line(page, line_def, layout)
+
     overlay.restyle_template_borders(page, layout)
 
     for _key, label_def in layout.get("labels", {}).items():

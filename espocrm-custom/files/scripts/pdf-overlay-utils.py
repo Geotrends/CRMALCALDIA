@@ -459,7 +459,19 @@ def put_line(page, line_def, layout=None):
     layout = layout or {}
     x0, y0 = line_def["from"]
     x1, y1 = line_def["to"]
-    width, color, _cover_pad = border_style(layout, line_def)
+    width, color, cover_pad = border_style(layout, line_def)
+
+    if line_def.get("coverLine"):
+        trim_from = float(line_def.get("trimFrom", x1))
+        cover_right = max(float(x1), trim_from)
+        cover = fitz.Rect(
+            float(x0) - 0.5,
+            float(y0) - cover_pad,
+            cover_right + cover_pad,
+            float(y0) + cover_pad,
+        )
+        page.draw_rect(cover, color=(1, 1, 1), fill=(1, 1, 1), overlay=True)
+
     page.draw_line(
         fitz.Point(float(x0), float(y0)),
         fitz.Point(float(x1), float(y1)),

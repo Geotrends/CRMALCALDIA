@@ -5,8 +5,8 @@
   "textColor": [0, 0, 0],
   "borderStyle": {
     "width": 0.25,
-    "color": [0.65, 0.65, 0.65],
-    "coverPad": 1.0
+    "color": [0.55, 0.55, 0.55],
+    "coverPad": 1.5
   },
   "restyleHeaderBorders": true,
   "headerBorderRegion": [78, 34, 534, 122],
@@ -36,14 +36,14 @@
       "labelValign": "bottom"
     },
     "consecutivoInternoLabel": {
-      "coverRect": [340, 243.5, 492, 255.5],
+      "coverRect": [378, 248.5, 518, 254.5],
       "coverMode": "redact",
       "label": "(Consecutivo  interno)",
-      "labelRect": [343.6, 246.5, 475.6, 252.5],
+      "labelRect": [343.6, 248, 487.6, 255],
       "labelAlign": "center",
       "labelFontName": "helv",
       "labelFontSize": 12,
-      "labelValign": "bottom"
+      "labelValign": "center"
     }
   },
   "templateCovers": [
@@ -63,21 +63,39 @@
     { "rect": [463.1, 471.3, 470.0, 474.3], "coverMode": "redact" },
     { "rect": [463.1, 485.3, 470.0, 488.3], "coverMode": "redact" }
   ],
+  "lines": [
+    { "from": [86.2, 234.8], "to": [228.1, 234.8], "coverLine": true },
+    { "from": [343.6, 234.8], "to": [487.6, 234.8], "coverLine": true },
+    { "from": [85.2, 290.8], "to": [463.1, 290.8], "coverLine": true },
+    { "from": [85.2, 304.8], "to": [463.1, 304.8], "coverLine": true },
+    { "from": [85.2, 318.8], "to": [463.1, 318.8], "coverLine": true },
+    { "from": [85.2, 346.8], "to": [463.1, 346.8], "coverLine": true },
+    { "from": [85.2, 360.8], "to": [463.1, 360.8], "coverLine": true },
+    { "from": [85.2, 374.8], "to": [463.1, 374.8], "coverLine": true },
+    { "from": [85.2, 388.8], "to": [463.1, 388.8], "coverLine": true },
+    { "from": [85.2, 402.8], "to": [463.1, 402.8], "coverLine": true },
+    { "from": [85.2, 416.8], "to": [463.1, 416.8], "coverLine": true },
+    { "from": [85.2, 430.8], "to": [463.1, 430.8], "coverLine": true },
+    { "from": [85.2, 444.8], "to": [463.1, 444.8], "coverLine": true },
+    { "from": [85.2, 458.8], "to": [463.1, 458.8], "coverLine": true },
+    { "from": [85.2, 472.8], "to": [463.1, 472.8], "coverLine": true },
+    { "from": [85.2, 486.8], "to": [463.1, 486.8], "coverLine": true }
+  ],
   "fields": {
     "numeroRadicado": {
-      "rect": [86.2, 233.2, 228.1, 237.2],
+      "rect": [86.2, 228, 228.1, 234],
       "align": "center",
       "valign": "bottom",
       "fontSize": 10
     },
     "consecutivoInterno": {
-      "rect": [343.6, 233.2, 487.6, 237.2],
+      "rect": [343.6, 228, 487.6, 234],
       "align": "center",
       "valign": "bottom",
       "fontSize": 10
     },
     "fechaDada": {
-      "rect": [229.3, 527.8, 408.1, 532.8],
+      "rect": [229.3, 524.5, 408.1, 530.5],
       "align": "center",
       "valign": "bottom",
       "fontSize": 10
@@ -96,8 +114,8 @@
       "singleLine": false,
       "ruledText": true,
       "lineSpacing": 14.0,
-      "firstBaselineY": 290.8,
-      "baselineAdjust": 9.2,
+      "firstBaselineY": 298.8,
+      "baselineAdjust": 0,
       "firstLineXOffset": 241.6,
       "firstLineWidth": 136.3,
       "maxLines": 3,
@@ -111,8 +129,8 @@
       "singleLine": false,
       "ruledText": true,
       "lineSpacing": 14.0,
-      "firstBaselineY": 360.8,
-      "baselineAdjust": 10.0,
+      "firstBaselineY": 368.8,
+      "baselineAdjust": 0,
       "maxLines": 10,
       "fontSize": 10,
       "padding": { "left": 0, "right": 0, "top": 0, "bottom": 0 }

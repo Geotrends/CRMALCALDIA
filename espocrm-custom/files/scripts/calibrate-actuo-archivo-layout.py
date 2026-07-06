@@ -121,20 +121,51 @@ def build_uniform_covers(all_lines, uniform_x1, envigado_line=None):
     return covers
 
 
+def build_uniform_lines(all_lines, uniform_x1, left_x, radicado, consecutivo, body_lines):
+    lines = [
+        {
+            "from": [round(radicado["x0"], 1), radicado["y"]],
+            "to": [round(radicado["x1"], 1), radicado["y"]],
+            "coverLine": True,
+        },
+        {
+            "from": [round(consecutivo["x0"], 1), consecutivo["y"]],
+            "to": [round(consecutivo["x1"], 1), consecutivo["y"]],
+            "coverLine": True,
+        },
+    ]
+
+    for line in body_lines:
+        if line["y"] < 180.0:
+            continue
+        if abs(line["y"] - radicado["y"]) <= 1.5:
+            continue
+
+        lines.append(
+            {
+                "from": [round(left_x, 1), line["y"]],
+                "to": [uniform_x1, line["y"]],
+                "coverLine": True,
+            }
+        )
+
+    return lines
+
+
 def consecutivo_interno_label(consecutivo_line):
     y_line = consecutivo_line["y"]
     label_left = round(consecutivo_line["x0"], 1)
-    label_right = round(label_left + 132.0, 1)
+    label_right = round(consecutivo_line["x1"], 1)
 
     return {
-        "coverRect": [340, round(y_line + 9.7, 1), 492, round(y_line + 20.7, 1)],
+        "coverRect": [378, round(y_line + 13.7, 1), 518, round(y_line + 19.7, 1)],
         "coverMode": "redact",
         "label": "(Consecutivo  interno)",
-        "labelRect": [label_left, round(y_line + 11.7, 1), label_right, round(y_line + 17.7, 1)],
+        "labelRect": [label_left, round(y_line + 13.2, 1), label_right, round(y_line + 20.2, 1)],
         "labelAlign": "center",
         "labelFontName": "helv",
         "labelFontSize": 12,
-        "labelValign": "bottom",
+        "labelValign": "center",
     }
 
 
@@ -184,6 +215,7 @@ def build_layout(page):
             ]
 
     uniform_x1 = round(referencia[-1]["x1"], 1)
+    left_x = round(radicado["x0"], 1)
 
     return {
         "pageSize": [round(rect.width, 1), round(rect.height, 1)],
@@ -223,15 +255,26 @@ def build_layout(page):
             "consecutivoInternoLabel": consecutivo_interno_label(consecutivo),
         },
         "templateCovers": build_uniform_covers(all_lines, uniform_x1, envigado_line),
+        "lines": build_uniform_lines(all_lines, uniform_x1, left_x, radicado, consecutivo, lines),
         "fields": {
             "numeroRadicado": {
-                "rect": field_rect(radicado),
+                "rect": [
+                    round(radicado["x0"], 1),
+                    round(radicado["y"] - 6.8, 1),
+                    round(radicado["x1"], 1),
+                    round(radicado["y"] - 0.8, 1),
+                ],
                 "align": "center",
                 "valign": "bottom",
                 "fontSize": 10,
             },
             "consecutivoInterno": {
-                "rect": field_rect(consecutivo),
+                "rect": [
+                    round(consecutivo["x0"], 1),
+                    round(consecutivo["y"] - 6.8, 1),
+                    round(consecutivo["x1"], 1),
+                    round(consecutivo["y"] - 0.8, 1),
+                ],
                 "align": "center",
                 "valign": "bottom",
                 "fontSize": 10,
@@ -239,9 +282,9 @@ def build_layout(page):
             "fechaDada": {
                 "rect": [
                     round(fecha["x0"], 1),
-                    round(fecha["y"] + 3.0, 1),
+                    round(fecha["y"] - 4.3, 1),
                     round(fecha["x1"], 1),
-                    round(fecha["y"] + 8.0, 1),
+                    round(fecha["y"] + 1.7, 1),
                 ],
                 "align": "center",
                 "valign": "bottom",
@@ -271,8 +314,8 @@ def build_layout(page):
                 "singleLine": False,
                 "ruledText": True,
                 "lineSpacing": ref_spacing,
-                "firstBaselineY": ref_first["y"],
-                "baselineAdjust": 9.2,
+                "firstBaselineY": round(referencia[0]["y"] + 8.0, 1),
+                "baselineAdjust": 0,
                 "firstLineXOffset": ref_offset,
                 "firstLineWidth": ref_first_width,
                 "maxLines": len(referencia),
@@ -291,8 +334,8 @@ def build_layout(page):
                 "singleLine": False,
                 "ruledText": True,
                 "lineSpacing": motivo_spacing,
-                "firstBaselineY": motivo[0]["y"],
-                "baselineAdjust": 10.0,
+                "firstBaselineY": round(motivo[0]["y"] + 8.0, 1),
+                "baselineAdjust": 0,
                 "maxLines": len(motivo),
                 "fontSize": 10,
                 "padding": {"left": 0, "right": 0, "top": 0, "bottom": 0},
