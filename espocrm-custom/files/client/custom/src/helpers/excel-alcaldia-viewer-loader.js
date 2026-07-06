@@ -79,11 +79,51 @@ define('custom:helpers/excel-alcaldia-viewer-loader', [], function () {
         };
     };
 
+    const fitViewport = function ($container, $viewport) {
+        const apply = function () {
+            const $modalBody = $container.closest('.modal-body, .body');
+
+            if (!$modalBody.length || !$viewport.length) {
+                return;
+            }
+
+            const labelH = $container.find('.excel-alcaldia-sheet-label').outerHeight(true) || 0;
+            const bodyH = $modalBody.innerHeight();
+            const nextH = Math.max(200, bodyH - labelH);
+
+            $viewport.css({
+                height: nextH + 'px',
+                maxHeight: nextH + 'px',
+            });
+        };
+
+        window.setTimeout(apply, 0);
+        window.setTimeout(apply, 100);
+
+        $(window).on('resize.excelViewport', apply);
+
+        return {
+            apply: apply,
+            teardown: function () {
+                $(window).off('resize.excelViewport');
+            },
+        };
+    };
+
     const renderSimpleTable = function ($container, html) {
-        $container.append('<div class="excel-alcaldia-scroll">' + html + '</div>');
+        $container.append(
+            '<div class="excel-alcaldia-viewport">'
+            + '<div class="excel-alcaldia-scroll">' + html + '</div>'
+            + '</div>'
+        );
         $container.find('table').addClass('excel-alcaldia-table table table-bordered table-condensed');
 
-        return function teardown() {};
+        const $viewport = $container.find('.excel-alcaldia-viewport');
+        const viewportLayout = fitViewport($container, $viewport);
+
+        return function teardown() {
+            viewportLayout.teardown();
+        };
     };
 
     const mountSplitTable = function ($container, html) {
@@ -101,9 +141,19 @@ define('custom:helpers/excel-alcaldia-viewer-loader', [], function () {
         const $thead = $bodyTable.find('thead');
 
         if (!$thead.length) {
-            $container.append($bodyScroll);
+            $container.append(
+                '<div class="excel-alcaldia-viewport">'
+                + '<div class="excel-alcaldia-scroll"></div>'
+                + '</div>'
+            );
+            $container.find('.excel-alcaldia-scroll').replaceWith($bodyScroll);
 
-            return function teardown() {};
+            const $viewport = $container.find('.excel-alcaldia-viewport');
+            const viewportLayout = fitViewport($container, $viewport);
+
+            return function teardown() {
+                viewportLayout.teardown();
+            };
         }
 
         const $headScroll = $('<div class="excel-alcaldia-head-scroll"></div>');
@@ -122,13 +172,22 @@ define('custom:helpers/excel-alcaldia-viewer-loader', [], function () {
         $viewport.find('.excel-alcaldia-head-wrap').append($headScroll);
         $viewport.append($bodyScroll);
 
+        const viewportLayout = fitViewport($container, $viewport);
+
         window.setTimeout(function () {
             syncColumnWidths($headTable, $bodyTable);
             $headScroll.scrollLeft($bodyScroll.scrollLeft());
+            viewportLayout.apply();
         }, 0);
+
+        window.setTimeout(function () {
+            syncColumnWidths($headTable, $bodyTable);
+            viewportLayout.apply();
+        }, 100);
 
         const onResize = function () {
             syncColumnWidths($headTable, $bodyTable);
+            viewportLayout.apply();
         };
 
         $(window).on('resize.excelLayout', onResize);
@@ -137,6 +196,7 @@ define('custom:helpers/excel-alcaldia-viewer-loader', [], function () {
 
         return function teardown() {
             teardownSync();
+            viewportLayout.teardown();
             $(window).off('resize.excelLayout', onResize);
         };
     };
