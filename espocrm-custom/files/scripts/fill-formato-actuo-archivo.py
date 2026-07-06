@@ -181,6 +181,8 @@ def scale_field_def(field_def, sx, sy):
         scaled["labelRect"] = scale_rect(scaled["labelRect"], sx, sy)
     if "firstBaselineY" in scaled:
         scaled["firstBaselineY"] = scale_value(scaled["firstBaselineY"], sy)
+    if "firstLineXOffset" in scaled:
+        scaled["firstLineXOffset"] = scale_value(scaled["firstLineXOffset"], sx)
     if "lineSpacing" in scaled:
         scaled["lineSpacing"] = scale_value(scaled["lineSpacing"], sy)
     if "padding" in scaled:
@@ -222,7 +224,6 @@ def apply_modo(values, data, layout):
 
 def build_field_values(data):
     return {
-        "fechaAuto": format_date_spanish(data.get("fechaAuto", "")),
         "numeroRadicado": (data.get("numeroRadicado") or "").strip(),
         "consecutivoInterno": (data.get("consecutivoInterno") or "").strip(),
         "referencia": (data.get("referencia") or "").strip(),
@@ -238,8 +239,6 @@ def fill_pdf(template_path, output_path, data):
     page = doc[0]
     layout = scaled_layout_for_page(layout, page)
     values = apply_modo(build_field_values(data), data, layout)
-
-    overlay.restyle_template_borders(page, layout)
 
     for key, field_def in layout.get("fields", {}).items():
         overlay.put_fitted_field(page, field_def, values.get(key), layout)

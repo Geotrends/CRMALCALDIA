@@ -289,19 +289,26 @@ def put_ruled_multiline_text(page, box, text, layout, field_def, fontname, fonts
     line_spacing = float(field_def.get("lineSpacing", 14))
     max_lines = int(field_def.get("maxLines", 5))
     first_baseline_y = field_def.get("firstBaselineY")
+    first_line_x = box.x0 + float(field_def.get("firstLineXOffset", 0))
+    first_line_width = float(field_def.get("firstLineWidth", box.width - (first_line_x - box.x0)))
+    if first_line_width <= 0:
+        first_line_width = box.width
 
     if first_baseline_y is not None:
         y = float(first_baseline_y)
     else:
         y = box.y0 + float(field_def.get("firstLineOffset", fontsize * 0.85))
 
-    lines = wrap_text_lines(text, box.width, fontname, fontsize)
+    lines = wrap_text_lines(text, first_line_width, fontname, fontsize)
+    if len(lines) > 1:
+        lines = [lines[0]] + wrap_text_lines(" ".join(lines[1:]), box.width, fontname, fontsize)
 
-    for line in lines[:max_lines]:
+    for index, line in enumerate(lines[:max_lines]):
         if y > box.y1 + 1:
             break
 
-        page.insert_text((box.x0, y), line, fontsize=fontsize, fontname=fontname, color=color)
+        x = first_line_x if index == 0 else box.x0
+        page.insert_text((x, y), line, fontsize=fontsize, fontname=fontname, color=color)
         y += line_spacing
 
 
