@@ -1,4 +1,6 @@
-define('custom:helpers/excel-alcaldia-viewer-loader', [], function () {
+define('custom:helpers/excel-alcaldia-viewer-loader', [
+    'custom:helpers/excel-alcaldia-sticky-header',
+], function (StickyHeader) {
 
     const fetchPreview = function () {
         return new Promise(function (resolve, reject) {
@@ -26,9 +28,14 @@ define('custom:helpers/excel-alcaldia-viewer-loader', [], function () {
 
     const loadAndRender = function (options) {
         const $container = options.$container;
+        const onStickyHeader = options.onStickyHeader || null;
 
         if (!$container || !$container.length) {
             return Promise.reject(new Error('params'));
+        }
+
+        if (typeof options.teardownStickyHeader === 'function') {
+            options.teardownStickyHeader();
         }
 
         $container.html('<div class="excel-alcaldia-empty text-muted">Cargando registro…</div>');
@@ -42,7 +49,17 @@ define('custom:helpers/excel-alcaldia-viewer-loader', [], function () {
             $container.html(meta + '<div class="excel-alcaldia-scroll">' + data.html + '</div>');
             $container.find('table').addClass('excel-alcaldia-table table table-bordered table-condensed');
 
-            return data;
+            const teardownStickyHeader = StickyHeader.bindStickyHeader($container);
+
+            if (onStickyHeader) {
+                onStickyHeader(teardownStickyHeader);
+            }
+
+            return {
+                sheetName: data.sheetName,
+                rowCount: data.rowCount,
+                teardownStickyHeader: teardownStickyHeader,
+            };
         });
     };
 
