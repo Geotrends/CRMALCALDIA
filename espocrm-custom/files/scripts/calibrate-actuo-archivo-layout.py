@@ -75,7 +75,7 @@ def split_radicado_lines(lines):
     return same_row[0], same_row[1], remaining
 
 
-def field_rect(line, pad_x=0.0, baseline_offset=2.0):
+def field_rect(line, pad_x=0.0, baseline_offset=4.0):
     return [
         round(line["x0"] + pad_x, 1),
         round(line["y"] + baseline_offset - 3.0, 1),
@@ -134,6 +134,13 @@ def build_layout(page):
         "fontSize": 10,
         "minFontSize": 7,
         "textColor": [0, 0, 0],
+        "borderStyle": {
+            "width": 0.25,
+            "color": [0.65, 0.65, 0.65],
+            "coverPad": 1.0,
+        },
+        "restyleHeaderBorders": True,
+        "headerBorderRegion": [78, 34, 534, 122],
         "fieldPadding": {"left": 1, "right": 1, "top": 0, "bottom": 0},
         "defaultFieldAlign": "left",
         "defaultFieldValign": "bottom",
@@ -153,6 +160,7 @@ def build_layout(page):
                 "label": "Colombia,",
                 "labelRect": colombia_rect,
                 "labelAlign": "center",
+                "labelFontName": "helv",
                 "labelFontSize": 12,
                 "labelValign": "bottom",
             }

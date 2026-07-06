@@ -3,6 +3,13 @@
   "fontSize": 10,
   "minFontSize": 7,
   "textColor": [0, 0, 0],
+  "borderStyle": {
+    "width": 0.25,
+    "color": [0.65, 0.65, 0.65],
+    "coverPad": 1.0
+  },
+  "restyleHeaderBorders": true,
+  "headerBorderRegion": [78, 34, 534, 122],
   "fieldPadding": { "left": 1, "right": 1, "top": 0, "bottom": 0 },
   "defaultFieldAlign": "left",
   "defaultFieldValign": "bottom",
@@ -24,19 +31,20 @@
       "label": "Colombia,",
       "labelRect": [148, 163, 256, 175],
       "labelAlign": "center",
+      "labelFontName": "helv",
       "labelFontSize": 12,
       "labelValign": "bottom"
     }
   },
   "fields": {
     "numeroRadicado": {
-      "rect": [86.2, 231.8, 228.1, 235.8],
+      "rect": [86.2, 233.2, 228.1, 237.2],
       "align": "center",
       "valign": "bottom",
       "fontSize": 10
     },
     "consecutivoInterno": {
-      "rect": [344.6, 231.8, 486.6, 235.8],
+      "rect": [343.6, 233.2, 487.6, 237.2],
       "align": "center",
       "valign": "bottom",
       "fontSize": 10

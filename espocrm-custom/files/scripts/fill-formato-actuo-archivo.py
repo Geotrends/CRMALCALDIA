@@ -244,6 +244,8 @@ def fill_pdf(template_path, output_path, data):
     layout = scaled_layout_for_page(layout, page)
     values = apply_modo(build_field_values(data), data, layout)
 
+    overlay.restyle_template_borders(page, layout)
+
     for _key, label_def in layout.get("labels", {}).items():
         overlay.put_static_label(page, label_def, layout)
 
