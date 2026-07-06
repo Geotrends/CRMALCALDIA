@@ -37,6 +37,8 @@
 .side .panel .btn-primary .far,
 .side .panel .btn-primary .fa {
   color: #134a38 !important;
+  -webkit-text-fill-color: #134a38 !important;
+  opacity: 1 !important;
 }
 
 .side .panel .btn-primary:hover .fas,

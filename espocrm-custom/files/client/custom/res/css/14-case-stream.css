@@ -153,6 +153,8 @@
 .comunicaciones-caso-panel .btn-primary .fas,
 .comunicaciones-caso-panel .btn-primary .fa {
   color: #134a38 !important;
+  -webkit-text-fill-color: #134a38 !important;
+  opacity: 1 !important;
 }
 
 .detail[data-scope="Case"] .panel[data-name="actaVisita"] .case-acta-visita-btn:disabled {

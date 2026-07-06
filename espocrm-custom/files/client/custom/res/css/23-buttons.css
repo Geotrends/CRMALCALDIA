@@ -92,6 +92,8 @@ a.btn-primary:hover {
 .btn.btn-primary .far,
 .btn.btn-primary .fa {
   color: #134a38 !important;
+  -webkit-text-fill-color: #134a38 !important;
+  opacity: 1 !important;
 }
 
 .btn-primary:hover .fas,

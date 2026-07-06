@@ -9,7 +9,7 @@
     window.__crmThemeButtons = true;
 
     var STYLE_ID = 'crm-modern-buttons-style';
-    var VERSION = 'ui-panel-btn-icons-dark-2026-07-06';
+    var VERSION = 'ui-panel-btn-icons-dark-v2-2026-07-06';
 
     var INLINE_CSS = '' +
         'html.crm-modern-ui body .btn,' +
@@ -46,6 +46,29 @@
         'border-color:#9fd9c0!important;color:#134a38!important;transform:none!important;' +
         'box-shadow:none!important;' +
         '}' +
+        'html.crm-modern-ui body .btn-primary .fas,' +
+        'html.crm-modern-ui body .btn-primary .far,' +
+        'html.crm-modern-ui body .btn-primary .fa,' +
+        'html.crm-modern-ui body .btn.btn-primary .fas,' +
+        'html.crm-modern-ui body .btn.btn-primary .far,' +
+        'html.crm-modern-ui body .btn.btn-primary .fa,' +
+        'html.crm-modern-ui body .side .panel .btn-primary .fas,' +
+        'html.crm-modern-ui body .side .panel .btn-primary .far,' +
+        'html.crm-modern-ui body .side .panel .btn-primary .fa,' +
+        'html.crm-modern-ui body .comunicaciones-caso-panel .btn-primary .fas,' +
+        'html.crm-modern-ui body .comunicaciones-caso-panel .btn-primary .fa,' +
+        'html.crm-modern-ui body .case-actuo-archivo-btn--primary .fas,' +
+        'html.crm-modern-ui body .case-actuo-archivo-btn--primary .fa,' +
+        'html.crm-modern-ui body .case-acta-visita-btn.btn-primary .fas,' +
+        'html.crm-modern-ui body .case-acta-visita-btn.btn-primary .fa{' +
+        'color:#134a38!important;-webkit-text-fill-color:#134a38!important;opacity:1!important;}' +
+        'html.crm-modern-ui body .btn-primary:hover .fas,' +
+        'html.crm-modern-ui body .btn-primary:hover .far,' +
+        'html.crm-modern-ui body .btn-primary:hover .fa,' +
+        'html.crm-modern-ui body .btn.btn-primary:hover .fas,' +
+        'html.crm-modern-ui body .btn.btn-primary:hover .far,' +
+        'html.crm-modern-ui body .btn.btn-primary:hover .fa{' +
+        'color:#0f3d2e!important;-webkit-text-fill-color:#0f3d2e!important;}' +
         'html.crm-modern-ui body .btn-default,' +
         'html.crm-modern-ui body .btn.btn-default{' +
         'background:#fff!important;border:1px solid #e2e8f0!important;color:#475569!important;' +
