@@ -121,35 +121,30 @@ def build_uniform_covers(all_lines, uniform_x1, envigado_line=None):
     return covers
 
 
-def build_uniform_lines(all_lines, uniform_x1, left_x, radicado, consecutivo, body_lines):
-    lines = [
-        {
-            "from": [round(radicado["x0"], 1), radicado["y"]],
-            "to": [round(radicado["x1"], 1), radicado["y"]],
-            "coverLine": True,
-        },
+def build_uniform_lines(_all_lines, _uniform_x1, _left_x, _radicado, consecutivo, _body_lines):
+    return [
         {
             "from": [round(consecutivo["x0"], 1), consecutivo["y"]],
             "to": [round(consecutivo["x1"], 1), consecutivo["y"]],
             "coverLine": True,
+            "coverMode": "redact",
         },
     ]
 
-    for line in body_lines:
-        if line["y"] < 180.0:
-            continue
-        if abs(line["y"] - radicado["y"]) <= 1.5:
-            continue
 
-        lines.append(
-            {
-                "from": [round(left_x, 1), line["y"]],
-                "to": [uniform_x1, line["y"]],
-                "coverLine": True,
-            }
-        )
+def build_gap_covers(referencia, motivo, uniform_x1, left_x):
+    covers = []
+    if not referencia or not motivo:
+        return covers
 
-    return lines
+    gap_y = round((referencia[-1]["y"] + motivo[0]["y"]) / 2.0, 1)
+    covers.append(
+        {
+            "rect": [left_x, gap_y - 1.5, uniform_x1, gap_y + 1.5],
+            "coverMode": "redact",
+        }
+    )
+    return covers
 
 
 def consecutivo_interno_label(consecutivo_line):
@@ -254,7 +249,8 @@ def build_layout(page):
             },
             "consecutivoInternoLabel": consecutivo_interno_label(consecutivo),
         },
-        "templateCovers": build_uniform_covers(all_lines, uniform_x1, envigado_line),
+        "templateCovers": build_uniform_covers(all_lines, uniform_x1, envigado_line)
+        + build_gap_covers(referencia, motivo, uniform_x1, left_x),
         "lines": build_uniform_lines(all_lines, uniform_x1, left_x, radicado, consecutivo, lines),
         "fields": {
             "numeroRadicado": {

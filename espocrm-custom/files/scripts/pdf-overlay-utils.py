@@ -470,7 +470,11 @@ def put_line(page, line_def, layout=None):
             cover_right + cover_pad,
             float(y0) + cover_pad,
         )
-        page.draw_rect(cover, color=(1, 1, 1), fill=(1, 1, 1), overlay=True)
+        if line_def.get("coverMode") == "redact":
+            page.add_redact_annot(cover, fill=(1, 1, 1))
+            page.apply_redactions()
+        else:
+            page.draw_rect(cover, color=(1, 1, 1), fill=(1, 1, 1), overlay=True)
 
     page.draw_line(
         fitz.Point(float(x0), float(y0)),

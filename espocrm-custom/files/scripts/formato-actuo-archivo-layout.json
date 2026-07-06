@@ -4,9 +4,9 @@
   "minFontSize": 7,
   "textColor": [0, 0, 0],
   "borderStyle": {
-    "width": 0.25,
-    "color": [0.55, 0.55, 0.55],
-    "coverPad": 1.5
+    "width": 0.5,
+    "color": [0, 0, 0],
+    "coverPad": 2.0
   },
   "restyleHeaderBorders": true,
   "headerBorderRegion": [78, 34, 534, 122],
@@ -51,6 +51,7 @@
     { "rect": [463.1, 289.3, 513.0, 292.3], "coverMode": "redact" },
     { "rect": [463.1, 303.3, 470.0, 306.3], "coverMode": "redact" },
     { "rect": [463.1, 317.3, 470.0, 320.3], "coverMode": "redact" },
+    { "rect": [85.2, 331.3, 463.1, 334.3], "coverMode": "redact" },
     { "rect": [463.1, 345.3, 526.0, 348.3], "coverMode": "redact" },
     { "rect": [463.1, 359.3, 470.0, 362.3], "coverMode": "redact" },
     { "rect": [463.1, 373.3, 470.0, 376.3], "coverMode": "redact" },
@@ -64,22 +65,12 @@
     { "rect": [463.1, 485.3, 470.0, 488.3], "coverMode": "redact" }
   ],
   "lines": [
-    { "from": [86.2, 234.8], "to": [228.1, 234.8], "coverLine": true },
-    { "from": [343.6, 234.8], "to": [487.6, 234.8], "coverLine": true },
-    { "from": [85.2, 290.8], "to": [463.1, 290.8], "coverLine": true },
-    { "from": [85.2, 304.8], "to": [463.1, 304.8], "coverLine": true },
-    { "from": [85.2, 318.8], "to": [463.1, 318.8], "coverLine": true },
-    { "from": [85.2, 346.8], "to": [463.1, 346.8], "coverLine": true },
-    { "from": [85.2, 360.8], "to": [463.1, 360.8], "coverLine": true },
-    { "from": [85.2, 374.8], "to": [463.1, 374.8], "coverLine": true },
-    { "from": [85.2, 388.8], "to": [463.1, 388.8], "coverLine": true },
-    { "from": [85.2, 402.8], "to": [463.1, 402.8], "coverLine": true },
-    { "from": [85.2, 416.8], "to": [463.1, 416.8], "coverLine": true },
-    { "from": [85.2, 430.8], "to": [463.1, 430.8], "coverLine": true },
-    { "from": [85.2, 444.8], "to": [463.1, 444.8], "coverLine": true },
-    { "from": [85.2, 458.8], "to": [463.1, 458.8], "coverLine": true },
-    { "from": [85.2, 472.8], "to": [463.1, 472.8], "coverLine": true },
-    { "from": [85.2, 486.8], "to": [463.1, 486.8], "coverLine": true }
+    {
+      "from": [343.6, 234.8],
+      "to": [487.6, 234.8],
+      "coverLine": true,
+      "coverMode": "redact"
+    }
   ],
   "fields": {
     "numeroRadicado": {
