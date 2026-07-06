@@ -322,6 +322,22 @@ check_file "Lista casos — radicado en kanban" \
   "$CLIENT/src/views/case/list.js" \
   "decorateKanbanRadicadoExpediente" || errors=$((errors + 1))
 
+check_file "Visor Excel — loader split table" \
+  "$CLIENT/src/helpers/excel-alcaldia-viewer-loader.js" \
+  "mountSplitTable" || errors=$((errors + 1))
+
+check_file "Visor Excel — API preview Document" \
+  "$CUSTOM/Controllers/Document.php" \
+  "excelAlcaldiaPreview" || errors=$((errors + 1))
+
+check_file "Visor Excel — CSS cabecera fija" \
+  "$CLIENT/res/css/07-panels.css" \
+  "excel-alcaldia-viewport" || errors=$((errors + 1))
+
+check_file "Documentos — panel Cuentas oculto" \
+  "$CUSTOM/Resources/metadata/clientDefs/Document.json" \
+  '"disabled": true' || errors=$((errors + 1))
+
 if [ -f "$REPO_ROOT/.deploy-version" ]; then
   echo "OK: Versión en imagen → $(tr -d '\r\n' < "$REPO_ROOT/.deploy-version")"
 else

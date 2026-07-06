@@ -62,24 +62,24 @@ define('custom:views/document/record/panels/excel-onlyoffice-viewer', [
         },
 
         openViewer: function () {
-            const fileId = this.model.get('fileId');
-
-            if (!fileId) {
-                Espo.Ui.warning(this.translate('excelViewerNoFile', 'labels', 'Document'));
-
-                return;
-            }
-
             const self = this;
 
-            this.createView('dialog', 'custom:views/modals/excel-alcaldia-viewer', {
-                fileId: fileId,
-                title: this.model.get('name')
-                    || this.translate('excelViewerTitle', 'labels', 'Document'),
-            }, function (view) {
-                view.render();
-                self.listenToOnce(view, 'remove', function () {});
-            });
+            try {
+                this.createView('dialog', 'custom:views/modals/excel-alcaldia-viewer', {
+                    title: this.model.get('name')
+                        || this.translate('excelViewerTitle', 'labels', 'Document'),
+                }, function (view) {
+                    view.render();
+
+                    if (typeof view.show === 'function') {
+                        view.show();
+                    }
+
+                    self.listenToOnce(view, 'remove', function () {});
+                });
+            } catch (error) {
+                Espo.Ui.error(self.translate('excelViewerLoadError', 'labels', 'Document'));
+            }
         },
     });
 });

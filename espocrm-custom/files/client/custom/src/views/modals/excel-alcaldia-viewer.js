@@ -29,7 +29,6 @@ define('custom:views/modals/excel-alcaldia-viewer', [
                 },
             ];
 
-            this.fileId = this.options.fileId;
             this.teardownLayout = null;
         },
 
@@ -40,7 +39,6 @@ define('custom:views/modals/excel-alcaldia-viewer', [
 
         remove: function () {
             this.clearLayout();
-
             Dep.prototype.remove.call(this);
         },
 
@@ -52,14 +50,12 @@ define('custom:views/modals/excel-alcaldia-viewer', [
         },
 
         loadSheet: function () {
-            if (!this.fileId) {
-                this.showError(this.translate('excelViewerLoadError', 'labels', 'Document'));
-
-                return;
-            }
-
             const $container = this.$el.find('.excel-alcaldia-modal__content');
             const self = this;
+
+            if (!$container.length) {
+                return;
+            }
 
             this.clearLayout();
 
@@ -68,8 +64,8 @@ define('custom:views/modals/excel-alcaldia-viewer', [
                 onLayout: function (teardown) {
                     self.teardownLayout = teardown;
                 },
-            }).catch(() => {
-                this.showError(this.translate('excelViewerLoadError', 'labels', 'Document'));
+            }).catch(function () {
+                self.showError(self.translate('excelViewerLoadError', 'labels', 'Document'));
             });
         },
 
