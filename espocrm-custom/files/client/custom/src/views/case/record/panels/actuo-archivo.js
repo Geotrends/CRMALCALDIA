@@ -2,9 +2,9 @@ define('custom:views/case/record/panels/actuo-archivo', [
     'views/record/panels/side',
     'custom:helpers/actuo-archivo-modal',
     'custom:helpers/actuo-archivo-case-status',
-    'custom:helpers/radicacion-fields',
+    'custom:helpers/formato-actuo-archivo-case-access',
     'custom:helpers/safe-ui-promise',
-], function (Dep, ActuoArchivoModal, ActuoArchivoCaseStatus, RadicacionFields, SafeUiPromise) {
+], function (Dep, ActuoArchivoModal, ActuoArchivoCaseStatus, FormatoActuoArchivoCaseAccess, SafeUiPromise) {
 
     return Dep.extend({
 
@@ -28,27 +28,13 @@ define('custom:views/case/record/panels/actuo-archivo', [
             this.bindButton();
         },
 
+        translateCaseLabel: function (key) {
+            return this.getLanguage().translate(key, 'labels', 'Case')
+                || this.translate(key, 'Case');
+        },
+
         canManageActuo: function () {
-            const user = this.getUser();
-
-            if (!user) {
-                return false;
-            }
-
-            if (user.isAdmin && user.isAdmin()) {
-                return true;
-            }
-
-            if (RadicacionFields.isInspeccionUser(user)) {
-                return true;
-            }
-
-            if (RadicacionFields.resolveHomeProfile(user) === 'patrullero') {
-                return true;
-            }
-
-            return RadicacionFields.hasRole(user, 'patrullaje')
-                || RadicacionFields.hasRole(user, 'patrullero');
+            return FormatoActuoArchivoCaseAccess.canManageActuoFromCase(this.getUser());
         },
 
         loadActuoState: function () {
@@ -78,7 +64,6 @@ define('custom:views/case/record/panels/actuo-archivo', [
         bindButton: function () {
             this.$el.find('[data-action="llenarActuoArchivo"]').off('click.actuo');
             this.$el.find('[data-action="imprimirActuoManual"]').off('click.actuoManual');
-            this.$el.find('[data-action="descargarActuoWord"]').off('click.actuoWord');
 
             this.$el.find('[data-action="llenarActuoArchivo"]').on('click.actuo', (e) => {
                 e.preventDefault();
@@ -94,20 +79,10 @@ define('custom:views/case/record/panels/actuo-archivo', [
                 e.stopPropagation();
                 this.actionImprimirActuoManual();
             });
-
-            this.$el.find('[data-action="descargarActuoWord"]').on('click.actuoWord', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                this.actionDescargarActuoWord();
-            });
         },
 
         actionImprimirActuoManual: function () {
             this.openFormatoUrl('manual', 'pdf', true);
-        },
-
-        actionDescargarActuoWord: function () {
-            this.openFormatoUrl('manual', 'docx', false);
         },
 
         openFormatoUrl: function (modo, format, inline) {
@@ -130,7 +105,7 @@ define('custom:views/case/record/panels/actuo-archivo', [
                 const printWindow = window.open(url, '_blank');
 
                 if (!printWindow) {
-                    Espo.Ui.error(this.translate('actuoArchivoPrintBlocked', 'Case'));
+                    Espo.Ui.error(this.translateCaseLabel('actuoArchivoPrintBlocked'));
                     Espo.Ui.notify(false);
 
                     return;
@@ -165,20 +140,19 @@ define('custom:views/case/record/panels/actuo-archivo', [
             let unavailableReason = '';
 
             if (!showButton) {
-                unavailableReason = 'Disponible cuando el caso esté en estado Finalizado.';
+                unavailableReason = this.translateCaseLabel('actuoArchivoPanelUnavailable');
             }
 
             return {
                 showButton: showButton,
                 unavailableReason: unavailableReason,
                 helpText: this.actuoIsEditMode
-                    ? this.translate('actuoArchivoEditHelp', 'Case')
-                    : this.translate('actuoArchivoPanelHelp', 'Case'),
+                    ? this.translateCaseLabel('actuoArchivoEditHelp')
+                    : this.translateCaseLabel('actuoArchivoPanelHelp'),
                 buttonLabel: this.actuoIsEditMode
-                    ? this.translate('editarActuoArchivo', 'Case')
-                    : this.translate('llenarActuoArchivo', 'Case'),
-                printLabel: this.translate('imprimirActuoArchivoManual', 'Case'),
-                wordLabel: this.translate('descargarActuoArchivoWord', 'Case'),
+                    ? this.translateCaseLabel('editarActuoArchivo')
+                    : this.translateCaseLabel('llenarActuoArchivo'),
+                printLabel: this.translateCaseLabel('imprimirActuoArchivoManual'),
             };
         },
     });

@@ -128,3 +128,69 @@
 .detail[data-scope="Case"] .panel[data-name="formatoGenerado"] .field[data-name="cFormatoSolicitudPdf"] label.control-label {
   display: none !important;
 }
+
+/* Panel Auto de archivo — acciones */
+.detail[data-scope="Case"] .panel[data-name="actuoArchivoPanel"] .case-actuo-archivo-help,
+.detail[data-scope="Case"] .panel[data-panel-name="actuoArchivoPanel"] .case-actuo-archivo-help {
+  margin: 0 0 12px;
+  line-height: 1.45;
+}
+
+.detail[data-scope="Case"] .panel[data-name="actuoArchivoPanel"] .case-actuo-archivo-actions,
+.detail[data-scope="Case"] .panel[data-panel-name="actuoArchivoPanel"] .case-actuo-archivo-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.detail[data-scope="Case"] .panel[data-name="actuoArchivoPanel"] .case-actuo-archivo-btn,
+.detail[data-scope="Case"] .panel[data-panel-name="actuoArchivoPanel"] .case-actuo-archivo-btn {
+  width: 100%;
+  justify-content: flex-start !important;
+  padding: 11px 16px !important;
+  min-height: 42px;
+  border-radius: var(--crm-radius-full) !important;
+  font-weight: 700 !important;
+  text-align: left;
+}
+
+.detail[data-scope="Case"] .panel[data-name="actuoArchivoPanel"] .case-actuo-archivo-btn .fas,
+.detail[data-scope="Case"] .panel[data-panel-name="actuoArchivoPanel"] .case-actuo-archivo-btn .fas {
+  width: 18px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.detail[data-scope="Case"] .panel[data-name="actuoArchivoPanel"] .case-actuo-archivo-btn-text,
+.detail[data-scope="Case"] .panel[data-panel-name="actuoArchivoPanel"] .case-actuo-archivo-btn-text {
+  flex: 1;
+  white-space: normal;
+  line-height: 1.3;
+}
+
+.detail[data-scope="Case"] .panel[data-name="actuoArchivoPanel"] .case-actuo-archivo-btn--primary .fas,
+.detail[data-scope="Case"] .panel[data-panel-name="actuoArchivoPanel"] .case-actuo-archivo-btn--primary .fas {
+  color: #1a5c47 !important;
+}
+
+.detail[data-scope="Case"] .panel[data-name="actuoArchivoPanel"] .case-actuo-archivo-btn--print,
+.detail[data-scope="Case"] .panel[data-panel-name="actuoArchivoPanel"] .case-actuo-archivo-btn--print {
+  background: #fff !important;
+  border: 1px solid #c8e8d8 !important;
+  color: #1a5c47 !important;
+  box-shadow: none !important;
+}
+
+.detail[data-scope="Case"] .panel[data-name="actuoArchivoPanel"] .case-actuo-archivo-btn--print:hover,
+.detail[data-scope="Case"] .panel[data-panel-name="actuoArchivoPanel"] .case-actuo-archivo-btn--print:hover,
+.detail[data-scope="Case"] .panel[data-name="actuoArchivoPanel"] .case-actuo-archivo-btn--print:focus,
+.detail[data-scope="Case"] .panel[data-panel-name="actuoArchivoPanel"] .case-actuo-archivo-btn--print:focus {
+  background: #f0faf5 !important;
+  border-color: #9fd9c0 !important;
+  color: #134a38 !important;
+}
+
+.detail[data-scope="Case"] .panel[data-name="actuoArchivoPanel"] .case-actuo-archivo-btn--print .fas,
+.detail[data-scope="Case"] .panel[data-panel-name="actuoArchivoPanel"] .case-actuo-archivo-btn--print .fas {
+  color: #1a5c47 !important;
+}

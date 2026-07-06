@@ -28,11 +28,17 @@ define('custom:helpers/case-documentos', [
         return String(value || '').trim() !== '';
     };
 
-    const buildEntryPointUrl = function (basePath, entryPoint, caseId, format) {
-        return basePath
+    const buildEntryPointUrl = function (basePath, entryPoint, caseId, format, modo) {
+        let url = basePath
             + '?entryPoint=' + encodeURIComponent(entryPoint)
             + '&id=' + encodeURIComponent(caseId)
             + '&format=' + encodeURIComponent(format || 'pdf');
+
+        if (modo) {
+            url += '&modo=' + encodeURIComponent(modo);
+        }
+
+        return url;
     };
 
     const canShowSolicitudDocument = function (user, model) {
@@ -90,6 +96,25 @@ define('custom:helpers/case-documentos', [
         });
     };
 
+    const pushActuoWordDocument = function (docs, user, model, basePath) {
+        if (!FormatoActuoArchivoCaseAccess.canDownloadManualWordFromCase(user, model)) {
+            return;
+        }
+
+        const radicado = String(getValue(model, 'cNumeroRadicado') || '').trim();
+        const fileName = radicado
+            ? 'AutoArchivo-' + radicado + '-editable.docx'
+            : 'AutoArchivo-editable.docx';
+
+        docs.push({
+            key: 'actuo-word',
+            labelKey: 'formatoGeneradoActuoWord',
+            name: fileName,
+            url: buildEntryPointUrl(basePath, 'FormatoActuoArchivoCaso', model.id, 'docx', 'manual'),
+            icon: 'fas fa-file-word text-primary',
+        });
+    };
+
     const fetchDocumentos = function (model, user, basePath) {
         const docs = [];
 
@@ -106,6 +131,7 @@ define('custom:helpers/case-documentos', [
 
             pushSolicitudDocument(docs, user, model, basePath, acta);
             pushActaDocument(docs, user, model, basePath, acta);
+            pushActuoWordDocument(docs, user, model, basePath);
             pushActuoDocument(docs, user, model, basePath, actuo);
 
             return docs;
