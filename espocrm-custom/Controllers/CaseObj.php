@@ -6,6 +6,7 @@ use Espo\Core\Api\Request;
 use Espo\Core\Exceptions\BadRequest;
 use Espo\Core\Exceptions\Forbidden;
 use Espo\Core\Exceptions\NotFound;
+use Espo\Core\Exceptions\Error;
 use Espo\Custom\Tools\App\AlcaldiaDateTimeHelper;
 use Espo\Custom\Tools\Calendar\CaseCalendarEventService;
 use Espo\Custom\Tools\CaseObj\CaseActaVisitaHelper;
@@ -354,6 +355,24 @@ class CaseObj extends BaseCaseObj
      */
     public function postActionConfirmarVisitaAprobada(Request $request): array
     {
+        try {
+            return $this->doConfirmarVisitaAprobada($request);
+        } catch (BadRequest | Forbidden | NotFound $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            throw new Error(
+                'No se pudo aprobar la visita: ' . $e->getMessage(),
+                0,
+                $e
+            );
+        }
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function doConfirmarVisitaAprobada(Request $request): array
+    {
         $body = $request->getParsedBody();
         $id = '';
 
@@ -394,32 +413,41 @@ class CaseObj extends BaseCaseObj
             ];
         }
 
-        if (!CaseActaVisitaHelper::canAdvanceCaseToVisitaAprobada($case)) {
-            throw new BadRequest('El caso debe estar en estado Visita realizada.');
-        }
-
         $acta = CaseActaVisitaHelper::findLatestActaForCase($this->entityManager, $case->getId());
 
         if (!$acta || !CaseActaVisitaHelper::isActaWithContent($acta)) {
             throw new BadRequest('Debe existir un acta de visita diligenciada.');
         }
 
+        if (!CaseActaVisitaHelper::canAdvanceCaseToVisitaAprobada($case, $acta)) {
+            throw new BadRequest(
+                'El caso debe tener acta diligenciada y estar en Visita realizada (estado actual: '
+                . ($currentStatus !== '' ? $currentStatus : 'sin estado')
+                . ').'
+            );
+        }
+
         $case->set('status', CaseActaVisitaHelper::STATUS_VISITA_APROBADA);
 
         $this->entityManager->saveEntity($case, [
+            'skipAll' => true,
+            'skipHooks' => true,
             'skipCaseStatusUpdate' => true,
             'skipPatrulleroCaseLimit' => true,
+            'skipCaseExcelAlcaldia' => true,
         ]);
 
-        if (trim((string) $acta->get('estado')) !== 'Aprobada') {
-            $acta->set('estado', 'Aprobada');
+        try {
+            if (trim((string) $acta->get('estado')) !== 'Aprobada') {
+                $acta->set('estado', 'Aprobada');
 
-            $this->entityManager->saveEntity($acta, [
-                'skipFormatoActaVisita' => true,
-                'skipActaVisitaExcel' => true,
-                'skipCaseStatusUpdate' => true,
-                'skipCaseEnProcesoOnActa' => true,
-            ]);
+                $this->entityManager->saveEntity($acta, [
+                    'skipAll' => true,
+                    'skipHooks' => true,
+                ]);
+            }
+        } catch (\Throwable) {
+            // El estado del caso ya quedó aprobado; el acta es informativo.
         }
 
         return [

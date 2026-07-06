@@ -36,6 +36,7 @@ class CaseActaVisitaHelper
     /** @var string[] */
     private const ADVANCE_TO_VISITA_APROBADA_FROM = [
         'Visita realizada',
+        'En proceso',
     ];
 
     /** @var string[] */
@@ -88,11 +89,19 @@ class CaseActaVisitaHelper
         return self::canAdvanceCaseToVisitaRealizada($case);
     }
 
-    public static function canAdvanceCaseToVisitaAprobada(Entity $case): bool
+    public static function canAdvanceCaseToVisitaAprobada(Entity $case, ?Entity $acta = null): bool
     {
         $current = trim((string) $case->get('status'));
 
-        return in_array($current, self::ADVANCE_TO_VISITA_APROBADA_FROM, true);
+        if (in_array($current, self::ADVANCE_TO_VISITA_APROBADA_FROM, true)) {
+            return true;
+        }
+
+        if (!$acta || !self::isActaWithContent($acta)) {
+            return false;
+        }
+
+        return in_array($current, ['Asignado', 'Assigned', 'En proceso', 'Visita realizada'], true);
     }
 
     public static function isVisitaAprobadaStatus(string $status): bool
@@ -107,13 +116,10 @@ class CaseActaVisitaHelper
 
     public static function findLatestActaForCase(EntityManager $entityManager, string $caseId): ?Entity
     {
-        $actas = $entityManager
+        return $entityManager
             ->getRDBRepository('ActaVisita')
             ->where(['caseId' => $caseId])
             ->order('modifiedAt', 'DESC')
-            ->limit(0, 1)
-            ->find();
-
-        return $actas[0] ?? null;
+            ->findOne();
     }
 }

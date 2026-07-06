@@ -86,8 +86,13 @@ define('custom:views/case/fields/acta-visita-action', [
                 return true;
             }
 
-            return String(this.model.get('status') || '').trim() === 'Visita realizada'
-                && this.actaIsEditMode;
+            if (!this.actaIsEditMode) {
+                return false;
+            }
+
+            const status = String(this.model.get('status') || '').trim();
+
+            return ['Visita realizada', 'En proceso', 'Asignado', 'Assigned'].indexOf(status) !== -1;
         },
 
         isVisitaHabilitada: function () {
@@ -444,8 +449,12 @@ define('custom:views/case/fields/acta-visita-action', [
 
                 let message = self.translateCaseLabel('visitaAprobadaConfirmError');
 
-                if (xhr && xhr.responseJSON && xhr.responseJSON.message) {
-                    message = xhr.responseJSON.message;
+                if (xhr) {
+                    const payload = xhr.responseJSON || xhr;
+
+                    if (payload && payload.message) {
+                        message = payload.message;
+                    }
                 }
 
                 Espo.Ui.error(message);
