@@ -333,6 +333,18 @@
   margin-bottom: 0 !important;
   font-size: 12px;
   white-space: nowrap;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.excel-alcaldia-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background: #eef2f7;
+  color: #1f2937;
+  font-weight: 600;
+  box-shadow: 0 1px 0 #c5cdd8;
 }
 
 .excel-alcaldia-table td,
