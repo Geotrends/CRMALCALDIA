@@ -197,12 +197,17 @@ def build_layout(page):
                 "labelValign": "bottom",
             },
             "consecutivoInternoCaption": {
-                "coverRect": [375, 246, 518, 253],
+                "coverRect": [
+                    round(consecutivo["x0"] - 16, 1),
+                    244,
+                    round(consecutivo["x1"] + 38, 1),
+                    255,
+                ],
                 "label": "(Consecutivo  interno)",
                 "labelRect": [
-                    round(consecutivo["x0"], 1),
+                    round(consecutivo["x0"] - 12, 1),
                     246,
-                    round(consecutivo["x1"], 1),
+                    round(consecutivo["x1"] - 12, 1),
                     253,
                 ],
                 "labelAlign": "center",

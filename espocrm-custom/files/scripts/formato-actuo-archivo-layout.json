@@ -56,9 +56,9 @@
       "labelValign": "bottom"
     },
     "consecutivoInternoCaption": {
-      "coverRect": [375, 246, 518, 253],
+      "coverRect": [328, 244, 525, 255],
       "label": "(Consecutivo  interno)",
-      "labelRect": [343.6, 246, 487.6, 253],
+      "labelRect": [332, 246, 476, 253],
       "labelAlign": "center",
       "labelFontName": "helv",
       "labelFontSize": 12,

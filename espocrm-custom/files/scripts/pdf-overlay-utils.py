@@ -453,10 +453,11 @@ def restyle_uniform_body_lines(page, layout=None):
         x0, y0 = line_def["from"]
         x1, y1 = line_def["to"]
         trim_from = float(line_def.get("trimFrom", x1))
+        cover_right = max(float(x1), trim_from)
 
-        if trim_from > x1 + 0.5:
-            cover = fitz.Rect(x1 - 0.5, y0 - cover_pad, trim_from + cover_pad, y0 + cover_pad)
-            page.draw_rect(cover, color=(1, 1, 1), fill=(1, 1, 1), overlay=True)
+        # Tapar guiones originales de la plantilla en todo el tramo del renglón.
+        cover = fitz.Rect(float(x0) - 0.5, y0 - cover_pad, cover_right + cover_pad, y0 + cover_pad)
+        page.draw_rect(cover, color=(1, 1, 1), fill=(1, 1, 1), overlay=True)
 
         page.draw_line(
             fitz.Point(float(x0), float(y0)),
