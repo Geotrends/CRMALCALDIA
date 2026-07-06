@@ -30,6 +30,7 @@ define('custom:views/modals/excel-alcaldia-viewer', [
             ];
 
             this.fileId = this.options.fileId;
+            this.teardownLayout = null;
         },
 
         afterRender: function () {
@@ -38,12 +39,16 @@ define('custom:views/modals/excel-alcaldia-viewer', [
         },
 
         remove: function () {
-            if (this.teardownStickyHeader) {
-                this.teardownStickyHeader();
-                this.teardownStickyHeader = null;
-            }
+            this.clearLayout();
 
             Dep.prototype.remove.call(this);
+        },
+
+        clearLayout: function () {
+            if (this.teardownLayout) {
+                this.teardownLayout();
+                this.teardownLayout = null;
+            }
         },
 
         loadSheet: function () {
@@ -56,15 +61,12 @@ define('custom:views/modals/excel-alcaldia-viewer', [
             const $container = this.$el.find('.excel-alcaldia-modal__content');
             const self = this;
 
-            if (this.teardownStickyHeader) {
-                this.teardownStickyHeader();
-                this.teardownStickyHeader = null;
-            }
+            this.clearLayout();
 
             ExcelViewerLoader.loadAndRender({
                 $container: $container,
-                onStickyHeader: function (teardown) {
-                    self.teardownStickyHeader = teardown;
+                onLayout: function (teardown) {
+                    self.teardownLayout = teardown;
                 },
             }).catch(() => {
                 this.showError(this.translate('excelViewerLoadError', 'labels', 'Document'));
@@ -72,6 +74,7 @@ define('custom:views/modals/excel-alcaldia-viewer', [
         },
 
         showError: function (message) {
+            this.clearLayout();
             this.$el.find('.excel-alcaldia-modal__content')
                 .html('<div class="excel-alcaldia-empty text-danger">' + message + '</div>');
         },
