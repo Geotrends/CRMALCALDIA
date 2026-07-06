@@ -28,25 +28,11 @@ define('custom:views/modals/excel-alcaldia-viewer', [
                     label: this.translate('Close'),
                 },
             ];
-
-            this.teardownLayout = null;
         },
 
         afterRender: function () {
             Dep.prototype.afterRender.call(this);
             this.loadSheet();
-        },
-
-        remove: function () {
-            this.clearLayout();
-            Dep.prototype.remove.call(this);
-        },
-
-        clearLayout: function () {
-            if (this.teardownLayout) {
-                this.teardownLayout();
-                this.teardownLayout = null;
-            }
         },
 
         loadSheet: function () {
@@ -57,20 +43,14 @@ define('custom:views/modals/excel-alcaldia-viewer', [
                 return;
             }
 
-            this.clearLayout();
-
             ExcelViewerLoader.loadAndRender({
                 $container: $container,
-                onLayout: function (teardown) {
-                    self.teardownLayout = teardown;
-                },
             }).catch(function () {
                 self.showError(self.translate('excelViewerLoadError', 'labels', 'Document'));
             });
         },
 
         showError: function (message) {
-            this.clearLayout();
             this.$el.find('.excel-alcaldia-modal__content')
                 .html('<div class="excel-alcaldia-empty text-danger">' + message + '</div>');
         },
