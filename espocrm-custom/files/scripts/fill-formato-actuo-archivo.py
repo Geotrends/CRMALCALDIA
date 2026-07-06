@@ -246,11 +246,13 @@ def fill_pdf(template_path, output_path, data):
 
     for key, rect_def in layout.get("textBoxes", {}).items():
         if isinstance(rect_def, dict):
+            rect = rect_def.get("rect")
             field_def = rect_def
         else:
-            field_def = {"rect": rect_def, "align": "left", "singleLine": False}
+            rect = rect_def
+            field_def = {"align": "left", "singleLine": False}
 
-        overlay.put_fitted_textbox(page, field_def.get("rect"), values.get(key), layout, field_def)
+        overlay.put_fitted_textbox(page, rect, values.get(key), layout, field_def)
 
     doc.save(output_path)
     doc.close()
