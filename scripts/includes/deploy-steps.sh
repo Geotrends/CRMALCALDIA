@@ -9,6 +9,7 @@ DEPLOY_SETUP_STEPS=(
   "Usuarios enrutamiento (Recibida por / Remitido a)|seed-gestion-routing-users.php"
   "Catálogos Excel Alcaldía (desplegables)|configure-excel-alcaldia-case-fields.php"
   "Placeholder en desplegables Case|configure-case-enum-placeholders.php"
+  "Campos Case opcionales (sin obligatorios)|configure-case-all-optional.php"
   "Menú lateral (tabList global)|configure-global-tablist.php"
   "WebSocket (wss://dominio/ws)|configure-websocket.php"
   "Idioma, zona horaria Bogotá y hora 24 h|configure-default-locale.php"

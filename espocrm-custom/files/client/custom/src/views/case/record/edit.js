@@ -9,12 +9,14 @@ define('custom:views/case/record/edit', [
     'custom:helpers/asignador-case-flow',
     'custom:helpers/asignador-assignment-ui',
     'custom:helpers/case-create-form',
-], function (Dep, PersonaTipoFields, PartyDocumentLookup, DireccionEstructurada, RadicacionFields, InspeccionCaseFlow, RadicacionCaseFlow, AsignadorCaseFlow, AsignadorAssignmentUi, CaseCreateForm) {
+    'custom:helpers/case-create-optional-fields',
+], function (Dep, PersonaTipoFields, PartyDocumentLookup, DireccionEstructurada, RadicacionFields, InspeccionCaseFlow, RadicacionCaseFlow, AsignadorCaseFlow, AsignadorAssignmentUi, CaseCreateForm, CaseCreateOptionalFields) {
 
     return Dep.extend({
 
         setup: function () {
             CaseCreateForm.setup(this);
+            CaseCreateOptionalFields.setup(this);
             InspeccionCaseFlow.setup(this);
             RadicacionCaseFlow.setup(this);
             AsignadorCaseFlow.setup(this);
@@ -207,6 +209,7 @@ define('custom:views/case/record/edit', [
             RadicacionCaseFlow.schedule(this);
             AsignadorCaseFlow.schedule(this);
             CaseCreateForm.schedule(this);
+            CaseCreateOptionalFields.schedule(this);
 
             if (
                 this._asignarMode
@@ -231,6 +234,7 @@ define('custom:views/case/record/edit', [
             }
 
             PersonaTipoFields.clearOptionalEnumPlaceholders(this.model);
+            CaseCreateOptionalFields.makeAllFieldsOptional(this);
 
             InspeccionCaseFlow.prepareModelForSave(this);
             RadicacionCaseFlow.prepareModelForSave(this);

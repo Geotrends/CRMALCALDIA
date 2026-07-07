@@ -1,15 +1,25 @@
 {
     "fields": {
         "name": {
-            "required": false
+            "required": false,
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "description": {
-            "required": false
+            "required": false,
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "cFechaVencimiento": {
             "notNull": false,
             "type": "date",
-            "isCustom": true
+            "isCustom": true,
+            "required": false,
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "cFechaCaso": {
             "notNull": false,
@@ -17,20 +27,31 @@
             "required": false,
             "default": "javascript: return this.dateTime.getNow(1);",
             "minuteStep": 1,
-            "isCustom": true
+            "isCustom": true,
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "cNumeroRadicado": {
             "type": "varchar",
             "maxLength": 100,
             "options": [],
             "isCustom": true,
-            "view": "custom:views/case/fields/numero-radicado"
+            "view": "custom:views/case/fields/numero-radicado",
+            "required": false,
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "cExpediente": {
             "type": "varchar",
             "maxLength": 100,
             "options": [],
-            "isCustom": true
+            "isCustom": true,
+            "required": false,
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "cRadicadoModo": {
             "type": "enum",
@@ -39,7 +60,11 @@
                 "Manual"
             ],
             "default": "Automático",
-            "isCustom": true
+            "isCustom": true,
+            "required": false,
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "cRadicadoSiglas": {
             "type": "enum",
@@ -54,13 +79,21 @@
                 "RSO",
                 "SUE"
             ],
-            "isCustom": true
+            "isCustom": true,
+            "required": false,
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "cRadicadoAnio": {
             "type": "varchar",
             "maxLength": 4,
             "default": "",
-            "isCustom": true
+            "isCustom": true,
+            "required": false,
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "cTipoPersonaPeticionario": {
             "type": "enum",
@@ -76,7 +109,10 @@
             },
             "default": "Seleccione una opción",
             "required": false,
-            "isCustom": true
+            "isCustom": true,
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "cDocumentoPeticionario": {
             "type": "varchar",
@@ -84,77 +120,200 @@
             "maxLength": 100,
             "options": [],
             "isCustom": true,
-            "view": "custom:views/case/fields/documento-peticionario"
+            "view": "custom:views/case/fields/documento-peticionario",
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "cNombrePeticionario": {
             "type": "varchar",
             "required": false,
             "maxLength": 100,
-            "isCustom": true
+            "isCustom": true,
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "cApellidoPeticionario": {
             "type": "varchar",
             "required": false,
             "maxLength": 150,
-            "isCustom": true
+            "isCustom": true,
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "cViaPrincipalPeticionario": {
             "type": "enum",
-            "options": ["", "CL", "DG", "KR", "TR"],
+            "options": [
+                "",
+                "CL",
+                "DG",
+                "KR",
+                "TR"
+            ],
             "default": "",
-            "isCustom": true
+            "isCustom": true,
+            "required": false,
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "cNumViaPrincipalPeticionario": {
             "type": "varchar",
             "maxLength": 20,
             "isCustom": true,
-            "view": "custom:views/fields/numeric-only"
+            "view": "custom:views/fields/numeric-only",
+            "required": false,
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "cLetraViaPrincipalPeticionario": {
             "type": "enum",
-            "options": ["", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"],
+            "options": [
+                "",
+                "A",
+                "B",
+                "C",
+                "D",
+                "E",
+                "F",
+                "G",
+                "H",
+                "I",
+                "J",
+                "K",
+                "L",
+                "M",
+                "N",
+                "O",
+                "P",
+                "Q",
+                "R",
+                "S",
+                "T",
+                "U",
+                "V",
+                "W",
+                "X",
+                "Y",
+                "Z"
+            ],
             "default": "",
-            "isCustom": true
+            "isCustom": true,
+            "required": false,
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "cCuadranteViaPrincipalPeticionario": {
             "type": "enum",
-            "options": ["", "Sur", "Norte", "Este", "Oeste"],
+            "options": [
+                "",
+                "Sur",
+                "Norte",
+                "Este",
+                "Oeste"
+            ],
             "default": "",
-            "isCustom": true
+            "isCustom": true,
+            "required": false,
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "cGeneradoraPeticionario": {
             "type": "varchar",
             "maxLength": 20,
             "isCustom": true,
-            "view": "custom:views/fields/numeric-only"
+            "view": "custom:views/fields/numeric-only",
+            "required": false,
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "cLetraGeneradoraPeticionario": {
             "type": "enum",
-            "options": ["", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"],
+            "options": [
+                "",
+                "A",
+                "B",
+                "C",
+                "D",
+                "E",
+                "F",
+                "G",
+                "H",
+                "I",
+                "J",
+                "K",
+                "L",
+                "M",
+                "N",
+                "O",
+                "P",
+                "Q",
+                "R",
+                "S",
+                "T",
+                "U",
+                "V",
+                "W",
+                "X",
+                "Y",
+                "Z"
+            ],
             "default": "",
-            "isCustom": true
+            "isCustom": true,
+            "required": false,
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "cCuadranteGeneradoraPeticionario": {
             "type": "enum",
-            "options": ["", "Sur", "Norte", "Este", "Oeste"],
+            "options": [
+                "",
+                "Sur",
+                "Norte",
+                "Este",
+                "Oeste"
+            ],
             "default": "",
-            "isCustom": true
+            "isCustom": true,
+            "required": false,
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "cPlacaPeticionario": {
             "type": "varchar",
             "maxLength": 20,
             "isCustom": true,
-            "view": "custom:views/fields/numeric-only"
+            "view": "custom:views/fields/numeric-only",
+            "required": false,
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "cBloquePeticionario": {
             "type": "varchar",
             "maxLength": 100,
-            "isCustom": true
+            "isCustom": true,
+            "required": false,
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "cInteriorPeticionario": {
             "type": "varchar",
             "maxLength": 50,
-            "isCustom": true
+            "isCustom": true,
+            "required": false,
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "cDireccionPeticionario": {
             "type": "varchar",
@@ -162,7 +321,10 @@
             "required": false,
             "readOnly": true,
             "options": [],
-            "isCustom": true
+            "isCustom": true,
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "cTelefonoPeticionario": {
             "type": "varchar",
@@ -170,7 +332,10 @@
             "required": false,
             "options": [],
             "isCustom": true,
-            "view": "custom:views/fields/numeric-only"
+            "view": "custom:views/fields/numeric-only",
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "cMunicipioPeticionario": {
             "type": "varchar",
@@ -178,7 +343,11 @@
             "default": "Envigado",
             "readOnly": true,
             "utility": true,
-            "isCustom": true
+            "isCustom": true,
+            "required": false,
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "cBarrioPeticionario": {
             "type": "enum",
@@ -281,15 +450,20 @@
                 "Zuñiga": null
             },
             "maxLength": 100,
-            "required": false,
-            "isCustom": true
+            "isCustom": true,
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "cCorreoPeticionario": {
             "type": "varchar",
             "maxLength": 200,
             "required": false,
             "options": [],
-            "isCustom": true
+            "isCustom": true,
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "cCanalDeReportePeticionario": {
             "type": "enum",
@@ -308,7 +482,10 @@
             "default": "Seleccione una opción",
             "required": false,
             "maxLength": 100,
-            "isCustom": true
+            "isCustom": true,
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "cTipoPersonaPerjudicante": {
             "type": "enum",
@@ -326,7 +503,10 @@
             },
             "default": "Seleccione una opción",
             "required": false,
-            "isCustom": true
+            "isCustom": true,
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "cDocumentoPerjudicante": {
             "type": "varchar",
@@ -334,39 +514,64 @@
             "required": false,
             "options": [],
             "isCustom": true,
-            "view": "custom:views/case/fields/documento-perjudicante"
+            "view": "custom:views/case/fields/documento-perjudicante",
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "cNombrePerjudicante": {
             "type": "varchar",
             "maxLength": 100,
             "required": false,
-            "isCustom": true
+            "isCustom": true,
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "cApellidoPerjudicante": {
             "type": "varchar",
             "maxLength": 150,
             "required": false,
-            "isCustom": true
+            "isCustom": true,
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "cPerjudicanteContact": {
             "type": "link",
             "readOnly": true,
             "utility": true,
-            "isCustom": true
+            "isCustom": true,
+            "required": false,
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "cPerjudicanteCuenta": {
             "type": "link",
             "readOnly": true,
             "utility": true,
-            "isCustom": true
+            "isCustom": true,
+            "required": false,
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "contact": {
             "readOnly": true,
-            "utility": true
+            "utility": true,
+            "required": false,
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "account": {
             "readOnly": true,
-            "utility": true
+            "utility": true,
+            "required": false,
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "cTelefonoPerjudicante": {
             "type": "varchar",
@@ -374,65 +579,182 @@
             "required": false,
             "options": [],
             "isCustom": true,
-            "view": "custom:views/fields/numeric-only"
+            "view": "custom:views/fields/numeric-only",
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "cViaPrincipalPerjudicante": {
             "type": "enum",
-            "options": ["", "CL", "DG", "KR", "TR"],
+            "options": [
+                "",
+                "CL",
+                "DG",
+                "KR",
+                "TR"
+            ],
             "default": "",
-            "isCustom": true
+            "isCustom": true,
+            "required": false,
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "cNumViaPrincipalPerjudicante": {
             "type": "varchar",
             "maxLength": 20,
             "isCustom": true,
-            "view": "custom:views/fields/numeric-only"
+            "view": "custom:views/fields/numeric-only",
+            "required": false,
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "cLetraViaPrincipalPerjudicante": {
             "type": "enum",
-            "options": ["", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"],
+            "options": [
+                "",
+                "A",
+                "B",
+                "C",
+                "D",
+                "E",
+                "F",
+                "G",
+                "H",
+                "I",
+                "J",
+                "K",
+                "L",
+                "M",
+                "N",
+                "O",
+                "P",
+                "Q",
+                "R",
+                "S",
+                "T",
+                "U",
+                "V",
+                "W",
+                "X",
+                "Y",
+                "Z"
+            ],
             "default": "",
-            "isCustom": true
+            "isCustom": true,
+            "required": false,
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "cCuadranteViaPrincipalPerjudicante": {
             "type": "enum",
-            "options": ["", "Sur", "Norte", "Este", "Oeste"],
+            "options": [
+                "",
+                "Sur",
+                "Norte",
+                "Este",
+                "Oeste"
+            ],
             "default": "",
-            "isCustom": true
+            "isCustom": true,
+            "required": false,
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "cGeneradoraPerjudicante": {
             "type": "varchar",
             "maxLength": 20,
             "isCustom": true,
-            "view": "custom:views/fields/numeric-only"
+            "view": "custom:views/fields/numeric-only",
+            "required": false,
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "cLetraGeneradoraPerjudicante": {
             "type": "enum",
-            "options": ["", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"],
+            "options": [
+                "",
+                "A",
+                "B",
+                "C",
+                "D",
+                "E",
+                "F",
+                "G",
+                "H",
+                "I",
+                "J",
+                "K",
+                "L",
+                "M",
+                "N",
+                "O",
+                "P",
+                "Q",
+                "R",
+                "S",
+                "T",
+                "U",
+                "V",
+                "W",
+                "X",
+                "Y",
+                "Z"
+            ],
             "default": "",
-            "isCustom": true
+            "isCustom": true,
+            "required": false,
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "cCuadranteGeneradoraPerjudicante": {
             "type": "enum",
-            "options": ["", "Sur", "Norte", "Este", "Oeste"],
+            "options": [
+                "",
+                "Sur",
+                "Norte",
+                "Este",
+                "Oeste"
+            ],
             "default": "",
-            "isCustom": true
+            "isCustom": true,
+            "required": false,
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "cPlacaPerjudicante": {
             "type": "varchar",
             "maxLength": 20,
             "isCustom": true,
-            "view": "custom:views/fields/numeric-only"
+            "view": "custom:views/fields/numeric-only",
+            "required": false,
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "cBloquePerjudicante": {
             "type": "varchar",
             "maxLength": 100,
-            "isCustom": true
+            "isCustom": true,
+            "required": false,
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "cInteriorPerjudicante": {
             "type": "varchar",
             "maxLength": 50,
-            "isCustom": true
+            "isCustom": true,
+            "required": false,
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "cDireccionPerjudicante": {
             "type": "varchar",
@@ -440,7 +762,10 @@
             "required": false,
             "readOnly": true,
             "options": [],
-            "isCustom": true
+            "isCustom": true,
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "cBarrioPerjudicante": {
             "type": "enum",
@@ -543,30 +868,43 @@
                 "Zuñiga": null
             },
             "maxLength": 100,
-            "required": false,
-            "isCustom": true
+            "isCustom": true,
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "cRespuestaInmediata": {
-            "type": "varchar",
-            "maxLength": 1000,
+            "type": "text",
             "required": false,
-            "options": [],
-            "isCustom": true
+            "isCustom": true,
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "cRecibidaPor": {
             "type": "link",
             "required": false,
-            "isCustom": true
+            "isCustom": true,
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "cRemitidoA": {
             "type": "link",
             "required": false,
-            "isCustom": true
+            "isCustom": true,
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "cFormatoSolicitudPdf": {
             "type": "file",
             "readOnly": true,
-            "isCustom": true
+            "isCustom": true,
+            "required": false,
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "status": {
             "options": [
@@ -589,18 +927,26 @@
                 "Visita aprobada": "caseVisitaAprobada",
                 "Finalizado": "caseFinalizado",
                 "Proceso cerrado": "caseCerrado"
-            }
+            },
+            "required": false,
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "assignedUser": {
-            "default": null
+            "default": null,
+            "required": false,
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "cMotivoReasignacion": {
             "type": "text",
-            "view": "custom:views/case/fields/c-motivo-reasignacion",
-            "rows": 2,
-            "maxLength": 500,
-            "tooltip": true,
-            "isCustom": true
+            "required": false,
+            "isCustom": true,
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "cRecursoTema": {
             "type": "enum",
@@ -627,7 +973,10 @@
                 "RESIDUOS SOLIDOS": null,
                 "SUELO": null
             },
-            "isCustom": true
+            "isCustom": true,
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "cAsunto": {
             "type": "enum",
@@ -680,7 +1029,10 @@
                 "Tenencia inadecuada de animales de compañía": null,
                 "Tenencia inadecuada de lotes - falta de mantenimiento": null
             },
-            "isCustom": true
+            "isCustom": true,
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "cZonaAlcaldiaPeticionario": {
             "type": "enum",
@@ -715,7 +1067,10 @@
                 "12": null,
                 "13": null
             },
-            "isCustom": true
+            "isCustom": true,
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "cUltimaActuacion": {
             "type": "enum",
@@ -756,7 +1111,10 @@
                 "Visitas patrulleros": null,
                 "Visitas técnicos": null
             },
-            "isCustom": true
+            "isCustom": true,
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "cProximaActuacion": {
             "type": "enum",
@@ -793,55 +1151,69 @@
                 "Visitas patrulleros": null,
                 "Visitas técnicos": null
             },
-            "isCustom": true
+            "isCustom": true,
+            "suppressValidationList": [
+                "required"
+            ]
         },
         "cPanelActaVisita": {
             "type": "varchar",
             "notStorable": true,
             "readOnly": true,
             "utility": true,
-            "isCustom": true
-        },
-        "cRespuestaInmediata": {
-            "type": "text",
+            "isCustom": true,
             "required": false,
-            "isCustom": true
+            "suppressValidationList": [
+                "required"
+            ]
         },
-        "cRecibidaPor": {
-            "type": "link",
+        "priority": {
+            "type": "enum",
             "required": false,
-            "isCustom": true
+            "suppressValidationList": [
+                "required"
+            ]
         },
-        "cRemitidoA": {
-            "type": "link",
+        "type": {
+            "type": "enum",
             "required": false,
-            "isCustom": true
+            "suppressValidationList": [
+                "required"
+            ]
         },
-        "cMotivoReasignacion": {
-            "type": "text",
+        "teams": {
+            "type": "linkMultiple",
             "required": false,
-            "isCustom": true
+            "suppressValidationList": [
+                "required"
+            ]
+        },
+        "number": {
+            "required": false,
+            "suppressValidationList": [
+                "required"
+            ]
         }
     },
     "collection": {
-    "orderBy": "cFechaCaso",
-    "order": "desc",
-    "textFilterFields": [
-      "cNumeroRadicado",
-      "cExpediente",
-      "cNombrePeticionario",
-      "cApellidoPeticionario",
-      "cDocumentoPeticionario",
-      "cNombrePerjudicante",
-      "cApellidoPerjudicante",
-      "cDocumentoPerjudicante",
-      "status",
-      "cCanalDeReportePeticionario",
-      "cBarrioPeticionario",
-      "cBarrioPerjudicante"
-    ]
-  },
-  "links": {
+        "orderBy": "cFechaCaso",
+        "order": "desc",
+        "textFilterFields": [
+            "cNumeroRadicado",
+            "cExpediente",
+            "cNombrePeticionario",
+            "cApellidoPeticionario",
+            "cDocumentoPeticionario",
+            "cNombrePerjudicante",
+            "cApellidoPerjudicante",
+            "cDocumentoPerjudicante",
+            "status",
+            "cCanalDeReportePeticionario",
+            "cBarrioPeticionario",
+            "cBarrioPerjudicante"
+        ]
+    },
+    "links": {
         "cRecibidaPor": {
             "type": "belongsTo",
             "entity": "User"
