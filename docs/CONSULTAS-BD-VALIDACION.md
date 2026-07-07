@@ -199,6 +199,49 @@ ORDER BY table_name;
 
 Esperado: **5 filas**.
 
+### 0.9 Columnas de seguimiento / Excel en tabla `"case"` (post-deploy)
+
+Tras el deploy `feat-case-campos-excel-en-bd-2026-07-07a` (o posterior), el **Rebuild** automático debe crear estas columnas en `"case"`:
+
+```sql
+SELECT column_name, data_type
+FROM information_schema.columns
+WHERE table_schema = 'public'
+  AND table_name = 'case'
+  AND column_name IN (
+    'c_correo_perjudicante',
+    'c_predio',
+    'c_fecha_actuacion_inicial',
+    'c_dias_atencion',
+    'c_fecha_ultima_actuacion',
+    'c_resp_ultima_actuacion_id',
+    'c_periodo_atencion',
+    'c_inspector_responsable_id',
+    'c_resp_proxima_actuacion_id',
+    'c_pqrs_cobro',
+    'c_alerta_pqrs_cobro',
+    'c_observaciones'
+  )
+ORDER BY column_name;
+```
+
+Esperado: **12 filas**. Si faltan columnas, revisa logs del auto-deploy (`Rebuild final...`) o fuerza un **Redeploy con rebuild** en Dokploy.
+
+| Campo CRM | Columna BD | Tipo | Cómo se llena |
+|-----------|------------|------|----------------|
+| `cCorreoPerjudicante` | `c_correo_perjudicante` | varchar | Manual / lookup del perjudicante |
+| `cPredio` | `c_predio` | varchar | Manual |
+| `cFechaActuacionInicial` | `c_fecha_actuacion_inicial` | date | Auto al radicar |
+| `cDiasAtencion` | `c_dias_atencion` | int | Auto (días desde creación) |
+| `cFechaUltimaActuacion` | `c_fecha_ultima_actuacion` | date | Auto al crear o cambiar estado |
+| `cRespUltimaActuacion` | `c_resp_ultima_actuacion_id` | FK → `user` | Auto (usuario que actúa) |
+| `cPeriodoAtencion` | `c_periodo_atencion` | varchar | Manual |
+| `cInspectorResponsable` | `c_inspector_responsable_id` | FK → `user` | Auto (quien registra el caso) |
+| `cRespProximaActuacion` | `c_resp_proxima_actuacion_id` | FK → `user` | Auto (usuario asignado) |
+| `cPqrsCobro` | `c_pqrs_cobro` | varchar | Manual |
+| `cAlertaPqrsCobro` | `c_alerta_pqrs_cobro` | varchar | Manual |
+| `cObservaciones` | `c_observaciones` | text | Manual (no se exporta al Excel) |
+
 ---
 
 ## 1. Casos — listado y estados
@@ -347,6 +390,7 @@ SELECT
     c_documento_perjudicante,
     c_nombre_perjudicante,
     c_apellido_perjudicante,
+    c_correo_perjudicante,
     contact_id AS contacto_peticionario_vinculado,
     c_perjudicante_contact_id,
     c_perjudicante_cuenta_id
@@ -405,6 +449,98 @@ WHERE c.deleted = false
   AND c_fecha_vencimiento < CURRENT_DATE
   AND status NOT IN ('Finalizado', 'Proceso cerrado')
 ORDER BY c_fecha_vencimiento;
+```
+
+### Seguimiento y columnas del Excel (campos persistidos en BD)
+
+Vista alineada con las columnas que exporta `excelAlcaldia.xlsx`:
+
+```sql
+SELECT
+    c.c_numero_radicado,
+    c.c_expediente,
+    c.status,
+    c.c_fecha_caso AS fecha_ingreso,
+    c.c_predio,
+    c.c_fecha_actuacion_inicial,
+    c.c_dias_atencion,
+    c.c_fecha_ultima_actuacion,
+    c.c_ultima_actuacion,
+    ru.user_name AS resp_ultima_actuacion,
+    c.c_periodo_atencion,
+    ir.user_name AS inspector_responsable,
+    c.c_proxima_actuacion,
+    rp.user_name AS resp_proxima_actuacion,
+    c.c_pqrs_cobro,
+    c.c_alerta_pqrs_cobro,
+    c.c_observaciones,
+    c.c_correo_perjudicante,
+    c.modified_at
+FROM "case" c
+LEFT JOIN "user" ru ON ru.id = c.c_resp_ultima_actuacion_id AND ru.deleted = false
+LEFT JOIN "user" ir ON ir.id = c.c_inspector_responsable_id AND ir.deleted = false
+LEFT JOIN "user" rp ON rp.id = c.c_resp_proxima_actuacion_id AND rp.deleted = false
+WHERE c.deleted = false
+ORDER BY c.modified_at DESC
+LIMIT 20;
+```
+
+### Casos radicados sin fecha de actuación inicial (deberían tenerla)
+
+```sql
+SELECT
+    id,
+    c_numero_radicado,
+    status,
+    c_fecha_actuacion_inicial,
+    c_fecha_caso,
+    created_at
+FROM "case"
+WHERE deleted = false
+  AND c_numero_radicado IS NOT NULL
+  AND TRIM(c_numero_radicado) <> ''
+  AND status <> 'Pendiente de radicacion'
+  AND c_fecha_actuacion_inicial IS NULL
+ORDER BY created_at DESC;
+```
+
+### Casos sin inspector responsable (deberían tenerlo tras crear)
+
+```sql
+SELECT
+    id,
+    c_numero_radicado,
+    status,
+    c_inspector_responsable_id,
+    created_by_id,
+    created_at
+FROM "case"
+WHERE deleted = false
+  AND c_inspector_responsable_id IS NULL
+ORDER BY created_at DESC;
+```
+
+### Comparar responsables persistidos vs usuarios del sistema
+
+```sql
+SELECT
+    c.c_numero_radicado,
+    c.status,
+    cb.user_name AS creado_por,
+    ir.user_name AS inspector_bd,
+    ru.user_name AS resp_ultima_bd,
+    asg.user_name AS asignado_actual,
+    rp.user_name AS resp_proxima_bd,
+    c.c_dias_atencion
+FROM "case" c
+LEFT JOIN "user" cb ON cb.id = c.created_by_id AND cb.deleted = false
+LEFT JOIN "user" ir ON ir.id = c.c_inspector_responsable_id AND ir.deleted = false
+LEFT JOIN "user" ru ON ru.id = c.c_resp_ultima_actuacion_id AND ru.deleted = false
+LEFT JOIN "user" asg ON asg.id = c.assigned_user_id AND asg.deleted = false
+LEFT JOIN "user" rp ON rp.id = c.c_resp_proxima_actuacion_id AND rp.deleted = false
+WHERE c.deleted = false
+ORDER BY c.modified_at DESC
+LIMIT 20;
 ```
 
 ---
@@ -804,6 +940,13 @@ SELECT
     c.c_fecha_caso,
     c.c_fecha_vencimiento,
     c.c_recurso_tema,
+    c.c_predio,
+    c.c_fecha_actuacion_inicial,
+    c.c_dias_atencion,
+    c.c_fecha_ultima_actuacion,
+    ir.user_name AS inspector_responsable,
+    ru.user_name AS resp_ultima_actuacion,
+    rp.user_name AS resp_proxima_actuacion,
     u.user_name AS asignado,
     (SELECT COUNT(*) FROM acta_visita av WHERE av.case_id = c.id AND av.deleted = false) AS actas,
     (SELECT COUNT(*) FROM actuo_archivo aa WHERE aa.case_id = c.id AND aa.deleted = false) AS actuos,
@@ -811,6 +954,9 @@ SELECT
     (SELECT COUNT(*) FROM asignacion_historial ah WHERE ah.case_id = c.id AND ah.deleted = false) AS reasignaciones
 FROM "case" c
 LEFT JOIN "user" u ON u.id = c.assigned_user_id AND u.deleted = false
+LEFT JOIN "user" ir ON ir.id = c.c_inspector_responsable_id AND ir.deleted = false
+LEFT JOIN "user" ru ON ru.id = c.c_resp_ultima_actuacion_id AND ru.deleted = false
+LEFT JOIN "user" rp ON rp.id = c.c_resp_proxima_actuacion_id AND rp.deleted = false
 WHERE c.id = 'CASE_ID_AQUI'
   AND c.deleted = false;
 ```
@@ -821,9 +967,10 @@ WHERE c.id = 'CASE_ID_AQUI'
 
 | Acción en el CRM | Qué validar en BD |
 |------------------|-------------------|
-| Crear caso | Nueva fila en `"case"`, `c_fecha_caso`, peticionario, `status = Pendiente de radicacion` |
-| Radicar | `c_numero_radicado`, `c_expediente`, cambio de `status`, `c_formato_solicitud_pdf_id` |
-| Asignar patrullero | `assigned_user_id`, fila en `asignacion_historial` si hubo reasignación |
+| Crear caso | Nueva fila en `"case"`, `c_fecha_caso`, peticionario, `status = Pendiente de radicacion`, `c_inspector_responsable_id` = quien crea, `c_dias_atencion` calculado |
+| Radicar | `c_numero_radicado`, `c_expediente`, cambio de `status`, `c_formato_solicitud_pdf_id`, `c_fecha_actuacion_inicial` |
+| Cambiar estado | `c_fecha_ultima_actuacion`, `c_resp_ultima_actuacion_id`, `c_dias_atencion` actualizado |
+| Asignar patrullero | `assigned_user_id`, `c_resp_proxima_actuacion_id`, fila en `asignacion_historial` si hubo reasignación |
 | Acta de visita | Fila en `acta_visita` con `case_id`, `c_formato_acta_visita_pdf_id` |
 | Auto de archivo | Fila en `actuo_archivo` con `case_id` |
 | Comunicación | Fila en `comunicacion_caso` con `case_id` |
@@ -841,8 +988,10 @@ Después de **Redeploy**, ejecuta en orden:
 3. **Roles:** consulta **0.2** (4 roles operativos)
 4. **Usuarios:** consulta **0.3** (usuarios con rol asignado)
 5. **Job vencimientos:** consulta **0.6** (job activo)
-6. **Integridad:** consulta **10** (registros huérfanos = 0 filas)
-7. **Radicados duplicados:** consulta de la sección **2** (= 0 filas)
+6. **Columnas Excel en BD:** consulta **0.9** (12 columnas nuevas en `"case"`)
+7. **Integridad:** consulta **10** (registros huérfanos = 0 filas)
+8. **Radicados duplicados:** consulta de la sección **2** (= 0 filas)
+9. **Seguimiento Excel:** consulta **2** — *Seguimiento y columnas del Excel* (responsables y fechas poblados)
 
 En logs del contenedor `espocrm` debe aparecer:
 
