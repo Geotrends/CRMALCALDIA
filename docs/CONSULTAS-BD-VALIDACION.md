@@ -246,7 +246,68 @@ Esperado: **12 filas**. Si faltan columnas, revisa logs del auto-deploy (`Rebuil
 
 ## 1. Casos — listado y estados
 
-### Últimos 20 casos creados
+### Tabla completa de casos (todos los campos)
+
+Para ver **todas las columnas** de la tabla `"case"`:
+
+```sql
+-- Todos los casos activos (sin borrado lógico)
+SELECT *
+FROM "case"
+WHERE deleted = false
+ORDER BY created_at DESC;
+```
+
+```sql
+-- Últimos 20 casos (tabla completa)
+SELECT *
+FROM "case"
+WHERE deleted = false
+ORDER BY created_at DESC
+LIMIT 20;
+```
+
+```sql
+-- Un caso por radicado (tabla completa) — cambia el valor
+SELECT *
+FROM "case"
+WHERE deleted = false
+  AND c_numero_radicado = 'ENV-AIR-001-2026';
+```
+
+```sql
+-- Un caso por ID (tabla completa) — cambia el ID
+SELECT *
+FROM "case"
+WHERE deleted = false
+  AND id = 'CASE_ID_AQUI';
+```
+
+> **Tip en `psql`:** con muchas columnas activa la vista expandida antes de consultar:
+>
+> ```
+> \x
+> ```
+>
+> Cada fila se muestra en bloque vertical (más legible). Para volver al modo tabla: `\x` otra vez.
+
+### Listar nombres de todas las columnas de `"case"`
+
+```sql
+SELECT
+    column_name,
+    data_type,
+    character_maximum_length,
+    is_nullable
+FROM information_schema.columns
+WHERE table_schema = 'public'
+  AND table_name = 'case'
+ORDER BY ordinal_position;
+```
+
+### Últimos 20 casos creados (resumen rápido)
+
+Si solo necesitas un vistazo rápido sin todas las columnas:
 
 ```sql
 SELECT
@@ -295,21 +356,8 @@ Estados esperados del flujo:
 ### Un caso por número de radicado
 
 ```sql
--- Cambia el valor del radicado
-SELECT
-    id,
-    c_numero_radicado,
-    c_expediente,
-    status,
-    c_fecha_caso,
-    c_fecha_vencimiento,
-    c_nombre_peticionario,
-    c_apellido_peticionario,
-    c_documento_peticionario,
-    c_recurso_tema,
-    assigned_user_id,
-    created_at,
-    modified_at
+-- Tabla completa — cambia el valor del radicado
+SELECT *
 FROM "case"
 WHERE deleted = false
   AND c_numero_radicado = 'ENV-AIR-001-2026';
