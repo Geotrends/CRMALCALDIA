@@ -183,7 +183,9 @@
         "cBarrioPeticionario": {
             "type": "enum",
             "required": false,
+            "default": "Seleccione una opción",
             "options": [
+                "Seleccione una opción",
                 "Alcalá",
                 "Alto de Misael",
                 "Bosques de Zúñiga",
@@ -231,6 +233,7 @@
                 "Zuñiga"
             ],
             "style": {
+                "Seleccione una opción": null,
                 "Alcalá": null,
                 "Alto de Misael": null,
                 "Bosques de Zúñiga": null,
@@ -442,7 +445,9 @@
         "cBarrioPerjudicante": {
             "type": "enum",
             "required": false,
+            "default": "Seleccione una opción",
             "options": [
+                "Seleccione una opción",
                 "Alcalá",
                 "Alto de Misael",
                 "Bosques de Zúñiga",
@@ -490,6 +495,7 @@
                 "Zuñiga"
             ],
             "style": {
+                "Seleccione una opción": null,
                 "Alcalá": null,
                 "Alto de Misael": null,
                 "Bosques de Zúñiga": null,
