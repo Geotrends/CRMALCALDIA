@@ -49,10 +49,33 @@ define('custom:views/case/fields/acta-visita-action', [
                 || PatrulleroActa.isPatrulleroUser(user);
         },
 
-        resolveRequiresVisitaCheck: function () {
-            return this.canUseTools
-                && String(this.model.get('status') || '').trim() === 'Asignado'
-                && !this.actaIsEditMode;
+        resolveRequiresVisitaCheck: function (user) {
+            if (!this.canUseTools || this.actaIsEditMode || this.visitaConfirmada) {
+                return false;
+            }
+
+            if (!this.isOperadorVisitaCampo(user)) {
+                return false;
+            }
+
+            const status = String(this.model.get('status') || '').trim();
+            const isAsignado = status === 'Asignado' || status === 'Assigned';
+
+            // Patrullaje: check obligatorio solo cuando el caso está asignado.
+            if (PatrulleroActa.isPatrulleroUser(user) && !RadicacionFields.isInspeccionUser(user)) {
+                return isAsignado;
+            }
+
+            // Inspección: mismo gate que patrullaje en Asignado; también si va a diligenciar en Radicado.
+            if (RadicacionFields.isInspeccionUser(user)) {
+                if (isAsignado) {
+                    return true;
+                }
+
+                return status === 'Radicado' && PatrulleroActa.isCasePostRadicado(this.model);
+            }
+
+            return false;
         },
 
         resolveVisitaConfirmada: function () {
@@ -118,6 +141,10 @@ define('custom:views/case/fields/acta-visita-action', [
                 return RadicacionFields.isInspeccionUser(user)
                     ? this.translateCaseLabel('actaVisitaInspeccionHelp')
                     : this.translateCaseLabel('actaVisitaEditHelp');
+            }
+
+            if (this.requiresVisitaCheck && !this.canEnableActaActions()) {
+                return this.translateCaseLabel('visitaRealizadaCheckHelp');
             }
 
             if (this.canEnableActaActions()) {
@@ -250,7 +277,7 @@ define('custom:views/case/fields/acta-visita-action', [
                 this._visitaMarcadaLocal = true;
             }
 
-            this.requiresVisitaCheck = this.resolveRequiresVisitaCheck();
+            this.requiresVisitaCheck = this.resolveRequiresVisitaCheck(this.getUser());
             this.showVisitaCheck = this.requiresVisitaCheck;
             this.stateReady = true;
             this.updatePanelVisibility(this.canUseTools);
