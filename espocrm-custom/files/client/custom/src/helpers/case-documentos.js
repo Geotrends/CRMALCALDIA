@@ -111,49 +111,30 @@ define('custom:helpers/case-documentos', [
     };
 
     const pushActuoDocuments = function (docs, user, model, basePath, actuo) {
-        if (!user || !model) {
+        if (!user || !model || !actuo) {
+            return;
+        }
+
+        if (!ActuoArchivoCaseStatus.isFormatoActuoHabilitado(actuo)) {
+            return;
+        }
+
+        if (!FormatoActuoArchivoCaseAccess.canDownloadFormatoActuoArchivoFromCase(user, model)) {
             return;
         }
 
         const radicado = String(getValue(model, 'cNumeroRadicado') || '').trim();
-        const status = String(getValue(model, 'status') || '').trim();
-        const isFinalizado = status === 'Finalizado';
-
-        if (isFinalizado
-            && actuo
-            && FormatoActuoArchivoCaseAccess.canDownloadFormatoActuoArchivoFromCase(user, model)
-            && ActuoArchivoCaseStatus.isFormatoActuoHabilitado(actuo)) {
-            const fileName = getValue(actuo, 'cFormatoActuoArchivoPdfName') || 'AutoArchivo.pdf';
-
-            docs.push(buildDocumentEntry({
-                key: 'actuo',
-                labelKey: 'formatoGeneradoActuo',
-                name: fileName,
-                basePath: basePath,
-                entryPoint: 'FormatoActuoArchivoCaso',
-                caseId: model.id,
-                modo: 'digital',
-            }));
-
-            return;
-        }
-
-        if (!FormatoActuoArchivoCaseAccess.isCaseReadyForActuo(model)) {
-            return;
-        }
-
-        const fileName = radicado
-            ? 'AutoArchivo-' + radicado + '.pdf'
-            : 'AutoArchivo.pdf';
+        const fileName = getValue(actuo, 'cFormatoActuoArchivoPdfName')
+            || (radicado ? 'AutoArchivo-' + radicado + '.pdf' : 'AutoArchivo.pdf');
 
         docs.push(buildDocumentEntry({
-            key: 'actuo-manual',
+            key: 'actuo',
             labelKey: 'formatoGeneradoActuo',
             name: fileName,
             basePath: basePath,
             entryPoint: 'FormatoActuoArchivoCaso',
             caseId: model.id,
-            modo: 'manual',
+            modo: 'digital',
         }));
     };
 
