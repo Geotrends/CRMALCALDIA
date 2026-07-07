@@ -85,6 +85,8 @@ define('custom:helpers/alcaldia-notification-message', [
 
         const isActaVisita = !!data.isActaVisita
             || /realizó la visita|se ha realizado la visita/i.test(rawMessage);
+        const isVisitaAprobada = !!data.isVisitaAprobada
+            || /aprobó la visita/i.test(rawMessage);
         const isNuevaSolicitud = !!data.isNuevaSolicitud;
         const isRadicado = !!data.isRadicado;
         const isPatrulleroAsignacion = !!data.isPatrulleroAsignacion
@@ -141,6 +143,9 @@ define('custom:helpers/alcaldia-notification-message', [
             message = userLink(userId, userName)
                 + ' realizó la visita en el caso ' + caseLink(href, linkLabel)
                 + '. Revise el acta de visita.';
+        } else if (isVisitaAprobada) {
+            message = userLink(userId, userName)
+                + ' aprobó la visita del caso ' + caseLink(href, linkLabel) + '.';
         } else if (isNuevaSolicitud) {
             message = userLink(userId, userName)
                 + ' creó una solicitud de queja: '

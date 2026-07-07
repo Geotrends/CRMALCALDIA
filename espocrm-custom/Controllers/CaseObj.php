@@ -13,6 +13,7 @@ use Espo\Custom\Tools\CaseObj\CaseActaVisitaHelper;
 use Espo\Custom\Tools\CaseObj\CaseCreateDefaultsService;
 use Espo\Custom\Tools\CaseObj\CaseCronogramaService;
 use Espo\Custom\Tools\CaseObj\CaseTimelineService;
+use Espo\Custom\Tools\CaseObj\CaseVisitaAprobadaNotifier;
 use Espo\Custom\Tools\CaseObj\RadicadoCatalog;
 use Espo\Custom\Tools\CaseObj\RadicadoConsecutivoService;
 use Espo\Custom\Tools\Party\PartyRegistryService;
@@ -448,6 +449,14 @@ class CaseObj extends BaseCaseObj
             }
         } catch (\Throwable) {
             // El estado del caso ya quedó aprobado; el acta es informativo.
+        }
+
+        try {
+            $this->injectableFactory
+                ->create(CaseVisitaAprobadaNotifier::class)
+                ->notifyPatrullero($case, $user);
+        } catch (\Throwable) {
+            // No bloquear la aprobación por fallos de notificación.
         }
 
         return [

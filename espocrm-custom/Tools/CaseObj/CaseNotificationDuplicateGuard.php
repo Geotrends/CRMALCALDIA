@@ -59,6 +59,7 @@ class CaseNotificationDuplicateGuard
             'case.radicado' => !empty($data['isRadicado']),
             'case.assigned.patrullero' => !empty($data['isPatrulleroAsignacion']),
             'case.assigned.inspeccion' => !empty($data['isAsignacion']),
+            'case.visita.aprobada' => !empty($data['isVisitaAprobada']),
             default => false,
         };
     }
