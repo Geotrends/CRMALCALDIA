@@ -125,9 +125,15 @@ class FormatoActuoArchivoGenerator
         return $this->actuoHasFormatoData($actuo);
     }
 
+    private const ACTUO_READY_STATUSES = [
+        'Visita aprobada',
+        'Finalizado',
+        'Proceso cerrado',
+    ];
+
     public function canDownloadFormatoFromCase(Entity $case): bool
     {
-        return $case->get('status') === 'Finalizado';
+        return in_array(trim((string) $case->get('status')), self::ACTUO_READY_STATUSES, true);
     }
 
     public function canDownloadFormato(Entity $actuo): bool

@@ -125,6 +125,10 @@ define('custom:views/case/fields/actuo-archivo-action', [
             this.updatePanelVisibility(true);
             this.$el.find('.case-actuo-archivo-help').text(data.helpText || '');
             this.$el.find('.case-actuo-archivo-actions').toggle(!!data.showActions);
+            this.$el.find('[data-action="llenarActuoArchivo"] .case-actuo-archivo-btn-text')
+                .text(data.buttonLabel);
+            this.$el.find('[data-action="imprimirActuoManual"] .case-actuo-archivo-btn-text')
+                .text(data.printLabel);
             this.bindUi();
         },
 

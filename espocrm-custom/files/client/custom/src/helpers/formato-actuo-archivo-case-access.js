@@ -33,7 +33,7 @@ define('custom:helpers/formato-actuo-archivo-case-access', [
             return false;
         }
 
-        return model.get('status') === 'Finalizado';
+        return isCaseReadyForActuo(model);
     };
 
     const canDownloadManualWordFromCase = function (user, model) {
