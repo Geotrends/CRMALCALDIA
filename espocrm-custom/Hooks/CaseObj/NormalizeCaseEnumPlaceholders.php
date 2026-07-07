@@ -37,7 +37,7 @@ class NormalizeCaseEnumPlaceholders implements BeforeSave
             $value = trim((string) $entity->get($field));
 
             if ($value === '' || $value === self::PLACEHOLDER) {
-                $entity->set($field, null);
+                $entity->clear($field);
             }
         }
     }

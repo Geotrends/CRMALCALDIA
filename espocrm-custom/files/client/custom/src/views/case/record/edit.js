@@ -230,6 +230,8 @@ define('custom:views/case/record/edit', [
                 PersonaTipoFields.clearInfractorFields(this);
             }
 
+            PersonaTipoFields.clearOptionalEnumPlaceholders(this.model);
+
             InspeccionCaseFlow.prepareModelForSave(this);
             RadicacionCaseFlow.prepareModelForSave(this);
             AsignadorCaseFlow.prepareModelForSave(this);

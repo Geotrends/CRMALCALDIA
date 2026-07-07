@@ -498,6 +498,12 @@ define('custom:views/case/record/detail', [
         },
 
         prepareModelForSave: function () {
+            if (PersonaTipoFields.isInfractorDesconocido(this.model.get('cTipoPersonaPerjudicante'))) {
+                PersonaTipoFields.clearInfractorFields(this);
+            }
+
+            PersonaTipoFields.clearOptionalEnumPlaceholders(this.model);
+
             InspeccionCaseFlow.prepareModelForSave(this);
             RadicacionCaseFlow.prepareModelForSave(this);
             AsignadorCaseFlow.prepareModelForSave(this);

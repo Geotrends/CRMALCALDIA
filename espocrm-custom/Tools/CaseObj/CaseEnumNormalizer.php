@@ -2,6 +2,7 @@
 
 namespace Espo\Custom\Tools\CaseObj;
 
+use Espo\Core\Record\Input\Data;
 use Espo\Core\Utils\Metadata;
 use Espo\ORM\Entity;
 
@@ -36,8 +37,11 @@ class CaseEnumNormalizer
     /** @var array<string, string> */
     private const BARRIO_ALIASES = [
         'Bosques de Zuñiga' => 'Bosques de Zúñiga',
+        'Bosques de Zúñiga' => 'Bosques de Zuñiga',
         'Las Orquideas' => 'Las Orquídeas',
+        'Las Orquídeas' => 'Las Orquideas',
         'Milan- Vallejuelos' => 'Milán- Vallejuelos',
+        'Milán- Vallejuelos' => 'Milan- Vallejuelos',
     ];
 
     public function __construct(
@@ -53,20 +57,55 @@ class CaseEnumNormalizer
                 continue;
             }
 
-            $value = trim((string) $entity->get($field));
+            $normalized = $this->normalizeFieldValue($field, (string) $entity->get($field), $barrioOptions);
 
-            if ($value === '' || $value === self::PLACEHOLDER) {
-                $entity->set($field, null);
+            if ($normalized === null) {
+                $entity->clear($field);
 
                 continue;
             }
 
-            if (!in_array($field, self::BARRIO_FIELDS, true)) {
-                continue;
-            }
-
-            $entity->set($field, $this->normalizeBarrio($value, $barrioOptions));
+            $entity->set($field, $normalized);
         }
+    }
+
+    public function applyToInput(Data $data): void
+    {
+        $barrioOptions = $this->getEnumOptions('cBarrioPeticionario');
+
+        foreach (self::ENUM_FIELDS as $field) {
+            if (!$data->has($field)) {
+                continue;
+            }
+
+            $normalized = $this->normalizeFieldValue($field, (string) $data->get($field), $barrioOptions);
+
+            if ($normalized === null) {
+                $data->clear($field);
+
+                continue;
+            }
+
+            $data->set($field, $normalized);
+        }
+    }
+
+    /**
+     * @param string[] $barrioOptions
+     */
+    private function normalizeFieldValue(string $field, string $value, array $barrioOptions): ?string
+    {
+        $value = trim($value);
+
+        if ($value === '' || $value === self::PLACEHOLDER) {
+            return null;
+        }
+
+        if (in_array($field, self::BARRIO_FIELDS, true)) {
+            return $this->normalizeBarrio($value, $barrioOptions);
+        }
+
+        return $this->normalizeEnumValue($field, $value);
     }
 
     /**
@@ -88,17 +127,61 @@ class CaseEnumNormalizer
             return $value;
         }
 
+        $needle = $this->normalizeKey($value);
+
         foreach ($validOptions as $option) {
             if ($option === self::PLACEHOLDER) {
                 continue;
             }
 
-            if (mb_strtolower($option) === mb_strtolower($value)) {
+            if ($this->normalizeKey((string) $option) === $needle) {
                 return $option;
             }
         }
 
         return null;
+    }
+
+    private function normalizeEnumValue(string $field, string $value): ?string
+    {
+        $options = $this->getEnumOptions($field);
+
+        if ($options === []) {
+            return $value;
+        }
+
+        if (in_array($value, $options, true)) {
+            return $value;
+        }
+
+        $needle = $this->normalizeKey($value);
+
+        foreach ($options as $option) {
+            if ($option === self::PLACEHOLDER) {
+                continue;
+            }
+
+            if ($this->normalizeKey((string) $option) === $needle) {
+                return $option;
+            }
+        }
+
+        return null;
+    }
+
+    private function normalizeKey(string $value): string
+    {
+        $value = mb_strtolower(trim($value));
+
+        return strtr($value, [
+            'á' => 'a',
+            'é' => 'e',
+            'í' => 'i',
+            'ó' => 'o',
+            'ú' => 'u',
+            'ñ' => 'n',
+            'ü' => 'u',
+        ]);
     }
 
     /**

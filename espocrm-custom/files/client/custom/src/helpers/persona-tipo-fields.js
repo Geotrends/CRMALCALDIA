@@ -178,6 +178,34 @@ define('custom:helpers/persona-tipo-fields', [
         applyPeticionarioFieldLabels(recordView);
     };
 
+    const ENUM_PLACEHOLDER_FIELDS = [
+        'cCanalDeReportePeticionario',
+        'cBarrioPeticionario',
+        'cBarrioPerjudicante',
+        'cRecursoTema',
+        'cAsunto',
+        'cZonaAlcaldiaPeticionario',
+        'cUltimaActuacion',
+        'cProximaActuacion',
+        'cRadicadoSiglas',
+        'cTipoPersonaPeticionario',
+        'cTipoPersonaPerjudicante',
+    ];
+
+    const clearOptionalEnumPlaceholders = function (model) {
+        ENUM_PLACEHOLDER_FIELDS.forEach(function (field) {
+            const value = String(model.get(field) || '').trim();
+
+            if (value === '' || value === PLACEHOLDER) {
+                if (typeof model.unset === 'function') {
+                    model.unset(field, {silent: true});
+                } else {
+                    model.set(field, null, {silent: true});
+                }
+            }
+        });
+    };
+
     const clearInfractorFields = function (recordView) {
         const model = recordView.model || recordView;
 
@@ -282,5 +310,6 @@ define('custom:helpers/persona-tipo-fields', [
         hidePartyLinks: hidePartyLinks,
         toggleInfractorFields: toggleInfractorFields,
         clearInfractorFields: clearInfractorFields,
+        clearOptionalEnumPlaceholders: clearOptionalEnumPlaceholders,
     };
 });
