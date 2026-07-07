@@ -12,18 +12,13 @@ define('custom:views/fields/phone-numeric', [
                 return;
             }
 
-            var self = this;
             var $input = this.$el.find('input.main-element');
 
             if (!$input.length) {
                 $input = this.$el.find('input[type="tel"], input.phone-number');
             }
 
-            NumericInput.bindToInput($input, {
-                onInvalid: function ($target) {
-                    self.showValidationMessage(NumericInput.INVALID_MESSAGE, $target);
-                },
-            });
+            NumericInput.bindToInput($input);
         },
 
         fetch: function () {

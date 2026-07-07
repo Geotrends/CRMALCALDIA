@@ -4,6 +4,23 @@ define('custom:views/notification/badge', [
 
     return Dep.extend({
 
+        getReadStorageKey: function () {
+            return 'alcaldiaNotifReadAt_' + (this.getUser().id || '');
+        },
+
+        getSeenCountStorageKey: function () {
+            return 'alcaldiaNotifSeenCount_' + (this.getUser().id || '');
+        },
+
+        persistReadState: function () {
+            localStorage.setItem(this.getReadStorageKey(), String(Date.now()));
+            localStorage.setItem(this.getSeenCountStorageKey(), '0');
+        },
+
+        rememberUnreadBeforeClear: function (count) {
+            localStorage.setItem(this.getSeenCountStorageKey(), String(count || 0));
+        },
+
         showNotRead: function (count) {
             var display = count > 99 ? '99+' : String(count);
 
@@ -29,6 +46,28 @@ define('custom:views/notification/badge', [
                 count = await Espo.Ajax.getRequest('Notification/action/notReadCount');
             } catch (error) {
                 return;
+            }
+
+            var lastReadAt = parseInt(localStorage.getItem(this.getReadStorageKey()) || '0', 10);
+            var staleUnreadCount = parseInt(localStorage.getItem(this.getSeenCountStorageKey()) || '0', 10);
+
+            if (
+                isFirstCheck
+                && count > 0
+                && lastReadAt > 0
+                && staleUnreadCount > 0
+                && count === staleUnreadCount
+            ) {
+                try {
+                    await Espo.Ajax.postRequest('Notification/action/markAllRead');
+                    count = await Espo.Ajax.getRequest('Notification/action/notReadCount');
+
+                    if (count === 0) {
+                        this.persistReadState();
+                    }
+                } catch (error) {
+                    // Si falla, se muestra el contador del servidor.
+                }
             }
 
             if (!isFirstCheck && count > this.unreadCount) {
@@ -60,6 +99,17 @@ define('custom:views/notification/badge', [
             this.closeNotifications();
             this._panelMarkedRead = false;
 
+            this.rememberUnreadBeforeClear(this.unreadCount || 0);
+
+            Espo.Ajax.postRequest('Notification/action/markAllRead')
+                .then(function () {
+                    self.unreadCount = 0;
+                    self.hideNotRead();
+                    self.persistReadState();
+                    self.broadcastNotificationsRead();
+                })
+                .catch(function () {});
+
             var $container = $('<div>').attr('id', 'notifications-panel');
             $container.appendTo(this.$el.find('.notifications-panel-container'));
 
@@ -76,6 +126,7 @@ define('custom:views/notification/badge', [
                     self._panelMarkedRead = true;
                     self.unreadCount = 0;
                     self.hideNotRead();
+                    self.persistReadState();
                     self.broadcastNotificationsRead();
                 });
 

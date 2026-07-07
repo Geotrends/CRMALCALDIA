@@ -47,10 +47,6 @@ define('custom:helpers/numeric-input', [], function () {
         $input.on('keydown.numericOnly', function (e) {
             if (!isAllowedKey(e)) {
                 e.preventDefault();
-
-                if (options.onInvalid) {
-                    options.onInvalid($input);
-                }
             }
         });
 
@@ -60,10 +56,6 @@ define('custom:helpers/numeric-input', [], function () {
 
             if (raw !== cleaned) {
                 this.value = cleaned;
-
-                if (options.onInvalid) {
-                    options.onInvalid($input);
-                }
             }
         });
     };

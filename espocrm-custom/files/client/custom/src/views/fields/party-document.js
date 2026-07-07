@@ -51,7 +51,6 @@ define('custom:views/fields/party-document', [
                 return;
             }
 
-            var self = this;
             var $input = this.getInputElement();
 
             if (!$input.length) {
@@ -63,20 +62,12 @@ define('custom:views/fields/party-document', [
                     $input.val(NitInput.format($input.val()));
                 }
 
-                NitInput.bindToInput($input, {
-                    onInvalid: function ($target) {
-                        self.showValidationMessage(NitInput.INVALID_MESSAGE, $target);
-                    },
-                });
+                NitInput.bindToInput($input);
 
                 return;
             }
 
-            NumericInput.bindToInput($input, {
-                onInvalid: function ($target) {
-                    self.showValidationMessage(NumericInput.INVALID_MESSAGE, $target);
-                },
-            });
+            NumericInput.bindToInput($input);
         },
 
         getDetailStringValue: function () {

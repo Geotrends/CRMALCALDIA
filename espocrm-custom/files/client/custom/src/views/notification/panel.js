@@ -32,27 +32,24 @@ define('custom:views/notification/panel', [
             });
         },
 
-        afterRender: function () {
+        getReadStorageKey: function () {
+            return 'alcaldiaNotifReadAt_' + (this.getUser().id || '');
+        },
+
+        persistReadState: function () {
+            localStorage.setItem(this.getReadStorageKey(), String(Date.now()));
+        },
+
+        markAllAsRead: function () {
             var self = this;
-            var $window = $(window);
 
-            $window.off('resize.notifications-height');
-            $window.on('resize.notifications-height', this.processSizing.bind(this));
-
-            Dep.prototype.afterRender.call(this);
-            this.processSizing();
-
-            $('#navbar li.notifications-badge-container').addClass('open');
-            this.$el.find('> .panel').focus();
-
-            if (this._alcaldiaMarkReadStarted) {
-                return;
+            if (this._markAllReadPromise) {
+                return this._markAllReadPromise;
             }
 
-            this._alcaldiaMarkReadStarted = true;
-
-            Espo.Ajax.postRequest('Notification/action/markAllRead')
+            this._markAllReadPromise = Espo.Ajax.postRequest('Notification/action/markAllRead')
                 .then(function () {
+                    self.persistReadState();
                     self.trigger('all-read');
 
                     return self.collection.fetch();
@@ -72,8 +69,26 @@ define('custom:views/notification/panel', [
                     // Mantener panel usable aunque falle markAllRead.
                 })
                 .finally(function () {
-                    self._alcaldiaMarkReadStarted = false;
+                    self._markAllReadPromise = null;
                 });
+
+            return this._markAllReadPromise;
+        },
+
+        afterRender: function () {
+            var self = this;
+            var $window = $(window);
+
+            $window.off('resize.notifications-height');
+            $window.on('resize.notifications-height', this.processSizing.bind(this));
+
+            Dep.prototype.afterRender.call(this);
+            this.processSizing();
+
+            $('#navbar li.notifications-badge-container').addClass('open');
+            this.$el.find('> .panel').focus();
+
+            this.markAllAsRead();
         },
     });
 });

@@ -92,10 +92,6 @@ define('custom:helpers/nit-input', [], function () {
         $input.on('keydown.nitInput', function (e) {
             if (!isAllowedKey(e)) {
                 e.preventDefault();
-
-                if (options.onInvalid) {
-                    options.onInvalid($input);
-                }
             }
         });
 
@@ -105,10 +101,6 @@ define('custom:helpers/nit-input', [], function () {
 
             if (raw !== cleaned) {
                 this.value = cleaned;
-
-                if (options.onInvalid) {
-                    options.onInvalid($input);
-                }
             }
         });
 

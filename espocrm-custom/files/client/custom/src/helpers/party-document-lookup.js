@@ -5,7 +5,6 @@ define('custom:helpers/party-document-lookup', [
     'custom:helpers/nit-input',
 ], function (PersonaTipoFields, DireccionEstructurada, SafeUiPromise, NitInput) {
 
-    var DEBOUNCE_MS = 400;
     var MIN_DOCUMENT_LENGTH = 4;
 
     var PETICIONARIO_LINKED_FIELDS = [
@@ -83,10 +82,13 @@ define('custom:helpers/party-document-lookup', [
 
     var syncDocumentToModel = function (recordView, config) {
         var documento = readDocumentFromDom(recordView, config);
+        var current = String(recordView.model.get(config.documento) || '').trim();
 
-        if (documento !== String(recordView.model.get(config.documento) || '').trim()) {
-            recordView.model.set(config.documento, documento || null);
+        if (documento === current) {
+            return documento;
         }
+
+        recordView.model.set(config.documento, documento || null, {silent: true});
 
         return documento;
     };
@@ -118,7 +120,13 @@ define('custom:helpers/party-document-lookup', [
             return;
         }
 
+        var config = getPartyConfig(party);
+
         getLinkedFields(party).forEach(function (field) {
+            if (field === config.documento) {
+                return;
+            }
+
             SafeUiPromise.safeReRender(recordView.getFieldView(field));
         });
     };
@@ -306,17 +314,6 @@ define('custom:helpers/party-document-lookup', [
     };
 
     var bindParty = function (recordView, config, party) {
-        var timer = null;
-
-        var schedule = function () {
-            clearTimeout(timer);
-            timer = setTimeout(function () {
-                runLookup(recordView, config, party);
-            }, DEBOUNCE_MS);
-        };
-
-        recordView.listenTo(recordView.model, 'change:' + config.documento, schedule);
-
         recordView.listenTo(recordView.model, 'change:' + config.tipo, function () {
             if (recordView._partyLookupCache) {
                 Object.keys(recordView._partyLookupCache).forEach(function (cacheKey) {
@@ -327,7 +324,6 @@ define('custom:helpers/party-document-lookup', [
             }
 
             setPartyLinkedState(recordView, party, false);
-            schedule();
         });
     };
 
@@ -348,26 +344,11 @@ define('custom:helpers/party-document-lookup', [
             }
         };
 
-        var scheduleHandler = function (e) {
-            var $field = $(e.currentTarget).closest('[data-name]');
-            var fieldName = $field.attr('data-name');
-
-            if (fieldName === PersonaTipoFields.PETICIONARIO.documento) {
-                syncDocumentToModel(recordView, PersonaTipoFields.PETICIONARIO);
-            }
-
-            if (fieldName === PersonaTipoFields.PERJUDICANTE.documento) {
-                syncDocumentToModel(recordView, PersonaTipoFields.PERJUDICANTE);
-            }
-        };
-
         recordView.$el
-            .off('blur.partyLookup change.partyLookup keyup.partyLookup input.partyLookup', '[data-name="cDocumentoPeticionario"] input, [data-name="cDocumentoPeticionario"] textarea')
-            .off('blur.partyLookup change.partyLookup keyup.partyLookup input.partyLookup', '[data-name="cDocumentoPerjudicante"] input, [data-name="cDocumentoPerjudicante"] textarea')
-            .on('blur.partyLookup change.partyLookup', '[data-name="cDocumentoPeticionario"] input, [data-name="cDocumentoPeticionario"] textarea', handler)
-            .on('blur.partyLookup change.partyLookup', '[data-name="cDocumentoPerjudicante"] input, [data-name="cDocumentoPerjudicante"] textarea', handler)
-            .on('keyup.partyLookup input.partyLookup', '[data-name="cDocumentoPeticionario"] input, [data-name="cDocumentoPeticionario"] textarea', scheduleHandler)
-            .on('keyup.partyLookup input.partyLookup', '[data-name="cDocumentoPerjudicante"] input, [data-name="cDocumentoPerjudicante"] textarea', scheduleHandler);
+            .off('blur.partyLookup', '[data-name="cDocumentoPeticionario"] input, [data-name="cDocumentoPeticionario"] textarea')
+            .off('blur.partyLookup', '[data-name="cDocumentoPerjudicante"] input, [data-name="cDocumentoPerjudicante"] textarea')
+            .on('blur.partyLookup', '[data-name="cDocumentoPeticionario"] input, [data-name="cDocumentoPeticionario"] textarea', handler)
+            .on('blur.partyLookup', '[data-name="cDocumentoPerjudicante"] input, [data-name="cDocumentoPerjudicante"] textarea', handler);
     };
 
     var setup = function (recordView) {
