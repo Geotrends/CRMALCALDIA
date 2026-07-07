@@ -137,7 +137,7 @@
     "imprimirActuoArchivoManual": "Imprimir formato para diligenciar a mano",
     "descargarActuoArchivoWord": "Descargar Word editable",
     "actuoArchivoPrintBlocked": "Permita ventanas emergentes para imprimir el auto de archivo.",
-    "actuoArchivoPanelHelp": "Diligencie el auto de archivo para cerrar el expediente.",
+    "actuoArchivoPanelHelp": "La visita fue aprobada. Diligencie el auto de archivo para cerrar el expediente.",
     "actuoArchivoEditHelp": "El auto de archivo ya fue diligenciado. Puede revisarlo o modificarlo.",
     "actuoArchivoPanelUnavailable": "Disponible para Inspección cuando la visita esté aprobada.",
     "downloadFormatoActuoPdf": "Descargar auto PDF",

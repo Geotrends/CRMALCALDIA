@@ -327,6 +327,21 @@
         "label": "Acta de visita"
     },
     {
+        "name": "actuoArchivo",
+        "rows": [
+            [
+                {
+                    "name": "cPanelActuoArchivo",
+                    "view": "custom:views/case/fields/actuo-archivo-action",
+                    "noLabel": true,
+                    "fullWidth": true
+                }
+            ]
+        ],
+        "style": "default",
+        "label": "Auto de archivo"
+    },
+    {
         "name": "formatoGenerado",
         "rows": [
             [

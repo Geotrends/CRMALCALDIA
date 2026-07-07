@@ -2,7 +2,8 @@ define('custom:helpers/actuo-archivo-modal', [
     'helpers/record-modal',
     'custom:helpers/actuo-archivo-from-case',
     'custom:helpers/actuo-archivo-case-status',
-], function (RecordModal, ActuoFromCase, ActuoArchivoCaseStatus) {
+    'custom:helpers/formato-actuo-archivo-case-access',
+], function (RecordModal, ActuoFromCase, ActuoArchivoCaseStatus, FormatoActuoArchivoCaseAccess) {
 
     const RecordModalHelper = RecordModal.default || RecordModal;
 
@@ -34,6 +35,11 @@ define('custom:helpers/actuo-archivo-modal', [
 
     const canManageActuo = function (hostView, user, caseModel) {
         if (!user || !caseModel) {
+            return false;
+        }
+
+        if (!FormatoActuoArchivoCaseAccess.canManageActuoFromCase(user)
+            || !FormatoActuoArchivoCaseAccess.isCaseReadyForActuo(caseModel)) {
             return false;
         }
 

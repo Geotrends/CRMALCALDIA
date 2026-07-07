@@ -5,6 +5,7 @@ define('custom:helpers/case-create-form', [
     const DETAIL_ONLY_PANELS = [
         'radicacionCaso',
         'actaVisita',
+        'actuoArchivo',
         'formatoGenerado',
     ];
 
@@ -13,6 +14,7 @@ define('custom:helpers/case-create-form', [
         'cNumeroRadicado',
         'cExpediente',
         'cPanelActaVisita',
+        'cPanelActuoArchivo',
         'cFormatoSolicitudPdf',
     ];
 

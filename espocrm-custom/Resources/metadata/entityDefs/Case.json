@@ -1177,6 +1177,17 @@
                 "required"
             ]
         },
+        "cPanelActuoArchivo": {
+            "type": "varchar",
+            "notStorable": true,
+            "readOnly": true,
+            "utility": true,
+            "isCustom": true,
+            "required": false,
+            "suppressValidationList": [
+                "required"
+            ]
+        },
         "priority": {
             "type": "enum",
             "required": false,

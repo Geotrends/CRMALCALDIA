@@ -25,16 +25,7 @@ define('custom:helpers/formato-actuo-archivo-case-access', [
             return true;
         }
 
-        if (RadicacionFields.isInspeccionUser(user)) {
-            return true;
-        }
-
-        if (RadicacionFields.resolveHomeProfile(user) === 'patrullero') {
-            return true;
-        }
-
-        return RadicacionFields.hasRole(user, 'patrullaje')
-            || RadicacionFields.hasRole(user, 'patrullero');
+        return RadicacionFields.isInspeccionUser(user);
     };
 
     const canDownloadFormatoActuoArchivoFromCase = function (user, model) {

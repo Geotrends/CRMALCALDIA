@@ -247,6 +247,7 @@
 
 /* Sin caja en paneles con botones / documentos custom */
 .detail .panel[data-name="actaVisita"] .field[data-name="cPanelActaVisita"],
+.detail .panel[data-name="actuoArchivo"] .field[data-name="cPanelActuoArchivo"],
 .detail .panel[data-name="formatoGenerado"] .field[data-name="cFormatoSolicitudPdf"],
 .detail .panel[data-name="actuoArchivoPanel"] .field,
 .detail .field[data-name="cPanelExpediente"] {
@@ -258,11 +259,13 @@
 }
 
 .detail[data-scope="Case"] .panel[data-name="actaVisita"] > .panel-body,
+.detail[data-scope="Case"] .panel[data-name="actuoArchivo"] > .panel-body,
 .detail[data-scope="Case"] .panel[data-name="formatoGenerado"] > .panel-body {
   padding: 20px 22px !important;
 }
 
 .detail[data-scope="Case"] .panel[data-name="actaVisita"] > .panel-body > .row,
+.detail[data-scope="Case"] .panel[data-name="actuoArchivo"] > .panel-body > .row,
 .detail[data-scope="Case"] .panel[data-name="formatoGenerado"] > .panel-body > .row {
   border-bottom: none;
 }

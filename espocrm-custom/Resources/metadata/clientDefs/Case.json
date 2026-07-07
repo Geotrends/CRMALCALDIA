@@ -84,9 +84,7 @@
             },
             {
                 "name": "actuoArchivoPanel",
-                "label": "Auto de archivo",
-                "view": "custom:views/case/record/panels/actuo-archivo",
-                "notRefreshable": true
+                "disabled": true
             },
             {
                 "name": "formatoActuoArchivo",
