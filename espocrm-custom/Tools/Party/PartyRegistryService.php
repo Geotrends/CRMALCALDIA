@@ -22,6 +22,7 @@ class PartyRegistryService
     /** @var list<string> */
     private const PERJUDICANTE_EXTRA_FIELDS = [
         'cBarrioPerjudicante',
+        'cCorreoPerjudicante',
     ];
 
     /** @var list<string> */
@@ -605,6 +606,7 @@ class PartyRegistryService
             'cDireccionPerjudicante' => (string) $contact->get('addressStreet'),
             'cTelefonoPerjudicante' => (string) $contact->get('phoneNumber'),
             'cBarrioPerjudicante' => (string) $contact->get('cBarrioResidencia'),
+            'cCorreoPerjudicante' => (string) $contact->get('emailAddress'),
             'cPerjudicanteContactId' => $contact->getId(),
             'cPerjudicanteContactName' => $contact->get('name'),
             'cPerjudicanteCuentaId' => null,
@@ -623,6 +625,7 @@ class PartyRegistryService
             'cDocumentoPerjudicante' => DocumentNormalizer::formatNit((string) $account->get('cNit')),
             'cDireccionPerjudicante' => (string) $account->get('billingAddressStreet'),
             'cTelefonoPerjudicante' => (string) $account->get('phoneNumber'),
+            'cCorreoPerjudicante' => (string) $account->get('emailAddress'),
             'cPerjudicanteCuentaId' => $account->getId(),
             'cPerjudicanteCuentaName' => $account->get('name'),
             'cPerjudicanteContactId' => null,

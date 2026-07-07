@@ -165,7 +165,9 @@
         {
           "name": "cBarrioPerjudicante"
         },
-        false
+        {
+          "name": "cCorreoPerjudicante"
+        }
       ]
     ],
     "style": "default",
@@ -196,6 +198,36 @@
         },
         {
           "name": "cProximaActuacion"
+        }
+      ],
+      [
+        {
+          "name": "cPredio"
+        },
+        {
+          "name": "cPeriodoAtencion"
+        }
+      ],
+      [
+        {
+          "name": "cFechaActuacionInicial"
+        },
+        {
+          "name": "cFechaUltimaActuacion"
+        }
+      ],
+      [
+        {
+          "name": "cPqrsCobro"
+        },
+        {
+          "name": "cAlertaPqrsCobro"
+        }
+      ],
+      [
+        {
+          "name": "cObservaciones",
+          "fullWidth": true
         }
       ]
     ],

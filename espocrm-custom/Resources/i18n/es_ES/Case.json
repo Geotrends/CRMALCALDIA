@@ -59,12 +59,27 @@
     "cPlacaPerjudicante": "Placa del perjudicante",
     "cBloquePerjudicante": "Bloque del perjudicante",
     "cInteriorPerjudicante": "Interior del perjudicante",
-    "cDireccionPerjudicante": "Dirección del perjudicante"
+    "cDireccionPerjudicante": "Dirección del perjudicante",
+    "cCorreoPerjudicante": "Correo del perjudicante",
+    "cPredio": "Predio",
+    "cFechaActuacionInicial": "Fecha de actuación inicial",
+    "cDiasAtencion": "Días de atención",
+    "cFechaUltimaActuacion": "Fecha de última actuación",
+    "cRespUltimaActuacion": "Responsable de última actuación",
+    "cPeriodoAtencion": "Periodo de atención",
+    "cInspectorResponsable": "Inspector responsable",
+    "cRespProximaActuacion": "Responsable de próxima actuación",
+    "cPqrsCobro": "PQRS o Cobro",
+    "cAlertaPqrsCobro": "Alerta / PQRS o Cobro",
+    "cObservaciones": "Observaciones"
   },
   "links": {
     "contact": "Persona natural (peticionario)",
     "account": "Persona jurídica (peticionario)",
-    "Contacts": "Personas naturales"
+    "Contacts": "Personas naturales",
+    "cRespUltimaActuacion": "Responsable de última actuación",
+    "cInspectorResponsable": "Inspector responsable",
+    "cRespProximaActuacion": "Responsable de próxima actuación"
   },
   "primaryFilters": {
     "todos": "Todos los casos",

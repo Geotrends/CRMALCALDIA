@@ -19,6 +19,7 @@ class ExportCaseExcelAlcaldiaOnSave implements AfterSave
 
     private const EXPORT_FIELDS = [
         'cFechaCaso',
+        'status',
         'cNumeroRadicado',
         'cExpediente',
         'cNombrePeticionario',
@@ -61,9 +62,21 @@ class ExportCaseExcelAlcaldiaOnSave implements AfterSave
         'cInteriorPerjudicante',
         'cDireccionPerjudicante',
         'cBarrioPerjudicante',
+        'cCorreoPerjudicante',
         'cRespuestaInmediata',
         'description',
         'assignedUserId',
+        'cPredio',
+        'cFechaActuacionInicial',
+        'cDiasAtencion',
+        'cFechaUltimaActuacion',
+        'cRespUltimaActuacionId',
+        'cPeriodoAtencion',
+        'cInspectorResponsableId',
+        'cRespProximaActuacionId',
+        'cPqrsCobro',
+        'cAlertaPqrsCobro',
+        'cObservaciones',
     ];
 
     public function __construct(

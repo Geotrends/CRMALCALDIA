@@ -100,6 +100,8 @@ class ExcelAlcaldiaExporter
     {
         $barrio = trim((string) ($case->get('cBarrioPerjudicante') ?: $case->get('cBarrioPeticionario')));
 
+        $statusDates = $this->resolveStatusDates($case);
+
         return array_merge(
             $this->buildAddressPayload($case, 'quejoso', ''),
             $this->buildAddressPayload($case, 'infractor', 'Perjudicante'),
@@ -113,21 +115,109 @@ class ExcelAlcaldiaExporter
             'infractor' => CasePartyNameHelper::getPerjudicanteFullName($case),
             'cedula_infractor' => trim((string) $case->get('cDocumentoPerjudicante')),
             'telefono_infractor' => trim((string) $case->get('cTelefonoPerjudicante')),
-            'correo_infractor' => '',
+            'correo_infractor' => trim((string) $case->get('cCorreoPerjudicante')),
             'recurso_tema' => $this->cleanEnum($case->get('cRecursoTema')),
             'asunto' => $this->cleanEnum($case->get('cAsunto')),
             'barrio' => $this->cleanEnum($barrio),
             'zona' => $this->cleanEnum($case->get('cZonaAlcaldiaPeticionario')),
+            'predio' => $this->cleanEnum($case->get('cPredio')),
             'fecha_ingreso' => $this->formatDate($case->get('cFechaCaso')),
-            'fecha_vencimiento' => $this->formatDate($case->get('cFechaVencimiento')),
+            'fecha_actuacion_inicial' => $this->formatDate(
+                $case->get('cFechaActuacionInicial') ?: ($statusDates['Radicado'] ?? null)
+            ),
+            'dias_atencion' => $this->resolveDiasAtencion($case),
+            'fecha_ultima_actuacion' => $this->formatDate(
+                $case->get('cFechaUltimaActuacion') ?: $this->resolveLastActuacionDate($case, $statusDates)
+            ),
             'ultima_actuacion' => $this->cleanEnum($case->get('cUltimaActuacion')),
-            'inspector' => $this->resolveUserName($case->get('assignedUserId')),
+            'resp_ultima_actuacion' => $this->resolveUserName(
+                $case->get('cRespUltimaActuacionId') ?: $case->get('modifiedById')
+            ),
+            'periodo_atencion' => $this->cleanEnum($case->get('cPeriodoAtencion')),
+            'inspector' => $this->resolveUserName(
+                $case->get('cInspectorResponsableId') ?: $case->get('createdById')
+            ),
             'proxima_actuacion' => $this->cleanEnum($case->get('cProximaActuacion')),
-            'descripcion' => trim((string) $case->get('description')),
-            'canal_reporte' => $this->cleanEnum($case->get('cCanalDeReportePeticionario')),
+            'resp_proxima_actuacion' => $this->resolveUserName(
+                $case->get('cRespProximaActuacionId') ?: $case->get('assignedUserId')
+            ),
+            'pqrs_cobro' => $this->cleanEnum($case->get('cPqrsCobro')),
+            'alerta_pqrs_cobro' => $this->cleanEnum($case->get('cAlertaPqrsCobro')),
             ]
         );
     }
+
+    /**
+     * Fechas por estado del caso (radicado, asignado, etc.).
+     *
+     * @return array<string, string>
+     */
+    private function resolveStatusDates(Entity $case): array
+    {
+        try {
+            return $this->injectableFactory
+                ->create(CaseTimelineService::class)
+                ->getResolvedStatusDates($case);
+        } catch (\Throwable $e) {
+            return [];
+        }
+    }
+
+    /**
+     * Fecha del último estado alcanzado (la más reciente registrada).
+     *
+     * @param array<string, string> $statusDates
+     */
+    private function resolveLastActuacionDate(Entity $case, array $statusDates): ?string
+    {
+        if ($statusDates !== []) {
+            $values = array_values(array_filter($statusDates, static fn ($v) => trim((string) $v) !== ''));
+
+            if ($values !== []) {
+                return max($values);
+            }
+        }
+
+        return $case->get('modifiedAt') ?: $case->get('createdAt');
+    }
+
+    /**
+     * Días de atención: usa el valor persistido y, si no existe, lo calcula al vuelo.
+     */
+    private function resolveDiasAtencion(Entity $case): string
+    {
+        $stored = $case->get('cDiasAtencion');
+
+        if ($stored !== null && $stored !== '') {
+            return (string) max(0, (int) $stored);
+        }
+
+        return $this->computeDiasAtencion($case);
+    }
+
+    /**
+     * Días de atención: desde la creación del caso hasta hoy (Bogotá).
+     */
+    private function computeDiasAtencion(Entity $case): string
+    {
+        $start = $case->get('cFechaCaso') ?: $case->get('createdAt');
+
+        if (!$start) {
+            return '';
+        }
+
+        try {
+            $startDate = new \DateTimeImmutable((string) $start, new \DateTimeZone('UTC'));
+        } catch (\Exception) {
+            return '';
+        }
+
+        $now = AlcaldiaDateTimeHelper::now();
+        $diff = $startDate->setTimezone(AlcaldiaDateTimeHelper::timeZone())->diff($now);
+
+        return (string) max(0, (int) $diff->days);
+    }
+
 
     /**
      * @return array<string, string>

@@ -767,6 +767,16 @@
                 "required"
             ]
         },
+        "cCorreoPerjudicante": {
+            "type": "varchar",
+            "maxLength": 200,
+            "required": false,
+            "options": [],
+            "isCustom": true,
+            "suppressValidationList": [
+                "required"
+            ]
+        },
         "cBarrioPerjudicante": {
             "type": "enum",
             "required": false,
@@ -1193,6 +1203,102 @@
             "suppressValidationList": [
                 "required"
             ]
+        },
+        "cPredio": {
+            "type": "varchar",
+            "maxLength": 255,
+            "required": false,
+            "isCustom": true,
+            "suppressValidationList": [
+                "required"
+            ]
+        },
+        "cFechaActuacionInicial": {
+            "type": "date",
+            "required": false,
+            "isCustom": true,
+            "suppressValidationList": [
+                "required"
+            ]
+        },
+        "cDiasAtencion": {
+            "type": "int",
+            "required": false,
+            "readOnly": true,
+            "isCustom": true,
+            "suppressValidationList": [
+                "required"
+            ]
+        },
+        "cFechaUltimaActuacion": {
+            "type": "date",
+            "required": false,
+            "isCustom": true,
+            "suppressValidationList": [
+                "required"
+            ]
+        },
+        "cRespUltimaActuacion": {
+            "type": "link",
+            "required": false,
+            "readOnly": true,
+            "isCustom": true,
+            "suppressValidationList": [
+                "required"
+            ]
+        },
+        "cPeriodoAtencion": {
+            "type": "varchar",
+            "maxLength": 100,
+            "required": false,
+            "isCustom": true,
+            "suppressValidationList": [
+                "required"
+            ]
+        },
+        "cInspectorResponsable": {
+            "type": "link",
+            "required": false,
+            "readOnly": true,
+            "isCustom": true,
+            "suppressValidationList": [
+                "required"
+            ]
+        },
+        "cRespProximaActuacion": {
+            "type": "link",
+            "required": false,
+            "readOnly": true,
+            "isCustom": true,
+            "suppressValidationList": [
+                "required"
+            ]
+        },
+        "cPqrsCobro": {
+            "type": "varchar",
+            "maxLength": 255,
+            "required": false,
+            "isCustom": true,
+            "suppressValidationList": [
+                "required"
+            ]
+        },
+        "cAlertaPqrsCobro": {
+            "type": "varchar",
+            "maxLength": 255,
+            "required": false,
+            "isCustom": true,
+            "suppressValidationList": [
+                "required"
+            ]
+        },
+        "cObservaciones": {
+            "type": "text",
+            "required": false,
+            "isCustom": true,
+            "suppressValidationList": [
+                "required"
+            ]
         }
     },
     "collection": {
@@ -1249,6 +1355,18 @@
         "cPerjudicanteCuenta": {
             "type": "belongsTo",
             "entity": "Account"
+        },
+        "cRespUltimaActuacion": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "cInspectorResponsable": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "cRespProximaActuacion": {
+            "type": "belongsTo",
+            "entity": "User"
         }
     }
 }

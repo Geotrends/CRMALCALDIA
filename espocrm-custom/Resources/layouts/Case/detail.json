@@ -177,7 +177,9 @@
                 {
                     "name": "cBarrioPerjudicante"
                 },
-                false
+                {
+                    "name": "cCorreoPerjudicante"
+                }
             ]
         ],
         "style": "default",
@@ -208,6 +210,56 @@
                 },
                 {
                     "name": "cProximaActuacion"
+                }
+            ],
+            [
+                {
+                    "name": "cPredio"
+                },
+                {
+                    "name": "cPeriodoAtencion"
+                }
+            ],
+            [
+                {
+                    "name": "cFechaActuacionInicial"
+                },
+                {
+                    "name": "cFechaUltimaActuacion"
+                }
+            ],
+            [
+                {
+                    "name": "cDiasAtencion",
+                    "readOnly": true
+                },
+                {
+                    "name": "cInspectorResponsable",
+                    "readOnly": true
+                }
+            ],
+            [
+                {
+                    "name": "cRespUltimaActuacion",
+                    "readOnly": true
+                },
+                {
+                    "name": "cRespProximaActuacion",
+                    "readOnly": true
+                }
+            ],
+            [
+                {
+                    "name": "cPqrsCobro"
+                },
+                {
+                    "name": "cAlertaPqrsCobro"
+                }
+            ],
+            [
+                {
+                    "name": "cObservaciones",
+                    "fullWidth": true
                 }
             ]
         ],

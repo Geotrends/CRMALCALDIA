@@ -38,6 +38,7 @@ define('custom:helpers/persona-tipo-fields', [
         'cInteriorPerjudicante',
         'cDireccionPerjudicante',
         'cBarrioPerjudicante',
+        'cCorreoPerjudicante',
     ];
 
     const findCell = function (recordView, field) {

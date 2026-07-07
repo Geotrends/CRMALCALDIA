@@ -65,15 +65,21 @@ PAYLOAD_TO_HEADER = {
     "correo_infractor": ("Correo electrónico", 2),
     "recurso_tema": ("Recurso - Tema", 1),
     "asunto": (" Asunto", 1),
+    "predio": ("Predio", 1),
     "barrio": ("Barrio", 1),
     "zona": ("Zona", 1),
     "fecha_ingreso": ("Fecha de ingreso (dd/mm/aaaa)", 1),
-    "fecha_vencimiento": ("fecha de ultima actuación", 1),
+    "fecha_actuacion_inicial": ("Fecha de actuación inicial (ddmm/aaaa)", 1),
+    "dias_atencion": ("Dias de atencion", 1),
+    "fecha_ultima_actuacion": ("fecha de ultima actuación", 1),
     "ultima_actuacion": ("Ultima actuación", 1),
+    "resp_ultima_actuacion": ("Resp ultima actuación", 1),
+    "periodo_atencion": ("Periodo atención", 1),
     "inspector": ("Inspector responsable", 1),
     "proxima_actuacion": ("Próxima actuación", 1),
-    "descripcion": ("Observaciones", 1),
-    "canal_reporte": ("Observaciones", 1),
+    "resp_proxima_actuacion": ("Resp próxima actuación", 1),
+    "pqrs_cobro": ("PQRS o Cobro", 1),
+    "alerta_pqrs_cobro": ("Alerta / PQRS o Cobro", 1),
 }
 
 
@@ -228,15 +234,6 @@ def next_empty_row(ws, headers: dict[str, list[int]]) -> int:
     return last_data_row(ws, headers) + 1
 
 
-def merge_observaciones(existing: str, parts: list[str]) -> str:
-    chunks = [existing.strip()] if existing and str(existing).strip() else []
-    for part in parts:
-        part = str(part or "").strip()
-        if part and part not in chunks:
-            chunks.append(part)
-    return " | ".join(chunks)
-
-
 def upsert(excel_path: Path, payload: dict) -> None:
     radicado = str(payload.get("radicado") or "").strip()
     consecutivo = str(payload.get("consecutivo") or "").strip()
@@ -261,15 +258,7 @@ def upsert(excel_path: Path, payload: dict) -> None:
         else:
             row = next_empty_row(ws, headers)
 
-    observaciones_parts = []
-    if payload.get("descripcion"):
-        observaciones_parts.append("Queja: " + str(payload["descripcion"]).strip())
-    if payload.get("canal_reporte"):
-        observaciones_parts.append("Canal: " + str(payload["canal_reporte"]).strip())
-
     for key, spec in PAYLOAD_TO_HEADER.items():
-        if key in ("descripcion", "canal_reporte"):
-            continue
         header, occurrence = spec
         col = find_column(headers, header, occurrence)
         if not col:
@@ -280,11 +269,6 @@ def upsert(excel_path: Path, payload: dict) -> None:
         if value is None:
             continue
         ws.cell(row=row, column=col, value=str(value).strip() if value != "" else "")
-
-    obs_col = find_column(headers, "Observaciones")
-    if obs_col and observaciones_parts:
-        existing = ws.cell(row=row, column=obs_col).value
-        ws.cell(row=row, column=obs_col, value=merge_observaciones(existing, observaciones_parts))
 
     mod_col = find_column(headers, "Fecha ultima modificación")
     if mod_col:
