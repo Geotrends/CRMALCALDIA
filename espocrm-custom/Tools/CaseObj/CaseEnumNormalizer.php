@@ -67,6 +67,8 @@ class CaseEnumNormalizer
 
             $entity->set($field, $normalized);
         }
+
+        $this->applyCoreFieldDefaults($entity);
     }
 
     public function applyToInput(Data $data): void
@@ -87,6 +89,62 @@ class CaseEnumNormalizer
             }
 
             $data->set($field, $normalized);
+        }
+
+        $this->applyCoreFieldDefaults($data);
+    }
+
+    private function applyCoreFieldDefaults(Entity|Data $target): void
+    {
+        $this->ensurePriority($target);
+        $this->ensureType($target);
+    }
+
+    private function ensurePriority(Entity|Data $target): void
+    {
+        $field = 'priority';
+        $options = $this->getEnumOptions($field);
+
+        if ($options === []) {
+            return;
+        }
+
+        $default = (string) ($this->metadata->get(['entityDefs', 'Case', 'fields', $field, 'default']) ?? 'Normal');
+
+        if (!in_array($default, $options, true)) {
+            $default = in_array('Normal', $options, true) ? 'Normal' : (string) $options[0];
+        }
+
+        if (!$target->has($field)) {
+            $target->set($field, $default);
+
+            return;
+        }
+
+        $value = trim((string) $target->get($field));
+
+        if ($value === '' || !in_array($value, $options, true)) {
+            $target->set($field, $default);
+        }
+    }
+
+    private function ensureType(Entity|Data $target): void
+    {
+        $field = 'type';
+        $options = $this->getEnumOptions($field);
+
+        if ($options === [] || !$target->has($field)) {
+            return;
+        }
+
+        $value = trim((string) $target->get($field));
+
+        if ($value === '' || $value === self::PLACEHOLDER) {
+            if (in_array('', $options, true)) {
+                $target->set($field, '');
+            } else {
+                $target->clear($field);
+            }
         }
     }
 

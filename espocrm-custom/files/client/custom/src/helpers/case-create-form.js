@@ -207,6 +207,11 @@ define('custom:helpers/case-create-form', [
         }
 
         applyBogotaFechaCaso(recordView);
+
+        if (!recordView.model.get('priority')) {
+            recordView.model.set('priority', 'Normal', {silent: true});
+        }
+
         fetchServerDefaults(recordView);
     };
 

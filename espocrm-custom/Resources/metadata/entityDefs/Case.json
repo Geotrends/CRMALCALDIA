@@ -1190,6 +1190,13 @@
         },
         "priority": {
             "type": "enum",
+            "options": [
+                "Low",
+                "Normal",
+                "High",
+                "Urgent"
+            ],
+            "default": "Normal",
             "required": false,
             "suppressValidationList": [
                 "required"

@@ -236,6 +236,10 @@ define('custom:views/case/record/edit', [
             PersonaTipoFields.clearOptionalEnumPlaceholders(this.model);
             CaseCreateOptionalFields.makeAllFieldsOptional(this);
 
+            if (this.model.isNew() && !this.model.get('priority')) {
+                this.model.set('priority', 'Normal', {silent: true});
+            }
+
             InspeccionCaseFlow.prepareModelForSave(this);
             RadicacionCaseFlow.prepareModelForSave(this);
             AsignadorCaseFlow.prepareModelForSave(this);
