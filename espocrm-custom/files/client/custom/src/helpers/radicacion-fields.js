@@ -6,7 +6,15 @@ define('custom:helpers/radicacion-fields', [], function () {
     const ROLE_ASIGNACION = 'asignacion';
     const ROLE_PATRULLERO = 'patrullero';
     const ROLE_PATRULLAJE = 'patrullaje';
-    const PROFILE_CACHE_KEY = 'alcaldiaCaseProfileCacheV9';
+    const PROFILE_CACHE_KEY = 'alcaldiaCaseProfileCacheV10';
+
+    const OPERATIONAL_USER_ROLE = {
+        inspeccion: ROLE_INSPECCION,
+        radicacion: ROLE_RADICACION,
+        asignacion: ROLE_ASIGNACION,
+        asignador: ROLE_ASIGNADOR,
+        patrullaje: ROLE_PATRULLAJE,
+    };
 
     const RADICADO_PERSISTED_FIELDS = [
         'cNumeroRadicado',
@@ -60,6 +68,44 @@ define('custom:helpers/radicacion-fields', [], function () {
         }
     };
 
+    const getUserNameKey = function (user) {
+        if (!user || !user.get) {
+            return '';
+        }
+
+        return normalize(user.get('userName') || '');
+    };
+
+    const getRoleKeyForUserName = function (user) {
+        const userName = getUserNameKey(user);
+
+        return OPERATIONAL_USER_ROLE[userName] || '';
+    };
+
+    const buildFallbackProfile = function (user) {
+        const roleKey = getRoleKeyForUserName(user);
+        const profile = {
+            isAdmin: false,
+            isInspeccion: roleKey === ROLE_INSPECCION,
+            isRadicacion: roleKey === ROLE_RADICACION,
+            isPatrullero: roleKey === ROLE_PATRULLAJE || roleKey === ROLE_PATRULLERO,
+            isAsignador: roleKey === ROLE_ASIGNADOR || roleKey === ROLE_ASIGNACION,
+            canEditRadicado: roleKey === ROLE_RADICACION,
+            canAssignCase: roleKey === ROLE_ASIGNADOR || roleKey === ROLE_ASIGNACION,
+            homeProfile: 'gestion',
+        };
+
+        if (roleKey === ROLE_RADICACION) {
+            profile.homeProfile = 'radicacion';
+        } else if (roleKey === ROLE_ASIGNADOR || roleKey === ROLE_ASIGNACION) {
+            profile.homeProfile = 'asignador';
+        } else if (roleKey === ROLE_PATRULLAJE || roleKey === ROLE_PATRULLERO) {
+            profile.homeProfile = 'patrullero';
+        }
+
+        return profile;
+    };
+
     const getAssignedRoleNames = function (user) {
         const names = [];
         const rolesNames = user.get ? user.get('rolesNames') : null;
@@ -80,6 +126,12 @@ define('custom:helpers/radicacion-fields', [], function () {
     };
 
     const hasRole = function (user, roleKey) {
+        const roleFromUserName = getRoleKeyForUserName(user);
+
+        if (roleFromUserName === roleKey) {
+            return true;
+        }
+
         return getAssignedRoleNames(user).some(function (name) {
             return normalize(name) === roleKey;
         });
@@ -168,13 +220,14 @@ define('custom:helpers/radicacion-fields', [], function () {
                 return serverProfile;
             })
             .catch(function () {
-                serverProfile = {};
+                serverProfile = buildFallbackProfile(user);
                 profileLoaded = true;
                 profilePromise = null;
                 profileUserId = getCurrentUserId(user);
+                writeSessionProfileCache(profileUserId, serverProfile);
                 notifyProfileReady();
 
-                return {};
+                return serverProfile;
             });
 
         return profilePromise;
@@ -213,6 +266,20 @@ define('custom:helpers/radicacion-fields', [], function () {
         }
 
         if (hasRole(user, ROLE_PATRULLERO) || hasRole(user, ROLE_PATRULLAJE)) {
+            return 'patrullero';
+        }
+
+        const roleFromUserName = getRoleKeyForUserName(user);
+
+        if (roleFromUserName === ROLE_RADICACION) {
+            return 'radicacion';
+        }
+
+        if (roleFromUserName === ROLE_ASIGNADOR || roleFromUserName === ROLE_ASIGNACION) {
+            return 'asignador';
+        }
+
+        if (roleFromUserName === ROLE_PATRULLERO || roleFromUserName === ROLE_PATRULLAJE) {
             return 'patrullero';
         }
 

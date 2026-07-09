@@ -64,10 +64,48 @@
         });
     }
 
+    function clearAlcaldiaProfileCache() {
+        if (typeof sessionStorage === 'undefined') {
+            return;
+        }
+
+        Object.keys(sessionStorage).forEach(function (key) {
+            if (key.indexOf('alcaldiaCaseProfileCache') === 0) {
+                sessionStorage.removeItem(key);
+            }
+        });
+    }
+
+    function watchLoginSuccess() {
+        if (!document.querySelector('#login')) {
+            return;
+        }
+
+        var observer = new MutationObserver(function () {
+            if (document.querySelector('#login') || !localStorage.getItem('espo-user-auth')) {
+                return;
+            }
+
+            observer.disconnect();
+            clearAlcaldiaProfileCache();
+        });
+
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true,
+        });
+    }
+
     function boot() {
         injectLoginStyles();
         syncLoginPageClass();
         startObserver();
+
+        if (document.body) {
+            watchLoginSuccess();
+        } else {
+            document.addEventListener('DOMContentLoaded', watchLoginSuccess);
+        }
     }
 
     if (document.readyState === 'loading') {

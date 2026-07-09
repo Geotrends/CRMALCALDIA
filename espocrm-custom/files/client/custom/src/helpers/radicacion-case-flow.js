@@ -1,7 +1,8 @@
 define('custom:helpers/radicacion-case-flow', [
     'custom:helpers/radicacion-fields',
     'custom:helpers/safe-ui-promise',
-], function (RadicacionFields, SafeUiPromise) {
+    'custom:helpers/asignador-assignment-ui',
+], function (RadicacionFields, SafeUiPromise, AsignadorAssignmentUi) {
 
     const BODY_CLASS = 'alcaldia-radicacion-edit-mode';
     const DETAIL_CLASS = 'alcaldia-radicacion-detail-ui';
@@ -9,16 +10,12 @@ define('custom:helpers/radicacion-case-flow', [
     const PANEL_RADICACION = 'radicacionCaso';
     const EDITABLE_FIELDS = RadicacionFields.RADICADO_ALL_FIELDS;
 
-    const isRadicacionOnlyUser = function (user) {
-        if (!RadicacionFields.isRadicacionUser(user)) {
+    const isRadicacionOperator = function (user) {
+        if (!user || RadicacionFields.isAdminUser(user)) {
             return false;
         }
 
-        if (RadicacionFields.isAdminUser(user)) {
-            return false;
-        }
-
-        return RadicacionFields.resolveHomeProfile(user) === 'radicacion';
+        return RadicacionFields.canEditRadicadoCase(user);
     };
 
     const RADICAR_SKIP_PREFIX = 'alcaldiaSkipRadicacionAutoEdit:';
@@ -35,7 +32,7 @@ define('custom:helpers/radicacion-case-flow', [
 
         const user = recordView.getUser();
 
-        if (!isRadicacionOnlyUser(user)) {
+        if (!isRadicacionOperator(user)) {
             return false;
         }
 
@@ -162,20 +159,19 @@ define('custom:helpers/radicacion-case-flow', [
         EDITABLE_FIELDS.forEach(function (field) {
             recordView.$el
                 .find('.cell[data-name="' + field + '"], .field[data-name="' + field + '"]')
-                .removeClass('alcaldia-radicacion-readonly alcaldia-field-readonly alcaldia-inspeccion-radicado-readonly');
+                .removeClass('alcaldia-radicacion-readonly alcaldia-field-readonly alcaldia-inspeccion-radicado-readonly')
+                .show();
 
-            const view = recordView.getFieldView(field);
-
-            if (view && typeof view.setReadOnly === 'function') {
-                view.setReadOnly(false);
-            }
+            AsignadorAssignmentUi.safeSetFieldNotReadOnly(recordView.getFieldView(field));
         });
+
+        AsignadorAssignmentUi.lockAllFieldViewsExcept(recordView, EDITABLE_FIELDS);
     };
 
     const lockNonRadicadoFields = function (recordView) {
         const user = recordView.getUser();
 
-        if (!isRadicacionOnlyUser(user)) {
+        if (!isRadicacionOperator(user)) {
             return;
         }
 
@@ -201,8 +197,8 @@ define('custom:helpers/radicacion-case-flow', [
 
             const view = recordView.getFieldView(field);
 
-            if (view && typeof view.setReadOnly === 'function') {
-                view.setReadOnly();
+            if (view) {
+                AsignadorAssignmentUi.safeSetFieldReadOnly(view);
             }
         });
 
@@ -248,7 +244,7 @@ define('custom:helpers/radicacion-case-flow', [
     const prepareModelForSave = function (recordView) {
         const user = recordView.getUser();
 
-        if (!isRadicacionOnlyUser(user)) {
+        if (!isRadicacionOperator(user)) {
             return;
         }
 
@@ -262,7 +258,7 @@ define('custom:helpers/radicacion-case-flow', [
 
         const user = recordView.getUser();
 
-        if (!isRadicacionOnlyUser(user)) {
+        if (!isRadicacionOperator(user)) {
             clearRadicacionPageClasses();
             return;
         }
@@ -302,7 +298,7 @@ define('custom:helpers/radicacion-case-flow', [
     const schedule = function (recordView) {
         apply(recordView);
 
-        [150, 500, 1200].forEach(function (delay) {
+        [150, 500, 1200, 2500].forEach(function (delay) {
             window.setTimeout(function () {
                 apply(recordView);
             }, delay);
