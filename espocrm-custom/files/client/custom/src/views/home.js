@@ -76,7 +76,29 @@ define('custom:views/home', ['views/dashboard'], function (Dep) {
         return 'gestion';
     };
 
-    var profileConfig = function (profile, userId, appTimestamp, isAdmin) {
+    var canShowHistorialVisitas = function (user, profile, isAdmin, apiData) {
+        if (isAdmin) {
+            return false;
+        }
+
+        if (profile === 'patrullero') {
+            return true;
+        }
+
+        if (apiData && apiData.isInspeccion) {
+            return true;
+        }
+
+        var names = [];
+
+        Object.values(user.get('rolesNames') || {}).forEach(function (name) {
+            names.push(normalize(name));
+        });
+
+        return names.indexOf('inspeccion') !== -1;
+    };
+
+    var profileConfig = function (profile, userId, appTimestamp, isAdmin, user, apiData) {
         var cacheBuster = String(appTimestamp || Date.now()) + '-dash6';
         var iframeUrl = '/client/custom/dashboard.html?v=' + encodeURIComponent(cacheBuster)
             + '&profile=' + encodeURIComponent(profile);
@@ -89,7 +111,7 @@ define('custom:views/home', ['views/dashboard'], function (Dep) {
             profile: profile,
             showTablero: true,
             showHistorialAsignaciones: isAdmin || profile === 'asignador',
-            showHistorialVisitas: profile !== 'radicacion',
+            showHistorialVisitas: canShowHistorialVisitas(user, profile, isAdmin, apiData),
             iframeUrl: iframeUrl,
             lists: [
                 {title: 'Todos los casos', where: []},
@@ -105,8 +127,8 @@ define('custom:views/home', ['views/dashboard'], function (Dep) {
         };
     };
 
-    var homeConfig = function (profile, userId, appTimestamp, isAdmin) {
-        return profileConfig(profile || 'gestion', userId, appTimestamp, !!isAdmin);
+    var homeConfig = function (profile, userId, appTimestamp, isAdmin, user, apiData) {
+        return profileConfig(profile || 'gestion', userId, appTimestamp, !!isAdmin, user, apiData || null);
     };
 
     return Dep.extend({
@@ -119,7 +141,7 @@ define('custom:views/home', ['views/dashboard'], function (Dep) {
             var isAdmin = user.isAdmin();
             var profile = detectProfileFromRoles(user);
 
-            this.config = homeConfig(profile, userId, appTimestamp, isAdmin);
+            this.config = homeConfig(profile, userId, appTimestamp, isAdmin, user, null);
             this._pageState = {};
             this._historialAsignacionesSearch = this._historialAsignacionesSearch || '';
             this._historialVisitasSearch = this._historialVisitasSearch || '';
@@ -135,7 +157,7 @@ define('custom:views/home', ['views/dashboard'], function (Dep) {
                 self._gestionLoaded = false;
                 self._historialLoaded = false;
                 self._historialVisitasLoaded = false;
-                self.config = homeConfig(apiProfile || profile, userId, appTimestamp, apiIsAdmin || isAdmin);
+                self.config = homeConfig(apiProfile || profile, userId, appTimestamp, apiIsAdmin || isAdmin, user, data);
 
                 if (self.isRendered()) {
                     self.renderCustomPanels();
