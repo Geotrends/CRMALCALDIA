@@ -18,6 +18,7 @@ class FormatoActaVisitaCaso implements EntryPoint
     public function run(Request $request, Response $response): void
     {
         $id = $request->getQueryParam('id');
+        $actaId = trim((string) ($request->getQueryParam('actaId') ?? ''));
         $format = 'pdf';
         $modo = (string) ($request->getQueryParam('modo') ?? 'digital');
         $inline = $request->getQueryParam('inline') === '1';
@@ -26,7 +27,11 @@ class FormatoActaVisitaCaso implements EntryPoint
             throw new BadRequest('No id.');
         }
 
-        $file = $this->generator->generateForCase($id, $format, false, $modo);
+        if ($actaId !== '') {
+            $file = $this->generator->generate($actaId, $format, false);
+        } else {
+            $file = $this->generator->generateForCase($id, $format, false, $modo);
+        }
         $stream = Utils::streamFor(fopen($file['path'], 'rb'));
         $disposition = $inline ? 'inline' : 'attachment';
 

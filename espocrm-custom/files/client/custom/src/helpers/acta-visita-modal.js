@@ -140,5 +140,42 @@ define('custom:helpers/acta-visita-modal', [
 
     return {
         open: open,
+        openEditById: function (hostView, caseModel, actaId, user, options) {
+            options = options || {};
+
+            if (!hostView || !caseModel || !actaId || !user) {
+                Espo.Ui.error('No se pudo abrir el formulario del acta.');
+
+                return;
+            }
+
+            const host = resolveHostView(hostView);
+
+            if (!host || typeof host.createView !== 'function') {
+                Espo.Ui.error('No se pudo abrir el formulario del acta.');
+
+                return;
+            }
+
+            const helper = new RecordModalHelper();
+            const afterSave = function () {
+                caseModel.fetch();
+                ActaVisitaCaseStatus.invalidateCache(caseModel.id);
+
+                if (typeof options.onAfterSave === 'function') {
+                    options.onAfterSave();
+                }
+            };
+
+            helper.showEdit(host, {
+                entityType: 'ActaVisita',
+                id: actaId,
+                layoutName: 'edit',
+                fullFormDisabled: true,
+                afterSave: afterSave,
+            }).catch(function () {
+                // Modal cerrado o cancelado — comportamiento esperado.
+            });
+        },
     };
 });

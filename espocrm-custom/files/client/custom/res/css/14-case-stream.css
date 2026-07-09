@@ -180,6 +180,58 @@
   cursor: not-allowed;
 }
 
+.detail[data-scope="Case"] .panel[data-name="actaVisita"] .case-visitas-archivo-title {
+  margin: 0 0 10px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.detail[data-scope="Case"] .panel[data-name="actaVisita"] .case-visita-archivo-card {
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  border: 1px solid #dbe3ee;
+  border-radius: var(--crm-radius-md, 10px);
+  background: #f8fafc;
+}
+
+.detail[data-scope="Case"] .panel[data-name="actaVisita"] .case-visita-archivo-heading {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 10px;
+  font-size: 13px;
+}
+
+.detail[data-scope="Case"] .panel[data-name="actaVisita"] .case-visita-archivo-estado {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  background: #e2e8f0;
+  color: #475569;
+}
+
+.detail[data-scope="Case"] .panel[data-name="actaVisita"] .case-visita-archivo-help {
+  margin: 0 0 10px;
+}
+
+.detail[data-scope="Case"] .panel[data-name="actaVisita"] .case-visita-archivo-actions {
+  margin-top: 8px;
+}
+
+.detail[data-scope="Case"] .panel[data-name="actaVisita"] .case-visita-aprobada-check.is-readonly {
+  margin: 0 0 10px;
+}
+
+.detail[data-scope="Case"] .panel[data-name="actaVisita"] .case-visita-aprobada-check.is-readonly .case-visita-aprobada-check-label {
+  cursor: default;
+}
+
 .detail[data-scope="Case"] .panel[data-name="formatoGenerado"] .field[data-name="cFormatoSolicitudPdf"] .cell {
   padding-top: 0;
 }

@@ -141,6 +141,49 @@ class CaseActaVisitaHelper
         return null;
     }
 
+    public static function findLatestDiligenciadaPendienteAprobacionActaForCase(
+        EntityManager $entityManager,
+        string $caseId
+    ): ?Entity {
+        $actas = $entityManager
+            ->getRDBRepository('ActaVisita')
+            ->where(['caseId' => $caseId])
+            ->order('modifiedAt', 'DESC')
+            ->limit(0, 20)
+            ->find();
+
+        foreach ($actas as $acta) {
+            if (!self::isActaWithContent($acta)) {
+                continue;
+            }
+
+            if (trim((string) $acta->get('estado')) !== 'Aprobada') {
+                return $acta;
+            }
+        }
+
+        return self::findLatestDiligenciadaActaForCase($entityManager, $caseId);
+    }
+
+    public static function findLatestAprobadaActaForCase(EntityManager $entityManager, string $caseId): ?Entity
+    {
+        $actas = $entityManager
+            ->getRDBRepository('ActaVisita')
+            ->where(['caseId' => $caseId])
+            ->order('numeroVisita', 'DESC')
+            ->order('modifiedAt', 'DESC')
+            ->limit(0, 20)
+            ->find();
+
+        foreach ($actas as $acta) {
+            if (trim((string) $acta->get('estado')) === 'Aprobada') {
+                return $acta;
+            }
+        }
+
+        return null;
+    }
+
     public static function countActasForCase(EntityManager $entityManager, string $caseId): int
     {
         return $entityManager

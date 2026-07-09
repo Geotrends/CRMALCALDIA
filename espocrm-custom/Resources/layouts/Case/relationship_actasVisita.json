@@ -1,0 +1,27 @@
+[
+    {
+        "name": "numeroVisita",
+        "width": 10
+    },
+    {
+        "name": "estado",
+        "width": 14
+    },
+    {
+        "name": "fechaVisita",
+        "width": 16
+    },
+    {
+        "name": "modoDiligenciamiento",
+        "width": 14
+    },
+    {
+        "name": "name",
+        "width": 22,
+        "link": true
+    },
+    {
+        "name": "createdAt",
+        "width": 14
+    }
+]

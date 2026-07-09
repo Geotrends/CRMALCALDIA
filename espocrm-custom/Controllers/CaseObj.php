@@ -415,7 +415,10 @@ class CaseObj extends BaseCaseObj
             ];
         }
 
-        $acta = CaseActaVisitaHelper::findLatestDiligenciadaActaForCase($this->entityManager, $case->getId());
+        $acta = CaseActaVisitaHelper::findLatestDiligenciadaPendienteAprobacionActaForCase(
+            $this->entityManager,
+            $case->getId()
+        );
 
         if (!$acta || !CaseActaVisitaHelper::isActaWithContent($acta)) {
             throw new BadRequest('Debe existir un acta de visita diligenciada.');
@@ -539,22 +542,6 @@ class CaseObj extends BaseCaseObj
                 'visitNumber' => $visitNumber,
                 'alreadyPrepared' => true,
             ];
-        }
-
-        if (CaseActaVisitaHelper::canRevertVisitaAprobada($case)) {
-            $acta = CaseActaVisitaHelper::findLatestDiligenciadaActaForCase(
-                $this->entityManager,
-                $case->getId()
-            );
-
-            if ($acta && trim((string) $acta->get('estado')) === 'Aprobada') {
-                $acta->set('estado', 'Diligenciada');
-
-                $this->entityManager->saveEntity($acta, [
-                    'skipAll' => true,
-                    'skipHooks' => true,
-                ]);
-            }
         }
 
         $case->set('status', 'Asignado');
@@ -698,7 +685,7 @@ class CaseObj extends BaseCaseObj
             throw new BadRequest('El caso no está en estado Visita aprobada.');
         }
 
-        $acta = CaseActaVisitaHelper::findLatestDiligenciadaActaForCase(
+        $acta = CaseActaVisitaHelper::findLatestAprobadaActaForCase(
             $this->entityManager,
             $case->getId()
         );
@@ -713,7 +700,7 @@ class CaseObj extends BaseCaseObj
             'skipCaseExcelAlcaldia' => true,
         ]);
 
-        if ($acta && trim((string) $acta->get('estado')) === 'Aprobada') {
+        if ($acta) {
             $acta->set('estado', 'Diligenciada');
 
             $this->entityManager->saveEntity($acta, [

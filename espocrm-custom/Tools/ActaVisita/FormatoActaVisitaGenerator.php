@@ -338,6 +338,7 @@ class FormatoActaVisitaGenerator
         $actas = $this->entityManager
             ->getRDBRepository('ActaVisita')
             ->where(['caseId' => $caseId])
+            ->order('numeroVisita', 'DESC')
             ->order('modifiedAt', 'DESC')
             ->find();
 

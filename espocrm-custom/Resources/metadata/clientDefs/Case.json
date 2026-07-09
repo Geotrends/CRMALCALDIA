@@ -21,7 +21,11 @@
     "defaultSidePanelDisabled": true,
     "relationshipPanels": {
         "actasVisita": {
-            "disabled": true
+            "disabled": false,
+            "label": "Actas de visita registradas",
+            "create": false,
+            "select": false,
+            "unlink": false
         },
         "actuosArchivo": {
             "disabled": true

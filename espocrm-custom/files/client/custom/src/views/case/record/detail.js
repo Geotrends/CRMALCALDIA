@@ -21,7 +21,7 @@ define('custom:views/case/record/detail', [
 
     return Dep.extend({
 
-        bottomDisabled: true,
+        bottomDisabled: false,
 
         getActionMenuHost: function () {
             if (typeof this.addMenuItem === 'function') {

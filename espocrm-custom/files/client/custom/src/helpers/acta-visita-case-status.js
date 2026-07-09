@@ -81,12 +81,79 @@ define('custom:helpers/acta-visita-case-status', [
         return null;
     };
 
-    const isAwaitingNewVisita = function (model, latestActa) {
-        if (!latestActa || !isCaseAsignado(model)) {
+    const pickPendienteActa = function (list) {
+        if (!list || !list.length) {
+            return null;
+        }
+
+        for (let i = 0; i < list.length; i++) {
+            const estado = String(list[i].estado || '').trim();
+
+            if (estado === 'Pendiente' || estado === '') {
+                if (!isActaDiligenciada(list[i])) {
+                    return list[i];
+                }
+            }
+        }
+
+        return null;
+    };
+
+    const sortActasByRecency = function (list) {
+        return (list || []).slice().sort(function (a, b) {
+            const na = parseInt(a.numeroVisita, 10) || 0;
+            const nb = parseInt(b.numeroVisita, 10) || 0;
+
+            if (na !== nb) {
+                return nb - na;
+            }
+
+            return String(b.modifiedAt || '').localeCompare(String(a.modifiedAt || ''));
+        });
+    };
+    const sortActasHistorial = function (list) {
+        return (list || []).slice().sort(function (a, b) {
+            const na = parseInt(a.numeroVisita, 10) || 0;
+            const nb = parseInt(b.numeroVisita, 10) || 0;
+
+            if (na !== nb) {
+                return na - nb;
+            }
+
+            return String(a.createdAt || '').localeCompare(String(b.createdAt || ''));
+        });
+    };
+
+    const isAwaitingNewVisita = function (model, actaList) {
+        if (!isCaseAsignado(model) || !actaList || !actaList.length) {
             return false;
         }
 
-        return isActaDiligenciada(latestActa);
+        if (pickPendienteActa(actaList)) {
+            return false;
+        }
+
+        return !!pickLatestDiligenciada(actaList);
+    };
+
+    const pickActaForEdit = function (list, model) {
+        const actaList = list || [];
+
+        if (!actaList.length) {
+            return null;
+        }
+
+        const pending = pickPendienteActa(actaList);
+
+        if (pending) {
+            return pending;
+        }
+
+        if (isAwaitingNewVisita(model, actaList)) {
+            return null;
+        }
+
+        return actaList[0] || null;
     };
 
     const TIPO_SOLICITUD_NUEVA_VISITA = 'Solicitud nueva visita';
@@ -100,7 +167,7 @@ define('custom:helpers/acta-visita-case-status', [
                     value: caseId,
                 },
             ],
-            select: 'id,tipo,fecha,numeroVisita',
+            select: 'id,tipo,fecha,numeroVisita,motivo',
             orderBy: 'fecha',
             order: 'desc',
             maxSize: 1,
@@ -124,8 +191,7 @@ define('custom:helpers/acta-visita-case-status', [
 
     const buildWorkflowState = function (list, model, solicitudState) {
         const actaList = list || [];
-        const latestActa = actaList.length ? actaList[0] : null;
-        const awaitingNewVisita = isAwaitingNewVisita(model, latestActa);
+        const awaitingNewVisita = isAwaitingNewVisita(model, actaList);
         const hasDiligenciadaActa = !!pickLatestDiligenciada(actaList);
         const solicitud = solicitudState || {
             solicitudNuevaVisitaActiva: false,
@@ -133,8 +199,9 @@ define('custom:helpers/acta-visita-case-status', [
         };
 
         return {
-            acta: awaitingNewVisita ? null : latestActa,
-            latestActa: latestActa,
+            acta: pickActaForEdit(actaList, model),
+            latestActa: actaList.length ? actaList[0] : null,
+            actasHistorial: sortActasHistorial(actaList),
             awaitingNewVisita: awaitingNewVisita,
             hasDiligenciadaActa: hasDiligenciadaActa,
             actaCount: actaList.length,
@@ -231,7 +298,9 @@ define('custom:helpers/acta-visita-case-status', [
             order: 'desc',
             maxSize: 20,
         }).then(function (response) {
-            return (response && response.list) ? response.list : [];
+            const list = (response && response.list) ? response.list : [];
+
+            return sortActasByRecency(list);
         });
     };
 
@@ -265,6 +334,7 @@ define('custom:helpers/acta-visita-case-status', [
         isVisitaConfirmada: isVisitaConfirmada,
         isVisitaRealizadaForFormatos: isVisitaRealizadaForFormatos,
         isAwaitingNewVisita: isAwaitingNewVisita,
+        sortActasHistorial: sortActasHistorial,
         canFetchActaForCase: canFetchActaForCase,
         canRequestNewVisita: canRequestNewVisita,
         fetchActaForCase: fetchActaForCase,
