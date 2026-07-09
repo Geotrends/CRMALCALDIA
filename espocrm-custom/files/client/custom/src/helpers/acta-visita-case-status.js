@@ -387,6 +387,7 @@ define('custom:helpers/acta-visita-case-status', [
         CONTENT_FIELDS: CONTENT_FIELDS,
         isActaDiligenciada: isActaDiligenciada,
         isActaCompletada: isActaCompletada,
+        hasActaVisitContent: hasActaVisitContent,
         shouldShowActaInArchivo: shouldShowActaInArchivo,
         pickLatestPendienteAprobacion: pickLatestPendienteAprobacion,
         isFormatoActaHabilitado: isFormatoActaHabilitado,
