@@ -29,7 +29,7 @@ $steps = [
     'configure-global-tablist.php',
     'configure-case-kanban.php',
     'configure-user-dashboards.php',
-    'seed-operational-login-users.php',
+    'fix-operational-login.php',
 ];
 
 echo '=== Restaurar 4 roles de la Alcaldía ===' . PHP_EOL;
