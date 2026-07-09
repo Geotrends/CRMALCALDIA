@@ -187,6 +187,41 @@ class CaseActaVisitaHelper
         return self::isActaWithContent($latestActa);
     }
 
+    public static function hasSolicitudNuevaVisitaActiva(EntityManager $entityManager, Entity $case): bool
+    {
+        if (self::isCaseAsignado($case)) {
+            $latest = $entityManager
+                ->getRDBRepository('VisitaHistorial')
+                ->where(['caseId' => $case->getId()])
+                ->order('fecha', 'DESC')
+                ->findOne();
+
+            if (!$latest) {
+                return false;
+            }
+
+            return trim((string) $latest->get('tipo')) === 'Solicitud nueva visita';
+        }
+
+        $status = trim((string) $case->get('status'));
+
+        if (!in_array($status, ['Visita realizada', self::STATUS_VISITA_APROBADA], true)) {
+            return false;
+        }
+
+        $latest = $entityManager
+            ->getRDBRepository('VisitaHistorial')
+            ->where(['caseId' => $case->getId()])
+            ->order('fecha', 'DESC')
+            ->findOne();
+
+        if (!$latest) {
+            return false;
+        }
+
+        return trim((string) $latest->get('tipo')) === 'Solicitud nueva visita';
+    }
+
     public static function buildActaName(string $radicado, string $expediente, string $caseId, int $visitNumber = 1): string
     {
         $parts = ['Acta visita'];

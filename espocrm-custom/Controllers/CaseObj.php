@@ -504,61 +504,14 @@ class CaseObj extends BaseCaseObj
      */
     private function doPrepararNuevaVisita(Request $request): array
     {
-        if (!$this->acl->check('Case', 'prepararNuevaVisita')) {
-            throw new Forbidden();
-        }
-
         $body = $request->getParsedBody();
-        $id = '';
-        $motivo = '';
-        $registrarSolicitud = false;
+        $id = $this->parseCaseIdFromRequest($body);
 
-        if (is_object($body)) {
-            $id = trim((string) ($body->id ?? ''));
-            $motivo = trim((string) ($body->motivo ?? ''));
-            $registrarSolicitud = !empty($body->registrarSolicitud);
-        } elseif (is_array($body)) {
-            $id = trim((string) ($body['id'] ?? ''));
-            $motivo = trim((string) ($body['motivo'] ?? ''));
-            $registrarSolicitud = !empty($body['registrarSolicitud']);
-        }
-
-        if ($id === '') {
-            throw new BadRequest('ID requerido.');
-        }
-
-        $case = $this->entityManager->getEntityById('Case', $id);
-
-        if (!$case) {
-            throw new NotFound();
-        }
-
-        if (!$this->acl->checkEntityRead($case)) {
-            throw new Forbidden();
-        }
-
+        $case = $this->getCaseOrFail($id);
         $user = $this->getUser();
         $profile = $this->injectableFactory->create(AlcaldiaUserProfile::class);
 
-        if (!$user->isAdmin() && !$profile->isInspeccion($user)) {
-            if ($registrarSolicitud) {
-                throw new Forbidden('Solo Inspección puede solicitar otra visita con motivo.');
-            }
-
-            $assignedId = trim((string) $case->get('assignedUserId'));
-
-            if ($assignedId === '' || $assignedId !== $user->getId()) {
-                throw new Forbidden();
-            }
-
-            if (!$profile->isPatrullero($user)) {
-                throw new Forbidden();
-            }
-        }
-
-        if ($registrarSolicitud && $motivo === '') {
-            throw new BadRequest('Debe indicar el motivo por el cual se necesita otra visita.');
-        }
+        $this->assertCanPrepararNuevaVisita($user, $case, $profile);
 
         if (!CaseActaVisitaHelper::canRequestNewVisita($case)) {
             throw new BadRequest('El caso no permite registrar una nueva visita en este momento.');
@@ -571,19 +524,15 @@ class CaseObj extends BaseCaseObj
             throw new BadRequest('Debe existir al menos un acta de visita previa.');
         }
 
+        if (!CaseActaVisitaHelper::hasSolicitudNuevaVisitaActiva($this->entityManager, $case)) {
+            throw new BadRequest(
+                'Debe registrar primero la solicitud de otra visita con su motivo en Inspección.'
+            );
+        }
+
         $currentStatus = trim((string) $case->get('status'));
 
         if (CaseActaVisitaHelper::isCaseAsignado($case)) {
-            if ($registrarSolicitud) {
-                try {
-                    $this->injectableFactory
-                        ->create(VisitaHistorialLogger::class)
-                        ->logSolicitudNuevaVisita($case, $user, $motivo, $visitNumber);
-                } catch (\Throwable) {
-                    // No bloquear por fallos de historial.
-                }
-            }
-
             return [
                 'success' => true,
                 'status' => $currentStatus,
@@ -618,21 +567,108 @@ class CaseObj extends BaseCaseObj
             'skipCaseExcelAlcaldia' => true,
         ]);
 
-        if ($registrarSolicitud) {
-            try {
-                $this->injectableFactory
-                    ->create(VisitaHistorialLogger::class)
-                    ->logSolicitudNuevaVisita($case, $user, $motivo, $visitNumber);
-            } catch (\Throwable) {
-                // No bloquear por fallos de historial.
-            }
-        }
-
         return [
             'success' => true,
             'status' => 'Asignado',
             'visitNumber' => $visitNumber,
             'alreadyPrepared' => false,
+        ];
+    }
+
+    /**
+     * POST Case/action/registrarSolicitudNuevaVisita  body: { "id": "caseId", "motivo": "..." }
+     *
+     * @return array<string, mixed>
+     */
+    public function postActionRegistrarSolicitudNuevaVisita(Request $request): array
+    {
+        try {
+            return $this->doRegistrarSolicitudNuevaVisita($request);
+        } catch (BadRequest | Forbidden | NotFound $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            throw new Error(
+                'No se pudo registrar la solicitud de nueva visita: ' . $e->getMessage(),
+                0,
+                $e
+            );
+        }
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function doRegistrarSolicitudNuevaVisita(Request $request): array
+    {
+        $body = $request->getParsedBody();
+        $id = $this->parseCaseIdFromRequest($body);
+        $motivo = '';
+
+        if (is_object($body)) {
+            $motivo = trim((string) ($body->motivo ?? ''));
+        } elseif (is_array($body)) {
+            $motivo = trim((string) ($body['motivo'] ?? ''));
+        }
+
+        if ($motivo === '') {
+            throw new BadRequest('Debe indicar el motivo por el cual se necesita otra visita.');
+        }
+
+        $case = $this->getCaseOrFail($id);
+        $user = $this->getUser();
+        $profile = $this->injectableFactory->create(AlcaldiaUserProfile::class);
+
+        if (!$user->isAdmin() && !$profile->isInspeccion($user)) {
+            throw new Forbidden('Solo Inspección puede registrar que se necesita otra visita.');
+        }
+
+        if (!$this->acl->checkEntityRead($case)) {
+            throw new Forbidden();
+        }
+
+        $currentStatus = trim((string) $case->get('status'));
+
+        if (!in_array($currentStatus, ['Visita realizada', 'Visita aprobada'], true)) {
+            throw new BadRequest(
+                'El caso debe estar en Visita realizada o Visita aprobada para solicitar otra visita.'
+            );
+        }
+
+        $actaCount = CaseActaVisitaHelper::countActasForCase($this->entityManager, $case->getId());
+
+        if ($actaCount < 1) {
+            throw new BadRequest('Debe existir al menos un acta de visita previa.');
+        }
+
+        if (CaseActaVisitaHelper::hasSolicitudNuevaVisitaActiva($this->entityManager, $case)) {
+            return [
+                'success' => true,
+                'status' => $currentStatus,
+                'visitNumber' => $actaCount + 1,
+                'solicitudRegistrada' => true,
+                'alreadyRegistered' => true,
+            ];
+        }
+
+        $visitNumber = $actaCount + 1;
+
+        try {
+            $this->injectableFactory
+                ->create(VisitaHistorialLogger::class)
+                ->logSolicitudNuevaVisita($case, $user, $motivo, $visitNumber);
+        } catch (\Throwable $e) {
+            throw new BadRequest(
+                'No se pudo guardar el motivo en el historial. Ejecute migrate-visita-historial.php. '
+                . $e->getMessage()
+            );
+        }
+
+        return [
+            'success' => true,
+            'status' => $currentStatus,
+            'visitNumber' => $visitNumber,
+            'solicitudRegistrada' => true,
+            'alreadyRegistered' => false,
         ];
     }
 
@@ -643,35 +679,16 @@ class CaseObj extends BaseCaseObj
      */
     public function postActionRevertirVisitaAprobada(Request $request): array
     {
-        if (!$this->acl->check('Case', 'revertirVisitaAprobada')) {
-            throw new Forbidden();
-        }
-
         $body = $request->getParsedBody();
-        $id = '';
+        $id = $this->parseCaseIdFromRequest($body);
 
-        if (is_object($body)) {
-            $id = trim((string) ($body->id ?? ''));
-        } elseif (is_array($body)) {
-            $id = trim((string) ($body['id'] ?? ''));
-        }
-
-        if ($id === '') {
-            throw new BadRequest('ID requerido.');
-        }
-
-        $case = $this->entityManager->getEntityById('Case', $id);
-
-        if (!$case) {
-            throw new NotFound();
-        }
+        $case = $this->getCaseOrFail($id);
+        $user = $this->getUser();
+        $profile = $this->injectableFactory->create(AlcaldiaUserProfile::class);
 
         if (!$this->acl->checkEntityRead($case)) {
             throw new Forbidden();
         }
-
-        $user = $this->getUser();
-        $profile = $this->injectableFactory->create(AlcaldiaUserProfile::class);
 
         if (!$user->isAdmin() && !$profile->isInspeccion($user)) {
             throw new Forbidden('Solo Inspección puede revertir la aprobación de la visita.');
@@ -731,5 +748,64 @@ class CaseObj extends BaseCaseObj
         return $this->injectableFactory
             ->create(AlcaldiaUserProfile::class)
             ->canEditRadicado($user);
+    }
+
+    /**
+     * @param object|array<string, mixed>|null $body
+     */
+    private function parseCaseIdFromRequest(mixed $body): string
+    {
+        $id = '';
+
+        if (is_object($body)) {
+            $id = trim((string) ($body->id ?? ''));
+        } elseif (is_array($body)) {
+            $id = trim((string) ($body['id'] ?? ''));
+        }
+
+        if ($id === '') {
+            throw new BadRequest('ID requerido.');
+        }
+
+        return $id;
+    }
+
+    private function getCaseOrFail(string $id): \Espo\ORM\Entity
+    {
+        $case = $this->entityManager->getEntityById('Case', $id);
+
+        if (!$case) {
+            throw new NotFound();
+        }
+
+        return $case;
+    }
+
+    private function assertCanPrepararNuevaVisita(
+        User $user,
+        \Espo\ORM\Entity $case,
+        AlcaldiaUserProfile $profile
+    ): void {
+        if (!$this->acl->checkEntityRead($case)) {
+            throw new Forbidden();
+        }
+
+        if ($user->isAdmin()) {
+            return;
+        }
+
+        if ($profile->isInspeccion($user)) {
+            return;
+        }
+
+        if ($profile->isPatrullero($user)) {
+            $assignedId = trim((string) $case->get('assignedUserId'));
+
+            if ($assignedId !== '' && $assignedId === $user->getId()) {
+                return;
+            }
+        }
+
+        throw new Forbidden();
     }
 }

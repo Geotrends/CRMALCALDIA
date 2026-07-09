@@ -23,6 +23,7 @@ define('custom:views/case/fields/acta-visita-action', [
             this.showVisitaCheck = false;
             this.showAgregarVisita = false;
             this.showNecesitaOtraVisita = false;
+            this.solicitudNuevaVisitaActiva = false;
             this.awaitingNewVisita = false;
             this.hasDiligenciadaActa = false;
             this.actaCount = 0;
@@ -156,6 +157,10 @@ define('custom:views/case/fields/acta-visita-action', [
                 return false;
             }
 
+            if (this.solicitudNuevaVisitaActiva) {
+                return false;
+            }
+
             const status = String(this.model.get('status') || '').trim();
 
             return status === 'Visita realizada' || status === 'Visita aprobada';
@@ -188,11 +193,27 @@ define('custom:views/case/fields/acta-visita-action', [
                 return false;
             }
 
+            if (!this.solicitudNuevaVisitaActiva && !this.awaitingNewVisita) {
+                return false;
+            }
+
             if (this.awaitingNewVisita) {
                 return this.isVisitaHabilitada();
             }
 
             return true;
+        },
+
+        resolveAgregarVisitaHelp: function () {
+            if (this.canEnableAgregarVisita()) {
+                return this.translateCaseLabel('agregarVisitaHelp');
+            }
+
+            if (this.showAgregarVisita && !this.solicitudNuevaVisitaActiva) {
+                return this.translateCaseLabel('agregarVisitaEsperaSolicitudHelp');
+            }
+
+            return this.translateCaseLabel('agregarVisitaHelp');
         },
 
         resolveHelpText: function (user) {
@@ -263,6 +284,7 @@ define('custom:views/case/fields/acta-visita-action', [
                 showAgregarVisita: this.showAgregarVisita,
                 agregarVisitaEnabled: this.canEnableAgregarVisita(),
                 buttonLabelAgregarVisita: this.translateCaseLabel('agregarVisita'),
+                agregarVisitaHelp: this.resolveAgregarVisitaHelp(),
                 showNecesitaOtraVisita: this.showNecesitaOtraVisita,
                 necesitaOtraVisitaLabel: this.translateCaseLabel('necesitaOtraVisita'),
                 necesitaOtraVisitaHelp: this.translateCaseLabel('necesitaOtraVisitaHelp'),
@@ -356,11 +378,14 @@ define('custom:views/case/fields/acta-visita-action', [
                 hasDiligenciadaActa: false,
                 actaCount: 0,
                 latestDiligenciada: null,
+                solicitudNuevaVisitaActiva: false,
+                latestSolicitud: null,
             };
 
             const acta = this.workflow.acta;
 
             this.awaitingNewVisita = !!this.workflow.awaitingNewVisita;
+            this.solicitudNuevaVisitaActiva = !!this.workflow.solicitudNuevaVisitaActiva;
             this.hasDiligenciadaActa = !!this.workflow.hasDiligenciadaActa;
             this.actaCount = this.workflow.actaCount || 0;
             this.nextVisitNumber = this.actaCount + 1;
@@ -420,6 +445,7 @@ define('custom:views/case/fields/acta-visita-action', [
 
             this.$el.find('.case-visita-visita-check-help').text(data.visitaCheckHelp || '');
             this.$el.find('.case-acta-visita-help').text(data.helpText || '');
+            this.$el.find('.case-agregar-visita-help').text(data.agregarVisitaHelp || '');
             this.$el.find('.case-visita-realizada-check').toggle(!!data.showVisitaCheck);
             this.$el.find('.case-visita-aprobada-check').toggle(!!data.showVisitaAprobacion);
             this.$el.find('.case-visita-aprobada-help').text(data.visitaAprobadaHelp || '');
@@ -447,6 +473,11 @@ define('custom:views/case/fields/acta-visita-action', [
                 $agregar
                     .prop('disabled', !data.agregarVisitaEnabled)
                     .html('<span class="fas fa-plus"></span> ' + escapeHtml(data.buttonLabelAgregarVisita));
+                this.$el.find('.case-agregar-visita-help')
+                    .text(data.agregarVisitaHelp || '')
+                    .toggle(true);
+            } else {
+                this.$el.find('.case-agregar-visita-help').toggle(false);
             }
 
             this.$el.find('.case-necesita-otra-visita-check').toggle(!!data.showNecesitaOtraVisita);
@@ -796,19 +827,9 @@ define('custom:views/case/fields/acta-visita-action', [
             const self = this;
             options = options || {};
 
-            const payload = {
+            return Espo.Ajax.postRequest('Case/action/prepararNuevaVisita', {
                 id: this.model.id,
-            };
-
-            if (options.motivo) {
-                payload.motivo = options.motivo;
-            }
-
-            if (options.registrarSolicitud) {
-                payload.registrarSolicitud = true;
-            }
-
-            return Espo.Ajax.postRequest('Case/action/prepararNuevaVisita', payload).then(function (response) {
+            }).then(function (response) {
                 const newStatus = (response && response.status) || 'Asignado';
                 const visitNumber = (response && response.visitNumber) || self.nextVisitNumber;
 
@@ -840,7 +861,7 @@ define('custom:views/case/fields/acta-visita-action', [
             const self = this;
 
             if (!this.model.id || !this.canEnableAgregarVisita()) {
-                Espo.Ui.warning(this.translateCaseLabel('agregarVisitaHelp'));
+                Espo.Ui.warning(this.resolveAgregarVisitaHelp());
 
                 return;
             }
@@ -868,39 +889,28 @@ define('custom:views/case/fields/acta-visita-action', [
                 return;
             }
 
-            Espo.Ui.confirm(
-                this.translateCaseLabel('agregarVisitaConfirmQuestion'),
-                {
-                    title: this.translateCaseLabel('agregarVisita'),
-                    confirmText: 'Sí, continuar',
-                    cancelText: 'Cancelar',
-                    confirmStyle: 'primary',
-                },
-                function () {
-                    Espo.Ui.notify(self.translate('pleaseWait', 'messages'));
+            Espo.Ui.notify(self.translate('pleaseWait', 'messages'));
 
-                    self.actionPrepararNuevaVisita()
-                        .then(function (workflow) {
-                            Espo.Ui.notify(false);
-                            openNewActa(workflow);
-                        })
-                        .catch(function (xhr) {
-                            Espo.Ui.notify(false);
+            self.actionPrepararNuevaVisita()
+                .then(function (workflow) {
+                    Espo.Ui.notify(false);
+                    openNewActa(workflow);
+                })
+                .catch(function (xhr) {
+                    Espo.Ui.notify(false);
 
-                            let message = self.translateCaseLabel('agregarVisitaError');
+                    let message = self.translateCaseLabel('agregarVisitaError');
 
-                            if (xhr) {
-                                const payload = xhr.responseJSON || xhr;
+                    if (xhr) {
+                        const payload = xhr.responseJSON || xhr;
 
-                                if (payload && payload.message) {
-                                    message = payload.message;
-                                }
-                            }
+                        if (payload && payload.message) {
+                            message = payload.message;
+                        }
+                    }
 
-                            Espo.Ui.error(message);
-                        });
-                }
-            );
+                    Espo.Ui.error(message);
+                });
         },
 
         actionNecesitaOtraVisita: function (motivo) {
@@ -912,12 +922,22 @@ define('custom:views/case/fields/acta-visita-action', [
 
             Espo.Ui.notify(this.translate('pleaseWait', 'messages'));
 
-            this.actionPrepararNuevaVisita({
+            Espo.Ajax.postRequest('Case/action/registrarSolicitudNuevaVisita', {
+                id: this.model.id,
                 motivo: motivo,
-                registrarSolicitud: true,
-                successMessage: this.translateCaseLabel('necesitaOtraVisitaSuccess'),
-            }).then(function () {
+            }).then(function (response) {
                 Espo.Ui.notify(false);
+
+                self.solicitudNuevaVisitaActiva = true;
+                self.nextVisitNumber = (response && response.visitNumber) || self.nextVisitNumber;
+                self.showNecesitaOtraVisita = false;
+                self.showAgregarVisita = self.resolveShowAgregarVisita();
+                self.refreshViewState();
+
+                Espo.Ui.success(self.translateCaseLabel('necesitaOtraVisitaSuccess'));
+
+                ActaVisitaCaseStatus.invalidateCache(self.model.id);
+                self.scheduleLoadActaState();
             }).catch(function (xhr) {
                 Espo.Ui.notify(false);
 

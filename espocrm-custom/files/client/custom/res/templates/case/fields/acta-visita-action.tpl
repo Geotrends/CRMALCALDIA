@@ -70,6 +70,7 @@
     >
         <span class="fas fa-plus"></span> {{buttonLabelAgregarVisita}}
     </button>
+    <p class="text-muted small case-agregar-visita-help">{{agregarVisitaHelp}}</p>
     {{/if}}
 </div>
 {{/if}}

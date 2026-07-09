@@ -22,6 +22,7 @@
         "confirmarVisitaRealizada",
         "confirmarVisitaAprobada",
         "prepararNuevaVisita",
-        "revertirVisitaAprobada"
+        "revertirVisitaAprobada",
+        "registrarSolicitudNuevaVisita"
     ]
 }

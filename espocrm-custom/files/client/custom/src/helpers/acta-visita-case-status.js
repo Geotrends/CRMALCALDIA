@@ -89,11 +89,48 @@ define('custom:helpers/acta-visita-case-status', [
         return isActaDiligenciada(latestActa);
     };
 
-    const buildWorkflowState = function (list, model) {
+    const TIPO_SOLICITUD_NUEVA_VISITA = 'Solicitud nueva visita';
+
+    const fetchSolicitudVisitaDirect = function (caseId) {
+        return SilentAjax.getRequest('VisitaHistorial', {
+            where: [
+                {
+                    type: 'equals',
+                    attribute: 'caseId',
+                    value: caseId,
+                },
+            ],
+            select: 'id,tipo,fecha,numeroVisita',
+            orderBy: 'fecha',
+            order: 'desc',
+            maxSize: 1,
+        }).then(function (response) {
+            const latest = (response && response.list && response.list.length)
+                ? response.list[0]
+                : null;
+
+            return {
+                solicitudNuevaVisitaActiva: !!(latest
+                    && String(latest.tipo || '').trim() === TIPO_SOLICITUD_NUEVA_VISITA),
+                latestSolicitud: latest,
+            };
+        }).catch(function () {
+            return {
+                solicitudNuevaVisitaActiva: false,
+                latestSolicitud: null,
+            };
+        });
+    };
+
+    const buildWorkflowState = function (list, model, solicitudState) {
         const actaList = list || [];
         const latestActa = actaList.length ? actaList[0] : null;
         const awaitingNewVisita = isAwaitingNewVisita(model, latestActa);
         const hasDiligenciadaActa = !!pickLatestDiligenciada(actaList);
+        const solicitud = solicitudState || {
+            solicitudNuevaVisitaActiva: false,
+            latestSolicitud: null,
+        };
 
         return {
             acta: awaitingNewVisita ? null : latestActa,
@@ -102,6 +139,8 @@ define('custom:helpers/acta-visita-case-status', [
             hasDiligenciadaActa: hasDiligenciadaActa,
             actaCount: actaList.length,
             latestDiligenciada: pickLatestDiligenciada(actaList),
+            solicitudNuevaVisitaActiva: !!solicitud.solicitudNuevaVisitaActiva,
+            latestSolicitud: solicitud.latestSolicitud,
         };
     };
 
@@ -206,7 +245,9 @@ define('custom:helpers/acta-visita-case-status', [
         }
 
         return CaseFetchCache.fetchActa(caseId, fetchActaListDirect).then(function (list) {
-            return buildWorkflowState(list, model);
+            return fetchSolicitudVisitaDirect(caseId).then(function (solicitudState) {
+                return buildWorkflowState(list, model, solicitudState);
+            });
         });
     };
 
