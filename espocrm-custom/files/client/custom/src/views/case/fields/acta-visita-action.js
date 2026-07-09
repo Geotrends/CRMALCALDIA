@@ -276,22 +276,72 @@ define('custom:views/case/fields/acta-visita-action', [
             const historial = (this.workflow && this.workflow.actasHistorial) || [];
             const lang = this.getLanguage();
             const self = this;
+            const byNumero = {};
 
-            return historial.filter(function (acta) {
-                return ActaVisitaCaseStatus.isActaDiligenciada(acta);
-            }).map(function (acta) {
-                const estado = String(acta.estado || 'Diligenciada').trim() || 'Diligenciada';
-                const estadoLabel = lang.translateOption(estado, 'estado', 'ActaVisita') || estado;
+            const rankEstado = function (acta) {
+                const estado = String(acta.estado || '').trim();
 
-                return {
-                    actaId: acta.id,
-                    numeroVisita: acta.numeroVisita || 1,
-                    estado: estado,
-                    estadoLabel: estadoLabel,
-                    isAprobada: estado === 'Aprobada',
-                    archivoHelp: self.translateCaseLabel('actaVisitaEditHelp'),
-                };
+                if (estado === 'Aprobada') {
+                    return 3;
+                }
+
+                if (estado === 'Diligenciada') {
+                    return 2;
+                }
+
+                return 0;
+            };
+
+            historial.forEach(function (acta) {
+                if (!ActaVisitaCaseStatus.isActaCompletada(acta)) {
+                    return;
+                }
+
+                const numero = parseInt(acta.numeroVisita, 10) || 1;
+                const current = byNumero[numero];
+
+                if (!current) {
+                    byNumero[numero] = acta;
+
+                    return;
+                }
+
+                const currentRank = rankEstado(current);
+                const nextRank = rankEstado(acta);
+
+                if (nextRank > currentRank) {
+                    byNumero[numero] = acta;
+
+                    return;
+                }
+
+                if (nextRank === currentRank
+                    && String(acta.modifiedAt || '').localeCompare(String(current.modifiedAt || '')) > 0) {
+                    byNumero[numero] = acta;
+                }
             });
+
+            return Object.keys(byNumero)
+                .map(function (key) {
+                    return parseInt(key, 10);
+                })
+                .sort(function (a, b) {
+                    return a - b;
+                })
+                .map(function (numero) {
+                    const acta = byNumero[numero];
+                    const estado = String(acta.estado || 'Diligenciada').trim() || 'Diligenciada';
+                    const estadoLabel = lang.translateOption(estado, 'estado', 'ActaVisita') || estado;
+
+                    return {
+                        actaId: acta.id,
+                        numeroVisita: numero,
+                        estado: estado,
+                        estadoLabel: estadoLabel,
+                        isAprobada: estado === 'Aprobada',
+                        archivoHelp: self.translateCaseLabel('actaVisitaEditHelp'),
+                    };
+                });
         },
 
         shouldShowActaPanel: function () {

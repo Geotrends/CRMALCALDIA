@@ -41,6 +41,16 @@ define('custom:helpers/acta-visita-case-status', [
         return status === 'Asignado' || status === 'Assigned';
     };
 
+    const isActaCompletada = function (acta) {
+        if (!acta) {
+            return false;
+        }
+
+        const estado = String(acta.estado || acta.get?.('estado') || '').trim();
+
+        return estado === 'Diligenciada' || estado === 'Aprobada';
+    };
+
     const isActaDiligenciada = function (acta) {
         if (!acta) {
             return false;
@@ -329,6 +339,7 @@ define('custom:helpers/acta-visita-case-status', [
     return {
         CONTENT_FIELDS: CONTENT_FIELDS,
         isActaDiligenciada: isActaDiligenciada,
+        isActaCompletada: isActaCompletada,
         isFormatoActaHabilitado: isFormatoActaHabilitado,
         isPostVisitaStatus: isPostVisitaStatus,
         isVisitaConfirmada: isVisitaConfirmada,
