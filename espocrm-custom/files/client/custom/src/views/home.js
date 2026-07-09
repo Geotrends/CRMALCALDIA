@@ -121,6 +121,8 @@ define('custom:views/home', ['views/dashboard'], function (Dep) {
 
             this.config = homeConfig(profile, userId, appTimestamp, isAdmin);
             this._pageState = {};
+            this._historialAsignacionesSearch = this._historialAsignacionesSearch || '';
+            this._historialVisitasSearch = this._historialVisitasSearch || '';
 
             Espo.Ajax.getRequest('Case/action/alcaldiaProfile').then(function (data) {
                 var apiProfile = detectProfileFromApi(data);
@@ -380,7 +382,8 @@ define('custom:views/home', ['views/dashboard'], function (Dep) {
                     (activeTab === 'historial-asignaciones' ? ' is-active' : '') +
                     '" data-panel="historial-asignaciones" role="tabpanel">' +
                     '<div class="panel panel-default custom-home-lista"><div class="panel-heading"><h4 class="panel-title">Historial de asignaciones</h4></div>' +
-                    '<div class="panel-body"><div class="custom-home-lista-cuerpo" data-historial-asignaciones="list">' +
+                    '<div class="panel-body">' + this.buildHistorialSearchToolbar('asignaciones') +
+                    '<div class="custom-home-lista-cuerpo" data-historial-asignaciones="list">' +
                     '<p class="text-muted">Cargando historial…</p></div></div></div></div>';
             }
 
@@ -389,7 +392,8 @@ define('custom:views/home', ['views/dashboard'], function (Dep) {
                     (activeTab === 'historial-visitas' ? ' is-active' : '') +
                     '" data-panel="historial-visitas" role="tabpanel">' +
                     '<div class="panel panel-default custom-home-lista"><div class="panel-heading"><h4 class="panel-title">Historial de visitas</h4></div>' +
-                    '<div class="panel-body"><div class="custom-home-lista-cuerpo" data-historial-visitas="list">' +
+                    '<div class="panel-body">' + this.buildHistorialSearchToolbar('visitas') +
+                    '<div class="custom-home-lista-cuerpo" data-historial-visitas="list">' +
                     '<p class="text-muted">Cargando historial…</p></div></div></div></div>';
             }
 
@@ -405,7 +409,9 @@ define('custom:views/home', ['views/dashboard'], function (Dep) {
 
             this.bindHomeTabs();
             this.bindHomePagination();
+            this.bindHistorialSearch();
             this.bindDashboardIframeLoad();
+            this.restoreHistorialSearchInputs();
             this._activeHomeTab = activeTab;
 
             if (activeTab === 'gestion') {
@@ -863,6 +869,136 @@ define('custom:views/home', ['views/dashboard'], function (Dep) {
             );
         },
 
+        buildHistorialSearchToolbar: function (scopeKey) {
+            var inputId = 'historial-search-' + scopeKey;
+
+            return '<div class="custom-home-historial-search" data-historial-search="' + scopeKey + '">' +
+                '<label class="sr-only" for="' + inputId + '">Buscar por radicado del caso</label>' +
+                '<span class="fas fa-search custom-home-historial-search__icon" aria-hidden="true"></span>' +
+                '<input type="search" id="' + inputId + '" class="form-control input-sm custom-home-historial-search__input" ' +
+                'placeholder="Buscar por radicado del caso…" autocomplete="off" ' +
+                'data-historial-search-input="' + scopeKey + '">' +
+                '</div>';
+        },
+
+        normalizeHistorialSearch: function (value) {
+            return String(value || '')
+                .trim()
+                .toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '');
+        },
+
+        getHistorialRadicadoLabel: function (model) {
+            return String(model.get('numeroRadicado') || model.get('caseName') || '');
+        },
+
+        matchesHistorialRadicado: function (model, query) {
+            if (!query) {
+                return true;
+            }
+
+            return this.normalizeHistorialSearch(this.getHistorialRadicadoLabel(model)).indexOf(query) !== -1;
+        },
+
+        filterHistorialModels: function (models, searchValue) {
+            var query = this.normalizeHistorialSearch(searchValue);
+
+            if (!query) {
+                return models;
+            }
+
+            var self = this;
+
+            return models.filter(function (model) {
+                return self.matchesHistorialRadicado(model, query);
+            });
+        },
+
+        restoreHistorialSearchInputs: function () {
+            if (this._historialAsignacionesSearch) {
+                this.$el.find('[data-historial-search-input="asignaciones"]')
+                    .val(this._historialAsignacionesSearch);
+            }
+
+            if (this._historialVisitasSearch) {
+                this.$el.find('[data-historial-search-input="visitas"]')
+                    .val(this._historialVisitasSearch);
+            }
+        },
+
+        bindHistorialSearch: function () {
+            var self = this;
+
+            if (this._historialSearchBound) {
+                return;
+            }
+
+            this._historialSearchBound = true;
+
+            var applySearch = function (scopeKey) {
+                if (scopeKey === 'asignaciones') {
+                    var $asignaciones = self.$el.find('[data-historial-asignaciones="list"]');
+
+                    if (!self._historialAsignacionesModels) {
+                        return;
+                    }
+
+                    self.renderHistorialAsignaciones(
+                        $asignaciones,
+                        self.filterHistorialModels(self._historialAsignacionesModels, self._historialAsignacionesSearch)
+                    );
+
+                    return;
+                }
+
+                if (scopeKey === 'visitas') {
+                    var $visitas = self.$el.find('[data-historial-visitas="list"]');
+
+                    if (!self._historialVisitasModels) {
+                        return;
+                    }
+
+                    self.renderHistorialVisitas(
+                        $visitas,
+                        self.filterHistorialModels(self._historialVisitasModels, self._historialVisitasSearch)
+                    );
+                }
+            };
+
+            this.$el.on('input', '[data-historial-search-input]', _.debounce(function (e) {
+                var scopeKey = $(e.currentTarget).data('historial-search-input');
+                var value = $(e.currentTarget).val() || '';
+
+                if (scopeKey === 'asignaciones') {
+                    self._historialAsignacionesSearch = value;
+                } else if (scopeKey === 'visitas') {
+                    self._historialVisitasSearch = value;
+                }
+
+                applySearch(scopeKey);
+            }, 200));
+
+            this.$el.on('keydown', '[data-historial-search-input]', function (e) {
+                if (e.key !== 'Escape') {
+                    return;
+                }
+
+                var $input = $(e.currentTarget);
+                var scopeKey = $input.data('historial-search-input');
+
+                $input.val('');
+
+                if (scopeKey === 'asignaciones') {
+                    self._historialAsignacionesSearch = '';
+                } else if (scopeKey === 'visitas') {
+                    self._historialVisitasSearch = '';
+                }
+
+                applySearch(scopeKey);
+            });
+        },
+
         loadHistorialAsignaciones: function (force) {
             if (this._historialLoaded && !force) {
                 return;
@@ -879,7 +1015,14 @@ define('custom:views/home', ['views/dashboard'], function (Dep) {
 
                 collection.fetch({main: true})
                     .then(function () {
-                        this.renderHistorialAsignaciones($container, collection);
+                        this._historialAsignacionesModels = collection.models.slice();
+                        this.renderHistorialAsignaciones(
+                            $container,
+                            this.filterHistorialModels(
+                                this._historialAsignacionesModels,
+                                this._historialAsignacionesSearch
+                            )
+                        );
                     }.bind(this))
                     .catch(function () {
                         $container.html('<p class="text-danger">No se pudo cargar el historial de asignaciones.</p>');
@@ -887,14 +1030,20 @@ define('custom:views/home', ['views/dashboard'], function (Dep) {
             }.bind(this));
         },
 
-        renderHistorialAsignaciones: function ($container, collection) {
-            if (!collection.length) {
-                $container.html('<p class="text-muted">Aún no hay reasignaciones registradas.</p>');
+        renderHistorialAsignaciones: function ($container, models) {
+            var hasAny = this._historialAsignacionesModels && this._historialAsignacionesModels.length;
+
+            if (!models || !models.length) {
+                var message = hasAny && this.normalizeHistorialSearch(this._historialAsignacionesSearch)
+                    ? 'No hay asignaciones que coincidan con ese radicado.'
+                    : 'Aún no hay reasignaciones registradas.';
+
+                $container.html('<p class="text-muted">' + message + '</p>');
 
                 return;
             }
 
-            var rows = collection.models.map(function (model) {
+            var rows = models.map(function (model) {
                 var caseId = model.get('caseId');
                 var radicado = model.get('numeroRadicado') || model.get('caseName') || '—';
                 var anterior = model.get('responsableAnteriorName') || 'Sin asignar';
@@ -936,7 +1085,14 @@ define('custom:views/home', ['views/dashboard'], function (Dep) {
 
                 collection.fetch({main: true})
                     .then(function () {
-                        this.renderHistorialVisitas($container, collection);
+                        this._historialVisitasModels = collection.models.slice();
+                        this.renderHistorialVisitas(
+                            $container,
+                            this.filterHistorialModels(
+                                this._historialVisitasModels,
+                                this._historialVisitasSearch
+                            )
+                        );
                     }.bind(this))
                     .catch(function () {
                         $container.html('<p class="text-danger">No se pudo cargar el historial de visitas.</p>');
@@ -944,14 +1100,20 @@ define('custom:views/home', ['views/dashboard'], function (Dep) {
             }.bind(this));
         },
 
-        renderHistorialVisitas: function ($container, collection) {
-            if (!collection.length) {
-                $container.html('<p class="text-muted">Aún no hay visitas registradas en el historial.</p>');
+        renderHistorialVisitas: function ($container, models) {
+            var hasAny = this._historialVisitasModels && this._historialVisitasModels.length;
+
+            if (!models || !models.length) {
+                var message = hasAny && this.normalizeHistorialSearch(this._historialVisitasSearch)
+                    ? 'No hay visitas que coincidan con ese radicado.'
+                    : 'Aún no hay visitas registradas en el historial.';
+
+                $container.html('<p class="text-muted">' + message + '</p>');
 
                 return;
             }
 
-            var rows = collection.models.map(function (model) {
+            var rows = models.map(function (model) {
                 var caseId = model.get('caseId');
                 var radicado = model.get('numeroRadicado') || model.get('caseName') || '—';
                 var caseLink = caseId
