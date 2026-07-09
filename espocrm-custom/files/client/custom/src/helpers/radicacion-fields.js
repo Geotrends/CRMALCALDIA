@@ -6,7 +6,7 @@ define('custom:helpers/radicacion-fields', [], function () {
     const ROLE_ASIGNACION = 'asignacion';
     const ROLE_PATRULLERO = 'patrullero';
     const ROLE_PATRULLAJE = 'patrullaje';
-    const PROFILE_CACHE_KEY = 'alcaldiaCaseProfileCacheV8';
+    const PROFILE_CACHE_KEY = 'alcaldiaCaseProfileCacheV9';
 
     const RADICADO_PERSISTED_FIELDS = [
         'cNumeroRadicado',
@@ -200,14 +200,6 @@ define('custom:helpers/radicacion-fields', [], function () {
             return 'gestion';
         }
 
-        const profile = serverProfile && profileUserId === getCurrentUserId(user)
-            ? serverProfile
-            : null;
-
-        if (profile && profile.homeProfile) {
-            return profile.homeProfile;
-        }
-
         if (hasRole(user, ROLE_INSPECCION)) {
             return 'gestion';
         }
@@ -222,6 +214,14 @@ define('custom:helpers/radicacion-fields', [], function () {
 
         if (hasRole(user, ROLE_PATRULLERO) || hasRole(user, ROLE_PATRULLAJE)) {
             return 'patrullero';
+        }
+
+        const profile = serverProfile && profileUserId === getCurrentUserId(user)
+            ? serverProfile
+            : null;
+
+        if (profile && profile.homeProfile) {
+            return profile.homeProfile;
         }
 
         return 'gestion';
@@ -310,6 +310,10 @@ define('custom:helpers/radicacion-fields', [], function () {
 
         if (isInspeccionUser(user) && !isRadicacionUser(user)) {
             return false;
+        }
+
+        if (hasRole(user, ROLE_RADICACION)) {
+            return true;
         }
 
         const profile = serverProfile && profileUserId === getCurrentUserId(user)

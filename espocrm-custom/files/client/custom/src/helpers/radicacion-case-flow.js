@@ -154,6 +154,24 @@ define('custom:helpers/radicacion-case-flow', [
         sessionStorage.removeItem(RADICAR_SKIP_PREFIX + caseId);
     };
 
+    const unlockRadicadoFields = function (recordView) {
+        if (!recordView.$el || !recordView.$el.length) {
+            return;
+        }
+
+        EDITABLE_FIELDS.forEach(function (field) {
+            recordView.$el
+                .find('.cell[data-name="' + field + '"], .field[data-name="' + field + '"]')
+                .removeClass('alcaldia-radicacion-readonly alcaldia-field-readonly alcaldia-inspeccion-radicado-readonly');
+
+            const view = recordView.getFieldView(field);
+
+            if (view && typeof view.setReadOnly === 'function') {
+                view.setReadOnly(false);
+            }
+        });
+    };
+
     const lockNonRadicadoFields = function (recordView) {
         const user = recordView.getUser();
 
@@ -199,6 +217,8 @@ define('custom:helpers/radicacion-case-flow', [
         if (radicadoView) {
             SafeUiPromise.safeReRender(radicadoView);
         }
+
+        unlockRadicadoFields(recordView);
     };
 
     const restoreNonRadicadoAttributes = function (model) {
