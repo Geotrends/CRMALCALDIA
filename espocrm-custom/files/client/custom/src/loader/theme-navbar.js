@@ -84,6 +84,9 @@
     }
 
     var MOBILE_NAV_STYLE_ID = 'crm-mobile-nav-style';
+    var layoutApplying = false;
+    var syncTimer = null;
+    var mobileMenuInitDone = false;
 
     function injectMobileNavStyles() {
         if (document.getElementById(MOBILE_NAV_STYLE_ID)) {
@@ -96,21 +99,25 @@
             'html.crm-modern-ui body.crm-mobile-nav-active:not(.side-menu-opened) #content>.content{' +
             'margin-left:0!important;padding-left:0!important;width:100%!important;max-width:100vw!important;}' +
             'html.crm-modern-ui body.crm-mobile-nav-active:not(.side-menu-opened) #navbar{' +
-            'width:0!important;min-width:0!important;max-width:0!important;}' +
+            'width:0!important;min-width:0!important;max-width:0!important;pointer-events:none!important;}' +
             'html.crm-modern-ui body.crm-mobile-nav-active:not(.side-menu-opened) #navbar>.navbar{' +
             'width:0!important;min-width:0!important;max-width:0!important;min-height:0!important;height:auto!important;' +
-            'border:none!important;box-shadow:none!important;background:transparent!important;}' +
+            'border:none!important;box-shadow:none!important;background:transparent!important;pointer-events:none!important;}' +
             'html.crm-modern-ui body.crm-mobile-nav-active:not(.side-menu-opened) #navbar .navbar-left-container,' +
             'html.crm-modern-ui body.crm-mobile-nav-active:not(.side-menu-opened) #navbar ul.tabs,' +
             'html.crm-modern-ui body.crm-mobile-nav-active:not(.side-menu-opened) #navbar>.navbar>.crm-sidebar-brand{' +
             'display:none!important;visibility:hidden!important;width:0!important;height:0!important;overflow:hidden!important;}' +
+            'html.crm-modern-ui body.crm-mobile-nav-active:not(.side-menu-opened) #navbar .navbar-header{' +
+            'z-index:1095!important;pointer-events:none!important;}' +
+            'html.crm-modern-ui body.crm-mobile-nav-active:not(.side-menu-opened) #navbar .navbar-header a.side-menu-button{' +
+            'pointer-events:auto!important;}' +
             'html.crm-modern-ui body.crm-mobile-nav-active:not(.side-menu-opened) #navbar .navbar-nav.navbar-right{' +
-            'position:fixed!important;top:8px!important;right:8px!important;left:56px!important;z-index:1060!important;' +
+            'position:fixed!important;top:8px!important;right:8px!important;left:56px!important;z-index:1090!important;' +
             'display:flex!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;}' +
             'html.crm-modern-ui body.crm-mobile-nav-active.side-menu-opened #navbar{' +
             'position:fixed!important;left:0!important;top:0!important;bottom:0!important;' +
             'width:min(300px,88vw)!important;min-width:min(300px,88vw)!important;max-width:min(300px,88vw)!important;' +
-            'height:100vh!important;z-index:1080!important;}' +
+            'height:100vh!important;z-index:1085!important;pointer-events:auto!important;}' +
             'html.crm-modern-ui body.crm-mobile-nav-active.side-menu-opened #navbar>.navbar{' +
             'width:100%!important;min-width:100%!important;max-width:100%!important;height:100vh!important;min-height:100vh!important;' +
             'display:flex!important;flex-direction:column!important;background:#fff!important;' +
@@ -131,7 +138,9 @@
             'html.crm-modern-ui body.crm-mobile-nav-active.side-menu-opened #navbar ul.tabs>li.tab-divider{' +
             'display:block!important;}' +
             'html.crm-modern-ui body.crm-mobile-nav-active.side-menu-opened::after{' +
-            'content:"";position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:1075;pointer-events:auto;}' +
+            'content:"";position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:1060;pointer-events:auto;}' +
+            'html.crm-modern-ui body.crm-mobile-nav-active:not(.side-menu-opened)::after{' +
+            'content:none!important;display:none!important;pointer-events:none!important;}' +
             '}';
 
         var style = document.createElement('style');
@@ -141,6 +150,10 @@
     }
 
     function applyMobileNavLayout() {
+        if (layoutApplying) {
+            return;
+        }
+
         var body = document.body;
 
         if (!isMobileNav()) {
@@ -148,40 +161,48 @@
             return;
         }
 
-        injectMobileNavStyles();
-        body.classList.add('crm-mobile-nav-active');
-        body.classList.remove('minimized');
+        layoutApplying = true;
 
-        var navbar = document.getElementById('navbar');
-        var content = document.getElementById('content');
-        var opened = body.classList.contains('side-menu-opened');
+        try {
+            injectMobileNavStyles();
+            body.classList.add('crm-mobile-nav-active');
 
-        if (content) {
-            content.style.setProperty('margin-left', '0', 'important');
-            content.style.setProperty('width', '100%', 'important');
-            content.style.setProperty('max-width', '100%', 'important');
-        }
+            var navbar = document.getElementById('navbar');
+            var content = document.getElementById('content');
+            var opened = body.classList.contains('side-menu-opened');
 
-        if (!navbar) {
-            return;
-        }
+            if (opened) {
+                body.classList.remove('minimized');
+            }
 
-        if (opened) {
-            navbar.style.removeProperty('width');
-            navbar.style.removeProperty('min-width');
-            navbar.style.removeProperty('max-width');
-        } else {
-            navbar.style.setProperty('width', '0', 'important');
-            navbar.style.setProperty('min-width', '0', 'important');
-            navbar.style.setProperty('max-width', '0', 'important');
+            if (content) {
+                content.style.setProperty('margin-left', '0', 'important');
+                content.style.setProperty('width', '100%', 'important');
+                content.style.setProperty('max-width', '100%', 'important');
+            }
+
+            if (navbar) {
+                if (opened) {
+                    navbar.style.removeProperty('width');
+                    navbar.style.removeProperty('min-width');
+                    navbar.style.removeProperty('max-width');
+                } else {
+                    navbar.style.setProperty('width', '0', 'important');
+                    navbar.style.setProperty('min-width', '0', 'important');
+                    navbar.style.setProperty('max-width', '0', 'important');
+                }
+            }
+        } finally {
+            layoutApplying = false;
         }
     }
 
     function ensureMobileMenuClosedOnStart() {
-        if (!isMobileNav()) {
+        if (!isMobileNav() || mobileMenuInitDone) {
             return;
         }
 
+        mobileMenuInitDone = true;
         document.body.classList.remove('side-menu-opened');
         applyMobileNavLayout();
     }
@@ -222,47 +243,22 @@
         triggerReflow();
     }
 
-    function openMobileMenu() {
-        if (!isMobileNav()) {
-            return;
-        }
-
-        document.body.classList.remove('minimized');
-        document.body.classList.add('side-menu-opened');
-        applyMobileNavLayout();
-        triggerReflow();
-    }
-
     function setupMobileMenuControls() {
         document.addEventListener('click', function (e) {
-            if (!isMobileNav()) {
+            if (!isMobileNav() || !document.body.classList.contains('side-menu-opened')) {
                 return;
             }
 
-            if (e.target.closest('a.side-menu-button')) {
-                e.preventDefault();
-                e.stopPropagation();
-
-                if (document.body.classList.contains('side-menu-opened')) {
-                    closeMobileMenu();
-                } else {
-                    openMobileMenu();
-                }
-
-                return;
-            }
-
-            if (document.body.classList.contains('side-menu-opened')) {
+            if (e.target.closest('#navbar')) {
                 if (e.target.closest('#navbar ul.tabs a')) {
                     setTimeout(closeMobileMenu, 120);
-                    return;
                 }
 
-                if (!e.target.closest('#navbar')) {
-                    closeMobileMenu();
-                }
+                return;
             }
-        }, true);
+
+            closeMobileMenu();
+        });
     }
 
     var resizeTimer = null;
@@ -356,6 +352,14 @@
         moreLi.remove();
     }
 
+    function debouncedSyncNavbar() {
+        if (syncTimer) {
+            clearTimeout(syncTimer);
+        }
+
+        syncTimer = setTimeout(syncNavbar, 80);
+    }
+
     function syncNavbar() {
         if (!document.querySelector('#navbar .navbar-left-container')) {
             return;
@@ -379,12 +383,11 @@
                 return;
             }
 
-            var shouldApply = mutations.some(function (mutation) {
-                return mutation.type === 'attributes' &&
-                    (mutation.attributeName === 'class' || mutation.attributeName === 'style');
+            var classChanged = mutations.some(function (mutation) {
+                return mutation.type === 'attributes' && mutation.attributeName === 'class';
             });
 
-            if (shouldApply) {
+            if (classChanged) {
                 applyMobileNavLayout();
             }
         });
@@ -393,23 +396,6 @@
             attributes: true,
             attributeFilter: ['class'],
         });
-
-        var navbar = document.getElementById('navbar');
-        var content = document.getElementById('content');
-
-        if (navbar) {
-            observer.observe(navbar, {
-                attributes: true,
-                attributeFilter: ['style', 'class'],
-            });
-        }
-
-        if (content) {
-            observer.observe(content, {
-                attributes: true,
-                attributeFilter: ['style', 'class'],
-            });
-        }
     }
 
     function init() {
@@ -418,7 +404,6 @@
         syncNavbar();
         triggerReflow();
         setTimeout(function () {
-            ensureMobileMenuClosedOnStart();
             syncNavbar();
             triggerReflow();
         }, 600);
@@ -433,7 +418,7 @@
         observerStarted = true;
 
         var observer = new MutationObserver(function () {
-            syncNavbar();
+            debouncedSyncNavbar();
         });
 
         observer.observe(document.body, {
