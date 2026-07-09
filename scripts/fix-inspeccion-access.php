@@ -55,7 +55,7 @@ passthru(escapeshellarg($phpBin) . ' command.php clear-cache', $cacheCode);
 
 echo '=== Listo ===' . PHP_EOL;
 echo 'Entre en: https://TU-DOMINIO/#Login  (sin barra después del #)' . PHP_EOL;
-echo 'Usuario: inspeccion  Contraseña: Inspeccion2026!' . PHP_EOL;
+echo 'Usuario: inspeccion  Contraseña: inspeccion2026' . PHP_EOL;
 
 if ($rebuildCode !== 0 || $cacheCode !== 0) {
     exit(1);

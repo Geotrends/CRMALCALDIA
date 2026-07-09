@@ -46,28 +46,28 @@ $users = [
         'userName' => 'inspeccion',
         'name' => 'Inspección',
         'role' => 'Inspección',
-        'password' => trim((string) getenv('ESPOCRM_USER_INSPECCION_PASSWORD')) ?: 'Inspeccion2026!',
+        'password' => trim((string) getenv('ESPOCRM_USER_INSPECCION_PASSWORD')) ?: 'inspeccion2026',
         'type' => 'regular',
     ],
     [
         'userName' => 'radicacion',
         'name' => 'Radicación',
         'role' => 'Radicación',
-        'password' => trim((string) getenv('ESPOCRM_USER_RADICACION_PASSWORD')) ?: 'Radicacion2026!',
+        'password' => trim((string) getenv('ESPOCRM_USER_RADICACION_PASSWORD')) ?: 'radicacion2026',
         'type' => 'regular',
     ],
     [
         'userName' => 'asignacion',
         'name' => 'Asignación',
         'role' => 'Asignación',
-        'password' => trim((string) getenv('ESPOCRM_USER_ASIGNACION_PASSWORD')) ?: 'Asignacion2026!',
+        'password' => trim((string) getenv('ESPOCRM_USER_ASIGNACION_PASSWORD')) ?: 'asignacion2026',
         'type' => 'regular',
     ],
     [
         'userName' => 'patrullaje',
         'name' => 'Patrullaje',
         'role' => 'Patrullaje',
-        'password' => trim((string) getenv('ESPOCRM_USER_PATRULLAJE_PASSWORD')) ?: 'Patrullaje2026!',
+        'password' => trim((string) getenv('ESPOCRM_USER_PATRULLAJE_PASSWORD')) ?: 'patrullaje2026',
         'type' => 'regular',
     ],
 ];
@@ -121,10 +121,10 @@ passthru(PHP_BINARY . ' command.php clear-cache', $cacheCode);
 
 echo PHP_EOL . 'Contraseñas para entrar:' . PHP_EOL;
 echo "  {$adminUser} → (ESPOCRM_ADMIN_PASSWORD en Dokploy)" . PHP_EOL;
-echo '  inspeccion  → Inspeccion2026!' . PHP_EOL;
-echo '  radicacion  → Radicacion2026!' . PHP_EOL;
-echo '  asignacion  → Asignacion2026!' . PHP_EOL;
-echo '  patrullaje  → Patrullaje2026!' . PHP_EOL;
+echo '  inspeccion  → inspeccion2026' . PHP_EOL;
+echo '  radicacion  → radicacion2026' . PHP_EOL;
+echo '  asignacion  → asignacion2026' . PHP_EOL;
+echo '  patrullaje  → patrullaje2026' . PHP_EOL;
 echo PHP_EOL . 'Use ventana de incógnito y /#Login' . PHP_EOL;
 
 if ($failed || $cacheCode !== 0) {

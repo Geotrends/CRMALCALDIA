@@ -60,10 +60,10 @@ echo '=== Listo ===' . PHP_EOL;
 echo 'Roles restaurados: Inspección, Radicación, Asignación, Patrullaje' . PHP_EOL;
 echo PHP_EOL;
 echo 'Usuarios y contraseñas:' . PHP_EOL;
-echo '  inspeccion  → Inspeccion2026!' . PHP_EOL;
-echo '  radicacion  → Radicacion2026!' . PHP_EOL;
-echo '  asignacion  → Asignacion2026!' . PHP_EOL;
-echo '  patrullaje  → Patrullaje2026!' . PHP_EOL;
+echo '  inspeccion  → inspeccion2026' . PHP_EOL;
+echo '  radicacion  → radicacion2026' . PHP_EOL;
+echo '  asignacion  → asignacion2026' . PHP_EOL;
+echo '  patrullaje  → patrullaje2026' . PHP_EOL;
 echo PHP_EOL;
 echo 'Cierre sesión, ventana de incógnito, entre de nuevo.' . PHP_EOL;
 
