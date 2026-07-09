@@ -20,6 +20,7 @@ $steps = [
     'write-admin-credentials.php',
     'ensure-admin-login.php',
     'seed-alcaldia-roles.php',
+    'seed-operational-login-users.php',
     'seed-gestion-routing-users.php',
     'configure-default-locale.php',
     'configure-global-tablist.php',
