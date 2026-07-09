@@ -1,9 +1,8 @@
 /**
- * Seguridad de sesión Alcaldía:
- * - Aviso 1 min antes del cierre por inactividad («¿Sigues ahí?»).
- * - Cierre tras 10 min de inactividad (mouse, teclado, scroll, touch).
- * - Si se cerraron todas las pestañas y se vuelve a abrir el CRM, exige login.
- *   (Varias pestañas abiertas a la vez siguen funcionando con normalidad.)
+ * Seguridad de sesión Alcaldía (DESHABILITADO — no cargar desde client.json).
+ *
+ * Antes cerraba la sesión tras 10 min de inactividad y mostraba modal de aviso.
+ * Si se vuelve a necesitar, restaurar en Resources/metadata/app/client.json scriptList.
  */
 (function () {
     var IDLE_MS = 10 * 60 * 1000;

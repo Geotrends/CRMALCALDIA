@@ -1,11 +1,14 @@
 <?php
 
 /**
- * Política de sesión: cierre por inactividad y limpieza de tokens en servidor.
+ * Política de sesión en servidor (tokens de autenticación EspoCRM).
+ *
+ * El cierre automático por inactividad en el navegador (modal / toast) está deshabilitado;
+ * solo aplica el tiempo de vida del token en servidor.
  *
  * Variables opcionales:
- *   ESPO_SESSION_IDLE_MINUTES — minutos sin actividad (default: 10)
- *   ESPO_SESSION_MAX_HOURS    — vida máxima del token en horas (default: 8)
+ *   ESPO_SESSION_IDLE_MINUTES — minutos sin actividad antes de invalidar token (default: 1440 = 24 h)
+ *   ESPO_SESSION_MAX_HOURS    — vida máxima del token en horas (default: 168 = 7 días)
  */
 
 require_once '/var/www/html/bootstrap.php';
@@ -23,14 +26,14 @@ $config = $app->getContainer()->getByClass(Config::class);
 /** @var EntityManager $em */
 $em = $app->getContainer()->getByClass(EntityManager::class);
 
-$idleMinutes = (int) (getenv('ESPO_SESSION_IDLE_MINUTES') ?: 10);
+$idleMinutes = (int) (getenv('ESPO_SESSION_IDLE_MINUTES') ?: 1440);
 if ($idleMinutes < 1) {
-    $idleMinutes = 10;
+    $idleMinutes = 1440;
 }
 
-$maxHours = (int) (getenv('ESPO_SESSION_MAX_HOURS') ?: 8);
+$maxHours = (int) (getenv('ESPO_SESSION_MAX_HOURS') ?: 168);
 if ($maxHours < 1) {
-    $maxHours = 8;
+    $maxHours = 168;
 }
 
 $idleHours = round($idleMinutes / 60, 6);

@@ -13,7 +13,7 @@ DEPLOY_SETUP_STEPS=(
   "Menú lateral (tabList global)|configure-global-tablist.php"
   "WebSocket (wss://dominio/ws)|configure-websocket.php"
   "Idioma, zona horaria Bogotá y hora 24 h|configure-default-locale.php"
-  "Seguridad de sesión (10 min inactividad)|configure-session-security.php"
+  "Tokens de sesión (sin cierre por inactividad en cliente)|configure-session-security.php"
   "Calendario: reuniones, tareas y casos|configure-calendar-meetings-only.php"
   "Kanban de Casos (todos los usuarios)|configure-case-kanban.php"
   "Home: tablero custom (custom:views/home)|configure-user-dashboards.php"

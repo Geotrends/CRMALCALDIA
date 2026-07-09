@@ -56,17 +56,11 @@ check_file "Loader guard de promesas consola" \
   "$CLIENT/src/loader/promise-console-guard.js" \
   "unhandledrejection" || errors=$((errors + 1))
 
-check_file "scriptList — session-security" \
-  "$CUSTOM/Resources/metadata/app/client.json" \
-  "session-security.js" || errors=$((errors + 1))
-
-check_file "Loader seguridad de sesión" \
-  "$CLIENT/src/loader/session-security.js" \
-  "handleUnauthorized" || errors=$((errors + 1))
-
-check_file "CSS aviso inactividad sesión" \
-  "$CLIENT/res/css/03-components.css" \
-  "crm-session-idle-modal" || errors=$((errors + 1))
+if grep -q "session-security.js" "$CUSTOM/Resources/metadata/app/client.json" 2>/dev/null; then
+  echo "AVISO: session-security.js sigue en scriptList (cierre por inactividad en cliente activo)"
+else
+  echo "OK: sin loader session-security (sin cierre automático por inactividad en navegador)"
+fi
 
 if grep -q "case-radicacion-flow.js\|alcaldia-profile-sync.js\|case-create-guard.js" "$CUSTOM/Resources/metadata/app/client.json" 2>/dev/null; then
   echo "FALTA: scriptList aún referencia loaders de flujo por roles"
