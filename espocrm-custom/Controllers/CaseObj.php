@@ -486,6 +486,24 @@ class CaseObj extends BaseCaseObj
      */
     public function postActionPrepararNuevaVisita(Request $request): array
     {
+        try {
+            return $this->doPrepararNuevaVisita($request);
+        } catch (BadRequest | Forbidden | NotFound $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            throw new Error(
+                'No se pudo preparar la nueva visita: ' . $e->getMessage(),
+                0,
+                $e
+            );
+        }
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function doPrepararNuevaVisita(Request $request): array
+    {
         if (!$this->acl->check('Case', 'prepararNuevaVisita')) {
             throw new Forbidden();
         }

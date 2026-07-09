@@ -36,6 +36,7 @@ DEPLOY_LEGACY_MIGRATION_SCRIPTS=(
   migrate-case-canonical-fields.php
   migrate-case-peticionario-db-columns.php
   migrate-case-party-field-names.php
+  migrate-visita-historial.php
 )
 
 DEPLOY_POST_LEGACY_STEPS=(
