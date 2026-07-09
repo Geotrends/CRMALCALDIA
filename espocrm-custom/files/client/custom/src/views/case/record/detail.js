@@ -6,8 +6,7 @@ define('custom:views/case/record/detail', [
     'custom:helpers/radicacion-case-flow',
     'custom:helpers/asignador-case-flow',
     'custom:helpers/asignador-assignment-ui',
-    'custom:helpers/case-detail-two-column',
-], function (Dep, PersonaTipoFields, RadicacionFields, InspeccionCaseFlow, RadicacionCaseFlow, AsignadorCaseFlow, AsignadorAssignmentUi, CaseDetailTwoColumn) {
+], function (Dep, PersonaTipoFields, RadicacionFields, InspeccionCaseFlow, RadicacionCaseFlow, AsignadorCaseFlow, AsignadorAssignmentUi) {
 
     const PANEL_ASIGNACION = 'gestionPosteriorRadicacion';
 
@@ -228,7 +227,6 @@ define('custom:views/case/record/detail', [
             InspeccionCaseFlow.schedule(this);
             RadicacionCaseFlow.schedule(this);
             AsignadorCaseFlow.schedule(this);
-            CaseDetailTwoColumn.schedule(this);
 
             if (this.isAsignadorOperator()) {
                 this._asignacionEditMode = false;

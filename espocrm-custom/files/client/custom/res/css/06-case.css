@@ -162,10 +162,10 @@
   color: var(--crm-primary) !important;
 }
 
-/* Detalle: columnas equilibradas — solicitud/perjudicante | clasificación y gestión */
+/* Detalle: caso (izq.) | historial, cronograma y comunicaciones (der.) */
 .detail[data-scope="Case"] .record-grid,
 .detail[data-scope="Case"] .record-grid.record-grid-wide {
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+  grid-template-columns: minmax(0, 58%) minmax(0, 42%) !important;
   column-gap: 24px !important;
 }
 
@@ -181,10 +181,6 @@
 .edit[data-scope="Case"] .record-grid .side,
 .edit[data-scope="Case"] .record-grid .left {
   min-width: 0;
-}
-
-.detail[data-scope="Case"] .side .alcaldia-case-detail-fields {
-  margin-bottom: var(--crm-space-lg);
 }
 
 /* Crear caso: ocultar paneles y campos solo de detalle */
