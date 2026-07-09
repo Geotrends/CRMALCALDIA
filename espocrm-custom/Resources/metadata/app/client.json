@@ -5,6 +5,7 @@
         "client/custom/res/css/23-buttons.css"
     ],
     "scriptList": [
+        "client/custom/src/loader/route-sanitize.js",
         "client/custom/src/loader/promise-console-guard.js",
         "client/custom/src/loader/theme-buttons.js",
         "client/custom/src/loader/theme-login.js",
