@@ -53,8 +53,7 @@
                 "name": "caseTimeline",
                 "label": "Línea de tiempo",
                 "view": "custom:views/case/record/panels/status-timeline",
-                "notRefreshable": true,
-                "sticked": true
+                "notRefreshable": true
             },
             {
                 "name": "caseCronograma",

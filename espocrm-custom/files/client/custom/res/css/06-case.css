@@ -187,6 +187,10 @@
   margin-bottom: var(--crm-space-lg);
 }
 
+.detail[data-scope="Case"] .left .alcaldia-case-history-left-hidden {
+  display: none !important;
+}
+
 /* Crear caso: ocultar paneles y campos solo de detalle */
 .edit[data-scope="Case"] .panel.hidden,
 .edit[data-scope="Case"] .cell.hidden,

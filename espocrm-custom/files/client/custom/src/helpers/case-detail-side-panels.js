@@ -15,15 +15,39 @@ define('custom:helpers/case-detail-side-panels', [], function () {
         'comunicacionesCasoPanel',
     ];
 
-    const CONTAINER_CLASS = 'alcaldia-case-detail-side-fields';
+    const RIGHT_ONLY_PANELS = TOP_PANELS.concat(BOTTOM_PANELS);
 
-    const findPanel = function (recordView, name) {
-        return recordView.$el.find(
-            '.panel[data-name="' + name + '"], ' +
+    const CONTAINER_CLASS = 'alcaldia-case-detail-side-fields';
+    const HIDDEN_LEFT_CLASS = 'alcaldia-case-history-left-hidden';
+
+    const panelSelector = function (name) {
+        return '.panel[data-name="' + name + '"], ' +
             '.panel[data-panel-name="' + name + '"], ' +
             '.record-panel[data-name="' + name + '"], ' +
-            '[data-name="' + name + '"].panel'
-        ).first();
+            '[data-name="' + name + '"].panel';
+    };
+
+    const findIn = function ($root, name) {
+        return $root.find(panelSelector(name)).first();
+    };
+
+    const hideLeftHistoryDuplicates = function (recordView) {
+        const $left = recordView.$el.find('.record-grid > .left');
+
+        if (!$left.length) {
+            return;
+        }
+
+        RIGHT_ONLY_PANELS.forEach(function (name) {
+            findIn($left, name)
+                .addClass('hidden ' + HIDDEN_LEFT_CLASS)
+                .hide();
+        });
+
+        $left
+            .find('.panel-caseTimeline, .panel-caseCronograma')
+            .addClass('hidden ' + HIDDEN_LEFT_CLASS)
+            .hide();
     };
 
     const distribute = function (recordView) {
@@ -32,10 +56,13 @@ define('custom:helpers/case-detail-side-panels', [], function () {
         }
 
         const $side = recordView.$el.find('.record-grid > .side');
+        const $leftMiddle = recordView.$el.find('.record-grid > .left > .middle');
 
         if (!$side.length) {
             return;
         }
+
+        hideLeftHistoryDuplicates(recordView);
 
         let $container = $side.find('.' + CONTAINER_CLASS);
 
@@ -44,7 +71,7 @@ define('custom:helpers/case-detail-side-panels', [], function () {
         }
 
         FIELD_PANELS.forEach(function (name) {
-            const $panel = findPanel(recordView, name);
+            const $panel = findIn($leftMiddle, name);
 
             if ($panel.length && !$panel.closest('.' + CONTAINER_CLASS).length) {
                 $container.append($panel);
@@ -54,9 +81,9 @@ define('custom:helpers/case-detail-side-panels', [], function () {
         let $insertAfter = null;
 
         TOP_PANELS.forEach(function (name) {
-            const $panel = findPanel(recordView, name);
+            const $panel = findIn($side, name);
 
-            if (!$panel.length) {
+            if (!$panel.length || $panel.hasClass(HIDDEN_LEFT_CLASS)) {
                 return;
             }
 
@@ -80,9 +107,9 @@ define('custom:helpers/case-detail-side-panels', [], function () {
         }
 
         BOTTOM_PANELS.forEach(function (name) {
-            const $panel = findPanel(recordView, name);
+            const $panel = findIn($side, name);
 
-            if (!$panel.length) {
+            if (!$panel.length || $panel.hasClass(HIDDEN_LEFT_CLASS)) {
                 return;
             }
 
