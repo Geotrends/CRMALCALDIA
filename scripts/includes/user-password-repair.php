@@ -173,23 +173,17 @@ function alcaldiaAssignRoleToUser(EntityManager $em, string $userId, string $rol
         return false;
     }
 
-    $user = $em->getEntityById('User', $userId);
+    $pdo = $em->getPDO();
+    $roleId = (string) $role->getId();
 
-    if (!$user) {
-        return false;
-    }
-
-    $relation = $em->getRelation($user, 'roles');
-
-    foreach ($relation->find() as $existingRole) {
-        if ($existingRole->getId() !== $role->getId()) {
-            $relation->unrelateById($existingRole->getId());
-        }
-    }
-
-    if (!$relation->isRelatedById($role->getId())) {
-        $relation->relateById($role->getId());
-    }
+    $pdo->exec('DELETE FROM role_user WHERE user_id = ' . $pdo->quote($userId));
+    $pdo->exec(
+        'INSERT INTO role_user (id, role_id, user_id, deleted) VALUES ('
+        . $pdo->quote(substr(uniqid('', true), -17))
+        . ', ' . $pdo->quote($roleId)
+        . ', ' . $pdo->quote($userId)
+        . ', false)'
+    );
 
     return true;
 }
