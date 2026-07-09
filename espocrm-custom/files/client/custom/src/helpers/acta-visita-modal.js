@@ -81,6 +81,7 @@ define('custom:helpers/acta-visita-modal', [
         const afterSave = function () {
             caseModel.fetch();
             ActaVisitaCaseStatus.invalidateCache(caseModel.id);
+            $(window).trigger('crm:visita-historial-changed');
 
             if (typeof options.onAfterSave === 'function') {
                 options.onAfterSave();
@@ -161,6 +162,7 @@ define('custom:helpers/acta-visita-modal', [
             const afterSave = function () {
                 caseModel.fetch();
                 ActaVisitaCaseStatus.invalidateCache(caseModel.id);
+                $(window).trigger('crm:visita-historial-changed');
 
                 if (typeof options.onAfterSave === 'function') {
                     options.onAfterSave();

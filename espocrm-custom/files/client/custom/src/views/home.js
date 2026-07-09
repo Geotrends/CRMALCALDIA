@@ -142,6 +142,14 @@ define('custom:views/home', ['views/dashboard'], function (Dep) {
 
             this.sanitizeDashboardPreferences();
             Dep.prototype.setup.call(this);
+
+            $(window).on('crm:visita-historial-changed.home', function () {
+                self._historialVisitasLoaded = false;
+
+                if (self._activeHomeTab === 'historial-visitas' && self.isRendered && self.isRendered()) {
+                    self.loadHistorialVisitas(true);
+                }
+            });
         },
 
         afterRender: function () {
@@ -189,6 +197,8 @@ define('custom:views/home', ['views/dashboard'], function (Dep) {
         },
 
         remove: function () {
+            $(window).off('crm:visita-historial-changed.home');
+
             if (this._dashboardHeightHandler) {
                 window.removeEventListener('message', this._dashboardHeightHandler);
                 this._dashboardHeightHandler = null;
@@ -576,11 +586,12 @@ define('custom:views/home', ['views/dashboard'], function (Dep) {
             }
 
             if (tab === 'historial-asignaciones') {
-                this.loadHistorialAsignaciones();
+                this.loadHistorialAsignaciones(true);
             }
 
             if (tab === 'historial-visitas') {
-                this.loadHistorialVisitas();
+                this._historialVisitasLoaded = false;
+                this.loadHistorialVisitas(true);
             }
 
             if (tab === 'dashboard') {

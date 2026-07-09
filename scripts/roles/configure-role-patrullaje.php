@@ -76,7 +76,7 @@ $data['ActaVisita'] = [
 
 $data['VisitaHistorial'] = [
     'create' => 'no',
-    'read' => 'team',
+    'read' => 'all',
     'edit' => 'no',
     'delete' => 'no',
     'stream' => 'no',

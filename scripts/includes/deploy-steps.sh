@@ -44,6 +44,7 @@ DEPLOY_LEGACY_MIGRATION_SCRIPTS=(
 DEPLOY_POST_LEGACY_STEPS=(
   "Job alertas de vencimiento (campana)|configure-case-vencimiento-alerts.php"
   "Vínculos caso ↔ tercero (peticionario / infractor)|sync-case-party-links.php"
+  "Historial de visitas (tabla + backfill)|ensure-visita-historial.php"
 )
 
 deploy_run_steps_docker() {
