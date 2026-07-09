@@ -83,6 +83,109 @@
         return window.matchMedia('(max-width: 1024px)').matches;
     }
 
+    var MOBILE_NAV_STYLE_ID = 'crm-mobile-nav-style';
+
+    function injectMobileNavStyles() {
+        if (document.getElementById(MOBILE_NAV_STYLE_ID)) {
+            return;
+        }
+
+        var css = '' +
+            '@media (max-width:1024px){' +
+            'html.crm-modern-ui body.crm-mobile-nav-active:not(.side-menu-opened) #content,' +
+            'html.crm-modern-ui body.crm-mobile-nav-active:not(.side-menu-opened) #content>.content{' +
+            'margin-left:0!important;padding-left:0!important;width:100%!important;max-width:100vw!important;}' +
+            'html.crm-modern-ui body.crm-mobile-nav-active:not(.side-menu-opened) #navbar{' +
+            'width:0!important;min-width:0!important;max-width:0!important;}' +
+            'html.crm-modern-ui body.crm-mobile-nav-active:not(.side-menu-opened) #navbar>.navbar{' +
+            'width:0!important;min-width:0!important;max-width:0!important;min-height:0!important;height:auto!important;' +
+            'border:none!important;box-shadow:none!important;background:transparent!important;}' +
+            'html.crm-modern-ui body.crm-mobile-nav-active:not(.side-menu-opened) #navbar .navbar-left-container,' +
+            'html.crm-modern-ui body.crm-mobile-nav-active:not(.side-menu-opened) #navbar ul.tabs,' +
+            'html.crm-modern-ui body.crm-mobile-nav-active:not(.side-menu-opened) #navbar>.navbar>.crm-sidebar-brand{' +
+            'display:none!important;visibility:hidden!important;width:0!important;height:0!important;overflow:hidden!important;}' +
+            'html.crm-modern-ui body.crm-mobile-nav-active:not(.side-menu-opened) #navbar .navbar-nav.navbar-right{' +
+            'position:fixed!important;top:8px!important;right:8px!important;left:56px!important;z-index:1060!important;' +
+            'display:flex!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;}' +
+            'html.crm-modern-ui body.crm-mobile-nav-active.side-menu-opened #navbar{' +
+            'position:fixed!important;left:0!important;top:0!important;bottom:0!important;' +
+            'width:min(300px,88vw)!important;min-width:min(300px,88vw)!important;max-width:min(300px,88vw)!important;' +
+            'height:100vh!important;z-index:1080!important;}' +
+            'html.crm-modern-ui body.crm-mobile-nav-active.side-menu-opened #navbar>.navbar{' +
+            'width:100%!important;min-width:100%!important;max-width:100%!important;height:100vh!important;min-height:100vh!important;' +
+            'display:flex!important;flex-direction:column!important;background:#fff!important;' +
+            'border-radius:0 22px 22px 0!important;box-shadow:4px 0 24px rgba(15,23,42,.14)!important;}' +
+            'html.crm-modern-ui body.crm-mobile-nav-active.side-menu-opened #navbar .navbar-left-container,' +
+            'html.crm-modern-ui body.crm-mobile-nav-active.side-menu-opened #navbar .navbar-collapse.navbar-body,' +
+            'html.crm-modern-ui body.crm-mobile-nav-active.side-menu-opened #navbar ul.tabs{' +
+            'display:flex!important;visibility:visible!important;width:100%!important;height:auto!important;}' +
+            'html.crm-modern-ui body.crm-mobile-nav-active.side-menu-opened #navbar ul.tabs{' +
+            'flex-direction:column!important;}' +
+            'html.crm-modern-ui body.crm-mobile-nav-active.side-menu-opened #navbar ul.tabs span.full-label,' +
+            'html.crm-modern-ui body.crm-mobile-nav-active.side-menu-opened #navbar .more-dropdown-menu span.full-label{' +
+            'display:inline-block!important;visibility:visible!important;opacity:1!important;font-size:14px!important;font-weight:500!important;}' +
+            'html.crm-modern-ui body.crm-mobile-nav-active.side-menu-opened #navbar ul.tabs>li.tab>a,' +
+            'html.crm-modern-ui body.crm-mobile-nav-active.side-menu-opened #navbar .more-dropdown-menu>li.tab>a{' +
+            'justify-content:flex-start!important;width:auto!important;height:auto!important;' +
+            'margin:6px 10px!important;padding:10px 14px!important;gap:14px!important;}' +
+            'html.crm-modern-ui body.crm-mobile-nav-active.side-menu-opened #navbar ul.tabs>li.tab-divider{' +
+            'display:block!important;}' +
+            'html.crm-modern-ui body.crm-mobile-nav-active.side-menu-opened::after{' +
+            'content:"";position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:1075;pointer-events:auto;}' +
+            '}';
+
+        var style = document.createElement('style');
+        style.id = MOBILE_NAV_STYLE_ID;
+        style.textContent = css;
+        (document.head || document.documentElement).appendChild(style);
+    }
+
+    function applyMobileNavLayout() {
+        var body = document.body;
+
+        if (!isMobileNav()) {
+            body.classList.remove('crm-mobile-nav-active');
+            return;
+        }
+
+        injectMobileNavStyles();
+        body.classList.add('crm-mobile-nav-active');
+        body.classList.remove('minimized');
+
+        var navbar = document.getElementById('navbar');
+        var content = document.getElementById('content');
+        var opened = body.classList.contains('side-menu-opened');
+
+        if (content) {
+            content.style.setProperty('margin-left', '0', 'important');
+            content.style.setProperty('width', '100%', 'important');
+            content.style.setProperty('max-width', '100%', 'important');
+        }
+
+        if (!navbar) {
+            return;
+        }
+
+        if (opened) {
+            navbar.style.removeProperty('width');
+            navbar.style.removeProperty('min-width');
+            navbar.style.removeProperty('max-width');
+        } else {
+            navbar.style.setProperty('width', '0', 'important');
+            navbar.style.setProperty('min-width', '0', 'important');
+            navbar.style.setProperty('max-width', '0', 'important');
+        }
+    }
+
+    function ensureMobileMenuClosedOnStart() {
+        if (!isMobileNav()) {
+            return;
+        }
+
+        document.body.classList.remove('side-menu-opened');
+        applyMobileNavLayout();
+    }
+
     function setupMinimizerButton() {
         var minimizer = document.querySelector('#navbar a.minimizer');
         var header = document.querySelector('#navbar .navbar-header');
@@ -115,21 +218,51 @@
         }
 
         document.body.classList.remove('side-menu-opened');
+        applyMobileNavLayout();
         triggerReflow();
     }
 
-    function setupMobileMenuBackdrop() {
-        document.body.addEventListener('click', function (e) {
-            if (!isMobileNav() || !document.body.classList.contains('side-menu-opened')) {
+    function openMobileMenu() {
+        if (!isMobileNav()) {
+            return;
+        }
+
+        document.body.classList.remove('minimized');
+        document.body.classList.add('side-menu-opened');
+        applyMobileNavLayout();
+        triggerReflow();
+    }
+
+    function setupMobileMenuControls() {
+        document.addEventListener('click', function (e) {
+            if (!isMobileNav()) {
                 return;
             }
 
-            if (e.target.closest('#navbar')) {
+            if (e.target.closest('a.side-menu-button')) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                if (document.body.classList.contains('side-menu-opened')) {
+                    closeMobileMenu();
+                } else {
+                    openMobileMenu();
+                }
+
                 return;
             }
 
-            closeMobileMenu();
-        });
+            if (document.body.classList.contains('side-menu-opened')) {
+                if (e.target.closest('#navbar ul.tabs a')) {
+                    setTimeout(closeMobileMenu, 120);
+                    return;
+                }
+
+                if (!e.target.closest('#navbar')) {
+                    closeMobileMenu();
+                }
+            }
+        }, true);
     }
 
     var resizeTimer = null;
@@ -141,9 +274,11 @@
 
         resizeTimer = setTimeout(function () {
             setupMinimizerButton();
+            applyMobileNavLayout();
 
             if (!isMobileNav()) {
                 closeMobileMenu();
+                document.body.classList.remove('crm-mobile-nav-active');
             }
         }, 120);
     }
@@ -229,12 +364,61 @@
         flattenMoreMenu();
         setupMinimizerButton();
         ensureSidebarLogo();
+        applyMobileNavLayout();
+    }
+
+    function watchNavbarClasses() {
+        if (!document.body || watchNavbarClasses.started) {
+            return;
+        }
+
+        watchNavbarClasses.started = true;
+
+        var observer = new MutationObserver(function (mutations) {
+            if (!isMobileNav()) {
+                return;
+            }
+
+            var shouldApply = mutations.some(function (mutation) {
+                return mutation.type === 'attributes' &&
+                    (mutation.attributeName === 'class' || mutation.attributeName === 'style');
+            });
+
+            if (shouldApply) {
+                applyMobileNavLayout();
+            }
+        });
+
+        observer.observe(document.body, {
+            attributes: true,
+            attributeFilter: ['class'],
+        });
+
+        var navbar = document.getElementById('navbar');
+        var content = document.getElementById('content');
+
+        if (navbar) {
+            observer.observe(navbar, {
+                attributes: true,
+                attributeFilter: ['style', 'class'],
+            });
+        }
+
+        if (content) {
+            observer.observe(content, {
+                attributes: true,
+                attributeFilter: ['style', 'class'],
+            });
+        }
     }
 
     function init() {
+        injectMobileNavStyles();
+        ensureMobileMenuClosedOnStart();
         syncNavbar();
         triggerReflow();
         setTimeout(function () {
+            ensureMobileMenuClosedOnStart();
             syncNavbar();
             triggerReflow();
         }, 600);
@@ -260,7 +444,8 @@
 
     function boot() {
         init();
-        setupMobileMenuBackdrop();
+        setupMobileMenuControls();
+        watchNavbarClasses();
         window.addEventListener('resize', onViewportChange);
         startObserver();
     }
