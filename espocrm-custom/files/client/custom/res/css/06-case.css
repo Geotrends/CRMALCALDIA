@@ -162,10 +162,10 @@
   color: var(--crm-primary) !important;
 }
 
-/* Detalle: caso (izq.) | historial, cronograma y comunicaciones (der.) */
+/* Detalle: caso (izq.) | historial, cronograma y comunicaciones (der., más ancha) */
 .detail[data-scope="Case"] .record-grid,
 .detail[data-scope="Case"] .record-grid.record-grid-wide {
-  grid-template-columns: minmax(0, 58%) minmax(0, 42%) !important;
+  grid-template-columns: minmax(0, 38%) minmax(0, 62%) !important;
   column-gap: 24px !important;
 }
 
