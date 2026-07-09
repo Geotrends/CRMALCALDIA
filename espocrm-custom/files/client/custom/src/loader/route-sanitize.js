@@ -38,31 +38,35 @@
         return hash.indexOf('#/') === 0;
     }
 
-    function watchLoginSuccess() {
-        if (!document.querySelector('#login')) {
-            return;
+    function observeBody(callback) {
+        if (!document.body) {
+            return null;
         }
 
-        var observer = new MutationObserver(function () {
-            if (document.querySelector('#login') || !localStorage.getItem('espo-user-auth')) {
-                return;
-            }
-
-            observer.disconnect();
-
-            if (shouldGoHomeAfterLogin()) {
-                goHome();
-            }
-        });
+        var observer = new MutationObserver(callback);
 
         observer.observe(document.body, {
             childList: true,
             subtree: true,
         });
+
+        return observer;
+    }
+
+    function watchLoginSuccess() {
+        return observeBody(function () {
+            if (document.querySelector('#login') || !localStorage.getItem('espo-user-auth')) {
+                return;
+            }
+
+            if (shouldGoHomeAfterLogin()) {
+                goHome();
+            }
+        });
     }
 
     function watch404() {
-        var observer = new MutationObserver(function () {
+        return observeBody(function () {
             if (!localStorage.getItem('espo-user-auth')) {
                 return;
             }
@@ -73,23 +77,28 @@
                 goHome();
             }
         });
+    }
 
-        observer.observe(document.body, {
-            childList: true,
-            subtree: true,
+    function boot() {
+        if (!normalizeHashOnLoad()) {
+            watchLoginSuccess();
+            watch404();
+        }
+
+        window.addEventListener('hashchange', function () {
+            var hash = window.location.hash || '';
+
+            if (hash.indexOf('#/') === 0) {
+                normalizeHashOnLoad();
+            }
         });
     }
 
-    if (!normalizeHashOnLoad()) {
-        watchLoginSuccess();
-        watch404();
+    if (document.body) {
+        boot();
+    } else if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', boot);
+    } else {
+        window.addEventListener('load', boot);
     }
-
-    window.addEventListener('hashchange', function () {
-        var hash = window.location.hash || '';
-
-        if (hash.indexOf('#/') === 0) {
-            normalizeHashOnLoad();
-        }
-    });
 })();
