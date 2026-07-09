@@ -192,6 +192,29 @@ class CaseActaVisitaHelper
             ->count();
     }
 
+    public static function resolveNextVisitNumber(
+        EntityManager $entityManager,
+        string $caseId,
+        ?string $excludeActaId = null
+    ): int {
+        $actas = $entityManager
+            ->getRDBRepository('ActaVisita')
+            ->where(['caseId' => $caseId])
+            ->find();
+
+        $max = 0;
+
+        foreach ($actas as $acta) {
+            if ($excludeActaId !== null && $acta->getId() === $excludeActaId) {
+                continue;
+            }
+
+            $max = max($max, (int) ($acta->get('numeroVisita') ?: 0));
+        }
+
+        return $max + 1;
+    }
+
     public static function isCaseAsignado(Entity $case): bool
     {
         $status = trim((string) $case->get('status'));

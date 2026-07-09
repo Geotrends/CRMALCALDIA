@@ -47,21 +47,13 @@ class EarlyBeforeCreate implements SaveHook
 
         $radicado = trim((string) $case->get('cNumeroRadicado'));
         $expediente = trim((string) $case->get('cExpediente'));
-        $visitNumber = CaseActaVisitaHelper::countActasForCase($this->entityManager, $caseId) + 1;
+        $visitNumber = (int) ($entity->get('numeroVisita') ?: 0);
 
-        if (!trim((string) $entity->get('numeroRadicado'))) {
-            $entity->set('numeroRadicado', $radicado);
-        }
-
-        if (!trim((string) $entity->get('expediente'))) {
-            $entity->set('expediente', $expediente);
-        }
-
-        if (!$entity->get('fecha')) {
-            $entity->set('fecha', date('Y-m-d'));
-        }
-
-        if (!$entity->get('numeroVisita')) {
+        if ($visitNumber < 1) {
+            $visitNumber = CaseActaVisitaHelper::resolveNextVisitNumber(
+                $this->entityManager,
+                $caseId
+            );
             $entity->set('numeroVisita', $visitNumber);
         }
 

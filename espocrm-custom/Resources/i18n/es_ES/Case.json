@@ -156,6 +156,7 @@
     "verActaVisita": "Ver acta",
     "visitaNumeroLabel": "Visita",
     "actasVisita": "Actas de visita registradas",
+    "visitaEnCursoHelp": "Visita actual pendiente de revisión o aprobación por Inspección.",
     "actaVisitaPanelUnavailable": "Disponible para Inspección y el patrullero asignado al caso.",
     "Auto de archivo": "Auto de archivo",
     "Formato auto de archivo": "Formato auto de archivo",

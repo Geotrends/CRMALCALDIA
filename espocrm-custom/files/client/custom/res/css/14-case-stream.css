@@ -197,6 +197,12 @@
   background: #f8fafc;
 }
 
+.detail[data-scope="Case"] .panel[data-name="actaVisita"] .case-visita-archivo-card.is-current {
+  border-color: #0f766e;
+  background: #f0fdfa;
+  box-shadow: 0 0 0 1px rgba(15, 118, 110, 0.12);
+}
+
 .detail[data-scope="Case"] .panel[data-name="actaVisita"] .case-visita-archivo-heading {
   display: flex;
   align-items: center;

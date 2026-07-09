@@ -77,6 +77,52 @@ define('custom:helpers/acta-visita-case-status', [
         return hasText(get('cFormatoActaVisitaPdfId'));
     };
 
+    const hasActaVisitContent = function (acta) {
+        if (!acta) {
+            return false;
+        }
+
+        const get = function (field) {
+            if (typeof acta.get === 'function') {
+                return acta.get(field);
+            }
+
+            return acta[field];
+        };
+
+        return CONTENT_FIELDS.some((field) => hasText(get(field)));
+    };
+
+    const shouldShowActaInArchivo = function (acta) {
+        if (!acta) {
+            return false;
+        }
+
+        if (isActaCompletada(acta)) {
+            return true;
+        }
+
+        return hasActaVisitContent(acta);
+    };
+
+    const pickLatestPendienteAprobacion = function (list) {
+        const actaList = sortActasByRecency(list || []);
+
+        for (let i = 0; i < actaList.length; i++) {
+            const estado = String(actaList[i].estado || '').trim();
+
+            if (estado === 'Aprobada') {
+                continue;
+            }
+
+            if (shouldShowActaInArchivo(actaList[i])) {
+                return actaList[i];
+            }
+        }
+
+        return null;
+    };
+
     const pickLatestDiligenciada = function (list) {
         if (!list || !list.length) {
             return null;
@@ -216,6 +262,7 @@ define('custom:helpers/acta-visita-case-status', [
             hasDiligenciadaActa: hasDiligenciadaActa,
             actaCount: actaList.length,
             latestDiligenciada: pickLatestDiligenciada(actaList),
+            latestPendienteAprobacion: pickLatestPendienteAprobacion(actaList),
             solicitudNuevaVisitaActiva: !!solicitud.solicitudNuevaVisitaActiva,
             latestSolicitud: solicitud.latestSolicitud,
         };
@@ -340,6 +387,8 @@ define('custom:helpers/acta-visita-case-status', [
         CONTENT_FIELDS: CONTENT_FIELDS,
         isActaDiligenciada: isActaDiligenciada,
         isActaCompletada: isActaCompletada,
+        shouldShowActaInArchivo: shouldShowActaInArchivo,
+        pickLatestPendienteAprobacion: pickLatestPendienteAprobacion,
         isFormatoActaHabilitado: isFormatoActaHabilitado,
         isPostVisitaStatus: isPostVisitaStatus,
         isVisitaConfirmada: isVisitaConfirmada,

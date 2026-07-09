@@ -3,7 +3,7 @@
 <p class="case-visitas-archivo-title">{{visitasArchivoTitle}}</p>
 {{/if}}
 {{#each visitasArchivo}}
-<div class="case-visita-archivo-card" data-acta-id="{{actaId}}">
+<div class="case-visita-archivo-card{{#if isCurrent}} is-current{{/if}}" data-acta-id="{{actaId}}">
     <p class="case-visita-archivo-heading">
         <strong>{{../visitaLabel}} {{numeroVisita}}</strong>
         <span class="case-visita-archivo-estado">{{estadoLabel}}</span>

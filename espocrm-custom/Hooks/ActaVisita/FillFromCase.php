@@ -48,13 +48,18 @@ class FillFromCase implements BeforeSave
         }
 
         if (!$entity->get('name')) {
-            $visitNumber = $this->countActasForCase($caseId) + 1;
-            $entity->set('numeroVisita', $visitNumber);
+            $visitNumber = (int) ($entity->get('numeroVisita') ?: 0);
+
+            if ($visitNumber < 1) {
+                $visitNumber = CaseActaVisitaHelper::resolveNextVisitNumber($this->entityManager, $caseId);
+                $entity->set('numeroVisita', $visitNumber);
+            }
+
             $entity->set('name', CaseActaVisitaHelper::buildActaName($radicado, $expediente, $caseId, $visitNumber));
         }
 
         if (!$entity->get('numeroVisita')) {
-            $entity->set('numeroVisita', $this->countActasForCase($caseId) + 1);
+            $entity->set('numeroVisita', CaseActaVisitaHelper::resolveNextVisitNumber($this->entityManager, $caseId));
         }
 
         if (!$entity->get('fechaVisita')) {

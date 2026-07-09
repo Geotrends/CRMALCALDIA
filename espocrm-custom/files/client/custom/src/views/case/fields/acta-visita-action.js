@@ -131,7 +131,9 @@ define('custom:views/case/fields/acta-visita-action', [
                 return false;
             }
 
-            const latest = this.workflow && this.workflow.latestDiligenciada;
+            const latest = this.workflow && (
+                this.workflow.latestPendienteAprobacion || this.workflow.latestDiligenciada
+            );
 
             if (!latest) {
                 return false;
@@ -277,6 +279,8 @@ define('custom:views/case/fields/acta-visita-action', [
             const lang = this.getLanguage();
             const self = this;
             const byNumero = {};
+            const latestPendiente = this.workflow && this.workflow.latestPendienteAprobacion;
+            const latestPendienteId = latestPendiente ? latestPendiente.id : null;
 
             const rankEstado = function (acta) {
                 const estado = String(acta.estado || '').trim();
@@ -289,11 +293,15 @@ define('custom:views/case/fields/acta-visita-action', [
                     return 2;
                 }
 
+                if (ActaVisitaCaseStatus.hasActaVisitContent(acta)) {
+                    return 1;
+                }
+
                 return 0;
             };
 
             historial.forEach(function (acta) {
-                if (!ActaVisitaCaseStatus.isActaCompletada(acta)) {
+                if (!ActaVisitaCaseStatus.shouldShowActaInArchivo(acta)) {
                     return;
                 }
 
@@ -330,7 +338,12 @@ define('custom:views/case/fields/acta-visita-action', [
                 })
                 .map(function (numero) {
                     const acta = byNumero[numero];
-                    const estado = String(acta.estado || 'Diligenciada').trim() || 'Diligenciada';
+                    let estado = String(acta.estado || '').trim() || 'Pendiente';
+
+                    if (estado === 'Pendiente' && ActaVisitaCaseStatus.hasActaVisitContent(acta)) {
+                        estado = 'Diligenciada';
+                    }
+
                     const estadoLabel = lang.translateOption(estado, 'estado', 'ActaVisita') || estado;
 
                     return {
@@ -339,7 +352,12 @@ define('custom:views/case/fields/acta-visita-action', [
                         estado: estado,
                         estadoLabel: estadoLabel,
                         isAprobada: estado === 'Aprobada',
-                        archivoHelp: self.translateCaseLabel('actaVisitaEditHelp'),
+                    isCurrent: !!(latestPendienteId && acta.id === latestPendienteId),
+                    archivoHelp: self.translateCaseLabel(
+                        latestPendienteId && acta.id === latestPendienteId
+                            ? 'visitaEnCursoHelp'
+                            : 'actaVisitaEditHelp'
+                    ),
                     };
                 });
         },
@@ -510,6 +528,7 @@ define('custom:views/case/fields/acta-visita-action', [
                 hasDiligenciadaActa: false,
                 actaCount: 0,
                 latestDiligenciada: null,
+                latestPendienteAprobacion: null,
                 solicitudNuevaVisitaActiva: false,
                 latestSolicitud: null,
             };
