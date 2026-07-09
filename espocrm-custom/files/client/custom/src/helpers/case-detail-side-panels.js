@@ -20,6 +20,7 @@ define('custom:helpers/case-detail-side-panels', [], function () {
         'history',
         'activities',
         'tasks',
+        'stream',
     ]);
 
     const CONTAINER_CLASS = 'alcaldia-case-detail-side-fields';

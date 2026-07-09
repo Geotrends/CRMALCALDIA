@@ -195,17 +195,22 @@
 .detail[data-scope="Case"] .record-grid > .left .panel[data-name="caseStream"],
 .detail[data-scope="Case"] .record-grid > .left .panel[data-name="comunicacionesCasoPanel"],
 .detail[data-scope="Case"] .record-grid > .left .panel[data-name="actasVisita"],
+.detail[data-scope="Case"] .record-grid > .left .panel[data-name="stream"],
 .detail[data-scope="Case"] .record-grid > .left .record-panel[data-name="caseTimeline"],
 .detail[data-scope="Case"] .record-grid > .left .record-panel[data-name="caseCronograma"],
 .detail[data-scope="Case"] .record-grid > .left .record-panel[data-name="caseStream"],
 .detail[data-scope="Case"] .record-grid > .left .record-panel[data-name="comunicacionesCasoPanel"],
 .detail[data-scope="Case"] .record-grid > .left .record-panel[data-name="actasVisita"],
+.detail[data-scope="Case"] .record-grid > .left .record-panel[data-name="stream"],
 .detail[data-scope="Case"] .record-grid > .left .panel:has(.case-timeline),
 .detail[data-scope="Case"] .record-grid > .left .panel:has(.case-cronograma),
 .detail[data-scope="Case"] .record-grid > .left .panel:has(.stream-panel),
 .detail[data-scope="Case"] .record-grid > .left .panel:has(.comunicaciones-caso-panel),
 .detail[data-scope="Case"] .record-grid > .left .record-panel:has(.case-timeline),
-.detail[data-scope="Case"] .record-grid > .left .record-panel:has(.case-cronograma) {
+.detail[data-scope="Case"] .record-grid > .left .record-panel:has(.case-cronograma),
+.detail[data-scope="Case"] .record-grid > .left .bottom .panel,
+.detail[data-scope="Case"] .record-grid > .left .panel-body[data-name="stream"],
+.detail[data-scope="Case"] .record-grid > .left .panel .panel-body[data-name="stream"] {
   display: none !important;
 }
 

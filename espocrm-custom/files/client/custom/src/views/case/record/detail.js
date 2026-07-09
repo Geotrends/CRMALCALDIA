@@ -144,6 +144,7 @@ define('custom:views/case/record/detail', [
             document.body.classList.remove('alcaldia-asignacion-detail-edit');
 
             this.sideDisabled = false;
+            this.streamDisabled = true;
 
             Dep.prototype.setup.call(this);
 

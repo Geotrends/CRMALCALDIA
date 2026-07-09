@@ -1,6 +1,7 @@
 {
     "tab": true,
     "disabled": false,
+    "stream": false,
     "statusField": "status",
     "kanbanStatusIgnoreList": [
         "En proceso"
