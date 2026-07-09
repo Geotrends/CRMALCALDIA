@@ -186,6 +186,16 @@
     visibility: visible !important;
   }
 
+  body[data-navbar=side].side-menu-opened #navbar ul.tabs {
+    display: flex !important;
+    flex-direction: column !important;
+    visibility: visible !important;
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+    pointer-events: auto !important;
+  }
+
   body[data-navbar=side].side-menu-opened::after {
     content: '';
     position: fixed;
