@@ -79,6 +79,10 @@
 
     injectModernButtons();
 
+    function isMobileNav() {
+        return window.matchMedia('(max-width: 1024px)').matches;
+    }
+
     function setupMinimizerButton() {
         var minimizer = document.querySelector('#navbar a.minimizer');
         var header = document.querySelector('#navbar .navbar-header');
@@ -87,14 +91,61 @@
             return;
         }
 
+        if (isMobileNav()) {
+            minimizer.classList.add('hidden');
+            minimizer.setAttribute('aria-hidden', 'true');
+            return;
+        }
+
+        minimizer.classList.remove('hidden');
+        minimizer.removeAttribute('aria-hidden');
+
         if (header && minimizer.parentElement !== header) {
             header.insertBefore(minimizer, header.firstChild);
         }
 
-        minimizer.classList.remove('hidden');
         minimizer.title = document.body.classList.contains('minimized')
             ? 'Expandir menú'
             : 'Colapsar menú';
+    }
+
+    function closeMobileMenu() {
+        if (!isMobileNav() || !document.body.classList.contains('side-menu-opened')) {
+            return;
+        }
+
+        document.body.classList.remove('side-menu-opened');
+        triggerReflow();
+    }
+
+    function setupMobileMenuBackdrop() {
+        document.body.addEventListener('click', function (e) {
+            if (!isMobileNav() || !document.body.classList.contains('side-menu-opened')) {
+                return;
+            }
+
+            if (e.target.closest('#navbar')) {
+                return;
+            }
+
+            closeMobileMenu();
+        });
+    }
+
+    var resizeTimer = null;
+
+    function onViewportChange() {
+        if (resizeTimer) {
+            clearTimeout(resizeTimer);
+        }
+
+        resizeTimer = setTimeout(function () {
+            setupMinimizerButton();
+
+            if (!isMobileNav()) {
+                closeMobileMenu();
+            }
+        }, 120);
     }
 
     function ensureSidebarLogo() {
@@ -209,6 +260,8 @@
 
     function boot() {
         init();
+        setupMobileMenuBackdrop();
+        window.addEventListener('resize', onViewportChange);
         startObserver();
     }
 
