@@ -15,6 +15,7 @@
 /* ── Tarjetas de sección (editar + detalle) ── */
 .edit .middle > .panel,
 .detail .middle > .panel,
+.detail .side .alcaldia-case-detail-side-fields > .panel,
 .edit .bottom > .panel,
 .detail .bottom > .panel,
 .modal-body .edit .panel.panel-default,
@@ -37,6 +38,7 @@
 /* Encabezado gris */
 .edit .middle > .panel > .panel-heading,
 .detail .middle > .panel > .panel-heading,
+.detail .side .alcaldia-case-detail-side-fields > .panel > .panel-heading,
 .edit .bottom > .panel > .panel-heading,
 .detail .bottom > .panel > .panel-heading,
 .modal-body .edit .panel > .panel-heading,
@@ -54,6 +56,7 @@
 
 .edit .middle > .panel > .panel-heading .panel-title,
 .detail .middle > .panel > .panel-heading .panel-title,
+.detail .side .alcaldia-case-detail-side-fields > .panel > .panel-heading .panel-title,
 .edit .bottom > .panel > .panel-heading .panel-title,
 .detail .bottom > .panel > .panel-heading .panel-title,
 .modal-body .edit .panel > .panel-heading .panel-title,
@@ -66,6 +69,7 @@
 
 .edit .middle > .panel > .panel-body,
 .detail .middle > .panel > .panel-body,
+.detail .side .alcaldia-case-detail-side-fields > .panel > .panel-body,
 .edit .bottom > .panel > .panel-body,
 .detail .bottom > .panel > .panel-body,
 .modal-body .edit .panel > .panel-body,
@@ -326,6 +330,28 @@
 .edit[data-scope="Case"] .side .panel-heading {
   background: var(--crm-form-heading-bg) !important;
   border-left: 3px solid var(--crm-form-accent) !important;
+}
+
+.detail[data-scope="Case"] .side .alcaldia-case-detail-side-fields > .panel > .panel-heading,
+.edit[data-scope="Case"] .side .alcaldia-case-detail-side-fields > .panel > .panel-heading {
+  background: linear-gradient(
+    90deg,
+    var(--crm-form-heading-bg) 0%,
+    var(--crm-form-heading-bg-end) 78%
+  ) !important;
+  border-left: 4px solid var(--crm-form-accent) !important;
+}
+
+.detail[data-scope="Case"] .side .alcaldia-case-detail-side-fields > .panel,
+.edit[data-scope="Case"] .side .alcaldia-case-detail-side-fields > .panel {
+  border: 1px solid var(--crm-form-value-border) !important;
+  border-radius: var(--crm-radius-lg) !important;
+  box-shadow: var(--crm-shadow-sm) !important;
+  margin-bottom: var(--crm-space-lg) !important;
+}
+
+.detail[data-scope="Case"] .side .alcaldia-case-detail-side-fields > .panel:last-child {
+  margin-bottom: 0 !important;
 }
 
 .detail[data-scope="Case"] .side .panel,

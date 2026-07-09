@@ -183,6 +183,10 @@
   min-width: 0;
 }
 
+.detail[data-scope="Case"] .side .alcaldia-case-detail-side-fields {
+  margin-bottom: var(--crm-space-lg);
+}
+
 /* Crear caso: ocultar paneles y campos solo de detalle */
 .edit[data-scope="Case"] .panel.hidden,
 .edit[data-scope="Case"] .cell.hidden,
