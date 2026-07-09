@@ -43,6 +43,19 @@
     </div>
 </div>
 {{/each}}
+{{#if showAgregarVisitaArchivo}}
+<div class="case-agregar-visita-section">
+    <p class="text-muted small case-agregar-visita-help">{{agregarVisitaHelp}}</p>
+    <button
+        type="button"
+        class="btn btn-default btn-sm case-acta-visita-btn"
+        data-action="agregarVisita"
+        {{#unless agregarVisitaEnabled}}disabled{{/unless}}
+    >
+        <span class="fas fa-plus"></span> {{buttonLabelAgregarVisita}}
+    </button>
+</div>
+{{/if}}
 {{#if showCurrentVisitaSection}}
 {{#if showVisitaCheck}}
 <div class="case-visita-realizada-check form-group">
@@ -74,19 +87,6 @@
     <p class="text-muted small case-visita-aprobada-help">{{visitaAprobadaHelp}}</p>
 </div>
 {{/if}}
-{{#if showNecesitaOtraVisita}}
-<div class="case-necesita-otra-visita-check form-group">
-    <label class="case-necesita-otra-visita-check-label">
-        <input
-            type="checkbox"
-            class="case-necesita-otra-visita-checkbox"
-            data-action="necesitaOtraVisita"
-        />
-        <span>{{necesitaOtraVisitaLabel}}</span>
-    </label>
-    <p class="text-muted small case-necesita-otra-visita-help">{{necesitaOtraVisitaHelp}}</p>
-</div>
-{{/if}}
 {{#if showActaButtons}}
 <p class="text-muted small case-acta-visita-help">{{helpText}}</p>
 <div class="btn-group-vertical w-100 case-acta-visita-actions">
@@ -106,17 +106,6 @@
     >
         <span class="fas fa-print"></span> {{buttonLabelManual}}
     </button>
-    {{#if showAgregarVisita}}
-    <button
-        type="button"
-        class="btn btn-default btn-sm case-acta-visita-btn"
-        data-action="agregarVisita"
-        {{#unless agregarVisitaEnabled}}disabled{{/unless}}
-    >
-        <span class="fas fa-plus"></span> {{buttonLabelAgregarVisita}}
-    </button>
-    <p class="text-muted small case-agregar-visita-help">{{agregarVisitaHelp}}</p>
-    {{/if}}
 </div>
 {{/if}}
 {{/if}}

@@ -134,7 +134,7 @@
     "visitaAprobadaArchivoHelp": "Esta visita ya fue aprobada por Inspección y permanece registrada en el caso.",
     "visitaAprobadaCheckHelpRevert": "Solo Inspección. Puede aprobar o quitar la aprobación mientras el caso esté en Visita aprobada.",
     "agregarVisita": "Agregar visita",
-    "agregarVisitaHelp": "Registre una nueva visita cuando el caso requiera un acta adicional.",
+    "agregarVisitaHelp": "Registre otra visita en campo. Debe indicar el motivo; la visita anterior permanecerá visible.",
     "agregarVisitaEsperaSolicitudHelp": "Primero marque «Necesita otra visita» e indique el motivo. Luego podrá usar este botón.",
     "agregarVisitaConfirmQuestion": "¿Desea registrar una nueva visita para este caso?",
     "agregarVisitaSuccess": "Puede diligenciar la nueva visita.",

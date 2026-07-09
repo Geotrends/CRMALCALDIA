@@ -203,6 +203,18 @@
   box-shadow: 0 0 0 1px rgba(15, 118, 110, 0.12);
 }
 
+.detail[data-scope="Case"] .panel[data-name="actaVisita"] .case-agregar-visita-section {
+  margin: 0 0 20px;
+  padding: 12px 14px;
+  border: 1px dashed #cbd5e1;
+  border-radius: var(--crm-radius-md, 10px);
+  background: #fff;
+}
+
+.detail[data-scope="Case"] .panel[data-name="actaVisita"] .case-agregar-visita-section .case-agregar-visita-help {
+  margin-bottom: 10px;
+}
+
 .detail[data-scope="Case"] .panel[data-name="actaVisita"] .case-visita-archivo-heading {
   display: flex;
   align-items: center;

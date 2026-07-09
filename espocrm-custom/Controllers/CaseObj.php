@@ -605,8 +605,8 @@ class CaseObj extends BaseCaseObj
         $user = $this->getUser();
         $profile = $this->injectableFactory->create(AlcaldiaUserProfile::class);
 
-        if (!$user->isAdmin() && !$profile->isInspeccion($user)) {
-            throw new Forbidden('Solo Inspección puede registrar que se necesita otra visita.');
+        if (!$user->isAdmin()) {
+            $this->assertCanPrepararNuevaVisita($user, $case, $profile);
         }
 
         if (!$this->acl->checkEntityRead($case)) {
@@ -615,9 +615,9 @@ class CaseObj extends BaseCaseObj
 
         $currentStatus = trim((string) $case->get('status'));
 
-        if (!in_array($currentStatus, ['Visita realizada', 'Visita aprobada'], true)) {
+        if (!in_array($currentStatus, ['Visita realizada', 'Visita aprobada', 'En proceso'], true)) {
             throw new BadRequest(
-                'El caso debe estar en Visita realizada o Visita aprobada para solicitar otra visita.'
+                'El caso debe estar en Visita realizada o Visita aprobada para registrar otra visita.'
             );
         }
 
