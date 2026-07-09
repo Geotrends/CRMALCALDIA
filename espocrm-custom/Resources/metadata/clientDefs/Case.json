@@ -18,7 +18,7 @@
         "editSmall": "custom:views/case/record/edit"
     },
     "quickEditDisabled": true,
-    "defaultSidePanelDisabled": true,
+    "defaultSidePanelDisabled": false,
     "relationshipPanels": {
         "actasVisita": {
             "disabled": false,

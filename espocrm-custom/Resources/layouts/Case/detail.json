@@ -1,5 +1,6 @@
 [
     {
+        "name": "solicitudQueja",
         "rows": [
             [
                 {
@@ -105,6 +106,7 @@
         "label": "Solicitud de queja"
     },
     {
+        "name": "perjudicante",
         "rows": [
             [
                 {
@@ -267,6 +269,7 @@
         "label": "Clasificación y seguimiento"
     },
     {
+        "name": "quejaGestion",
         "rows": [
             [
                 {

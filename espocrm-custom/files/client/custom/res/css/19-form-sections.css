@@ -15,6 +15,7 @@
 /* ── Tarjetas de sección (editar + detalle) ── */
 .edit .middle > .panel,
 .detail .middle > .panel,
+.detail .side .alcaldia-case-detail-fields > .panel,
 .edit .bottom > .panel,
 .detail .bottom > .panel,
 .modal-body .edit .panel.panel-default,
@@ -37,6 +38,7 @@
 /* Encabezado gris */
 .edit .middle > .panel > .panel-heading,
 .detail .middle > .panel > .panel-heading,
+.detail .side .alcaldia-case-detail-fields > .panel > .panel-heading,
 .edit .bottom > .panel > .panel-heading,
 .detail .bottom > .panel > .panel-heading,
 .modal-body .edit .panel > .panel-heading,
@@ -54,6 +56,7 @@
 
 .edit .middle > .panel > .panel-heading .panel-title,
 .detail .middle > .panel > .panel-heading .panel-title,
+.detail .side .alcaldia-case-detail-fields > .panel > .panel-heading .panel-title,
 .edit .bottom > .panel > .panel-heading .panel-title,
 .detail .bottom > .panel > .panel-heading .panel-title,
 .modal-body .edit .panel > .panel-heading .panel-title,
@@ -66,6 +69,7 @@
 
 .edit .middle > .panel > .panel-body,
 .detail .middle > .panel > .panel-body,
+.detail .side .alcaldia-case-detail-fields > .panel > .panel-body,
 .edit .bottom > .panel > .panel-body,
 .detail .bottom > .panel > .panel-body,
 .modal-body .edit .panel > .panel-body,
@@ -136,11 +140,13 @@
 
 /* ── Lectura (detalle): ficha organizada por sección (sin caja por campo) ── */
 .detail .middle > .panel:not(.panel-caseTimeline):not(.panel-caseCronograma) > .panel-body .cell,
+.detail .side .alcaldia-case-detail-fields > .panel > .panel-body .cell,
 .detail .bottom > .panel > .panel-body .cell {
   margin-bottom: 0;
 }
 
 .detail .middle > .panel:not(.panel-caseTimeline):not(.panel-caseCronograma) > .panel-body .cell > .field,
+.detail .side .alcaldia-case-detail-fields > .panel > .panel-body .cell > .field,
 .detail .bottom > .panel > .panel-body .cell > .field {
   background: transparent !important;
   border: none !important;
@@ -179,11 +185,13 @@
 
 /* Caso — rejilla tipo ficha dentro de cada sección */
 .detail[data-scope="Case"] .left .middle > .panel:not(.panel-caseTimeline):not(.panel-caseCronograma) > .panel-body,
+.detail[data-scope="Case"] .side .alcaldia-case-detail-fields > .panel > .panel-body,
 .detail[data-scope="Case"] .left .bottom > .panel > .panel-body {
   padding: 0 !important;
 }
 
 .detail[data-scope="Case"] .left .middle > .panel:not(.panel-caseTimeline):not(.panel-caseCronograma) > .panel-body > .row,
+.detail[data-scope="Case"] .side .alcaldia-case-detail-fields > .panel > .panel-body > .row,
 .detail[data-scope="Case"] .left .bottom > .panel > .panel-body > .row {
   display: flex;
   flex-wrap: wrap;
@@ -193,11 +201,13 @@
 }
 
 .detail[data-scope="Case"] .left .middle > .panel:not(.panel-caseTimeline):not(.panel-caseCronograma) > .panel-body > .row:last-child,
+.detail[data-scope="Case"] .side .alcaldia-case-detail-fields > .panel > .panel-body > .row:last-child,
 .detail[data-scope="Case"] .left .bottom > .panel > .panel-body > .row:last-child {
   border-bottom: none;
 }
 
 .detail[data-scope="Case"] .left .middle > .panel:not(.panel-caseTimeline):not(.panel-caseCronograma) > .panel-body > .row > .cell,
+.detail[data-scope="Case"] .side .alcaldia-case-detail-fields > .panel > .panel-body > .row > .cell,
 .detail[data-scope="Case"] .left .bottom > .panel > .panel-body > .row > .cell {
   flex: 1 1 50%;
   min-width: 0;
@@ -206,24 +216,29 @@
 }
 
 .detail[data-scope="Case"] .left .middle > .panel:not(.panel-caseTimeline):not(.panel-caseCronograma) > .panel-body > .row > .cell:last-child,
+.detail[data-scope="Case"] .side .alcaldia-case-detail-fields > .panel > .panel-body > .row > .cell:last-child,
 .detail[data-scope="Case"] .left .bottom > .panel > .panel-body > .row > .cell:last-child {
   border-right: none;
 }
 
 .detail[data-scope="Case"] .left .middle > .panel:not(.panel-caseTimeline):not(.panel-caseCronograma) > .panel-body > .row > .cell.col-sm-12,
+.detail[data-scope="Case"] .side .alcaldia-case-detail-fields > .panel > .panel-body > .row > .cell.col-sm-12,
 .detail[data-scope="Case"] .left .bottom > .panel > .panel-body > .row > .cell.col-sm-12,
 .detail[data-scope="Case"] .left .middle > .panel:not(.panel-caseTimeline):not(.panel-caseCronograma) > .panel-body > .row > .cell:only-child,
+.detail[data-scope="Case"] .side .alcaldia-case-detail-fields > .panel > .panel-body > .row > .cell:only-child,
 .detail[data-scope="Case"] .left .bottom > .panel > .panel-body > .row > .cell:only-child {
   flex: 1 1 100%;
   border-right: none;
 }
 
 .detail[data-scope="Case"] .left .middle > .panel:not(.panel-caseTimeline):not(.panel-caseCronograma) > .panel-body > .row > .cell.col-sm-4,
+.detail[data-scope="Case"] .side .alcaldia-case-detail-fields > .panel > .panel-body > .row > .cell.col-sm-4,
 .detail[data-scope="Case"] .left .bottom > .panel > .panel-body > .row > .cell.col-sm-4 {
   flex: 1 1 33.333%;
 }
 
 .detail[data-scope="Case"] .left .middle > .panel:not(.panel-caseTimeline):not(.panel-caseCronograma) > .panel-body > .row > .cell.col-sm-3,
+.detail[data-scope="Case"] .side .alcaldia-case-detail-fields > .panel > .panel-body > .row > .cell.col-sm-3,
 .detail[data-scope="Case"] .left .bottom > .panel > .panel-body > .row > .cell.col-sm-3 {
   flex: 1 1 25%;
 }
@@ -293,7 +308,7 @@
 }
 
 /* Primera fila de solicitud: datos clave más visibles */
-.detail[data-scope="Case"] .panel:first-child > .panel-body > .row:first-child .field-value {
+.detail[data-scope="Case"] .panel[data-name="solicitudQueja"] > .panel-body > .row:first-child .field-value {
   font-size: var(--crm-font-size-md) !important;
 }
 
@@ -321,11 +336,33 @@
   margin-bottom: var(--crm-space-md) !important;
 }
 
-/* Side del caso: encabezado gris (sin verde) */
+/* Side del caso: encabezado gris (sin verde) — excepto paneles de ficha */
 .detail[data-scope="Case"] .side .panel-heading,
 .edit[data-scope="Case"] .side .panel-heading {
   background: var(--crm-form-heading-bg) !important;
   border-left: 3px solid var(--crm-form-accent) !important;
+}
+
+.detail[data-scope="Case"] .side .alcaldia-case-detail-fields > .panel > .panel-heading,
+.edit[data-scope="Case"] .side .alcaldia-case-detail-fields > .panel > .panel-heading {
+  background: linear-gradient(
+    90deg,
+    var(--crm-form-heading-bg) 0%,
+    var(--crm-form-heading-bg-end) 78%
+  ) !important;
+  border-left: 4px solid var(--crm-form-accent) !important;
+}
+
+.detail[data-scope="Case"] .side .alcaldia-case-detail-fields > .panel,
+.edit[data-scope="Case"] .side .alcaldia-case-detail-fields > .panel {
+  border: 1px solid var(--crm-form-value-border) !important;
+  border-radius: var(--crm-radius-lg) !important;
+  box-shadow: var(--crm-shadow-sm) !important;
+  margin-bottom: var(--crm-space-lg) !important;
+}
+
+.detail[data-scope="Case"] .side .alcaldia-case-detail-fields > .panel:last-child {
+  margin-bottom: 0 !important;
 }
 
 .detail[data-scope="Case"] .side .panel,
@@ -340,6 +377,7 @@
   }
 
   .detail[data-scope="Case"] .left .middle > .panel:not(.panel-caseTimeline):not(.panel-caseCronograma) > .panel-body > .row > .cell,
+  .detail[data-scope="Case"] .side .alcaldia-case-detail-fields > .panel > .panel-body > .row > .cell,
   .detail[data-scope="Case"] .left .bottom > .panel > .panel-body > .row > .cell {
     flex: 1 1 100%;
     border-right: none;
@@ -348,6 +386,7 @@
   }
 
   .detail[data-scope="Case"] .left .middle > .panel:not(.panel-caseTimeline):not(.panel-caseCronograma) > .panel-body > .row > .cell:last-child,
+  .detail[data-scope="Case"] .side .alcaldia-case-detail-fields > .panel > .panel-body > .row > .cell:last-child,
   .detail[data-scope="Case"] .left .bottom > .panel > .panel-body > .row > .cell:last-child {
     border-bottom: none;
   }

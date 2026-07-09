@@ -6,7 +6,8 @@ define('custom:views/case/record/detail', [
     'custom:helpers/radicacion-case-flow',
     'custom:helpers/asignador-case-flow',
     'custom:helpers/asignador-assignment-ui',
-], function (Dep, PersonaTipoFields, RadicacionFields, InspeccionCaseFlow, RadicacionCaseFlow, AsignadorCaseFlow, AsignadorAssignmentUi) {
+    'custom:helpers/case-detail-two-column',
+], function (Dep, PersonaTipoFields, RadicacionFields, InspeccionCaseFlow, RadicacionCaseFlow, AsignadorCaseFlow, AsignadorAssignmentUi, CaseDetailTwoColumn) {
 
     const PANEL_ASIGNACION = 'gestionPosteriorRadicacion';
 
@@ -142,6 +143,8 @@ define('custom:views/case/record/detail', [
             this._initialAssignedUserId = this.model.get('assignedUserId') || null;
             document.body.classList.remove('alcaldia-asignacion-detail-edit');
 
+            this.sideDisabled = false;
+
             Dep.prototype.setup.call(this);
 
             PersonaTipoFields.setup(this);
@@ -225,6 +228,7 @@ define('custom:views/case/record/detail', [
             InspeccionCaseFlow.schedule(this);
             RadicacionCaseFlow.schedule(this);
             AsignadorCaseFlow.schedule(this);
+            CaseDetailTwoColumn.schedule(this);
 
             if (this.isAsignadorOperator()) {
                 this._asignacionEditMode = false;
