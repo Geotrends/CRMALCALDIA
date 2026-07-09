@@ -39,6 +39,7 @@ define('custom:helpers/acta-visita-from-case', ['custom:helpers/case-party-name'
             numeroRadicado: radicado,
             expediente: expediente,
             name: nameParts.join(' — '),
+            numeroVisita: visitNum,
             fecha: now.toISOString().slice(0, 10),
             fechaVisita: now.toISOString().slice(0, 10),
             estado: 'Pendiente',

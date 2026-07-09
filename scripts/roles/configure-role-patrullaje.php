@@ -74,6 +74,14 @@ $data['ActaVisita'] = [
     'stream' => 'no',
 ];
 
+$data['VisitaHistorial'] = [
+    'create' => 'no',
+    'read' => 'team',
+    'edit' => 'no',
+    'delete' => 'no',
+    'stream' => 'no',
+];
+
 $data['ActuoArchivo'] = [
     'create' => 'yes',
     'read' => 'team',

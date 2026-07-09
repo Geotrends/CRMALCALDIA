@@ -13,6 +13,10 @@
         "width": 10
     },
     {
+        "name": "numeroVisita",
+        "width": 8
+    },
+    {
         "name": "expediente",
         "width": 10
     },

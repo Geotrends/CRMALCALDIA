@@ -3,6 +3,7 @@
 namespace Espo\Custom\Classes\RecordHooks\ActaVisita;
 
 use Espo\Core\Record\Hook\SaveHook;
+use Espo\Custom\Tools\CaseObj\CaseActaVisitaHelper;
 use Espo\Entities\User;
 use Espo\ORM\Entity;
 use Espo\ORM\EntityManager;
@@ -30,6 +31,10 @@ class EarlyBeforeCreate implements SaveHook
                 $entity->set('name', 'Acta visita — ' . date('Y-m-d H:i'));
             }
 
+            if (!$entity->get('numeroVisita')) {
+                $entity->set('numeroVisita', 1);
+            }
+
             return;
         }
 
@@ -42,6 +47,7 @@ class EarlyBeforeCreate implements SaveHook
 
         $radicado = trim((string) $case->get('cNumeroRadicado'));
         $expediente = trim((string) $case->get('cExpediente'));
+        $visitNumber = CaseActaVisitaHelper::countActasForCase($this->entityManager, $caseId) + 1;
 
         if (!trim((string) $entity->get('numeroRadicado'))) {
             $entity->set('numeroRadicado', $radicado);
@@ -55,27 +61,12 @@ class EarlyBeforeCreate implements SaveHook
             $entity->set('fecha', date('Y-m-d'));
         }
 
+        if (!$entity->get('numeroVisita')) {
+            $entity->set('numeroVisita', $visitNumber);
+        }
+
         if (!trim((string) $entity->get('name'))) {
-            $entity->set('name', $this->buildName($radicado, $expediente, $caseId));
+            $entity->set('name', CaseActaVisitaHelper::buildActaName($radicado, $expediente, $caseId, $visitNumber));
         }
-    }
-
-    private function buildName(string $radicado, string $expediente, string $caseId): string
-    {
-        $parts = ['Acta visita'];
-
-        if ($radicado !== '') {
-            $parts[] = 'Rad. ' . $radicado;
-        }
-
-        if ($expediente !== '') {
-            $parts[] = 'Exp. ' . $expediente;
-        }
-
-        if (count($parts) === 1) {
-            $parts[] = $caseId;
-        }
-
-        return implode(' — ', $parts);
     }
 }

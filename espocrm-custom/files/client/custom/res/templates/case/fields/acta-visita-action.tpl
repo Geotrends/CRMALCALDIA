@@ -29,6 +29,19 @@
     <p class="text-muted small case-visita-aprobada-help">{{visitaAprobadaHelp}}</p>
 </div>
 {{/if}}
+{{#if showNecesitaOtraVisita}}
+<div class="case-necesita-otra-visita-check form-group">
+    <label class="case-necesita-otra-visita-check-label">
+        <input
+            type="checkbox"
+            class="case-necesita-otra-visita-checkbox"
+            data-action="necesitaOtraVisita"
+        />
+        <span>{{necesitaOtraVisitaLabel}}</span>
+    </label>
+    <p class="text-muted small case-necesita-otra-visita-help">{{necesitaOtraVisitaHelp}}</p>
+</div>
+{{/if}}
 {{#if showActions}}
 <p class="text-muted small case-acta-visita-help">{{helpText}}</p>
 <div class="btn-group-vertical w-100 case-acta-visita-actions">
@@ -56,15 +69,6 @@
         {{#unless agregarVisitaEnabled}}disabled{{/unless}}
     >
         <span class="fas fa-plus"></span> {{buttonLabelAgregarVisita}}
-    </button>
-    {{/if}}
-    {{#if showNecesitaOtraVisita}}
-    <button
-        type="button"
-        class="btn btn-warning btn-sm case-acta-visita-btn"
-        data-action="necesitaOtraVisita"
-    >
-        <span class="fas fa-redo"></span> {{buttonLabelNecesitaOtraVisita}}
     </button>
     {{/if}}
 </div>

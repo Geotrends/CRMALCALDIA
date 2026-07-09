@@ -30,7 +30,7 @@ $fullScope = static function (): array {
     ];
 };
 
-$scopes = ['Case', 'ActaVisita', 'ActuoArchivo', 'ComunicacionCaso', 'AsignacionHistorial'];
+$scopes = ['Case', 'ActaVisita', 'ActuoArchivo', 'ComunicacionCaso', 'AsignacionHistorial', 'VisitaHistorial'];
 
 foreach ($em->getRDBRepository('Role')->find() as $role) {
     $name = (string) $role->get('name');

@@ -89,6 +89,7 @@ define('custom:views/home', ['views/dashboard'], function (Dep) {
             profile: profile,
             showTablero: true,
             showHistorialAsignaciones: isAdmin || profile === 'asignador',
+            showHistorialVisitas: profile !== 'radicacion',
             iframeUrl: iframeUrl,
             lists: [
                 {title: 'Todos los casos', where: []},
@@ -131,6 +132,7 @@ define('custom:views/home', ['views/dashboard'], function (Dep) {
 
                 self._gestionLoaded = false;
                 self._historialLoaded = false;
+                self._historialVisitasLoaded = false;
                 self.config = homeConfig(apiProfile || profile, userId, appTimestamp, apiIsAdmin || isAdmin);
 
                 if (self.isRendered()) {
@@ -290,11 +292,16 @@ define('custom:views/home', ['views/dashboard'], function (Dep) {
             this._gestionLoaded = false;
             this._agendaLoaded = false;
             this._historialLoaded = false;
+            this._historialVisitasLoaded = false;
 
             var cfg = this.config;
             var activeTab = sessionStorage.getItem('crm-home-tab') || 'dashboard';
 
             if (activeTab === 'historial-asignaciones' && !cfg.showHistorialAsignaciones) {
+                activeTab = 'dashboard';
+            }
+
+            if (activeTab === 'historial-visitas' && !cfg.showHistorialVisitas) {
                 activeTab = 'dashboard';
             }
 
@@ -310,6 +317,11 @@ define('custom:views/home', ['views/dashboard'], function (Dep) {
             if (cfg.showHistorialAsignaciones) {
                 html += '<span class="custom-home-tab-sep" aria-hidden="true">/</span>';
                 html += this.buildHomeTabButton('historial-asignaciones', 'Historial de asignaciones', activeTab);
+            }
+
+            if (cfg.showHistorialVisitas) {
+                html += '<span class="custom-home-tab-sep" aria-hidden="true">/</span>';
+                html += this.buildHomeTabButton('historial-visitas', 'Historial de visitas', activeTab);
             }
 
             html += '</nav><div class="custom-home-panels">';
@@ -362,6 +374,15 @@ define('custom:views/home', ['views/dashboard'], function (Dep) {
                     '<p class="text-muted">Cargando historial…</p></div></div></div></div>';
             }
 
+            if (cfg.showHistorialVisitas) {
+                html += '<div class="custom-home-panel custom-home-historial-panel' +
+                    (activeTab === 'historial-visitas' ? ' is-active' : '') +
+                    '" data-panel="historial-visitas" role="tabpanel">' +
+                    '<div class="panel panel-default custom-home-lista"><div class="panel-heading"><h4 class="panel-title">Historial de visitas</h4></div>' +
+                    '<div class="panel-body"><div class="custom-home-lista-cuerpo" data-historial-visitas="list">' +
+                    '<p class="text-muted">Cargando historial…</p></div></div></div></div>';
+            }
+
             html += '</div></div>';
 
             var $dashlets = this.$el.find('.dashlets').first();
@@ -383,6 +404,8 @@ define('custom:views/home', ['views/dashboard'], function (Dep) {
                 this.loadAgendaLists(true);
             } else if (activeTab === 'historial-asignaciones') {
                 this.loadHistorialAsignaciones(true);
+            } else if (activeTab === 'historial-visitas') {
+                this.loadHistorialVisitas(true);
             } else if (activeTab === 'dashboard') {
                 this.refreshDashboardIframeHeight();
             }
@@ -554,6 +577,10 @@ define('custom:views/home', ['views/dashboard'], function (Dep) {
 
             if (tab === 'historial-asignaciones') {
                 this.loadHistorialAsignaciones();
+            }
+
+            if (tab === 'historial-visitas') {
+                this.loadHistorialVisitas();
             }
 
             if (tab === 'dashboard') {
@@ -878,6 +905,62 @@ define('custom:views/home', ['views/dashboard'], function (Dep) {
             $container.html(
                 '<div class="table-responsive custom-home-historial-table"><table class="table table-condensed table-striped">' +
                 '<thead><tr><th>Fecha</th><th>Caso</th><th>Quién asignó</th><th>Responsable anterior</th><th>Responsable nuevo</th><th>Motivo</th></tr></thead>' +
+                '<tbody>' + rows + '</tbody></table></div>'
+            );
+        },
+
+        loadHistorialVisitas: function (force) {
+            if (this._historialVisitasLoaded && !force) {
+                return;
+            }
+
+            this._historialVisitasLoaded = true;
+
+            var $container = this.$el.find('[data-historial-visitas="list"]');
+
+            this.getCollectionFactory().create('VisitaHistorial', function (collection) {
+                collection.maxSize = 100;
+                collection.orderBy = 'fecha';
+                collection.order = 'desc';
+
+                collection.fetch({main: true})
+                    .then(function () {
+                        this.renderHistorialVisitas($container, collection);
+                    }.bind(this))
+                    .catch(function () {
+                        $container.html('<p class="text-danger">No se pudo cargar el historial de visitas.</p>');
+                    });
+            }.bind(this));
+        },
+
+        renderHistorialVisitas: function ($container, collection) {
+            if (!collection.length) {
+                $container.html('<p class="text-muted">Aún no hay visitas registradas en el historial.</p>');
+
+                return;
+            }
+
+            var rows = collection.models.map(function (model) {
+                var caseId = model.get('caseId');
+                var radicado = model.get('numeroRadicado') || model.get('caseName') || '—';
+                var caseLink = caseId
+                    ? '<a href="#Case/view/' + caseId + '">' + _.escape(radicado) + '</a>'
+                    : _.escape(radicado);
+                var numeroVisita = model.get('numeroVisita');
+
+                return '<tr>' +
+                    '<td>' + _.escape(model.get('fecha') || '—') + '</td>' +
+                    '<td>' + caseLink + '</td>' +
+                    '<td>' + _.escape(numeroVisita ? ('Visita ' + numeroVisita) : '—') + '</td>' +
+                    '<td>' + _.escape(model.get('tipo') || '—') + '</td>' +
+                    '<td>' + _.escape(model.get('registradoPorName') || '—') + '</td>' +
+                    '<td>' + _.escape(model.get('motivo') || '—') + '</td>' +
+                    '</tr>';
+            }).join('');
+
+            $container.html(
+                '<div class="table-responsive custom-home-historial-table"><table class="table table-condensed table-striped">' +
+                '<thead><tr><th>Fecha</th><th>Caso</th><th>Visita</th><th>Evento</th><th>Registrado por</th><th>Motivo / detalle</th></tr></thead>' +
                 '<tbody>' + rows + '</tbody></table></div>'
             );
         },

@@ -14,6 +14,7 @@ use Espo\Custom\Tools\CaseObj\CaseCreateDefaultsService;
 use Espo\Custom\Tools\CaseObj\CaseCronogramaService;
 use Espo\Custom\Tools\CaseObj\CaseTimelineService;
 use Espo\Custom\Tools\CaseObj\CaseVisitaAprobadaNotifier;
+use Espo\Custom\Tools\CaseObj\VisitaHistorialLogger;
 use Espo\Custom\Tools\CaseObj\RadicadoCatalog;
 use Espo\Custom\Tools\CaseObj\RadicadoConsecutivoService;
 use Espo\Custom\Tools\Party\PartyRegistryService;
@@ -459,6 +460,16 @@ class CaseObj extends BaseCaseObj
             // No bloquear la aprobación por fallos de notificación.
         }
 
+        try {
+            $numeroVisita = (int) ($acta->get('numeroVisita') ?: 1);
+
+            $this->injectableFactory
+                ->create(VisitaHistorialLogger::class)
+                ->logVisitaAprobada($case, $user, $numeroVisita);
+        } catch (\Throwable) {
+            // No bloquear la aprobación por fallos de historial.
+        }
+
         return [
             'success' => true,
             'status' => CaseActaVisitaHelper::STATUS_VISITA_APROBADA,
@@ -481,11 +492,17 @@ class CaseObj extends BaseCaseObj
 
         $body = $request->getParsedBody();
         $id = '';
+        $motivo = '';
+        $registrarSolicitud = false;
 
         if (is_object($body)) {
             $id = trim((string) ($body->id ?? ''));
+            $motivo = trim((string) ($body->motivo ?? ''));
+            $registrarSolicitud = !empty($body->registrarSolicitud);
         } elseif (is_array($body)) {
             $id = trim((string) ($body['id'] ?? ''));
+            $motivo = trim((string) ($body['motivo'] ?? ''));
+            $registrarSolicitud = !empty($body['registrarSolicitud']);
         }
 
         if ($id === '') {
@@ -506,6 +523,10 @@ class CaseObj extends BaseCaseObj
         $profile = $this->injectableFactory->create(AlcaldiaUserProfile::class);
 
         if (!$user->isAdmin() && !$profile->isInspeccion($user)) {
+            if ($registrarSolicitud) {
+                throw new Forbidden('Solo Inspección puede solicitar otra visita con motivo.');
+            }
+
             $assignedId = trim((string) $case->get('assignedUserId'));
 
             if ($assignedId === '' || $assignedId !== $user->getId()) {
@@ -517,11 +538,16 @@ class CaseObj extends BaseCaseObj
             }
         }
 
+        if ($registrarSolicitud && $motivo === '') {
+            throw new BadRequest('Debe indicar el motivo por el cual se necesita otra visita.');
+        }
+
         if (!CaseActaVisitaHelper::canRequestNewVisita($case)) {
             throw new BadRequest('El caso no permite registrar una nueva visita en este momento.');
         }
 
         $actaCount = CaseActaVisitaHelper::countActasForCase($this->entityManager, $case->getId());
+        $visitNumber = $actaCount + 1;
 
         if ($actaCount < 1) {
             throw new BadRequest('Debe existir al menos un acta de visita previa.');
@@ -530,10 +556,20 @@ class CaseObj extends BaseCaseObj
         $currentStatus = trim((string) $case->get('status'));
 
         if (CaseActaVisitaHelper::isCaseAsignado($case)) {
+            if ($registrarSolicitud) {
+                try {
+                    $this->injectableFactory
+                        ->create(VisitaHistorialLogger::class)
+                        ->logSolicitudNuevaVisita($case, $user, $motivo, $visitNumber);
+                } catch (\Throwable) {
+                    // No bloquear por fallos de historial.
+                }
+            }
+
             return [
                 'success' => true,
                 'status' => $currentStatus,
-                'visitNumber' => $actaCount + 1,
+                'visitNumber' => $visitNumber,
                 'alreadyPrepared' => true,
             ];
         }
@@ -564,10 +600,20 @@ class CaseObj extends BaseCaseObj
             'skipCaseExcelAlcaldia' => true,
         ]);
 
+        if ($registrarSolicitud) {
+            try {
+                $this->injectableFactory
+                    ->create(VisitaHistorialLogger::class)
+                    ->logSolicitudNuevaVisita($case, $user, $motivo, $visitNumber);
+            } catch (\Throwable) {
+                // No bloquear por fallos de historial.
+            }
+        }
+
         return [
             'success' => true,
             'status' => 'Asignado',
-            'visitNumber' => $actaCount + 1,
+            'visitNumber' => $visitNumber,
             'alreadyPrepared' => false,
         ];
     }
@@ -639,6 +685,16 @@ class CaseObj extends BaseCaseObj
                 'skipAll' => true,
                 'skipHooks' => true,
             ]);
+        }
+
+        try {
+            $numeroVisita = $acta ? (int) ($acta->get('numeroVisita') ?: 1) : 1;
+
+            $this->injectableFactory
+                ->create(VisitaHistorialLogger::class)
+                ->logAprobacionRevertida($case, $user, $numeroVisita);
+        } catch (\Throwable) {
+            // No bloquear por fallos de historial.
         }
 
         return [

@@ -1,0 +1,100 @@
+{
+    "fields": {
+        "name": {
+            "type": "varchar",
+            "required": false,
+            "maxLength": 255,
+            "trim": true,
+            "readOnly": true
+        },
+        "case": {
+            "type": "link",
+            "required": true,
+            "readOnlyAfterCreate": true,
+            "isCustom": true
+        },
+        "numeroRadicado": {
+            "type": "varchar",
+            "maxLength": 100,
+            "readOnly": true,
+            "isCustom": true
+        },
+        "numeroVisita": {
+            "type": "int",
+            "readOnly": true,
+            "isCustom": true,
+            "default": 1
+        },
+        "tipo": {
+            "type": "enum",
+            "options": [
+                "Solicitud nueva visita",
+                "Visita registrada",
+                "Visita aprobada",
+                "Aprobación revertida"
+            ],
+            "readOnlyAfterCreate": true,
+            "isCustom": true
+        },
+        "motivo": {
+            "type": "text",
+            "rows": 4,
+            "readOnlyAfterCreate": true,
+            "isCustom": true
+        },
+        "fecha": {
+            "type": "datetime",
+            "required": true,
+            "readOnlyAfterCreate": true,
+            "isCustom": true
+        },
+        "registradoPor": {
+            "type": "link",
+            "readOnlyAfterCreate": true,
+            "isCustom": true
+        },
+        "actaVisita": {
+            "type": "link",
+            "readOnlyAfterCreate": true,
+            "isCustom": true
+        },
+        "createdAt": {
+            "type": "datetime",
+            "readOnly": true
+        },
+        "modifiedAt": {
+            "type": "datetime",
+            "readOnly": true
+        }
+    },
+    "links": {
+        "case": {
+            "type": "belongsTo",
+            "entity": "Case",
+            "foreign": "visitasHistorial"
+        },
+        "registradoPor": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "actaVisita": {
+            "type": "belongsTo",
+            "entity": "ActaVisita",
+            "foreign": "visitasHistorial"
+        },
+        "createdBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "modifiedBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        }
+    },
+    "entityClassName": "Espo\\Custom\\Entities\\VisitaHistorial",
+    "collection": {
+        "orderBy": "fecha",
+        "order": "desc",
+        "textFilterFields": ["name", "numeroRadicado", "motivo", "tipo"]
+    }
+}

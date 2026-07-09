@@ -1361,6 +1361,11 @@
             "entity": "AsignacionHistorial",
             "foreign": "case"
         },
+        "visitasHistorial": {
+            "type": "hasMany",
+            "entity": "VisitaHistorial",
+            "foreign": "case"
+        },
         "comunicacionesCaso": {
             "type": "hasMany",
             "entity": "ComunicacionCaso",

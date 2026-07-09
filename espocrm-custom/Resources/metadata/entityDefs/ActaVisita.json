@@ -41,6 +41,12 @@
             "readOnlyAfterCreate": true,
             "isCustom": true
         },
+        "numeroVisita": {
+            "type": "int",
+            "readOnly": true,
+            "isCustom": true,
+            "default": 1
+        },
         "direccionAfectacion": {
             "type": "varchar",
             "maxLength": 500,
@@ -215,6 +221,11 @@
         "modifiedBy": {
             "type": "belongsTo",
             "entity": "User"
+        },
+        "visitasHistorial": {
+            "type": "hasMany",
+            "entity": "VisitaHistorial",
+            "foreign": "actaVisita"
         }
     },
     "entityClassName": "Espo\\Custom\\Entities\\ActaVisita",

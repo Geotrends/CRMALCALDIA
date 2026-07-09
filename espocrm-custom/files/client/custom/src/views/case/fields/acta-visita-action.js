@@ -264,7 +264,8 @@ define('custom:views/case/fields/acta-visita-action', [
                 agregarVisitaEnabled: this.canEnableAgregarVisita(),
                 buttonLabelAgregarVisita: this.translateCaseLabel('agregarVisita'),
                 showNecesitaOtraVisita: this.showNecesitaOtraVisita,
-                buttonLabelNecesitaOtraVisita: this.translateCaseLabel('necesitaOtraVisita'),
+                necesitaOtraVisitaLabel: this.translateCaseLabel('necesitaOtraVisita'),
+                necesitaOtraVisitaHelp: this.translateCaseLabel('necesitaOtraVisitaHelp'),
             };
         },
 
@@ -431,7 +432,6 @@ define('custom:views/case/fields/acta-visita-action', [
             const $llenar = this.$el.find('[data-action="llenarActa"]');
             const $manual = this.$el.find('[data-action="imprimirActaManual"]');
             const $agregar = this.$el.find('[data-action="agregarVisita"]');
-            const $necesita = this.$el.find('[data-action="necesitaOtraVisita"]');
 
             $llenar
                 .prop('disabled', !data.actionsEnabled)
@@ -449,11 +449,11 @@ define('custom:views/case/fields/acta-visita-action', [
                     .html('<span class="fas fa-plus"></span> ' + escapeHtml(data.buttonLabelAgregarVisita));
             }
 
-            $necesita.toggle(!!data.showNecesitaOtraVisita);
-
-            if (data.showNecesitaOtraVisita) {
-                $necesita.html('<span class="fas fa-redo"></span> ' + escapeHtml(data.buttonLabelNecesitaOtraVisita));
-            }
+            this.$el.find('.case-necesita-otra-visita-check').toggle(!!data.showNecesitaOtraVisita);
+            this.$el.find('.case-necesita-otra-visita-help').text(data.necesitaOtraVisitaHelp || '');
+            this.$el.find('.case-necesita-otra-visita-check-label span')
+                .text(data.necesitaOtraVisitaLabel || '');
+            this.$el.find('.case-necesita-otra-visita-checkbox').prop('checked', false);
 
             this.bindUi();
         },
@@ -474,6 +474,7 @@ define('custom:views/case/fields/acta-visita-action', [
             this.bindButtons();
             this.bindVisitaCheckbox();
             this.bindVisitaAprobadaCheckbox();
+            this.bindNecesitaOtraVisitaCheckbox();
         },
 
         bindVisitaCheckbox: function () {
@@ -568,6 +569,50 @@ define('custom:views/case/fields/acta-visita-action', [
                         self.actionRevertirVisitaAprobada($checkbox);
                     }
                 );
+            });
+        },
+
+        bindNecesitaOtraVisitaCheckbox: function () {
+            if (!this.$el || !this.$el.length) {
+                return;
+            }
+
+            const self = this;
+
+            this.$el.find('[data-action="necesitaOtraVisita"]').off('change.necesitaOtraVisita');
+
+            this.$el.find('[data-action="necesitaOtraVisita"]').on('change.necesitaOtraVisita', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const $checkbox = $(e.currentTarget);
+
+                if (!$checkbox.is(':checked')) {
+                    return;
+                }
+
+                $checkbox.prop('checked', false);
+                self.openNecesitaOtraVisitaModal();
+            });
+        },
+
+        openNecesitaOtraVisitaModal: function () {
+            const self = this;
+
+            this.createView('modal', 'custom:views/modals/necesita-otra-visita', {
+                title: this.translateCaseLabel('necesitaOtraVisita'),
+            }, function (view) {
+                view.render();
+
+                $('body').append(view.el);
+
+                view.once('submit', function (motivo) {
+                    self.actionNecesitaOtraVisita(motivo);
+                });
+
+                view.once('cancel', function () {
+                    self.$el.find('.case-necesita-otra-visita-checkbox').prop('checked', false);
+                });
             });
         },
 
@@ -705,7 +750,6 @@ define('custom:views/case/fields/acta-visita-action', [
             this.$el.find('[data-action="llenarActa"]').off('click.acta');
             this.$el.find('[data-action="imprimirActaManual"]').off('click.actaManual');
             this.$el.find('[data-action="agregarVisita"]').off('click.agregarVisita');
-            this.$el.find('[data-action="necesitaOtraVisita"]').off('click.necesitaOtraVisita');
 
             this.$el.find('[data-action="llenarActa"]').on('click.acta', function (e) {
                 e.preventDefault();
@@ -744,20 +788,25 @@ define('custom:views/case/fields/acta-visita-action', [
                 e.stopPropagation();
                 self.actionAgregarVisita();
             });
-
-            this.$el.find('[data-action="necesitaOtraVisita"]').on('click.necesitaOtraVisita', function (e) {
-                e.preventDefault();
-                e.stopPropagation();
-                self.actionNecesitaOtraVisita();
-            });
         },
 
-        actionPrepararNuevaVisita: function (successMessage) {
+        actionPrepararNuevaVisita: function (options) {
             const self = this;
+            options = options || {};
 
-            return Espo.Ajax.postRequest('Case/action/prepararNuevaVisita', {
+            const payload = {
                 id: this.model.id,
-            }).then(function (response) {
+            };
+
+            if (options.motivo) {
+                payload.motivo = options.motivo;
+            }
+
+            if (options.registrarSolicitud) {
+                payload.registrarSolicitud = true;
+            }
+
+            return Espo.Ajax.postRequest('Case/action/prepararNuevaVisita', payload).then(function (response) {
                 const newStatus = (response && response.status) || 'Asignado';
                 const visitNumber = (response && response.visitNumber) || self.nextVisitNumber;
 
@@ -775,8 +824,8 @@ define('custom:views/case/fields/acta-visita-action', [
                     ).then(function (workflow) {
                         self.applyActaState(workflow, self.canUseTools);
 
-                        if (successMessage) {
-                            Espo.Ui.success(successMessage);
+                        if (options.successMessage) {
+                            Espo.Ui.success(options.successMessage);
                         }
 
                         return workflow;
@@ -852,42 +901,37 @@ define('custom:views/case/fields/acta-visita-action', [
             );
         },
 
-        actionNecesitaOtraVisita: function () {
+        actionNecesitaOtraVisita: function (motivo) {
             const self = this;
 
             if (!this.model.id || !this.showNecesitaOtraVisita) {
                 return;
             }
 
-            Espo.Ui.confirm(
-                this.translateCaseLabel('necesitaOtraVisitaConfirmQuestion'),
-                {
-                    title: this.translateCaseLabel('necesitaOtraVisita'),
-                    confirmText: 'Sí, confirmar',
-                    cancelText: 'Cancelar',
-                    confirmStyle: 'warning',
-                },
-                function () {
-                    Espo.Ui.notify(self.translate('pleaseWait', 'messages'));
+            Espo.Ui.notify(this.translate('pleaseWait', 'messages'));
 
-                    self.actionPrepararNuevaVisita(self.translateCaseLabel('necesitaOtraVisitaSuccess'))
-                        .catch(function (xhr) {
-                            Espo.Ui.notify(false);
+            this.actionPrepararNuevaVisita({
+                motivo: motivo,
+                registrarSolicitud: true,
+                successMessage: this.translateCaseLabel('necesitaOtraVisitaSuccess'),
+            }).then(function () {
+                Espo.Ui.notify(false);
+            }).catch(function (xhr) {
+                Espo.Ui.notify(false);
 
-                            let message = self.translateCaseLabel('necesitaOtraVisitaError');
+                let message = self.translateCaseLabel('necesitaOtraVisitaError');
 
-                            if (xhr) {
-                                const payload = xhr.responseJSON || xhr;
+                if (xhr) {
+                    const payload = xhr.responseJSON || xhr;
 
-                                if (payload && payload.message) {
-                                    message = payload.message;
-                                }
-                            }
-
-                            Espo.Ui.error(message);
-                        });
+                    if (payload && payload.message) {
+                        message = payload.message;
+                    }
                 }
-            );
+
+                Espo.Ui.error(message);
+                self.$el.find('.case-necesita-otra-visita-checkbox').prop('checked', false);
+            });
         },
 
         openActaModal: function () {

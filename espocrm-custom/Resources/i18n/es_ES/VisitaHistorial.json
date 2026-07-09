@@ -1,0 +1,30 @@
+{
+    "fields": {
+        "name": "Resumen",
+        "case": "Caso",
+        "numeroRadicado": "Número de radicado",
+        "numeroVisita": "N.º visita",
+        "tipo": "Tipo de evento",
+        "motivo": "Motivo",
+        "fecha": "Fecha",
+        "registradoPor": "Registrado por",
+        "actaVisita": "Acta de visita"
+    },
+    "labels": {
+        "VisitaHistorial": "Historial de visita",
+        "VisitaHistorialPlural": "Historial de visitas"
+    },
+    "options": {
+        "tipo": {
+            "Solicitud nueva visita": "Solicitud nueva visita",
+            "Visita registrada": "Visita registrada",
+            "Visita aprobada": "Visita aprobada",
+            "Aprobación revertida": "Aprobación revertida"
+        }
+    },
+    "links": {
+        "case": "Caso",
+        "registradoPor": "Registrado por",
+        "actaVisita": "Acta de visita"
+    }
+}

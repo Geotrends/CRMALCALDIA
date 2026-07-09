@@ -1,0 +1,16 @@
+{
+    "entity": true,
+    "object": true,
+    "module": "Custom",
+    "type": "Base",
+    "status": "Stable",
+    "tab": false,
+    "acl": true,
+    "customizable": true,
+    "importable": false,
+    "stream": false,
+    "disabled": false,
+    "layouts": true,
+    "label": "Historial de visitas",
+    "iconClass": "fas fa-route"
+}
