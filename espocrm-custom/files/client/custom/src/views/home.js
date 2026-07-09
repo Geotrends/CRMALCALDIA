@@ -78,7 +78,7 @@ define('custom:views/home', ['views/dashboard'], function (Dep) {
 
     var canShowHistorialVisitas = function (user, profile, isAdmin, apiData) {
         if (isAdmin) {
-            return false;
+            return true;
         }
 
         if (profile === 'patrullero') {
