@@ -179,7 +179,7 @@ function alcaldiaAssignRoleToUser(EntityManager $em, string $userId, string $rol
     $pdo->exec('DELETE FROM role_user WHERE user_id = ' . $pdo->quote($userId));
     $pdo->exec(
         'INSERT INTO role_user (id, role_id, user_id, deleted) VALUES ('
-        . $pdo->quote(substr(uniqid('', true), -17))
+        . "nextval('role_user_id_seq')"
         . ', ' . $pdo->quote($roleId)
         . ', ' . $pdo->quote($userId)
         . ', false)'
