@@ -20,6 +20,8 @@
         "cronograma",
         "panelesDetalle",
         "confirmarVisitaRealizada",
-        "confirmarVisitaAprobada"
+        "confirmarVisitaAprobada",
+        "prepararNuevaVisita",
+        "revertirVisitaAprobada"
     ]
 }

@@ -122,4 +122,91 @@ class CaseActaVisitaHelper
             ->order('modifiedAt', 'DESC')
             ->findOne();
     }
+
+    public static function findLatestDiligenciadaActaForCase(EntityManager $entityManager, string $caseId): ?Entity
+    {
+        $actas = $entityManager
+            ->getRDBRepository('ActaVisita')
+            ->where(['caseId' => $caseId])
+            ->order('modifiedAt', 'DESC')
+            ->limit(0, 20)
+            ->find();
+
+        foreach ($actas as $acta) {
+            if (self::isActaWithContent($acta)) {
+                return $acta;
+            }
+        }
+
+        return null;
+    }
+
+    public static function countActasForCase(EntityManager $entityManager, string $caseId): int
+    {
+        return $entityManager
+            ->getRDBRepository('ActaVisita')
+            ->where(['caseId' => $caseId])
+            ->count();
+    }
+
+    public static function isCaseAsignado(Entity $case): bool
+    {
+        $status = trim((string) $case->get('status'));
+
+        return in_array($status, ['Asignado', 'Assigned'], true);
+    }
+
+    public static function canRequestNewVisita(Entity $case): bool
+    {
+        $status = trim((string) $case->get('status'));
+
+        if (in_array($status, ['Finalizado', 'Proceso cerrado'], true)) {
+            return false;
+        }
+
+        return in_array($status, [
+            'Asignado',
+            'Assigned',
+            'Visita realizada',
+            self::STATUS_VISITA_APROBADA,
+            self::STATUS_EN_PROCESO,
+        ], true);
+    }
+
+    public static function canRevertVisitaAprobada(Entity $case): bool
+    {
+        return trim((string) $case->get('status')) === self::STATUS_VISITA_APROBADA;
+    }
+
+    public static function isAwaitingNewVisita(Entity $case, ?Entity $latestActa): bool
+    {
+        if (!$latestActa || !self::isCaseAsignado($case)) {
+            return false;
+        }
+
+        return self::isActaWithContent($latestActa);
+    }
+
+    public static function buildActaName(string $radicado, string $expediente, string $caseId, int $visitNumber = 1): string
+    {
+        $parts = ['Acta visita'];
+
+        if ($radicado !== '') {
+            $parts[] = 'Rad. ' . $radicado;
+        }
+
+        if ($expediente !== '') {
+            $parts[] = 'Exp. ' . $expediente;
+        }
+
+        if ($visitNumber > 1) {
+            $parts[] = 'Visita ' . $visitNumber;
+        }
+
+        if (count($parts) === 1) {
+            $parts[] = $caseId;
+        }
+
+        return implode(' — ', $parts);
+    }
 }

@@ -9,10 +9,11 @@ define('custom:helpers/acta-visita-from-case', ['custom:helpers/case-party-name'
         'estado',
     ];
 
-    const buildDefaultsFromCase = function (caseModel, user) {
+    const buildDefaultsFromCase = function (caseModel, user, visitNumber) {
         const radicado = String(caseModel.get('cNumeroRadicado') || '').trim();
         const expediente = String(caseModel.get('cExpediente') || '').trim();
         const now = new Date();
+        const visitNum = parseInt(visitNumber, 10) || 1;
 
         const nameParts = ['Acta visita'];
 
@@ -22,6 +23,10 @@ define('custom:helpers/acta-visita-from-case', ['custom:helpers/case-party-name'
 
         if (expediente) {
             nameParts.push('Exp. ' + expediente);
+        }
+
+        if (visitNum > 1) {
+            nameParts.push('Visita ' + visitNum);
         }
 
         const perjudicante = CasePartyName.perjudicanteFromModel(caseModel);

@@ -14,6 +14,11 @@ define('custom:helpers/acta-visita-case-status', [
         'En proceso',
     ];
 
+    const CLOSED_STATUSES = [
+        'Finalizado',
+        'Proceso cerrado',
+    ];
+
     const CONTENT_FIELDS = [
         'objetoVisita',
         'situacionEncontrada',
@@ -24,6 +29,16 @@ define('custom:helpers/acta-visita-case-status', [
 
     const hasText = function (value) {
         return String(value || '').trim() !== '';
+    };
+
+    const isCaseAsignado = function (model) {
+        if (!model) {
+            return false;
+        }
+
+        const status = String(model.get('status') || '').trim();
+
+        return status === 'Asignado' || status === 'Assigned';
     };
 
     const isActaDiligenciada = function (acta) {
@@ -52,7 +67,7 @@ define('custom:helpers/acta-visita-case-status', [
         return hasText(get('cFormatoActaVisitaPdfId'));
     };
 
-    const pickActa = function (list) {
+    const pickLatestDiligenciada = function (list) {
         if (!list || !list.length) {
             return null;
         }
@@ -63,7 +78,31 @@ define('custom:helpers/acta-visita-case-status', [
             }
         }
 
-        return list[0];
+        return null;
+    };
+
+    const isAwaitingNewVisita = function (model, latestActa) {
+        if (!latestActa || !isCaseAsignado(model)) {
+            return false;
+        }
+
+        return isActaDiligenciada(latestActa);
+    };
+
+    const buildWorkflowState = function (list, model) {
+        const actaList = list || [];
+        const latestActa = actaList.length ? actaList[0] : null;
+        const awaitingNewVisita = isAwaitingNewVisita(model, latestActa);
+        const hasDiligenciadaActa = !!pickLatestDiligenciada(actaList);
+
+        return {
+            acta: awaitingNewVisita ? null : latestActa,
+            latestActa: latestActa,
+            awaitingNewVisita: awaitingNewVisita,
+            hasDiligenciadaActa: hasDiligenciadaActa,
+            actaCount: actaList.length,
+            latestDiligenciada: pickLatestDiligenciada(actaList),
+        };
     };
 
     const isFormatoActaHabilitado = function (acta) {
@@ -87,6 +126,10 @@ define('custom:helpers/acta-visita-case-status', [
 
         const status = String(model.get('status') || '').trim();
 
+        if (isCaseAsignado(model)) {
+            return false;
+        }
+
         if (POST_VISITA_STATUSES.indexOf(status) !== -1) {
             return true;
         }
@@ -106,6 +149,20 @@ define('custom:helpers/acta-visita-case-status', [
         return !!(user && model && model.id);
     };
 
+    const canRequestNewVisita = function (model, workflow) {
+        if (!model || !workflow || !workflow.hasDiligenciadaActa) {
+            return false;
+        }
+
+        const status = String(model.get('status') || '').trim();
+
+        if (CLOSED_STATUSES.indexOf(status) !== -1) {
+            return false;
+        }
+
+        return ['Asignado', 'Assigned', 'Visita realizada', 'Visita aprobada', 'En proceso'].indexOf(status) !== -1;
+    };
+
     const ACTA_SELECT = [
         'id',
         'estado',
@@ -117,9 +174,10 @@ define('custom:helpers/acta-visita-case-status', [
         'cFormatoActaVisitaPdfId',
         'cFormatoActaVisitaPdfName',
         'modifiedAt',
+        'createdAt',
     ].join(',');
 
-    const fetchActaDirect = function (caseId) {
+    const fetchActaListDirect = function (caseId) {
         return SilentAjax.getRequest('ActaVisita', {
             where: [
                 {
@@ -131,26 +189,30 @@ define('custom:helpers/acta-visita-case-status', [
             select: ACTA_SELECT,
             orderBy: 'modifiedAt',
             order: 'desc',
-            maxSize: 10,
+            maxSize: 20,
         }).then(function (response) {
-            if (!response) {
-                return null;
-            }
-
-            return pickActa(response.list || []);
+            return (response && response.list) ? response.list : [];
         });
     };
 
-    const fetchActaForCase = function (caseId, user, model, options) {
+    const fetchActaWorkflowForCase = function (caseId, user, model, options) {
         if (!caseId || !canFetchActaForCase(user, model)) {
-            return Promise.resolve(null);
+            return Promise.resolve(buildWorkflowState([], model));
         }
 
         if (options && options.bypassCache) {
             CaseFetchCache.invalidateActa(caseId);
         }
 
-        return CaseFetchCache.fetchActa(caseId, fetchActaDirect);
+        return CaseFetchCache.fetchActa(caseId, fetchActaListDirect).then(function (list) {
+            return buildWorkflowState(list, model);
+        });
+    };
+
+    const fetchActaForCase = function (caseId, user, model, options) {
+        return fetchActaWorkflowForCase(caseId, user, model, options).then(function (workflow) {
+            return workflow.latestDiligenciada || workflow.acta;
+        });
     };
 
     return {
@@ -160,8 +222,11 @@ define('custom:helpers/acta-visita-case-status', [
         isPostVisitaStatus: isPostVisitaStatus,
         isVisitaConfirmada: isVisitaConfirmada,
         isVisitaRealizadaForFormatos: isVisitaRealizadaForFormatos,
+        isAwaitingNewVisita: isAwaitingNewVisita,
         canFetchActaForCase: canFetchActaForCase,
+        canRequestNewVisita: canRequestNewVisita,
         fetchActaForCase: fetchActaForCase,
+        fetchActaWorkflowForCase: fetchActaWorkflowForCase,
         invalidateCache: CaseFetchCache.invalidateActa,
     };
 });

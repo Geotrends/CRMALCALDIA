@@ -62,6 +62,8 @@ $data['Case'] = [
     'panelesDetalle' => 'yes',
     'confirmarVisitaRealizada' => 'yes',
     'confirmarVisitaAprobada' => 'no',
+    'prepararNuevaVisita' => 'yes',
+    'revertirVisitaAprobada' => 'no',
 ];
 
 $data['ActaVisita'] = [

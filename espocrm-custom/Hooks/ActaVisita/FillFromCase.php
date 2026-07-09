@@ -4,6 +4,7 @@ namespace Espo\Custom\Hooks\ActaVisita;
 
 use Espo\Core\Hook\Hook\BeforeSave;
 use Espo\Entities\User;
+use Espo\Custom\Tools\CaseObj\CaseActaVisitaHelper;
 use Espo\Custom\Tools\CaseObj\CasePartyNameHelper;
 use Espo\ORM\Entity;
 use Espo\ORM\EntityManager;
@@ -47,7 +48,8 @@ class FillFromCase implements BeforeSave
         }
 
         if (!$entity->get('name')) {
-            $entity->set('name', $this->buildName($radicado, $expediente, $caseId));
+            $visitNumber = $this->countActasForCase($caseId) + 1;
+            $entity->set('name', CaseActaVisitaHelper::buildActaName($radicado, $expediente, $caseId, $visitNumber));
         }
 
         if (!$entity->get('fechaVisita')) {
@@ -93,22 +95,16 @@ class FillFromCase implements BeforeSave
         }
     }
 
+    private function countActasForCase(string $caseId): int
+    {
+        return $this->entityManager
+            ->getRDBRepository('ActaVisita')
+            ->where(['caseId' => $caseId])
+            ->count();
+    }
+
     private function buildName(string $radicado, string $expediente, string $caseId): string
     {
-        $parts = ['Acta visita'];
-
-        if ($radicado !== '') {
-            $parts[] = 'Rad. ' . $radicado;
-        }
-
-        if ($expediente !== '') {
-            $parts[] = 'Exp. ' . $expediente;
-        }
-
-        if (count($parts) === 1) {
-            $parts[] = $caseId;
-        }
-
-        return implode(' — ', $parts);
+        return CaseActaVisitaHelper::buildActaName($radicado, $expediente, $caseId);
     }
 }

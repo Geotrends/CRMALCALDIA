@@ -33,6 +33,26 @@ define('custom:helpers/acta-visita-modal', [
         return null;
     };
 
+    const openCreate = function (host, caseModel, user, options) {
+        const helper = new RecordModalHelper();
+        const visitNumber = options.visitNumber || (options.workflow ? options.workflow.actaCount + 1 : 1);
+        const attributes = ActaFromCase.buildDefaultsFromCase(caseModel, user, visitNumber);
+
+        attributes.modoDiligenciamiento = options.modoDiligenciamiento || 'Digital';
+
+        return helper.showCreate(host, {
+            entityType: 'ActaVisita',
+            attributes: attributes,
+            layoutName: 'edit',
+            fullFormDisabled: true,
+            relate: {
+                model: caseModel,
+                link: 'case',
+            },
+            afterSave: options.afterSave,
+        });
+    };
+
     const open = function (hostView, caseModel, user, options) {
         options = options || {};
 
@@ -67,13 +87,28 @@ define('custom:helpers/acta-visita-modal', [
             }
         };
 
-        ActaVisitaCaseStatus.fetchActaForCase(caseModel.id, user, caseModel).then(function (acta) {
-            if (acta && acta.id) {
-                helper.showEdit(host, {
-                    entityType: 'ActaVisita',
-                    id: acta.id,
-                    layoutName: 'edit',
-                    fullFormDisabled: true,
+        const openEdit = function (acta) {
+            helper.showEdit(host, {
+                entityType: 'ActaVisita',
+                id: acta.id,
+                layoutName: 'edit',
+                fullFormDisabled: true,
+                afterSave: afterSave,
+            }).catch(function () {
+                // Modal cerrado o cancelado — comportamiento esperado.
+            });
+        };
+
+        const loadWorkflow = options.workflow
+            ? Promise.resolve(options.workflow)
+            : ActaVisitaCaseStatus.fetchActaWorkflowForCase(caseModel.id, user, caseModel);
+
+        loadWorkflow.then(function (workflow) {
+            if (options.forceCreate) {
+                openCreate(host, caseModel, user, {
+                    modoDiligenciamiento: options.modoDiligenciamiento,
+                    visitNumber: options.visitNumber || workflow.actaCount + 1,
+                    workflow: workflow,
                     afterSave: afterSave,
                 }).catch(function () {
                     // Modal cerrado o cancelado — comportamiento esperado.
@@ -82,18 +117,18 @@ define('custom:helpers/acta-visita-modal', [
                 return;
             }
 
-            const attributes = ActaFromCase.buildDefaultsFromCase(caseModel, user);
-            attributes.modoDiligenciamiento = options.modoDiligenciamiento || 'Digital';
+            const acta = workflow.acta;
 
-            helper.showCreate(host, {
-                entityType: 'ActaVisita',
-                attributes: attributes,
-                layoutName: 'edit',
-                fullFormDisabled: true,
-                relate: {
-                    model: caseModel,
-                    link: 'case',
-                },
+            if (acta && acta.id) {
+                openEdit(acta);
+
+                return;
+            }
+
+            openCreate(host, caseModel, user, {
+                modoDiligenciamiento: options.modoDiligenciamiento,
+                visitNumber: workflow.actaCount + 1,
+                workflow: workflow,
                 afterSave: afterSave,
             }).catch(function () {
                 // Modal cerrado o cancelado — comportamiento esperado.

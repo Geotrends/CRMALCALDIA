@@ -414,7 +414,7 @@ class CaseObj extends BaseCaseObj
             ];
         }
 
-        $acta = CaseActaVisitaHelper::findLatestActaForCase($this->entityManager, $case->getId());
+        $acta = CaseActaVisitaHelper::findLatestDiligenciadaActaForCase($this->entityManager, $case->getId());
 
         if (!$acta || !CaseActaVisitaHelper::isActaWithContent($acta)) {
             throw new BadRequest('Debe existir un acta de visita diligenciada.');
@@ -463,6 +463,188 @@ class CaseObj extends BaseCaseObj
             'success' => true,
             'status' => CaseActaVisitaHelper::STATUS_VISITA_APROBADA,
             'alreadyApproved' => false,
+        ];
+    }
+
+    /**
+     * POST Case/action/prepararNuevaVisita  body: { "id": "caseId" }
+     *
+     * Devuelve el caso a Asignado para registrar una visita adicional.
+     *
+     * @return array<string, mixed>
+     */
+    public function postActionPrepararNuevaVisita(Request $request): array
+    {
+        if (!$this->acl->check('Case', 'prepararNuevaVisita')) {
+            throw new Forbidden();
+        }
+
+        $body = $request->getParsedBody();
+        $id = '';
+
+        if (is_object($body)) {
+            $id = trim((string) ($body->id ?? ''));
+        } elseif (is_array($body)) {
+            $id = trim((string) ($body['id'] ?? ''));
+        }
+
+        if ($id === '') {
+            throw new BadRequest('ID requerido.');
+        }
+
+        $case = $this->entityManager->getEntityById('Case', $id);
+
+        if (!$case) {
+            throw new NotFound();
+        }
+
+        if (!$this->acl->checkEntityRead($case)) {
+            throw new Forbidden();
+        }
+
+        $user = $this->getUser();
+        $profile = $this->injectableFactory->create(AlcaldiaUserProfile::class);
+
+        if (!$user->isAdmin() && !$profile->isInspeccion($user)) {
+            $assignedId = trim((string) $case->get('assignedUserId'));
+
+            if ($assignedId === '' || $assignedId !== $user->getId()) {
+                throw new Forbidden();
+            }
+
+            if (!$profile->isPatrullero($user)) {
+                throw new Forbidden();
+            }
+        }
+
+        if (!CaseActaVisitaHelper::canRequestNewVisita($case)) {
+            throw new BadRequest('El caso no permite registrar una nueva visita en este momento.');
+        }
+
+        $actaCount = CaseActaVisitaHelper::countActasForCase($this->entityManager, $case->getId());
+
+        if ($actaCount < 1) {
+            throw new BadRequest('Debe existir al menos un acta de visita previa.');
+        }
+
+        $currentStatus = trim((string) $case->get('status'));
+
+        if (CaseActaVisitaHelper::isCaseAsignado($case)) {
+            return [
+                'success' => true,
+                'status' => $currentStatus,
+                'visitNumber' => $actaCount + 1,
+                'alreadyPrepared' => true,
+            ];
+        }
+
+        if (CaseActaVisitaHelper::canRevertVisitaAprobada($case)) {
+            $acta = CaseActaVisitaHelper::findLatestDiligenciadaActaForCase(
+                $this->entityManager,
+                $case->getId()
+            );
+
+            if ($acta && trim((string) $acta->get('estado')) === 'Aprobada') {
+                $acta->set('estado', 'Diligenciada');
+
+                $this->entityManager->saveEntity($acta, [
+                    'skipAll' => true,
+                    'skipHooks' => true,
+                ]);
+            }
+        }
+
+        $case->set('status', 'Asignado');
+
+        $this->entityManager->saveEntity($case, [
+            'skipAll' => true,
+            'skipHooks' => true,
+            'skipCaseStatusUpdate' => true,
+            'skipPatrulleroCaseLimit' => true,
+            'skipCaseExcelAlcaldia' => true,
+        ]);
+
+        return [
+            'success' => true,
+            'status' => 'Asignado',
+            'visitNumber' => $actaCount + 1,
+            'alreadyPrepared' => false,
+        ];
+    }
+
+    /**
+     * POST Case/action/revertirVisitaAprobada  body: { "id": "caseId" }
+     *
+     * @return array<string, mixed>
+     */
+    public function postActionRevertirVisitaAprobada(Request $request): array
+    {
+        if (!$this->acl->check('Case', 'revertirVisitaAprobada')) {
+            throw new Forbidden();
+        }
+
+        $body = $request->getParsedBody();
+        $id = '';
+
+        if (is_object($body)) {
+            $id = trim((string) ($body->id ?? ''));
+        } elseif (is_array($body)) {
+            $id = trim((string) ($body['id'] ?? ''));
+        }
+
+        if ($id === '') {
+            throw new BadRequest('ID requerido.');
+        }
+
+        $case = $this->entityManager->getEntityById('Case', $id);
+
+        if (!$case) {
+            throw new NotFound();
+        }
+
+        if (!$this->acl->checkEntityRead($case)) {
+            throw new Forbidden();
+        }
+
+        $user = $this->getUser();
+        $profile = $this->injectableFactory->create(AlcaldiaUserProfile::class);
+
+        if (!$user->isAdmin() && !$profile->isInspeccion($user)) {
+            throw new Forbidden('Solo Inspección puede revertir la aprobación de la visita.');
+        }
+
+        if (!CaseActaVisitaHelper::canRevertVisitaAprobada($case)) {
+            throw new BadRequest('El caso no está en estado Visita aprobada.');
+        }
+
+        $acta = CaseActaVisitaHelper::findLatestDiligenciadaActaForCase(
+            $this->entityManager,
+            $case->getId()
+        );
+
+        $case->set('status', CaseActaVisitaHelper::STATUS_VISITA_REALIZADA);
+
+        $this->entityManager->saveEntity($case, [
+            'skipAll' => true,
+            'skipHooks' => true,
+            'skipCaseStatusUpdate' => true,
+            'skipPatrulleroCaseLimit' => true,
+            'skipCaseExcelAlcaldia' => true,
+        ]);
+
+        if ($acta && trim((string) $acta->get('estado')) === 'Aprobada') {
+            $acta->set('estado', 'Diligenciada');
+
+            $this->entityManager->saveEntity($acta, [
+                'skipAll' => true,
+                'skipHooks' => true,
+            ]);
+        }
+
+        return [
+            'success' => true,
+            'status' => CaseActaVisitaHelper::STATUS_VISITA_REALIZADA,
+            'alreadyReverted' => false,
         ];
     }
 
