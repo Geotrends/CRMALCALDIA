@@ -22,6 +22,7 @@ DEPLOY_SETUP_STEPS=(
   "Rol Radicación — solo radicado/expediente|roles/configure-role-radicacion.php"
   "Rol Asignación — solo panel Asignación|roles/configure-role-asignacion.php"
   "Rol Patrullaje — acta de visita y casos asignados|roles/configure-role-patrullaje.php"
+  "Contraseñas usuarios operativos (inspeccion, radicacion, etc.)|fix-operational-login.php"
   "Permisos ComunicacionCaso (todos los roles)|configure-comunicacion-caso-permissions.php"
   "Permisos Task — crear tareas (todos los roles)|configure-task-permissions.php"
   "Permisos Meeting — solo propias (todos los roles)|configure-meeting-permissions.php"

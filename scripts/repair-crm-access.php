@@ -20,7 +20,6 @@ $steps = [
     'write-admin-credentials.php',
     'ensure-admin-login.php',
     'seed-alcaldia-roles.php',
-    'seed-operational-login-users.php',
     'seed-gestion-routing-users.php',
     'configure-default-locale.php',
     'configure-global-tablist.php',
@@ -37,6 +36,7 @@ $steps = [
     'configure-excel-alcaldia-document.php',
     'configure-case-kanban.php',
     'configure-user-dashboards.php',
+    'fix-operational-login.php',
 ];
 
 echo '=== Reparación de acceso al CRM ===' . PHP_EOL;

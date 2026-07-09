@@ -14,6 +14,7 @@ require_once __DIR__ . '/includes/user-password-repair.php';
 
 use Espo\Core\Application;
 use Espo\Core\InjectableFactory;
+use Espo\Custom\Tools\App\AlcaldiaLocaleDefaults;
 use Espo\ORM\EntityManager;
 
 $app = new Application();
@@ -100,6 +101,15 @@ foreach ($users as $def) {
             $failed = true;
         } else {
             echo "  Rol asignado: {$def['role']}" . PHP_EOL;
+        }
+    }
+
+    if ($def['type'] !== 'admin') {
+        $prefs = $em->getEntityById('Preferences', $result['userId']);
+
+        if ($prefs) {
+            $injectableFactory->create(AlcaldiaLocaleDefaults::class)->applyToPreferences($prefs);
+            $em->saveEntity($prefs, ['skipHooks' => true]);
         }
     }
 }
