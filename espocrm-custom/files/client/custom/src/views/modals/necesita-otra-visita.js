@@ -4,20 +4,33 @@ define('custom:views/modals/necesita-otra-visita', ['views/modal'], function (De
 
         className: 'dialog dialog-record necesita-otra-visita-modal-dialog',
 
-        template: 'custom:modals/necesita-otra-visita',
-
         backdrop: true,
 
         setup: function () {
             Dep.prototype.setup.call(this);
 
             this.headerText = this.options.title
+                || this.options.headerText
                 || this.translate('necesitaOtraVisita', 'labels', 'Case');
+
+            this.templateContent = ''
+                + '<div class="necesita-otra-visita-modal">'
+                + '<p class="text-muted necesita-otra-visita-modal__help">{{helpText}}</p>'
+                + '<div class="form-group">'
+                + '<label class="control-label" for="necesita-otra-visita-motivo">{{motivoLabel}}</label>'
+                + '<textarea'
+                + ' id="necesita-otra-visita-motivo"'
+                + ' class="form-control necesita-otra-visita-modal__motivo"'
+                + ' rows="5"'
+                + ' placeholder="{{motivoPlaceholder}}"'
+                + '></textarea>'
+                + '</div>'
+                + '</div>';
 
             this.buttonList = [
                 {
                     name: 'confirm',
-                    label: this.translate('Confirm'),
+                    label: 'Confirmar',
                     style: 'warning',
                 },
                 {
@@ -39,13 +52,18 @@ define('custom:views/modals/necesita-otra-visita', ['views/modal'], function (De
             Dep.prototype.afterRender.call(this);
 
             const self = this;
+            const $motivo = this.$el.find('.necesita-otra-visita-modal__motivo');
 
-            this.$el.find('.necesita-otra-visita-modal__motivo').on('keydown', function (e) {
+            $motivo.on('keydown', function (e) {
                 if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
                     e.preventDefault();
                     self.actionConfirm();
                 }
             });
+
+            window.setTimeout(function () {
+                $motivo.trigger('focus');
+            }, 100);
         },
 
         getMotivo: function () {

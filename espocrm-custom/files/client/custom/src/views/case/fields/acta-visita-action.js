@@ -599,12 +599,14 @@ define('custom:views/case/fields/acta-visita-action', [
         openNecesitaOtraVisitaModal: function () {
             const self = this;
 
-            this.createView('modal', 'custom:views/modals/necesita-otra-visita', {
+            this.createView('dialog', 'custom:views/modals/necesita-otra-visita', {
                 title: this.translateCaseLabel('necesitaOtraVisita'),
             }, function (view) {
                 view.render();
 
-                $('body').append(view.el);
+                if (typeof view.show === 'function') {
+                    view.show();
+                }
 
                 view.once('submit', function (motivo) {
                     self.actionNecesitaOtraVisita(motivo);
