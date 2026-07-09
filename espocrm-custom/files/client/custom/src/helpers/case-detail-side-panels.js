@@ -1,8 +1,18 @@
 define('custom:helpers/case-detail-side-panels', [], function () {
 
-    const SIDE_PANELS = [
+    const TOP_PANELS = [
+        'caseTimeline',
+        'caseCronograma',
+    ];
+
+    const FIELD_PANELS = [
         'actaVisita',
         'formatoGenerado',
+    ];
+
+    const BOTTOM_PANELS = [
+        'caseStream',
+        'comunicacionesCasoPanel',
     ];
 
     const CONTAINER_CLASS = 'alcaldia-case-detail-side-fields';
@@ -13,7 +23,7 @@ define('custom:helpers/case-detail-side-panels', [], function () {
             '.panel[data-panel-name="' + name + '"], ' +
             '.record-panel[data-name="' + name + '"], ' +
             '[data-name="' + name + '"].panel'
-        );
+        ).first();
     };
 
     const distribute = function (recordView) {
@@ -31,15 +41,58 @@ define('custom:helpers/case-detail-side-panels', [], function () {
 
         if (!$container.length) {
             $container = $('<div class="' + CONTAINER_CLASS + '"></div>');
-            $side.prepend($container);
         }
 
-        SIDE_PANELS.forEach(function (name) {
+        FIELD_PANELS.forEach(function (name) {
             const $panel = findPanel(recordView, name);
 
             if ($panel.length && !$panel.closest('.' + CONTAINER_CLASS).length) {
                 $container.append($panel);
             }
+        });
+
+        let $insertAfter = null;
+
+        TOP_PANELS.forEach(function (name) {
+            const $panel = findPanel(recordView, name);
+
+            if (!$panel.length) {
+                return;
+            }
+
+            if (!$insertAfter) {
+                $side.prepend($panel);
+            } else {
+                $insertAfter.after($panel);
+            }
+
+            $insertAfter = $panel;
+        });
+
+        if ($container.children().length) {
+            if ($insertAfter) {
+                $insertAfter.after($container);
+            } else {
+                $side.prepend($container);
+            }
+
+            $insertAfter = $container;
+        }
+
+        BOTTOM_PANELS.forEach(function (name) {
+            const $panel = findPanel(recordView, name);
+
+            if (!$panel.length) {
+                return;
+            }
+
+            if ($insertAfter) {
+                $insertAfter.after($panel);
+            } else {
+                $side.prepend($panel);
+            }
+
+            $insertAfter = $panel;
         });
     };
 
