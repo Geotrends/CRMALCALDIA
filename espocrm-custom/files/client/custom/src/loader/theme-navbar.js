@@ -111,21 +111,24 @@
             : 'Colapsar menú';
     }
 
-    function syncMobileNavState() {
+    function syncMobileNavState(options) {
+        var opts = options || {};
         var navbar = document.getElementById('navbar');
         var content = document.getElementById('content');
 
         if (!isMobileNav()) {
-            document.body.classList.remove('side-menu-opened');
+            if (opts.fromViewportChange) {
+                document.body.classList.remove('side-menu-opened');
 
-            if (content) {
-                content.style.marginLeft = '';
-            }
+                if (content) {
+                    content.style.marginLeft = '';
+                }
 
-            if (navbar) {
-                navbar.style.width = '';
-                navbar.style.minWidth = '';
-                navbar.style.maxWidth = '';
+                if (navbar) {
+                    navbar.style.width = '';
+                    navbar.style.minWidth = '';
+                    navbar.style.maxWidth = '';
+                }
             }
 
             updateMobileBackdrop();
@@ -149,7 +152,7 @@
     var backdropEl = null;
 
     function ensureBackdrop() {
-        if (backdropEl) {
+        if (backdropEl || !document.body) {
             return;
         }
 
@@ -224,7 +227,6 @@
             }
 
             updateMobileBackdrop();
-            syncMobileNavState();
         });
 
         observer.observe(document.body, {
@@ -370,7 +372,7 @@
 
             wasMobile = nowMobile;
             setupMinimizerButton();
-            syncMobileNavState();
+            syncMobileNavState({ fromViewportChange: true });
             updateMobileBackdrop();
         }, 150);
     }
