@@ -160,8 +160,26 @@
 }
 
 .detail[data-scope="Case"] .panel[data-name="actaVisita"] .case-acta-visita-btn {
-  width: auto;
+  width: 100%;
   max-width: 100%;
+  box-sizing: border-box;
+  white-space: normal;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  text-align: left;
+  padding: 10px 14px;
+  height: auto;
+  min-height: 40px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.detail[data-scope="Case"] .panel[data-name="actaVisita"] .case-acta-visita-btn .fas,
+.detail[data-scope="Case"] .panel[data-name="actaVisita"] .case-acta-visita-btn .fa,
+.detail[data-scope="Case"] .panel[data-panel-name="actaVisitaPanel"] .case-acta-visita-btn .fas,
+.detail[data-scope="Case"] .panel[data-panel-name="actaVisitaPanel"] .case-acta-visita-btn .fa {
+  flex-shrink: 0;
 }
 
 .detail[data-scope="Case"] .panel[data-name="actaVisita"] .case-acta-visita-btn.btn-primary .fas,
@@ -240,6 +258,21 @@
 
 .detail[data-scope="Case"] .panel[data-name="actaVisita"] .case-visita-archivo-actions {
   margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  max-width: 100%;
+  gap: 8px;
+}
+
+.detail[data-scope="Case"] .panel[data-name="actaVisita"] .case-acta-visita-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  max-width: 100%;
+  gap: 8px;
 }
 
 .detail[data-scope="Case"] .panel[data-name="actaVisita"] .case-visita-aprobada-check.is-readonly {

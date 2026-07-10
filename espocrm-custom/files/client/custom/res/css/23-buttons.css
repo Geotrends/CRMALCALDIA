@@ -224,6 +224,56 @@ a.btn-primary:hover {
   min-height: 40px;
 }
 
+/* Botones de acta/visita — texto largo en móvil sin desbordar */
+.detail[data-scope="Case"] .panel[data-name="actaVisita"] .case-acta-visita-btn,
+.detail[data-scope="Case"] .panel[data-panel-name="actaVisitaPanel"] .case-acta-visita-btn,
+.detail[data-scope="Case"] .panel[data-name="actuoArchivo"] .case-actuo-archivo-btn,
+.detail[data-scope="Case"] .panel[data-panel-name="actuoArchivo"] .case-actuo-archivo-btn,
+.detail[data-scope="Case"] .panel[data-name="actuoArchivoPanel"] .case-actuo-archivo-btn,
+.detail[data-scope="Case"] .panel[data-panel-name="actuoArchivoPanel"] .case-actuo-archivo-btn,
+.case-acta-visita-btn,
+.case-actuo-archivo-btn {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  white-space: normal !important;
+  flex-wrap: wrap !important;
+  justify-content: flex-start !important;
+  text-align: left !important;
+  padding: 10px 14px !important;
+  height: auto !important;
+  min-height: 40px;
+  line-height: 1.35 !important;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.detail[data-scope="Case"] .panel[data-name="actaVisita"] .case-acta-visita-btn .fas,
+.detail[data-scope="Case"] .panel[data-name="actaVisita"] .case-acta-visita-btn .fa,
+.detail[data-scope="Case"] .panel[data-panel-name="actaVisitaPanel"] .case-acta-visita-btn .fas,
+.detail[data-scope="Case"] .panel[data-panel-name="actaVisitaPanel"] .case-acta-visita-btn .fa,
+.case-actuo-archivo-btn .fas,
+.case-actuo-archivo-btn .fa {
+  flex-shrink: 0 !important;
+}
+
+.detail[data-scope="Case"] .panel[data-name="actaVisita"] .case-visita-archivo-actions,
+.detail[data-scope="Case"] .panel[data-name="actaVisita"] .case-acta-visita-actions {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  gap: 8px;
+}
+
+.detail[data-scope="Case"] .panel[data-name="actaVisita"] .case-visita-archivo-card,
+.detail[data-scope="Case"] .panel[data-name="actaVisita"] .case-agregar-visita-section {
+  box-sizing: border-box;
+  max-width: 100%;
+  overflow: hidden;
+}
+
 /* ── Badges / estados — píldora con icono (excepto contador de notificaciones) ── */
 .badge:not(.number-badge),
 .label {
