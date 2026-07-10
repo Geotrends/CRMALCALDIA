@@ -20,7 +20,12 @@
             '#crm-drawer-toggle{display:inline-flex!important;align-items:center;justify-content:center;' +
             'position:fixed;top:8px;left:8px;z-index:1110;width:44px;height:44px;border-radius:12px;' +
             'border:1px solid #e2e8f0;background:#fff!important;color:#64748b;cursor:pointer;pointer-events:auto!important;}' +
-            'body[data-navbar=side] #navbar a.side-menu-button{display:none!important;}}' +
+            'body[data-navbar=side] #navbar a.side-menu-button{display:none!important;}' +
+            'body[data-navbar=side].side-menu-opened #navbar>.navbar{display:flex!important;flex-direction:column!important;}' +
+            'body[data-navbar=side].side-menu-opened #navbar ul.tabs{display:flex!important;flex-direction:column!important;' +
+            'flex-wrap:nowrap!important;align-items:stretch!important;width:100%!important;}' +
+            'body[data-navbar=side].side-menu-opened #navbar ul.tabs>li.tab,' +
+            'body[data-navbar=side].side-menu-opened #navbar ul.tabs>li.tab-divider{display:block!important;width:100%!important;float:none!important;}}' +
             '@media (min-width:1025px){#crm-drawer-toggle{display:none!important;}}' +
             'body[data-navbar=side] #navbar .navbar-nav.navbar-right .dropdown-menu,' +
             'body[data-navbar=side] #navbar .menu-container .dropdown-menu{' +
