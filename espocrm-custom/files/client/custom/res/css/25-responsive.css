@@ -1,11 +1,11 @@
 /**
- * Responsive global — tablet y móvil (solo @media; escritorio ≥992px sidebar normal)
+ * Responsive global — tablet y móvil (solo @media; escritorio ≥1025px sidebar fijo)
  */
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   MÓVIL Y TABLET PEQUEÑA (≤991px) — drawer; iPad 1024px usa sidebar escritorio
+   TABLET Y MÓVIL (≤1024px) — drawer lateral; escritorio ancho usa sidebar fijo
    ═══════════════════════════════════════════════════════════════════════════ */
-@media (max-width: 991px) {
+@media (max-width: 1024px) {
   /* ── Navbar móvil: sin barra lateral fija; drawer solo al abrir ── */
   body[data-navbar=side]:not(.side-menu-opened) {
     --navbar-width: 0px;
@@ -19,6 +19,11 @@
     height: 0 !important;
     overflow: hidden !important;
     pointer-events: none !important;
+  }
+
+  /* Un solo botón hamburguesa (Espo a veces duplica side-menu-button) */
+  body[data-navbar=side] #navbar a.side-menu-button ~ a.side-menu-button {
+    display: none !important;
   }
 
   body[data-navbar=side] #navbar a.side-menu-button {
@@ -142,7 +147,17 @@
     padding-left: 0 !important;
     width: 100% !important;
     max-width: 100vw !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
     pointer-events: auto !important;
+  }
+
+  body[data-navbar=side].side-menu-opened:not(.login-page) #content {
+    overflow: hidden !important;
   }
 
   /* Menú abierto: drawer lateral */
@@ -195,9 +210,19 @@
     flex-direction: column !important;
     visibility: visible !important;
     width: 100% !important;
-    height: auto !important;
-    overflow: visible !important;
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
     pointer-events: auto !important;
+  }
+
+  body[data-navbar=side].side-menu-opened #navbar .navbar-left-container {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
   }
 
   /* Backdrop real (controlado por theme-navbar.js) — sin ::after que bloquee clics */
@@ -665,8 +690,25 @@
   }
 
   /* ── Dropdowns / notificaciones ── */
+  body[data-navbar=side] #navbar .navbar-nav.navbar-right,
+  body[data-navbar=side] #navbar .navbar-body,
+  body[data-navbar=side] #navbar .navbar-right-container,
+  body[data-navbar=side] #navbar .menu-container {
+    overflow: visible !important;
+  }
+
+  body[data-navbar=side] #navbar .navbar-nav.navbar-right .menu-container .dropdown-menu,
+  body[data-navbar=side] #navbar .navbar-nav.navbar-right > li.open > .dropdown-menu,
   .navbar-nav .open > .dropdown-menu,
   .navbar-nav .notifications-panel {
+    background: #fff !important;
+    background-color: #fff !important;
+    opacity: 1 !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: 1px solid var(--crm-border, #e2e8f0) !important;
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.14) !important;
+    z-index: 1200 !important;
     max-width: calc(100vw - 24px) !important;
     right: 0 !important;
     left: auto !important;
@@ -710,36 +752,8 @@
   }
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   TABLET ANCHA (992px–1024px) — sin drawer móvil; contenido siempre clickeable
-   ═══════════════════════════════════════════════════════════════════════════ */
-@media (min-width: 992px) and (max-width: 1024px) {
-  #crm-mobile-nav-backdrop {
-    display: none !important;
-    pointer-events: none !important;
-  }
-
-  body[data-navbar=side]:not(.login-page) #content,
-  body[data-navbar=side]:not(.login-page) #content > .content,
-  body[data-navbar=side]:not(.login-page) #content #main,
-  body[data-navbar=side]:not(.login-page) #content .detail,
-  body[data-navbar=side]:not(.login-page) #content .record,
-  body[data-navbar=side]:not(.login-page) #content .edit {
-    pointer-events: auto !important;
-    touch-action: manipulation;
-  }
-
-  .list-container {
-    overflow-x: auto !important;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .list-container .table {
-    min-width: 700px;
-  }
-}
-
-@media (min-width: 992px) {
+/* Escritorio: sin backdrop del drawer móvil */
+@media (min-width: 1025px) {
   #crm-mobile-nav-backdrop {
     display: none !important;
     pointer-events: none !important;

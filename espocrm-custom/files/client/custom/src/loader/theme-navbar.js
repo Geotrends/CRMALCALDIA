@@ -82,7 +82,38 @@
     injectModernButtons();
 
     function isMobileNav() {
-        return window.matchMedia('(max-width: 991px)').matches;
+        return window.matchMedia('(max-width: 1024px)').matches;
+    }
+
+    function dedupeSideMenuButtons() {
+        var buttons = document.querySelectorAll('#navbar a.side-menu-button');
+
+        if (buttons.length <= 1) {
+            return;
+        }
+
+        for (var i = 1; i < buttons.length; i++) {
+            buttons[i].remove();
+        }
+    }
+
+    function syncDrawerNavbarWidth() {
+        var navbar = document.getElementById('navbar');
+
+        if (!navbar || !isMobileNav()) {
+            return;
+        }
+
+        if (document.body.classList.contains('side-menu-opened')) {
+            navbar.style.width = '';
+            navbar.style.minWidth = '';
+            navbar.style.maxWidth = '';
+            return;
+        }
+
+        navbar.style.width = '0';
+        navbar.style.minWidth = '0';
+        navbar.style.maxWidth = '0';
     }
 
     function setupMinimizerButton() {
@@ -141,11 +172,7 @@
             content.style.marginLeft = '0';
         }
 
-        if (navbar && !document.body.classList.contains('side-menu-opened')) {
-            navbar.style.width = '0';
-            navbar.style.minWidth = '0';
-            navbar.style.maxWidth = '0';
-        }
+        syncDrawerNavbarWidth();
     }
 
     var wasMobile = isMobileNav();
@@ -182,6 +209,7 @@
 
         backdropEl.style.display = isOpen ? 'block' : 'none';
         backdropEl.style.pointerEvents = isOpen ? 'auto' : 'none';
+        syncDrawerNavbarWidth();
     }
 
     function setupMobileMenuControls() {
@@ -227,6 +255,7 @@
             }
 
             updateMobileBackdrop();
+            syncDrawerNavbarWidth();
         });
 
         observer.observe(document.body, {
@@ -318,7 +347,9 @@
         }
 
         setupMinimizerButton();
+        dedupeSideMenuButtons();
         syncMobileNavState();
+        syncDrawerNavbarWidth();
         updateMobileBackdrop();
     }
 
