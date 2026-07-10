@@ -249,6 +249,7 @@ class CaseActaVisitaHelper
             'Visita realizada',
             self::STATUS_VISITA_APROBADA,
             self::STATUS_EN_PROCESO,
+            self::STATUS_EN_PROCESO_OTRA_VISITA,
         ], true);
     }
 

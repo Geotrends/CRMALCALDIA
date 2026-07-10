@@ -335,7 +335,7 @@ define('custom:helpers/acta-visita-case-status', [
             return false;
         }
 
-        return ['Asignado', 'Assigned', 'Visita realizada', 'Visita aprobada', 'En proceso'].indexOf(status) !== -1;
+        return ['Asignado', 'Assigned', 'Visita realizada', 'Visita aprobada', 'En proceso', 'En proceso de otra visita'].indexOf(status) !== -1;
     };
 
     const ACTA_SELECT = [

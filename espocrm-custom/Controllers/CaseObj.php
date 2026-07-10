@@ -398,6 +398,10 @@ class CaseObj extends BaseCaseObj
             throw new Forbidden();
         }
 
+        if (!$this->acl->check('Case', 'confirmarVisitaAprobada')) {
+            throw new Forbidden('Solo Inspección puede aprobar la visita.');
+        }
+
         $user = $this->getUser();
         $profile = $this->injectableFactory->create(AlcaldiaUserProfile::class);
 
@@ -529,7 +533,7 @@ class CaseObj extends BaseCaseObj
 
         if (!CaseActaVisitaHelper::hasSolicitudNuevaVisitaActiva($this->entityManager, $case)) {
             throw new BadRequest(
-                'Debe registrar primero la solicitud de otra visita con su motivo en Inspección.'
+                'Debe registrar primero la solicitud de otra visita con su motivo.'
             );
         }
 
@@ -704,6 +708,10 @@ class CaseObj extends BaseCaseObj
 
         if (!$this->acl->checkEntityRead($case)) {
             throw new Forbidden();
+        }
+
+        if (!$this->acl->check('Case', 'revertirVisitaAprobada')) {
+            throw new Forbidden('Solo Inspección puede revertir la aprobación de la visita.');
         }
 
         if (!$user->isAdmin() && !$profile->isInspeccion($user)) {

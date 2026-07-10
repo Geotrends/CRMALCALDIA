@@ -138,6 +138,7 @@ $caseApiActions = [
     'confirmarVisitaRealizada' => 'yes',
     'confirmarVisitaAprobada' => 'yes',
     'prepararNuevaVisita' => 'yes',
+    'registrarSolicitudNuevaVisita' => 'yes',
     'revertirVisitaAprobada' => 'yes',
     'radicadoConsecutivo' => 'no',
 ];

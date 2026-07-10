@@ -115,15 +115,7 @@ define('custom:views/case/fields/acta-visita-action', [
         },
 
         canApproveVisita: function (user) {
-            if (!user) {
-                return false;
-            }
-
-            if (user.isAdmin && user.isAdmin()) {
-                return true;
-            }
-
-            return RadicacionFields.isInspeccionUser(user);
+            return PatrulleroActa.canAprobarVisita(user);
         },
 
         resolveShowVisitaAprobacion: function (user) {
@@ -154,6 +146,10 @@ define('custom:views/case/fields/acta-visita-action', [
 
         resolveShowAgregarVisita: function () {
             if (!this.canUseTools || !this.hasDiligenciadaActa || this.awaitingNewVisita) {
+                return false;
+            }
+
+            if (!PatrulleroActa.canAgregarNuevaVisita(this.getUser(), this.model)) {
                 return false;
             }
 
@@ -946,6 +942,13 @@ define('custom:views/case/fields/acta-visita-action', [
 
         actionVerActa: function (actaId) {
             const self = this;
+
+            if (!PatrulleroActa.canUseActaVisitaTools(this.getUser(), this.model)) {
+                Espo.Ui.warning(PatrulleroActa.getUnavailableReason(this.getUser(), this.model)
+                    || this.translateCaseLabel('actaVisitaPanelUnavailable'));
+
+                return;
+            }
 
             ActaVisitaModal.openEditById(this, this.model, actaId, this.getUser(), {
                 onAfterSave: function () {

@@ -69,8 +69,18 @@ define('custom:helpers/patrullero-acta', [
             && RadicacionFields.resolveHomeProfile(user) !== 'asignador';
     };
 
+    const canAprobarVisita = function (user) {
+        return isInspeccionUser(user) || (user && user.isAdmin && user.isAdmin());
+    };
+
+    const canAgregarNuevaVisita = function (user, model) {
+        return canUseActaVisitaTools(user, model);
+    };
+
     return {
         canUseActaVisitaTools: canUseActaVisitaTools,
+        canAgregarNuevaVisita: canAgregarNuevaVisita,
+        canAprobarVisita: canAprobarVisita,
         isPatrulleroUser: isPatrulleroUser,
         isInspeccionUser: isInspeccionUser,
         isCasePostRadicado: isCasePostRadicado,

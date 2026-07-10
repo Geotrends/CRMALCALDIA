@@ -141,7 +141,7 @@
     "agregarVisitaSuccess": "Puede diligenciar la nueva visita.",
     "agregarVisitaError": "No se pudo preparar la nueva visita.",
     "necesitaOtraVisita": "Necesita otra visita",
-    "necesitaOtraVisitaHelp": "Indique que se requiere una visita adicional. El caso volverá a Asignado para que Patrullaje registre el nuevo acta.",
+    "necesitaOtraVisitaHelp": "Indique que se requiere una visita adicional. Patrullaje o Inspección pueden registrar el motivo y diligenciar el nuevo acta.",
     "necesitaOtraVisitaConfirmQuestion": "¿Confirma que este caso necesita otra visita en campo?",
     "necesitaOtraVisitaSuccess": "Motivo registrado. Ya puede usar «Agregar visita».",
     "necesitaOtraVisitaError": "No se pudo indicar que se necesita otra visita.",
