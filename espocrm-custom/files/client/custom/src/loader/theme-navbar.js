@@ -348,29 +348,6 @@
         updateMobileBackdrop();
     }
 
-    function watchLoginPage() {
-        if (!document.body || watchLoginPage.started) {
-            return;
-        }
-
-        watchLoginPage.started = true;
-
-        var observer = new MutationObserver(function () {
-            syncLoginDrawerState();
-
-            if (!isLoginPage() && isMobileNav()) {
-                ensureDrawerToggleButton();
-            }
-        });
-
-        observer.observe(document.body, {
-            attributes: true,
-            attributeFilter: ['class'],
-            childList: true,
-            subtree: true,
-        });
-    }
-
     function watchMenuState() {
         if (!document.body || watchMenuState.started) {
             return;
@@ -387,6 +364,8 @@
                 return;
             }
 
+            syncLoginDrawerState();
+            ensureDrawerToggleButton();
             updateMobileBackdrop();
             syncDrawerNavbarWidth();
         });
@@ -557,7 +536,6 @@
     function boot() {
         init();
         setupMobileMenuControls();
-        watchLoginPage();
         watchMenuState();
         window.addEventListener('resize', onViewportChange);
         startObserver();

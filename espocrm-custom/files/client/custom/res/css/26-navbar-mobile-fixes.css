@@ -5,8 +5,8 @@
 /* Login — sin menú móvil ni barra superior */
 body.login-page #crm-drawer-toggle,
 body.login-page #crm-mobile-nav-backdrop,
-body:not(.has-navbar) #crm-drawer-toggle,
-body:not(.has-navbar) #crm-mobile-nav-backdrop {
+body:not(.has-navbar):has(#login) #crm-drawer-toggle,
+body:not(.has-navbar):has(#login) #crm-mobile-nav-backdrop {
   display: none !important;
   visibility: hidden !important;
   pointer-events: none !important;
@@ -14,7 +14,7 @@ body:not(.has-navbar) #crm-mobile-nav-backdrop {
 
 body.login-page[data-navbar=side] #navbar,
 body.login-page #navbar,
-body:not(.has-navbar) #navbar {
+body:not(.has-navbar):has(#login) #navbar {
   display: none !important;
 }
 
