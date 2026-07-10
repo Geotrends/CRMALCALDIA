@@ -94,7 +94,18 @@
   }
 
   body[data-navbar=side].side-menu-opened #navbar .navbar-body,
-  body[data-navbar=side].side-menu-opened #navbar .navbar-collapse,
+  body[data-navbar=side].side-menu-opened #navbar .navbar-collapse.navbar-body {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 1 auto !important;
+    flex-wrap: nowrap !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+    pointer-events: auto !important;
+  }
+
   body[data-navbar=side].side-menu-opened #navbar .navbar-left-container {
     display: flex !important;
     flex-direction: column !important;
@@ -109,10 +120,24 @@
     pointer-events: auto !important;
   }
 
+  body[data-navbar=side].side-menu-opened #navbar .navbar-body > .navbar-right-container {
+    display: block !important;
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    margin-top: auto !important;
+    padding: 0 !important;
+    border-top: 1px solid #e2e8f0;
+    background: #f8fafc !important;
+    box-sizing: border-box !important;
+    overflow: visible !important;
+  }
+
   body[data-navbar=side].side-menu-opened #navbar > .navbar > .crm-sidebar-brand {
     display: block !important;
     visibility: visible !important;
     flex: 0 0 auto !important;
+    padding: 10px 8px 14px !important;
+    border-top: 1px solid #e2e8f0;
   }
 
   body[data-navbar=side].side-menu-opened #navbar ul.tabs {
@@ -173,19 +198,68 @@
   }
 
   body[data-navbar=side].side-menu-opened #navbar .navbar-header {
-    position: static !important;
-    pointer-events: auto !important;
-    flex: 0 0 auto !important;
-    width: 100% !important;
+    display: none !important;
   }
 
+  /* Barra inferior del drawer: búsqueda + acciones */
   body[data-navbar=side].side-menu-opened #navbar .navbar-nav.navbar-right {
     position: static !important;
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
     flex: 0 0 auto !important;
     width: 100% !important;
-    flex-wrap: wrap !important;
-    justify-content: flex-end !important;
-    padding: 0 12px 8px !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 10px 12px 12px !important;
+    box-sizing: border-box !important;
+    background: transparent !important;
+    border: none !important;
+    pointer-events: auto !important;
+  }
+
+  body[data-navbar=side].side-menu-opened #navbar .navbar-nav.navbar-right > li {
+    float: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  body[data-navbar=side].side-menu-opened #navbar .navbar-nav.navbar-right > li.global-search-container {
+    flex: 1 1 100% !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    order: 1;
+  }
+
+  body[data-navbar=side].side-menu-opened #navbar .navbar-nav.navbar-right .global-search-container .input-group {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  body[data-navbar=side].side-menu-opened #navbar .navbar-nav.navbar-right input.global-search-input {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  body[data-navbar=side].side-menu-opened #navbar .navbar-nav.navbar-right > li.quick-create-container,
+  body[data-navbar=side].side-menu-opened #navbar .navbar-nav.navbar-right > li.notifications-badge-container,
+  body[data-navbar=side].side-menu-opened #navbar .navbar-nav.navbar-right > li.menu-container {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    order: 2;
+  }
+
+  body[data-navbar=side].side-menu-opened #navbar .navbar-nav.navbar-right > li > a,
+  body[data-navbar=side].side-menu-opened #navbar .navbar-nav.navbar-right > li > a.notifications-button {
+    margin: 0 auto !important;
   }
 
   /* Scroll principal del contenido */
