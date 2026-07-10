@@ -135,6 +135,7 @@
     "visitaAprobadaCheckHelpRevert": "Solo Inspección. Puede aprobar o quitar la aprobación mientras el caso esté en Visita aprobada.",
     "agregarVisita": "Agregar visita",
     "agregarVisitaHelp": "Registre otra visita en campo. Debe indicar el motivo; la visita anterior permanecerá visible.",
+    "agregarVisitaEnCursoHelp": "Marque «Voy a realizar la visita» y diligencie el acta de la nueva visita.",
     "agregarVisitaEsperaSolicitudHelp": "Primero marque «Necesita otra visita» e indique el motivo. Luego podrá usar este botón.",
     "agregarVisitaConfirmQuestion": "¿Desea registrar una nueva visita para este caso?",
     "agregarVisitaSuccess": "Puede diligenciar la nueva visita.",
@@ -214,6 +215,7 @@
     "En proceso": "En proceso",
     "Visita realizada": "Visita hecha",
     "Visita aprobada": "Visita aprob.",
+    "En proceso de otra visita": "Otra visita",
     "Finalizado": "Finalizado",
     "Proceso cerrado": "Proc. cerrado"
   },
@@ -225,6 +227,7 @@
       "En proceso": "En proceso",
       "Visita realizada": "Visita realizada",
       "Visita aprobada": "Visita aprobada",
+      "En proceso de otra visita": "En proceso de otra visita",
       "Finalizado": "Finalizado",
       "Proceso cerrado": "Proceso cerrado"
     },

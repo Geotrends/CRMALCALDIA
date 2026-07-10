@@ -535,6 +535,35 @@ class CaseObj extends BaseCaseObj
 
         $currentStatus = trim((string) $case->get('status'));
 
+        if (CaseActaVisitaHelper::isCaseEnProcesoOtraVisita($case)) {
+            return [
+                'success' => true,
+                'status' => $currentStatus,
+                'visitNumber' => $visitNumber,
+                'alreadyPrepared' => true,
+            ];
+        }
+
+        if (CaseActaVisitaHelper::isCaseAsignado($case)
+            && CaseActaVisitaHelper::hasSolicitudNuevaVisitaActiva($this->entityManager, $case)) {
+            $case->set('status', CaseActaVisitaHelper::STATUS_EN_PROCESO_OTRA_VISITA);
+
+            $this->entityManager->saveEntity($case, [
+                'skipAll' => true,
+                'skipHooks' => true,
+                'skipCaseStatusUpdate' => true,
+                'skipPatrulleroCaseLimit' => true,
+                'skipCaseExcelAlcaldia' => true,
+            ]);
+
+            return [
+                'success' => true,
+                'status' => CaseActaVisitaHelper::STATUS_EN_PROCESO_OTRA_VISITA,
+                'visitNumber' => $visitNumber,
+                'alreadyPrepared' => false,
+            ];
+        }
+
         if (CaseActaVisitaHelper::isCaseAsignado($case)) {
             return [
                 'success' => true,
@@ -544,7 +573,7 @@ class CaseObj extends BaseCaseObj
             ];
         }
 
-        $case->set('status', 'Asignado');
+        $case->set('status', CaseActaVisitaHelper::STATUS_EN_PROCESO_OTRA_VISITA);
 
         $this->entityManager->saveEntity($case, [
             'skipAll' => true,
@@ -556,7 +585,7 @@ class CaseObj extends BaseCaseObj
 
         return [
             'success' => true,
-            'status' => 'Asignado',
+            'status' => CaseActaVisitaHelper::STATUS_EN_PROCESO_OTRA_VISITA,
             'visitNumber' => $visitNumber,
             'alreadyPrepared' => false,
         ];

@@ -9,6 +9,7 @@ define('custom:views/home', ['views/dashboard'], function (Dep) {
         'En proceso',
         'Visita realizada',
         'Visita aprobada',
+        'En proceso de otra visita',
     ];
 
     var normalize = function (value) {

@@ -41,6 +41,18 @@ define('custom:helpers/acta-visita-case-status', [
         return status === 'Asignado' || status === 'Assigned';
     };
 
+    const isCaseEnProcesoOtraVisita = function (model) {
+        if (!model) {
+            return false;
+        }
+
+        return String(model.get('status') || '').trim() === 'En proceso de otra visita';
+    };
+
+    const isCaseAwaitingFieldVisita = function (model) {
+        return isCaseAsignado(model) || isCaseEnProcesoOtraVisita(model);
+    };
+
     const isActaCompletada = function (acta) {
         if (!acta) {
             return false;
@@ -181,7 +193,7 @@ define('custom:helpers/acta-visita-case-status', [
     };
 
     const isAwaitingNewVisita = function (model, actaList) {
-        if (!isCaseAsignado(model) || !actaList || !actaList.length) {
+        if (!isCaseAwaitingFieldVisita(model) || !actaList || !actaList.length) {
             return false;
         }
 
@@ -289,7 +301,7 @@ define('custom:helpers/acta-visita-case-status', [
 
         const status = String(model.get('status') || '').trim();
 
-        if (isCaseAsignado(model)) {
+        if (isCaseAsignado(model) || isCaseEnProcesoOtraVisita(model)) {
             return false;
         }
 

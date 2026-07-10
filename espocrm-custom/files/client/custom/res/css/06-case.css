@@ -115,6 +115,15 @@
   border-left-color: var(--crm-case-aprobada) !important;
 }
 
+.label-caseEnProcesoOtraVisita,
+.list[data-scope="Case"] .label-caseEnProcesoOtraVisita,
+.detail[data-scope="Case"] .label-caseEnProcesoOtraVisita,
+.label[data-case-status="En proceso de otra visita"] {
+  background: #e0f2fe !important;
+  color: #0c4a6e !important;
+  border-left-color: #7dd3fc !important;
+}
+
 .label-caseFinalizado,
 .list[data-scope="Case"] .label-caseFinalizado,
 .detail[data-scope="Case"] .label-caseFinalizado {

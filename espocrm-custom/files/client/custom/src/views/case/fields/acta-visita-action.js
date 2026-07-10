@@ -74,7 +74,8 @@ define('custom:views/case/fields/acta-visita-action', [
             }
 
             const status = String(this.model.get('status') || '').trim();
-            const isAsignado = status === 'Asignado' || status === 'Assigned';
+            const isAsignado = status === 'Asignado' || status === 'Assigned'
+                || status === 'En proceso de otra visita';
 
             if (PatrulleroActa.isPatrulleroUser(user) && !RadicacionFields.isInspeccionUser(user)) {
                 return isAsignado;
@@ -148,7 +149,7 @@ define('custom:views/case/fields/acta-visita-action', [
 
             const status = String(this.model.get('status') || '').trim();
 
-            return ['Visita realizada', 'En proceso', 'Asignado', 'Assigned'].indexOf(status) !== -1;
+            return ['Visita realizada', 'En proceso', 'En proceso de otra visita', 'Asignado', 'Assigned'].indexOf(status) !== -1;
         },
 
         resolveShowAgregarVisita: function () {
@@ -196,14 +197,14 @@ define('custom:views/case/fields/acta-visita-action', [
         resolveHelpText: function (user) {
             if (this.buildVisitasArchivoCards().length > 0 && !this.actaIsEditMode) {
                 if (this.awaitingNewVisita) {
-                    return this.translateCaseLabel('agregarVisitaHelp');
+                    return this.translateCaseLabel('agregarVisitaEnCursoHelp');
                 }
 
                 return this.translateCaseLabel('actaVisitaPanelHelp');
             }
 
             if (this.awaitingNewVisita) {
-                return this.translateCaseLabel('agregarVisitaHelp');
+                return this.translateCaseLabel('agregarVisitaEnCursoHelp');
             }
 
             if (this.actaIsEditMode) {
@@ -878,7 +879,7 @@ define('custom:views/case/fields/acta-visita-action', [
                 }
 
                 if (self.awaitingNewVisita) {
-                    self.actionAgregarVisita();
+                    self.openActaModalForNewVisita();
 
                     return;
                 }
@@ -960,7 +961,7 @@ define('custom:views/case/fields/acta-visita-action', [
             return Espo.Ajax.postRequest('Case/action/prepararNuevaVisita', {
                 id: this.model.id,
             }).then(function (response) {
-                const newStatus = (response && response.status) || 'Asignado';
+                const newStatus = (response && response.status) || 'En proceso de otra visita';
                 const visitNumber = (response && response.visitNumber) || self.nextVisitNumber;
 
                 self.model.set('status', newStatus);
@@ -1061,6 +1062,22 @@ define('custom:views/case/fields/acta-visita-action', [
             }
 
             this.openAgregarVisitaModal();
+        },
+
+        openActaModalForNewVisita: function () {
+            const self = this;
+
+            ActaVisitaModal.open(this, this.model, this.getUser(), {
+                modoDiligenciamiento: 'Digital',
+                forceCreate: true,
+                visitNumber: this.nextVisitNumber,
+                workflow: this.workflow,
+                onAfterSave: function () {
+                    ActaVisitaCaseStatus.invalidateCache(self.model.id);
+                    self.scheduleLoadActaState();
+                    self.model.fetch();
+                },
+            });
         },
 
         openActaModal: function () {

@@ -8,6 +8,7 @@ define('custom:helpers/case-status-colors', [], function () {
         'En proceso',
         'Visita realizada',
         'Visita aprobada',
+        'En proceso de otra visita',
         'Finalizado',
         'Proceso cerrado',
     ];
@@ -47,6 +48,11 @@ define('custom:helpers/case-status-colors', [], function () {
             text: '#166534',
             border: '#86efac',
         },
+        'En proceso de otra visita': {
+            bg: '#e0f2fe',
+            text: '#0c4a6e',
+            border: '#7dd3fc',
+        },
         'Finalizado': {
             bg: '#ede0d4',
             text: '#6b4423',
@@ -66,6 +72,7 @@ define('custom:helpers/case-status-colors', [], function () {
         'En proceso': 'caseEnProceso',
         'Visita realizada': 'caseVisitaRealizada',
         'Visita aprobada': 'caseVisitaAprobada',
+        'En proceso de otra visita': 'caseEnProcesoOtraVisita',
         'Finalizado': 'caseFinalizado',
         'Proceso cerrado': 'caseCerrado',
     };

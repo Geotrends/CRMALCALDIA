@@ -924,6 +924,7 @@
                 "En proceso",
                 "Visita realizada",
                 "Visita aprobada",
+                "En proceso de otra visita",
                 "Finalizado",
                 "Proceso cerrado"
             ],
@@ -935,6 +936,7 @@
                 "En proceso": "caseEnProceso",
                 "Visita realizada": "caseVisitaRealizada",
                 "Visita aprobada": "caseVisitaAprobada",
+                "En proceso de otra visita": "caseEnProcesoOtraVisita",
                 "Finalizado": "caseFinalizado",
                 "Proceso cerrado": "caseCerrado"
             },

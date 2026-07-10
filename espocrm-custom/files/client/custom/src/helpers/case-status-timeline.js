@@ -36,6 +36,10 @@ define('custom:helpers/case-status-timeline', [
             return STATUS_FLOW.indexOf('Visita realizada');
         }
 
+        if (normalized === 'En proceso de otra visita') {
+            return STATUS_FLOW.indexOf('Visita aprobada');
+        }
+
         const idx = STATUS_FLOW.indexOf(normalized);
 
         return idx >= 0 ? idx : 0;

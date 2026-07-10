@@ -17,6 +17,8 @@ class CaseActaVisitaHelper
     /** @deprecated Legacy — nuevos casos pasan directo a Visita realizada */
     public const STATUS_EN_PROCESO = 'En proceso';
 
+    public const STATUS_EN_PROCESO_OTRA_VISITA = 'En proceso de otra visita';
+
     /** @var string[] */
     public const CONTENT_FIELDS = [
         'objetoVisita',
@@ -31,6 +33,7 @@ class CaseActaVisitaHelper
         'Asignado',
         'Assigned',
         'En proceso',
+        self::STATUS_EN_PROCESO_OTRA_VISITA,
     ];
 
     /** @var string[] */
@@ -222,6 +225,16 @@ class CaseActaVisitaHelper
         return in_array($status, ['Asignado', 'Assigned'], true);
     }
 
+    public static function isCaseEnProcesoOtraVisita(Entity $case): bool
+    {
+        return trim((string) $case->get('status')) === self::STATUS_EN_PROCESO_OTRA_VISITA;
+    }
+
+    public static function isCaseAwaitingFieldVisita(Entity $case): bool
+    {
+        return self::isCaseAsignado($case) || self::isCaseEnProcesoOtraVisita($case);
+    }
+
     public static function canRequestNewVisita(Entity $case): bool
     {
         $status = trim((string) $case->get('status'));
@@ -246,7 +259,7 @@ class CaseActaVisitaHelper
 
     public static function isAwaitingNewVisita(Entity $case, ?Entity $latestActa): bool
     {
-        if (!$latestActa || !self::isCaseAsignado($case)) {
+        if (!$latestActa || !self::isCaseAwaitingFieldVisita($case)) {
             return false;
         }
 
@@ -255,7 +268,7 @@ class CaseActaVisitaHelper
 
     public static function hasSolicitudNuevaVisitaActiva(EntityManager $entityManager, Entity $case): bool
     {
-        if (self::isCaseAsignado($case)) {
+        if (self::isCaseAwaitingFieldVisita($case)) {
             $latest = $entityManager
                 ->getRDBRepository('VisitaHistorial')
                 ->where(['caseId' => $case->getId()])
