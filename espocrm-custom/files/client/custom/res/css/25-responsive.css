@@ -196,12 +196,13 @@
     pointer-events: auto !important;
   }
 
-  body[data-navbar=side].side-menu-opened::after {
-    content: '';
+  /* Backdrop real (controlado por theme-navbar.js) — sin ::after que bloquee clics */
+  #crm-mobile-nav-backdrop {
+    display: none;
     position: fixed;
     inset: 0;
-    background: rgba(15, 23, 42, 0.45);
     z-index: 1060;
+    background: rgba(15, 23, 42, 0.45);
     pointer-events: auto;
   }
 
@@ -209,6 +210,18 @@
     content: none !important;
     display: none !important;
     pointer-events: none !important;
+  }
+
+  body[data-navbar=side].side-menu-opened::after {
+    content: none !important;
+    display: none !important;
+    pointer-events: none !important;
+  }
+
+  body[data-navbar=side]:not(.side-menu-opened) #content,
+  body[data-navbar=side]:not(.side-menu-opened) #content #main {
+    position: relative !important;
+    z-index: 1 !important;
   }
 
   body[data-navbar=side].side-menu-opened #navbar ul.tabs span.full-label,

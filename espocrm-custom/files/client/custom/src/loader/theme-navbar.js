@@ -126,6 +126,37 @@
     }
 
     var wasMobile = isMobileNav();
+    var backdropEl = null;
+
+    function ensureBackdrop() {
+        if (backdropEl) {
+            return;
+        }
+
+        backdropEl = document.createElement('div');
+        backdropEl.id = 'crm-mobile-nav-backdrop';
+        backdropEl.setAttribute('aria-hidden', 'true');
+        backdropEl.addEventListener('click', function () {
+            document.body.classList.remove('side-menu-opened');
+            updateMobileBackdrop();
+        });
+        document.body.appendChild(backdropEl);
+    }
+
+    function updateMobileBackdrop() {
+        if (!isMobileNav()) {
+            if (backdropEl) {
+                backdropEl.style.display = 'none';
+            }
+
+            return;
+        }
+
+        ensureBackdrop();
+        backdropEl.style.display = document.body.classList.contains('side-menu-opened')
+            ? 'block'
+            : 'none';
+    }
 
     function setupMobileMenuControls() {
         document.addEventListener('click', function (e) {
@@ -137,13 +168,45 @@
                 if (e.target.closest('#navbar ul.tabs a')) {
                     setTimeout(function () {
                         document.body.classList.remove('side-menu-opened');
+                        updateMobileBackdrop();
                     }, 120);
                 }
 
                 return;
             }
 
+            if (e.target.id === 'crm-mobile-nav-backdrop') {
+                return;
+            }
+
             document.body.classList.remove('side-menu-opened');
+            updateMobileBackdrop();
+        });
+    }
+
+    function watchMenuState() {
+        if (!document.body || watchMenuState.started) {
+            return;
+        }
+
+        watchMenuState.started = true;
+
+        var observer = new MutationObserver(function (mutations) {
+            var classChanged = mutations.some(function (mutation) {
+                return mutation.type === 'attributes' && mutation.attributeName === 'class';
+            });
+
+            if (!classChanged) {
+                return;
+            }
+
+            updateMobileBackdrop();
+            syncMobileNavState();
+        });
+
+        observer.observe(document.body, {
+            attributes: true,
+            attributeFilter: ['class'],
         });
     }
 
@@ -231,6 +294,7 @@
 
         setupMinimizerButton();
         syncMobileNavState();
+        updateMobileBackdrop();
     }
 
     function init() {
@@ -239,6 +303,7 @@
         }
 
         syncNavbar();
+        updateMobileBackdrop();
         setTimeout(syncNavbar, 600);
     }
 
@@ -283,12 +348,14 @@
             wasMobile = nowMobile;
             setupMinimizerButton();
             syncMobileNavState();
+            updateMobileBackdrop();
         }, 150);
     }
 
     function boot() {
         init();
         setupMobileMenuControls();
+        watchMenuState();
         window.addEventListener('resize', onViewportChange);
         startObserver();
     }
