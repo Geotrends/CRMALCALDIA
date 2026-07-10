@@ -59,8 +59,10 @@ body[data-navbar=side] #navbar .navbar-header {
   float: none !important;
 }
 
-body[data-navbar=side] #navbar a.side-menu-button {
-  display: none !important;
+@media (min-width: 1025px) {
+  body[data-navbar=side] #navbar a.side-menu-button {
+    display: none !important;
+  }
 }
 
 /* Menú ocupa el espacio central; logo va al fondo del panel */

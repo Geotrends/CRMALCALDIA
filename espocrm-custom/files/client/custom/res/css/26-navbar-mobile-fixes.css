@@ -1,0 +1,172 @@
+/**
+ * Fixes finales navbar móvil — carga al final (client.json) para máxima prioridad.
+ */
+
+/* Escritorio: solo minimizer; hamburguesa Espo oculta */
+@media (min-width: 1025px) {
+  body[data-navbar=side] #navbar a.side-menu-button,
+  #crm-drawer-toggle {
+    display: none !important;
+  }
+}
+
+/* Móvil / tablet: botón drawer propio (siempre visible y clickeable) */
+@media (max-width: 1024px) {
+  body[data-navbar=side] #navbar a.side-menu-button {
+    display: none !important;
+  }
+
+  #crm-drawer-toggle {
+    position: fixed !important;
+    top: 8px !important;
+    left: 8px !important;
+    z-index: 1110 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 1px solid var(--crm-border, #e2e8f0) !important;
+    border-radius: 12px !important;
+    background: #fff !important;
+    color: var(--crm-text-secondary, #64748b) !important;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08) !important;
+    cursor: pointer !important;
+    pointer-events: auto !important;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  #crm-drawer-toggle .fas {
+    font-size: 18px !important;
+    line-height: 1 !important;
+  }
+
+  body[data-navbar=side].side-menu-opened #crm-drawer-toggle {
+    color: var(--crm-primary, #1d8a6e) !important;
+    border-color: var(--crm-primary, #1d8a6e) !important;
+  }
+
+  /* Navbar cerrado: no bloquear clics del botón drawer */
+  body[data-navbar=side]:not(.side-menu-opened) #navbar {
+    pointer-events: none !important;
+  }
+
+  body[data-navbar=side]:not(.side-menu-opened) #navbar .navbar-nav.navbar-right {
+    pointer-events: auto !important;
+  }
+
+  body[data-navbar=side] #navbar .navbar-header {
+    pointer-events: none !important;
+  }
+
+  /* Drawer abierto */
+  body[data-navbar=side].side-menu-opened #navbar {
+    pointer-events: auto !important;
+    width: min(280px, 85vw) !important;
+    min-width: min(280px, 85vw) !important;
+    max-width: min(280px, 85vw) !important;
+    z-index: 1088 !important;
+  }
+
+  body[data-navbar=side].side-menu-opened #navbar > .navbar {
+    pointer-events: auto !important;
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    height: 100vh !important;
+    min-height: 100vh !important;
+    background: #fff !important;
+  }
+
+  body[data-navbar=side].side-menu-opened #navbar .navbar-left-container,
+  body[data-navbar=side].side-menu-opened #navbar ul.tabs {
+    display: flex !important;
+    visibility: visible !important;
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+    pointer-events: auto !important;
+  }
+
+  body[data-navbar=side].side-menu-opened #navbar ul.tabs {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Scroll principal del contenido */
+  body[data-navbar=side]:not(.login-page) #content {
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior-y: contain;
+  }
+
+  body[data-navbar=side].side-menu-opened:not(.login-page) #content {
+    overflow: hidden !important;
+  }
+
+  body[data-navbar=side]:not(.login-page) #content #main,
+  body[data-navbar=side]:not(.login-page) #content .list,
+  body[data-navbar=side]:not(.login-page) #content .detail,
+  body[data-navbar=side]:not(.login-page) #content .record,
+  body[data-navbar=side]:not(.login-page) #content .edit {
+    overflow: visible !important;
+    max-height: none !important;
+    height: auto !important;
+  }
+}
+
+/* Menú usuario (tres puntos) — fondo blanco sólido en TODOS los tamaños */
+body[data-navbar=side] #navbar .navbar-nav.navbar-right li.menu-container .dropdown-menu,
+body[data-navbar=side] #navbar .navbar-nav.navbar-right .menu-container .dropdown-menu,
+body[data-navbar=side] #navbar .navbar-nav.navbar-right > li.open > .dropdown-menu,
+body[data-navbar=side] #navbar .navbar-nav.navbar-right .dropdown-menu,
+body[data-navbar=side] #navbar .menu-container.open .dropdown-menu,
+body[data-navbar=side] #navbar .menu-container .dropdown-menu {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+  opacity: 1 !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.18) !important;
+  z-index: 1200 !important;
+  overflow: hidden !important;
+}
+
+body[data-navbar=side] #navbar .navbar-nav.navbar-right .dropdown-menu > li,
+body[data-navbar=side] #navbar .navbar-nav.navbar-right .dropdown-menu > li > a {
+  background-color: #ffffff !important;
+  background-image: none !important;
+  opacity: 1 !important;
+}
+
+body[data-navbar=side] #navbar .navbar-nav.navbar-right .dropdown-menu > li > a:hover,
+body[data-navbar=side] #navbar .navbar-nav.navbar-right .dropdown-menu > li > a:focus {
+  background-color: #f1f5f9 !important;
+}
+
+body[data-navbar=side] #navbar .navbar-nav.navbar-right .dropdown-menu > li.divider {
+  background-color: #e2e8f0 !important;
+  height: 1px !important;
+  margin: 6px 0 !important;
+  opacity: 1 !important;
+}
+
+body[data-navbar=side] #navbar .navbar-nav.navbar-right,
+body[data-navbar=side] #navbar .navbar-body,
+body[data-navbar=side] #navbar .navbar-right-container,
+body[data-navbar=side] #navbar .menu-container {
+  overflow: visible !important;
+}

@@ -8,6 +8,35 @@
     var LOGO_SRC = 'client/custom/res/img/logo-envigado.png';
 
     var STYLE_ID = 'crm-modern-buttons-style';
+    var NAV_FIX_STYLE_ID = 'crm-navbar-mobile-fix-style';
+
+    function injectNavbarMobileFixStyle() {
+        if (document.getElementById(NAV_FIX_STYLE_ID)) {
+            return;
+        }
+
+        var css = '' +
+            '@media (max-width:1024px){' +
+            '#crm-drawer-toggle{display:inline-flex!important;align-items:center;justify-content:center;' +
+            'position:fixed;top:8px;left:8px;z-index:1110;width:44px;height:44px;border-radius:12px;' +
+            'border:1px solid #e2e8f0;background:#fff!important;color:#64748b;cursor:pointer;pointer-events:auto!important;}' +
+            'body[data-navbar=side] #navbar a.side-menu-button{display:none!important;}}' +
+            '@media (min-width:1025px){#crm-drawer-toggle{display:none!important;}}' +
+            'body[data-navbar=side] #navbar .navbar-nav.navbar-right .dropdown-menu,' +
+            'body[data-navbar=side] #navbar .menu-container .dropdown-menu{' +
+            'background:#fff!important;background-color:#fff!important;opacity:1!important;' +
+            'border:1px solid #e2e8f0!important;box-shadow:0 10px 28px rgba(15,23,42,.18)!important;z-index:1200!important;}' +
+            'body[data-navbar=side] #navbar .navbar-nav.navbar-right .dropdown-menu>li,' +
+            'body[data-navbar=side] #navbar .navbar-nav.navbar-right .dropdown-menu>li>a{' +
+            'background-color:#fff!important;opacity:1!important;}';
+
+        var style = document.createElement('style');
+        style.id = NAV_FIX_STYLE_ID;
+        style.textContent = css;
+        (document.head || document.documentElement).appendChild(style);
+    }
+
+    injectNavbarMobileFixStyle();
 
     function injectModernButtons() {
         if (document.getElementById(STYLE_ID)) {
@@ -86,14 +115,57 @@
     }
 
     function dedupeSideMenuButtons() {
-        var buttons = document.querySelectorAll('#navbar a.side-menu-button');
-
-        if (buttons.length <= 1) {
+        if (!isMobileNav()) {
             return;
         }
 
-        for (var i = 1; i < buttons.length; i++) {
-            buttons[i].remove();
+        document.querySelectorAll('#navbar a.side-menu-button').forEach(function (btn) {
+            btn.style.display = 'none';
+        });
+    }
+
+    function toggleDrawer(forceOpen) {
+        if (!isMobileNav()) {
+            return;
+        }
+
+        document.body.classList.remove('minimized');
+
+        var shouldOpen = typeof forceOpen === 'boolean'
+            ? forceOpen
+            : !document.body.classList.contains('side-menu-opened');
+
+        document.body.classList.toggle('side-menu-opened', shouldOpen);
+        updateMobileBackdrop();
+        syncDrawerNavbarWidth();
+    }
+
+    function ensureDrawerToggleButton() {
+        if (!isMobileNav()) {
+            var existing = document.getElementById('crm-drawer-toggle');
+
+            if (existing) {
+                existing.remove();
+            }
+
+            return;
+        }
+
+        var btn = document.getElementById('crm-drawer-toggle');
+
+        if (!btn) {
+            btn = document.createElement('button');
+            btn.type = 'button';
+            btn.id = 'crm-drawer-toggle';
+            btn.className = 'crm-drawer-toggle';
+            btn.setAttribute('aria-label', 'Abrir menú');
+            btn.innerHTML = '<span class="fas fa-bars" aria-hidden="true"></span>';
+            btn.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                toggleDrawer();
+            });
+            document.body.appendChild(btn);
         }
     }
 
@@ -187,8 +259,7 @@
         backdropEl.id = 'crm-mobile-nav-backdrop';
         backdropEl.setAttribute('aria-hidden', 'true');
         backdropEl.addEventListener('click', function () {
-            document.body.classList.remove('side-menu-opened');
-            updateMobileBackdrop();
+            toggleDrawer(false);
         });
         document.body.appendChild(backdropEl);
     }
@@ -218,11 +289,14 @@
                 return;
             }
 
+            if (e.target.closest('#crm-drawer-toggle')) {
+                return;
+            }
+
             if (e.target.closest('#navbar')) {
                 if (e.target.closest('#navbar ul.tabs a')) {
                     setTimeout(function () {
-                        document.body.classList.remove('side-menu-opened');
-                        updateMobileBackdrop();
+                        toggleDrawer(false);
                     }, 120);
                 }
 
@@ -233,8 +307,7 @@
                 return;
             }
 
-            document.body.classList.remove('side-menu-opened');
-            updateMobileBackdrop();
+            toggleDrawer(false);
         });
     }
 
@@ -348,19 +421,26 @@
 
         setupMinimizerButton();
         dedupeSideMenuButtons();
+        ensureDrawerToggleButton();
         syncMobileNavState();
         syncDrawerNavbarWidth();
         updateMobileBackdrop();
     }
 
     function init() {
+        ensureDrawerToggleButton();
+
         if (isMobileNav()) {
-            document.body.classList.remove('side-menu-opened');
+            toggleDrawer(false);
         }
 
         syncNavbar();
         updateMobileBackdrop();
         setTimeout(syncNavbar, 600);
+        setTimeout(function () {
+            ensureDrawerToggleButton();
+            syncNavbar();
+        }, 1500);
     }
 
     function startObserver() {
@@ -379,6 +459,8 @@
             }
 
             setupMinimizerButton();
+            ensureDrawerToggleButton();
+            dedupeSideMenuButtons();
         });
 
         observer.observe(navbar, {
@@ -398,11 +480,13 @@
             var nowMobile = isMobileNav();
 
             if (nowMobile && !wasMobile) {
-                document.body.classList.remove('side-menu-opened');
+                toggleDrawer(false);
             }
 
             wasMobile = nowMobile;
             setupMinimizerButton();
+            ensureDrawerToggleButton();
+            dedupeSideMenuButtons();
             syncMobileNavState({ fromViewportChange: true });
             updateMobileBackdrop();
         }, 150);

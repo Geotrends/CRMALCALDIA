@@ -2,7 +2,8 @@
     "cssList": [
         "client/custom/res/css/main.css",
         "client/custom/res/css/22-ui-toasts.css",
-        "client/custom/res/css/23-buttons.css"
+        "client/custom/res/css/23-buttons.css",
+        "client/custom/res/css/26-navbar-mobile-fixes.css"
     ],
     "scriptList": [
         "client/custom/src/loader/route-sanitize.js",
