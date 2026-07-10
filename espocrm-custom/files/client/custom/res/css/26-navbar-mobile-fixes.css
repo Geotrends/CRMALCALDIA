@@ -2,6 +2,33 @@
  * Fixes finales navbar móvil — carga al final (client.json) para máxima prioridad.
  */
 
+/* Login — sin menú móvil ni barra superior */
+body.login-page #crm-drawer-toggle,
+body.login-page #crm-mobile-nav-backdrop,
+body:not(.has-navbar) #crm-drawer-toggle,
+body:not(.has-navbar) #crm-mobile-nav-backdrop {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+body.login-page[data-navbar=side] #navbar,
+body.login-page #navbar,
+body:not(.has-navbar) #navbar {
+  display: none !important;
+}
+
+body.login-page[data-navbar=side]::before,
+body.login-page::before {
+  display: none !important;
+  content: none !important;
+}
+
+body.login-page #content #main,
+body.login-page[data-navbar=side] #content #main {
+  padding-top: 0 !important;
+}
+
 /* Escritorio: solo minimizer; hamburguesa Espo oculta */
 @media (min-width: 1025px) {
   body[data-navbar=side] #navbar a.side-menu-button,
@@ -12,6 +39,10 @@
 
 /* Móvil / tablet: botón drawer propio (siempre visible y clickeable) */
 @media (max-width: 1024px) {
+  body.login-page #crm-drawer-toggle {
+    display: none !important;
+  }
+
   body[data-navbar=side] #navbar a.side-menu-button {
     display: none !important;
   }
@@ -47,6 +78,11 @@
   body[data-navbar=side].side-menu-opened #crm-drawer-toggle {
     color: var(--crm-primary, #1d8a6e) !important;
     border-color: var(--crm-primary, #1d8a6e) !important;
+    z-index: 1115 !important;
+  }
+
+  #crm-mobile-nav-backdrop {
+    z-index: 1095 !important;
   }
 
   /* Navbar cerrado: no bloquear clics del botón drawer */
@@ -56,6 +92,48 @@
 
   body[data-navbar=side]:not(.side-menu-opened) #navbar .navbar-nav.navbar-right {
     pointer-events: auto !important;
+    flex-wrap: wrap !important;
+    align-content: flex-start !important;
+    align-items: center !important;
+    row-gap: 0 !important;
+  }
+
+  /* Barra superior cerrada: iconos arriba, búsqueda abajo con margen */
+  body[data-navbar=side]:not(.login-page):not(.side-menu-opened) #navbar .navbar-nav.navbar-right {
+    top: 8px !important;
+    left: 56px !important;
+    right: 8px !important;
+    width: calc(100vw - 64px) !important;
+    max-width: calc(100vw - 64px) !important;
+  }
+
+  body[data-navbar=side]:not(.login-page):not(.side-menu-opened) #navbar .navbar-nav.navbar-right > li.quick-create-container,
+  body[data-navbar=side]:not(.login-page):not(.side-menu-opened) #navbar .navbar-nav.navbar-right > li.notifications-badge-container,
+  body[data-navbar=side]:not(.login-page):not(.side-menu-opened) #navbar .navbar-nav.navbar-right > li.menu-container {
+    order: 1 !important;
+    flex: 0 0 auto !important;
+  }
+
+  body[data-navbar=side]:not(.login-page):not(.side-menu-opened) #navbar .navbar-nav.navbar-right > li.global-search-container {
+    order: 2 !important;
+    flex: 1 1 100% !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-top: 10px !important;
+  }
+
+  body[data-navbar=side]:not(.login-page):not(.side-menu-opened) #navbar .navbar-nav.navbar-right .global-search-container .input-group {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  body[data-navbar=side]:not(.login-page):not(.side-menu-opened) #content #main,
+  body[data-navbar=side]:not(.login-page):not(.side-menu-opened) #content #main:has(.custom-home) {
+    padding-top: 108px !important;
+  }
+
+  body[data-navbar=side]:not(.login-page):not(.side-menu-opened)::before {
+    height: 100px !important;
   }
 
   body[data-navbar=side] #navbar .navbar-header {
@@ -69,11 +147,12 @@
     top: 0 !important;
     bottom: 0 !important;
     pointer-events: auto !important;
-    width: min(280px, 85vw) !important;
-    min-width: min(280px, 85vw) !important;
-    max-width: min(280px, 85vw) !important;
+    width: min(300px, 92vw) !important;
+    min-width: min(300px, 92vw) !important;
+    max-width: min(300px, 92vw) !important;
     height: 100vh !important;
-    z-index: 1088 !important;
+    height: 100dvh !important;
+    z-index: 1100 !important;
   }
 
   body[data-navbar=side].side-menu-opened #navbar > .navbar {
@@ -284,6 +363,30 @@
     overflow: visible !important;
     max-height: none !important;
     height: auto !important;
+  }
+}
+
+@media (max-width: 480px) {
+  body[data-navbar=side]:not(.login-page):not(.side-menu-opened) #navbar .navbar-nav.navbar-right {
+    left: 48px !important;
+    right: 4px !important;
+    width: calc(100vw - 52px) !important;
+    max-width: calc(100vw - 52px) !important;
+  }
+
+  body[data-navbar=side]:not(.login-page):not(.side-menu-opened) #navbar .navbar-nav.navbar-right > li.global-search-container {
+    margin-top: 12px !important;
+  }
+
+  body[data-navbar=side]:not(.login-page):not(.side-menu-opened) #content #main,
+  body[data-navbar=side]:not(.login-page):not(.side-menu-opened) #content #main:has(.custom-home) {
+    padding-top: 112px !important;
+  }
+
+  body[data-navbar=side].side-menu-opened #navbar {
+    width: min(320px, 94vw) !important;
+    min-width: min(320px, 94vw) !important;
+    max-width: min(320px, 94vw) !important;
   }
 }
 

@@ -119,6 +119,17 @@
         return window.matchMedia('(max-width: 1024px)').matches;
     }
 
+    function isLoginPage() {
+        return document.body && (
+            document.body.classList.contains('login-page') ||
+            !!document.querySelector('#login')
+        );
+    }
+
+    function canUseMobileDrawer() {
+        return isMobileNav() && !isLoginPage();
+    }
+
     function dedupeSideMenuButtons() {
         if (!isMobileNav()) {
             return;
@@ -130,7 +141,7 @@
     }
 
     function toggleDrawer(forceOpen) {
-        if (!isMobileNav()) {
+        if (!canUseMobileDrawer()) {
             return;
         }
 
@@ -146,11 +157,16 @@
     }
 
     function ensureDrawerToggleButton() {
-        if (!isMobileNav()) {
+        if (!canUseMobileDrawer()) {
             var existing = document.getElementById('crm-drawer-toggle');
 
             if (existing) {
                 existing.remove();
+            }
+
+            if (isLoginPage()) {
+                document.body.classList.remove('side-menu-opened');
+                updateMobileBackdrop();
             }
 
             return;
@@ -177,7 +193,7 @@
     function syncDrawerNavbarWidth() {
         var navbar = document.getElementById('navbar');
 
-        if (!navbar || !isMobileNav()) {
+        if (!navbar || !canUseMobileDrawer()) {
             return;
         }
 
@@ -270,7 +286,7 @@
     }
 
     function updateMobileBackdrop() {
-        if (!isMobileNav()) {
+        if (!canUseMobileDrawer()) {
             if (backdropEl) {
                 backdropEl.style.display = 'none';
                 backdropEl.style.pointerEvents = 'none';
@@ -290,7 +306,7 @@
 
     function setupMobileMenuControls() {
         document.addEventListener('click', function (e) {
-            if (!isMobileNav() || !document.body.classList.contains('side-menu-opened')) {
+            if (!canUseMobileDrawer() || !document.body.classList.contains('side-menu-opened')) {
                 return;
             }
 
@@ -313,6 +329,45 @@
             }
 
             toggleDrawer(false);
+        });
+    }
+
+    function syncLoginDrawerState() {
+        if (!isLoginPage()) {
+            return;
+        }
+
+        document.body.classList.remove('side-menu-opened');
+
+        var btn = document.getElementById('crm-drawer-toggle');
+
+        if (btn) {
+            btn.remove();
+        }
+
+        updateMobileBackdrop();
+    }
+
+    function watchLoginPage() {
+        if (!document.body || watchLoginPage.started) {
+            return;
+        }
+
+        watchLoginPage.started = true;
+
+        var observer = new MutationObserver(function () {
+            syncLoginDrawerState();
+
+            if (!isLoginPage() && isMobileNav()) {
+                ensureDrawerToggleButton();
+            }
+        });
+
+        observer.observe(document.body, {
+            attributes: true,
+            attributeFilter: ['class'],
+            childList: true,
+            subtree: true,
         });
     }
 
@@ -433,9 +488,10 @@
     }
 
     function init() {
+        syncLoginDrawerState();
         ensureDrawerToggleButton();
 
-        if (isMobileNav()) {
+        if (canUseMobileDrawer()) {
             toggleDrawer(false);
         }
 
@@ -443,6 +499,7 @@
         updateMobileBackdrop();
         setTimeout(syncNavbar, 600);
         setTimeout(function () {
+            syncLoginDrawerState();
             ensureDrawerToggleButton();
             syncNavbar();
         }, 1500);
@@ -500,6 +557,7 @@
     function boot() {
         init();
         setupMobileMenuControls();
+        watchLoginPage();
         watchMenuState();
         window.addEventListener('resize', onViewportChange);
         startObserver();
