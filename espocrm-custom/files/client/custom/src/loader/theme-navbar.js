@@ -82,7 +82,7 @@
     injectModernButtons();
 
     function isMobileNav() {
-        return window.matchMedia('(max-width: 1024px)').matches;
+        return window.matchMedia('(max-width: 991px)').matches;
     }
 
     function setupMinimizerButton() {
@@ -112,16 +112,36 @@
     }
 
     function syncMobileNavState() {
+        var navbar = document.getElementById('navbar');
+        var content = document.getElementById('content');
+
         if (!isMobileNav()) {
+            document.body.classList.remove('side-menu-opened');
+
+            if (content) {
+                content.style.marginLeft = '';
+            }
+
+            if (navbar) {
+                navbar.style.width = '';
+                navbar.style.minWidth = '';
+                navbar.style.maxWidth = '';
+            }
+
+            updateMobileBackdrop();
             return;
         }
 
         document.body.classList.remove('minimized');
 
-        var content = document.getElementById('content');
-
         if (content) {
             content.style.marginLeft = '0';
+        }
+
+        if (navbar && !document.body.classList.contains('side-menu-opened')) {
+            navbar.style.width = '0';
+            navbar.style.minWidth = '0';
+            navbar.style.maxWidth = '0';
         }
     }
 
@@ -147,15 +167,18 @@
         if (!isMobileNav()) {
             if (backdropEl) {
                 backdropEl.style.display = 'none';
+                backdropEl.style.pointerEvents = 'none';
             }
 
             return;
         }
 
         ensureBackdrop();
-        backdropEl.style.display = document.body.classList.contains('side-menu-opened')
-            ? 'block'
-            : 'none';
+
+        var isOpen = document.body.classList.contains('side-menu-opened');
+
+        backdropEl.style.display = isOpen ? 'block' : 'none';
+        backdropEl.style.pointerEvents = isOpen ? 'auto' : 'none';
     }
 
     function setupMobileMenuControls() {
