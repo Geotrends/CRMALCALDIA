@@ -43,7 +43,18 @@
             return null;
         }
 
-        var observer = new MutationObserver(callback);
+        var timer = null;
+
+        var observer = new MutationObserver(function () {
+            if (timer) {
+                return;
+            }
+
+            timer = window.setTimeout(function () {
+                timer = null;
+                callback();
+            }, 250);
+        });
 
         observer.observe(document.body, {
             childList: true,

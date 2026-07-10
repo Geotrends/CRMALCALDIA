@@ -47,16 +47,47 @@
     }
 
     function syncLoginPageClass() {
-        if (document.querySelector('#login')) {
-            document.body.classList.add('login-page');
+        if (!document.body) {
+            return;
+        }
+
+        var hasLogin = !!document.querySelector('#login');
+
+        if (hasLogin) {
+            if (!document.body.classList.contains('login-page')) {
+                document.body.classList.add('login-page');
+            }
+
             applyEnvigadoLogo();
-        } else {
+            return;
+        }
+
+        if (document.body.classList.contains('login-page')) {
             document.body.classList.remove('login-page');
         }
     }
 
+    var syncLoginPageTimer = null;
+
+    function scheduleSyncLoginPageClass() {
+        if (syncLoginPageTimer) {
+            return;
+        }
+
+        syncLoginPageTimer = window.setTimeout(function () {
+            syncLoginPageTimer = null;
+            syncLoginPageClass();
+        }, 80);
+    }
+
     function startObserver() {
-        var observer = new MutationObserver(syncLoginPageClass);
+        if (!document.body || startObserver.started) {
+            return;
+        }
+
+        startObserver.started = true;
+
+        var observer = new MutationObserver(scheduleSyncLoginPageClass);
 
         observer.observe(document.body, {
             childList: true,

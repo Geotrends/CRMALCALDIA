@@ -3,17 +3,17 @@
  * html/body bloqueados para evitar doble barra de desplazamiento.
  */
 
-html:has(body[data-navbar=side]:not(.login-page)) {
+html:has(body[data-navbar=side]:not(.login-page):not(:has(#login))) {
   height: 100%;
   overflow: hidden;
 }
 
-body[data-navbar=side]:not(.login-page) {
+body[data-navbar=side]:not(.login-page):not(:has(#login)) {
   height: 100%;
   overflow: hidden !important;
 }
 
-body[data-navbar=side]:not(.login-page) #content {
+body[data-navbar=side]:not(.login-page):not(:has(#login)) #content {
   box-sizing: border-box;
   height: 100vh;
   height: 100dvh;

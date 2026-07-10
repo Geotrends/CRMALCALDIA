@@ -78,8 +78,17 @@
             return;
         }
 
+        var patchTimer = null;
+
         var observer = new MutationObserver(function () {
-            patchList();
+            if (patchTimer) {
+                return;
+            }
+
+            patchTimer = window.setTimeout(function () {
+                patchTimer = null;
+                patchList();
+            }, 200);
         });
 
         observer.observe(document.body, {

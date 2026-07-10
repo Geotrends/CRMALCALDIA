@@ -18,12 +18,6 @@ body:not(.has-navbar):has(#login) #navbar {
   display: none !important;
 }
 
-body.login-page[data-navbar=side]::before,
-body.login-page::before {
-  display: none !important;
-  content: none !important;
-}
-
 body.login-page #content #main,
 body.login-page[data-navbar=side] #content #main {
   padding-top: 0 !important;
