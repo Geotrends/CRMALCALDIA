@@ -74,7 +74,25 @@ define('custom:helpers/patrullero-acta', [
     };
 
     const canAgregarNuevaVisita = function (user, model) {
-        return canUseActaVisitaTools(user, model);
+        if (!user || !model || !model.id) {
+            return false;
+        }
+
+        if (user.isAdmin && user.isAdmin()) {
+            return true;
+        }
+
+        // Inspección puede agregar visitas en cualquier caso listo para acta.
+        if (isInspeccionUser(user)) {
+            return isCaseReadyForActa(model);
+        }
+
+        // Patrullaje solo en casos asignados a sí mismo.
+        if (isPatrulleroUser(user)) {
+            return canUseActaVisitaTools(user, model);
+        }
+
+        return false;
     };
 
     return {

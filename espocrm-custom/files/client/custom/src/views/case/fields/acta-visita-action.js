@@ -150,11 +150,14 @@ define('custom:views/case/fields/acta-visita-action', [
         },
 
         resolveShowAgregarVisita: function () {
-            if (!this.canUseTools || !this.hasDiligenciadaActa || this.awaitingNewVisita) {
+            if (!this.hasDiligenciadaActa || this.awaitingNewVisita) {
                 return false;
             }
 
-            if (!PatrulleroActa.canAgregarNuevaVisita(this.getUser(), this.model)) {
+            const user = this.getUser();
+
+            // Inspección y Patrullaje (asignado) pueden registrar otra visita.
+            if (!PatrulleroActa.canAgregarNuevaVisita(user, this.model)) {
                 return false;
             }
 
@@ -162,7 +165,8 @@ define('custom:views/case/fields/acta-visita-action', [
         },
 
         resolveShowAgregarVisitaArchivo: function () {
-            return this.showAgregarVisita && this.buildVisitasArchivoCards().length > 0;
+            // Visible aunque el archivo aún no tenga tarjetas (no depender solo del layout).
+            return !!this.showAgregarVisita;
         },
 
         canEnableAgregarVisita: function () {

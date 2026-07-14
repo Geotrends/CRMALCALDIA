@@ -678,7 +678,12 @@ class CaseObj extends BaseCaseObj
 
         $currentStatus = trim((string) $case->get('status'));
 
-        if (!in_array($currentStatus, ['Visita realizada', 'Visita aprobada', 'En proceso'], true)) {
+        if (!in_array($currentStatus, [
+            'Visita realizada',
+            'Visita aprobada',
+            'En proceso',
+            CaseActaVisitaHelper::STATUS_EN_PROCESO_OTRA_VISITA,
+        ], true)) {
             throw new BadRequest(
                 'El caso debe estar en Visita realizada o Visita aprobada para registrar otra visita.'
             );
