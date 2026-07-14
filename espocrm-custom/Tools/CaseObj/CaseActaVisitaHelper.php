@@ -217,29 +217,51 @@ class CaseActaVisitaHelper
         string $caseId,
         ?string $excludeActaId = null
     ): int {
+        // Número = cantidad de actas vigentes + 1 (sin huecos por borradores o max raros).
+        $count = self::countActasForCase($entityManager, $caseId);
+
+        if ($excludeActaId !== null && $excludeActaId !== '') {
+            $existing = $entityManager->getEntityById('ActaVisita', $excludeActaId);
+
+            if ($existing && trim((string) $existing->get('caseId')) === $caseId) {
+                $count = max(0, $count - 1);
+            }
+        }
+
+        return max(1, $count + 1);
+    }
+
+    /**
+     * Renumera 1..N por createdAt para un caso (sin saltos).
+     */
+    public static function renumberVisitNumbersForCase(EntityManager $entityManager, string $caseId): void
+    {
+        if ($caseId === '') {
+            return;
+        }
+
         $actas = $entityManager
             ->getRDBRepository('ActaVisita')
             ->where(['caseId' => $caseId])
+            ->order('createdAt', 'ASC')
+            ->order('id', 'ASC')
             ->find();
 
-        $max = 0;
+        $n = 1;
 
         foreach ($actas as $acta) {
-            if ($excludeActaId !== null && $acta->getId() === $excludeActaId) {
-                continue;
+            if ((int) ($acta->get('numeroVisita') ?: 0) !== $n) {
+                $acta->set('numeroVisita', $n);
+
+                $entityManager->saveEntity($acta, [
+                    'skipAll' => true,
+                    'skipHooks' => true,
+                    'skipRenumberVisitas' => true,
+                ]);
             }
 
-            $numero = (int) ($acta->get('numeroVisita') ?: 0);
-
-            // Actas antiguas sin número se tratan como visita 1 (no como 0).
-            if ($numero < 1) {
-                $numero = 1;
-            }
-
-            $max = max($max, $numero);
+            $n++;
         }
-
-        return $max + 1;
     }
 
     public static function isCaseAsignado(Entity $case): bool

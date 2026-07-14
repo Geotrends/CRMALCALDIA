@@ -279,8 +279,20 @@ define('custom:views/case/fields/acta-visita-action', [
                 .filter(function (acta) {
                     return ActaVisitaCaseStatus.shouldShowActaInArchivo(acta);
                 })
-                .map(function (acta) {
-                    const numero = parseInt(acta.numeroVisita, 10) || 1;
+                .slice()
+                .sort(function (a, b) {
+                    const ca = String(a.createdAt || '');
+                    const cb = String(b.createdAt || '');
+
+                    if (ca !== cb) {
+                        return ca.localeCompare(cb);
+                    }
+
+                    return String(a.id || '').localeCompare(String(b.id || ''));
+                })
+                .map(function (acta, index) {
+                    // Mostrar siempre 1, 2, 3… en orden de creación (sin huecos).
+                    const numero = index + 1;
                     let estado = String(acta.estado || '').trim() || 'Pendiente';
 
                     if (estado === 'Pendiente' && ActaVisitaCaseStatus.hasActaVisitContent(acta)) {
