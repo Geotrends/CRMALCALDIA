@@ -18,7 +18,7 @@ Leer primero la guía principal: [`../GUIA-HANDOFF-PROYECTO.md`](../GUIA-HANDOFF
 
 | Archivo | Contenido |
 |---------|-----------|
-| [`../ALMACENAMIENTO-DOCUMENTOS.md`](../ALMACENAMIENTO-DOCUMENTOS.md) | **Dónde se guardan** PDFs, fotos, Excel, plantillas y adjuntos |
+| [`../ALMACENAMIENTO-BD-Y-ARCHIVOS.md`](../ALMACENAMIENTO-BD-Y-ARCHIVOS.md) | Dónde se guardan BD/archivos, PDFs, fotos, Excel y adjuntos |
 | [`../CONSULTAS-BD-VALIDACION.md`](../CONSULTAS-BD-VALIDACION.md) | SQL de validación |
 | [`../ESTADO-CUMPLIMIENTO-OBJETIVOS.md`](../ESTADO-CUMPLIMIENTO-OBJETIVOS.md) | Cumplimiento de objetivos |
 | [`../../README.md`](../../README.md) | Instalación y deploy |

@@ -27,6 +27,7 @@ Los inventarios exhaustivos (archivo por archivo) están en `docs/handoff/`.
 | [Anexo F — Scripts](handoff/ANEXO-F-SCRIPTS.md) | Todos los scripts en `scripts/` |
 | [Anexo G — CSS / loaders / Python](handoff/ANEXO-G-CSS-FRONTEND-ASSETS.md) | CSS 01–24, loaders, scripts Python, formatos |
 | [Anexo H — Metadata / i18n](handoff/ANEXO-H-METADATA-RESOURCES.md) | entityDefs, clientDefs, layouts, i18n |
+| [Almacenamiento BD y archivos](ALMACENAMIENTO-BD-Y-ARCHIVOS.md) | Contenedores/volúmenes + rutas de documentos |
 | [Consultas SQL](CONSULTAS-BD-VALIDACION.md) | Validación BD en Dokploy/pgAdmin |
 | [Cumplimiento objetivos](ESTADO-CUMPLIMIENTO-OBJETIVOS.md) | Objetivos vs implementación |
 
@@ -907,6 +908,7 @@ Lógica: `helpers/case-documentos.js`
 | `docs/GUIA-HANDOFF-PROYECTO.md` | Esta guía (visión + reglas + flujos) |
 | `docs/handoff/ANEXO-A-…H.md` | Inventarios exhaustivos (helpers, views, campos, hooks, backend, scripts, CSS, metadata) |
 | `docs/CONSULTAS-BD-VALIDACION.md` | Consultas SQL para validar datos en PostgreSQL |
+| `docs/ALMACENAMIENTO-BD-Y-ARCHIVOS.md` | Contenedores/volúmenes + rutas de PDFs, fotos, Excel y adjuntos |
 | `docs/ESTADO-CUMPLIMIENTO-OBJETIVOS.md` | Objetivos del proyecto vs. lo implementado |
 | `README.md` | Instalación, Docker, Dokploy, usuarios de prueba |
 | `backups/despliegue-inicial/env.txt` | Plantilla de variables para Dokploy |

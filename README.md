@@ -442,7 +442,7 @@ Detalle de cumplimiento por objetivo del proyecto: `docs/ESTADO-CUMPLIMIENTO-OBJ
 |---------|-----------|
 | `docs/GUIA-HANDOFF-PROYECTO.md` | **Guía principal de handoff:** estructura, reglas, flujos, deploy y checklist |
 | `docs/handoff/` | **Anexos A–H:** inventarios exhaustivos (helpers, views, campos Case, hooks, backend, scripts, CSS, metadata) |
-| `docs/ALMACENAMIENTO-DOCUMENTOS.md` | **Dónde se guardan** PDFs generados, fotos, Excel, plantillas y adjuntos del usuario |
+| `docs/ALMACENAMIENTO-BD-Y-ARCHIVOS.md` | **Dónde se guardan** BD/archivos (contenedores), PDFs, fotos, Excel y adjuntos |
 | `docs/CONSULTAS-BD-VALIDACION.md` | Consultas SQL para validar datos en PostgreSQL (Dokploy / pgAdmin) |
 | `docs/ESTADO-CUMPLIMIENTO-OBJETIVOS.md` | Objetivos del proyecto vs. lo implementado en el CRM |
 | `backups/despliegue-inicial/env.txt` | Plantilla de variables para Dokploy |

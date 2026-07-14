@@ -56,6 +56,8 @@ class FormatoSolicitudAttacher
 
             $this->entityManager->saveEntity($case, [
                 'skipFormatoSolicitud' => true,
+                // El Case aún puede tener assignedUserId dirty en afterSave anidado.
+                'skipLogAsignacionHistorial' => true,
             ]);
 
             @unlink($file['path']);

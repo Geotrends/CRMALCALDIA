@@ -12,10 +12,19 @@ use Espo\ORM\Repository\Option\SaveOptions;
 
 /**
  * Registra cada cambio de responsable en un caso ya radicado.
+ *
+ * Espo ejecuta afterSave antes de limpiar dirty attributes: si otro hook
+ * vuelve a guardar el mismo Case en ese ciclo, assignedUserId sigue “changed”
+ * y sin guarda se duplicaría el historial.
  */
 class LogAsignacionHistorial implements AfterSave
 {
     public static int $order = 20;
+
+    private const DEDUPE_WINDOW_SECONDS = 15;
+
+    /** @var array<string, true> */
+    private static array $loggedInRequest = [];
 
     public function __construct(
         private EntityManager $entityManager,
@@ -53,6 +62,20 @@ class LogAsignacionHistorial implements AfterSave
             return;
         }
 
+        $dedupeKey = $entity->getId() . '|' . (string) $prevUserId . '|' . (string) $newUserId;
+
+        if (isset(self::$loggedInRequest[$dedupeKey])) {
+            return;
+        }
+
+        if ($this->existsRecentDuplicate($entity->getId(), $prevUserId, $newUserId)) {
+            self::$loggedInRequest[$dedupeKey] = true;
+
+            return;
+        }
+
+        self::$loggedInRequest[$dedupeKey] = true;
+
         $prevName = $this->resolveUserLabel($prevUserId, $entity->getFetched('assignedUserName'));
         $newName = $this->resolveUserLabel($newUserId, $entity->get('assignedUserName'));
 
@@ -81,6 +104,28 @@ class LogAsignacionHistorial implements AfterSave
             ->set('name', $caseLabel . ': ' . $prevName . ' → ' . $newName);
 
         $this->entityManager->saveEntity($historial, ['skipAll' => true]);
+    }
+
+    private function existsRecentDuplicate(
+        string $caseId,
+        ?string $prevUserId,
+        ?string $newUserId
+    ): bool {
+        $threshold = (new \DateTimeImmutable('now', new \DateTimeZone('UTC')))
+            ->modify('-' . self::DEDUPE_WINDOW_SECONDS . ' seconds')
+            ->format('Y-m-d H:i:s');
+
+        $row = $this->entityManager
+            ->getRDBRepositoryByClass(AsignacionHistorial::class)
+            ->where([
+                'caseId' => $caseId,
+                'responsableAnteriorId' => $prevUserId,
+                'responsableNuevoId' => $newUserId,
+                'fecha>=' => $threshold,
+            ])
+            ->findOne();
+
+        return $row !== null;
     }
 
     private function isPostRadicado(Entity $entity): bool

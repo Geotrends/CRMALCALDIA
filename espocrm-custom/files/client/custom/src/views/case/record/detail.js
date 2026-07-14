@@ -158,8 +158,6 @@ define('custom:views/case/record/detail', [
                     this.applyAsignacionFieldAccess();
                 }
             });
-
-            this.bindAsignacionEditIntercept();
         },
 
         removeAsignacionPanelToolbar: function () {
@@ -182,20 +180,6 @@ define('custom:views/case/record/detail', [
                     self.removeAsignacionPanelToolbar();
                     self.updateAsignacionActionButtons();
                 }, delay);
-            });
-        },
-
-        bindAsignacionEditIntercept: function () {
-            const self = this;
-
-            this.$el.on('click.alcaldiaAsignacion', 'a[href*="/edit/"], [data-action="edit"]', function (e) {
-                if (!self.isAsignadorOperator() || !RadicacionFields.isCaseRadicado(self.model)) {
-                    return;
-                }
-
-                e.preventDefault();
-                e.stopPropagation();
-                self.enterAsignacionEditMode();
             });
         },
 

@@ -1,13 +1,14 @@
-# Almacenamiento de documentos — CRM Ambiental
+# Almacenamiento — BD y archivos (CRM Ambiental)
 
-Guía de **dónde quedan guardados** todos los archivos del CRM: formatos generados, plantillas, Excel, fotos, actas diligenciadas a mano, comunicaciones y lo que sube el usuario.
+Guía de **dónde quedan guardados** la base de datos y todos los archivos del CRM: contenedores/volúmenes Dokploy, formatos generados, plantillas, Excel, fotos, actas a mano, comunicaciones y lo que sube el usuario.
 
-**Entorno de referencia:** contenedor Docker `espocrm`, ruta base `/var/www/html/`.
+**Entorno de referencia:** contenedores Docker `espocrm-db` (PostgreSQL) y `espocrm` (app), ruta base de archivos `/var/www/html/`.
 
 ---
 
 ## Índice
 
+0. [Dónde está la BD y los archivos (contenedor / volumen)](#0-dónde-está-la-bd-y-los-archivos-contenedor--volumen)
 1. [Mapa general](#1-mapa-general)
 2. [Carpetas físicas en el servidor](#2-carpetas-físicas-en-el-servidor)
 3. [Base de datos (índice lógico)](#3-base-de-datos-índice-lógico)
@@ -19,6 +20,86 @@ Guía de **dónde quedan guardados** todos los archivos del CRM: formatos genera
 9. [Módulo Documentos (menú lateral)](#9-módulo-documentos-menú-lateral)
 10. [Consultas SQL útiles](#10-consultas-sql-útiles)
 11. [Resumen por tipo de archivo](#11-resumen-por-tipo-de-archivo)
+
+---
+
+## 0. Dónde está la BD y los archivos (contenedor / volumen)
+
+**Dos contenedores distintos**, cada uno con su volumen Docker persistente (Dokploy / `docker compose`):
+
+| Qué | Contenedor / servicio | Volumen Docker | Ruta dentro del contenedor |
+|-----|----------------------|----------------|----------------------------|
+| **Base de datos** (casos, actas, usuarios, metadatos de adjuntos…) | **`espocrm-db`** (PostgreSQL 16) | **`espocrm-db`** | `/var/lib/postgresql/data` |
+| **Archivos** (PDFs, fotos, Excel, plantillas en runtime…) | **`espocrm`** (aplicación CRM) | **`espocrm`** | `/var/www/html/data/…` |
+
+Definido en `docker-compose.yml`:
+
+```yaml
+espocrm-db:
+  volumes:
+    - espocrm-db:/var/lib/postgresql/data
+
+espocrm:
+  volumes:
+    - espocrm:/var/www/html
+```
+
+### Base de datos (PostgreSQL)
+
+- **Servicio Dokploy:** `espocrm-db`
+- **Datos físicos del motor:** volumen `espocrm-db` → `/var/lib/postgresql/data`
+- **Host desde la app:** `espocrm-db:5432` (variables `ESPOCRM_DATABASE_*`)
+
+Dokploy → servicio **`espocrm-db`** → Terminal:
+
+```bash
+psql -U "$POSTGRES_USER" -d "$POSTGRES_DB"
+```
+
+Tablas y SQL de validación: [`CONSULTAS-BD-VALIDACION.md`](CONSULTAS-BD-VALIDACION.md).
+
+La BD guarda filas e **IDs** de adjuntos. Los bytes de PDF/fotos **no** van dentro de PostgreSQL; van al disco de `espocrm`.
+
+### Archivos (disco del CRM)
+
+- **Servicio Dokploy:** `espocrm` (mismo volumen en `espocrm-daemon` / `espocrm-websocket`)
+- **Adjuntos:** `/var/www/html/data/upload/`
+- **Excel maestro:** `/var/www/html/data/exports/excelAlcaldia.xlsx`
+- **Plantillas base:** `/var/www/html/custom/Espo/Custom/files/templates/`
+
+Dokploy → servicio **`espocrm`** → Terminal:
+
+```bash
+ls -la /var/www/html/data/upload/
+ls -la /var/www/html/data/exports/
+```
+
+### Mapa mental BD vs archivos
+
+```
+┌─────────────────────┐         ┌──────────────────────────────┐
+│   espocrm-db        │         │   espocrm                    │
+│   (PostgreSQL)      │         │   (Apache + EspoCRM)         │
+│                     │         │                              │
+│  volumen:           │  IDs /  │  volumen:                    │
+│  espocrm-db         │◄────────┤  espocrm                     │
+│  /var/lib/          │ metadatos│  /var/www/html/data/upload  │
+│    postgresql/data  │         │  /var/www/html/data/exports  │
+└─────────────────────┘         └──────────────────────────────┘
+        ▲                                    ▲
+   “qué registro es”              “el archivo en sí (bytes)”
+```
+
+### Dokploy — qué abrir
+
+| Quieres… | Abrir este servicio |
+|----------|---------------------|
+| Ejecutar SQL / ver tablas | **`espocrm-db`** |
+| Ver o copiar PDFs, fotos, Excel en disco | **`espocrm`** |
+| Reset operativo / scripts PHP | **`espocrm`** (nunca `espocrm-db`) |
+| Redeploy / código de la app | Rebuild de **`espocrm`** |
+
+Los volúmenes son **persistentes**: un redeploy no debería borrar la BD ni `data/` si Dokploy los mantiene.
 
 ---
 
@@ -42,7 +123,7 @@ Guía de **dónde quedan guardados** todos los archivos del CRM: formatos genera
 │  data/upload/                  → TODOS los adjuntos persistentes        │
 │  data/exports/excelAlcaldia.xlsx → Excel maestro de trabajo             │
 │                                                                          │
-│  PostgreSQL                    → quién es cada archivo (attachment,     │
+│  PostgreSQL (espocrm-db)       → quién es cada archivo (attachment,     │
 │                                  case, acta_visita, document, etc.)     │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
@@ -55,7 +136,7 @@ Guía de **dónde quedan guardados** todos los archivos del CRM: formatos genera
 
 | Ruta en contenedor | Qué guarda | ¿Persiste? |
 |--------------------|------------|------------|
-| `/var/www/html/data/upload/` | Binarios de adjuntos EspoCRM (PDFs, fotos, Word, Excel copiado a Documentos) | **Sí** (volumen Docker) |
+| `/var/www/html/data/upload/` | Binarios de adjuntos EspoCRM (PDFs, fotos, Word, Excel copiado a Documentos) | **Sí** (volumen `espocrm`) |
 | `/var/www/html/data/upload/thumbs/` | Miniaturas de imágenes | **Sí** |
 | `/var/www/html/data/exports/excelAlcaldia.xlsx` | Excel maestro operativo (filas de casos) | **Sí** |
 | `/var/www/html/custom/Espo/Custom/files/templates/` | Plantillas Word/PDF **base** para generar formatos | **Sí** (viene del deploy) |
@@ -64,7 +145,7 @@ Guía de **dónde quedan guardados** todos los archivos del CRM: formatos genera
 | `/tmp/formato-actuo-archivo-*` | PDF/DOCX temporal al generar actuo | **No** |
 | `/tmp/reporte-gerencial-*` | Reporte gerencial temporal | **No** |
 
-En **Dokploy/producción**, `data/` vive en el volumen persistente del servicio `espocrm`.
+En **Dokploy/producción**, `data/` vive en el volumen **`espocrm`** (`/var/www/html`). PostgreSQL vive en el volumen **`espocrm-db`** (`/var/lib/postgresql/data`). Ver sección 0.
 
 En el **repo del proyecto** (no es donde el CRM guarda trámites en runtime):
 

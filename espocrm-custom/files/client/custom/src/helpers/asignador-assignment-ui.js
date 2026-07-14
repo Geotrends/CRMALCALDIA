@@ -176,6 +176,11 @@ define('custom:helpers/asignador-assignment-ui', [
     };
 
     const patchCaseAssignment = function (caseId, data, recordView) {
+        if (patchCaseAssignment._inflight) {
+            return Promise.resolve(null);
+        }
+
+        patchCaseAssignment._inflight = true;
         Espo.Ui.notify('Guardando asignación...');
 
         return Espo.Ajax.patchRequest('Case/' + caseId, data)
@@ -201,6 +206,9 @@ define('custom:helpers/asignador-assignment-ui', [
                 }
 
                 Espo.Ui.error((error && error.message) || 'No se pudo guardar la asignación.');
+            })
+            .finally(function () {
+                patchCaseAssignment._inflight = false;
             });
     };
 
@@ -234,6 +242,10 @@ define('custom:helpers/asignador-assignment-ui', [
 
     const openAssignmentModal = function (recordView) {
         if (!recordView || !recordView.model || !recordView.model.id) {
+            return;
+        }
+
+        if ($('.alcaldia-asignacion-modal').length) {
             return;
         }
 
@@ -286,6 +298,7 @@ define('custom:helpers/asignador-assignment-ui', [
         $('body').append($modal);
 
         const $userNameInput = $modal.find('.js-user-name');
+        const $saveBtn = $modal.find('[data-action="save"]');
         $userNameInput.val(selectedUser.name || '');
 
         const updateSelectedUser = function (user) {
@@ -304,6 +317,10 @@ define('custom:helpers/asignador-assignment-ui', [
 
         $modal.on('click', '[data-action="save"]', function (e) {
             e.preventDefault();
+
+            if ($saveBtn.prop('disabled')) {
+                return;
+            }
 
             if (!selectedUser.id) {
                 Espo.Ui.error('Debe seleccionar un patrullero.');
@@ -328,6 +345,7 @@ define('custom:helpers/asignador-assignment-ui', [
                 data.cMotivoReasignacion = motivo;
             }
 
+            $saveBtn.prop('disabled', true);
             $modal.modal('hide');
 
             patchCaseAssignment(caseId, data, recordView);
