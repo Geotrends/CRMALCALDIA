@@ -47,15 +47,14 @@ class EarlyBeforeCreate implements SaveHook
 
         $radicado = trim((string) $case->get('cNumeroRadicado'));
         $expediente = trim((string) $case->get('cExpediente'));
-        $visitNumber = (int) ($entity->get('numeroVisita') ?: 0);
 
-        if ($visitNumber < 1) {
-            $visitNumber = CaseActaVisitaHelper::resolveNextVisitNumber(
-                $this->entityManager,
-                $caseId
-            );
-            $entity->set('numeroVisita', $visitNumber);
-        }
+        // Siempre calcular en servidor: el campo no debe quedar en 1 por default
+        // del cliente/readOnly y colapsar varias actas en el panel.
+        $visitNumber = CaseActaVisitaHelper::resolveNextVisitNumber(
+            $this->entityManager,
+            $caseId
+        );
+        $entity->set('numeroVisita', $visitNumber);
 
         if (!trim((string) $entity->get('name'))) {
             $entity->set('name', CaseActaVisitaHelper::buildActaName($radicado, $expediente, $caseId, $visitNumber));

@@ -43,9 +43,9 @@
         },
         "numeroVisita": {
             "type": "int",
-            "readOnly": true,
+            "readOnlyAfterCreate": true,
             "isCustom": true,
-            "default": 1
+            "min": 1
         },
         "direccionAfectacion": {
             "type": "varchar",

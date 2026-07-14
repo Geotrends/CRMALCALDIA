@@ -21,6 +21,21 @@
         </label>
         <p class="text-muted small case-visita-aprobada-help">{{../visitaAprobadaArchivoHelp}}</p>
     </div>
+    {{else}}
+        {{#if canApproveThis}}
+        <div class="case-visita-aprobada-check form-group">
+            <label class="case-visita-aprobada-check-label">
+                <input
+                    type="checkbox"
+                    class="case-visita-aprobada-checkbox"
+                    data-action="aprobarVisita"
+                    data-acta-id="{{actaId}}"
+                />
+                <span>{{../visitaAprobadaLabel}}</span>
+            </label>
+            <p class="text-muted small case-visita-aprobada-help">{{../visitaAprobadaHelp}}</p>
+        </div>
+        {{/if}}
     {{/if}}
     <p class="text-muted small case-visita-archivo-help">{{archivoHelp}}</p>
     <div class="btn-group-vertical w-100 case-visita-archivo-actions">
@@ -73,7 +88,7 @@
 </div>
 {{/if}}
 {{#if showVisitaAprobacion}}
-<div class="case-visita-aprobada-check form-group">
+<div class="case-visita-aprobada-check form-group case-visita-aprobada-check-current">
     <label class="case-visita-aprobada-check-label">
         <input
             type="checkbox"

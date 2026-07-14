@@ -135,6 +135,15 @@ define('custom:views/case/fields/acta-visita-action', [
                 return this.canRevertVisitaAprobada(user) && !this.awaitingNewVisita;
             }
 
+            // La aprobación por visita se hace en cada tarjeta del panel.
+            const hasCardApprove = this.buildVisitasArchivoCards().some(function (card) {
+                return !!card.canApproveThis;
+            });
+
+            if (hasCardApprove) {
+                return false;
+            }
+
             if (this.awaitingNewVisita) {
                 return false;
             }
@@ -240,66 +249,20 @@ define('custom:views/case/fields/acta-visita-action', [
             const historial = (this.workflow && this.workflow.actasHistorial) || [];
             const lang = this.getLanguage();
             const self = this;
-            const byNumero = {};
+            const user = this.getUser();
             const latestPendiente = this.workflow && this.workflow.latestPendienteAprobacion;
             const latestPendienteId = latestPendiente ? latestPendiente.id : null;
+            const canApprove = this.canApproveVisita(user);
+            const status = String(this.model.get('status') || '').trim();
+            const caseAprobable = ['Visita realizada', 'En proceso', 'En proceso de otra visita', 'Asignado', 'Assigned', 'Visita aprobada']
+                .indexOf(status) !== -1;
 
-            const rankEstado = function (acta) {
-                const estado = String(acta.estado || '').trim();
-
-                if (estado === 'Aprobada') {
-                    return 3;
-                }
-
-                if (estado === 'Diligenciada') {
-                    return 2;
-                }
-
-                if (ActaVisitaCaseStatus.hasActaVisitContent(acta)) {
-                    return 1;
-                }
-
-                return 0;
-            };
-
-            historial.forEach(function (acta) {
-                if (!ActaVisitaCaseStatus.shouldShowActaInArchivo(acta)) {
-                    return;
-                }
-
-                const numero = parseInt(acta.numeroVisita, 10) || 1;
-                const current = byNumero[numero];
-
-                if (!current) {
-                    byNumero[numero] = acta;
-
-                    return;
-                }
-
-                const currentRank = rankEstado(current);
-                const nextRank = rankEstado(acta);
-
-                if (nextRank > currentRank) {
-                    byNumero[numero] = acta;
-
-                    return;
-                }
-
-                if (nextRank === currentRank
-                    && String(acta.modifiedAt || '').localeCompare(String(current.modifiedAt || '')) > 0) {
-                    byNumero[numero] = acta;
-                }
-            });
-
-            return Object.keys(byNumero)
-                .map(function (key) {
-                    return parseInt(key, 10);
+            return historial
+                .filter(function (acta) {
+                    return ActaVisitaCaseStatus.shouldShowActaInArchivo(acta);
                 })
-                .sort(function (a, b) {
-                    return a - b;
-                })
-                .map(function (numero) {
-                    const acta = byNumero[numero];
+                .map(function (acta) {
+                    const numero = parseInt(acta.numeroVisita, 10) || 1;
                     let estado = String(acta.estado || '').trim() || 'Pendiente';
 
                     if (estado === 'Pendiente' && ActaVisitaCaseStatus.hasActaVisitContent(acta)) {
@@ -307,19 +270,25 @@ define('custom:views/case/fields/acta-visita-action', [
                     }
 
                     const estadoLabel = lang.translateOption(estado, 'estado', 'ActaVisita') || estado;
+                    const isAprobada = estado === 'Aprobada';
+                    const canApproveThis = canApprove
+                        && caseAprobable
+                        && !isAprobada
+                        && ActaVisitaCaseStatus.isActaDiligenciada(acta);
 
                     return {
                         actaId: acta.id,
                         numeroVisita: numero,
                         estado: estado,
                         estadoLabel: estadoLabel,
-                        isAprobada: estado === 'Aprobada',
-                    isCurrent: !!(latestPendienteId && acta.id === latestPendienteId),
-                    archivoHelp: self.translateCaseLabel(
-                        latestPendienteId && acta.id === latestPendienteId
-                            ? 'visitaEnCursoHelp'
-                            : 'actaVisitaEditHelp'
-                    ),
+                        isAprobada: isAprobada,
+                        canApproveThis: canApproveThis,
+                        isCurrent: !!(latestPendienteId && acta.id === latestPendienteId),
+                        archivoHelp: self.translateCaseLabel(
+                            latestPendienteId && acta.id === latestPendienteId
+                                ? 'visitaEnCursoHelp'
+                                : 'actaVisitaEditHelp'
+                        ),
                     };
                 });
         },
@@ -516,8 +485,11 @@ define('custom:views/case/fields/acta-visita-action', [
 
             const archivo = this.buildVisitasArchivoCards();
             const archivoKey = archivo.map(function (card) {
-                return card.actaId + ':' + card.estado;
-            }).join('|');
+                return card.actaId + ':' + card.estado + ':' + (card.canApproveThis ? '1' : '0');
+            }).join('|')
+                + '|ap:' + (this.showVisitaAprobacion ? '1' : '0')
+                + '|ag:' + (this.showAgregarVisita ? '1' : '0')
+                + '|st:' + String(this.model.get('status') || '');
 
             if (this._archivoKey !== archivoKey) {
                 this._archivoKey = archivoKey;
@@ -579,9 +551,10 @@ define('custom:views/case/fields/acta-visita-action', [
             this.$el.find('.case-acta-visita-help').text(data.helpText || '');
             this.$el.find('.case-agregar-visita-help').text(data.agregarVisitaHelp || '');
             this.$el.find('.case-visita-realizada-check').toggle(!!data.showVisitaCheck);
-            this.$el.find('.case-visita-aprobada-check').toggle(!!data.showVisitaAprobacion);
-            this.$el.find('.case-visita-aprobada-help').text(data.visitaAprobadaHelp || '');
-            this.$el.find('.case-visita-aprobada-checkbox')
+            this.$el.find('.case-visita-aprobada-check-current').toggle(!!data.showVisitaAprobacion);
+            this.$el.find('.case-visita-aprobada-check-current .case-visita-aprobada-help')
+                .text(data.visitaAprobadaHelp || '');
+            this.$el.find('.case-visita-aprobada-check-current .case-visita-aprobada-checkbox')
                 .prop('checked', !!data.visitaAprobada)
                 .prop('disabled', !!data.visitaAprobadaDisabled);
             this.$el.find('.case-acta-visita-actions').toggle(!!data.showActaButtons);
@@ -671,15 +644,16 @@ define('custom:views/case/fields/acta-visita-action', [
 
                 const $checkbox = $(e.currentTarget);
                 const isChecked = $checkbox.is(':checked');
+                const actaId = String($checkbox.data('acta-id') || '').trim() || null;
 
                 if (isChecked) {
-                    if (self.resolveVisitaAprobada() && !self.canRevertVisitaAprobada(self.getUser())) {
+                    if (self.resolveVisitaAprobada() && !self.canRevertVisitaAprobada(self.getUser()) && !actaId) {
                         $checkbox.prop('checked', true);
 
                         return;
                     }
 
-                    if (self.resolveVisitaAprobada()) {
+                    if (self.resolveVisitaAprobada() && !actaId) {
                         return;
                     }
 
@@ -695,14 +669,14 @@ define('custom:views/case/fields/acta-visita-action', [
                             },
                         },
                         function () {
-                            self.actionConfirmarVisitaAprobada($checkbox);
+                            self.actionConfirmarVisitaAprobada($checkbox, actaId);
                         }
                     );
 
                     return;
                 }
 
-                if (!self.canRevertVisitaAprobada(self.getUser())) {
+                if (!self.canRevertVisitaAprobada(self.getUser()) || actaId) {
                     $checkbox.prop('checked', true);
 
                     return;
@@ -726,7 +700,7 @@ define('custom:views/case/fields/acta-visita-action', [
             });
         },
 
-        actionConfirmarVisitaAprobada: function ($checkbox) {
+        actionConfirmarVisitaAprobada: function ($checkbox, actaId) {
             const self = this;
 
             if (!this.model.id) {
@@ -741,34 +715,34 @@ define('custom:views/case/fields/acta-visita-action', [
 
             Espo.Ui.notify(this.translate('pleaseWait', 'messages'));
 
-            Espo.Ajax.postRequest('Case/action/confirmarVisitaAprobada', {
+            const payload = {
                 id: this.model.id,
-            }).then(function (response) {
+            };
+
+            if (actaId) {
+                payload.actaId = actaId;
+            }
+
+            Espo.Ajax.postRequest('Case/action/confirmarVisitaAprobada', payload).then(function (response) {
                 Espo.Ui.notify(false);
 
                 const newStatus = (response && response.status) || 'Visita aprobada';
 
                 self.model.set('status', newStatus);
                 self.visitaAprobada = true;
-                self.showVisitaAprobacion = self.resolveShowVisitaAprobacion(self.getUser());
-                self.showAgregarVisita = self.resolveShowAgregarVisita();
+                ActaVisitaCaseStatus.invalidateCache(self.model.id);
 
                 if ($checkbox) {
                     $checkbox.prop('checked', true).prop('disabled', false);
                 }
 
-                self.refreshViewState();
-
                 if (response && response.alreadyApproved) {
                     Espo.Ui.info(self.translateCaseLabel('visitaAprobadaConfirmSuccess'));
-
-                    return;
+                } else {
+                    Espo.Ui.success(self.translateCaseLabel('visitaAprobadaConfirmSuccess'));
                 }
 
-                Espo.Ui.success(self.translateCaseLabel('visitaAprobadaConfirmSuccess'));
-
                 self.model.fetch().then(function () {
-                    ActaVisitaCaseStatus.invalidateCache(self.model.id);
                     self.scheduleLoadActaState();
                 });
             }).catch(function (xhr) {
@@ -777,10 +751,10 @@ define('custom:views/case/fields/acta-visita-action', [
                 let message = self.translateCaseLabel('visitaAprobadaConfirmError');
 
                 if (xhr) {
-                    const payload = xhr.responseJSON || xhr;
+                    const payloadError = xhr.responseJSON || xhr;
 
-                    if (payload && payload.message) {
-                        message = payload.message;
+                    if (payloadError && payloadError.message) {
+                        message = payloadError.message;
                     }
                 }
 

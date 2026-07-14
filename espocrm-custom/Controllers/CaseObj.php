@@ -377,11 +377,14 @@ class CaseObj extends BaseCaseObj
     {
         $body = $request->getParsedBody();
         $id = '';
+        $actaId = '';
 
         if (is_object($body)) {
             $id = trim((string) ($body->id ?? ''));
+            $actaId = trim((string) ($body->actaId ?? ''));
         } elseif (is_array($body)) {
             $id = trim((string) ($body['id'] ?? ''));
+            $actaId = trim((string) ($body['actaId'] ?? ''));
         }
 
         if ($id === '') {
@@ -411,7 +414,7 @@ class CaseObj extends BaseCaseObj
 
         $currentStatus = trim((string) $case->get('status'));
 
-        if (CaseActaVisitaHelper::isVisitaAprobadaStatus($currentStatus)) {
+        if (CaseActaVisitaHelper::isVisitaAprobadaStatus($currentStatus) && $actaId === '') {
             return [
                 'success' => true,
                 'status' => $currentStatus,
@@ -419,16 +422,41 @@ class CaseObj extends BaseCaseObj
             ];
         }
 
-        $acta = CaseActaVisitaHelper::findLatestDiligenciadaPendienteAprobacionActaForCase(
-            $this->entityManager,
-            $case->getId()
-        );
+        $acta = null;
+
+        if ($actaId !== '') {
+            $acta = $this->entityManager->getEntityById('ActaVisita', $actaId);
+
+            if (!$acta || trim((string) $acta->get('caseId')) !== $case->getId()) {
+                throw new BadRequest('El acta de visita no pertenece a este caso.');
+            }
+        } else {
+            $acta = CaseActaVisitaHelper::findLatestDiligenciadaPendienteAprobacionActaForCase(
+                $this->entityManager,
+                $case->getId()
+            );
+        }
 
         if (!$acta || !CaseActaVisitaHelper::isActaWithContent($acta)) {
             throw new BadRequest('Debe existir un acta de visita diligenciada.');
         }
 
-        if (!CaseActaVisitaHelper::canAdvanceCaseToVisitaAprobada($case, $acta)) {
+        $actaAlreadyApproved = trim((string) $acta->get('estado')) === 'Aprobada';
+
+        if ($actaAlreadyApproved && CaseActaVisitaHelper::isVisitaAprobadaStatus($currentStatus)) {
+            return [
+                'success' => true,
+                'status' => $currentStatus,
+                'alreadyApproved' => true,
+                'actaId' => $acta->getId(),
+            ];
+        }
+
+        if (
+            !$actaAlreadyApproved
+            && !CaseActaVisitaHelper::isVisitaAprobadaStatus($currentStatus)
+            && !CaseActaVisitaHelper::canAdvanceCaseToVisitaAprobada($case, $acta)
+        ) {
             throw new BadRequest(
                 'El caso debe tener acta diligenciada y estar en Visita realizada (estado actual: '
                 . ($currentStatus !== '' ? $currentStatus : 'sin estado')
@@ -436,18 +464,20 @@ class CaseObj extends BaseCaseObj
             );
         }
 
-        $case->set('status', CaseActaVisitaHelper::STATUS_VISITA_APROBADA);
+        if (!CaseActaVisitaHelper::isVisitaAprobadaStatus($currentStatus)) {
+            $case->set('status', CaseActaVisitaHelper::STATUS_VISITA_APROBADA);
 
-        $this->entityManager->saveEntity($case, [
-            'skipAll' => true,
-            'skipHooks' => true,
-            'skipCaseStatusUpdate' => true,
-            'skipPatrulleroCaseLimit' => true,
-            'skipCaseExcelAlcaldia' => true,
-        ]);
+            $this->entityManager->saveEntity($case, [
+                'skipAll' => true,
+                'skipHooks' => true,
+                'skipCaseStatusUpdate' => true,
+                'skipPatrulleroCaseLimit' => true,
+                'skipCaseExcelAlcaldia' => true,
+            ]);
+        }
 
         try {
-            if (trim((string) $acta->get('estado')) !== 'Aprobada') {
+            if (!$actaAlreadyApproved) {
                 $acta->set('estado', 'Aprobada');
 
                 $this->entityManager->saveEntity($acta, [
@@ -480,7 +510,8 @@ class CaseObj extends BaseCaseObj
         return [
             'success' => true,
             'status' => CaseActaVisitaHelper::STATUS_VISITA_APROBADA,
-            'alreadyApproved' => false,
+            'alreadyApproved' => $actaAlreadyApproved,
+            'actaId' => $acta->getId(),
         ];
     }
 

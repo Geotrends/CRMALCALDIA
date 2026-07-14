@@ -106,7 +106,7 @@ define('custom:helpers/acta-visita-case-status', [
     };
 
     const shouldShowActaInArchivo = function (acta) {
-        if (!acta) {
+        if (!acta || !acta.id) {
             return false;
         }
 
@@ -114,7 +114,12 @@ define('custom:helpers/acta-visita-case-status', [
             return true;
         }
 
-        return hasActaVisitContent(acta);
+        if (hasActaVisitContent(acta)) {
+            return true;
+        }
+
+        // Borradores de visitas adicionales deben verse en el panel.
+        return (parseInt(acta.numeroVisita, 10) || 0) > 1;
     };
 
     const pickLatestPendienteAprobacion = function (list) {
