@@ -106,9 +106,21 @@ define('custom:helpers/acta-visita-modal', [
 
         loadWorkflow.then(function (workflow) {
             if (options.forceCreate) {
+                // Si ya hay un borrador pendiente, editarlo (evita crear Visita 2 de más).
+                const pending = workflow && workflow.acta
+                    && !ActaVisitaCaseStatus.isActaDiligenciada(workflow.acta)
+                    ? workflow.acta
+                    : null;
+
+                if (pending && pending.id) {
+                    openEdit(pending);
+
+                    return;
+                }
+
                 openCreate(host, caseModel, user, {
                     modoDiligenciamiento: options.modoDiligenciamiento,
-                    visitNumber: options.visitNumber || workflow.actaCount + 1,
+                    visitNumber: options.visitNumber || Math.max(1, (workflow.actaCount || 0) + 1),
                     workflow: workflow,
                     afterSave: afterSave,
                 }).catch(function () {
@@ -128,7 +140,7 @@ define('custom:helpers/acta-visita-modal', [
 
             openCreate(host, caseModel, user, {
                 modoDiligenciamiento: options.modoDiligenciamiento,
-                visitNumber: workflow.actaCount + 1,
+                visitNumber: 1,
                 workflow: workflow,
                 afterSave: afterSave,
             }).catch(function () {

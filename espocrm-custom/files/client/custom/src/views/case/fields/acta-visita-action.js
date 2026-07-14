@@ -241,6 +241,25 @@ define('custom:views/case/fields/acta-visita-action', [
             return this.translateCaseLabel('visitaAprobadaCheckHelp');
         },
 
+        resolveNextVisitNumber: function () {
+            const historial = (this.workflow && this.workflow.actasHistorial) || [];
+            let max = 0;
+
+            historial.forEach(function (acta) {
+                let numero = parseInt(acta.numeroVisita, 10) || 0;
+
+                if (numero < 1) {
+                    numero = 1;
+                }
+
+                if (numero > max) {
+                    max = numero;
+                }
+            });
+
+            return max + 1;
+        },
+
         buildVisitasArchivoCards: function () {
             const historial = (this.workflow && this.workflow.actasHistorial) || [];
             const lang = this.getLanguage();
@@ -266,9 +285,11 @@ define('custom:views/case/fields/acta-visita-action', [
 
                     const estadoLabel = lang.translateOption(estado, 'estado', 'ActaVisita') || estado;
                     const isAprobada = estado === 'Aprobada';
+                    const statusOkForApprove = status === 'Visita realizada' || status === 'En proceso';
                     const canApproveThis = canApprove
                         && !caseCerrado
                         && !isAprobada
+                        && statusOkForApprove
                         && (
                             estado === 'Diligenciada'
                             || ActaVisitaCaseStatus.isActaDiligenciada(acta)
@@ -350,6 +371,7 @@ define('custom:views/case/fields/acta-visita-action', [
                 visitaAprobada: this.visitaAprobada,
                 visitaAprobadaDisabled: this.visitaAprobada && !this.canRevertVisitaAprobada(user),
                 visitaAprobadaLabel: this.translateCaseLabel('visitaAprobadaCheck'),
+                visitaAprobarButtonLabel: this.translateCaseLabel('aprobarVisitaButton'),
                 visitaAprobadaHelp: this.resolveVisitaAprobadaHelp(user),
                 showAgregarVisita: this.showAgregarVisita,
                 showAgregarVisitaArchivo: this.resolveShowAgregarVisitaArchivo(),
@@ -465,7 +487,7 @@ define('custom:views/case/fields/acta-visita-action', [
             this.solicitudNuevaVisitaActiva = !!this.workflow.solicitudNuevaVisitaActiva;
             this.hasDiligenciadaActa = !!this.workflow.hasDiligenciadaActa;
             this.actaCount = this.workflow.actaCount || 0;
-            this.nextVisitNumber = this.actaCount + 1;
+            this.nextVisitNumber = this.resolveNextVisitNumber();
             this.actaIsEditMode = ActaVisitaCaseStatus.isActaDiligenciada(acta);
             this.canUseTools = !!canUse;
             this.visitaConfirmada = this.resolveVisitaConfirmada();

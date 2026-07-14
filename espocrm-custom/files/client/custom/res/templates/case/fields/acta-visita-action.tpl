@@ -31,7 +31,7 @@
                 data-action="aprobarVisitaActa"
                 data-acta-id="{{actaId}}"
             >
-                <span class="fas fa-check"></span> {{../visitaAprobadaLabel}}
+                <span class="fas fa-check"></span> {{../visitaAprobarButtonLabel}}
             </button>
         </div>
         {{/if}}
@@ -107,7 +107,7 @@
         class="btn btn-success btn-sm case-acta-visita-btn case-aprobar-visita-btn"
         data-action="aprobarVisitaActa"
     >
-        <span class="fas fa-check"></span> {{visitaAprobadaLabel}}
+        <span class="fas fa-check"></span> {{visitaAprobarButtonLabel}}
     </button>
     {{/if}}
 </div>

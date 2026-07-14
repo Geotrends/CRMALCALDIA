@@ -124,6 +124,7 @@
     "actaVisitaEditHelp": "El acta ya fue diligenciada. Puede revisarla o modificarla.",
     "actaVisitaInspeccionHelp": "El acta ya fue diligenciada. Puede editarla desde aquí.",
     "visitaAprobadaCheck": "Visita aprobada",
+    "aprobarVisitaButton": "Aprobar visita",
     "visitaAprobadaCheckHelp": "Solo Inspección. Al confirmar, el caso pasará a estado Visita aprobada.",
     "visitaAprobadaConfirmQuestion": "¿Confirma que aprueba la visita de este caso?",
     "visitaAprobadaConfirmSuccess": "Visita aprobada correctamente.",

@@ -212,18 +212,23 @@ class CaseActaVisitaHelper
             ->find();
 
         $max = 0;
-        $count = 0;
 
         foreach ($actas as $acta) {
             if ($excludeActaId !== null && $acta->getId() === $excludeActaId) {
                 continue;
             }
 
-            $count++;
-            $max = max($max, (int) ($acta->get('numeroVisita') ?: 0));
+            $numero = (int) ($acta->get('numeroVisita') ?: 0);
+
+            // Actas antiguas sin número se tratan como visita 1 (no como 0).
+            if ($numero < 1) {
+                $numero = 1;
+            }
+
+            $max = max($max, $numero);
         }
 
-        return max($max, $count) + 1;
+        return $max + 1;
     }
 
     public static function isCaseAsignado(Entity $case): bool

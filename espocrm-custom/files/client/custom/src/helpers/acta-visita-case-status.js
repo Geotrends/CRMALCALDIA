@@ -106,20 +106,8 @@ define('custom:helpers/acta-visita-case-status', [
     };
 
     const shouldShowActaInArchivo = function (acta) {
-        if (!acta || !acta.id) {
-            return false;
-        }
-
-        if (isActaCompletada(acta)) {
-            return true;
-        }
-
-        if (hasActaVisitContent(acta)) {
-            return true;
-        }
-
-        // Borradores de visitas adicionales deben verse en el panel.
-        return (parseInt(acta.numeroVisita, 10) || 0) > 1;
+        // Todas las actas del caso deben verse en el panel (incluidos borradores).
+        return !!(acta && acta.id);
     };
 
     const pickLatestPendienteAprobacion = function (list) {
