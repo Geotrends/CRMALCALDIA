@@ -128,12 +128,14 @@ class SyncPeticionarioToContact implements BeforeSave
 
         if (!$account) {
             $account = $this->entityManager->getRDBRepository('Account')->getNew();
-            $this->applyCaseDataToAccount($account, $case);
-            $this->entityManager->saveEntity($account, [
-                'skipDuplicateNitCheck' => true,
-                'skipAll' => true,
-            ]);
         }
+
+        $this->applyCaseDataToAccount($account, $case);
+
+        $this->entityManager->saveEntity($account, [
+            'skipDuplicateNitCheck' => true,
+            'skipAll' => true,
+        ]);
 
         $case->set('accountId', $account->getId());
         $case->set('accountName', $account->get('name'));
@@ -212,19 +214,34 @@ class SyncPeticionarioToContact implements BeforeSave
     private function applyCaseDataToAccount(Entity $account, Entity $case): void
     {
         $nombre = trim((string) $case->get('cNombrePeticionario'));
+        $nit = trim((string) $case->get('cDocumentoPeticionario'));
 
-        if ($nombre !== '') {
-            $account->set('name', $nombre);
+        if ($nombre === '') {
+            $nombre = $nit !== ''
+                ? 'Persona jurídica ' . (DocumentNormalizer::formatNit($nit) ?: $nit)
+                : 'Persona jurídica';
         }
 
-        $nit = trim((string) $case->get('cDocumentoPeticionario'));
+        $account->set('name', $nombre);
 
         if ($nit !== '') {
             $account->set('cNit', DocumentNormalizer::formatNit($nit));
         }
 
-        $account->set('billingAddressStreet', trim((string) $case->get('cDireccionPeticionario')));
-        $account->set('phoneNumber', trim((string) $case->get('cTelefonoPeticionario')));
-        $account->set('emailAddress', trim((string) $case->get('cCorreoPeticionario')));
+        $direccion = trim((string) $case->get('cDireccionPeticionario'));
+        $telefono = trim((string) $case->get('cTelefonoPeticionario'));
+        $correo = trim((string) $case->get('cCorreoPeticionario'));
+
+        if ($direccion !== '') {
+            $account->set('billingAddressStreet', $direccion);
+        }
+
+        if ($telefono !== '') {
+            $account->set('phoneNumber', $telefono);
+        }
+
+        if ($correo !== '') {
+            $account->set('emailAddress', $correo);
+        }
     }
 }

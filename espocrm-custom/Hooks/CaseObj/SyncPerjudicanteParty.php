@@ -137,12 +137,14 @@ class SyncPerjudicanteParty implements BeforeSave
 
         if (!$account) {
             $account = $this->entityManager->getRDBRepository('Account')->getNew();
-            $this->applyCaseDataToAccount($account, $case);
-            $this->entityManager->saveEntity($account, [
-                'skipDuplicateNitCheck' => true,
-                'skipAll' => true,
-            ]);
         }
+
+        $this->applyCaseDataToAccount($account, $case);
+
+        $this->entityManager->saveEntity($account, [
+            'skipDuplicateNitCheck' => true,
+            'skipAll' => true,
+        ]);
 
         $case->set('cPerjudicanteCuentaId', $account->getId());
         $case->set('cPerjudicanteCuentaName', $account->get('name'));
@@ -220,18 +222,29 @@ class SyncPerjudicanteParty implements BeforeSave
     private function applyCaseDataToAccount(Entity $account, Entity $case): void
     {
         $nombre = trim((string) $case->get('cNombrePerjudicante'));
+        $nit = trim((string) $case->get('cDocumentoPerjudicante'));
 
-        if ($nombre !== '') {
-            $account->set('name', $nombre);
+        if ($nombre === '') {
+            $nombre = $nit !== ''
+                ? 'Persona jurídica ' . (DocumentNormalizer::formatNit($nit) ?: $nit)
+                : 'Persona jurídica';
         }
 
-        $nit = trim((string) $case->get('cDocumentoPerjudicante'));
+        $account->set('name', $nombre);
 
         if ($nit !== '') {
             $account->set('cNit', DocumentNormalizer::formatNit($nit));
         }
 
-        $account->set('billingAddressStreet', trim((string) $case->get('cDireccionPerjudicante')));
-        $account->set('phoneNumber', trim((string) $case->get('cTelefonoPerjudicante')));
+        $direccion = trim((string) $case->get('cDireccionPerjudicante'));
+        $telefono = trim((string) $case->get('cTelefonoPerjudicante'));
+
+        if ($direccion !== '') {
+            $account->set('billingAddressStreet', $direccion);
+        }
+
+        if ($telefono !== '') {
+            $account->set('phoneNumber', $telefono);
+        }
     }
 }
