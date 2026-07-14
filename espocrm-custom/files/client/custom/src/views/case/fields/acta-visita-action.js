@@ -115,7 +115,7 @@ define('custom:views/case/fields/acta-visita-action', [
         },
 
         canApproveVisita: function (user) {
-            return PatrulleroActa.canAprobarVisita(user);
+            return PatrulleroActa.canAprobarVisita(user, this.model);
         },
 
         resolveShowVisitaAprobacion: function (user) {

@@ -69,8 +69,30 @@ define('custom:helpers/patrullero-acta', [
             && RadicacionFields.resolveHomeProfile(user) !== 'asignador';
     };
 
-    const canAprobarVisita = function (user) {
-        return isInspeccionUser(user) || (user && user.isAdmin && user.isAdmin());
+    const canAprobarVisita = function (user, model) {
+        if (!user) {
+            return false;
+        }
+
+        if (!(isInspeccionUser(user) || (user.isAdmin && user.isAdmin()))) {
+            return false;
+        }
+
+        // Sin modelo (solo rol): no alcanza para mostrar acciones por caso.
+        if (!model) {
+            return true;
+        }
+
+        // Solo si el caso ya fue radicado y tiene asignado.
+        if (!isCasePostRadicado(model)) {
+            return false;
+        }
+
+        if (!String(model.get('assignedUserId') || '').trim()) {
+            return false;
+        }
+
+        return true;
     };
 
     const canAgregarNuevaVisita = function (user, model) {

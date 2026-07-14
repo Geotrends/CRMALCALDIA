@@ -411,6 +411,12 @@ class CaseObj extends BaseCaseObj
             throw new Forbidden('Solo Inspección puede aprobar la visita.');
         }
 
+        if (!CaseActaVisitaHelper::isCaseRadicadoYAsignado($case)) {
+            throw new BadRequest(
+                'Solo se puede aprobar la visita cuando el caso ya está radicado y asignado.'
+            );
+        }
+
         $currentStatus = trim((string) $case->get('status'));
 
         if (CaseActaVisitaHelper::isVisitaAprobadaStatus($currentStatus) && $actaId === '') {
@@ -457,7 +463,8 @@ class CaseObj extends BaseCaseObj
             && !CaseActaVisitaHelper::canAdvanceCaseToVisitaAprobada($case, $acta)
         ) {
             throw new BadRequest(
-                'El caso debe tener acta diligenciada y estar en Visita realizada (estado actual: '
+                'El caso debe estar radicado, asignado, con acta diligenciada y en Visita realizada'
+                . ' (estado actual: '
                 . ($currentStatus !== '' ? $currentStatus : 'sin estado')
                 . ').'
             );

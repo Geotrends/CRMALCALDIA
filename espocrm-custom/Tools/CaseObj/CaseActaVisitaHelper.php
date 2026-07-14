@@ -95,22 +95,33 @@ class CaseActaVisitaHelper
 
     public static function canAdvanceCaseToVisitaAprobada(Entity $case, ?Entity $acta = null): bool
     {
+        if (!self::isCaseRadicadoYAsignado($case)) {
+            return false;
+        }
+
         $current = trim((string) $case->get('status'));
 
         if (in_array($current, ['Finalizado', 'Proceso cerrado'], true)) {
             return false;
         }
 
-        if (in_array($current, self::ADVANCE_TO_VISITA_APROBADA_FROM, true)) {
-            return true;
-        }
-
         if (!$acta || !self::isActaWithContent($acta)) {
             return false;
         }
 
-        // Acta diligenciada + caso abierto → Inspección puede aprobar.
-        return true;
+        return in_array($current, self::ADVANCE_TO_VISITA_APROBADA_FROM, true);
+    }
+
+    /**
+     * Aprobar visita solo si el caso ya fue radicado y tiene patrullero asignado.
+     */
+    public static function isCaseRadicadoYAsignado(Entity $case): bool
+    {
+        $radicado = trim((string) $case->get('cNumeroRadicado'));
+        $expediente = trim((string) $case->get('cExpediente'));
+        $assigned = trim((string) $case->get('assignedUserId'));
+
+        return ($radicado !== '' || $expediente !== '') && $assigned !== '';
     }
 
     public static function isVisitaAprobadaStatus(string $status): bool
