@@ -24,16 +24,15 @@
     {{else}}
         {{#if canApproveThis}}
         <div class="case-visita-aprobada-check form-group">
-            <label class="case-visita-aprobada-check-label">
-                <input
-                    type="checkbox"
-                    class="case-visita-aprobada-checkbox"
-                    data-action="aprobarVisita"
-                    data-acta-id="{{actaId}}"
-                />
-                <span>{{../visitaAprobadaLabel}}</span>
-            </label>
             <p class="text-muted small case-visita-aprobada-help">{{../visitaAprobadaHelp}}</p>
+            <button
+                type="button"
+                class="btn btn-success btn-sm case-acta-visita-btn case-aprobar-visita-btn"
+                data-action="aprobarVisitaActa"
+                data-acta-id="{{actaId}}"
+            >
+                <span class="fas fa-check"></span> {{../visitaAprobadaLabel}}
+            </button>
         </div>
         {{/if}}
     {{/if}}
@@ -89,17 +88,28 @@
 {{/if}}
 {{#if showVisitaAprobacion}}
 <div class="case-visita-aprobada-check form-group case-visita-aprobada-check-current">
+    {{#if visitaAprobada}}
     <label class="case-visita-aprobada-check-label">
         <input
             type="checkbox"
             class="case-visita-aprobada-checkbox"
             data-action="aprobarVisita"
-            {{#if visitaAprobada}}checked{{/if}}
+            checked
             {{#if visitaAprobadaDisabled}}disabled{{/if}}
         />
         <span>{{visitaAprobadaLabel}}</span>
     </label>
     <p class="text-muted small case-visita-aprobada-help">{{visitaAprobadaHelp}}</p>
+    {{else}}
+    <p class="text-muted small case-visita-aprobada-help">{{visitaAprobadaHelp}}</p>
+    <button
+        type="button"
+        class="btn btn-success btn-sm case-acta-visita-btn case-aprobar-visita-btn"
+        data-action="aprobarVisitaActa"
+    >
+        <span class="fas fa-check"></span> {{visitaAprobadaLabel}}
+    </button>
+    {{/if}}
 </div>
 {{/if}}
 {{#if showActaButtons}}

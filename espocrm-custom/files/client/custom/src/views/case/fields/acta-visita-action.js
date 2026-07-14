@@ -123,15 +123,13 @@ define('custom:views/case/fields/acta-visita-action', [
                 return false;
             }
 
-            const latest = this.workflow && (
-                this.workflow.latestPendienteAprobacion || this.workflow.latestDiligenciada
-            );
+            const status = String(this.model.get('status') || '').trim();
 
-            if (!latest) {
+            if (['Finalizado', 'Proceso cerrado'].indexOf(status) !== -1) {
                 return false;
             }
 
-            if (String(latest.estado || '').trim() === 'Aprobada') {
+            if (this.resolveVisitaAprobada()) {
                 return this.canRevertVisitaAprobada(user) && !this.awaitingNewVisita;
             }
 
@@ -144,13 +142,11 @@ define('custom:views/case/fields/acta-visita-action', [
                 return false;
             }
 
-            if (this.awaitingNewVisita) {
-                return false;
-            }
+            const latest = this.workflow && (
+                this.workflow.latestPendienteAprobacion || this.workflow.latestDiligenciada
+            );
 
-            const status = String(this.model.get('status') || '').trim();
-
-            return ['Visita realizada', 'En proceso', 'En proceso de otra visita', 'Asignado', 'Assigned'].indexOf(status) !== -1;
+            return !!(latest && ActaVisitaCaseStatus.isActaDiligenciada(latest));
         },
 
         resolveShowAgregarVisita: function () {
@@ -254,8 +250,7 @@ define('custom:views/case/fields/acta-visita-action', [
             const latestPendienteId = latestPendiente ? latestPendiente.id : null;
             const canApprove = this.canApproveVisita(user);
             const status = String(this.model.get('status') || '').trim();
-            const caseAprobable = ['Visita realizada', 'En proceso', 'En proceso de otra visita', 'Asignado', 'Assigned', 'Visita aprobada']
-                .indexOf(status) !== -1;
+            const caseCerrado = ['Finalizado', 'Proceso cerrado'].indexOf(status) !== -1;
 
             return historial
                 .filter(function (acta) {
@@ -272,9 +267,13 @@ define('custom:views/case/fields/acta-visita-action', [
                     const estadoLabel = lang.translateOption(estado, 'estado', 'ActaVisita') || estado;
                     const isAprobada = estado === 'Aprobada';
                     const canApproveThis = canApprove
-                        && caseAprobable
+                        && !caseCerrado
                         && !isAprobada
-                        && ActaVisitaCaseStatus.isActaDiligenciada(acta);
+                        && (
+                            estado === 'Diligenciada'
+                            || ActaVisitaCaseStatus.isActaDiligenciada(acta)
+                            || ActaVisitaCaseStatus.hasActaVisitContent(acta)
+                        );
 
                     return {
                         actaId: acta.id,
@@ -732,10 +731,6 @@ define('custom:views/case/fields/acta-visita-action', [
                 self.visitaAprobada = true;
                 ActaVisitaCaseStatus.invalidateCache(self.model.id);
 
-                if ($checkbox) {
-                    $checkbox.prop('checked', true).prop('disabled', false);
-                }
-
                 if (response && response.alreadyApproved) {
                     Espo.Ui.info(self.translateCaseLabel('visitaAprobadaConfirmSuccess'));
                 } else {
@@ -760,8 +755,12 @@ define('custom:views/case/fields/acta-visita-action', [
 
                 Espo.Ui.error(message);
 
-                if ($checkbox) {
-                    $checkbox.prop('checked', false).prop('disabled', false);
+                if ($checkbox && $checkbox.prop) {
+                    if ($checkbox.is('button') || $checkbox.is('[data-action="aprobarVisitaActa"]')) {
+                        $checkbox.prop('disabled', false);
+                    } else {
+                        $checkbox.prop('checked', false).prop('disabled', false);
+                    }
                 }
             });
         },
@@ -837,6 +836,7 @@ define('custom:views/case/fields/acta-visita-action', [
             this.$el.find('[data-action="editarActaArchivo"]').off('click.editarActaArchivo');
             this.$el.find('[data-action="imprimirActaArchivo"]').off('click.imprimirActaArchivo');
             this.$el.find('[data-action="verActa"]').off('click.verActa');
+            this.$el.find('[data-action="aprobarVisitaActa"]').off('click.aprobarVisitaActa');
 
             this.$el.find('[data-action="llenarActa"]').on('click.acta', function (e) {
                 e.preventDefault();
@@ -874,6 +874,34 @@ define('custom:views/case/fields/acta-visita-action', [
                 e.preventDefault();
                 e.stopPropagation();
                 self.actionAgregarVisita();
+            });
+
+            this.$el.find('[data-action="aprobarVisitaActa"]').on('click.aprobarVisitaActa', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                if (!self.canApproveVisita(self.getUser())) {
+                    Espo.Ui.warning(self.translateCaseLabel('visitaAprobadaConfirmError'));
+
+                    return;
+                }
+
+                const $btn = $(e.currentTarget);
+                const actaId = String($btn.attr('data-acta-id') || '').trim() || null;
+
+                Espo.Ui.confirm(
+                    self.translateCaseLabel('visitaAprobadaConfirmQuestion'),
+                    {
+                        title: self.translateCaseLabel('visitaAprobadaCheck'),
+                        confirmText: 'Sí, confirmar',
+                        cancelText: 'Cancelar',
+                        confirmStyle: 'primary',
+                    },
+                    function () {
+                        $btn.prop('disabled', true);
+                        self.actionConfirmarVisitaAprobada($btn, actaId);
+                    }
+                );
             });
 
             this.$el.find('[data-action="verActa"]').on('click.verActa', function (e) {

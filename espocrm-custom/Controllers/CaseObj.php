@@ -401,14 +401,13 @@ class CaseObj extends BaseCaseObj
             throw new Forbidden();
         }
 
-        if (!$this->acl->check('Case', 'confirmarVisitaAprobada')) {
-            throw new Forbidden('Solo Inspección puede aprobar la visita.');
-        }
-
         $user = $this->getUser();
         $profile = $this->injectableFactory->create(AlcaldiaUserProfile::class);
+        $isInspeccion = $user->isAdmin() || $profile->isInspeccion($user);
 
-        if (!$user->isAdmin() && !$profile->isInspeccion($user)) {
+        // Perfil Inspección manda: la acción ACL a veces no está sincronizada en el rol
+        // tras deploys y bloqueaba la aprobación aunque el usuario sí fuera Inspección.
+        if (!$isInspeccion) {
             throw new Forbidden('Solo Inspección puede aprobar la visita.');
         }
 
@@ -739,10 +738,6 @@ class CaseObj extends BaseCaseObj
 
         if (!$this->acl->checkEntityRead($case)) {
             throw new Forbidden();
-        }
-
-        if (!$this->acl->check('Case', 'revertirVisitaAprobada')) {
-            throw new Forbidden('Solo Inspección puede revertir la aprobación de la visita.');
         }
 
         if (!$user->isAdmin() && !$profile->isInspeccion($user)) {

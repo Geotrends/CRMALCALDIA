@@ -97,6 +97,10 @@ class CaseActaVisitaHelper
     {
         $current = trim((string) $case->get('status'));
 
+        if (in_array($current, ['Finalizado', 'Proceso cerrado'], true)) {
+            return false;
+        }
+
         if (in_array($current, self::ADVANCE_TO_VISITA_APROBADA_FROM, true)) {
             return true;
         }
@@ -105,13 +109,8 @@ class CaseActaVisitaHelper
             return false;
         }
 
-        return in_array($current, [
-            'Asignado',
-            'Assigned',
-            'En proceso',
-            'Visita realizada',
-            self::STATUS_EN_PROCESO_OTRA_VISITA,
-        ], true);
+        // Acta diligenciada + caso abierto → Inspección puede aprobar.
+        return true;
     }
 
     public static function isVisitaAprobadaStatus(string $status): bool
