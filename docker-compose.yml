@@ -43,6 +43,9 @@ services:
       ESPOCRM_SITE_URL: ${ESPOCRM_SITE_URL}
       ESPOCRM_TIME_ZONE: ${ESPOCRM_TIME_ZONE}
       ESPOCRM_WEB_SOCKET_URL: ${ESPOCRM_WEB_SOCKET_URL:-}
+      # El daemon procesa alertas y tareas programadas; app-check también
+      # requiere que cron no esté deshabilitado en la configuración persistida.
+      ESPOCRM_CONFIG_CRON_DISABLED: "false"
       REPO_ROOT: /opt/bootstrap/repo
       ESPO_RUN_AUTO_DEPLOY: "1"
     volumes:
