@@ -345,8 +345,13 @@ body.login-page[data-navbar=side] #content #main {
     overscroll-behavior-y: contain;
   }
 
+  /* El backdrop del drawer ya bloquea los clics del contenido. No bloquear
+     su scroll: EspoCRM puede conservar `side-menu-opened` al cambiar de
+     formulario y, de hacerlo, el registro quedaba sin forma de desplazarse. */
   body[data-navbar=side].side-menu-opened:not(.login-page) #content {
-    overflow: hidden !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
   }
 
   body[data-navbar=side]:not(.login-page) #content #main,
