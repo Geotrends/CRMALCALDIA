@@ -1,0 +1,61 @@
+{
+    "fields": {
+        "name": "Nombre",
+        "expediente": "Expediente",
+        "tipo": "Tipo",
+        "efecto": "Efecto",
+        "recurrente": "Recurrente",
+        "fechaInterposicion": "Fecha de interposición",
+        "sustentacion": "Sustentación",
+        "estado": "Estado",
+        "autoridadSegundaInstancia": "Autoridad de segunda instancia",
+        "fechaRemision": "Fecha de remisión",
+        "fechaRecepcion": "Fecha de recepción",
+        "decisionSegundaInstanciaDocumento": "Decisión de segunda instancia",
+        "fechaDevolucion": "Fecha de devolución",
+        "resultadoFinal": "Resultado final",
+        "siguienteProcedimiento": "Siguiente procedimiento",
+        "assignedUser": "Responsable",
+        "teams": "Equipos",
+        "createdAt": "Creado",
+        "modifiedAt": "Modificado"
+    },
+    "labels": {
+        "Create Recurso": "Crear recurso",
+        "Recurso": "Recurso",
+        "Recursos": "Recursos"
+    },
+    "options": {
+        "tipo": {
+            "Reposición": "Reposición",
+            "Apelación": "Apelación"
+        },
+        "efecto": {
+            "Suspensivo": "Suspensivo",
+            "Devolutivo": "Devolutivo",
+            "No aplica": "No aplica"
+        },
+        "estado": {
+            "Interpuesto": "Interpuesto",
+            "En revisión": "En revisión",
+            "Reposición resuelta": "Reposición resuelta",
+            "Apelación concedida": "Apelación concedida",
+            "Remitido a segunda instancia": "Remitido a segunda instancia",
+            "En segunda instancia": "En segunda instancia",
+            "Decidido": "Decidido",
+            "Devuelto a inspección": "Devuelto a inspección",
+            "Cerrado": "Cerrado",
+            "Improcedente": "Improcedente"
+        },
+        "siguienteProcedimiento": {
+            "Orden de Policía": "Orden de Policía",
+            "Gestión de Medidas Correctivas": "Gestión de Medidas Correctivas",
+            "Ejecución Pecuniaria / Tesorería": "Ejecución Pecuniaria / Tesorería",
+            "Auto de Archivo": "Auto de Archivo",
+            "Otra actuación": "Otra actuación"
+        }
+    },
+    "links": {
+        "movimientos": "Movimientos del expediente"
+    }
+}

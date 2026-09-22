@@ -1589,6 +1589,11 @@
             "entity": "Audiencia",
             "foreign": "case"
         },
+        "ordenesPolicia": {
+            "type": "hasMany",
+            "entity": "OrdenPolicia",
+            "foreign": "case"
+        },
         "destino": {
             "type": "belongsTo",
             "entity": "Destino",

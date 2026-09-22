@@ -1,0 +1,7 @@
+[
+    {"name": "name", "width": 20, "link": true},
+    {"name": "tipoMovimiento", "width": 15},
+    {"name": "destino", "width": 22},
+    {"name": "estado", "width": 15},
+    {"name": "fechaSalida", "width": 15}
+]

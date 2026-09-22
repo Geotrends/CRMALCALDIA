@@ -1,0 +1,40 @@
+[
+    {
+        "rows": [
+            [
+                {"name": "case"},
+                {"name": "expediente"}
+            ],
+            [
+                {"name": "autoridadEmisora"},
+                {"name": "destinatario"}
+            ],
+            [
+                {"name": "fechaEmision"},
+                {"name": "fechaLimite"}
+            ],
+            [
+                {"name": "estado"},
+                {"name": "requiereVerificacion"}
+            ]
+        ],
+        "style": "default",
+        "label": "Información general"
+    },
+    {
+        "rows": [
+            [{"name": "textoOrden", "fullWidth": true}],
+            [{"name": "fundamentoNormativo", "fullWidth": true}],
+            [{"name": "criterioCumplimiento", "fullWidth": true}]
+        ],
+        "style": "default",
+        "label": "Contenido de la orden"
+    },
+    {
+        "rows": [
+            [{"name": "documentoOrigen"}]
+        ],
+        "style": "default",
+        "label": "Documento"
+    }
+]

@@ -14,7 +14,12 @@
         "autosInicio": "Autos de inicio",
         "decisionesRuta": "Decisiones de ruta jurídica",
         "remisionesAutoridad": "Remisiones a autoridad",
-        "audiencias": "Audiencias"
+        "audiencias": "Audiencias",
+        "ordenesPolicia": "Órdenes de Policía",
+        "medidasCorrectivas": "Medidas Correctivas",
+        "notificacionesActo": "Notificaciones de Acto",
+        "recursos": "Recursos",
+        "movimientosExpediente": "Movimientos de Expediente"
     },
     "labels": {
         "Create Expediente": "Crear expediente",
@@ -45,6 +50,11 @@
         "autosInicio": "Autos de inicio",
         "decisionesRuta": "Decisiones de ruta jurídica",
         "remisionesAutoridad": "Remisiones a autoridad",
-        "audiencias": "Audiencias"
+        "audiencias": "Audiencias",
+        "ordenesPolicia": "Órdenes de Policía",
+        "medidasCorrectivas": "Medidas Correctivas",
+        "notificacionesActo": "Notificaciones de Acto",
+        "recursos": "Recursos",
+        "movimientosExpediente": "Movimientos de Expediente"
     }
 }

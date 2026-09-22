@@ -1,0 +1,133 @@
+{
+    "fields": {
+        "name": {
+            "type": "varchar",
+            "required": false,
+            "maxLength": 200,
+            "trim": true,
+            "readOnlyAfterCreate": true
+        },
+        "expediente": {
+            "type": "link",
+            "required": true,
+            "readOnlyAfterCreate": true,
+            "isCustom": true
+        },
+        "recurso": {
+            "type": "link",
+            "isCustom": true
+        },
+        "tipoMovimiento": {
+            "type": "enum",
+            "required": true,
+            "options": [
+                "Salida",
+                "Devolución"
+            ],
+            "isCustom": true
+        },
+        "origen": {
+            "type": "varchar",
+            "maxLength": 200,
+            "isCustom": true
+        },
+        "destino": {
+            "type": "varchar",
+            "maxLength": 200,
+            "isCustom": true
+        },
+        "fechaSalida": {
+            "type": "datetime",
+            "required": true,
+            "isCustom": true
+        },
+        "entregadoPor": {
+            "type": "link",
+            "isCustom": true
+        },
+        "recibidoPor": {
+            "type": "varchar",
+            "maxLength": 200,
+            "isCustom": true
+        },
+        "fechaRecepcion": {
+            "type": "date",
+            "isCustom": true
+        },
+        "fechaDevolucion": {
+            "type": "date",
+            "isCustom": true
+        },
+        "documentoEntregaRecibo": {
+            "type": "file",
+            "isCustom": true
+        },
+        "estado": {
+            "type": "enum",
+            "options": [
+                "En tránsito",
+                "En destino",
+                "Devuelto"
+            ],
+            "default": "En tránsito",
+            "isCustom": true
+        },
+        "assignedUser": {
+            "type": "link",
+            "readOnlyAfterCreate": true,
+            "view": "views/fields/assigned-user"
+        },
+        "teams": {
+            "type": "linkMultiple",
+            "view": "views/fields/teams"
+        },
+        "createdAt": {
+            "type": "datetime",
+            "readOnly": true
+        },
+        "modifiedAt": {
+            "type": "datetime",
+            "readOnly": true
+        }
+    },
+    "links": {
+        "expediente": {
+            "type": "belongsTo",
+            "entity": "Expediente",
+            "foreign": "movimientosExpediente"
+        },
+        "recurso": {
+            "type": "belongsTo",
+            "entity": "Recurso",
+            "foreign": "movimientos"
+        },
+        "entregadoPor": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "assignedUser": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "teams": {
+            "type": "hasMany",
+            "entity": "Team",
+            "relationName": "entityTeam",
+            "layoutRelationshipsDisabled": true
+        },
+        "createdBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "modifiedBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        }
+    },
+    "entityClassName": "Espo\\Custom\\Entities\\MovimientoExpediente",
+    "collection": {
+        "orderBy": "fechaSalida",
+        "order": "desc",
+        "textFilterFields": ["name", "origen", "destino"]
+    }
+}

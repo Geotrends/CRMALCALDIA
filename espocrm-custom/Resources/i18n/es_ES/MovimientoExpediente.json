@@ -1,0 +1,37 @@
+{
+    "fields": {
+        "name": "Nombre",
+        "expediente": "Expediente",
+        "recurso": "Recurso",
+        "tipoMovimiento": "Tipo de movimiento",
+        "origen": "Origen",
+        "destino": "Destino",
+        "fechaSalida": "Fecha de salida",
+        "entregadoPor": "Entregado por",
+        "recibidoPor": "Recibido por",
+        "fechaRecepcion": "Fecha de recepción",
+        "fechaDevolucion": "Fecha de devolución",
+        "documentoEntregaRecibo": "Documento de entrega / recibo",
+        "estado": "Estado",
+        "assignedUser": "Responsable",
+        "teams": "Equipos",
+        "createdAt": "Creado",
+        "modifiedAt": "Modificado"
+    },
+    "labels": {
+        "Create MovimientoExpediente": "Crear movimiento de expediente",
+        "MovimientoExpediente": "Movimiento de Expediente",
+        "MovimientoExpedientes": "Movimientos de Expediente"
+    },
+    "options": {
+        "tipoMovimiento": {
+            "Salida": "Salida",
+            "Devolución": "Devolución"
+        },
+        "estado": {
+            "En tránsito": "En tránsito",
+            "En destino": "En destino",
+            "Devuelto": "Devuelto"
+        }
+    }
+}

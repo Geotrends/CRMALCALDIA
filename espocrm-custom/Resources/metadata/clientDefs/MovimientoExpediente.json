@@ -1,0 +1,10 @@
+{
+    "controller": "controllers/record",
+    "iconClass": "fas fa-dolly",
+    "color": "#374151",
+    "recordViews": {
+        "detail": "views/record/detail",
+        "edit": "views/record/edit",
+        "list": "views/record/list"
+    }
+}

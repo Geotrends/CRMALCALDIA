@@ -1,0 +1,39 @@
+[
+    {
+        "rows": [
+            [
+                {"name": "expediente"},
+                {"name": "comportamientoCodigo"}
+            ],
+            [
+                {"name": "tipoMedida"},
+                {"name": "estado"}
+            ],
+            [
+                {"name": "fechaImposicion"},
+                {"name": "fechaFirmeza"}
+            ],
+            [
+                {"name": "sujetoObligado"},
+                {"name": "plazo"}
+            ],
+            [
+                {"name": "fundamentoNormativo", "fullWidth": true}
+            ],
+            [
+                {"name": "criterioCumplimiento", "fullWidth": true}
+            ],
+            [
+                {"name": "requiereEjecucion"},
+                {"name": "requiereVerificacion"}
+            ],
+            [
+                {"name": "fechaResolucion"},
+                {"name": "documentoOrigen"}
+            ],
+            [
+                {"name": "resultado", "fullWidth": true}
+            ]
+        ]
+    }
+]

@@ -1,0 +1,157 @@
+{
+    "fields": {
+        "name": {
+            "type": "varchar",
+            "required": false,
+            "maxLength": 200,
+            "trim": true,
+            "readOnlyAfterCreate": true
+        },
+        "expediente": {
+            "type": "link",
+            "required": true,
+            "isCustom": true
+        },
+        "tipo": {
+            "type": "enum",
+            "required": true,
+            "options": [
+                "Reposición",
+                "Apelación"
+            ],
+            "isCustom": true
+        },
+        "efecto": {
+            "type": "enum",
+            "options": [
+                "Suspensivo",
+                "Devolutivo",
+                "No aplica"
+            ],
+            "isCustom": true
+        },
+        "recurrente": {
+            "type": "varchar",
+            "maxLength": 200,
+            "required": true,
+            "isCustom": true
+        },
+        "fechaInterposicion": {
+            "type": "date",
+            "required": true,
+            "isCustom": true
+        },
+        "sustentacion": {
+            "type": "text",
+            "rows": 4,
+            "isCustom": true
+        },
+        "estado": {
+            "type": "enum",
+            "options": [
+                "Interpuesto",
+                "En revisión",
+                "Reposición resuelta",
+                "Apelación concedida",
+                "Remitido a segunda instancia",
+                "En segunda instancia",
+                "Decidido",
+                "Devuelto a inspección",
+                "Cerrado",
+                "Improcedente"
+            ],
+            "default": "Interpuesto",
+            "isCustom": true
+        },
+        "autoridadSegundaInstancia": {
+            "type": "varchar",
+            "maxLength": 200,
+            "isCustom": true
+        },
+        "fechaRemision": {
+            "type": "date",
+            "isCustom": true
+        },
+        "fechaRecepcion": {
+            "type": "date",
+            "isCustom": true
+        },
+        "decisionSegundaInstanciaDocumento": {
+            "type": "file",
+            "isCustom": true
+        },
+        "fechaDevolucion": {
+            "type": "date",
+            "isCustom": true
+        },
+        "resultadoFinal": {
+            "type": "text",
+            "rows": 3,
+            "isCustom": true
+        },
+        "siguienteProcedimiento": {
+            "type": "enum",
+            "options": [
+                "Orden de Policía",
+                "Gestión de Medidas Correctivas",
+                "Ejecución Pecuniaria / Tesorería",
+                "Auto de Archivo",
+                "Otra actuación"
+            ],
+            "isCustom": true
+        },
+        "assignedUser": {
+            "type": "link",
+            "readOnlyAfterCreate": true,
+            "view": "views/fields/assigned-user"
+        },
+        "teams": {
+            "type": "linkMultiple",
+            "view": "views/fields/teams"
+        },
+        "createdAt": {
+            "type": "datetime",
+            "readOnly": true
+        },
+        "modifiedAt": {
+            "type": "datetime",
+            "readOnly": true
+        }
+    },
+    "links": {
+        "expediente": {
+            "type": "belongsTo",
+            "entity": "Expediente",
+            "foreign": "recursos"
+        },
+        "movimientos": {
+            "type": "hasMany",
+            "entity": "MovimientoExpediente",
+            "foreign": "recurso"
+        },
+        "assignedUser": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "teams": {
+            "type": "hasMany",
+            "entity": "Team",
+            "relationName": "entityTeam",
+            "layoutRelationshipsDisabled": true
+        },
+        "createdBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "modifiedBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        }
+    },
+    "entityClassName": "Espo\\Custom\\Entities\\Recurso",
+    "collection": {
+        "orderBy": "fechaInterposicion",
+        "order": "desc",
+        "textFilterFields": ["name", "recurrente"]
+    }
+}

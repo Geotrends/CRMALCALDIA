@@ -133,6 +133,12 @@ $roleConfigs = [
         'Audiencia' => ['create' => 'yes', 'read' => 'all', 'edit' => 'all', 'delete' => 'no', 'stream' => 'no'],
         'SuspensionAudiencia' => ['create' => 'yes', 'read' => 'all', 'edit' => 'all', 'delete' => 'no', 'stream' => 'no'],
         'GrabacionAudiencia' => ['create' => 'yes', 'read' => 'all', 'edit' => 'all', 'delete' => 'no', 'stream' => 'no'],
+        'OrdenPolicia' => ['create' => 'yes', 'read' => 'all', 'edit' => 'all', 'delete' => 'no', 'stream' => 'no'],
+        'MedidaCorrectiva' => ['create' => 'yes', 'read' => 'all', 'edit' => 'all', 'delete' => 'no', 'stream' => 'no'],
+        'EjecucionMedidaCorrectiva' => ['create' => 'yes', 'read' => 'all', 'edit' => 'all', 'delete' => 'no', 'stream' => 'no'],
+        'NotificacionActo' => ['create' => 'yes', 'read' => 'all', 'edit' => 'all', 'delete' => 'no', 'stream' => 'no'],
+        'Recurso' => ['create' => 'yes', 'read' => 'all', 'edit' => 'all', 'delete' => 'no', 'stream' => 'no'],
+        'MovimientoExpediente' => ['create' => 'yes', 'read' => 'all', 'edit' => 'all', 'delete' => 'no', 'stream' => 'no'],
     ],
 
     // Supervisión y suplencia registrada del Director Técnico; revisión/firma
@@ -145,6 +151,12 @@ $roleConfigs = [
         'RemisionAutoridad' => $readOnlyAll,
         'Audiencia' => $readOnlyAll,
         'Document' => $readOnlyAll,
+        'OrdenPolicia' => $readOnlyAll,
+        'MedidaCorrectiva' => $readOnlyAll,
+        'EjecucionMedidaCorrectiva' => $readOnlyAll,
+        'NotificacionActo' => $readOnlyAll,
+        'Recurso' => $readOnlyAll,
+        'MovimientoExpediente' => $readOnlyAll,
     ],
 
     // Concepto especializado en casos con fauna. No sustituye la decisión

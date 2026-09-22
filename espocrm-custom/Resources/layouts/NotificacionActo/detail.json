@@ -1,0 +1,30 @@
+[
+    {
+        "rows": [
+            [
+                {"name": "expediente"},
+                {"name": "tipoNotificacion"}
+            ],
+            [
+                {"name": "destinatario"},
+                {"name": "estado"}
+            ],
+            [
+                {"name": "fechaGestion"},
+                {"name": "fechaEfectiva"}
+            ]
+        ],
+        "style": "default",
+        "label": "Información general"
+    },
+    {
+        "rows": [
+            [
+                {"name": "actoDocumento"},
+                {"name": "documentoConstancia"}
+            ]
+        ],
+        "style": "default",
+        "label": "Documentos"
+    }
+]

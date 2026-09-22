@@ -111,6 +111,31 @@
             "entity": "Audiencia",
             "foreign": "expediente"
         },
+        "ordenesPolicia": {
+            "type": "hasMany",
+            "entity": "OrdenPolicia",
+            "foreign": "expediente"
+        },
+        "medidasCorrectivas": {
+            "type": "hasMany",
+            "entity": "MedidaCorrectiva",
+            "foreign": "expediente"
+        },
+        "notificacionesActo": {
+            "type": "hasMany",
+            "entity": "NotificacionActo",
+            "foreign": "expediente"
+        },
+        "recursos": {
+            "type": "hasMany",
+            "entity": "Recurso",
+            "foreign": "expediente"
+        },
+        "movimientosExpediente": {
+            "type": "hasMany",
+            "entity": "MovimientoExpediente",
+            "foreign": "expediente"
+        },
         "createdBy": {
             "type": "belongsTo",
             "entity": "User"

@@ -1,0 +1,30 @@
+[
+    {
+        "rows": [
+            [
+                {"name": "expediente"},
+                {"name": "recurso"}
+            ],
+            [
+                {"name": "tipoMovimiento"},
+                {"name": "estado"}
+            ],
+            [
+                {"name": "origen"},
+                {"name": "destino"}
+            ],
+            [
+                {"name": "fechaSalida"},
+                {"name": "entregadoPor"}
+            ],
+            [
+                {"name": "recibidoPor"},
+                {"name": "fechaRecepcion"}
+            ],
+            [
+                {"name": "fechaDevolucion"},
+                {"name": "documentoEntregaRecibo"}
+            ]
+        ]
+    }
+]

@@ -1,0 +1,39 @@
+[
+    {
+        "rows": [
+            [
+                {"name": "medidaCorrectiva"},
+                {"name": "tipoEjecucion"}
+            ],
+            [
+                {"name": "estado"},
+                {"name": "ejecutor"}
+            ],
+            [
+                {"name": "fechaProgramada"},
+                {"name": "fechaEjecucion"}
+            ],
+            [
+                {"name": "dependenciaApoyo"},
+                false
+            ]
+        ],
+        "style": "default",
+        "label": "Información general"
+    },
+    {
+        "rows": [
+            [{"name": "resultado", "fullWidth": true}],
+            [{"name": "observacion", "fullWidth": true}]
+        ],
+        "style": "default",
+        "label": "Resultado"
+    },
+    {
+        "rows": [
+            [{"name": "documentosSoporte", "fullWidth": true}]
+        ],
+        "style": "default",
+        "label": "Documentos soporte"
+    }
+]

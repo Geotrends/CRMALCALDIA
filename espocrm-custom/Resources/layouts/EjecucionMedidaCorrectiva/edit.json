@@ -1,0 +1,31 @@
+[
+    {
+        "rows": [
+            [
+                {"name": "medidaCorrectiva"},
+                {"name": "tipoEjecucion"}
+            ],
+            [
+                {"name": "estado"},
+                {"name": "ejecutor"}
+            ],
+            [
+                {"name": "fechaProgramada"},
+                {"name": "fechaEjecucion"}
+            ],
+            [
+                {"name": "dependenciaApoyo"},
+                false
+            ],
+            [
+                {"name": "resultado", "fullWidth": true}
+            ],
+            [
+                {"name": "observacion", "fullWidth": true}
+            ],
+            [
+                {"name": "documentosSoporte", "fullWidth": true}
+            ]
+        ]
+    }
+]

@@ -1,0 +1,43 @@
+{
+    "fields": {
+        "name": "Nombre",
+        "medidaCorrectiva": "Medida correctiva",
+        "tipoEjecucion": "Tipo de ejecución",
+        "fechaProgramada": "Fecha programada",
+        "fechaEjecucion": "Fecha de ejecución",
+        "ejecutor": "Ejecutor",
+        "dependenciaApoyo": "Dependencia de apoyo",
+        "resultado": "Resultado",
+        "observacion": "Observación",
+        "documentosSoporte": "Documentos soporte",
+        "estado": "Estado",
+        "assignedUser": "Responsable",
+        "teams": "Equipos",
+        "createdAt": "Creado",
+        "modifiedAt": "Modificado"
+    },
+    "labels": {
+        "Create EjecucionMedidaCorrectiva": "Crear ejecución de medida correctiva",
+        "EjecucionMedidaCorrectiva": "Ejecución de Medida Correctiva",
+        "EjecucionMedidaCorrectivas": "Ejecuciones de Medida Correctiva"
+    },
+    "options": {
+        "tipoEjecucion": {
+            "Inmediata": "Inmediata",
+            "Pedagógica": "Pedagógica",
+            "Pecuniaria": "Pecuniaria",
+            "Material sobre actividad o bien": "Material sobre actividad o bien",
+            "Obligación material verificable": "Obligación material verificable"
+        },
+        "estado": {
+            "Programada": "Programada",
+            "En ejecución": "En ejecución",
+            "Ejecutada": "Ejecutada",
+            "Pendiente de soporte": "Pendiente de soporte",
+            "Completa documentalmente": "Completa documentalmente",
+            "No realizada": "No realizada",
+            "Reprogramada": "Reprogramada",
+            "Cancelada por acto": "Cancelada por acto"
+        }
+    }
+}

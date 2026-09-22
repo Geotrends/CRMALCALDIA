@@ -1,0 +1,7 @@
+[
+    {"name": "name", "width": 20, "link": true},
+    {"name": "destinatario", "width": 22},
+    {"name": "tipoNotificacion", "width": 18},
+    {"name": "estado", "width": 15},
+    {"name": "fechaGestion", "width": 11}
+]

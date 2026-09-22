@@ -1,0 +1,7 @@
+[
+    {"name": "name", "width": 20, "link": true},
+    {"name": "tipoMedida", "width": 22},
+    {"name": "sujetoObligado", "width": 18},
+    {"name": "estado", "width": 15},
+    {"name": "fechaImposicion", "width": 11}
+]

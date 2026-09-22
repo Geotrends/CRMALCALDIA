@@ -1,0 +1,168 @@
+{
+    "fields": {
+        "name": {
+            "type": "varchar",
+            "required": false,
+            "maxLength": 200,
+            "trim": true,
+            "readOnlyAfterCreate": true
+        },
+        "expediente": {
+            "type": "link",
+            "required": true,
+            "isCustom": true
+        },
+        "comportamientoCodigo": {
+            "type": "varchar",
+            "maxLength": 200,
+            "required": true,
+            "isCustom": true
+        },
+        "fundamentoNormativo": {
+            "type": "text",
+            "rows": 2,
+            "isCustom": true
+        },
+        "tipoMedida": {
+            "type": "enum",
+            "required": true,
+            "options": [
+                "Amonestación",
+                "Programa comunitario / actividad pedagógica",
+                "Multa General tipo 1",
+                "Multa General tipo 2",
+                "Multa General tipo 3",
+                "Multa General tipo 4",
+                "Multa especial por ruido",
+                "Suspensión temporal de actividad",
+                "Suspensión definitiva de actividad",
+                "Decomiso",
+                "Destrucción de bien",
+                "Inutilización de bienes",
+                "Restitución y protección de bienes inmuebles",
+                "Disolución de reunión / actividad"
+            ],
+            "isCustom": true
+        },
+        "fechaImposicion": {
+            "type": "date",
+            "required": true,
+            "isCustom": true
+        },
+        "fechaFirmeza": {
+            "type": "date",
+            "isCustom": true
+        },
+        "sujetoObligado": {
+            "type": "varchar",
+            "maxLength": 200,
+            "required": true,
+            "isCustom": true
+        },
+        "plazo": {
+            "type": "varchar",
+            "maxLength": 200,
+            "isCustom": true
+        },
+        "criterioCumplimiento": {
+            "type": "text",
+            "rows": 2,
+            "isCustom": true
+        },
+        "requiereEjecucion": {
+            "type": "bool",
+            "default": true,
+            "isCustom": true
+        },
+        "requiereVerificacion": {
+            "type": "bool",
+            "default": true,
+            "isCustom": true
+        },
+        "estado": {
+            "type": "enum",
+            "options": [
+                "Pendiente de validación",
+                "Validada",
+                "Pendiente de ejecución",
+                "En ejecución",
+                "Pendiente de verificación",
+                "Cumplida",
+                "Ejecutada",
+                "Incumplida",
+                "No verificable",
+                "Anulada por acto",
+                "Sustituida"
+            ],
+            "default": "Pendiente de validación",
+            "isCustom": true
+        },
+        "fechaResolucion": {
+            "type": "date",
+            "isCustom": true
+        },
+        "resultado": {
+            "type": "text",
+            "rows": 3,
+            "isCustom": true
+        },
+        "documentoOrigen": {
+            "type": "file",
+            "required": true,
+            "isCustom": true
+        },
+        "assignedUser": {
+            "type": "link",
+            "readOnlyAfterCreate": true,
+            "view": "views/fields/assigned-user"
+        },
+        "teams": {
+            "type": "linkMultiple",
+            "view": "views/fields/teams"
+        },
+        "createdAt": {
+            "type": "datetime",
+            "readOnly": true
+        },
+        "modifiedAt": {
+            "type": "datetime",
+            "readOnly": true
+        }
+    },
+    "links": {
+        "expediente": {
+            "type": "belongsTo",
+            "entity": "Expediente",
+            "foreign": "medidasCorrectivas"
+        },
+        "ejecuciones": {
+            "type": "hasMany",
+            "entity": "EjecucionMedidaCorrectiva",
+            "foreign": "medidaCorrectiva"
+        },
+        "assignedUser": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "teams": {
+            "type": "hasMany",
+            "entity": "Team",
+            "relationName": "entityTeam",
+            "layoutRelationshipsDisabled": true
+        },
+        "createdBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "modifiedBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        }
+    },
+    "entityClassName": "Espo\\Custom\\Entities\\MedidaCorrectiva",
+    "collection": {
+        "orderBy": "fechaImposicion",
+        "order": "desc",
+        "textFilterFields": ["name", "comportamientoCodigo", "sujetoObligado"]
+    }
+}

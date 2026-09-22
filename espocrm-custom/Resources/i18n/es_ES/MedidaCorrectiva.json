@@ -1,0 +1,63 @@
+{
+    "fields": {
+        "name": "Nombre",
+        "expediente": "Expediente",
+        "comportamientoCodigo": "Comportamiento / código",
+        "fundamentoNormativo": "Fundamento normativo",
+        "tipoMedida": "Tipo de medida",
+        "fechaImposicion": "Fecha de imposición",
+        "fechaFirmeza": "Fecha de firmeza",
+        "sujetoObligado": "Sujeto obligado",
+        "plazo": "Plazo",
+        "criterioCumplimiento": "Criterio de cumplimiento",
+        "requiereEjecucion": "¿Requiere ejecución?",
+        "requiereVerificacion": "¿Requiere verificación?",
+        "estado": "Estado",
+        "fechaResolucion": "Fecha de resolución",
+        "resultado": "Resultado",
+        "documentoOrigen": "Documento de origen",
+        "assignedUser": "Responsable",
+        "teams": "Equipos",
+        "createdAt": "Creado",
+        "modifiedAt": "Modificado"
+    },
+    "labels": {
+        "Create MedidaCorrectiva": "Crear medida correctiva",
+        "MedidaCorrectiva": "Medida Correctiva",
+        "MedidaCorrectivas": "Medidas Correctivas"
+    },
+    "options": {
+        "tipoMedida": {
+            "Amonestación": "Amonestación",
+            "Programa comunitario / actividad pedagógica": "Programa comunitario / actividad pedagógica",
+            "Multa General tipo 1": "Multa General tipo 1",
+            "Multa General tipo 2": "Multa General tipo 2",
+            "Multa General tipo 3": "Multa General tipo 3",
+            "Multa General tipo 4": "Multa General tipo 4",
+            "Multa especial por ruido": "Multa especial por ruido",
+            "Suspensión temporal de actividad": "Suspensión temporal de actividad",
+            "Suspensión definitiva de actividad": "Suspensión definitiva de actividad",
+            "Decomiso": "Decomiso",
+            "Destrucción de bien": "Destrucción de bien",
+            "Inutilización de bienes": "Inutilización de bienes",
+            "Restitución y protección de bienes inmuebles": "Restitución y protección de bienes inmuebles",
+            "Disolución de reunión / actividad": "Disolución de reunión / actividad"
+        },
+        "estado": {
+            "Pendiente de validación": "Pendiente de validación",
+            "Validada": "Validada",
+            "Pendiente de ejecución": "Pendiente de ejecución",
+            "En ejecución": "En ejecución",
+            "Pendiente de verificación": "Pendiente de verificación",
+            "Cumplida": "Cumplida",
+            "Ejecutada": "Ejecutada",
+            "Incumplida": "Incumplida",
+            "No verificable": "No verificable",
+            "Anulada por acto": "Anulada por acto",
+            "Sustituida": "Sustituida"
+        }
+    },
+    "links": {
+        "ejecuciones": "Ejecuciones"
+    }
+}

@@ -76,6 +76,12 @@ $scopes = [
     'Audiencia',
     'SuspensionAudiencia',
     'GrabacionAudiencia',
+    'OrdenPolicia',
+    'MedidaCorrectiva',
+    'EjecucionMedidaCorrectiva',
+    'NotificacionActo',
+    'Recurso',
+    'MovimientoExpediente',
 ];
 
 $fullScope = static function (string $scope = ''): array {

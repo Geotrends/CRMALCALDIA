@@ -1,0 +1,36 @@
+{
+    "fields": {
+        "name": "Nombre",
+        "case": "Caso vinculado",
+        "expediente": "Expediente",
+        "textoOrden": "Texto de la orden",
+        "fundamentoNormativo": "Fundamento normativo",
+        "autoridadEmisora": "Autoridad emisora",
+        "destinatario": "Destinatario",
+        "fechaEmision": "Fecha de emisión",
+        "fechaLimite": "Fecha límite",
+        "criterioCumplimiento": "Criterio de cumplimiento",
+        "requiereVerificacion": "¿Requiere verificación?",
+        "estado": "Estado",
+        "documentoOrigen": "Documento de origen",
+        "assignedUser": "Responsable",
+        "teams": "Equipos",
+        "createdAt": "Creado",
+        "modifiedAt": "Modificado"
+    },
+    "labels": {
+        "Create OrdenPolicia": "Crear orden de policía",
+        "OrdenPolicia": "Orden de Policía",
+        "OrdenPolicias": "Órdenes de Policía"
+    },
+    "options": {
+        "estado": {
+            "Registrada": "Registrada",
+            "Notificada": "Notificada",
+            "En seguimiento": "En seguimiento",
+            "Cumplida / Ejecutada": "Cumplida / Ejecutada",
+            "Incumplida": "Incumplida",
+            "En valoración jurídica": "En valoración jurídica"
+        }
+    }
+}

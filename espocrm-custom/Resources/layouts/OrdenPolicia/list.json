@@ -1,0 +1,7 @@
+[
+    {"name": "name", "width": 20, "link": true},
+    {"name": "destinatario", "width": 22},
+    {"name": "autoridadEmisora", "width": 18},
+    {"name": "estado", "width": 15},
+    {"name": "fechaEmision", "width": 11}
+]

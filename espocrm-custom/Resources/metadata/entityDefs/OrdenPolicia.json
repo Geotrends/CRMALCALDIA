@@ -1,0 +1,134 @@
+{
+    "fields": {
+        "name": {
+            "type": "varchar",
+            "required": false,
+            "maxLength": 200,
+            "trim": true,
+            "readOnlyAfterCreate": true
+        },
+        "case": {
+            "type": "link",
+            "isCustom": true
+        },
+        "expediente": {
+            "type": "link",
+            "isCustom": true
+        },
+        "textoOrden": {
+            "type": "text",
+            "rows": 4,
+            "required": true,
+            "isCustom": true
+        },
+        "fundamentoNormativo": {
+            "type": "text",
+            "rows": 2,
+            "isCustom": true
+        },
+        "autoridadEmisora": {
+            "type": "link",
+            "required": true,
+            "isCustom": true
+        },
+        "destinatario": {
+            "type": "varchar",
+            "maxLength": 200,
+            "required": true,
+            "isCustom": true
+        },
+        "fechaEmision": {
+            "type": "date",
+            "required": true,
+            "isCustom": true
+        },
+        "fechaLimite": {
+            "type": "date",
+            "isCustom": true
+        },
+        "criterioCumplimiento": {
+            "type": "text",
+            "rows": 2,
+            "isCustom": true
+        },
+        "requiereVerificacion": {
+            "type": "bool",
+            "default": true,
+            "isCustom": true
+        },
+        "estado": {
+            "type": "enum",
+            "options": [
+                "Registrada",
+                "Notificada",
+                "En seguimiento",
+                "Cumplida / Ejecutada",
+                "Incumplida",
+                "En valoración jurídica"
+            ],
+            "default": "Registrada",
+            "isCustom": true
+        },
+        "documentoOrigen": {
+            "type": "file",
+            "isCustom": true
+        },
+        "assignedUser": {
+            "type": "link",
+            "readOnlyAfterCreate": true,
+            "view": "views/fields/assigned-user"
+        },
+        "teams": {
+            "type": "linkMultiple",
+            "view": "views/fields/teams"
+        },
+        "createdAt": {
+            "type": "datetime",
+            "readOnly": true
+        },
+        "modifiedAt": {
+            "type": "datetime",
+            "readOnly": true
+        }
+    },
+    "links": {
+        "case": {
+            "type": "belongsTo",
+            "entity": "Case",
+            "foreign": "ordenesPolicia"
+        },
+        "expediente": {
+            "type": "belongsTo",
+            "entity": "Expediente",
+            "foreign": "ordenesPolicia"
+        },
+        "autoridadEmisora": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "assignedUser": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "teams": {
+            "type": "hasMany",
+            "entity": "Team",
+            "relationName": "entityTeam",
+            "layoutRelationshipsDisabled": true
+        },
+        "createdBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "modifiedBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        }
+    },
+    "entityClassName": "Espo\\Custom\\Entities\\OrdenPolicia",
+    "collection": {
+        "orderBy": "fechaEmision",
+        "order": "desc",
+        "textFilterFields": ["name", "destinatario"]
+    }
+}

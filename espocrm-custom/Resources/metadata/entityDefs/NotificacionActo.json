@@ -1,0 +1,111 @@
+{
+    "fields": {
+        "name": {
+            "type": "varchar",
+            "required": false,
+            "maxLength": 200,
+            "trim": true,
+            "readOnlyAfterCreate": true
+        },
+        "expediente": {
+            "type": "link",
+            "isCustom": true
+        },
+        "actoDocumento": {
+            "type": "file",
+            "required": true,
+            "isCustom": true
+        },
+        "tipoNotificacion": {
+            "type": "enum",
+            "required": true,
+            "options": [
+                "Personal",
+                "Por aviso",
+                "En estrados",
+                "Otro medio"
+            ],
+            "isCustom": true
+        },
+        "destinatario": {
+            "type": "varchar",
+            "maxLength": 200,
+            "required": true,
+            "isCustom": true
+        },
+        "fechaGestion": {
+            "type": "date",
+            "required": true,
+            "isCustom": true
+        },
+        "fechaEfectiva": {
+            "type": "date",
+            "isCustom": true
+        },
+        "documentoConstancia": {
+            "type": "file",
+            "isCustom": true
+        },
+        "estado": {
+            "type": "enum",
+            "options": [
+                "Pendiente",
+                "En gestión",
+                "Efectiva",
+                "No efectiva",
+                "Requiere otro mecanismo",
+                "Cerrada"
+            ],
+            "default": "Pendiente",
+            "isCustom": true
+        },
+        "assignedUser": {
+            "type": "link",
+            "readOnlyAfterCreate": true,
+            "view": "views/fields/assigned-user"
+        },
+        "teams": {
+            "type": "linkMultiple",
+            "view": "views/fields/teams"
+        },
+        "createdAt": {
+            "type": "datetime",
+            "readOnly": true
+        },
+        "modifiedAt": {
+            "type": "datetime",
+            "readOnly": true
+        }
+    },
+    "links": {
+        "expediente": {
+            "type": "belongsTo",
+            "entity": "Expediente",
+            "foreign": "notificacionesActo"
+        },
+        "assignedUser": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "teams": {
+            "type": "hasMany",
+            "entity": "Team",
+            "relationName": "entityTeam",
+            "layoutRelationshipsDisabled": true
+        },
+        "createdBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "modifiedBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        }
+    },
+    "entityClassName": "Espo\\Custom\\Entities\\NotificacionActo",
+    "collection": {
+        "orderBy": "fechaGestion",
+        "order": "desc",
+        "textFilterFields": ["name", "destinatario"]
+    }
+}

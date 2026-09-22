@@ -1,0 +1,36 @@
+[
+    {
+        "rows": [
+            [
+                {"name": "expediente"},
+                {"name": "tipo"}
+            ],
+            [
+                {"name": "efecto"},
+                {"name": "estado"}
+            ],
+            [
+                {"name": "recurrente"},
+                {"name": "fechaInterposicion"}
+            ],
+            [
+                {"name": "sustentacion", "fullWidth": true}
+            ],
+            [
+                {"name": "autoridadSegundaInstancia"},
+                {"name": "decisionSegundaInstanciaDocumento"}
+            ],
+            [
+                {"name": "fechaRemision"},
+                {"name": "fechaRecepcion"}
+            ],
+            [
+                {"name": "fechaDevolucion"},
+                {"name": "siguienteProcedimiento"}
+            ],
+            [
+                {"name": "resultadoFinal", "fullWidth": true}
+            ]
+        ]
+    }
+]

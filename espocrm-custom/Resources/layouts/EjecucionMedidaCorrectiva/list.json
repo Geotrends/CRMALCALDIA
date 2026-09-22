@@ -1,0 +1,7 @@
+[
+    {"name": "name", "width": 20, "link": true},
+    {"name": "medidaCorrectiva", "width": 22},
+    {"name": "tipoEjecucion", "width": 18},
+    {"name": "estado", "width": 15},
+    {"name": "fechaEjecucion", "width": 11}
+]

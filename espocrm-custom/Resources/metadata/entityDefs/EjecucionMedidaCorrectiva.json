@@ -1,0 +1,127 @@
+{
+    "fields": {
+        "name": {
+            "type": "varchar",
+            "required": false,
+            "maxLength": 200,
+            "trim": true,
+            "readOnlyAfterCreate": true
+        },
+        "medidaCorrectiva": {
+            "type": "link",
+            "required": true,
+            "readOnlyAfterCreate": true,
+            "isCustom": true
+        },
+        "tipoEjecucion": {
+            "type": "enum",
+            "required": true,
+            "options": [
+                "Inmediata",
+                "Pedagógica",
+                "Pecuniaria",
+                "Material sobre actividad o bien",
+                "Obligación material verificable"
+            ],
+            "isCustom": true
+        },
+        "fechaProgramada": {
+            "type": "date",
+            "isCustom": true
+        },
+        "fechaEjecucion": {
+            "type": "date",
+            "isCustom": true
+        },
+        "ejecutor": {
+            "type": "link",
+            "isCustom": true
+        },
+        "dependenciaApoyo": {
+            "type": "varchar",
+            "maxLength": 200,
+            "isCustom": true
+        },
+        "resultado": {
+            "type": "text",
+            "rows": 3,
+            "isCustom": true
+        },
+        "observacion": {
+            "type": "text",
+            "rows": 3,
+            "isCustom": true
+        },
+        "documentosSoporte": {
+            "type": "attachmentMultiple",
+            "isCustom": true
+        },
+        "estado": {
+            "type": "enum",
+            "options": [
+                "Programada",
+                "En ejecución",
+                "Ejecutada",
+                "Pendiente de soporte",
+                "Completa documentalmente",
+                "No realizada",
+                "Reprogramada",
+                "Cancelada por acto"
+            ],
+            "default": "Programada",
+            "isCustom": true
+        },
+        "assignedUser": {
+            "type": "link",
+            "readOnlyAfterCreate": true,
+            "view": "views/fields/assigned-user"
+        },
+        "teams": {
+            "type": "linkMultiple",
+            "view": "views/fields/teams"
+        },
+        "createdAt": {
+            "type": "datetime",
+            "readOnly": true
+        },
+        "modifiedAt": {
+            "type": "datetime",
+            "readOnly": true
+        }
+    },
+    "links": {
+        "medidaCorrectiva": {
+            "type": "belongsTo",
+            "entity": "MedidaCorrectiva",
+            "foreign": "ejecuciones"
+        },
+        "ejecutor": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "assignedUser": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "teams": {
+            "type": "hasMany",
+            "entity": "Team",
+            "relationName": "entityTeam",
+            "layoutRelationshipsDisabled": true
+        },
+        "createdBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "modifiedBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        }
+    },
+    "entityClassName": "Espo\\Custom\\Entities\\EjecucionMedidaCorrectiva",
+    "collection": {
+        "orderBy": "createdAt",
+        "order": "desc",
+        "textFilterFields": ["name", "resultado"]
+    }
+}

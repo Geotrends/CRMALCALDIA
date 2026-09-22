@@ -1,0 +1,38 @@
+{
+    "fields": {
+        "name": "Nombre",
+        "expediente": "Expediente",
+        "actoDocumento": "Acto / documento a notificar",
+        "tipoNotificacion": "Tipo de notificación",
+        "destinatario": "Destinatario",
+        "fechaGestion": "Fecha de gestión",
+        "fechaEfectiva": "Fecha efectiva",
+        "documentoConstancia": "Documento de constancia",
+        "estado": "Estado",
+        "assignedUser": "Responsable",
+        "teams": "Equipos",
+        "createdAt": "Creado",
+        "modifiedAt": "Modificado"
+    },
+    "labels": {
+        "Create NotificacionActo": "Crear notificación de acto",
+        "NotificacionActo": "Notificación de Acto",
+        "NotificacionActos": "Notificaciones de Acto"
+    },
+    "options": {
+        "tipoNotificacion": {
+            "Personal": "Personal",
+            "Por aviso": "Por aviso",
+            "En estrados": "En estrados",
+            "Otro medio": "Otro medio"
+        },
+        "estado": {
+            "Pendiente": "Pendiente",
+            "En gestión": "En gestión",
+            "Efectiva": "Efectiva",
+            "No efectiva": "No efectiva",
+            "Requiere otro mecanismo": "Requiere otro mecanismo",
+            "Cerrada": "Cerrada"
+        }
+    }
+}

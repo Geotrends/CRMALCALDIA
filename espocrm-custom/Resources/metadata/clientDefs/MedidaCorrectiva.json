@@ -1,0 +1,10 @@
+{
+    "controller": "controllers/record",
+    "iconClass": "fas fa-balance-scale",
+    "color": "#854d0e",
+    "recordViews": {
+        "detail": "views/record/detail",
+        "edit": "views/record/edit",
+        "list": "views/record/list"
+    }
+}

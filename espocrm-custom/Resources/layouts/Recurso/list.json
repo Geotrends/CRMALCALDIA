@@ -1,0 +1,7 @@
+[
+    {"name": "name", "width": 20, "link": true},
+    {"name": "tipo", "width": 15},
+    {"name": "recurrente", "width": 22},
+    {"name": "estado", "width": 18},
+    {"name": "fechaInterposicion", "width": 11}
+]
