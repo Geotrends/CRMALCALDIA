@@ -61,7 +61,9 @@ El estado pasa a **Radicado**.
 
 El estado pasa a **Asignado**.
 
-#### Paso 4 — Visita realizada (Patrullaje e Inspección)
+#### Paso 4 — En gestión técnica (Patrullaje e Inspección)
+
+> Nota (Fase 1, 2026-09-22): este paso se llamaba antes "Visita realizada". El estado técnico de `Case` ahora es **En gestión técnica** para todo el tramo de visita(s) de campo — el detalle de cuál visita va en curso vive en la `GestionTecnica` vinculada al caso, no en el estado visible del caso. Ver `docs/ajustes/2026-09-22-fase1-gestion-tecnica-decision-ruta-juridica.md`.
 
 Quién puede operar el panel **Acta de visita**:
 
@@ -78,18 +80,18 @@ Quién puede operar el panel **Acta de visita**:
 Al guardar con contenido:
 
 - Se genera el **PDF** del acta.  
-- El estado del caso pasa a **Visita realizada**.  
+- El estado del caso pasa a **En gestión técnica**.  
 - En el panel aparece la tarjeta **Visita 1**.
 
 **Varias visitas en el mismo caso**
 
 Si hace falta otra visita en campo:
 
-1. Con el caso en **Visita realizada** o **Visita aprobada**, usar **«Agregar visita»** (Inspección o Patrullaje).  
+1. Con el caso en **En gestión técnica** o **Visita aprobada**, usar **«Agregar visita»** (Inspección o Patrullaje).  
 2. Escribir el **motivo** de la nueva visita (queda en el historial).  
-3. El caso pasa a **En proceso de otra visita**.  
+3. El caso permanece en **En gestión técnica** (antes pasaba a un estado separado "En proceso de otra visita"; desde la Fase 1 esa distinción ya no es un estado visible del caso — el sistema la reconoce internamente consultando la `GestionTecnica` del caso).  
 4. Marcar de nuevo **«Voy a realizar la visita»** y diligenciar el acta.  
-5. Al guardar, el caso vuelve a **Visita realizada** y aparece **Visita 2**, **Visita 3**, etc.
+5. Al guardar, el caso permanece en **En gestión técnica** y aparece **Visita 2**, **Visita 3**, etc.
 
 Todas las visitas quedan visibles en el panel, en orden **1, 2, 3…** (sin saltos).  
 La visita anterior **no se borra** al agregar una nueva.
@@ -104,7 +106,7 @@ Inspección revisa el acta y aprueba la visita con el botón **«Aprobar visita�
 |-----------|-----------|
 | Caso **radicado** (radicado o expediente) | La visita oficial solo aplica sobre trámite ya numerado |
 | Caso **asignado** (tiene patrullero) | Hay responsable de campo |
-| Estado **Visita realizada** | El acta ya está diligenciada |
+| Estado **En gestión técnica** | El acta ya está diligenciada |
 | Rol **Inspección** (o admin) | Patrullaje no aprueba |
 
 Si el caso aún está pendiente de radicación o sin asignar, **no** aparece (ni funciona) la aprobación.
@@ -146,8 +148,8 @@ Radicación radica → Radicado
         ↓
 Asignación asigna patrullero → Asignado
         ↓
-Patrullaje / Inspección diligencia acta → Visita realizada
-        ↓   (opcional: Agregar visita → En proceso de otra visita → otra acta → Visita realizada)
+Patrullaje / Inspección diligencia acta → En gestión técnica
+        ↓   (opcional: Agregar visita → otra acta → sigue En gestión técnica)
 Inspección aprueba → Visita aprobada
         ↓
 Inspección comunica y cierra → Finalizado → Proceso cerrado
@@ -157,21 +159,24 @@ Inspección comunica y cierra → Finalizado → Proceso cerrado
 
 | Estado | Qué significa |
 |--------|----------------|
-| **En proceso** | Ya no se usa en el flujo nuevo. Solo puede verse en casos antiguos. |
-| **En proceso de otra visita** | Se pidió y preparó una visita adicional; el patrullero/Inspección debe marcar el check y diligenciar la nueva acta. |
+| **En gestión técnica** | Desde la Fase 1 (2026-09-22), agrupa lo que antes eran 3 estados separados: "En proceso", "Visita realizada" y "En proceso de otra visita". Cubre desde que se marca "voy a realizar la visita" hasta que Inspección aprueba. |
 
 ---
 
-## 3. Usuarios de prueba (4 roles principales)
+## 3. Usuarios de prueba
 
 Entrar con **un rol a la vez** (cerrar sesión y entrar con el siguiente).
 
-| Rol | Usuario | Contraseña |
-|-----|---------|------------|
-| Inspección | inspeccion | inspeccion2026 |
-| Radicación | radicacion | radicacion2026 |
-| Asignación | asignacion | asignacion2026 |
-| Patrullaje | patrullaje | patrullaje2026 |
+Estos son los 4 roles del flujo operativo del día a día del caso (nombres de usuario sin cambios; desde el 2026-09-22 el nombre visible de 3 de ellos se alineó al modelo BPMN, sin cambiar lo que pueden hacer):
+
+| Rol (usuario/contraseña sin cambios) | Nombre visible actual |
+|-----|---------|
+| inspeccion / inspeccion2026 | Inspección |
+| radicacion / radicacion2026 | Auxiliar Administrativo · Radicador |
+| asignacion / asignacion2026 | Director Técnico |
+| patrullaje / patrullaje2026 | Patrullero Ambiental |
+
+Desde la Fase 2 (rutas jurídicas del Código de Policía) hay además un usuario `juridica`/`juridica2026` (Apoyo Jurídico) y roles adicionales para probar decisiones de ruta jurídica, audiencias y medidas correctivas (ej. `inspector`/`inspector2026`). Listado completo y qué puede hacer cada uno en **`docs/USUARIOS-DE-PRUEBA.md`** — esas entidades todavía no tienen pantallas dedicadas en este manual porque no tienen panel embebido en el caso, se navegan desde su propia lista.
 
 **Orden sugerido de prueba:**  
 Inspección crea → Radicación radica → Asignación asigna → Patrullaje diligencia acta → Inspección aprueba → Inspección cierra.
@@ -188,7 +193,7 @@ Opcional: probar **Agregar visita** (segunda visita) antes de aprobar, o despué
 - Crea y edita casos; completa Excel Alcaldía.  
 - Registra comunicaciones y diligencia Auto de archivo.  
 - Puede **diligenciar actas** y **agregar visitas**.  
-- **Aprueba visitas** solo si el caso está radicado, asignado y en Visita realizada.  
+- **Aprueba visitas** solo si el caso está radicado, asignado y en gestión técnica.  
 - **No** radica ni asigna patrulleros.
 
 ### Radicación
@@ -222,15 +227,15 @@ Cada estado tiene un color propio (lista, kanban y embudo del Inicio).
 | Pendiente de radicación | Naranja claro |
 | Radicado | Azul celeste |
 | Asignado | Rosa / cian claro |
-| Visita realizada | Amarillo / verde lima claro |
+| En gestión técnica | Amarillo / verde lima claro |
 | Visita aprobada | Verde claro |
 | Finalizado | Beige / turquesa suave |
 | Proceso cerrado | Gris |
 
 En listas y kanban, el radicado y el expediente se destacan (ejemplo: `RAD · Exp. 2026`).
 
-La **línea de tiempo** del caso muestra los pasos del flujo actual (**sin** “En proceso”).  
-El **kanban** tampoco muestra la columna “En proceso”.
+La **línea de tiempo** del caso muestra los pasos del flujo actual (**sin** "En proceso").  
+El **kanban** tampoco muestra la columna "En proceso" — desde la Fase 1, además, el kanban ya no distingue entre "Visita realizada" y "En proceso de otra visita": ambas quedan bajo la única columna **En gestión técnica** (simplificación intencional; el detalle de cada visita se ve dentro del caso, no en el kanban).
 
 ---
 
@@ -345,7 +350,7 @@ Integración con otros sistemas, migración masiva de históricos, UAT formal, c
 | Pantalla | Para qué sirve |
 |----------|----------------|
 | **Casos** (lista) | Ver y filtrar quejas, con colores por estado |
-| **Kanban** | Tablero visual por estado (sin “En proceso”) |
+| **Kanban** | Tablero visual por estado (sin "En proceso"; "Visita realizada"/"En proceso de otra visita" unificadas en "En gestión técnica") |
 | **Solicitud de queja** | Peticionario, infractor y descripción |
 | **Excel Alcaldía** | Campos para el registro institucional |
 | **Radicación** | Radicado y expediente |
@@ -379,7 +384,7 @@ Integración con otros sistemas, migración masiva de históricos, UAT formal, c
 | Llenar / editar acta | Patrullaje asignado / Inspección | Check marcado (si aplica) |
 | Imprimir acta a mano | Patrullaje asignado / Inspección | Check marcado (si aplica) |
 | Agregar visita | Patrullaje / Inspección | Ya hay al menos un acta diligenciada; motivo obligatorio |
-| Aprobar visita | **Solo Inspección** | Radicado + asignado + Visita realizada |
+| Aprobar visita | **Solo Inspección** | Radicado + asignado + En gestión técnica |
 | Quitar aprobación | Solo Inspección | Caso en Visita aprobada |
 
 Las tarjetas del panel muestran **Visita 1, Visita 2…** en orden de creación.  

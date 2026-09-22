@@ -158,14 +158,40 @@ espocrm-custom/
 
 ### 4.2 Entidades propias (`Entities/`)
 
+**Núcleo original (recepción, gestión técnica de campo, cierre):**
+
 | Clase PHP | Entidad EspoCRM | Descripción |
 |-----------|-----------------|-------------|
 | `ActaVisita.php` | `ActaVisita` | Acta de visita de campo vinculada a un Case |
 | `ActuoArchivo.php` | `ActuoArchivo` | Auto de archivo (cierre documental) |
 | `ComunicacionCaso.php` | `ComunicacionCaso` | Comunicaciones oficiales del caso |
 | `AsignacionHistorial.php` | `AsignacionHistorial` | Log de cambios de responsable (patrullero) |
+| `VisitaHistorial.php` | `VisitaHistorial` | Bitácora de visitas por caso |
+| `Expediente.php` | `Expediente` | Unidad formal del trámite jurídico/administrativo, agrupa Cases |
+| `AutoInicio.php` | `AutoInicio` | Auto de inicio del proceso policivo (abre el Expediente) |
+
+**Modelo funcional — Fase 1 y 2** (ver `docs/PLAN-MODELO-FUNCIONAL-INSPECCION-AMBIENTAL.md` y `docs/ajustes/` para el detalle de cada una; todas siguen a `90_MODELO_CRM/` del repo `InspeccionAmbiental-Workflow`):
+
+| Clase PHP | Entidad EspoCRM | Descripción |
+|-----------|-----------------|-------------|
+| `GestionTecnica.php` | `GestionTecnica` | Ciclo de coordinación técnica de campo (agrupa `ActaVisita`) |
+| `DecisionRutaJuridica.php` | `DecisionRutaJuridica` | Decisión humana explícita de ruta jurídica (decisor, fundamento, motivación) |
+| `Destino.php` | `Destino` | Sujeto/lugar/establecimiento reportado por el caso |
+| `RelacionCasos.php` | `RelacionCasos` | Agrupación operativa de casos relacionados (sin fusionarlos) |
+| `RemisionAutoridad.php` | `RemisionAutoridad` | Remisión del caso/expediente a otra autoridad (con medida preventiva ambiental cuando aplica) |
+| `Audiencia.php` | `Audiencia` | Audiencia del Proceso Verbal Abreviado |
+| `SuspensionAudiencia.php` | `SuspensionAudiencia` | Suspensión/aplazamiento/reanudación de una audiencia |
+| `GrabacionAudiencia.php` | `GrabacionAudiencia` | Audio de audiencia o constancia de excepción |
+| `OrdenPolicia.php` | `OrdenPolicia` | Mandato de autoridad de Policía, independiente de MedidaCorrectiva |
+| `MedidaCorrectiva.php` | `MedidaCorrectiva` | Medida correctiva impuesta (Ley 1801), catálogo cerrado de tipos |
+| `EjecucionMedidaCorrectiva.php` | `EjecucionMedidaCorrectiva` | Ejecución material/pedagógica/pecuniaria de una MedidaCorrectiva |
+| `NotificacionActo.php` | `NotificacionActo` | Notificación de un acto (personal/aviso/estrados/otro) |
+| `Recurso.php` | `Recurso` | Reposición/apelación contra una decisión |
+| `MovimientoExpediente.php` | `MovimientoExpediente` | Custodia/traslado físico del expediente (segunda instancia) |
 
 Entidades estándar **extendidas** vía metadata (no tienen clase PHP propia): `Case`, `Account`, `Contact`, `Document`, `User`, `Meeting`, `Task`, `Team`.
+
+**Importante para cualquier entidad custom nueva**: además de `Entities/<Entidad>.php`, es obligatorio crear `Controllers/<Entidad>.php` (extendiendo `Espo\Core\Controllers\Record`, puede quedar vacío) — sin él, la API responde 404 aunque la entidad esté bien definida en metadata. Se descubrió este requisito durante la Fase 1 del modelo funcional.
 
 ### 4.3 Entry points (`EntryPoints/`)
 
@@ -683,20 +709,26 @@ ESPO_CONFIRM_RESET=1 php /opt/bootstrap/repo/scripts/reset-operational-data.php
 
 | Tabla | Descripción |
 |-------|-------------|
-| `"case"` | Casos ambientales (80+ columnas `c_*`) |
+| `"case"` | Casos ambientales (90+ columnas `c_*`) |
 | `acta_visita` | Actas de visita |
 | `actuo_archivo` | Autos de archivo |
 | `comunicacion_caso` | Comunicaciones |
 | `asignacion_historial` | Historial asignaciones |
+| `visita_historial` | Bitácora de visitas |
+| `expediente`, `auto_inicio` | Trámite jurídico/policivo formal |
+| `gestion_tecnica`, `decision_ruta_juridica`, `destino`, `relacion_casos`, `remision_autoridad` | Núcleo del modelo funcional (Fase 1) |
+| `audiencia`, `suspension_audiencia`, `grabacion_audiencia`, `orden_policia`, `medida_correctiva`, `ejecucion_medida_correctiva`, `notificacion_acto`, `recurso`, `movimiento_expediente` | Ruta Proceso Verbal Abreviado (Fase 2) |
 
 ### Estados del caso (`status`)
+
+Desde la migración de la Fase 1 (`docs/ajustes/2026-09-22-fase1-gestion-tecnica-decision-ruta-juridica.md`), `Case.status` tiene 8 valores — el detalle de la visita técnica se separó hacia `GestionTecnica.estado`/`ActaVisita.estado`:
 
 1. `Pendiente de radicacion` (default al crear)
 2. `Radicado`
 3. `Asignado`
-4. `En proceso` (legacy)
-5. `Visita realizada`
-6. `Visita aprobada`
+4. `En gestión técnica` (reemplaza a los antiguos `En proceso`, `Visita realizada`, `En proceso de otra visita`)
+5. `Revisión de hallazgos`
+6. `Remitido por competencia`
 7. `Finalizado`
 8. `Proceso cerrado`
 
@@ -770,14 +802,19 @@ bash scripts/verify-custom-deploy.sh
 
 ### Usuarios de prueba
 
-| Rol | Usuario | Contraseña | Puede hacer |
-|-----|---------|------------|-------------|
-| Inspección | `inspeccion` | `inspeccion2026` | Crear casos, aprobar visitas, diligenciar actuo, cerrar |
-| Radicación | `radicacion` | `radicacion2026` | Ver todos; editar solo radicado/expediente |
-| Asignación | `asignacion` | `asignacion2026` | Ver todos; editar solo asignación patrullero |
-| Patrullaje | `patrullaje` | `patrullaje2026` | Casos asignados; crear/editar actas |
+Desde la Fase 1 (`docs/ajustes/2026-09-22-roles-nombres-bpmn.md`), los roles y usuarios de prueba se alinearon a `90_MODELO_CRM/matriz_roles_v1.0.md`. Listado completo y actualizado (18 usuarios: admin + 5 roles con ACL completo + 9 roles del modelo con ACL preliminar) en **`docs/USUARIOS-DE-PRUEBA.md`** — no se duplica aquí para no desincronizarse. Resumen de los 5 roles operativos con ACL maduro (nombre visible actual → nombre de Role interno, sin cambios de comportamiento):
 
-Detección de rol en backend: `Tools/User/AlcaldiaUserProfile.php` → API `Case/action/alcaldiaProfile`.
+| Rol (nombre BPMN) | Usuario | Contraseña | Puede hacer |
+|-----|---------|------------|-------------|
+| Inspección *(sin renombrar, ver nota abajo)* | `inspeccion` | `inspeccion2026` | Crear casos, aprobar visitas, diligenciar actuo, cerrar |
+| Auxiliar Administrativo · Radicador | `radicacion` | `radicacion2026` | Ver todos; editar solo radicado/expediente |
+| Director Técnico | `asignacion` | `asignacion2026` | Ver todos; editar solo asignación patrullero |
+| Patrullero Ambiental | `patrullaje` | `patrullaje2026` | Casos asignados; crear/editar actas |
+| Apoyo Jurídico | `juridica` | `juridica2026` | AutoInicio/Expediente crear/editar; Case solo lectura |
+
+Nota: el rol `Inspección` fusiona hoy 3 roles distintos del modelo (Auxiliar Administrativo·Inspección, Profesional, Inspector Ambiental) — separarlos es un rediseño de permisos pendiente, no un simple rename. Por eso existe además un usuario `inspector`/`inspector2026` (rol `Inspector Ambiental`, con ACL preliminar) para probar específicamente los flujos de decisión de ruta jurídica, audiencias, medidas correctivas, etc. de la Fase 2.
+
+Detección de rol en backend: `Tools/User/AlcaldiaUserProfile.php` → API `Case/action/alcaldiaProfile`. El perfil detecta por **listas de alias** de nombre de rol (no un único nombre fijo), así que tanto el nombre viejo como el nuevo BPMN de cada rol migrado siguen siendo reconocidos.
 
 ### Reglas por rol (frontend)
 
@@ -823,12 +860,13 @@ Asignación asigna patrullero
   → Log en AsignacionHistorial
 
 Patrullaje marca "Voy a realizar la visita" + diligencia acta
-  → Visita realizada
+  → En gestión técnica (antes "Visita realizada"; el hook crea/actualiza
+    una GestionTecnica vinculada al caso — ver Fase 1)
   → PDF acta generado
   → Notifica Inspección
 
 Inspección aprueba visita (checkbox)
-  → Visita aprobada
+  → Revisión de hallazgos
   → Notifica patrullero
   → Aparece panel Auto de archivo
 
@@ -840,6 +878,8 @@ Cierre del caso
   → Finalizado / Proceso cerrado
   → Notifica gestores
 ```
+
+**Modelo funcional (Fase 1 y 2, `docs/PLAN-MODELO-FUNCIONAL-INSPECCION-AMBIENTAL.md`)**: en paralelo a este flujo operativo del Case, un Inspector puede registrar una `DecisionRutaJuridica` (decisor, fundamento normativo, motivación) que abre una de las rutas jurídicas del Código de Policía/Ley 1801 — hoy implementadas: Recursos Naturales (vía `RemisionAutoridad`, con medida preventiva ambiental opcional) y Proceso Verbal Abreviado completo (`Audiencia` → `SuspensionAudiencia`/`GrabacionAudiencia` → `OrdenPolicia`/`MedidaCorrectiva` → `EjecucionMedidaCorrectiva` → `NotificacionActo` → `Recurso` → `MovimientoExpediente` si hay segunda instancia). Ninguna de estas entidades tiene panel embebido en el Case todavía — se navegan desde su propia lista/búsqueda estándar de EspoCRM.
 
 ### Detalle panel Acta de visita
 
@@ -914,6 +954,9 @@ Lógica: `helpers/case-documentos.js`
 | `docs/CONSULTAS-BD-VALIDACION.md` | Consultas SQL para validar datos en PostgreSQL |
 | `docs/ALMACENAMIENTO-BD-Y-ARCHIVOS.md` | Contenedores/volúmenes + rutas de PDFs, fotos, Excel y adjuntos |
 | `docs/ESTADO-CUMPLIMIENTO-OBJETIVOS.md` | Objetivos del proyecto vs. lo implementado |
+| `docs/PLAN-MODELO-FUNCIONAL-INSPECCION-AMBIENTAL.md` | Plan de implementación del modelo funcional (BPMN) por fases: qué está hecho, qué falta y por qué |
+| `docs/ajustes/*.md` | Registro de cada ajuste desde 2026-09-22 en adelante (objetivo, diseño, archivos afectados, validación) — ver `docs/ajustes/README.md` |
+| `docs/USUARIOS-DE-PRUEBA.md` | Listado completo de usuarios/roles/contraseñas de prueba, alineados a `matriz_roles_v1.0.md` |
 | `README.md` | Instalación, Docker, Dokploy, usuarios de prueba |
 | `backups/despliegue-inicial/env.txt` | Plantilla de variables para Dokploy |
 
