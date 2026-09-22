@@ -115,7 +115,9 @@ services:
       espocrm-db:
         condition: service_healthy
       espocrm:
-        condition: service_started
+        # En instalaciones nuevas espera al CRM base. En redeploys el init se
+        # omite (ver run-custom-init.sh), evitando dos deploys simultáneos.
+        condition: service_healthy
 
 volumes:
   espocrm-db:

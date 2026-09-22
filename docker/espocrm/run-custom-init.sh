@@ -1,6 +1,18 @@
 #!/bin/bash
 set -euo pipefail
 
+APP_ROOT="${APP_ROOT:-/var/www/html}"
+STAMP_FILE="$APP_ROOT/data/.custom-deploy-stamp"
+
+# Este servicio es únicamente el bootstrap de una instalación nueva. En cada
+# redeploy Docker Compose puede volver a crearlo; si el custom ya se aplicó,
+# el servicio principal se encarga del auto-deploy y correr ambos a la vez
+# corrompe temporalmente los directorios custom compartidos.
+if [ -s "$STAMP_FILE" ]; then
+  echo "==> Custom ya aplicado; espocrm-init se omite en este redeploy."
+  exit 0
+fi
+
 for i in {1..120}; do
   is_installed="$(php -r '
     $value = "";
