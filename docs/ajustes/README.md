@@ -64,5 +64,6 @@ Cada registro debe indicar como mínimo:
 | 2026-09-22 | Roles y usuarios alineados a matriz_roles_v1.0.md (BPMN) | Validado localmente | [Registro](2026-09-22-roles-nombres-bpmn.md) |
 | 2026-09-22 | Fase 2 (Recursos Naturales) — entidad RemisionAutoridad | Validado localmente | [Registro](2026-09-22-fase2-recursos-naturales-remision-autoridad.md) |
 | 2026-09-22 | Fase 2 (Ambiental Preventiva) — campos de medida preventiva en RemisionAutoridad | Validado localmente | [Registro](2026-09-22-fase2-ambiental-preventiva-medida-preventiva.md) |
+| 2026-09-22 | Fase 2 (Proceso Verbal Abreviado) — Audiencia, SuspensionAudiencia, GrabacionAudiencia | Validado localmente | [Registro](2026-09-22-fase2-pva-audiencia.md) |
 
 Cuando se cree un registro, reemplazar la fila de ejemplo o agregar una fila nueva en orden descendente por fecha.

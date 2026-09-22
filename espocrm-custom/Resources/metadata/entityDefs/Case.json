@@ -1584,6 +1584,11 @@
             "entity": "RemisionAutoridad",
             "foreign": "case"
         },
+        "audiencias": {
+            "type": "hasMany",
+            "entity": "Audiencia",
+            "foreign": "case"
+        },
         "destino": {
             "type": "belongsTo",
             "entity": "Destino",

@@ -1,0 +1,6 @@
+[
+    {"name": "name", "width": 20, "link": true},
+    {"name": "audiencia", "width": 18},
+    {"name": "estado", "width": 20},
+    {"name": "fechaSuspension", "width": 14}
+]

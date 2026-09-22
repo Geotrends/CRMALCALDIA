@@ -1,0 +1,40 @@
+[
+    {
+        "rows": [
+            [
+                {"name": "audiencia"},
+                {"name": "estado"}
+            ],
+            [
+                {"name": "fechaSuspension"},
+                {"name": "esPrimeraInasistencia"}
+            ],
+            [
+                {"name": "fechaLimiteJustificacion"},
+                {"name": "decisionJustificacion"}
+            ],
+            [
+                {"name": "fechaReanudacion"},
+                false
+            ]
+        ],
+        "style": "default",
+        "label": "Información general"
+    },
+    {
+        "rows": [
+            [{"name": "causa", "fullWidth": true}],
+            [{"name": "actuacionPendiente", "fullWidth": true}]
+        ],
+        "style": "default",
+        "label": "Causa y actuación pendiente"
+    },
+    {
+        "rows": [
+            [{"name": "justificacionDocumento"}],
+            [{"name": "documentoSoporte"}]
+        ],
+        "style": "default",
+        "label": "Soportes"
+    }
+]

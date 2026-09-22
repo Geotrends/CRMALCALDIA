@@ -1,0 +1,43 @@
+{
+    "fields": {
+        "name": "Nombre",
+        "expediente": "Expediente",
+        "case": "Caso",
+        "tipoProceso": "Tipo de proceso",
+        "autoridad": "Autoridad",
+        "fechaInicio": "Fecha de inicio",
+        "fechaFin": "Fecha de fin",
+        "participantes": "Participantes",
+        "estado": "Estado",
+        "resultadoDiligencia": "Resultado de la diligencia",
+        "actaDocumento": "Acta de audiencia",
+        "assignedUser": "Responsable",
+        "teams": "Equipos",
+        "createdAt": "Creado",
+        "modifiedAt": "Modificado"
+    },
+    "labels": {
+        "Create Audiencia": "Crear audiencia",
+        "Audiencia": "Audiencia",
+        "Audiencias": "Audiencias"
+    },
+    "options": {
+        "tipoProceso": {
+            "Proceso Verbal Abreviado · Convivencia": "Proceso Verbal Abreviado · Convivencia"
+        },
+        "estado": {
+            "Programada": "Programada",
+            "En curso": "En curso",
+            "Pendiente de audio": "Pendiente de audio",
+            "Pendiente de acta": "Pendiente de acta",
+            "Pendiente de soportes": "Pendiente de soportes",
+            "Completa documentalmente": "Completa documentalmente",
+            "Cancelada": "Cancelada",
+            "Reprogramada": "Reprogramada"
+        }
+    },
+    "links": {
+        "suspensiones": "Suspensiones",
+        "grabaciones": "Grabaciones"
+    }
+}

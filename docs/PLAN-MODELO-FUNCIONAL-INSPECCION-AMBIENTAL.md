@@ -36,12 +36,14 @@ Unificación de hooks duplicados entre `Hooks/CaseObj/` y `Classes/RecordHooks/C
 
 **Ambiental Preventiva / Remisión a Autoridad Ambiental — hecho.** Es la otra rama directa de Recursos Naturales. Su compuerta de "¿procede medida preventiva municipal?" converge, con o sin medida, en el mismo registro de `RemisionAutoridad` — por eso se extendió esa entidad con campos opcionales de medida preventiva en vez de crear una entidad nueva (ni el BPMN ni `domain.json` definen una entidad propia para eso). Ver [`2026-09-22-fase2-ambiental-preventiva-medida-preventiva.md`](ajustes/2026-09-22-fase2-ambiental-preventiva-medida-preventiva.md).
 
-Con esto, 2 de las 3 ramas de Recursos Naturales quedan completamente construidas (Auto de Archivo ya existía).
+**Proceso Verbal Abreviado · Convivencia — trío de audiencia hecho, resto pendiente.** Se investigaron ambos BPMN activos (N2 principal + N3 de audiencia, Ley 1801 art. 223 + Decreto 768/2025) antes de programar. El N3 de audiencia está completamente detallado (comparecencia, primera inasistencia con 3 días para justificar, conciliación, pruebas, suspensión/reanudación con dos desenlaces distintos, audio/acta) y se construyeron `Audiencia`, `SuspensionAudiencia`, `GrabacionAudiencia`. El resto del N2 (`OrdenPolicia`, `NotificacionActo`, `Recurso`, `MedidaCorrectiva`) requiere investigar sus propios BPMN N3 antes de programar — no se hizo todavía. Se omitió `ActuacionJuridica` como entidad intermedia (simplificación deliberada, documentada). Ver [`2026-09-22-fase2-pva-audiencia.md`](ajustes/2026-09-22-fase2-pva-audiencia.md).
+
+Con esto, las 3 ramas de Recursos Naturales tienen al menos un primer corte construido (Auto de Archivo ya existía; Remisión a Autoridad y Ambiental Preventiva completas; PVA con el trío de audiencia).
 
 Pendiente de Fase 2 (sin orden fijo definido):
+- `OrdenPolicia`, `NotificacionActo`, `Recurso`, `MedidaCorrectiva` — completan el N2 de Proceso Verbal Abreviado. Cada uno necesita investigar su propio BPMN N3 antes de programar (Determinación de Medidas Correctivas, Orden de Policía · Registro/Cumplimiento/Seguimiento, Notificación y Ejecutoria de Actos, Recursos y Segunda Instancia, Gestión y Ejecución de Medidas Correctivas).
 - Maltrato / Convivencia Animal + Registro Canino de Manejo Especial — tres procedimientos separados aunque suenen parecidos, no deben compartir entidad.
-- Proceso Verbal Inmediato / Abreviado (Código de Policía) — la más pesada: trae `Audiencia`, `SuspensionAudiencia`, `GrabacionAudiencia`, `Recurso`, `MovimientoExpediente`. Es también el proceso al que delega la rama "Policiva" de Recursos Naturales — la última rama que falta cerrar.
-- Cada ruta necesita, como mínimo: subestados propios dentro de `Expediente`/`ActuacionJuridica`, formatos específicos, y en las rutas de Policía, las entidades `Audiencia` + `OrdenPolicia` + `MedidaCorrectiva` (el modelo es explícito: estas tres figuras nunca se convierten automáticamente unas en otras).
+- Vacíos reales detectados en el modelo fuente (no inventar, confirmar antes de modelar): `estados.md` no define estados para `OrdenPolicia` (tampoco los tenía `SuspensionAudiencia`, para la que ya se propusieron estados propios); el callActivity "Notificación, Recursos y Ejecutoria" del N2 de PVA no aclara si invoca uno o dos subprocesos N3 distintos.
 
 ### Fase 3 — Medidas correctivas, cierre formal y RNMC 🔲 No iniciada
 - `MedidaCorrectiva` + `EjecucionMedidaCorrectiva` + `VerificacionCumplimiento`.

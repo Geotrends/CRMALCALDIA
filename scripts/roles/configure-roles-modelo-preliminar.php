@@ -130,6 +130,9 @@ $roleConfigs = [
         'ComunicacionCaso' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
         'Document' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
         'RemisionAutoridad' => ['create' => 'yes', 'read' => 'all', 'edit' => 'all', 'delete' => 'no', 'stream' => 'no'],
+        'Audiencia' => ['create' => 'yes', 'read' => 'all', 'edit' => 'all', 'delete' => 'no', 'stream' => 'no'],
+        'SuspensionAudiencia' => ['create' => 'yes', 'read' => 'all', 'edit' => 'all', 'delete' => 'no', 'stream' => 'no'],
+        'GrabacionAudiencia' => ['create' => 'yes', 'read' => 'all', 'edit' => 'all', 'delete' => 'no', 'stream' => 'no'],
     ],
 
     // Supervisión y suplencia registrada del Director Técnico; revisión/firma
@@ -140,6 +143,7 @@ $roleConfigs = [
         'Expediente' => $readOnlyAll,
         'DecisionRutaJuridica' => $readOnlyAll,
         'RemisionAutoridad' => $readOnlyAll,
+        'Audiencia' => $readOnlyAll,
         'Document' => $readOnlyAll,
     ],
 

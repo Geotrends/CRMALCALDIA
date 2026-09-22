@@ -1,0 +1,139 @@
+{
+    "fields": {
+        "name": {
+            "type": "varchar",
+            "required": false,
+            "maxLength": 200,
+            "trim": true,
+            "readOnlyAfterCreate": true
+        },
+        "expediente": {
+            "type": "link",
+            "required": true,
+            "readOnlyAfterCreate": true,
+            "isCustom": true
+        },
+        "case": {
+            "type": "link",
+            "isCustom": true
+        },
+        "tipoProceso": {
+            "type": "enum",
+            "options": [
+                "Proceso Verbal Abreviado · Convivencia"
+            ],
+            "default": "Proceso Verbal Abreviado · Convivencia",
+            "isCustom": true
+        },
+        "autoridad": {
+            "type": "link",
+            "required": true,
+            "isCustom": true
+        },
+        "fechaInicio": {
+            "type": "datetime",
+            "required": true,
+            "isCustom": true
+        },
+        "fechaFin": {
+            "type": "datetime",
+            "isCustom": true
+        },
+        "participantes": {
+            "type": "text",
+            "rows": 4,
+            "isCustom": true
+        },
+        "estado": {
+            "type": "enum",
+            "options": [
+                "Programada",
+                "En curso",
+                "Pendiente de audio",
+                "Pendiente de acta",
+                "Pendiente de soportes",
+                "Completa documentalmente",
+                "Cancelada",
+                "Reprogramada"
+            ],
+            "default": "Programada",
+            "isCustom": true
+        },
+        "resultadoDiligencia": {
+            "type": "text",
+            "rows": 6,
+            "isCustom": true
+        },
+        "actaDocumento": {
+            "type": "file",
+            "isCustom": true
+        },
+        "assignedUser": {
+            "type": "link",
+            "readOnlyAfterCreate": true,
+            "view": "views/fields/assigned-user"
+        },
+        "teams": {
+            "type": "linkMultiple",
+            "view": "views/fields/teams"
+        },
+        "createdAt": {
+            "type": "datetime",
+            "readOnly": true
+        },
+        "modifiedAt": {
+            "type": "datetime",
+            "readOnly": true
+        }
+    },
+    "links": {
+        "expediente": {
+            "type": "belongsTo",
+            "entity": "Expediente",
+            "foreign": "audiencias"
+        },
+        "case": {
+            "type": "belongsTo",
+            "entity": "Case",
+            "foreign": "audiencias"
+        },
+        "autoridad": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "suspensiones": {
+            "type": "hasMany",
+            "entity": "SuspensionAudiencia",
+            "foreign": "audiencia"
+        },
+        "grabaciones": {
+            "type": "hasMany",
+            "entity": "GrabacionAudiencia",
+            "foreign": "audiencia"
+        },
+        "assignedUser": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "teams": {
+            "type": "hasMany",
+            "entity": "Team",
+            "relationName": "entityTeam",
+            "layoutRelationshipsDisabled": true
+        },
+        "createdBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "modifiedBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        }
+    },
+    "entityClassName": "Espo\\Custom\\Entities\\Audiencia",
+    "collection": {
+        "orderBy": "fechaInicio",
+        "order": "desc",
+        "textFilterFields": ["name", "resultadoDiligencia"]
+    }
+}

@@ -1,0 +1,7 @@
+[
+    {"name": "name", "width": 20, "link": true},
+    {"name": "expediente", "width": 15},
+    {"name": "estado", "width": 18},
+    {"name": "autoridad", "width": 15},
+    {"name": "fechaInicio", "width": 14}
+]

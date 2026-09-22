@@ -73,6 +73,9 @@ $scopes = [
     'Destino',
     'RelacionCasos',
     'RemisionAutoridad',
+    'Audiencia',
+    'SuspensionAudiencia',
+    'GrabacionAudiencia',
 ];
 
 $fullScope = static function (string $scope = ''): array {

@@ -1,0 +1,24 @@
+[
+    {
+        "rows": [
+            [
+                {"name": "audiencia"},
+                {"name": "estado"}
+            ],
+            [
+                {"name": "medioCaptura"},
+                {"name": "fechaCarga"}
+            ],
+            [
+                {"name": "cargadoPor"},
+                false
+            ],
+            [
+                {"name": "archivoOriginal"}
+            ],
+            [
+                {"name": "motivoExcepcion", "fullWidth": true}
+            ]
+        ]
+    }
+]

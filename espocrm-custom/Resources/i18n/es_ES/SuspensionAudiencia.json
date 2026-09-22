@@ -1,0 +1,41 @@
+{
+    "fields": {
+        "name": "Nombre",
+        "audiencia": "Audiencia",
+        "causa": "Causa",
+        "fechaSuspension": "Fecha de suspensión",
+        "esPrimeraInasistencia": "¿Es primera inasistencia del presunto infractor?",
+        "fechaLimiteJustificacion": "Fecha límite para justificar (3 días)",
+        "justificacionDocumento": "Documento de justificación",
+        "decisionJustificacion": "Decisión sobre la justificación",
+        "actuacionPendiente": "Actuación pendiente",
+        "fechaReanudacion": "Fecha de reanudación",
+        "documentoSoporte": "Documento soporte",
+        "estado": "Estado",
+        "assignedUser": "Responsable",
+        "teams": "Equipos",
+        "createdAt": "Creado",
+        "modifiedAt": "Modificado"
+    },
+    "labels": {
+        "Create SuspensionAudiencia": "Crear suspensión de audiencia",
+        "SuspensionAudiencia": "Suspensión de audiencia",
+        "SuspensionAudiencias": "Suspensiones de audiencia"
+    },
+    "options": {
+        "decisionJustificacion": {
+            "Pendiente": "Pendiente",
+            "Aceptada": "Aceptada",
+            "Rechazada": "Rechazada",
+            "No aplica": "No aplica"
+        },
+        "estado": {
+            "Registrada": "Registrada",
+            "Con término de justificación pendiente": "Con término de justificación pendiente",
+            "Justificación resuelta": "Justificación resuelta",
+            "Actuación pendiente en curso": "Actuación pendiente en curso",
+            "Reanudada": "Reanudada",
+            "Cerrada": "Cerrada"
+        }
+    }
+}

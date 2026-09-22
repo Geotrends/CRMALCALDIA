@@ -1,0 +1,126 @@
+{
+    "fields": {
+        "name": {
+            "type": "varchar",
+            "required": false,
+            "maxLength": 200,
+            "trim": true,
+            "readOnlyAfterCreate": true
+        },
+        "audiencia": {
+            "type": "link",
+            "required": true,
+            "readOnlyAfterCreate": true,
+            "isCustom": true
+        },
+        "causa": {
+            "type": "text",
+            "rows": 3,
+            "required": true,
+            "isCustom": true
+        },
+        "fechaSuspension": {
+            "type": "datetime",
+            "required": true,
+            "isCustom": true
+        },
+        "esPrimeraInasistencia": {
+            "type": "bool",
+            "default": false,
+            "isCustom": true
+        },
+        "fechaLimiteJustificacion": {
+            "type": "date",
+            "isCustom": true
+        },
+        "justificacionDocumento": {
+            "type": "file",
+            "isCustom": true
+        },
+        "decisionJustificacion": {
+            "type": "enum",
+            "options": [
+                "Pendiente",
+                "Aceptada",
+                "Rechazada",
+                "No aplica"
+            ],
+            "default": "Pendiente",
+            "isCustom": true
+        },
+        "actuacionPendiente": {
+            "type": "text",
+            "rows": 3,
+            "isCustom": true
+        },
+        "fechaReanudacion": {
+            "type": "datetime",
+            "isCustom": true
+        },
+        "documentoSoporte": {
+            "type": "file",
+            "isCustom": true
+        },
+        "estado": {
+            "type": "enum",
+            "options": [
+                "Registrada",
+                "Con término de justificación pendiente",
+                "Justificación resuelta",
+                "Actuación pendiente en curso",
+                "Reanudada",
+                "Cerrada"
+            ],
+            "default": "Registrada",
+            "isCustom": true
+        },
+        "assignedUser": {
+            "type": "link",
+            "readOnlyAfterCreate": true,
+            "view": "views/fields/assigned-user"
+        },
+        "teams": {
+            "type": "linkMultiple",
+            "view": "views/fields/teams"
+        },
+        "createdAt": {
+            "type": "datetime",
+            "readOnly": true
+        },
+        "modifiedAt": {
+            "type": "datetime",
+            "readOnly": true
+        }
+    },
+    "links": {
+        "audiencia": {
+            "type": "belongsTo",
+            "entity": "Audiencia",
+            "foreign": "suspensiones"
+        },
+        "assignedUser": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "teams": {
+            "type": "hasMany",
+            "entity": "Team",
+            "relationName": "entityTeam",
+            "layoutRelationshipsDisabled": true
+        },
+        "createdBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "modifiedBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        }
+    },
+    "entityClassName": "Espo\\Custom\\Entities\\SuspensionAudiencia",
+    "collection": {
+        "orderBy": "fechaSuspension",
+        "order": "desc",
+        "textFilterFields": ["name", "causa"]
+    }
+}

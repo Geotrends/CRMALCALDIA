@@ -1,0 +1,106 @@
+{
+    "fields": {
+        "name": {
+            "type": "varchar",
+            "required": false,
+            "maxLength": 200,
+            "trim": true,
+            "readOnlyAfterCreate": true
+        },
+        "audiencia": {
+            "type": "link",
+            "required": true,
+            "readOnlyAfterCreate": true,
+            "isCustom": true
+        },
+        "archivoOriginal": {
+            "type": "file",
+            "isCustom": true
+        },
+        "medioCaptura": {
+            "type": "enum",
+            "options": [
+                "Grabadora del CRM",
+                "Dispositivo externo",
+                "No aplica"
+            ],
+            "isCustom": true
+        },
+        "fechaCarga": {
+            "type": "datetime",
+            "isCustom": true
+        },
+        "cargadoPor": {
+            "type": "link",
+            "isCustom": true
+        },
+        "estado": {
+            "type": "enum",
+            "options": [
+                "Pendiente",
+                "Cargado",
+                "Validado",
+                "Excepción no grabada"
+            ],
+            "default": "Pendiente",
+            "isCustom": true
+        },
+        "motivoExcepcion": {
+            "type": "text",
+            "rows": 3,
+            "isCustom": true
+        },
+        "assignedUser": {
+            "type": "link",
+            "readOnlyAfterCreate": true,
+            "view": "views/fields/assigned-user"
+        },
+        "teams": {
+            "type": "linkMultiple",
+            "view": "views/fields/teams"
+        },
+        "createdAt": {
+            "type": "datetime",
+            "readOnly": true
+        },
+        "modifiedAt": {
+            "type": "datetime",
+            "readOnly": true
+        }
+    },
+    "links": {
+        "audiencia": {
+            "type": "belongsTo",
+            "entity": "Audiencia",
+            "foreign": "grabaciones"
+        },
+        "cargadoPor": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "assignedUser": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "teams": {
+            "type": "hasMany",
+            "entity": "Team",
+            "relationName": "entityTeam",
+            "layoutRelationshipsDisabled": true
+        },
+        "createdBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "modifiedBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        }
+    },
+    "entityClassName": "Espo\\Custom\\Entities\\GrabacionAudiencia",
+    "collection": {
+        "orderBy": "createdAt",
+        "order": "desc",
+        "textFilterFields": ["name"]
+    }
+}

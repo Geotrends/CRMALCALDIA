@@ -1,0 +1,31 @@
+[
+    {
+        "rows": [
+            [
+                {"name": "expediente"},
+                {"name": "case"}
+            ],
+            [
+                {"name": "tipoProceso"},
+                {"name": "estado"}
+            ],
+            [
+                {"name": "autoridad"},
+                {"name": "fechaInicio"}
+            ],
+            [
+                {"name": "fechaFin"},
+                false
+            ],
+            [
+                {"name": "participantes", "fullWidth": true}
+            ],
+            [
+                {"name": "resultadoDiligencia", "fullWidth": true}
+            ],
+            [
+                {"name": "actaDocumento"}
+            ]
+        ]
+    }
+]

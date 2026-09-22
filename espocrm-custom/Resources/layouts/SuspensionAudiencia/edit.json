@@ -1,0 +1,34 @@
+[
+    {
+        "rows": [
+            [
+                {"name": "audiencia"},
+                {"name": "estado"}
+            ],
+            [
+                {"name": "fechaSuspension"},
+                {"name": "esPrimeraInasistencia"}
+            ],
+            [
+                {"name": "fechaLimiteJustificacion"},
+                {"name": "decisionJustificacion"}
+            ],
+            [
+                {"name": "fechaReanudacion"},
+                false
+            ],
+            [
+                {"name": "causa", "fullWidth": true}
+            ],
+            [
+                {"name": "actuacionPendiente", "fullWidth": true}
+            ],
+            [
+                {"name": "justificacionDocumento"}
+            ],
+            [
+                {"name": "documentoSoporte"}
+            ]
+        ]
+    }
+]

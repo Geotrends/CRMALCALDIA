@@ -1,0 +1,34 @@
+{
+    "fields": {
+        "name": "Nombre",
+        "audiencia": "Audiencia",
+        "archivoOriginal": "Archivo de audio",
+        "medioCaptura": "Medio de captura",
+        "fechaCarga": "Fecha de carga",
+        "cargadoPor": "Cargado por",
+        "estado": "Estado",
+        "motivoExcepcion": "Motivo de la excepción",
+        "assignedUser": "Responsable",
+        "teams": "Equipos",
+        "createdAt": "Creado",
+        "modifiedAt": "Modificado"
+    },
+    "labels": {
+        "Create GrabacionAudiencia": "Crear grabación de audiencia",
+        "GrabacionAudiencia": "Grabación de audiencia",
+        "GrabacionAudiencias": "Grabaciones de audiencia"
+    },
+    "options": {
+        "medioCaptura": {
+            "Grabadora del CRM": "Grabadora del CRM",
+            "Dispositivo externo": "Dispositivo externo",
+            "No aplica": "No aplica"
+        },
+        "estado": {
+            "Pendiente": "Pendiente",
+            "Cargado": "Cargado",
+            "Validado": "Validado",
+            "Excepción no grabada": "Excepción no grabada"
+        }
+    }
+}

@@ -1,0 +1,45 @@
+[
+    {
+        "rows": [
+            [
+                {"name": "expediente"},
+                {"name": "case"}
+            ],
+            [
+                {"name": "tipoProceso"},
+                {"name": "estado"}
+            ],
+            [
+                {"name": "autoridad"},
+                {"name": "fechaInicio"}
+            ],
+            [
+                {"name": "fechaFin"},
+                false
+            ]
+        ],
+        "style": "default",
+        "label": "Información general"
+    },
+    {
+        "rows": [
+            [{"name": "participantes", "fullWidth": true}]
+        ],
+        "style": "default",
+        "label": "Participantes"
+    },
+    {
+        "rows": [
+            [{"name": "resultadoDiligencia", "fullWidth": true}]
+        ],
+        "style": "default",
+        "label": "Resultado de la diligencia"
+    },
+    {
+        "rows": [
+            [{"name": "actaDocumento"}]
+        ],
+        "style": "default",
+        "label": "Acta"
+    }
+]

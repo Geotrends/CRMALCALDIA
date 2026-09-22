@@ -1,0 +1,34 @@
+[
+    {
+        "rows": [
+            [
+                {"name": "audiencia"},
+                {"name": "estado"}
+            ],
+            [
+                {"name": "medioCaptura"},
+                {"name": "fechaCarga"}
+            ],
+            [
+                {"name": "cargadoPor"},
+                false
+            ]
+        ],
+        "style": "default",
+        "label": "Información general"
+    },
+    {
+        "rows": [
+            [{"name": "archivoOriginal"}]
+        ],
+        "style": "default",
+        "label": "Audio"
+    },
+    {
+        "rows": [
+            [{"name": "motivoExcepcion", "fullWidth": true}]
+        ],
+        "style": "default",
+        "label": "Excepción (si no fue posible grabar)"
+    }
+]

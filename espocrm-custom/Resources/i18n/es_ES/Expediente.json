@@ -13,7 +13,8 @@
         "casos": "Radicados vinculados",
         "autosInicio": "Autos de inicio",
         "decisionesRuta": "Decisiones de ruta jurídica",
-        "remisionesAutoridad": "Remisiones a autoridad"
+        "remisionesAutoridad": "Remisiones a autoridad",
+        "audiencias": "Audiencias"
     },
     "labels": {
         "Create Expediente": "Crear expediente",
@@ -43,6 +44,7 @@
         "casos": "Radicados vinculados",
         "autosInicio": "Autos de inicio",
         "decisionesRuta": "Decisiones de ruta jurídica",
-        "remisionesAutoridad": "Remisiones a autoridad"
+        "remisionesAutoridad": "Remisiones a autoridad",
+        "audiencias": "Audiencias"
     }
 }

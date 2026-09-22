@@ -106,6 +106,11 @@
             "entity": "RemisionAutoridad",
             "foreign": "expediente"
         },
+        "audiencias": {
+            "type": "hasMany",
+            "entity": "Audiencia",
+            "foreign": "expediente"
+        },
         "createdBy": {
             "type": "belongsTo",
             "entity": "User"
