@@ -58,6 +58,7 @@
     },
     "links": {
         "movimientos": "Movimientos del expediente",
-        "actuacionesPoliciaInmediata": "Actuaciones de policía inmediata"
+        "actuacionesPoliciaInmediata": "Actuaciones de policía inmediata",
+        "actuacionesRNMC": "Actuaciones RNMC (apelación PVI)"
     }
 }

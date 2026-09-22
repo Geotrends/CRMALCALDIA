@@ -143,6 +143,11 @@
             "entity": "ActuacionPoliciaInmediata",
             "foreign": "apelacion"
         },
+        "actuacionesRNMC": {
+            "type": "hasMany",
+            "entity": "ActuacionRNMC",
+            "foreign": "recursoApelacion"
+        },
         "assignedUser": {
             "type": "belongsTo",
             "entity": "User"

@@ -83,6 +83,11 @@
             "entity": "ActuacionPoliciaInmediata",
             "foreign": "ordenComparendo"
         },
+        "actuacionesRNMC": {
+            "type": "hasMany",
+            "entity": "ActuacionRNMC",
+            "foreign": "ordenComparendo"
+        },
         "assignedUser": {
             "type": "belongsTo",
             "entity": "User"

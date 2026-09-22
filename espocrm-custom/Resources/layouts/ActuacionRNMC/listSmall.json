@@ -1,0 +1,4 @@
+[
+    {"name": "name", "width": 30, "link": true},
+    {"name": "estadoRNMC", "width": 20}
+]

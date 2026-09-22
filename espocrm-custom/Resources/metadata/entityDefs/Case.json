@@ -1624,6 +1624,11 @@
             "entity": "OrdenComparendo",
             "foreign": "case"
         },
+        "actuacionesRNMC": {
+            "type": "hasMany",
+            "entity": "ActuacionRNMC",
+            "foreign": "case"
+        },
         "actuacionesPoliciaInmediata": {
             "type": "hasMany",
             "entity": "ActuacionPoliciaInmediata",

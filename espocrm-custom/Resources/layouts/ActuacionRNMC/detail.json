@@ -1,0 +1,87 @@
+[
+    {
+        "rows": [
+            [
+                {"name": "case"},
+                {"name": "expediente"}
+            ],
+            [
+                {"name": "identificadorRNMC"},
+                {"name": "estadoRNMC"}
+            ],
+            [
+                {"name": "fechaRecepcionMunicipio"},
+                {"name": "tipoIngresoRNMC"}
+            ]
+        ],
+        "style": "default"
+    },
+    {
+        "rows": [
+            [
+                {"name": "ordenComparendo"},
+                {"name": "numeroComparendo"}
+            ],
+            [
+                {"name": "numeroExpedienteRNMC"},
+                {"name": "fechaExpedicionComparendo"}
+            ],
+            [{"name": "ordenComparendoDocumento", "fullWidth": true}]
+        ],
+        "style": "default",
+        "label": "Comparendo de origen"
+    },
+    {
+        "rows": [
+            [{"name": "materias", "fullWidth": true}],
+            [{"name": "hechoMaterial", "fullWidth": true}],
+            [
+                {"name": "comportamientoCodigo"},
+                {"name": "articulo"}
+            ],
+            [
+                {"name": "numeral"},
+                {"name": "medidaSenalada"}
+            ],
+            [{"name": "multaGeneralTipo", "fullWidth": true}]
+        ],
+        "style": "default",
+        "label": "Clasificación jurídica"
+    },
+    {
+        "rows": [
+            [
+                {"name": "objecionPresentada"},
+                {"name": "fechaObjecion"}
+            ],
+            [
+                {"name": "esObjecionOportuna"},
+                {"name": "apelacionPVI"}
+            ],
+            [
+                {"name": "recursoApelacion"},
+                {"name": "fechaRemisionPVI"}
+            ]
+        ],
+        "style": "default",
+        "label": "Objeción y apelación"
+    },
+    {
+        "rows": [
+            [
+                {"name": "fechaRecepcionInspector"},
+                {"name": "competenciaInspector"}
+            ],
+            [
+                {"name": "rutaDecidida"},
+                {"name": "decisionRuta"}
+            ],
+            [
+                {"name": "responsableInspector"},
+                {"name": "documentosSoporte"}
+            ]
+        ],
+        "style": "default",
+        "label": "Competencia y ruta"
+    }
+]

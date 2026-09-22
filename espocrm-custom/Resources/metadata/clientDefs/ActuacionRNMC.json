@@ -1,0 +1,10 @@
+{
+    "controller": "controllers/record",
+    "iconClass": "fas fa-inbox",
+    "color": "#1e3a8a",
+    "recordViews": {
+        "detail": "views/record/detail",
+        "edit": "views/record/edit",
+        "list": "views/record/list"
+    }
+}

@@ -151,6 +151,11 @@
             "entity": "Compromiso",
             "foreign": "expediente"
         },
+        "actuacionesRNMC": {
+            "type": "hasMany",
+            "entity": "ActuacionRNMC",
+            "foreign": "expediente"
+        },
         "createdBy": {
             "type": "belongsTo",
             "entity": "User"

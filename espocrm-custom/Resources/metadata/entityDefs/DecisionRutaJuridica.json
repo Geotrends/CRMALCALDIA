@@ -94,6 +94,11 @@
             "entity": "Expediente",
             "foreign": "decisionesRuta"
         },
+        "actuacionesRNMC": {
+            "type": "hasMany",
+            "entity": "ActuacionRNMC",
+            "foreign": "decisionRuta"
+        },
         "assignedUser": {
             "type": "belongsTo",
             "entity": "User"

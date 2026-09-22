@@ -1,0 +1,278 @@
+{
+    "fields": {
+        "name": {
+            "type": "varchar",
+            "required": false,
+            "maxLength": 200,
+            "trim": true,
+            "readOnlyAfterCreate": true
+        },
+        "case": {
+            "type": "link",
+            "isCustom": true
+        },
+        "expediente": {
+            "type": "link",
+            "isCustom": true
+        },
+        "ordenComparendo": {
+            "type": "link",
+            "isCustom": true
+        },
+        "numeroComparendo": {
+            "type": "varchar",
+            "maxLength": 100,
+            "isCustom": true
+        },
+        "numeroExpedienteRNMC": {
+            "type": "varchar",
+            "maxLength": 100,
+            "isCustom": true
+        },
+        "identificadorRNMC": {
+            "type": "varchar",
+            "maxLength": 150,
+            "required": true,
+            "isCustom": true
+        },
+        "fechaExpedicionComparendo": {
+            "type": "date",
+            "isCustom": true
+        },
+        "fechaRecepcionMunicipio": {
+            "type": "date",
+            "required": true,
+            "isCustom": true
+        },
+        "tipoIngresoRNMC": {
+            "type": "enum",
+            "required": true,
+            "options": [
+                "Objeción de comparendo",
+                "Apelación de Proceso Verbal Inmediato",
+                "Actuación de competencia del Inspector",
+                "Comparendo no objetado",
+                "Multa en firme / cumplimiento",
+                "Informe policial sin comparendo",
+                "Otro / por clasificar"
+            ],
+            "isCustom": true
+        },
+        "materias": {
+            "type": "multiEnum",
+            "required": true,
+            "options": [
+                "Preservación del agua",
+                "Espacio público",
+                "Actividad económica",
+                "Ruido / tranquilidad",
+                "Urbanismo",
+                "Ambiente y recursos naturales",
+                "Animales",
+                "Cumplimiento de orden o medida",
+                "Otra"
+            ],
+            "isCustom": true
+        },
+        "hechoMaterial": {
+            "type": "text",
+            "rows": 4,
+            "required": true,
+            "isCustom": true
+        },
+        "comportamientoCodigo": {
+            "type": "varchar",
+            "maxLength": 100,
+            "isCustom": true
+        },
+        "articulo": {
+            "type": "varchar",
+            "maxLength": 50,
+            "isCustom": true
+        },
+        "numeral": {
+            "type": "varchar",
+            "maxLength": 50,
+            "isCustom": true
+        },
+        "medidaSenalada": {
+            "type": "varchar",
+            "maxLength": 255,
+            "isCustom": true
+        },
+        "multaGeneralTipo": {
+            "type": "varchar",
+            "maxLength": 100,
+            "isCustom": true
+        },
+        "objecionPresentada": {
+            "type": "enum",
+            "options": [
+                "Sí",
+                "No",
+                "No aplica"
+            ],
+            "default": "No aplica",
+            "isCustom": true
+        },
+        "fechaObjecion": {
+            "type": "date",
+            "isCustom": true
+        },
+        "esObjecionOportuna": {
+            "type": "enum",
+            "options": [
+                "Sí",
+                "No",
+                "No aplica",
+                "Por validar"
+            ],
+            "isCustom": true
+        },
+        "apelacionPVI": {
+            "type": "bool",
+            "default": false,
+            "isCustom": true
+        },
+        "recursoApelacion": {
+            "type": "link",
+            "isCustom": true
+        },
+        "fechaRemisionPVI": {
+            "type": "date",
+            "isCustom": true
+        },
+        "fechaRecepcionInspector": {
+            "type": "date",
+            "isCustom": true
+        },
+        "competenciaInspector": {
+            "type": "enum",
+            "required": true,
+            "options": [
+                "Sí",
+                "No",
+                "Por validar"
+            ],
+            "isCustom": true
+        },
+        "rutaDecidida": {
+            "type": "enum",
+            "required": true,
+            "options": [
+                "Apertura de Expediente / PVA",
+                "Recursos y Segunda Instancia",
+                "Cumplimiento / actualización RNMC",
+                "Ejecución pecuniaria / Tesorería",
+                "Remisión a otra autoridad",
+                "Archivo / cierre sin PVA",
+                "Pendiente de valoración"
+            ],
+            "isCustom": true
+        },
+        "decisionRuta": {
+            "type": "link",
+            "isCustom": true
+        },
+        "estadoRNMC": {
+            "type": "enum",
+            "options": [
+                "Recibida",
+                "En clasificación",
+                "En validación de objeción",
+                "Remitida a otra autoridad",
+                "Con ruta definida",
+                "Actualizada en RNMC",
+                "Cerrada"
+            ],
+            "default": "Recibida",
+            "isCustom": true
+        },
+        "ordenComparendoDocumento": {
+            "type": "file",
+            "isCustom": true
+        },
+        "documentosSoporte": {
+            "type": "attachmentMultiple",
+            "sourceList": ["Document"],
+            "isCustom": true
+        },
+        "responsableInspector": {
+            "type": "link",
+            "required": true,
+            "isCustom": true
+        },
+        "assignedUser": {
+            "type": "link",
+            "readOnlyAfterCreate": true,
+            "view": "views/fields/assigned-user"
+        },
+        "teams": {
+            "type": "linkMultiple",
+            "view": "views/fields/teams"
+        },
+        "createdAt": {
+            "type": "datetime",
+            "readOnly": true
+        },
+        "modifiedAt": {
+            "type": "datetime",
+            "readOnly": true
+        }
+    },
+    "links": {
+        "case": {
+            "type": "belongsTo",
+            "entity": "Case",
+            "foreign": "actuacionesRNMC"
+        },
+        "expediente": {
+            "type": "belongsTo",
+            "entity": "Expediente",
+            "foreign": "actuacionesRNMC"
+        },
+        "ordenComparendo": {
+            "type": "belongsTo",
+            "entity": "OrdenComparendo",
+            "foreign": "actuacionesRNMC"
+        },
+        "recursoApelacion": {
+            "type": "belongsTo",
+            "entity": "Recurso",
+            "foreign": "actuacionesRNMC"
+        },
+        "decisionRuta": {
+            "type": "belongsTo",
+            "entity": "DecisionRutaJuridica",
+            "foreign": "actuacionesRNMC"
+        },
+        "responsableInspector": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "assignedUser": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "teams": {
+            "type": "hasMany",
+            "entity": "Team",
+            "relationName": "entityTeam",
+            "layoutRelationshipsDisabled": true
+        },
+        "createdBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "modifiedBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        }
+    },
+    "entityClassName": "Espo\\Custom\\Entities\\ActuacionRNMC",
+    "collection": {
+        "orderBy": "fechaRecepcionMunicipio",
+        "order": "desc",
+        "textFilterFields": ["name", "identificadorRNMC", "numeroComparendo", "hechoMaterial"]
+    }
+}

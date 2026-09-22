@@ -30,5 +30,8 @@
             "Ruta Maltrato Animal": "Ruta Maltrato Animal",
             "Ruta Ambiental Preventiva / Remisión": "Ruta Ambiental Preventiva / Remisión"
         }
+    },
+    "links": {
+        "actuacionesRNMC": "Actuaciones RNMC"
     }
 }

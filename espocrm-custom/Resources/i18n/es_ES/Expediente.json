@@ -60,6 +60,7 @@
         "recursos": "Recursos",
         "movimientosExpediente": "Movimientos de Expediente",
         "actuacionesMaltratoAnimal": "Actuaciones de maltrato animal",
-        "compromisos": "Compromisos"
+        "compromisos": "Compromisos",
+        "actuacionesRNMC": "Actuaciones RNMC"
     }
 }

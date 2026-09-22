@@ -1,0 +1,8 @@
+[
+    {"name": "name", "width": 14, "link": true},
+    {"name": "case", "width": 12},
+    {"name": "tipoIngresoRNMC", "width": 16},
+    {"name": "rutaDecidida", "width": 16},
+    {"name": "estadoRNMC", "width": 14},
+    {"name": "fechaRecepcionMunicipio", "width": 11}
+]

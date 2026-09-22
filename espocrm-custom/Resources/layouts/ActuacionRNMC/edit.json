@@ -1,0 +1,70 @@
+[
+    {
+        "rows": [
+            [
+                {"name": "case"},
+                {"name": "expediente"}
+            ],
+            [
+                {"name": "identificadorRNMC"},
+                {"name": "estadoRNMC"}
+            ],
+            [
+                {"name": "fechaRecepcionMunicipio"},
+                {"name": "tipoIngresoRNMC"}
+            ],
+            [
+                {"name": "ordenComparendo"},
+                {"name": "numeroComparendo"}
+            ],
+            [
+                {"name": "numeroExpedienteRNMC"},
+                {"name": "fechaExpedicionComparendo"}
+            ],
+            [
+                {"name": "ordenComparendoDocumento", "fullWidth": true}
+            ],
+            [
+                {"name": "materias", "fullWidth": true}
+            ],
+            [
+                {"name": "hechoMaterial", "fullWidth": true}
+            ],
+            [
+                {"name": "comportamientoCodigo"},
+                {"name": "articulo"}
+            ],
+            [
+                {"name": "numeral"},
+                {"name": "medidaSenalada"}
+            ],
+            [
+                {"name": "multaGeneralTipo", "fullWidth": true}
+            ],
+            [
+                {"name": "objecionPresentada"},
+                {"name": "fechaObjecion"}
+            ],
+            [
+                {"name": "esObjecionOportuna"},
+                {"name": "apelacionPVI"}
+            ],
+            [
+                {"name": "recursoApelacion"},
+                {"name": "fechaRemisionPVI"}
+            ],
+            [
+                {"name": "fechaRecepcionInspector"},
+                {"name": "competenciaInspector"}
+            ],
+            [
+                {"name": "rutaDecidida"},
+                {"name": "decisionRuta"}
+            ],
+            [
+                {"name": "responsableInspector"},
+                {"name": "documentosSoporte"}
+            ]
+        ]
+    }
+]

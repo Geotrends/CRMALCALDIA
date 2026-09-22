@@ -44,14 +44,14 @@ Con esto, las 3 ramas de Recursos Naturales tienen construcción real (Auto de A
 
 **Con esto, la Fase 2 completa las 3 rutas jurídicas acordadas al inicio** (Recursos Naturales, Maltrato/Convivencia Animal + Canino, Proceso Verbal Abreviado) más Ambiental Preventiva (dependencia no anticipada de Recursos Naturales).
 
-### Fase 2b — Inventario completo de los 28 BPMN de `config.json` 🟡 En curso
+### Fase 2b — Inventario completo de los 28 BPMN de `config.json` ✅ Completo (28/28)
 
 El usuario pidió terminar **todos** los BPMN activos del repo, no solo las 3 rutas jurídicas originales. Checklist completo (✅ construido/cubierto, 🔲 pendiente):
 
 | BPMN | Nivel | Estado |
 |---|---|---|
 | Recepción y Radicación | N1 | ✅ (núcleo preexistente) |
-| Recepción y Clasificación RNMC | N1 | 🔲 |
+| Recepción y Clasificación RNMC | N1 | ✅ (`ActuacionRNMC`, Bloque 5 — diseño propio sin ficha en `domain.json`; reutiliza `OrdenComparendo`/`Recurso`/`DecisionRutaJuridica`) |
 | Competencia y Clasificación | N1 | ✅ (ya cubierto por `Case.cClaseIngreso`/`cRecursoTema` + `RemisionAutoridad`, sin cambios) |
 | Relación de Casos | N1 | ✅ (`RelacionCasos`, Fase 1) |
 | Gestión Técnica | N1 | ✅ (`GestionTecnica`, Fase 1) |
@@ -85,7 +85,7 @@ El usuario pidió terminar **todos** los BPMN activos del repo, no solo las 3 ru
 
 **Bloque 4 (Ejecución Pecuniaria / Tesorería) — hecho.** Única brecha estructural real detectada en el modelo fuente: `domain.json` no define ninguna entidad para este subproceso (a diferencia de los demás bloques ya cerrados). `ObligacionPecuniaria` es diseño propio basado en la narrativa del BPMN (TES01–TES07), no un modelo confirmado. Reutiliza `RemisionAutoridad` para el paso de remisión a Tesorería (su `autoridadDestino` ya es texto libre). Tesorería/Secretaría de Hacienda es un actor externo sin rol ni usuario CRM (ya documentado desde `seed-modelo-roles-bpmn.php`); el seguimiento lo hacen Inspector Ambiental/Apoyo Jurídico. No se automatizó la alerta de 30 días ni ninguna transición de estado, siguiendo la advertencia explícita del BPMN contra automatizar cobro coactivo o mora. Ver [`2026-09-22-ejecucion-pecuniaria-tesoreria.md`](ajustes/2026-09-22-ejecucion-pecuniaria-tesoreria.md).
 
-**Resta 1 diagrama**: Recepción y Clasificación de Actuaciones RNMC.
+**Bloque 5 (Recepción y Clasificación de Actuaciones RNMC) — hecho. Inventario de los 28 BPMN completo (28/28).** Se confirmó y corrigió una premisa inicial: este proceso NO es el mismo que `ReporteRNMC` (que documenta el reporte SALIENTE del municipio hacia el RNMC); son direcciones opuestas del mismo dominio. `ActuacionRNMC` (la entrante) es diseño propio basado en `rnmc.json` (módulo lateral del repo fuente, sin ficha en `domain.json` central), reutilizando `OrdenComparendo`, `Recurso` y `DecisionRutaJuridica` como referencias cruzadas opcionales en vez de duplicar campos. El diagrama tenía una anomalía (`status: "ACTIVO"` pero `active: false` en `config.json`, único caso así) que se decidió no investigar más y construir de todas formas. `ReporteRNMC` (la entidad de salida) queda fuera de este bloque por decisión explícita del usuario — sigue pendiente como ajuste aparte. Ver [`2026-09-22-recepcion-clasificacion-actuaciones-rnmc.md`](ajustes/2026-09-22-recepcion-clasificacion-actuaciones-rnmc.md).
 
 Vacíos reales detectados en el modelo fuente hasta ahora (no inventar, confirmar antes de dar por definitivo): `estados.md` no define catálogo oficial de estados para `OrdenPolicia` ni tenía uno para `SuspensionAudiencia` (ambos con estados propuestos, a validar); `ActuacionMaltratoAnimal` es diseño propio, sin respaldo en `domain.json`; FILMA sigue sin significado institucional confirmado en ningún archivo del repo fuente; ninguno de varios BPMN N3 usa `callActivity` de forma consistente (algunos solo referencian el subproceso siguiente en texto); `formatos.json` no tiene ningún formato IV-F confirmado para Determinación ni para Gestión y Ejecución de Medidas Correctivas.
 

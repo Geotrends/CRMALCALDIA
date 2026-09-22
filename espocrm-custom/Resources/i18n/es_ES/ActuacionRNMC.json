@@ -1,0 +1,100 @@
+{
+    "fields": {
+        "name": "Nombre",
+        "case": "Caso vinculado",
+        "expediente": "Expediente vinculado",
+        "ordenComparendo": "Orden de comparendo relacionada",
+        "numeroComparendo": "Número de comparendo",
+        "numeroExpedienteRNMC": "Número de expediente RNMC",
+        "identificadorRNMC": "Identificador RNMC",
+        "fechaExpedicionComparendo": "Fecha de expedición del comparendo",
+        "fechaRecepcionMunicipio": "Fecha de recepción en el municipio",
+        "tipoIngresoRNMC": "Tipo de ingreso RNMC",
+        "materias": "Materias",
+        "hechoMaterial": "Descripción del hecho material",
+        "comportamientoCodigo": "Código de comportamiento",
+        "articulo": "Artículo",
+        "numeral": "Numeral",
+        "medidaSenalada": "Medida señalada",
+        "multaGeneralTipo": "Tipo de multa general",
+        "objecionPresentada": "¿Existe objeción?",
+        "fechaObjecion": "Fecha de objeción",
+        "esObjecionOportuna": "¿Objeción presentada dentro del término legal?",
+        "apelacionPVI": "¿Proviene de apelación de Proceso Verbal Inmediato?",
+        "recursoApelacion": "Recurso de apelación relacionado",
+        "fechaRemisionPVI": "Fecha de remisión de apelación PVI",
+        "fechaRecepcionInspector": "Fecha de recepción por el Inspector",
+        "competenciaInspector": "¿Corresponde al Inspector/autoridad municipal competente?",
+        "rutaDecidida": "Ruta definida por el Inspector",
+        "decisionRuta": "Decisión de ruta jurídica relacionada",
+        "estadoRNMC": "Estado",
+        "ordenComparendoDocumento": "Documento del comparendo",
+        "documentosSoporte": "Documentos de soporte",
+        "responsableInspector": "Inspector responsable",
+        "assignedUser": "Responsable",
+        "teams": "Equipos",
+        "createdAt": "Creado",
+        "modifiedAt": "Modificado"
+    },
+    "labels": {
+        "Create ActuacionRNMC": "Crear actuación RNMC",
+        "ActuacionRNMC": "Actuación RNMC",
+        "ActuacionRNMCs": "Actuaciones RNMC"
+    },
+    "options": {
+        "tipoIngresoRNMC": {
+            "Objeción de comparendo": "Objeción de comparendo",
+            "Apelación de Proceso Verbal Inmediato": "Apelación de Proceso Verbal Inmediato",
+            "Actuación de competencia del Inspector": "Actuación de competencia del Inspector",
+            "Comparendo no objetado": "Comparendo no objetado",
+            "Multa en firme / cumplimiento": "Multa en firme / cumplimiento",
+            "Informe policial sin comparendo": "Informe policial sin comparendo",
+            "Otro / por clasificar": "Otro / por clasificar"
+        },
+        "materias": {
+            "Preservación del agua": "Preservación del agua",
+            "Espacio público": "Espacio público",
+            "Actividad económica": "Actividad económica",
+            "Ruido / tranquilidad": "Ruido / tranquilidad",
+            "Urbanismo": "Urbanismo",
+            "Ambiente y recursos naturales": "Ambiente y recursos naturales",
+            "Animales": "Animales",
+            "Cumplimiento de orden o medida": "Cumplimiento de orden o medida",
+            "Otra": "Otra"
+        },
+        "objecionPresentada": {
+            "Sí": "Sí",
+            "No": "No",
+            "No aplica": "No aplica"
+        },
+        "esObjecionOportuna": {
+            "Sí": "Sí",
+            "No": "No",
+            "No aplica": "No aplica",
+            "Por validar": "Por validar"
+        },
+        "competenciaInspector": {
+            "Sí": "Sí",
+            "No": "No",
+            "Por validar": "Por validar"
+        },
+        "rutaDecidida": {
+            "Apertura de Expediente / PVA": "Apertura de Expediente / PVA",
+            "Recursos y Segunda Instancia": "Recursos y Segunda Instancia",
+            "Cumplimiento / actualización RNMC": "Cumplimiento / actualización RNMC",
+            "Ejecución pecuniaria / Tesorería": "Ejecución pecuniaria / Tesorería",
+            "Remisión a otra autoridad": "Remisión a otra autoridad",
+            "Archivo / cierre sin PVA": "Archivo / cierre sin PVA",
+            "Pendiente de valoración": "Pendiente de valoración"
+        },
+        "estadoRNMC": {
+            "Recibida": "Recibida",
+            "En clasificación": "En clasificación",
+            "En validación de objeción": "En validación de objeción",
+            "Remitida a otra autoridad": "Remitida a otra autoridad",
+            "Con ruta definida": "Con ruta definida",
+            "Actualizada en RNMC": "Actualizada en RNMC",
+            "Cerrada": "Cerrada"
+        }
+    }
+}
