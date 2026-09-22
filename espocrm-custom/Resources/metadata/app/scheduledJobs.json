@@ -4,5 +4,11 @@
         "isSystem": true,
         "scheduling": "0 7 * * *",
         "jobClassName": "Espo\\Custom\\Jobs\\CheckCaseVencimientoAlerts"
+    },
+    "CheckAlertaProcesoVencimientos": {
+        "name": "Alertas de vencimiento de procesos (plazos legales)",
+        "isSystem": true,
+        "scheduling": "0 7 * * *",
+        "jobClassName": "Espo\\Custom\\Jobs\\CheckAlertaProcesoVencimientos"
     }
 }

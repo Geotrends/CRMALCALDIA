@@ -1,0 +1,132 @@
+{
+    "fields": {
+        "name": {
+            "type": "varchar",
+            "required": false,
+            "maxLength": 200,
+            "trim": true,
+            "readOnlyAfterCreate": true
+        },
+        "case": {
+            "type": "link",
+            "isCustom": true
+        },
+        "entidadTipo": {
+            "type": "varchar",
+            "maxLength": 100,
+            "required": true,
+            "isCustom": true
+        },
+        "entidadId": {
+            "type": "varchar",
+            "maxLength": 30,
+            "required": true,
+            "isCustom": true
+        },
+        "tipoAlerta": {
+            "type": "enum",
+            "required": true,
+            "options": [
+                "Vencimiento de término legal",
+                "Seguimiento operativo",
+                "Recordatorio de reporte externo",
+                "Otro"
+            ],
+            "isCustom": true
+        },
+        "fechaBase": {
+            "type": "date",
+            "required": true,
+            "isCustom": true
+        },
+        "fechaVencimiento": {
+            "type": "date",
+            "isCustom": true
+        },
+        "reglaFuente": {
+            "type": "text",
+            "rows": 3,
+            "required": true,
+            "isCustom": true
+        },
+        "prioridad": {
+            "type": "enum",
+            "options": [
+                "Alta",
+                "Media",
+                "Baja"
+            ],
+            "default": "Media",
+            "isCustom": true
+        },
+        "estado": {
+            "type": "enum",
+            "options": [
+                "Pendiente",
+                "Notificada",
+                "Atendida",
+                "Vencida sin atender",
+                "Cancelada"
+            ],
+            "default": "Pendiente",
+            "isCustom": true
+        },
+        "responsable": {
+            "type": "link",
+            "required": true,
+            "isCustom": true
+        },
+        "assignedUser": {
+            "type": "link",
+            "readOnlyAfterCreate": true,
+            "view": "views/fields/assigned-user"
+        },
+        "teams": {
+            "type": "linkMultiple",
+            "view": "views/fields/teams"
+        },
+        "createdAt": {
+            "type": "datetime",
+            "readOnly": true
+        },
+        "modifiedAt": {
+            "type": "datetime",
+            "readOnly": true
+        }
+    },
+    "links": {
+        "case": {
+            "type": "belongsTo",
+            "entity": "Case",
+            "foreign": "alertasProceso"
+        },
+        "responsable": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "assignedUser": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "teams": {
+            "type": "hasMany",
+            "entity": "Team",
+            "relationName": "entityTeam",
+            "layoutRelationshipsDisabled": true
+        },
+        "createdBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "modifiedBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        }
+    },
+    "entityClassName": "Espo\\Custom\\Entities\\AlertaProceso",
+    "collection": {
+        "orderBy": "fechaVencimiento",
+        "order": "asc",
+        "textFilterFields": ["name", "entidadTipo", "reglaFuente"]
+    }
+}

@@ -1,0 +1,29 @@
+[
+    {
+        "rows": [
+            [
+                {"name": "case"},
+                {"name": "tipoAlerta"}
+            ],
+            [
+                {"name": "entidadTipo"},
+                {"name": "entidadId"}
+            ],
+            [
+                {"name": "fechaBase"},
+                {"name": "fechaVencimiento"}
+            ],
+            [
+                {"name": "prioridad"},
+                {"name": "estado"}
+            ],
+            [
+                {"name": "responsable"},
+                false
+            ],
+            [
+                {"name": "reglaFuente", "fullWidth": true}
+            ]
+        ]
+    }
+]

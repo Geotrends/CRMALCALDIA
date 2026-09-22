@@ -73,5 +73,6 @@ Cada registro debe indicar como mínimo:
 | 2026-09-22 | Ejecución Pecuniaria / Tesorería — entidad ObligacionPecuniaria | Validado localmente | [Registro](2026-09-22-ejecucion-pecuniaria-tesoreria.md) |
 | 2026-09-22 | Recepción y Clasificación de Actuaciones RNMC — entidad ActuacionRNMC (28/28) | Validado localmente | [Registro](2026-09-22-recepcion-clasificacion-actuaciones-rnmc.md) |
 | 2026-09-22 | Reporte a la base nacional RNMC — entidad ReporteRNMC | Validado localmente | [Registro](2026-09-22-reporte-rnmc.md) |
+| 2026-09-22 | Sistema de alertas de proceso (AlertaProceso) y notificaciones de 5 plazos legales | Validado localmente | [Registro](2026-09-22-alertas-proceso-notificaciones-plazos.md) |
 
 Cuando se cree un registro, reemplazar la fila de ejemplo o agregar una fila nueva en orden descendente por fecha.

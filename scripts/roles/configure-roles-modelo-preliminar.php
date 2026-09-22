@@ -164,6 +164,7 @@ $roleConfigs = [
         'ObligacionPecuniaria' => ['create' => 'yes', 'read' => 'all', 'edit' => 'all', 'delete' => 'no', 'stream' => 'no'],
         'ActuacionRNMC' => ['create' => 'yes', 'read' => 'all', 'edit' => 'all', 'delete' => 'no', 'stream' => 'no'],
         'ReporteRNMC' => ['create' => 'yes', 'read' => 'all', 'edit' => 'all', 'delete' => 'no', 'stream' => 'no'],
+        'AlertaProceso' => ['create' => 'yes', 'read' => 'all', 'edit' => 'all', 'delete' => 'no', 'stream' => 'no'],
     ],
 
     // Supervisión y suplencia registrada del Director Técnico; revisión/firma
@@ -193,6 +194,7 @@ $roleConfigs = [
         'ObligacionPecuniaria' => $readOnlyAll,
         'ActuacionRNMC' => $readOnlyAll,
         'ReporteRNMC' => $readOnlyAll,
+        'AlertaProceso' => $readOnlyAll,
     ],
 
     // Concepto especializado en casos con fauna. No sustituye la decisión

@@ -123,6 +123,14 @@ $data['MedidaCorrectiva'] = [
     'stream' => 'no',
 ];
 
+$data['AlertaProceso'] = [
+    'create' => 'no',
+    'read' => 'all',
+    'edit' => 'no',
+    'delete' => 'no',
+    'stream' => 'no',
+];
+
 $data['Calendar'] = true;
 
 $fieldData = $role->get('fieldData');

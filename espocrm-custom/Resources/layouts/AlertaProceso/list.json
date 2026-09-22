@@ -1,0 +1,8 @@
+[
+    {"name": "name", "width": 16, "link": true},
+    {"name": "case", "width": 12},
+    {"name": "tipoAlerta", "width": 18},
+    {"name": "fechaVencimiento", "width": 11},
+    {"name": "prioridad", "width": 10},
+    {"name": "estado", "width": 14}
+]

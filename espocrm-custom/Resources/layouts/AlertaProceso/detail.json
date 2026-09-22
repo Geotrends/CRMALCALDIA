@@ -1,0 +1,35 @@
+[
+    {
+        "rows": [
+            [
+                {"name": "case"},
+                {"name": "tipoAlerta"}
+            ],
+            [
+                {"name": "entidadTipo"},
+                {"name": "entidadId"}
+            ],
+            [
+                {"name": "fechaBase"},
+                {"name": "fechaVencimiento"}
+            ],
+            [
+                {"name": "prioridad"},
+                {"name": "estado"}
+            ],
+            [
+                {"name": "responsable"},
+                false
+            ]
+        ],
+        "style": "default",
+        "label": "Información general"
+    },
+    {
+        "rows": [
+            [{"name": "reglaFuente", "fullWidth": true}]
+        ],
+        "style": "default",
+        "label": "Regla o norma de origen"
+    }
+]

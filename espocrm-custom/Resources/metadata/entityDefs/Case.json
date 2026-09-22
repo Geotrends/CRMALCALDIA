@@ -1584,6 +1584,11 @@
             "entity": "EvaluacionResultado",
             "foreign": "case"
         },
+        "alertasProceso": {
+            "type": "hasMany",
+            "entity": "AlertaProceso",
+            "foreign": "case"
+        },
         "obligacionesPecuniarias": {
             "type": "hasMany",
             "entity": "ObligacionPecuniaria",

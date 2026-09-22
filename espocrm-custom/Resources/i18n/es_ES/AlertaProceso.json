@@ -1,0 +1,44 @@
+{
+    "fields": {
+        "name": "Nombre",
+        "case": "Caso vinculado",
+        "entidadTipo": "Tipo de entidad relacionada",
+        "entidadId": "ID de la entidad relacionada",
+        "tipoAlerta": "Tipo de alerta",
+        "fechaBase": "Fecha base",
+        "fechaVencimiento": "Fecha de vencimiento",
+        "reglaFuente": "Regla o norma de origen",
+        "prioridad": "Prioridad",
+        "estado": "Estado",
+        "responsable": "Responsable",
+        "assignedUser": "Responsable",
+        "teams": "Equipos",
+        "createdAt": "Creado",
+        "modifiedAt": "Modificado"
+    },
+    "labels": {
+        "Create AlertaProceso": "Crear alerta de proceso",
+        "AlertaProceso": "Alerta de proceso",
+        "AlertaProcesos": "Alertas de proceso"
+    },
+    "options": {
+        "tipoAlerta": {
+            "Vencimiento de término legal": "Vencimiento de término legal",
+            "Seguimiento operativo": "Seguimiento operativo",
+            "Recordatorio de reporte externo": "Recordatorio de reporte externo",
+            "Otro": "Otro"
+        },
+        "prioridad": {
+            "Alta": "Alta",
+            "Media": "Media",
+            "Baja": "Baja"
+        },
+        "estado": {
+            "Pendiente": "Pendiente",
+            "Notificada": "Notificada",
+            "Atendida": "Atendida",
+            "Vencida sin atender": "Vencida sin atender",
+            "Cancelada": "Cancelada"
+        }
+    }
+}
