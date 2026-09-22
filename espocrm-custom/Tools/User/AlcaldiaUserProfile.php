@@ -19,9 +19,15 @@ class AlcaldiaUserProfile
 
     public const ROLE_RADICACION_ALT = 'Radicacion';
 
+    /** Nombre oficial según 90_MODELO_CRM/matriz_roles_v1.0.md (BPMN). */
+    public const ROLE_RADICACION_BPMN = 'Auxiliar Administrativo · Radicador';
+
     public const ROLE_PATRULLAJE = 'Patrullaje';
 
     public const ROLE_PATRULLERO = 'Patrullero';
+
+    /** Nombre oficial según 90_MODELO_CRM/matriz_roles_v1.0.md (BPMN). */
+    public const ROLE_PATRULLAJE_BPMN = 'Patrullero Ambiental';
 
     public const ROLE_ASIGNADOR = 'Asignador';
 
@@ -29,24 +35,31 @@ class AlcaldiaUserProfile
 
     public const ROLE_ASIGNACION_ALT = 'Asignacion';
 
+    /** Nombre oficial según 90_MODELO_CRM/matriz_roles_v1.0.md (BPMN). */
+    public const ROLE_ASIGNACION_BPMN = 'Director Técnico';
+
     public const ROLE_JURIDICA = 'Jurídica';
 
     public const ROLE_JURIDICA_ALT = 'Juridica';
 
+    /** Nombre oficial según 90_MODELO_CRM/matriz_roles_v1.0.md (BPMN). */
+    public const ROLE_JURIDICA_BPMN = 'Apoyo Jurídico';
+
     /** @var string[] */
-    private const NAMES_JURIDICA = [self::ROLE_JURIDICA, self::ROLE_JURIDICA_ALT];
+    private const NAMES_JURIDICA = [self::ROLE_JURIDICA, self::ROLE_JURIDICA_ALT, self::ROLE_JURIDICA_BPMN];
 
     /** @var string[] */
     private const NAMES_INSPECCION = [self::ROLE_INSPECCION, self::ROLE_INSPECCION_ALT];
 
     /** @var string[] */
-    private const NAMES_RADICACION = [self::ROLE_RADICACION, self::ROLE_RADICACION_ALT];
+    private const NAMES_RADICACION = [self::ROLE_RADICACION, self::ROLE_RADICACION_ALT, self::ROLE_RADICACION_BPMN];
 
     /** @var string[] */
-    private const NAMES_PATRULLAJE = [self::ROLE_PATRULLAJE, self::ROLE_PATRULLERO];
+    private const NAMES_PATRULLAJE = [self::ROLE_PATRULLAJE, self::ROLE_PATRULLERO, self::ROLE_PATRULLAJE_BPMN];
 
     /** @var string[] */
     private const NAMES_ASIGNADOR = [
+        self::ROLE_ASIGNACION_BPMN,
         self::ROLE_ASIGNADOR,
         self::ROLE_ASIGNACION,
         self::ROLE_ASIGNACION_ALT,

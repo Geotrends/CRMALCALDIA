@@ -19,10 +19,26 @@ $em = $app->getContainer()->getByClass(EntityManager::class);
 /** @var Metadata $metadata */
 $metadata = $app->getContainer()->getByClass(Metadata::class);
 
+$bareModelRoles = [
+    'Superadministrador CRM',
+    'Administrador funcional CRM',
+    'Auxiliar Administrativo · Receptor',
+    'Auxiliar Administrativo · Inspección',
+    'Profesional Universitario',
+    'Técnico Operativo',
+    'Inspector Ambiental',
+    'Secretario de Despacho',
+    'Dirección de Bienestar Animal',
+];
+
 foreach ($em->getRDBRepository('Role')->find() as $role) {
     $name = (string) $role->get('name');
 
     if ($name === '') {
+        continue;
+    }
+
+    if (in_array($name, $bareModelRoles, true)) {
         continue;
     }
 

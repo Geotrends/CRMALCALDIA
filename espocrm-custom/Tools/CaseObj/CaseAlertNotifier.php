@@ -19,8 +19,8 @@ class CaseAlertNotifier
     /** @var string[][] */
     private const ROLE_GROUPS = [
         ['Inspección', 'Inspeccion'],
-        ['Radicación', 'Radicacion'],
-        ['Asignador'],
+        ['Radicación', 'Radicacion', 'Auxiliar Administrativo · Radicador'],
+        ['Asignador', 'Director Técnico'],
     ];
 
     public function __construct(

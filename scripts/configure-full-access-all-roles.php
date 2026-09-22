@@ -116,19 +116,45 @@ $restrictedCaseRoles = [
     'Inspeccion',
     'Radicación',
     'Radicacion',
+    'Auxiliar Administrativo · Radicador',
     'Asignación',
     'Asignacion',
     'Asignador',
+    'Director Técnico',
     'Patrullaje',
     'Patrullero',
+    'Patrullero Ambiental',
     'Jurídica',
     'Juridica',
+    'Apoyo Jurídico',
+];
+
+/**
+ * Roles del modelo BPMN (seed-modelo-roles-bpmn.php) sin equivalente
+ * funcional 1:1 todavía — deben quedar SIN acceso hasta que se les defina
+ * un ACL propio. Excluidos por completo de este script de acceso amplio.
+ */
+$bareModelRoles = [
+    'Superadministrador CRM',
+    'Administrador funcional CRM',
+    'Auxiliar Administrativo · Receptor',
+    'Auxiliar Administrativo · Inspección',
+    'Profesional Universitario',
+    'Técnico Operativo',
+    'Inspector Ambiental',
+    'Secretario de Despacho',
+    'Dirección de Bienestar Animal',
 ];
 
 foreach ($em->getRDBRepository('Role')->find() as $role) {
     $name = (string) $role->get('name');
 
     if ($name === '') {
+        continue;
+    }
+
+    if (in_array($name, $bareModelRoles, true)) {
+        echo "Rol {$name}: sin ACL propio todavía, se deja sin acceso (omitido a propósito).\n";
         continue;
     }
 

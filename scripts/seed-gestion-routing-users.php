@@ -20,7 +20,7 @@ $em = $app->getContainer()->getByClass(EntityManager::class);
 
 $defs = [
   ['userName' => 'inspeccion', 'name' => 'Inspección'],
-  ['userName' => 'radicacion', 'name' => 'Radicación'],
+  ['userName' => 'radicacion', 'name' => 'Auxiliar Administrativo · Radicador'],
 ];
 
 foreach ($defs as $def) {

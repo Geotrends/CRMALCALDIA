@@ -23,7 +23,7 @@ $em = $app->getContainer()->getByClass(EntityManager::class);
 /** @var Metadata $metadata */
 $metadata = $app->getContainer()->getByClass(Metadata::class);
 
-$roleNames = ['Jurídica', 'Juridica'];
+$roleNames = ['Apoyo Jurídico', 'Jurídica', 'Juridica'];
 $role = null;
 
 foreach ($roleNames as $name) {

@@ -61,5 +61,6 @@ Cada registro debe indicar como mínimo:
 | 2026-09-22 | Fase 0 — Unificación de hooks duplicados en Case/ActaVisita | Validado localmente | [Registro](2026-09-22-fase0-unificacion-hooks-duplicados.md) |
 | 2026-09-22 | Fase 1 — Entidades GestionTecnica/DecisionRutaJuridica y separación de estados de Case | Validado localmente | [Registro](2026-09-22-fase1-gestion-tecnica-decision-ruta-juridica.md) |
 | 2026-09-22 | Destino, Relación de casos, menú y acción "Relacionar con otro caso" | Validado localmente | [Registro](2026-09-22-destino-relacion-casos.md) |
+| 2026-09-22 | Roles y usuarios alineados a matriz_roles_v1.0.md (BPMN) | Validado localmente | [Registro](2026-09-22-roles-nombres-bpmn.md) |
 
 Cuando se cree un registro, reemplazar la fila de ejemplo o agregar una fila nueva en orden descendente por fecha.

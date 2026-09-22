@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Repara login de admin + 4 usuarios operativos (contraseña verificada + rol).
+ * Repara login de admin + 14 usuarios operativos (contraseña verificada + rol).
  *
  *   php scripts/fix-operational-login.php
  */
@@ -44,6 +44,10 @@ $users = [
     ],
     [
         'userName' => 'inspeccion',
+        // El rol 'Inspección' del CRM hoy fusiona 3 roles distintos del
+        // modelo (Auxiliar Administrativo·Inspección, Profesional, Inspector
+        // Ambiental) — separarlos es un rediseño de permisos aparte, no un
+        // rename. Se deja el nombre visible genérico hasta que se divida.
         'name' => 'Inspección',
         'role' => 'Inspección',
         'password' => trim((string) getenv('ESPOCRM_USER_INSPECCION_PASSWORD')) ?: 'inspeccion2026',
@@ -51,35 +55,103 @@ $users = [
     ],
     [
         'userName' => 'radicacion',
-        'name' => 'Radicación',
-        'role' => 'Radicación',
+        // Nombre oficial y rol según 90_MODELO_CRM/matriz_roles_v1.0.md.
+        'name' => 'Auxiliar Administrativo · Radicador',
+        'role' => 'Auxiliar Administrativo · Radicador',
         'password' => trim((string) getenv('ESPOCRM_USER_RADICACION_PASSWORD')) ?: 'radicacion2026',
         'type' => 'regular',
     ],
     [
         'userName' => 'asignacion',
-        'name' => 'Asignación',
-        'role' => 'Asignación',
+        // Sin equivalente 1:1 en el modelo (esa función la hace el Director
+        // Técnico); se usa el título más cercano documentado.
+        'name' => 'Director Técnico',
+        'role' => 'Director Técnico',
         'password' => trim((string) getenv('ESPOCRM_USER_ASIGNACION_PASSWORD')) ?: 'asignacion2026',
         'type' => 'regular',
     ],
     [
         'userName' => 'patrullaje',
-        'name' => 'Patrullaje',
-        'role' => 'Patrullaje',
+        'name' => 'Patrullero Ambiental',
+        'role' => 'Patrullero Ambiental',
         'password' => trim((string) getenv('ESPOCRM_USER_PATRULLAJE_PASSWORD')) ?: 'patrullaje2026',
         'type' => 'regular',
     ],
     [
         'userName' => 'juridica',
-        'name' => 'Jurídica',
-        'role' => 'Jurídica',
+        'name' => 'Apoyo Jurídico',
+        'role' => 'Apoyo Jurídico',
         'password' => trim((string) getenv('ESPOCRM_USER_JURIDICA_PASSWORD')) ?: 'juridica2026',
+        'type' => 'regular',
+    ],
+    // Usuarios de prueba para los 9 roles del modelo BPMN sin ACL definitivo
+    // todavía (ver scripts/roles/configure-roles-modelo-preliminar.php).
+    [
+        'userName' => 'superadmin',
+        'name' => 'Superadministrador CRM',
+        'role' => 'Superadministrador CRM',
+        'password' => trim((string) getenv('ESPOCRM_USER_SUPERADMIN_PASSWORD')) ?: 'superadmin2026',
+        'type' => 'regular',
+    ],
+    [
+        'userName' => 'adminfuncional',
+        'name' => 'Administrador funcional CRM',
+        'role' => 'Administrador funcional CRM',
+        'password' => trim((string) getenv('ESPOCRM_USER_ADMINFUNCIONAL_PASSWORD')) ?: 'adminfuncional2026',
+        'type' => 'regular',
+    ],
+    [
+        'userName' => 'receptor',
+        'name' => 'Auxiliar Administrativo · Receptor',
+        'role' => 'Auxiliar Administrativo · Receptor',
+        'password' => trim((string) getenv('ESPOCRM_USER_RECEPTOR_PASSWORD')) ?: 'receptor2026',
+        'type' => 'regular',
+    ],
+    [
+        'userName' => 'auxinspeccion',
+        'name' => 'Auxiliar Administrativo · Inspección',
+        'role' => 'Auxiliar Administrativo · Inspección',
+        'password' => trim((string) getenv('ESPOCRM_USER_AUXINSPECCION_PASSWORD')) ?: 'auxinspeccion2026',
+        'type' => 'regular',
+    ],
+    [
+        'userName' => 'profesional',
+        'name' => 'Profesional Universitario',
+        'role' => 'Profesional Universitario',
+        'password' => trim((string) getenv('ESPOCRM_USER_PROFESIONAL_PASSWORD')) ?: 'profesional2026',
+        'type' => 'regular',
+    ],
+    [
+        'userName' => 'tecnico',
+        'name' => 'Técnico Operativo',
+        'role' => 'Técnico Operativo',
+        'password' => trim((string) getenv('ESPOCRM_USER_TECNICO_PASSWORD')) ?: 'tecnico2026',
+        'type' => 'regular',
+    ],
+    [
+        'userName' => 'inspector',
+        'name' => 'Inspector Ambiental',
+        'role' => 'Inspector Ambiental',
+        'password' => trim((string) getenv('ESPOCRM_USER_INSPECTOR_PASSWORD')) ?: 'inspector2026',
+        'type' => 'regular',
+    ],
+    [
+        'userName' => 'secretario',
+        'name' => 'Secretario de Despacho',
+        'role' => 'Secretario de Despacho',
+        'password' => trim((string) getenv('ESPOCRM_USER_SECRETARIO_PASSWORD')) ?: 'secretario2026',
+        'type' => 'regular',
+    ],
+    [
+        'userName' => 'bienestaranimal',
+        'name' => 'Dirección de Bienestar Animal',
+        'role' => 'Dirección de Bienestar Animal',
+        'password' => trim((string) getenv('ESPOCRM_USER_BIENESTARANIMAL_PASSWORD')) ?: 'bienestaranimal2026',
         'type' => 'regular',
     ],
 ];
 
-echo '=== Reparar login (admin + 5 operativos) ===' . PHP_EOL;
+echo '=== Reparar login (admin + 14 operativos) ===' . PHP_EOL;
 
 $failed = false;
 

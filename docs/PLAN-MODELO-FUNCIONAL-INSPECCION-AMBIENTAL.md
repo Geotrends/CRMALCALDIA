@@ -18,11 +18,14 @@ Unificación de hooks duplicados entre `Hooks/CaseObj/` y `Classes/RecordHooks/C
 - `Case.status` simplificado (10 → 8 valores), con la separación de estados por entidad.
 - `Destino` y `RelacionCasos` (agrupación operativa de casos, sin fusionarlos).
 - Acción "Relacionar con otro caso" y navegación real al Expediente desde el Case.
-- Ver [`2026-09-22-fase1-gestion-tecnica-decision-ruta-juridica.md`](ajustes/2026-09-22-fase1-gestion-tecnica-decision-ruta-juridica.md) y [`2026-09-22-destino-relacion-casos.md`](ajustes/2026-09-22-destino-relacion-casos.md).
+- Roles y usuarios alineados a `90_MODELO_CRM/matriz_roles_v1.0.md`: 4 roles operativos migrados a su nombre oficial (mismo ACL), 9 roles nuevos creados con ACL preliminar a nivel de entidad, un usuario de prueba por rol.
+- Ver [`2026-09-22-fase1-gestion-tecnica-decision-ruta-juridica.md`](ajustes/2026-09-22-fase1-gestion-tecnica-decision-ruta-juridica.md), [`2026-09-22-destino-relacion-casos.md`](ajustes/2026-09-22-destino-relacion-casos.md) y [`2026-09-22-roles-nombres-bpmn.md`](ajustes/2026-09-22-roles-nombres-bpmn.md).
 
 **Pendiente dentro de esta fase:**
 - Ejecutar `scripts/migrate-case-status-gestion-tecnica.php` contra la base de producción (solo listo, no corrido).
 - Configurar ACL fina por rol para `GestionTecnica`/`DecisionRutaJuridica`/`Destino`/`RelacionCasos` (hoy tienen acceso completo todos los roles operativos, vía `scripts/configure-full-access-all-roles.php`, como el resto de entidades del proyecto — no se restringió por rol todavía).
+- Afinar el ACL preliminar de los 9 roles nuevos del modelo (permisos a nivel de campo, no solo de entidad; filtrar Case por tipo de asunto donde aplique).
+- Decidir si se separa el rol `Inspección` en sus 3 funciones reales del modelo (Auxiliar·Inspección, Profesional, Inspector) — hoy siguen fusionadas.
 - Panel embebido de `GestionTecnica`/`DecisionRutaJuridica` en el detalle del Case (hoy se navegan desde su propio menú/lista estándar; el usuario eligió esta opción para no construir un panel custom prematuramente).
 - Actualizar `docs/GUIA-HANDOFF-PROYECTO.md` y `docs/MANUAL-USUARIO-CRM-AMBIENTAL.md` con las entidades y el flujo nuevos.
 - Desplegar a Dokploy (todo el trabajo de Fase 0 y 1 está solo en el entorno Docker local).
