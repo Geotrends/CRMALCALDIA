@@ -23,6 +23,24 @@
             "required": true,
             "isCustom": true
         },
+        "medidaPreventivaImpuesta": {
+            "type": "bool",
+            "default": false,
+            "isCustom": true
+        },
+        "medidaPreventivaFundamento": {
+            "type": "text",
+            "rows": 3,
+            "isCustom": true
+        },
+        "medidaPreventivaFechaImposicion": {
+            "type": "date",
+            "isCustom": true
+        },
+        "medidaPreventivaDocumento": {
+            "type": "file",
+            "isCustom": true
+        },
         "fechaRemision": {
             "type": "date",
             "isCustom": true

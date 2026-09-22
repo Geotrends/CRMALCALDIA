@@ -18,6 +18,16 @@
                 false
             ],
             [
+                {"name": "medidaPreventivaImpuesta"},
+                {"name": "medidaPreventivaFechaImposicion"}
+            ],
+            [
+                {"name": "medidaPreventivaFundamento", "fullWidth": true}
+            ],
+            [
+                {"name": "medidaPreventivaDocumento"}
+            ],
+            [
                 {"name": "oficioDocumento"}
             ],
             [

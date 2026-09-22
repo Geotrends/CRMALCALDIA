@@ -34,10 +34,13 @@ Unificación de hooks duplicados entre `Hooks/CaseObj/` y `Classes/RecordHooks/C
 
 **Recursos Naturales (competencia municipal) — primer corte hecho.** Se investigó el BPMN activo (`recursos_naturales_municipal_v1.4.bpmn`) antes de programar: la ruta es en esencia un enrutador — 2 de sus 3 desenlaces (Policiva/PVA, Ambiental Preventiva) delegan a otros procesos N2 que todavía no existen en el CRM; el tercero (Auto de Archivo) ya existe. Lo único nuevo construido: entidad `RemisionAutoridad` (remisión a otra autoridad, con seguimiento). El campo `resultado` de `DecisionRutaJuridica` (de Fase 1) ya cubría las 3 ramas de la decisión sin haberlo planeado así. Ver [`2026-09-22-fase2-recursos-naturales-remision-autoridad.md`](ajustes/2026-09-22-fase2-recursos-naturales-remision-autoridad.md).
 
-Pendientes de esta ruta y las otras dos (sin orden fijo definido):
+**Ambiental Preventiva / Remisión a Autoridad Ambiental — hecho.** Es la otra rama directa de Recursos Naturales. Su compuerta de "¿procede medida preventiva municipal?" converge, con o sin medida, en el mismo registro de `RemisionAutoridad` — por eso se extendió esa entidad con campos opcionales de medida preventiva en vez de crear una entidad nueva (ni el BPMN ni `domain.json` definen una entidad propia para eso). Ver [`2026-09-22-fase2-ambiental-preventiva-medida-preventiva.md`](ajustes/2026-09-22-fase2-ambiental-preventiva-medida-preventiva.md).
+
+Con esto, 2 de las 3 ramas de Recursos Naturales quedan completamente construidas (Auto de Archivo ya existía).
+
+Pendiente de Fase 2 (sin orden fijo definido):
 - Maltrato / Convivencia Animal + Registro Canino de Manejo Especial — tres procedimientos separados aunque suenen parecidos, no deben compartir entidad.
-- Proceso Verbal Inmediato / Abreviado (Código de Policía) — la más pesada: trae `Audiencia`, `SuspensionAudiencia`, `GrabacionAudiencia`, `Recurso`, `MovimientoExpediente`. Es también el proceso al que delega la rama "Policiva" de Recursos Naturales.
-- Ambiental Preventiva / Remisión a Autoridad Ambiental — es a donde delega la rama "Ambiental preventiva" de Recursos Naturales; no estaba en las 3 opciones originales pero queda evidenciada como dependencia real.
+- Proceso Verbal Inmediato / Abreviado (Código de Policía) — la más pesada: trae `Audiencia`, `SuspensionAudiencia`, `GrabacionAudiencia`, `Recurso`, `MovimientoExpediente`. Es también el proceso al que delega la rama "Policiva" de Recursos Naturales — la última rama que falta cerrar.
 - Cada ruta necesita, como mínimo: subestados propios dentro de `Expediente`/`ActuacionJuridica`, formatos específicos, y en las rutas de Policía, las entidades `Audiencia` + `OrdenPolicia` + `MedidaCorrectiva` (el modelo es explícito: estas tres figuras nunca se convierten automáticamente unas en otras).
 
 ### Fase 3 — Medidas correctivas, cierre formal y RNMC 🔲 No iniciada

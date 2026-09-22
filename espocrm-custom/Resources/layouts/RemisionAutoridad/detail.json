@@ -23,6 +23,18 @@
     },
     {
         "rows": [
+            [
+                {"name": "medidaPreventivaImpuesta"},
+                {"name": "medidaPreventivaFechaImposicion"}
+            ],
+            [{"name": "medidaPreventivaFundamento", "fullWidth": true}],
+            [{"name": "medidaPreventivaDocumento"}]
+        ],
+        "style": "default",
+        "label": "Medida preventiva (si aplica)"
+    },
+    {
+        "rows": [
             [{"name": "oficioDocumento"}],
             [{"name": "anexos", "fullWidth": true}]
         ],
