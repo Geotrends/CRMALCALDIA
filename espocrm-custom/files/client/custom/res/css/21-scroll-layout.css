@@ -4,12 +4,20 @@
  */
 
 html:has(body[data-navbar=side]:not(.login-page):not(:has(#login))) {
-  height: 100%;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  max-height: 100dvh;
   overflow: hidden;
 }
 
 body[data-navbar=side]:not(.login-page):not(:has(#login)) {
-  height: 100%;
+  /* EspoCRM escribe un min-height en línea al renderizar formularios largos.
+     Debe anularse: el alto pertenece al viewport y no al documento. */
+  height: 100vh !important;
+  height: 100dvh !important;
+  min-height: 0 !important;
+  max-height: 100dvh !important;
   overflow: hidden !important;
 }
 
