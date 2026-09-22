@@ -75,5 +75,6 @@ Cada registro debe indicar como mínimo:
 | 2026-09-22 | Reporte a la base nacional RNMC — entidad ReporteRNMC | Validado localmente | [Registro](2026-09-22-reporte-rnmc.md) |
 | 2026-09-22 | Sistema de alertas de proceso (AlertaProceso) y notificaciones de 5 plazos legales | Validado localmente | [Registro](2026-09-22-alertas-proceso-notificaciones-plazos.md) |
 | 2026-09-22 | Menú lateral global — grupos por proceso | Validado localmente | [Registro](2026-09-22-menu-global-grupos-por-proceso.md) |
+| 2026-09-22 | Menú por rol — cada quien ve solo su grupo de proceso | Validado localmente | [Registro](2026-09-22-menu-visibilidad-por-rol.md) |
 
 Cuando se cree un registro, reemplazar la fila de ejemplo o agregar una fila nueva en orden descendente por fecha.

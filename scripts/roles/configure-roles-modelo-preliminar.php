@@ -99,6 +99,10 @@ $roleConfigs = [
         'ComunicacionCaso' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
         'ActuoArchivo' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
         'Document' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
+        // Gestiona notificaciones, citaciones y control de recursos (matriz_roles_v1.0.md).
+        'NotificacionActo' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
+        'Recurso' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
+        'AlertaProceso' => $readOnlyAll,
     ],
 
     // Visita, medición, informe, recomendaciones/obligaciones técnicas,
@@ -195,6 +199,12 @@ $roleConfigs = [
         'ActuacionRNMC' => $readOnlyAll,
         'ReporteRNMC' => $readOnlyAll,
         'AlertaProceso' => $readOnlyAll,
+        'ActaVisita' => $readOnlyAll,
+        'SuspensionAudiencia' => $readOnlyAll,
+        'GrabacionAudiencia' => $readOnlyAll,
+        'RegistroCaninoManejoEspecial' => $readOnlyAll,
+        'PermisoCaninoManejoEspecial' => $readOnlyAll,
+        'ActuacionMaltratoAnimal' => $readOnlyAll,
     ],
 
     // Concepto especializado en casos con fauna. No sustituye la decisión
@@ -205,6 +215,10 @@ $roleConfigs = [
         'Case' => $readOnlyAll,
         'ComunicacionCaso' => $readOnlyAll,
         'Document' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
+        'RegistroCaninoManejoEspecial' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
+        'PermisoCaninoManejoEspecial' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
+        'ActuacionMaltratoAnimal' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
+        'AlertaProceso' => $readOnlyAll,
     ],
 ];
 

@@ -25,6 +25,7 @@ DEPLOY_SETUP_STEPS=(
   "Rol Patrullaje — acta de visita y casos asignados|roles/configure-role-patrullaje.php"
   "Rol Jurídica — Auto de Inicio y Expediente|roles/configure-role-juridica.php"
   "Roles del modelo BPMN sin ACL — asignación preliminar|roles/configure-roles-modelo-preliminar.php"
+  "Menú por rol — ocultar grupos no relevantes (Inspección/Radicación/Asignación/Patrullaje/Jurídica)|configure-menu-visibilidad-por-rol.php"
   "Contraseñas usuarios operativos (inspeccion, radicacion, etc.)|fix-operational-login.php"
   "Permisos Radicación (campos radicado/expediente)|fix-radicacion-access.php"
   "Permisos ComunicacionCaso (todos los roles)|configure-comunicacion-caso-permissions.php"

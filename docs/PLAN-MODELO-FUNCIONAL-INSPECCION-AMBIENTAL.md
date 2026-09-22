@@ -96,6 +96,10 @@ Vacíos reales detectados en el modelo fuente hasta ahora (no inventar, confirma
 - `CierreExpediente` con checklist de pendientes (hoy `ActuoArchivo` cierra sin verificar medidas/recursos/notificaciones pendientes).
 - `ActuacionRNMC` — solo si la Alcaldía confirma el mecanismo de integración; el modelo marca esto explícitamente como "por validar", no debe automatizarse sin confirmación institucional.
 
+### Menú accesible por rol 🟡 En curso
+
+Paso 1 (menú global agrupado por proceso) y paso 2 (cada rol ve solo su grupo, vía ACL — EspoCRM oculta automáticamente los tabs sin acceso de lectura) — hechos. Ver [`2026-09-22-menu-global-grupos-por-proceso.md`](ajustes/2026-09-22-menu-global-grupos-por-proceso.md) y [`2026-09-22-menu-visibilidad-por-rol.md`](ajustes/2026-09-22-menu-visibilidad-por-rol.md). **Paso 3 pendiente**: vistas preseleccionadas por estado+responsable dentro de cada entidad (que al entrar a un grupo, cada rol vea solo lo que le toca actuar hoy, no el histórico completo).
+
 ### Notificaciones — alineación con roles/acciones del BPMN 🟡 En curso
 
 Una auditoría (2026-09-22) encontró que todo el sistema de notificaciones existente giraba solo alrededor de `Case`/`ActaVisita`/`AutoInicio`/`ComunicacionCaso`; las 23 entidades nuevas de la Fase 2b no disparaban ningún aviso. Se construyó `AlertaProceso` (entidad genérica ya prevista en `domain.json`, antes no implementada) y se conectó a los 5 plazos legales de mayor impacto jurídico: término de recursos/firmeza (`NotificacionActo`), remisión de apelación PVI en 24h y resolución en 3 días hábiles (`ActuacionPoliciaInmediata`/`Recurso`), objeción de comparendo RNMC en 3 días hábiles (`ActuacionRNMC`), y justificación de primera inasistencia a audiencia (`SuspensionAudiencia`). Ver [`2026-09-22-alertas-proceso-notificaciones-plazos.md`](ajustes/2026-09-22-alertas-proceso-notificaciones-plazos.md).
