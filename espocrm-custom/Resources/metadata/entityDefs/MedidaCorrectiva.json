@@ -163,6 +163,11 @@
             "entity": "ObligacionPecuniaria",
             "foreign": "medidaCorrectiva"
         },
+        "reportesRNMC": {
+            "type": "hasMany",
+            "entity": "ReporteRNMC",
+            "foreign": "medidaCorrectiva"
+        },
         "assignedUser": {
             "type": "belongsTo",
             "entity": "User"

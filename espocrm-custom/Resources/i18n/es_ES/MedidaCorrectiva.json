@@ -61,6 +61,7 @@
     },
     "links": {
         "ejecuciones": "Ejecuciones",
-        "obligacionesPecuniarias": "Obligaciones pecuniarias"
+        "obligacionesPecuniarias": "Obligaciones pecuniarias",
+        "reportesRNMC": "Reportes RNMC"
     }
 }

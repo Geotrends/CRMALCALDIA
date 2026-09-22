@@ -1,0 +1,7 @@
+[
+    {"name": "name", "width": 18, "link": true},
+    {"name": "medidaCorrectiva", "width": 18},
+    {"name": "medio", "width": 16},
+    {"name": "estado", "width": 16},
+    {"name": "fechaReporte", "width": 11}
+]

@@ -1,0 +1,24 @@
+[
+    {
+        "rows": [
+            [
+                {"name": "medidaCorrectiva"},
+                {"name": "ordenComparendo"}
+            ],
+            [
+                {"name": "fechaReporte"},
+                {"name": "estado"}
+            ],
+            [
+                {"name": "medio"},
+                {"name": "responsable"}
+            ],
+            [
+                {"name": "identificadorExterno"},
+                {"name": "documentoConstancia"}
+            ]
+        ],
+        "style": "default",
+        "label": "Información general"
+    }
+]

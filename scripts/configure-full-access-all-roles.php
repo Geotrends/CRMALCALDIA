@@ -95,6 +95,7 @@ $scopes = [
     'ActuacionPoliciaInmediata',
     'ObligacionPecuniaria',
     'ActuacionRNMC',
+    'ReporteRNMC',
 ];
 
 $fullScope = static function (string $scope = ''): array {

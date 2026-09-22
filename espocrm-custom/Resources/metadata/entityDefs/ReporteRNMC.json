@@ -7,47 +7,49 @@
             "trim": true,
             "readOnlyAfterCreate": true
         },
-        "case": {
+        "medidaCorrectiva": {
             "type": "link",
             "isCustom": true
         },
-        "numeroComparendo": {
-            "type": "varchar",
-            "maxLength": 100,
+        "ordenComparendo": {
+            "type": "link",
             "isCustom": true
         },
-        "fecha": {
+        "fechaReporte": {
             "type": "date",
             "required": true,
             "isCustom": true
         },
-        "autoridadEmisora": {
+        "medio": {
+            "type": "varchar",
+            "maxLength": 150,
+            "required": true,
+            "isCustom": true
+        },
+        "responsable": {
             "type": "link",
             "required": true,
             "isCustom": true
         },
-        "comportamientoCodigo": {
-            "type": "varchar",
-            "maxLength": 100,
-            "isCustom": true
-        },
-        "documento": {
-            "type": "file",
-            "isCustom": true
-        },
-        "referenciaRNMC": {
+        "identificadorExterno": {
             "type": "varchar",
             "maxLength": 150,
+            "isCustom": true
+        },
+        "documentoConstancia": {
+            "type": "file",
             "isCustom": true
         },
         "estado": {
             "type": "enum",
             "options": [
-                "Registrado",
-                "Vinculado a actuación",
-                "Anulado"
+                "Pendiente",
+                "Reportado",
+                "Constancia cargada",
+                "Error de reporte",
+                "Por validar integración"
             ],
-            "default": "Registrado",
+            "default": "Pendiente",
             "isCustom": true
         },
         "assignedUser": {
@@ -69,29 +71,19 @@
         }
     },
     "links": {
-        "case": {
+        "medidaCorrectiva": {
             "type": "belongsTo",
-            "entity": "Case",
-            "foreign": "ordenesComparendo"
+            "entity": "MedidaCorrectiva",
+            "foreign": "reportesRNMC"
         },
-        "autoridadEmisora": {
+        "ordenComparendo": {
+            "type": "belongsTo",
+            "entity": "OrdenComparendo",
+            "foreign": "reportesRNMC"
+        },
+        "responsable": {
             "type": "belongsTo",
             "entity": "User"
-        },
-        "actuacionesPoliciaInmediata": {
-            "type": "hasMany",
-            "entity": "ActuacionPoliciaInmediata",
-            "foreign": "ordenComparendo"
-        },
-        "actuacionesRNMC": {
-            "type": "hasMany",
-            "entity": "ActuacionRNMC",
-            "foreign": "ordenComparendo"
-        },
-        "reportesRNMC": {
-            "type": "hasMany",
-            "entity": "ReporteRNMC",
-            "foreign": "ordenComparendo"
         },
         "assignedUser": {
             "type": "belongsTo",
@@ -112,10 +104,10 @@
             "entity": "User"
         }
     },
-    "entityClassName": "Espo\\Custom\\Entities\\OrdenComparendo",
+    "entityClassName": "Espo\\Custom\\Entities\\ReporteRNMC",
     "collection": {
-        "orderBy": "fecha",
+        "orderBy": "fechaReporte",
         "order": "desc",
-        "textFilterFields": ["name", "numeroComparendo"]
+        "textFilterFields": ["name", "identificadorExterno"]
     }
 }

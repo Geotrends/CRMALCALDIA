@@ -28,6 +28,7 @@
     },
     "links": {
         "actuacionesPoliciaInmediata": "Actuaciones de policía inmediata",
-        "actuacionesRNMC": "Actuaciones RNMC"
+        "actuacionesRNMC": "Actuaciones RNMC",
+        "reportesRNMC": "Reportes RNMC"
     }
 }

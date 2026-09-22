@@ -1,0 +1,31 @@
+{
+    "fields": {
+        "name": "Nombre",
+        "medidaCorrectiva": "Medida correctiva reportada",
+        "ordenComparendo": "Orden de comparendo reportada",
+        "fechaReporte": "Fecha de reporte",
+        "medio": "Medio de reporte",
+        "responsable": "Responsable",
+        "identificadorExterno": "Identificador externo RNMC",
+        "documentoConstancia": "Documento de constancia",
+        "estado": "Estado",
+        "assignedUser": "Responsable",
+        "teams": "Equipos",
+        "createdAt": "Creado",
+        "modifiedAt": "Modificado"
+    },
+    "labels": {
+        "Create ReporteRNMC": "Crear reporte RNMC",
+        "ReporteRNMC": "Reporte RNMC",
+        "ReporteRNMCs": "Reportes RNMC"
+    },
+    "options": {
+        "estado": {
+            "Pendiente": "Pendiente",
+            "Reportado": "Reportado",
+            "Constancia cargada": "Constancia cargada",
+            "Error de reporte": "Error de reporte",
+            "Por validar integración": "Por validar integración"
+        }
+    }
+}
