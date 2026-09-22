@@ -13,10 +13,28 @@ body[data-navbar=side]:not(.login-page):not(:has(#login)) {
   overflow: hidden !important;
 }
 
+/*
+ * El contenedor raíz de EspoCRM (`#container.content`) conservaba la altura
+ * natural de dashboards y formularios. Aunque `#content` tuviera scroll,
+ * el inspector y algunos navegadores terminaban tratando la página completa
+ * como un lienzo más alto que la ventana. El shell debe coincidir siempre con
+ * el viewport; el único contenido que crece y se desplaza es `#content`.
+ */
+body[data-navbar=side]:not(.login-page):not(:has(#login)) > .container.content {
+  box-sizing: border-box !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  min-height: 0 !important;
+  max-height: 100dvh !important;
+  padding-bottom: 0 !important;
+  overflow: hidden !important;
+}
+
 body[data-navbar=side]:not(.login-page):not(:has(#login)) #content {
   box-sizing: border-box;
-  height: 100vh;
-  height: 100dvh;
+  height: 100% !important;
+  min-height: 0 !important;
+  max-height: 100% !important;
   overflow-x: hidden !important;
   overflow-y: auto !important;
   overscroll-behavior: contain;
