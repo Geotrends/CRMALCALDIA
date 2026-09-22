@@ -91,6 +91,11 @@
             "entity": "Case",
             "foreign": "expediente"
         },
+        "obligacionesPecuniarias": {
+            "type": "hasMany",
+            "entity": "ObligacionPecuniaria",
+            "foreign": "expediente"
+        },
         "autosInicio": {
             "type": "hasMany",
             "entity": "AutoInicio",

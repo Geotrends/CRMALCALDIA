@@ -161,6 +161,7 @@ $roleConfigs = [
         'VerificacionCumplimiento' => ['create' => 'yes', 'read' => 'all', 'edit' => 'all', 'delete' => 'no', 'stream' => 'no'],
         'OrdenComparendo' => ['create' => 'yes', 'read' => 'all', 'edit' => 'all', 'delete' => 'no', 'stream' => 'no'],
         'ActuacionPoliciaInmediata' => ['create' => 'yes', 'read' => 'all', 'edit' => 'all', 'delete' => 'no', 'stream' => 'no'],
+        'ObligacionPecuniaria' => ['create' => 'yes', 'read' => 'all', 'edit' => 'all', 'delete' => 'no', 'stream' => 'no'],
     ],
 
     // Supervisión y suplencia registrada del Director Técnico; revisión/firma
@@ -187,6 +188,7 @@ $roleConfigs = [
         'VerificacionCumplimiento' => $readOnlyAll,
         'OrdenComparendo' => $readOnlyAll,
         'ActuacionPoliciaInmediata' => $readOnlyAll,
+        'ObligacionPecuniaria' => $readOnlyAll,
     ],
 
     // Concepto especializado en casos con fauna. No sustituye la decisión

@@ -35,5 +35,8 @@
             "Respuesta recibida": "Respuesta recibida",
             "Cerrada": "Cerrada"
         }
+    },
+    "links": {
+        "obligacionesPecuniarias": "Obligaciones pecuniarias"
     }
 }

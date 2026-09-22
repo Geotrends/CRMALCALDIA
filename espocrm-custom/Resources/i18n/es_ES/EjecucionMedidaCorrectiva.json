@@ -39,5 +39,8 @@
             "Reprogramada": "Reprogramada",
             "Cancelada por acto": "Cancelada por acto"
         }
+    },
+    "links": {
+        "obligacionPecuniaria": "Obligación pecuniaria"
     }
 }

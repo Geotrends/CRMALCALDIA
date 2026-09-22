@@ -95,6 +95,11 @@
             "entity": "MedidaCorrectiva",
             "foreign": "ejecuciones"
         },
+        "obligacionPecuniaria": {
+            "type": "hasMany",
+            "entity": "ObligacionPecuniaria",
+            "foreign": "ejecucionMedidaCorrectiva"
+        },
         "ejecutor": {
             "type": "belongsTo",
             "entity": "User"

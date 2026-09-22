@@ -9,76 +9,86 @@
         },
         "case": {
             "type": "link",
-            "required": true,
-            "readOnlyAfterCreate": true,
             "isCustom": true
         },
         "expediente": {
             "type": "link",
             "isCustom": true
         },
-        "autoridadDestino": {
+        "medidaCorrectiva": {
+            "type": "link",
+            "isCustom": true
+        },
+        "ejecucionMedidaCorrectiva": {
+            "type": "link",
+            "isCustom": true
+        },
+        "sujetoObligado": {
             "type": "varchar",
-            "maxLength": 200,
+            "maxLength": 255,
             "required": true,
             "isCustom": true
         },
-        "medidaPreventivaImpuesta": {
-            "type": "bool",
-            "default": false,
-            "isCustom": true
-        },
-        "medidaPreventivaFundamento": {
+        "concepto": {
             "type": "text",
             "rows": 3,
+            "required": true,
             "isCustom": true
         },
-        "medidaPreventivaFechaImposicion": {
+        "valor": {
+            "type": "float",
+            "required": true,
+            "isCustom": true
+        },
+        "fechaEjecutoria": {
             "type": "date",
+            "required": true,
             "isCustom": true
         },
-        "medidaPreventivaDocumento": {
+        "fechaExigibilidad": {
+            "type": "date",
+            "required": true,
+            "isCustom": true
+        },
+        "documentoSoporteEjecutoria": {
             "type": "file",
             "isCustom": true
         },
-        "fechaRemision": {
-            "type": "date",
+        "remisionTesoreria": {
+            "type": "link",
             "isCustom": true
         },
-        "oficioDocumento": {
-            "type": "file",
-            "isCustom": true
-        },
-        "anexos": {
-            "type": "attachmentMultiple",
-            "isCustom": true
-        },
-        "fechaRecibido": {
-            "type": "date",
-            "isCustom": true
-        },
-        "numeroExpedienteExterno": {
+        "referenciaExternaRecaudo": {
             "type": "varchar",
-            "maxLength": 100,
+            "maxLength": 255,
             "isCustom": true
         },
-        "estadoSeguimiento": {
+        "fechaAlertaControl": {
+            "type": "date",
+            "isCustom": true
+        },
+        "estadoRecaudo": {
             "type": "enum",
             "options": [
-                "Preparación",
-                "Enviada",
-                "Recibida",
+                "Remitida",
+                "Registrada en Tesorería",
+                "Pendiente de pago",
                 "En seguimiento",
-                "Con expediente externo",
-                "Respuesta recibida",
+                "Pagada",
+                "En acuerdo de pago",
+                "En cobro coactivo",
                 "Cerrada"
             ],
-            "default": "Preparación",
+            "default": "Remitida",
             "isCustom": true
         },
         "observaciones": {
             "type": "text",
-            "rows": 4,
+            "rows": 3,
+            "isCustom": true
+        },
+        "fechaActualizacionExpediente": {
+            "type": "date",
             "isCustom": true
         },
         "assignedUser": {
@@ -103,17 +113,27 @@
         "case": {
             "type": "belongsTo",
             "entity": "Case",
-            "foreign": "remisionesAutoridad"
-        },
-        "obligacionesPecuniarias": {
-            "type": "hasMany",
-            "entity": "ObligacionPecuniaria",
-            "foreign": "remisionTesoreria"
+            "foreign": "obligacionesPecuniarias"
         },
         "expediente": {
             "type": "belongsTo",
             "entity": "Expediente",
-            "foreign": "remisionesAutoridad"
+            "foreign": "obligacionesPecuniarias"
+        },
+        "medidaCorrectiva": {
+            "type": "belongsTo",
+            "entity": "MedidaCorrectiva",
+            "foreign": "obligacionesPecuniarias"
+        },
+        "ejecucionMedidaCorrectiva": {
+            "type": "belongsTo",
+            "entity": "EjecucionMedidaCorrectiva",
+            "foreign": "obligacionPecuniaria"
+        },
+        "remisionTesoreria": {
+            "type": "belongsTo",
+            "entity": "RemisionAutoridad",
+            "foreign": "obligacionesPecuniarias"
         },
         "assignedUser": {
             "type": "belongsTo",
@@ -134,10 +154,10 @@
             "entity": "User"
         }
     },
-    "entityClassName": "Espo\\Custom\\Entities\\RemisionAutoridad",
+    "entityClassName": "Espo\\Custom\\Entities\\ObligacionPecuniaria",
     "collection": {
-        "orderBy": "createdAt",
+        "orderBy": "fechaExigibilidad",
         "order": "desc",
-        "textFilterFields": ["name", "autoridadDestino", "numeroExpedienteExterno"]
+        "textFilterFields": ["name", "sujetoObligado", "concepto"]
     }
 }

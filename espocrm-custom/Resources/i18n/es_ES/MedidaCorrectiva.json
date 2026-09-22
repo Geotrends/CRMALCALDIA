@@ -60,6 +60,7 @@
         }
     },
     "links": {
-        "ejecuciones": "Ejecuciones"
+        "ejecuciones": "Ejecuciones",
+        "obligacionesPecuniarias": "Obligaciones pecuniarias"
     }
 }

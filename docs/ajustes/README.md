@@ -70,5 +70,6 @@ Cada registro debe indicar como mínimo:
 | 2026-09-22 | Competencia y Clasificación (ya cubierto) + entidad EvaluacionResultado | Validado localmente | [Registro](2026-09-22-competencia-clasificacion-evaluacion-resultado.md) |
 | 2026-09-22 | Gestión Técnica — IntervencionTecnica, ProgramacionVisita, RecomendacionTecnica, Compromiso, VerificacionCumplimiento | Validado localmente | [Registro](2026-09-22-gestion-tecnica-intervencion-recomendacion-verificacion.md) |
 | 2026-09-22 | Proceso Verbal Inmediato de Policía — OrdenComparendo, ActuacionPoliciaInmediata | Validado localmente | [Registro](2026-09-22-proceso-verbal-inmediato-policia.md) |
+| 2026-09-22 | Ejecución Pecuniaria / Tesorería — entidad ObligacionPecuniaria | Validado localmente | [Registro](2026-09-22-ejecucion-pecuniaria-tesoreria.md) |
 
 Cuando se cree un registro, reemplazar la fila de ejemplo o agregar una fila nueva en orden descendente por fecha.

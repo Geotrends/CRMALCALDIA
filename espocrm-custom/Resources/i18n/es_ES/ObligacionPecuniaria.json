@@ -1,0 +1,42 @@
+{
+    "fields": {
+        "name": "Nombre",
+        "case": "Caso vinculado",
+        "expediente": "Expediente vinculado",
+        "medidaCorrectiva": "Medida correctiva de origen",
+        "ejecucionMedidaCorrectiva": "Ejecución de medida correctiva de origen",
+        "sujetoObligado": "Sujeto obligado",
+        "concepto": "Concepto",
+        "valor": "Valor",
+        "fechaEjecutoria": "Fecha de ejecutoria",
+        "fechaExigibilidad": "Fecha de exigibilidad",
+        "documentoSoporteEjecutoria": "Documento soporte de ejecutoria",
+        "remisionTesoreria": "Remisión a Tesorería",
+        "referenciaExternaRecaudo": "Referencia externa de recaudo",
+        "fechaAlertaControl": "Fecha de alerta de control (seguimiento)",
+        "estadoRecaudo": "Estado de recaudo",
+        "observaciones": "Observaciones",
+        "fechaActualizacionExpediente": "Fecha de actualización en expediente",
+        "assignedUser": "Responsable",
+        "teams": "Equipos",
+        "createdAt": "Creado",
+        "modifiedAt": "Modificado"
+    },
+    "labels": {
+        "Create ObligacionPecuniaria": "Crear obligación pecuniaria",
+        "ObligacionPecuniaria": "Obligación pecuniaria",
+        "ObligacionPecuniarias": "Obligaciones pecuniarias"
+    },
+    "options": {
+        "estadoRecaudo": {
+            "Remitida": "Remitida",
+            "Registrada en Tesorería": "Registrada en Tesorería",
+            "Pendiente de pago": "Pendiente de pago",
+            "En seguimiento": "En seguimiento",
+            "Pagada": "Pagada",
+            "En acuerdo de pago": "En acuerdo de pago",
+            "En cobro coactivo": "En cobro coactivo",
+            "Cerrada": "Cerrada"
+        }
+    }
+}

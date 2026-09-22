@@ -1584,6 +1584,11 @@
             "entity": "EvaluacionResultado",
             "foreign": "case"
         },
+        "obligacionesPecuniarias": {
+            "type": "hasMany",
+            "entity": "ObligacionPecuniaria",
+            "foreign": "case"
+        },
         "remisionesAutoridad": {
             "type": "hasMany",
             "entity": "RemisionAutoridad",

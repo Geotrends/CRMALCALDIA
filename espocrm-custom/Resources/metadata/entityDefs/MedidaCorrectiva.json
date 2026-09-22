@@ -158,6 +158,11 @@
             "entity": "EjecucionMedidaCorrectiva",
             "foreign": "medidaCorrectiva"
         },
+        "obligacionesPecuniarias": {
+            "type": "hasMany",
+            "entity": "ObligacionPecuniaria",
+            "foreign": "medidaCorrectiva"
+        },
         "assignedUser": {
             "type": "belongsTo",
             "entity": "User"

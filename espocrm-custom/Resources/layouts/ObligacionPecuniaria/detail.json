@@ -1,0 +1,62 @@
+[
+    {
+        "rows": [
+            [
+                {"name": "case"},
+                {"name": "expediente"}
+            ],
+            [
+                {"name": "medidaCorrectiva"},
+                {"name": "ejecucionMedidaCorrectiva"}
+            ],
+            [
+                {"name": "sujetoObligado"},
+                {"name": "estadoRecaudo"}
+            ],
+            [
+                {"name": "valor"},
+                {"name": "fechaExigibilidad"}
+            ],
+            [
+                {"name": "fechaEjecutoria"},
+                {"name": "documentoSoporteEjecutoria"}
+            ]
+        ],
+        "style": "default",
+        "label": "Información general"
+    },
+    {
+        "rows": [
+            [{"name": "concepto", "fullWidth": true}]
+        ],
+        "style": "default",
+        "label": "Concepto"
+    },
+    {
+        "rows": [
+            [
+                {"name": "remisionTesoreria"},
+                {"name": "referenciaExternaRecaudo"}
+            ]
+        ],
+        "style": "default",
+        "label": "Remisión y recaudo"
+    },
+    {
+        "rows": [
+            [
+                {"name": "fechaAlertaControl"},
+                {"name": "fechaActualizacionExpediente"}
+            ]
+        ],
+        "style": "default",
+        "label": "Información general"
+    },
+    {
+        "rows": [
+            [{"name": "observaciones", "fullWidth": true}]
+        ],
+        "style": "default",
+        "label": "Observaciones"
+    }
+]

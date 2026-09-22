@@ -1,0 +1,8 @@
+[
+    {"name": "name", "width": 16, "link": true},
+    {"name": "case", "width": 12},
+    {"name": "sujetoObligado", "width": 16},
+    {"name": "valor", "width": 12},
+    {"name": "estadoRecaudo", "width": 16},
+    {"name": "fechaExigibilidad", "width": 11}
+]
