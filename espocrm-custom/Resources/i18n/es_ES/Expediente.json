@@ -12,7 +12,8 @@
         "modifiedAt": "Modificado",
         "casos": "Radicados vinculados",
         "autosInicio": "Autos de inicio",
-        "decisionesRuta": "Decisiones de ruta jurídica"
+        "decisionesRuta": "Decisiones de ruta jurídica",
+        "remisionesAutoridad": "Remisiones a autoridad"
     },
     "labels": {
         "Create Expediente": "Crear expediente",
@@ -41,6 +42,7 @@
     "links": {
         "casos": "Radicados vinculados",
         "autosInicio": "Autos de inicio",
-        "decisionesRuta": "Decisiones de ruta jurídica"
+        "decisionesRuta": "Decisiones de ruta jurídica",
+        "remisionesAutoridad": "Remisiones a autoridad"
     }
 }

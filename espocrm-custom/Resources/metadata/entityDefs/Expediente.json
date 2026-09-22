@@ -101,6 +101,11 @@
             "entity": "DecisionRutaJuridica",
             "foreign": "expediente"
         },
+        "remisionesAutoridad": {
+            "type": "hasMany",
+            "entity": "RemisionAutoridad",
+            "foreign": "expediente"
+        },
         "createdBy": {
             "type": "belongsTo",
             "entity": "User"

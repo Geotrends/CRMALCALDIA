@@ -1,0 +1,35 @@
+{
+    "fields": {
+        "name": "Nombre",
+        "case": "Caso vinculado",
+        "expediente": "Expediente",
+        "autoridadDestino": "Autoridad destino",
+        "fechaRemision": "Fecha de remisión",
+        "oficioDocumento": "Oficio de remisión",
+        "anexos": "Anexos",
+        "fechaRecibido": "Fecha de recibido",
+        "numeroExpedienteExterno": "Número de expediente externo",
+        "estadoSeguimiento": "Estado de seguimiento",
+        "observaciones": "Observaciones",
+        "assignedUser": "Responsable",
+        "teams": "Equipos",
+        "createdAt": "Creado",
+        "modifiedAt": "Modificado"
+    },
+    "labels": {
+        "Create RemisionAutoridad": "Crear remisión a autoridad",
+        "RemisionAutoridad": "Remisión a autoridad",
+        "RemisionAutoridads": "Remisiones a autoridad"
+    },
+    "options": {
+        "estadoSeguimiento": {
+            "Preparación": "Preparación",
+            "Enviada": "Enviada",
+            "Recibida": "Recibida",
+            "En seguimiento": "En seguimiento",
+            "Con expediente externo": "Con expediente externo",
+            "Respuesta recibida": "Respuesta recibida",
+            "Cerrada": "Cerrada"
+        }
+    }
+}

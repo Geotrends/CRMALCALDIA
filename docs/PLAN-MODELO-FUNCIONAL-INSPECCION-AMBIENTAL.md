@@ -30,11 +30,15 @@ Unificación de hooks duplicados entre `Hooks/CaseObj/` y `Classes/RecordHooks/C
 - Actualizar `docs/GUIA-HANDOFF-PROYECTO.md` y `docs/MANUAL-USUARIO-CRM-AMBIENTAL.md` con las entidades y el flujo nuevos.
 - Desplegar a Dokploy (todo el trabajo de Fase 0 y 1 está solo en el entorno Docker local).
 
-### Fase 2 — Rutas jurídicas 🔲 No iniciada
-Cada ruta necesita, como mínimo: subestados propios dentro de `Expediente`/`ActuacionJuridica`, formatos específicos, y en las rutas de Policía, las entidades `Audiencia` + `OrdenPolicia` + `MedidaCorrectiva` (el modelo es explícito: estas tres figuras nunca se convierten automáticamente unas en otras). Prioridad acordada con el usuario (las tres, sin orden fijo definido todavía):
-- Recursos Naturales (competencia municipal) — la más cercana a lo que ya existe (similar al Auto de Archivo actual).
+### Fase 2 — Rutas jurídicas 🟡 En curso
+
+**Recursos Naturales (competencia municipal) — primer corte hecho.** Se investigó el BPMN activo (`recursos_naturales_municipal_v1.4.bpmn`) antes de programar: la ruta es en esencia un enrutador — 2 de sus 3 desenlaces (Policiva/PVA, Ambiental Preventiva) delegan a otros procesos N2 que todavía no existen en el CRM; el tercero (Auto de Archivo) ya existe. Lo único nuevo construido: entidad `RemisionAutoridad` (remisión a otra autoridad, con seguimiento). El campo `resultado` de `DecisionRutaJuridica` (de Fase 1) ya cubría las 3 ramas de la decisión sin haberlo planeado así. Ver [`2026-09-22-fase2-recursos-naturales-remision-autoridad.md`](ajustes/2026-09-22-fase2-recursos-naturales-remision-autoridad.md).
+
+Pendientes de esta ruta y las otras dos (sin orden fijo definido):
 - Maltrato / Convivencia Animal + Registro Canino de Manejo Especial — tres procedimientos separados aunque suenen parecidos, no deben compartir entidad.
-- Proceso Verbal Inmediato / Abreviado (Código de Policía) — la más pesada: trae `Audiencia`, `SuspensionAudiencia`, `GrabacionAudiencia`, `Recurso`, `MovimientoExpediente`.
+- Proceso Verbal Inmediato / Abreviado (Código de Policía) — la más pesada: trae `Audiencia`, `SuspensionAudiencia`, `GrabacionAudiencia`, `Recurso`, `MovimientoExpediente`. Es también el proceso al que delega la rama "Policiva" de Recursos Naturales.
+- Ambiental Preventiva / Remisión a Autoridad Ambiental — es a donde delega la rama "Ambiental preventiva" de Recursos Naturales; no estaba en las 3 opciones originales pero queda evidenciada como dependencia real.
+- Cada ruta necesita, como mínimo: subestados propios dentro de `Expediente`/`ActuacionJuridica`, formatos específicos, y en las rutas de Policía, las entidades `Audiencia` + `OrdenPolicia` + `MedidaCorrectiva` (el modelo es explícito: estas tres figuras nunca se convierten automáticamente unas en otras).
 
 ### Fase 3 — Medidas correctivas, cierre formal y RNMC 🔲 No iniciada
 - `MedidaCorrectiva` + `EjecucionMedidaCorrectiva` + `VerificacionCumplimiento`.

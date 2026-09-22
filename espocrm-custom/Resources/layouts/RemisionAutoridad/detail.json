@@ -1,0 +1,39 @@
+[
+    {
+        "rows": [
+            [
+                {"name": "case"},
+                {"name": "expediente"}
+            ],
+            [
+                {"name": "autoridadDestino"},
+                {"name": "estadoSeguimiento"}
+            ],
+            [
+                {"name": "fechaRemision"},
+                {"name": "fechaRecibido"}
+            ],
+            [
+                {"name": "numeroExpedienteExterno"},
+                false
+            ]
+        ],
+        "style": "default",
+        "label": "Información general"
+    },
+    {
+        "rows": [
+            [{"name": "oficioDocumento"}],
+            [{"name": "anexos", "fullWidth": true}]
+        ],
+        "style": "default",
+        "label": "Oficio y anexos"
+    },
+    {
+        "rows": [
+            [{"name": "observaciones", "fullWidth": true}]
+        ],
+        "style": "default",
+        "label": "Observaciones"
+    }
+]

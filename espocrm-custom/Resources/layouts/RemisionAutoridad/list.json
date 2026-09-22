@@ -1,0 +1,7 @@
+[
+    {"name": "name", "width": 20, "link": true},
+    {"name": "case", "width": 18},
+    {"name": "autoridadDestino", "width": 22},
+    {"name": "estadoSeguimiento", "width": 15},
+    {"name": "fechaRemision", "width": 11}
+]

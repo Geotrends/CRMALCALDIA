@@ -1,0 +1,31 @@
+[
+    {
+        "rows": [
+            [
+                {"name": "case"},
+                {"name": "expediente"}
+            ],
+            [
+                {"name": "autoridadDestino"},
+                {"name": "estadoSeguimiento"}
+            ],
+            [
+                {"name": "fechaRemision"},
+                {"name": "fechaRecibido"}
+            ],
+            [
+                {"name": "numeroExpedienteExterno"},
+                false
+            ],
+            [
+                {"name": "oficioDocumento"}
+            ],
+            [
+                {"name": "anexos", "fullWidth": true}
+            ],
+            [
+                {"name": "observaciones", "fullWidth": true}
+            ]
+        ]
+    }
+]

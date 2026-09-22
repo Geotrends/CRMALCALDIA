@@ -129,6 +129,7 @@ $roleConfigs = [
         'GestionTecnica' => $readOnlyAll,
         'ComunicacionCaso' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
         'Document' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
+        'RemisionAutoridad' => ['create' => 'yes', 'read' => 'all', 'edit' => 'all', 'delete' => 'no', 'stream' => 'no'],
     ],
 
     // Supervisión y suplencia registrada del Director Técnico; revisión/firma
@@ -138,6 +139,7 @@ $roleConfigs = [
         'GestionTecnica' => ['create' => 'no', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
         'Expediente' => $readOnlyAll,
         'DecisionRutaJuridica' => $readOnlyAll,
+        'RemisionAutoridad' => $readOnlyAll,
         'Document' => $readOnlyAll,
     ],
 
