@@ -86,6 +86,11 @@ $scopes = [
     'PermisoCaninoManejoEspecial',
     'ActuacionMaltratoAnimal',
     'EvaluacionResultado',
+    'IntervencionTecnica',
+    'ProgramacionVisita',
+    'RecomendacionTecnica',
+    'Compromiso',
+    'VerificacionCumplimiento',
 ];
 
 $fullScope = static function (string $scope = ''): array {

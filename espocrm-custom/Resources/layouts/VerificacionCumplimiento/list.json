@@ -1,0 +1,6 @@
+[
+    {"name": "name", "width": 16, "link": true},
+    {"name": "intervencionTecnica", "width": 18},
+    {"name": "resultado", "width": 14},
+    {"name": "fecha", "width": 11}
+]

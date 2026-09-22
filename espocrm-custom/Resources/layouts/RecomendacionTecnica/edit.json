@@ -1,0 +1,30 @@
+[
+    {
+        "rows": [
+            [
+                {"name": "intervencionOrigen"},
+                {"name": "estado"}
+            ],
+            [
+                {"name": "destinatario"},
+                {"name": "requiereVerificacion"}
+            ],
+            [
+                {"name": "fechaInicio"},
+                {"name": "fechaLimite"}
+            ],
+            [
+                {"name": "texto", "fullWidth": true}
+            ],
+            [
+                {"name": "fundamentoTecnico", "fullWidth": true}
+            ],
+            [
+                {"name": "criterioVerificacion", "fullWidth": true}
+            ],
+            [
+                {"name": "documentoOrigen"}
+            ]
+        ]
+    }
+]

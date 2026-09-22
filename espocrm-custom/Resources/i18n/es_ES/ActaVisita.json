@@ -4,6 +4,7 @@
         "case": "Caso vinculado (ID caso)",
         "expediente": "Expediente",
         "gestionTecnica": "Gestión técnica",
+        "intervencionTecnica": "Intervención técnica vinculada",
         "autorizacionDatos": "Autorización tratamiento de datos personales (Ley 1581 de 2012)",
         "fecha": "Fecha",
         "posibleAfectante": "Posible afectante",

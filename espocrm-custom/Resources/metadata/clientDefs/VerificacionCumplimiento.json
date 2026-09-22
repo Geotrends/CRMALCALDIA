@@ -1,0 +1,10 @@
+{
+    "controller": "controllers/record",
+    "iconClass": "fas fa-check-double",
+    "color": "#166534",
+    "recordViews": {
+        "detail": "views/record/detail",
+        "edit": "views/record/edit",
+        "list": "views/record/list"
+    }
+}

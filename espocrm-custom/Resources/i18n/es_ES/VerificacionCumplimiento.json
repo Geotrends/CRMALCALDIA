@@ -1,0 +1,33 @@
+{
+    "fields": {
+        "name": "Nombre",
+        "recomendacionTecnica": "Recomendación técnica verificada",
+        "compromiso": "Compromiso verificado",
+        "medidaCorrectiva": "Medida correctiva verificada",
+        "ordenPolicia": "Orden de policía verificada",
+        "ordenExternaReferencia": "Referencia de orden externa",
+        "intervencionTecnica": "Intervención técnica",
+        "fecha": "Fecha",
+        "metodo": "Método de verificación",
+        "resultado": "Resultado",
+        "observacion": "Observación",
+        "documentoSoporte": "Documento de soporte",
+        "assignedUser": "Responsable",
+        "teams": "Equipos",
+        "createdAt": "Creado",
+        "modifiedAt": "Modificado"
+    },
+    "labels": {
+        "Create VerificacionCumplimiento": "Crear verificación de cumplimiento",
+        "VerificacionCumplimiento": "Verificación de cumplimiento",
+        "VerificacionCumplimientos": "Verificaciones de cumplimiento"
+    },
+    "options": {
+        "resultado": {
+            "Cumplida": "Cumplida",
+            "Parcial": "Parcial",
+            "No cumplida": "No cumplida",
+            "No verificable": "No verificable"
+        }
+    }
+}

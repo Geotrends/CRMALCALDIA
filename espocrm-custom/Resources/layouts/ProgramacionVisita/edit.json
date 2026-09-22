@@ -1,0 +1,21 @@
+[
+    {
+        "rows": [
+            [
+                {"name": "intervencionTecnica"},
+                {"name": "estado"}
+            ],
+            [
+                {"name": "tipoProgramacion"},
+                {"name": "responsable"}
+            ],
+            [
+                {"name": "fechaObjetivo"},
+                {"name": "fechaProgramada"}
+            ],
+            [
+                {"name": "motivoReprogramacion", "fullWidth": true}
+            ]
+        ]
+    }
+]

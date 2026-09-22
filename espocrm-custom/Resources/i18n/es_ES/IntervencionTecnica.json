@@ -1,0 +1,58 @@
+{
+    "fields": {
+        "name": "Nombre",
+        "gestionTecnica": "Gestión técnica",
+        "tipo": "Tipo",
+        "fechaSolicitud": "Fecha de solicitud",
+        "fechaProgramada": "Fecha programada",
+        "fechaEjecucion": "Fecha de ejecución",
+        "responsable": "Responsable",
+        "estado": "Estado",
+        "resultado": "Resultado",
+        "survey123FormId": "ID de formulario Survey123",
+        "survey123SubmissionId": "ID de envío Survey123",
+        "survey123Url": "URL Survey123",
+        "survey123FechaCaptura": "Fecha de captura Survey123",
+        "survey123Ubicacion": "Ubicación Survey123",
+        "informeTecnicoDocumento": "Informe técnico",
+        "anexos": "Anexos",
+        "assignedUser": "Responsable",
+        "teams": "Equipos",
+        "createdAt": "Creado",
+        "modifiedAt": "Modificado"
+    },
+    "labels": {
+        "Create IntervencionTecnica": "Crear intervención técnica",
+        "IntervencionTecnica": "Intervención técnica",
+        "IntervencionTecnicas": "Intervenciones técnicas"
+    },
+    "options": {
+        "tipo": {
+            "Visita": "Visita",
+            "Medición": "Medición",
+            "Revisión": "Revisión",
+            "Consulta": "Consulta",
+            "Informe": "Informe",
+            "Recomendación": "Recomendación",
+            "Compromiso": "Compromiso",
+            "Verificación": "Verificación"
+        },
+        "estado": {
+            "Pendiente": "Pendiente",
+            "Programada": "Programada",
+            "En ejecución": "En ejecución",
+            "Pendiente de soporte": "Pendiente de soporte",
+            "Completa documentalmente": "Completa documentalmente",
+            "No realizada": "No realizada",
+            "Reprogramada": "Reprogramada",
+            "Cancelada": "Cancelada"
+        }
+    },
+    "links": {
+        "programacionesVisita": "Programaciones de visita",
+        "recomendacionesTecnicas": "Recomendaciones técnicas",
+        "compromisos": "Compromisos",
+        "verificacionesCumplimiento": "Verificaciones de cumplimiento",
+        "actasVisita": "Actas de visita"
+    }
+}

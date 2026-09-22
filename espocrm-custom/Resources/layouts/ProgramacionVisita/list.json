@@ -1,0 +1,7 @@
+[
+    {"name": "name", "width": 20, "link": true},
+    {"name": "intervencionTecnica", "width": 20},
+    {"name": "tipoProgramacion", "width": 16},
+    {"name": "estado", "width": 14},
+    {"name": "fechaProgramada", "width": 11}
+]

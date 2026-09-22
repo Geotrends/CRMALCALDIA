@@ -7,44 +7,66 @@
             "trim": true,
             "readOnlyAfterCreate": true
         },
-        "case": {
+        "intervencionOrigen": {
             "type": "link",
             "required": true,
             "readOnlyAfterCreate": true,
             "isCustom": true
         },
+        "texto": {
+            "type": "text",
+            "rows": 5,
+            "required": true,
+            "isCustom": true
+        },
+        "fundamentoTecnico": {
+            "type": "text",
+            "rows": 4,
+            "isCustom": true
+        },
+        "destinatario": {
+            "type": "varchar",
+            "maxLength": 255,
+            "isCustom": true
+        },
+        "fechaInicio": {
+            "type": "date",
+            "required": true,
+            "isCustom": true
+        },
+        "fechaLimite": {
+            "type": "date",
+            "isCustom": true
+        },
+        "criterioVerificacion": {
+            "type": "text",
+            "rows": 3,
+            "isCustom": true
+        },
+        "requiereVerificacion": {
+            "type": "bool",
+            "default": false,
+            "isCustom": true
+        },
         "estado": {
             "type": "enum",
             "options": [
-                "Solicitada",
-                "Asignada",
-                "Programada",
-                "En ejecución",
-                "Resultado registrado",
-                "Cerrada",
-                "No realizada",
-                "Reprogramada",
-                "Cancelada"
+                "Pendiente",
+                "En plazo",
+                "Vencida",
+                "En verificación",
+                "Cumplida",
+                "Parcial",
+                "No cumplida",
+                "No verificable",
+                "Cerrada"
             ],
-            "default": "Solicitada",
+            "default": "Pendiente",
             "isCustom": true
         },
-        "motivo": {
-            "type": "text",
-            "rows": 4,
-            "isCustom": true
-        },
-        "fechaSolicitud": {
-            "type": "datetime",
-            "isCustom": true
-        },
-        "responsable": {
-            "type": "link",
-            "isCustom": true
-        },
-        "observaciones": {
-            "type": "text",
-            "rows": 4,
+        "documentoOrigen": {
+            "type": "file",
+            "required": true,
             "isCustom": true
         },
         "assignedUser": {
@@ -66,24 +88,15 @@
         }
     },
     "links": {
-        "case": {
+        "intervencionOrigen": {
             "type": "belongsTo",
-            "entity": "Case",
-            "foreign": "gestionesTecnicas"
-        },
-        "responsable": {
-            "type": "belongsTo",
-            "entity": "User"
-        },
-        "actasVisita": {
-            "type": "hasMany",
-            "entity": "ActaVisita",
-            "foreign": "gestionTecnica"
-        },
-        "intervencionesTecnicas": {
-            "type": "hasMany",
             "entity": "IntervencionTecnica",
-            "foreign": "gestionTecnica"
+            "foreign": "recomendacionesTecnicas"
+        },
+        "verificacionesCumplimiento": {
+            "type": "hasMany",
+            "entity": "VerificacionCumplimiento",
+            "foreign": "recomendacionTecnica"
         },
         "assignedUser": {
             "type": "belongsTo",
@@ -104,10 +117,10 @@
             "entity": "User"
         }
     },
-    "entityClassName": "Espo\\Custom\\Entities\\GestionTecnica",
+    "entityClassName": "Espo\\Custom\\Entities\\RecomendacionTecnica",
     "collection": {
-        "orderBy": "createdAt",
+        "orderBy": "fechaInicio",
         "order": "desc",
-        "textFilterFields": ["name", "motivo"]
+        "textFilterFields": ["name", "texto"]
     }
 }

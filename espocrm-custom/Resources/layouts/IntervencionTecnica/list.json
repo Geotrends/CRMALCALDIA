@@ -1,0 +1,7 @@
+[
+    {"name": "name", "width": 20, "link": true},
+    {"name": "gestionTecnica", "width": 18},
+    {"name": "tipo", "width": 14},
+    {"name": "estado", "width": 16},
+    {"name": "fechaEjecucion", "width": 11}
+]

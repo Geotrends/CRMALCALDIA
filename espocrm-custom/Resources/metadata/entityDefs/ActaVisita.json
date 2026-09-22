@@ -19,6 +19,10 @@
             "readOnlyAfterCreate": true,
             "isCustom": true
         },
+        "intervencionTecnica": {
+            "type": "link",
+            "isCustom": true
+        },
         "autorizacionDatos": {
             "type": "bool",
             "default": false,
@@ -230,6 +234,11 @@
         "gestionTecnica": {
             "type": "belongsTo",
             "entity": "GestionTecnica",
+            "foreign": "actasVisita"
+        },
+        "intervencionTecnica": {
+            "type": "belongsTo",
+            "entity": "IntervencionTecnica",
             "foreign": "actasVisita"
         },
         "assignedUser": {

@@ -1,0 +1,33 @@
+{
+    "fields": {
+        "name": "Nombre",
+        "intervencionTecnica": "Intervención técnica",
+        "fechaObjetivo": "Fecha objetivo",
+        "fechaProgramada": "Fecha programada",
+        "tipoProgramacion": "Tipo de programación",
+        "responsable": "Responsable",
+        "motivoReprogramacion": "Motivo de reprogramación",
+        "estado": "Estado",
+        "assignedUser": "Responsable asignado",
+        "teams": "Equipos",
+        "createdAt": "Creado",
+        "modifiedAt": "Modificado"
+    },
+    "labels": {
+        "Create ProgramacionVisita": "Crear programación de visita",
+        "ProgramacionVisita": "Programación de visita",
+        "ProgramacionVisitas": "Programaciones de visita"
+    },
+    "options": {
+        "tipoProgramacion": {
+            "Programación inicial": "Programación inicial",
+            "Reprogramación": "Reprogramación"
+        },
+        "estado": {
+            "Programada": "Programada",
+            "Confirmada": "Confirmada",
+            "Reprogramada": "Reprogramada",
+            "Cancelada": "Cancelada"
+        }
+    }
+}

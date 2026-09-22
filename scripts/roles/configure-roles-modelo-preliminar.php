@@ -109,6 +109,11 @@ $roleConfigs = [
         'GestionTecnica' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
         'DecisionRutaJuridica' => $readOnlyAll,
         'EvaluacionResultado' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
+        'IntervencionTecnica' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
+        'ProgramacionVisita' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
+        'RecomendacionTecnica' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
+        'Compromiso' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
+        'VerificacionCumplimiento' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
         'Document' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
     ],
 
@@ -117,6 +122,8 @@ $roleConfigs = [
         'Case' => $readOnlyAllStream,
         'ActaVisita' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
         'GestionTecnica' => ['create' => 'no', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
+        'IntervencionTecnica' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
+        'ProgramacionVisita' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
         'Document' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
     ],
 
@@ -147,6 +154,11 @@ $roleConfigs = [
         'PermisoCaninoManejoEspecial' => ['create' => 'yes', 'read' => 'all', 'edit' => 'all', 'delete' => 'no', 'stream' => 'no'],
         'ActuacionMaltratoAnimal' => ['create' => 'yes', 'read' => 'all', 'edit' => 'all', 'delete' => 'no', 'stream' => 'no'],
         'EvaluacionResultado' => ['create' => 'yes', 'read' => 'all', 'edit' => 'all', 'delete' => 'no', 'stream' => 'no'],
+        'IntervencionTecnica' => ['create' => 'yes', 'read' => 'all', 'edit' => 'all', 'delete' => 'no', 'stream' => 'no'],
+        'ProgramacionVisita' => ['create' => 'yes', 'read' => 'all', 'edit' => 'all', 'delete' => 'no', 'stream' => 'no'],
+        'RecomendacionTecnica' => ['create' => 'yes', 'read' => 'all', 'edit' => 'all', 'delete' => 'no', 'stream' => 'no'],
+        'Compromiso' => ['create' => 'yes', 'read' => 'all', 'edit' => 'all', 'delete' => 'no', 'stream' => 'no'],
+        'VerificacionCumplimiento' => ['create' => 'yes', 'read' => 'all', 'edit' => 'all', 'delete' => 'no', 'stream' => 'no'],
     ],
 
     // Supervisión y suplencia registrada del Director Técnico; revisión/firma
@@ -166,6 +178,11 @@ $roleConfigs = [
         'NotificacionActo' => $readOnlyAll,
         'Recurso' => $readOnlyAll,
         'MovimientoExpediente' => $readOnlyAll,
+        'IntervencionTecnica' => $readOnlyAll,
+        'ProgramacionVisita' => $readOnlyAll,
+        'RecomendacionTecnica' => $readOnlyAll,
+        'Compromiso' => $readOnlyAll,
+        'VerificacionCumplimiento' => $readOnlyAll,
     ],
 
     // Concepto especializado en casos con fauna. No sustituye la decisión

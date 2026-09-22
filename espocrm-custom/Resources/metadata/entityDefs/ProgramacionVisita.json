@@ -7,44 +7,47 @@
             "trim": true,
             "readOnlyAfterCreate": true
         },
-        "case": {
+        "intervencionTecnica": {
             "type": "link",
             "required": true,
             "readOnlyAfterCreate": true,
             "isCustom": true
         },
-        "estado": {
+        "fechaObjetivo": {
+            "type": "date",
+            "isCustom": true
+        },
+        "fechaProgramada": {
+            "type": "date",
+            "isCustom": true
+        },
+        "tipoProgramacion": {
             "type": "enum",
             "options": [
-                "Solicitada",
-                "Asignada",
-                "Programada",
-                "En ejecución",
-                "Resultado registrado",
-                "Cerrada",
-                "No realizada",
-                "Reprogramada",
-                "Cancelada"
+                "Programación inicial",
+                "Reprogramación"
             ],
-            "default": "Solicitada",
-            "isCustom": true
-        },
-        "motivo": {
-            "type": "text",
-            "rows": 4,
-            "isCustom": true
-        },
-        "fechaSolicitud": {
-            "type": "datetime",
+            "default": "Programación inicial",
             "isCustom": true
         },
         "responsable": {
             "type": "link",
             "isCustom": true
         },
-        "observaciones": {
+        "motivoReprogramacion": {
             "type": "text",
-            "rows": 4,
+            "rows": 3,
+            "isCustom": true
+        },
+        "estado": {
+            "type": "enum",
+            "options": [
+                "Programada",
+                "Confirmada",
+                "Reprogramada",
+                "Cancelada"
+            ],
+            "default": "Programada",
             "isCustom": true
         },
         "assignedUser": {
@@ -66,24 +69,14 @@
         }
     },
     "links": {
-        "case": {
+        "intervencionTecnica": {
             "type": "belongsTo",
-            "entity": "Case",
-            "foreign": "gestionesTecnicas"
+            "entity": "IntervencionTecnica",
+            "foreign": "programacionesVisita"
         },
         "responsable": {
             "type": "belongsTo",
             "entity": "User"
-        },
-        "actasVisita": {
-            "type": "hasMany",
-            "entity": "ActaVisita",
-            "foreign": "gestionTecnica"
-        },
-        "intervencionesTecnicas": {
-            "type": "hasMany",
-            "entity": "IntervencionTecnica",
-            "foreign": "gestionTecnica"
         },
         "assignedUser": {
             "type": "belongsTo",
@@ -104,10 +97,10 @@
             "entity": "User"
         }
     },
-    "entityClassName": "Espo\\Custom\\Entities\\GestionTecnica",
+    "entityClassName": "Espo\\Custom\\Entities\\ProgramacionVisita",
     "collection": {
-        "orderBy": "createdAt",
+        "orderBy": "fechaProgramada",
         "order": "desc",
-        "textFilterFields": ["name", "motivo"]
+        "textFilterFields": ["name"]
     }
 }

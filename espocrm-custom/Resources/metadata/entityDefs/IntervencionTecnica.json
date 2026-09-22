@@ -1,0 +1,178 @@
+{
+    "fields": {
+        "name": {
+            "type": "varchar",
+            "required": false,
+            "maxLength": 200,
+            "trim": true,
+            "readOnlyAfterCreate": true
+        },
+        "gestionTecnica": {
+            "type": "link",
+            "required": true,
+            "readOnlyAfterCreate": true,
+            "isCustom": true
+        },
+        "tipo": {
+            "type": "enum",
+            "options": [
+                "Visita",
+                "Medición",
+                "Revisión",
+                "Consulta",
+                "Informe",
+                "Recomendación",
+                "Compromiso",
+                "Verificación"
+            ],
+            "required": true,
+            "isCustom": true
+        },
+        "fechaSolicitud": {
+            "type": "datetime",
+            "isCustom": true
+        },
+        "fechaProgramada": {
+            "type": "date",
+            "isCustom": true
+        },
+        "fechaEjecucion": {
+            "type": "date",
+            "isCustom": true
+        },
+        "responsable": {
+            "type": "link",
+            "isCustom": true
+        },
+        "estado": {
+            "type": "enum",
+            "options": [
+                "Pendiente",
+                "Programada",
+                "En ejecución",
+                "Pendiente de soporte",
+                "Completa documentalmente",
+                "No realizada",
+                "Reprogramada",
+                "Cancelada"
+            ],
+            "default": "Pendiente",
+            "isCustom": true
+        },
+        "resultado": {
+            "type": "text",
+            "rows": 4,
+            "isCustom": true
+        },
+        "survey123FormId": {
+            "type": "varchar",
+            "maxLength": 100,
+            "isCustom": true
+        },
+        "survey123SubmissionId": {
+            "type": "varchar",
+            "maxLength": 100,
+            "isCustom": true
+        },
+        "survey123Url": {
+            "type": "varchar",
+            "maxLength": 500,
+            "isCustom": true
+        },
+        "survey123FechaCaptura": {
+            "type": "datetime",
+            "isCustom": true
+        },
+        "survey123Ubicacion": {
+            "type": "varchar",
+            "maxLength": 255,
+            "isCustom": true
+        },
+        "informeTecnicoDocumento": {
+            "type": "file",
+            "isCustom": true
+        },
+        "anexos": {
+            "type": "attachmentMultiple",
+            "sourceList": ["Document"],
+            "isCustom": true
+        },
+        "assignedUser": {
+            "type": "link",
+            "readOnlyAfterCreate": true,
+            "view": "views/fields/assigned-user"
+        },
+        "teams": {
+            "type": "linkMultiple",
+            "view": "views/fields/teams"
+        },
+        "createdAt": {
+            "type": "datetime",
+            "readOnly": true
+        },
+        "modifiedAt": {
+            "type": "datetime",
+            "readOnly": true
+        }
+    },
+    "links": {
+        "gestionTecnica": {
+            "type": "belongsTo",
+            "entity": "GestionTecnica",
+            "foreign": "intervencionesTecnicas"
+        },
+        "responsable": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "programacionesVisita": {
+            "type": "hasMany",
+            "entity": "ProgramacionVisita",
+            "foreign": "intervencionTecnica"
+        },
+        "recomendacionesTecnicas": {
+            "type": "hasMany",
+            "entity": "RecomendacionTecnica",
+            "foreign": "intervencionOrigen"
+        },
+        "compromisos": {
+            "type": "hasMany",
+            "entity": "Compromiso",
+            "foreign": "intervencionOrigen"
+        },
+        "verificacionesCumplimiento": {
+            "type": "hasMany",
+            "entity": "VerificacionCumplimiento",
+            "foreign": "intervencionTecnica"
+        },
+        "actasVisita": {
+            "type": "hasMany",
+            "entity": "ActaVisita",
+            "foreign": "intervencionTecnica"
+        },
+        "assignedUser": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "teams": {
+            "type": "hasMany",
+            "entity": "Team",
+            "relationName": "entityTeam",
+            "layoutRelationshipsDisabled": true
+        },
+        "createdBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "modifiedBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        }
+    },
+    "entityClassName": "Espo\\Custom\\Entities\\IntervencionTecnica",
+    "collection": {
+        "orderBy": "fechaSolicitud",
+        "order": "desc",
+        "textFilterFields": ["name", "resultado"]
+    }
+}

@@ -1,0 +1,30 @@
+[
+    {
+        "rows": [
+            [
+                {"name": "case"},
+                {"name": "expediente"}
+            ],
+            [
+                {"name": "intervencionOrigen"},
+                {"name": "estado"}
+            ],
+            [
+                {"name": "fecha"},
+                {"name": "fechaLimite"}
+            ],
+            [
+                {"name": "texto", "fullWidth": true}
+            ],
+            [
+                {"name": "partes", "fullWidth": true}
+            ],
+            [
+                {"name": "criterioCumplimiento", "fullWidth": true}
+            ],
+            [
+                {"name": "documentoOrigen"}
+            ]
+        ]
+    }
+]

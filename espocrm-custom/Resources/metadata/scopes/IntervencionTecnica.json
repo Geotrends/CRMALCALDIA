@@ -1,0 +1,19 @@
+{
+    "entity": true,
+    "object": true,
+    "module": "Custom",
+    "type": "Base",
+    "status": "Stable",
+    "tab": false,
+    "acl": true,
+    "customizable": true,
+    "importable": false,
+    "stream": false,
+    "disabled": false,
+    "layouts": true,
+    "label": "Intervención técnica",
+    "iconClass": "fas fa-tasks",
+    "assignment": true,
+    "hasAssignedUser": true,
+    "hasTeam": true
+}

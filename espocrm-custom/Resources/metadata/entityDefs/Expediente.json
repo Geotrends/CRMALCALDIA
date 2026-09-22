@@ -141,6 +141,11 @@
             "entity": "ActuacionMaltratoAnimal",
             "foreign": "expediente"
         },
+        "compromisos": {
+            "type": "hasMany",
+            "entity": "Compromiso",
+            "foreign": "expediente"
+        },
         "createdBy": {
             "type": "belongsTo",
             "entity": "User"

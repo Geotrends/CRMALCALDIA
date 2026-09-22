@@ -1609,6 +1609,11 @@
             "entity": "ActuacionMaltratoAnimal",
             "foreign": "case"
         },
+        "compromisos": {
+            "type": "hasMany",
+            "entity": "Compromiso",
+            "foreign": "case"
+        },
         "destino": {
             "type": "belongsTo",
             "entity": "Destino",

@@ -20,7 +20,8 @@
         "notificacionesActo": "Notificaciones de Acto",
         "recursos": "Recursos",
         "movimientosExpediente": "Movimientos de Expediente",
-        "actuacionesMaltratoAnimal": "Actuaciones de maltrato animal"
+        "actuacionesMaltratoAnimal": "Actuaciones de maltrato animal",
+        "compromisos": "Compromisos"
     },
     "labels": {
         "Create Expediente": "Crear expediente",
@@ -57,6 +58,7 @@
         "notificacionesActo": "Notificaciones de Acto",
         "recursos": "Recursos",
         "movimientosExpediente": "Movimientos de Expediente",
-        "actuacionesMaltratoAnimal": "Actuaciones de maltrato animal"
+        "actuacionesMaltratoAnimal": "Actuaciones de maltrato animal",
+        "compromisos": "Compromisos"
     }
 }

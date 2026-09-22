@@ -1,0 +1,40 @@
+{
+    "fields": {
+        "name": "Nombre",
+        "intervencionOrigen": "Intervención de origen",
+        "texto": "Texto de la recomendación",
+        "fundamentoTecnico": "Fundamento técnico",
+        "destinatario": "Destinatario",
+        "fechaInicio": "Fecha de inicio",
+        "fechaLimite": "Fecha límite",
+        "criterioVerificacion": "Criterio de verificación",
+        "requiereVerificacion": "¿Requiere verificación?",
+        "estado": "Estado",
+        "documentoOrigen": "Documento de origen",
+        "assignedUser": "Responsable",
+        "teams": "Equipos",
+        "createdAt": "Creado",
+        "modifiedAt": "Modificado"
+    },
+    "labels": {
+        "Create RecomendacionTecnica": "Crear recomendación técnica",
+        "RecomendacionTecnica": "Recomendación técnica",
+        "RecomendacionTecnicas": "Recomendaciones técnicas"
+    },
+    "options": {
+        "estado": {
+            "Pendiente": "Pendiente",
+            "En plazo": "En plazo",
+            "Vencida": "Vencida",
+            "En verificación": "En verificación",
+            "Cumplida": "Cumplida",
+            "Parcial": "Parcial",
+            "No cumplida": "No cumplida",
+            "No verificable": "No verificable",
+            "Cerrada": "Cerrada"
+        }
+    },
+    "links": {
+        "verificacionesCumplimiento": "Verificaciones de cumplimiento"
+    }
+}

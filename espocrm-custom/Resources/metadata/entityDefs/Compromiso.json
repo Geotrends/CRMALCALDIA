@@ -9,42 +9,64 @@
         },
         "case": {
             "type": "link",
-            "required": true,
             "readOnlyAfterCreate": true,
+            "isCustom": true
+        },
+        "expediente": {
+            "type": "link",
+            "readOnlyAfterCreate": true,
+            "isCustom": true
+        },
+        "intervencionOrigen": {
+            "type": "link",
+            "readOnlyAfterCreate": true,
+            "isCustom": true
+        },
+        "texto": {
+            "type": "text",
+            "rows": 5,
+            "required": true,
+            "isCustom": true
+        },
+        "partes": {
+            "type": "text",
+            "rows": 3,
+            "required": true,
+            "isCustom": true
+        },
+        "fecha": {
+            "type": "date",
+            "required": true,
+            "isCustom": true
+        },
+        "fechaLimite": {
+            "type": "date",
+            "isCustom": true
+        },
+        "criterioCumplimiento": {
+            "type": "text",
+            "rows": 3,
             "isCustom": true
         },
         "estado": {
             "type": "enum",
             "options": [
-                "Solicitada",
-                "Asignada",
-                "Programada",
-                "En ejecución",
-                "Resultado registrado",
-                "Cerrada",
-                "No realizada",
-                "Reprogramada",
-                "Cancelada"
+                "Pendiente",
+                "En plazo",
+                "Vencida",
+                "En verificación",
+                "Cumplida",
+                "Parcial",
+                "No cumplida",
+                "No verificable",
+                "Cerrada"
             ],
-            "default": "Solicitada",
+            "default": "Pendiente",
             "isCustom": true
         },
-        "motivo": {
-            "type": "text",
-            "rows": 4,
-            "isCustom": true
-        },
-        "fechaSolicitud": {
-            "type": "datetime",
-            "isCustom": true
-        },
-        "responsable": {
-            "type": "link",
-            "isCustom": true
-        },
-        "observaciones": {
-            "type": "text",
-            "rows": 4,
+        "documentoOrigen": {
+            "type": "file",
+            "required": true,
             "isCustom": true
         },
         "assignedUser": {
@@ -69,21 +91,22 @@
         "case": {
             "type": "belongsTo",
             "entity": "Case",
-            "foreign": "gestionesTecnicas"
+            "foreign": "compromisos"
         },
-        "responsable": {
+        "expediente": {
             "type": "belongsTo",
-            "entity": "User"
+            "entity": "Expediente",
+            "foreign": "compromisos"
         },
-        "actasVisita": {
-            "type": "hasMany",
-            "entity": "ActaVisita",
-            "foreign": "gestionTecnica"
-        },
-        "intervencionesTecnicas": {
-            "type": "hasMany",
+        "intervencionOrigen": {
+            "type": "belongsTo",
             "entity": "IntervencionTecnica",
-            "foreign": "gestionTecnica"
+            "foreign": "compromisos"
+        },
+        "verificacionesCumplimiento": {
+            "type": "hasMany",
+            "entity": "VerificacionCumplimiento",
+            "foreign": "compromiso"
         },
         "assignedUser": {
             "type": "belongsTo",
@@ -104,10 +127,10 @@
             "entity": "User"
         }
     },
-    "entityClassName": "Espo\\Custom\\Entities\\GestionTecnica",
+    "entityClassName": "Espo\\Custom\\Entities\\Compromiso",
     "collection": {
-        "orderBy": "createdAt",
+        "orderBy": "fecha",
         "order": "desc",
-        "textFilterFields": ["name", "motivo"]
+        "textFilterFields": ["name", "texto", "partes"]
     }
 }

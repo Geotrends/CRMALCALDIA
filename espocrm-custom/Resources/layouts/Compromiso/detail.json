@@ -1,0 +1,36 @@
+[
+    {
+        "rows": [
+            [
+                {"name": "case"},
+                {"name": "expediente"}
+            ],
+            [
+                {"name": "intervencionOrigen"},
+                {"name": "estado"}
+            ],
+            [
+                {"name": "fecha"},
+                {"name": "fechaLimite"}
+            ]
+        ],
+        "style": "default",
+        "label": "Información general"
+    },
+    {
+        "rows": [
+            [{"name": "texto", "fullWidth": true}],
+            [{"name": "partes", "fullWidth": true}],
+            [{"name": "criterioCumplimiento", "fullWidth": true}]
+        ],
+        "style": "default",
+        "label": "Contenido"
+    },
+    {
+        "rows": [
+            [{"name": "documentoOrigen"}]
+        ],
+        "style": "default",
+        "label": "Soporte"
+    }
+]

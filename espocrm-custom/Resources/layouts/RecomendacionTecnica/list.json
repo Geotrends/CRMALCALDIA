@@ -1,0 +1,7 @@
+[
+    {"name": "name", "width": 18, "link": true},
+    {"name": "intervencionOrigen", "width": 18},
+    {"name": "estado", "width": 16},
+    {"name": "fechaLimite", "width": 11},
+    {"name": "requiereVerificacion", "width": 10}
+]

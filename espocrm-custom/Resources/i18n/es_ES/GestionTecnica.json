@@ -29,5 +29,8 @@
             "Reprogramada": "Reprogramada",
             "Cancelada": "Cancelada"
         }
+    },
+    "links": {
+        "intervencionesTecnicas": "Intervenciones técnicas"
     }
 }

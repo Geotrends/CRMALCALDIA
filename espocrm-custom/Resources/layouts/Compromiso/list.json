@@ -1,0 +1,7 @@
+[
+    {"name": "name", "width": 16, "link": true},
+    {"name": "case", "width": 14},
+    {"name": "expediente", "width": 14},
+    {"name": "estado", "width": 14},
+    {"name": "fechaLimite", "width": 11}
+]

@@ -1,0 +1,40 @@
+{
+    "fields": {
+        "name": "Nombre",
+        "case": "Caso vinculado",
+        "expediente": "Expediente vinculado",
+        "intervencionOrigen": "Intervención de origen",
+        "texto": "Texto del compromiso",
+        "partes": "Partes comprometidas",
+        "fecha": "Fecha",
+        "fechaLimite": "Fecha límite",
+        "criterioCumplimiento": "Criterio de cumplimiento",
+        "estado": "Estado",
+        "documentoOrigen": "Documento de origen",
+        "assignedUser": "Responsable",
+        "teams": "Equipos",
+        "createdAt": "Creado",
+        "modifiedAt": "Modificado"
+    },
+    "labels": {
+        "Create Compromiso": "Crear compromiso",
+        "Compromiso": "Compromiso",
+        "Compromisos": "Compromisos"
+    },
+    "options": {
+        "estado": {
+            "Pendiente": "Pendiente",
+            "En plazo": "En plazo",
+            "Vencida": "Vencida",
+            "En verificación": "En verificación",
+            "Cumplida": "Cumplida",
+            "Parcial": "Parcial",
+            "No cumplida": "No cumplida",
+            "No verificable": "No verificable",
+            "Cerrada": "Cerrada"
+        }
+    },
+    "links": {
+        "verificacionesCumplimiento": "Verificaciones de cumplimiento"
+    }
+}

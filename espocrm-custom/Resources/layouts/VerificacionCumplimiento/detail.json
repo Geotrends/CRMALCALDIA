@@ -1,0 +1,35 @@
+[
+    {
+        "rows": [
+            [
+                {"name": "intervencionTecnica"},
+                {"name": "resultado"}
+            ],
+            [
+                {"name": "recomendacionTecnica"},
+                {"name": "compromiso"}
+            ],
+            [
+                {"name": "medidaCorrectiva"},
+                {"name": "ordenPolicia"}
+            ],
+            [
+                {"name": "fecha"},
+                {"name": "metodo"}
+            ]
+        ],
+        "style": "default",
+        "label": "Información general"
+    },
+    {
+        "rows": [
+            [{"name": "observacion", "fullWidth": true}],
+            [
+                {"name": "ordenExternaReferencia"},
+                {"name": "documentoSoporte"}
+            ]
+        ],
+        "style": "default",
+        "label": "Detalle"
+    }
+]

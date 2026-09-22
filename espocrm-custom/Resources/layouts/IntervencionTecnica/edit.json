@@ -1,0 +1,39 @@
+[
+    {
+        "rows": [
+            [
+                {"name": "gestionTecnica"},
+                {"name": "estado"}
+            ],
+            [
+                {"name": "tipo"},
+                {"name": "responsable"}
+            ],
+            [
+                {"name": "fechaSolicitud"},
+                {"name": "fechaProgramada"}
+            ],
+            [
+                {"name": "fechaEjecucion", "fullWidth": true}
+            ],
+            [
+                {"name": "resultado", "fullWidth": true}
+            ],
+            [
+                {"name": "informeTecnicoDocumento"},
+                {"name": "anexos"}
+            ],
+            [
+                {"name": "survey123FormId"},
+                {"name": "survey123SubmissionId"}
+            ],
+            [
+                {"name": "survey123Url"},
+                {"name": "survey123FechaCaptura"}
+            ],
+            [
+                {"name": "survey123Ubicacion", "fullWidth": true}
+            ]
+        ]
+    }
+]

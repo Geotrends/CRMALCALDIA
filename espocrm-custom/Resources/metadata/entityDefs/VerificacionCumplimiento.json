@@ -1,0 +1,140 @@
+{
+    "fields": {
+        "name": {
+            "type": "varchar",
+            "required": false,
+            "maxLength": 200,
+            "trim": true,
+            "readOnlyAfterCreate": true
+        },
+        "recomendacionTecnica": {
+            "type": "link",
+            "readOnlyAfterCreate": true,
+            "isCustom": true
+        },
+        "compromiso": {
+            "type": "link",
+            "readOnlyAfterCreate": true,
+            "isCustom": true
+        },
+        "medidaCorrectiva": {
+            "type": "link",
+            "readOnlyAfterCreate": true,
+            "isCustom": true
+        },
+        "ordenPolicia": {
+            "type": "link",
+            "readOnlyAfterCreate": true,
+            "isCustom": true
+        },
+        "ordenExternaReferencia": {
+            "type": "varchar",
+            "maxLength": 255,
+            "isCustom": true
+        },
+        "intervencionTecnica": {
+            "type": "link",
+            "required": true,
+            "readOnlyAfterCreate": true,
+            "isCustom": true
+        },
+        "fecha": {
+            "type": "date",
+            "required": true,
+            "isCustom": true
+        },
+        "metodo": {
+            "type": "varchar",
+            "maxLength": 255,
+            "isCustom": true
+        },
+        "resultado": {
+            "type": "enum",
+            "options": [
+                "Cumplida",
+                "Parcial",
+                "No cumplida",
+                "No verificable"
+            ],
+            "required": true,
+            "isCustom": true
+        },
+        "observacion": {
+            "type": "text",
+            "rows": 4,
+            "isCustom": true
+        },
+        "documentoSoporte": {
+            "type": "file",
+            "isCustom": true
+        },
+        "assignedUser": {
+            "type": "link",
+            "readOnlyAfterCreate": true,
+            "view": "views/fields/assigned-user"
+        },
+        "teams": {
+            "type": "linkMultiple",
+            "view": "views/fields/teams"
+        },
+        "createdAt": {
+            "type": "datetime",
+            "readOnly": true
+        },
+        "modifiedAt": {
+            "type": "datetime",
+            "readOnly": true
+        }
+    },
+    "links": {
+        "recomendacionTecnica": {
+            "type": "belongsTo",
+            "entity": "RecomendacionTecnica",
+            "foreign": "verificacionesCumplimiento"
+        },
+        "compromiso": {
+            "type": "belongsTo",
+            "entity": "Compromiso",
+            "foreign": "verificacionesCumplimiento"
+        },
+        "medidaCorrectiva": {
+            "type": "belongsTo",
+            "entity": "MedidaCorrectiva",
+            "foreign": "verificacionesCumplimiento"
+        },
+        "ordenPolicia": {
+            "type": "belongsTo",
+            "entity": "OrdenPolicia",
+            "foreign": "verificacionesCumplimiento"
+        },
+        "intervencionTecnica": {
+            "type": "belongsTo",
+            "entity": "IntervencionTecnica",
+            "foreign": "verificacionesCumplimiento"
+        },
+        "assignedUser": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "teams": {
+            "type": "hasMany",
+            "entity": "Team",
+            "relationName": "entityTeam",
+            "layoutRelationshipsDisabled": true
+        },
+        "createdBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "modifiedBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        }
+    },
+    "entityClassName": "Espo\\Custom\\Entities\\VerificacionCumplimiento",
+    "collection": {
+        "orderBy": "fecha",
+        "order": "desc",
+        "textFilterFields": ["name", "metodo", "observacion"]
+    }
+}

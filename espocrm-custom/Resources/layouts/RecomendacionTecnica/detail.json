@@ -1,0 +1,36 @@
+[
+    {
+        "rows": [
+            [
+                {"name": "intervencionOrigen"},
+                {"name": "estado"}
+            ],
+            [
+                {"name": "destinatario"},
+                {"name": "requiereVerificacion"}
+            ],
+            [
+                {"name": "fechaInicio"},
+                {"name": "fechaLimite"}
+            ]
+        ],
+        "style": "default",
+        "label": "Información general"
+    },
+    {
+        "rows": [
+            [{"name": "texto", "fullWidth": true}],
+            [{"name": "fundamentoTecnico", "fullWidth": true}],
+            [{"name": "criterioVerificacion", "fullWidth": true}]
+        ],
+        "style": "default",
+        "label": "Contenido"
+    },
+    {
+        "rows": [
+            [{"name": "documentoOrigen"}]
+        ],
+        "style": "default",
+        "label": "Soporte"
+    }
+]
