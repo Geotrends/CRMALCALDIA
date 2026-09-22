@@ -1,0 +1,28 @@
+{
+    "fields": {
+        "name": "Nombre",
+        "registroCaninoManejoEspecial": "Registro canino",
+        "numeroPermiso": "Número de permiso",
+        "fechaExpedicion": "Fecha de expedición",
+        "fechaVencimiento": "Fecha de vencimiento",
+        "autoridadEmisora": "Autoridad emisora",
+        "documento": "Documento del permiso",
+        "estado": "Estado",
+        "assignedUser": "Responsable",
+        "teams": "Equipos",
+        "createdAt": "Creado",
+        "modifiedAt": "Modificado"
+    },
+    "labels": {
+        "Create PermisoCaninoManejoEspecial": "Crear permiso canino de manejo especial",
+        "PermisoCaninoManejoEspecial": "Permiso canino de manejo especial",
+        "PermisoCaninoManejoEspeciales": "Permisos caninos de manejo especial"
+    },
+    "options": {
+        "estado": {
+            "Vigente": "Vigente",
+            "Vencido": "Vencido",
+            "Revocado": "Revocado"
+        }
+    }
+}

@@ -1,0 +1,44 @@
+{
+    "fields": {
+        "name": "Nombre",
+        "case": "Caso vinculado",
+        "expediente": "Expediente",
+        "fechaAtencion": "Fecha de atención",
+        "estadoAnimalDescripcion": "Hechos y estado del animal",
+        "requirioAprehensionPreventiva": "¿Requirió aprehensión material preventiva?",
+        "aprehensionDetalle": "Detalle de la aprehensión",
+        "aprehensionDocumento": "Acta de incautación/aprehensión (IV-F-147)",
+        "clasificacionJuridica": "Clasificación jurídica",
+        "remisionAutoridad": "Remisión a Fiscalía / GELMA",
+        "audiencia": "Audiencia",
+        "ordenPolicia": "Orden de Policía",
+        "fundamentoDecision": "Fundamento de la decisión",
+        "efectosDecision": "Efectos de la decisión (sanciones, custodia del animal)",
+        "documentoDecision": "Documento de la decisión",
+        "estado": "Estado",
+        "assignedUser": "Responsable",
+        "teams": "Equipos",
+        "createdAt": "Creado",
+        "modifiedAt": "Modificado"
+    },
+    "labels": {
+        "Create ActuacionMaltratoAnimal": "Crear actuación de maltrato animal",
+        "ActuacionMaltratoAnimal": "Actuación de maltrato animal",
+        "ActuacionMaltratoAnimals": "Actuaciones de maltrato animal"
+    },
+    "options": {
+        "clasificacionJuridica": {
+            "Maltrato leve": "Maltrato leve",
+            "Posible delito": "Posible delito",
+            "Concurrencia": "Concurrencia"
+        },
+        "estado": {
+            "En atención": "En atención",
+            "Clasificado": "Clasificado",
+            "En audiencia": "En audiencia",
+            "Decidido": "Decidido",
+            "Pendiente de ejecución": "Pendiente de ejecución",
+            "Cerrado": "Cerrado"
+        }
+    }
+}

@@ -7,66 +7,69 @@
             "trim": true,
             "readOnlyAfterCreate": true
         },
-        "expediente": {
+        "case": {
             "type": "link",
             "required": true,
             "readOnlyAfterCreate": true,
             "isCustom": true
         },
-        "case": {
-            "type": "link",
-            "isCustom": true
-        },
-        "tipoProceso": {
-            "type": "enum",
-            "options": [
-                "Proceso Verbal Abreviado · Convivencia",
-                "Proceso Verbal de Maltrato Animal"
-            ],
-            "default": "Proceso Verbal Abreviado · Convivencia",
-            "isCustom": true
-        },
-        "autoridad": {
-            "type": "link",
+        "identificacionAnimal": {
+            "type": "varchar",
+            "maxLength": 200,
             "required": true,
             "isCustom": true
         },
-        "fechaInicio": {
-            "type": "datetime",
-            "required": true,
-            "isCustom": true
-        },
-        "fechaFin": {
-            "type": "datetime",
-            "isCustom": true
-        },
-        "participantes": {
+        "descripcionFenotipica": {
             "type": "text",
-            "rows": 4,
+            "rows": 3,
+            "isCustom": true
+        },
+        "propietario": {
+            "type": "varchar",
+            "maxLength": 200,
+            "required": true,
+            "isCustom": true
+        },
+        "residenciaHabitual": {
+            "type": "varchar",
+            "maxLength": 200,
+            "isCustom": true
+        },
+        "destinacion": {
+            "type": "varchar",
+            "maxLength": 200,
+            "isCustom": true
+        },
+        "polizaDocumento": {
+            "type": "file",
+            "isCustom": true
+        },
+        "vacunacionDocumento": {
+            "type": "file",
+            "isCustom": true
+        },
+        "certificadoSanidadDocumento": {
+            "type": "file",
+            "isCustom": true
+        },
+        "fechaRegistro": {
+            "type": "date",
+            "isCustom": true
+        },
+        "fechaRenovacion": {
+            "type": "date",
             "isCustom": true
         },
         "estado": {
             "type": "enum",
             "options": [
-                "Programada",
-                "En curso",
-                "Pendiente de audio",
-                "Pendiente de acta",
-                "Pendiente de soportes",
-                "Completa documentalmente",
-                "Cancelada",
-                "Reprogramada"
+                "Solicitado",
+                "Pendiente de subsanación",
+                "En validación",
+                "Registrado",
+                "Rechazado"
             ],
-            "default": "Programada",
-            "isCustom": true
-        },
-        "resultadoDiligencia": {
-            "type": "text",
-            "rows": 6,
-            "isCustom": true
-        },
-        "actaDocumento": {
-            "type": "file",
+            "default": "Solicitado",
             "isCustom": true
         },
         "assignedUser": {
@@ -88,29 +91,15 @@
         }
     },
     "links": {
-        "expediente": {
-            "type": "belongsTo",
-            "entity": "Expediente",
-            "foreign": "audiencias"
-        },
         "case": {
             "type": "belongsTo",
             "entity": "Case",
-            "foreign": "audiencias"
+            "foreign": "registrosCaninoManejoEspecial"
         },
-        "autoridad": {
-            "type": "belongsTo",
-            "entity": "User"
-        },
-        "suspensiones": {
+        "permisos": {
             "type": "hasMany",
-            "entity": "SuspensionAudiencia",
-            "foreign": "audiencia"
-        },
-        "grabaciones": {
-            "type": "hasMany",
-            "entity": "GrabacionAudiencia",
-            "foreign": "audiencia"
+            "entity": "PermisoCaninoManejoEspecial",
+            "foreign": "registroCaninoManejoEspecial"
         },
         "assignedUser": {
             "type": "belongsTo",
@@ -131,10 +120,10 @@
             "entity": "User"
         }
     },
-    "entityClassName": "Espo\\Custom\\Entities\\Audiencia",
+    "entityClassName": "Espo\\Custom\\Entities\\RegistroCaninoManejoEspecial",
     "collection": {
-        "orderBy": "fechaInicio",
+        "orderBy": "createdAt",
         "order": "desc",
-        "textFilterFields": ["name", "resultadoDiligencia"]
+        "textFilterFields": ["name", "identificacionAnimal", "propietario"]
     }
 }

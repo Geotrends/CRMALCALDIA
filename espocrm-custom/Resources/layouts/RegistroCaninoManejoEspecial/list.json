@@ -1,0 +1,7 @@
+[
+    {"name": "name", "width": 20, "link": true},
+    {"name": "identificacionAnimal", "width": 20},
+    {"name": "propietario", "width": 20},
+    {"name": "estado", "width": 15},
+    {"name": "fechaRegistro", "width": 11}
+]

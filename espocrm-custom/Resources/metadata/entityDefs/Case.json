@@ -1594,6 +1594,16 @@
             "entity": "OrdenPolicia",
             "foreign": "case"
         },
+        "registrosCaninoManejoEspecial": {
+            "type": "hasMany",
+            "entity": "RegistroCaninoManejoEspecial",
+            "foreign": "case"
+        },
+        "actuacionesMaltratoAnimal": {
+            "type": "hasMany",
+            "entity": "ActuacionMaltratoAnimal",
+            "foreign": "case"
+        },
         "destino": {
             "type": "belongsTo",
             "entity": "Destino",

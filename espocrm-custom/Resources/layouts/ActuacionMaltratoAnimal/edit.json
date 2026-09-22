@@ -1,0 +1,48 @@
+[
+    {
+        "rows": [
+            [
+                {"name": "case"},
+                {"name": "expediente"}
+            ],
+            [
+                {"name": "estado"},
+                {"name": "fechaAtencion"}
+            ],
+            [
+                {"name": "clasificacionJuridica"},
+                false
+            ],
+            [
+                {"name": "estadoAnimalDescripcion", "fullWidth": true}
+            ],
+            [
+                {"name": "requirioAprehensionPreventiva"},
+                false
+            ],
+            [
+                {"name": "aprehensionDetalle", "fullWidth": true}
+            ],
+            [
+                {"name": "aprehensionDocumento"}
+            ],
+            [
+                {"name": "remisionAutoridad"},
+                {"name": "audiencia"}
+            ],
+            [
+                {"name": "ordenPolicia"},
+                false
+            ],
+            [
+                {"name": "fundamentoDecision", "fullWidth": true}
+            ],
+            [
+                {"name": "efectosDecision", "fullWidth": true}
+            ],
+            [
+                {"name": "documentoDecision"}
+            ]
+        ]
+    }
+]

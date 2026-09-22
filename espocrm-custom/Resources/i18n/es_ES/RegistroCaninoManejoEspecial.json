@@ -1,0 +1,38 @@
+{
+    "fields": {
+        "name": "Nombre",
+        "case": "Caso vinculado",
+        "identificacionAnimal": "Identificación del animal",
+        "descripcionFenotipica": "Descripción fenotípica",
+        "propietario": "Propietario / tenedor",
+        "residenciaHabitual": "Residencia habitual",
+        "destinacion": "Destinación",
+        "polizaDocumento": "Póliza de responsabilidad civil",
+        "vacunacionDocumento": "Registro de vacunas",
+        "certificadoSanidadDocumento": "Certificado de sanidad",
+        "fechaRegistro": "Fecha de registro",
+        "fechaRenovacion": "Fecha de renovación",
+        "estado": "Estado",
+        "assignedUser": "Responsable",
+        "teams": "Equipos",
+        "createdAt": "Creado",
+        "modifiedAt": "Modificado"
+    },
+    "labels": {
+        "Create RegistroCaninoManejoEspecial": "Crear registro canino de manejo especial",
+        "RegistroCaninoManejoEspecial": "Registro canino de manejo especial",
+        "RegistroCaninoManejoEspeciales": "Registros caninos de manejo especial"
+    },
+    "options": {
+        "estado": {
+            "Solicitado": "Solicitado",
+            "Pendiente de subsanación": "Pendiente de subsanación",
+            "En validación": "En validación",
+            "Registrado": "Registrado",
+            "Rechazado": "Rechazado"
+        }
+    },
+    "links": {
+        "permisos": "Permisos"
+    }
+}

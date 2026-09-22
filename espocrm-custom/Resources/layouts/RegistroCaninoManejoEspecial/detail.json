@@ -1,0 +1,40 @@
+[
+    {
+        "rows": [
+            [
+                {"name": "case"},
+                {"name": "estado"}
+            ],
+            [
+                {"name": "identificacionAnimal"},
+                {"name": "propietario"}
+            ],
+            [
+                {"name": "residenciaHabitual"},
+                {"name": "destinacion"}
+            ],
+            [
+                {"name": "fechaRegistro"},
+                {"name": "fechaRenovacion"}
+            ]
+        ],
+        "style": "default",
+        "label": "Información general"
+    },
+    {
+        "rows": [
+            [{"name": "descripcionFenotipica", "fullWidth": true}]
+        ],
+        "style": "default",
+        "label": "Descripción del animal"
+    },
+    {
+        "rows": [
+            [{"name": "polizaDocumento"}],
+            [{"name": "vacunacionDocumento"}],
+            [{"name": "certificadoSanidadDocumento"}]
+        ],
+        "style": "default",
+        "label": "Soportes"
+    }
+]

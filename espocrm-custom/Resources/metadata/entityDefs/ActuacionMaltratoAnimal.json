@@ -7,66 +7,86 @@
             "trim": true,
             "readOnlyAfterCreate": true
         },
-        "expediente": {
+        "case": {
             "type": "link",
             "required": true,
             "readOnlyAfterCreate": true,
             "isCustom": true
         },
-        "case": {
+        "expediente": {
             "type": "link",
             "isCustom": true
         },
-        "tipoProceso": {
-            "type": "enum",
-            "options": [
-                "Proceso Verbal Abreviado · Convivencia",
-                "Proceso Verbal de Maltrato Animal"
-            ],
-            "default": "Proceso Verbal Abreviado · Convivencia",
-            "isCustom": true
-        },
-        "autoridad": {
-            "type": "link",
+        "fechaAtencion": {
+            "type": "date",
             "required": true,
             "isCustom": true
         },
-        "fechaInicio": {
-            "type": "datetime",
-            "required": true,
-            "isCustom": true
-        },
-        "fechaFin": {
-            "type": "datetime",
-            "isCustom": true
-        },
-        "participantes": {
+        "estadoAnimalDescripcion": {
             "type": "text",
             "rows": 4,
+            "isCustom": true
+        },
+        "requirioAprehensionPreventiva": {
+            "type": "bool",
+            "default": false,
+            "isCustom": true
+        },
+        "aprehensionDetalle": {
+            "type": "text",
+            "rows": 3,
+            "isCustom": true
+        },
+        "aprehensionDocumento": {
+            "type": "file",
+            "isCustom": true
+        },
+        "clasificacionJuridica": {
+            "type": "enum",
+            "options": [
+                "Maltrato leve",
+                "Posible delito",
+                "Concurrencia"
+            ],
+            "isCustom": true
+        },
+        "remisionAutoridad": {
+            "type": "link",
+            "isCustom": true
+        },
+        "audiencia": {
+            "type": "link",
+            "isCustom": true
+        },
+        "ordenPolicia": {
+            "type": "link",
+            "isCustom": true
+        },
+        "fundamentoDecision": {
+            "type": "text",
+            "rows": 4,
+            "isCustom": true
+        },
+        "efectosDecision": {
+            "type": "text",
+            "rows": 4,
+            "isCustom": true
+        },
+        "documentoDecision": {
+            "type": "file",
             "isCustom": true
         },
         "estado": {
             "type": "enum",
             "options": [
-                "Programada",
-                "En curso",
-                "Pendiente de audio",
-                "Pendiente de acta",
-                "Pendiente de soportes",
-                "Completa documentalmente",
-                "Cancelada",
-                "Reprogramada"
+                "En atención",
+                "Clasificado",
+                "En audiencia",
+                "Decidido",
+                "Pendiente de ejecución",
+                "Cerrado"
             ],
-            "default": "Programada",
-            "isCustom": true
-        },
-        "resultadoDiligencia": {
-            "type": "text",
-            "rows": 6,
-            "isCustom": true
-        },
-        "actaDocumento": {
-            "type": "file",
+            "default": "En atención",
             "isCustom": true
         },
         "assignedUser": {
@@ -88,29 +108,27 @@
         }
     },
     "links": {
-        "expediente": {
-            "type": "belongsTo",
-            "entity": "Expediente",
-            "foreign": "audiencias"
-        },
         "case": {
             "type": "belongsTo",
             "entity": "Case",
-            "foreign": "audiencias"
+            "foreign": "actuacionesMaltratoAnimal"
         },
-        "autoridad": {
+        "expediente": {
             "type": "belongsTo",
-            "entity": "User"
+            "entity": "Expediente",
+            "foreign": "actuacionesMaltratoAnimal"
         },
-        "suspensiones": {
-            "type": "hasMany",
-            "entity": "SuspensionAudiencia",
-            "foreign": "audiencia"
+        "remisionAutoridad": {
+            "type": "belongsTo",
+            "entity": "RemisionAutoridad"
         },
-        "grabaciones": {
-            "type": "hasMany",
-            "entity": "GrabacionAudiencia",
-            "foreign": "audiencia"
+        "audiencia": {
+            "type": "belongsTo",
+            "entity": "Audiencia"
+        },
+        "ordenPolicia": {
+            "type": "belongsTo",
+            "entity": "OrdenPolicia"
         },
         "assignedUser": {
             "type": "belongsTo",
@@ -131,10 +149,10 @@
             "entity": "User"
         }
     },
-    "entityClassName": "Espo\\Custom\\Entities\\Audiencia",
+    "entityClassName": "Espo\\Custom\\Entities\\ActuacionMaltratoAnimal",
     "collection": {
-        "orderBy": "fechaInicio",
+        "orderBy": "fechaAtencion",
         "order": "desc",
-        "textFilterFields": ["name", "resultadoDiligencia"]
+        "textFilterFields": ["name", "estadoAnimalDescripcion"]
     }
 }

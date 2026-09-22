@@ -1,0 +1,7 @@
+[
+    {"name": "name", "width": 22, "link": true},
+    {"name": "numeroPermiso", "width": 18},
+    {"name": "estado", "width": 15},
+    {"name": "fechaExpedicion", "width": 12},
+    {"name": "fechaVencimiento", "width": 12}
+]

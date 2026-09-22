@@ -1,0 +1,7 @@
+[
+    {"name": "name", "width": 20, "link": true},
+    {"name": "case", "width": 18},
+    {"name": "clasificacionJuridica", "width": 18},
+    {"name": "estado", "width": 15},
+    {"name": "fechaAtencion", "width": 11}
+]

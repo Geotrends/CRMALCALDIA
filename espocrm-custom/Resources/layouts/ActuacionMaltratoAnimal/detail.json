@@ -1,0 +1,62 @@
+[
+    {
+        "rows": [
+            [
+                {"name": "case"},
+                {"name": "expediente"}
+            ],
+            [
+                {"name": "estado"},
+                {"name": "fechaAtencion"}
+            ],
+            [
+                {"name": "clasificacionJuridica"},
+                false
+            ]
+        ],
+        "style": "default",
+        "label": "Información general"
+    },
+    {
+        "rows": [
+            [{"name": "estadoAnimalDescripcion", "fullWidth": true}]
+        ],
+        "style": "default",
+        "label": "Hechos y estado del animal"
+    },
+    {
+        "rows": [
+            [
+                {"name": "requirioAprehensionPreventiva"},
+                false
+            ],
+            [{"name": "aprehensionDetalle", "fullWidth": true}],
+            [{"name": "aprehensionDocumento"}]
+        ],
+        "style": "default",
+        "label": "Aprehensión material preventiva (si aplica)"
+    },
+    {
+        "rows": [
+            [
+                {"name": "remisionAutoridad"},
+                {"name": "audiencia"}
+            ],
+            [
+                {"name": "ordenPolicia"},
+                false
+            ]
+        ],
+        "style": "default",
+        "label": "Actuaciones relacionadas"
+    },
+    {
+        "rows": [
+            [{"name": "fundamentoDecision", "fullWidth": true}],
+            [{"name": "efectosDecision", "fullWidth": true}],
+            [{"name": "documentoDecision"}]
+        ],
+        "style": "default",
+        "label": "Decisión de fondo"
+    }
+]

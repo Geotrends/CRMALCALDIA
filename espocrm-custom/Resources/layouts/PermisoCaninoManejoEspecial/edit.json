@@ -1,0 +1,21 @@
+[
+    {
+        "rows": [
+            [
+                {"name": "registroCaninoManejoEspecial"},
+                {"name": "estado"}
+            ],
+            [
+                {"name": "numeroPermiso"},
+                {"name": "autoridadEmisora"}
+            ],
+            [
+                {"name": "fechaExpedicion"},
+                {"name": "fechaVencimiento"}
+            ],
+            [
+                {"name": "documento"}
+            ]
+        ]
+    }
+]

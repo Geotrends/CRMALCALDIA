@@ -40,11 +40,15 @@ Unificación de hooks duplicados entre `Hooks/CaseObj/` y `Classes/RecordHooks/C
 
 Con esto, las 3 ramas de Recursos Naturales tienen construcción real (Auto de Archivo ya existía; Remisión a Autoridad y Ambiental Preventiva completas; PVA con su N2 completo).
 
-Pendiente de Fase 2 (sin orden fijo definido):
-- Maltrato / Convivencia Animal + Registro Canino de Manejo Especial — tres procedimientos separados aunque suenen parecidos, no deben compartir entidad.
+**Maltrato / Convivencia Animal + Registro Canino de Manejo Especial — hecho.** Se investigaron los 4 BPMN activos (Conductas de Convivencia, Registro/Permiso Canino, Proceso Verbal de Maltrato Animal, y su N3 de audiencia). Convivencia Animal resultó ser puramente un clasificador que enruta al PVA ya construido (sin entidad propia). Registro/Permiso Canino ya tenía modelo de datos completo en `domain.json`. Maltrato Animal no tenía entidad en el modelo fuente — se diseñó `ActuacionMaltratoAnimal`, reutilizando `RemisionAutoridad` (para Fiscalía/GELMA) y `Audiencia` (nuevo valor de `tipoProceso`) en vez de duplicar entidades. Ver [`2026-09-22-fase2-maltrato-convivencia-canino.md`](ajustes/2026-09-22-fase2-maltrato-convivencia-canino.md).
+
+**Con esto, la Fase 2 completa las 3 rutas jurídicas acordadas al inicio** (Recursos Naturales, Maltrato/Convivencia Animal + Canino, Proceso Verbal Abreviado) más Ambiental Preventiva (dependencia no anticipada de Recursos Naturales).
+
+Pendiente (sin orden fijo definido, candidatos para Fase 3 o iteraciones futuras de Fase 2):
 - `VerificacionCumplimiento` — entidad relacionada con `OrdenPolicia`/`MedidaCorrectiva`/`RecomendacionTecnica` en el modelo, no construida todavía: tiene una dependencia obligatoria (`intervencionTecnicaId` no opcional) que requiere resolverse antes de modelarla.
 - `ReporteRNMC` — sigue en Fase 3 (medidas correctivas, cierre formal y RNMC), como estaba planeado.
-- Vacíos reales detectados en el modelo fuente (no inventar, confirmar antes de dar por definitivo): `estados.md` no define catálogo oficial de estados para `OrdenPolicia` ni tenía uno para `SuspensionAudiencia` (ambos con estados propuestos, a validar); ninguno de los BPMN N3 de esta ruta usa `callActivity` de forma consistente (algunos solo referencian el subproceso siguiente en texto); `formatos.json` no tiene ningún formato IV-F confirmado para Determinación ni para Gestión y Ejecución de Medidas Correctivas.
+- Proceso Verbal Inmediato (art. 222) — no se investigó todavía; el N3 de Recursos y Segunda Instancia excluye explícitamente su apelación, que se maneja dentro de ese N2 propio.
+- Vacíos reales detectados en el modelo fuente (no inventar, confirmar antes de dar por definitivo): `estados.md` no define catálogo oficial de estados para `OrdenPolicia` ni tenía uno para `SuspensionAudiencia` (ambos con estados propuestos, a validar); `ActuacionMaltratoAnimal` es diseño propio, sin respaldo en `domain.json`; FILMA sigue sin significado institucional confirmado en ningún archivo del repo fuente; ninguno de varios BPMN N3 usa `callActivity` de forma consistente (algunos solo referencian el subproceso siguiente en texto); `formatos.json` no tiene ningún formato IV-F confirmado para Determinación ni para Gestión y Ejecución de Medidas Correctivas.
 
 ### Fase 3 — Medidas correctivas, cierre formal y RNMC 🔲 No iniciada
 - `MedidaCorrectiva` + `EjecucionMedidaCorrectiva` + `VerificacionCumplimiento`.

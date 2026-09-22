@@ -23,7 +23,8 @@
     },
     "options": {
         "tipoProceso": {
-            "Proceso Verbal Abreviado · Convivencia": "Proceso Verbal Abreviado · Convivencia"
+            "Proceso Verbal Abreviado · Convivencia": "Proceso Verbal Abreviado · Convivencia",
+            "Proceso Verbal de Maltrato Animal": "Proceso Verbal de Maltrato Animal"
         },
         "estado": {
             "Programada": "Programada",

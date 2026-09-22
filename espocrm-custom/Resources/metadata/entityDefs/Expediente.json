@@ -136,6 +136,11 @@
             "entity": "MovimientoExpediente",
             "foreign": "expediente"
         },
+        "actuacionesMaltratoAnimal": {
+            "type": "hasMany",
+            "entity": "ActuacionMaltratoAnimal",
+            "foreign": "expediente"
+        },
         "createdBy": {
             "type": "belongsTo",
             "entity": "User"

@@ -87,6 +87,9 @@ $roleConfigs = [
         'Document' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
         'Contact' => $readOnlyAll,
         'Account' => $readOnlyAll,
+        // Recibe/verifica requisitos de trámites administrativos como el
+        // registro de canino de manejo especial (RPC02-RPC03 del BPMN).
+        'RegistroCaninoManejoEspecial' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
     ],
 
     // Citaciones, notificaciones, remisiones, constancias; apoya el cierre
@@ -139,6 +142,9 @@ $roleConfigs = [
         'NotificacionActo' => ['create' => 'yes', 'read' => 'all', 'edit' => 'all', 'delete' => 'no', 'stream' => 'no'],
         'Recurso' => ['create' => 'yes', 'read' => 'all', 'edit' => 'all', 'delete' => 'no', 'stream' => 'no'],
         'MovimientoExpediente' => ['create' => 'yes', 'read' => 'all', 'edit' => 'all', 'delete' => 'no', 'stream' => 'no'],
+        'RegistroCaninoManejoEspecial' => ['create' => 'yes', 'read' => 'all', 'edit' => 'all', 'delete' => 'no', 'stream' => 'no'],
+        'PermisoCaninoManejoEspecial' => ['create' => 'yes', 'read' => 'all', 'edit' => 'all', 'delete' => 'no', 'stream' => 'no'],
+        'ActuacionMaltratoAnimal' => ['create' => 'yes', 'read' => 'all', 'edit' => 'all', 'delete' => 'no', 'stream' => 'no'],
     ],
 
     // Supervisión y suplencia registrada del Director Técnico; revisión/firma
