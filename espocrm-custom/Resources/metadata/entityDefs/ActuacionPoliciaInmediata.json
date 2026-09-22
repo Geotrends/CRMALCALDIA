@@ -11,70 +11,76 @@
             "type": "link",
             "isCustom": true
         },
-        "expediente": {
+        "ordenComparendo": {
             "type": "link",
             "isCustom": true
         },
-        "actuacionPoliciaInmediata": {
-            "type": "link",
+        "fechaInicio": {
+            "type": "datetime",
+            "required": true,
             "isCustom": true
         },
-        "textoOrden": {
+        "autoridad": {
+            "type": "link",
+            "required": true,
+            "isCustom": true
+        },
+        "conducta": {
             "type": "text",
             "rows": 4,
             "required": true,
             "isCustom": true
         },
-        "fundamentoNormativo": {
+        "descargos": {
             "type": "text",
-            "rows": 2,
+            "rows": 4,
             "isCustom": true
         },
-        "autoridadEmisora": {
-            "type": "link",
-            "required": true,
-            "isCustom": true
-        },
-        "destinatario": {
-            "type": "varchar",
-            "maxLength": 200,
-            "required": true,
-            "isCustom": true
-        },
-        "fechaEmision": {
-            "type": "date",
-            "required": true,
-            "isCustom": true
-        },
-        "fechaLimite": {
-            "type": "date",
-            "isCustom": true
-        },
-        "criterioCumplimiento": {
-            "type": "text",
-            "rows": 2,
-            "isCustom": true
-        },
-        "requiereVerificacion": {
+        "mediacionUtilizada": {
             "type": "bool",
-            "default": true,
+            "default": false,
+            "isCustom": true
+        },
+        "resultado": {
+            "type": "enum",
+            "required": true,
+            "options": [
+                "Resuelta por mediación",
+                "Con medida correctiva u orden de policía",
+                "Sin resolver"
+            ],
+            "isCustom": true
+        },
+        "ordenPolicia": {
+            "type": "link",
+            "isCustom": true
+        },
+        "medidaCorrectiva": {
+            "type": "link",
+            "isCustom": true
+        },
+        "documentoConvivencia": {
+            "type": "file",
+            "required": true,
+            "isCustom": true
+        },
+        "apelacion": {
+            "type": "link",
             "isCustom": true
         },
         "estado": {
             "type": "enum",
             "options": [
-                "Registrada",
-                "Notificada",
-                "En seguimiento",
-                "Cumplida / Ejecutada",
-                "Incumplida",
-                "En valoración jurídica"
+                "Iniciada",
+                "En mediación",
+                "Resuelta por mediación",
+                "Con medida impuesta",
+                "En apelación",
+                "Apelación resuelta",
+                "Trasladada a PVA por incumplimiento",
+                "Cerrada"
             ],
-            "default": "Registrada",
-            "isCustom": true
-        },
-        "documentoOrigen": {
-            "type": "file",
+            "default": "Iniciada",
             "isCustom": true
         },
         "assignedUser": {
@@ -99,21 +105,31 @@
         "case": {
             "type": "belongsTo",
             "entity": "Case",
-            "foreign": "ordenesPolicia"
+            "foreign": "actuacionesPoliciaInmediata"
         },
-        "expediente": {
+        "ordenComparendo": {
             "type": "belongsTo",
-            "entity": "Expediente",
-            "foreign": "ordenesPolicia"
+            "entity": "OrdenComparendo",
+            "foreign": "actuacionesPoliciaInmediata"
         },
-        "actuacionPoliciaInmediata": {
-            "type": "belongsTo",
-            "entity": "ActuacionPoliciaInmediata",
-            "foreign": "ordenPolicia"
-        },
-        "autoridadEmisora": {
+        "autoridad": {
             "type": "belongsTo",
             "entity": "User"
+        },
+        "ordenPolicia": {
+            "type": "belongsTo",
+            "entity": "OrdenPolicia",
+            "foreign": "actuacionPoliciaInmediata"
+        },
+        "medidaCorrectiva": {
+            "type": "belongsTo",
+            "entity": "MedidaCorrectiva",
+            "foreign": "actuacionPoliciaInmediata"
+        },
+        "apelacion": {
+            "type": "belongsTo",
+            "entity": "Recurso",
+            "foreign": "actuacionesPoliciaInmediata"
         },
         "assignedUser": {
             "type": "belongsTo",
@@ -134,10 +150,10 @@
             "entity": "User"
         }
     },
-    "entityClassName": "Espo\\Custom\\Entities\\OrdenPolicia",
+    "entityClassName": "Espo\\Custom\\Entities\\ActuacionPoliciaInmediata",
     "collection": {
-        "orderBy": "fechaEmision",
+        "orderBy": "fechaInicio",
         "order": "desc",
-        "textFilterFields": ["name", "destinatario"]
+        "textFilterFields": ["name", "conducta"]
     }
 }

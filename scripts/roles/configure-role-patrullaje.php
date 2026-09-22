@@ -91,6 +91,38 @@ $data['ActuoArchivo'] = [
     'stream' => 'no',
 ];
 
+$data['ActuacionPoliciaInmediata'] = [
+    'create' => 'yes',
+    'read' => 'all',
+    'edit' => 'own',
+    'delete' => 'no',
+    'stream' => 'no',
+];
+
+$data['OrdenComparendo'] = [
+    'create' => 'yes',
+    'read' => 'all',
+    'edit' => 'own',
+    'delete' => 'no',
+    'stream' => 'no',
+];
+
+$data['OrdenPolicia'] = [
+    'create' => 'yes',
+    'read' => 'all',
+    'edit' => 'own',
+    'delete' => 'no',
+    'stream' => 'no',
+];
+
+$data['MedidaCorrectiva'] = [
+    'create' => 'yes',
+    'read' => 'all',
+    'edit' => 'own',
+    'delete' => 'no',
+    'stream' => 'no',
+];
+
 $data['Calendar'] = true;
 
 $fieldData = $role->get('fieldData');

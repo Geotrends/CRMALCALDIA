@@ -1,0 +1,7 @@
+[
+    {"name": "name", "width": 16, "link": true},
+    {"name": "case", "width": 14},
+    {"name": "autoridad", "width": 14},
+    {"name": "resultado", "width": 16},
+    {"name": "estado", "width": 14}
+]

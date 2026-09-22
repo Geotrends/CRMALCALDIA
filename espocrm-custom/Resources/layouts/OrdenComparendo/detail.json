@@ -1,0 +1,24 @@
+[
+    {
+        "rows": [
+            [
+                {"name": "case"},
+                {"name": "estado"}
+            ],
+            [
+                {"name": "fecha"},
+                {"name": "autoridadEmisora"}
+            ],
+            [
+                {"name": "numeroComparendo"},
+                {"name": "comportamientoCodigo"}
+            ],
+            [
+                {"name": "referenciaRNMC"},
+                {"name": "documento"}
+            ]
+        ],
+        "style": "default",
+        "label": "Información general"
+    }
+]

@@ -94,6 +94,10 @@
   },
   "links": {
     "compromisos": "Compromisos",
+    "ordenesComparendo": "Órdenes de comparendo",
+    "actuacionesPoliciaInmediata": "Actuaciones de policía inmediata",
+    "medidasCorrectivas": "Medidas correctivas",
+    "recursos": "Recursos",
     "expediente": "Expediente (vinculado)",
     "autosInicio": "Autos de inicio",
     "gestionesTecnicas": "Gestiones técnicas",

@@ -159,6 +159,8 @@ $roleConfigs = [
         'RecomendacionTecnica' => ['create' => 'yes', 'read' => 'all', 'edit' => 'all', 'delete' => 'no', 'stream' => 'no'],
         'Compromiso' => ['create' => 'yes', 'read' => 'all', 'edit' => 'all', 'delete' => 'no', 'stream' => 'no'],
         'VerificacionCumplimiento' => ['create' => 'yes', 'read' => 'all', 'edit' => 'all', 'delete' => 'no', 'stream' => 'no'],
+        'OrdenComparendo' => ['create' => 'yes', 'read' => 'all', 'edit' => 'all', 'delete' => 'no', 'stream' => 'no'],
+        'ActuacionPoliciaInmediata' => ['create' => 'yes', 'read' => 'all', 'edit' => 'all', 'delete' => 'no', 'stream' => 'no'],
     ],
 
     // Supervisión y suplencia registrada del Director Técnico; revisión/firma
@@ -183,6 +185,8 @@ $roleConfigs = [
         'RecomendacionTecnica' => $readOnlyAll,
         'Compromiso' => $readOnlyAll,
         'VerificacionCumplimiento' => $readOnlyAll,
+        'OrdenComparendo' => $readOnlyAll,
+        'ActuacionPoliciaInmediata' => $readOnlyAll,
     ],
 
     // Concepto especializado en casos con fauna. No sustituye la decisión

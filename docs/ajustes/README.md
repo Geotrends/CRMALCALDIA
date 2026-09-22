@@ -69,5 +69,6 @@ Cada registro debe indicar como mínimo:
 | 2026-09-22 | Fase 2 — Convivencia Animal, Registro/Permiso Canino, Maltrato Animal | Validado localmente | [Registro](2026-09-22-fase2-maltrato-convivencia-canino.md) |
 | 2026-09-22 | Competencia y Clasificación (ya cubierto) + entidad EvaluacionResultado | Validado localmente | [Registro](2026-09-22-competencia-clasificacion-evaluacion-resultado.md) |
 | 2026-09-22 | Gestión Técnica — IntervencionTecnica, ProgramacionVisita, RecomendacionTecnica, Compromiso, VerificacionCumplimiento | Validado localmente | [Registro](2026-09-22-gestion-tecnica-intervencion-recomendacion-verificacion.md) |
+| 2026-09-22 | Proceso Verbal Inmediato de Policía — OrdenComparendo, ActuacionPoliciaInmediata | Validado localmente | [Registro](2026-09-22-proceso-verbal-inmediato-policia.md) |
 
 Cuando se cree un registro, reemplazar la fila de ejemplo o agregar una fila nueva en orden descendente por fecha.

@@ -11,23 +11,14 @@
             "type": "link",
             "isCustom": true
         },
-        "expediente": {
-            "type": "link",
+        "numeroComparendo": {
+            "type": "varchar",
+            "maxLength": 100,
             "isCustom": true
         },
-        "actuacionPoliciaInmediata": {
-            "type": "link",
-            "isCustom": true
-        },
-        "textoOrden": {
-            "type": "text",
-            "rows": 4,
+        "fecha": {
+            "type": "date",
             "required": true,
-            "isCustom": true
-        },
-        "fundamentoNormativo": {
-            "type": "text",
-            "rows": 2,
             "isCustom": true
         },
         "autoridadEmisora": {
@@ -35,46 +26,28 @@
             "required": true,
             "isCustom": true
         },
-        "destinatario": {
+        "comportamientoCodigo": {
             "type": "varchar",
-            "maxLength": 200,
-            "required": true,
+            "maxLength": 100,
             "isCustom": true
         },
-        "fechaEmision": {
-            "type": "date",
-            "required": true,
+        "documento": {
+            "type": "file",
             "isCustom": true
         },
-        "fechaLimite": {
-            "type": "date",
-            "isCustom": true
-        },
-        "criterioCumplimiento": {
-            "type": "text",
-            "rows": 2,
-            "isCustom": true
-        },
-        "requiereVerificacion": {
-            "type": "bool",
-            "default": true,
+        "referenciaRNMC": {
+            "type": "varchar",
+            "maxLength": 150,
             "isCustom": true
         },
         "estado": {
             "type": "enum",
             "options": [
-                "Registrada",
-                "Notificada",
-                "En seguimiento",
-                "Cumplida / Ejecutada",
-                "Incumplida",
-                "En valoración jurídica"
+                "Registrado",
+                "Vinculado a actuación",
+                "Anulado"
             ],
-            "default": "Registrada",
-            "isCustom": true
-        },
-        "documentoOrigen": {
-            "type": "file",
+            "default": "Registrado",
             "isCustom": true
         },
         "assignedUser": {
@@ -99,21 +72,16 @@
         "case": {
             "type": "belongsTo",
             "entity": "Case",
-            "foreign": "ordenesPolicia"
-        },
-        "expediente": {
-            "type": "belongsTo",
-            "entity": "Expediente",
-            "foreign": "ordenesPolicia"
-        },
-        "actuacionPoliciaInmediata": {
-            "type": "belongsTo",
-            "entity": "ActuacionPoliciaInmediata",
-            "foreign": "ordenPolicia"
+            "foreign": "ordenesComparendo"
         },
         "autoridadEmisora": {
             "type": "belongsTo",
             "entity": "User"
+        },
+        "actuacionesPoliciaInmediata": {
+            "type": "hasMany",
+            "entity": "ActuacionPoliciaInmediata",
+            "foreign": "ordenComparendo"
         },
         "assignedUser": {
             "type": "belongsTo",
@@ -134,10 +102,10 @@
             "entity": "User"
         }
     },
-    "entityClassName": "Espo\\Custom\\Entities\\OrdenPolicia",
+    "entityClassName": "Espo\\Custom\\Entities\\OrdenComparendo",
     "collection": {
-        "orderBy": "fechaEmision",
+        "orderBy": "fecha",
         "order": "desc",
-        "textFilterFields": ["name", "destinatario"]
+        "textFilterFields": ["name", "numeroComparendo"]
     }
 }

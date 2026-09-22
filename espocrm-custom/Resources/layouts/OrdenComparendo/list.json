@@ -1,0 +1,6 @@
+[
+    {"name": "name", "width": 18, "link": true},
+    {"name": "case", "width": 16},
+    {"name": "fecha", "width": 11},
+    {"name": "estado", "width": 16}
+]

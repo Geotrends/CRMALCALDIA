@@ -1,0 +1,47 @@
+[
+    {
+        "rows": [
+            [
+                {"name": "case"},
+                {"name": "estado"}
+            ],
+            [
+                {"name": "ordenComparendo"},
+                {"name": "autoridad"}
+            ],
+            [
+                {"name": "fechaInicio"},
+                {"name": "mediacionUtilizada"}
+            ]
+        ],
+        "style": "default",
+        "label": "Información general"
+    },
+    {
+        "rows": [
+            [{"name": "conducta", "fullWidth": true}],
+            [{"name": "descargos", "fullWidth": true}],
+            [{"name": "resultado", "fullWidth": true}]
+        ],
+        "style": "default",
+        "label": "Hechos"
+    },
+    {
+        "rows": [
+            [
+                {"name": "ordenPolicia"},
+                {"name": "medidaCorrectiva"}
+            ],
+            [{"name": "documentoConvivencia", "fullWidth": true}]
+        ],
+        "style": "default",
+        "label": "Decisión"
+    },
+    {
+        "rows": [
+            [{"name": "apelacion"}]
+        ],
+        "style": "default",
+        "label": "Apelación"
+    }
+]

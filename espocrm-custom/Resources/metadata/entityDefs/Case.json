@@ -1614,6 +1614,26 @@
             "entity": "Compromiso",
             "foreign": "case"
         },
+        "ordenesComparendo": {
+            "type": "hasMany",
+            "entity": "OrdenComparendo",
+            "foreign": "case"
+        },
+        "actuacionesPoliciaInmediata": {
+            "type": "hasMany",
+            "entity": "ActuacionPoliciaInmediata",
+            "foreign": "case"
+        },
+        "medidasCorrectivas": {
+            "type": "hasMany",
+            "entity": "MedidaCorrectiva",
+            "foreign": "case"
+        },
+        "recursos": {
+            "type": "hasMany",
+            "entity": "Recurso",
+            "foreign": "case"
+        },
         "destino": {
             "type": "belongsTo",
             "entity": "Destino",

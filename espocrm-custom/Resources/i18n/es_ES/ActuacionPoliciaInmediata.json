@@ -1,0 +1,44 @@
+{
+    "fields": {
+        "name": "Nombre",
+        "case": "Caso vinculado",
+        "ordenComparendo": "Orden de comparendo de origen",
+        "fechaInicio": "Fecha de inicio",
+        "autoridad": "Autoridad de policía actuante",
+        "conducta": "Conducta/comportamiento",
+        "descargos": "Descargos",
+        "mediacionUtilizada": "¿Se utilizó mediación?",
+        "resultado": "Resultado",
+        "ordenPolicia": "Orden de policía emitida",
+        "medidaCorrectiva": "Medida correctiva impuesta",
+        "documentoConvivencia": "Documento oficial de convivencia (Decreto 768/2025)",
+        "apelacion": "Apelación (segunda instancia)",
+        "estado": "Estado",
+        "assignedUser": "Responsable",
+        "teams": "Equipos",
+        "createdAt": "Creado",
+        "modifiedAt": "Modificado"
+    },
+    "labels": {
+        "Create ActuacionPoliciaInmediata": "Crear actuación de policía inmediata",
+        "ActuacionPoliciaInmediata": "Actuación de policía inmediata",
+        "ActuacionPoliciaInmediatas": "Actuaciones de policía inmediata"
+    },
+    "options": {
+        "resultado": {
+            "Resuelta por mediación": "Resuelta por mediación",
+            "Con medida correctiva u orden de policía": "Con medida correctiva u orden de policía",
+            "Sin resolver": "Sin resolver"
+        },
+        "estado": {
+            "Iniciada": "Iniciada",
+            "En mediación": "En mediación",
+            "Resuelta por mediación": "Resuelta por mediación",
+            "Con medida impuesta": "Con medida impuesta",
+            "En apelación": "En apelación",
+            "Apelación resuelta": "Apelación resuelta",
+            "Trasladada a PVA por incumplimiento": "Trasladada a PVA por incumplimiento",
+            "Cerrada": "Cerrada"
+        }
+    }
+}

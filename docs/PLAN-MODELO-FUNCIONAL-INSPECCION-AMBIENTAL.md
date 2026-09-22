@@ -62,7 +62,7 @@ El usuario pidió terminar **todos** los BPMN activos del repo, no solo las 3 ru
 | Verificación de Cumplimiento | N2 | ✅ (`VerificacionCumplimiento`, Bloque 2) |
 | Evaluación de Resultado y Definición de Ruta | N1 | ✅ (`EvaluacionResultado`) |
 | Preparación y Apertura de Expediente | N1 | ✅ (`AutoInicio`/`Expediente`, núcleo preexistente) |
-| Proceso Verbal Inmediato de Policía | N2 | 🔲 |
+| Proceso Verbal Inmediato de Policía | N2 | ✅ (`OrdenComparendo`, `ActuacionPoliciaInmediata`, Bloque 3 — reutiliza `OrdenPolicia`/`MedidaCorrectiva`/`Recurso` ya existentes) |
 | Proceso Verbal Abreviado · Convivencia | N2 | ✅ (Fase 2) |
 | Recursos Naturales · Competencia Municipal | N2 | ✅ (Fase 2) |
 | Conductas de Convivencia con Animales | N2 | ✅ (Fase 2, sin entidad propia) |
@@ -81,7 +81,9 @@ El usuario pidió terminar **todos** los BPMN activos del repo, no solo las 3 ru
 
 **Bloque 2 (Medición, Informe/Concepto, Recomendaciones Técnicas/Compromisos, Verificación de Cumplimiento) — hecho.** El modelo fuente no trata Visita/Medición/Informe como entidades separadas: define `IntervencionTecnica` como entidad genérica única (hija de `GestionTecnica`, con `tipo` distinguiendo Visita/Medición/Revisión/Consulta/Informe/Recomendación/Compromiso/Verificación), más `ProgramacionVisita`, `RecomendacionTecnica`, `Compromiso` y `VerificacionCumplimiento`. Decisión de arquitectura clave: no se retrofiteó la ya madura `ActaVisita` (numeración, PDF, hooks en producción) para colgarla de `IntervencionTecnica`; en su lugar se construyó `IntervencionTecnica` como capa nueva para los otros 4 procesos y se le agregó a `ActaVisita` un link opcional (sin tocar su comportamiento existente). Ver [`2026-09-22-gestion-tecnica-intervencion-recomendacion-verificacion.md`](ajustes/2026-09-22-gestion-tecnica-intervencion-recomendacion-verificacion.md).
 
-**Restan 3 diagramas**: Recepción/Clasificación RNMC, Proceso Verbal Inmediato, Ejecución Pecuniaria/Tesorería.
+**Bloque 3 (Proceso Verbal Inmediato de Policía, art. 222) — hecho.** El modelo fuente confirma reutilización explícita: `OrdenPolicia` y `MedidaCorrectiva` (ya construidas para el PVA) ya traían en `domain.json` el origen alternativo `actuacionPoliciaInmediataId`, así que no se duplicaron — solo se les agregó el link opcional. La apelación reutiliza `Recurso` (ya construido), siguiendo la nota del propio modelo ("la apelación del PVI entra a Segunda Instancia, no a un PVA nuevo"). Como el PVI no siempre abre `Expediente`, se relajó `expediente` de obligatorio a opcional en `MedidaCorrectiva` y `Recurso` (retrocompatible). Solo `OrdenComparendo` y `ActuacionPoliciaInmediata` son entidades 100% nuevas. Ver [`2026-09-22-proceso-verbal-inmediato-policia.md`](ajustes/2026-09-22-proceso-verbal-inmediato-policia.md).
+
+**Restan 2 diagramas**: Recepción/Clasificación RNMC, Ejecución Pecuniaria/Tesorería.
 
 Vacíos reales detectados en el modelo fuente hasta ahora (no inventar, confirmar antes de dar por definitivo): `estados.md` no define catálogo oficial de estados para `OrdenPolicia` ni tenía uno para `SuspensionAudiencia` (ambos con estados propuestos, a validar); `ActuacionMaltratoAnimal` es diseño propio, sin respaldo en `domain.json`; FILMA sigue sin significado institucional confirmado en ningún archivo del repo fuente; ninguno de varios BPMN N3 usa `callActivity` de forma consistente (algunos solo referencian el subproceso siguiente en texto); `formatos.json` no tiene ningún formato IV-F confirmado para Determinación ni para Gestión y Ejecución de Medidas Correctivas.
 

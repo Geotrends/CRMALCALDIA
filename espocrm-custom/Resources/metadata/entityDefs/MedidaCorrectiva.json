@@ -9,7 +9,15 @@
         },
         "expediente": {
             "type": "link",
-            "required": true,
+            "required": false,
+            "isCustom": true
+        },
+        "case": {
+            "type": "link",
+            "isCustom": true
+        },
+        "actuacionPoliciaInmediata": {
+            "type": "link",
             "isCustom": true
         },
         "comportamientoCodigo": {
@@ -134,6 +142,16 @@
             "type": "belongsTo",
             "entity": "Expediente",
             "foreign": "medidasCorrectivas"
+        },
+        "case": {
+            "type": "belongsTo",
+            "entity": "Case",
+            "foreign": "medidasCorrectivas"
+        },
+        "actuacionPoliciaInmediata": {
+            "type": "belongsTo",
+            "entity": "ActuacionPoliciaInmediata",
+            "foreign": "medidaCorrectiva"
         },
         "ejecuciones": {
             "type": "hasMany",

@@ -1,0 +1,32 @@
+{
+    "fields": {
+        "name": "Nombre",
+        "case": "Caso vinculado",
+        "numeroComparendo": "Número de comparendo",
+        "fecha": "Fecha",
+        "autoridadEmisora": "Autoridad emisora",
+        "comportamientoCodigo": "Código de comportamiento",
+        "documento": "Documento (soporte externo)",
+        "referenciaRNMC": "Referencia RNMC",
+        "estado": "Estado",
+        "assignedUser": "Responsable",
+        "teams": "Equipos",
+        "createdAt": "Creado",
+        "modifiedAt": "Modificado"
+    },
+    "labels": {
+        "Create OrdenComparendo": "Crear orden de comparendo",
+        "OrdenComparendo": "Orden de comparendo",
+        "OrdenComparendos": "Órdenes de comparendo"
+    },
+    "options": {
+        "estado": {
+            "Registrado": "Registrado",
+            "Vinculado a actuación": "Vinculado a actuación",
+            "Anulado": "Anulado"
+        }
+    },
+    "links": {
+        "actuacionesPoliciaInmediata": "Actuaciones de policía inmediata"
+    }
+}

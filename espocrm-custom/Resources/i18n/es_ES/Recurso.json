@@ -2,6 +2,7 @@
     "fields": {
         "name": "Nombre",
         "expediente": "Expediente",
+        "case": "Caso vinculado",
         "tipo": "Tipo",
         "efecto": "Efecto",
         "recurrente": "Recurrente",
@@ -56,6 +57,7 @@
         }
     },
     "links": {
-        "movimientos": "Movimientos del expediente"
+        "movimientos": "Movimientos del expediente",
+        "actuacionesPoliciaInmediata": "Actuaciones de policía inmediata"
     }
 }

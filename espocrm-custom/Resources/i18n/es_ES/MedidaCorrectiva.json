@@ -2,6 +2,8 @@
     "fields": {
         "name": "Nombre",
         "expediente": "Expediente",
+        "case": "Caso vinculado",
+        "actuacionPoliciaInmediata": "Actuación de policía inmediata de origen",
         "comportamientoCodigo": "Comportamiento / código",
         "fundamentoNormativo": "Fundamento normativo",
         "tipoMedida": "Tipo de medida",

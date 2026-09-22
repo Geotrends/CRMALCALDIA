@@ -3,6 +3,7 @@
         "name": "Nombre",
         "case": "Caso vinculado",
         "expediente": "Expediente",
+        "actuacionPoliciaInmediata": "Actuación de policía inmediata de origen",
         "textoOrden": "Texto de la orden",
         "fundamentoNormativo": "Fundamento normativo",
         "autoridadEmisora": "Autoridad emisora",

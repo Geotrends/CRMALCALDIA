@@ -9,7 +9,11 @@
         },
         "expediente": {
             "type": "link",
-            "required": true,
+            "required": false,
+            "isCustom": true
+        },
+        "case": {
+            "type": "link",
             "isCustom": true
         },
         "tipo": {
@@ -124,10 +128,20 @@
             "entity": "Expediente",
             "foreign": "recursos"
         },
+        "case": {
+            "type": "belongsTo",
+            "entity": "Case",
+            "foreign": "recursos"
+        },
         "movimientos": {
             "type": "hasMany",
             "entity": "MovimientoExpediente",
             "foreign": "recurso"
+        },
+        "actuacionesPoliciaInmediata": {
+            "type": "hasMany",
+            "entity": "ActuacionPoliciaInmediata",
+            "foreign": "apelacion"
         },
         "assignedUser": {
             "type": "belongsTo",
