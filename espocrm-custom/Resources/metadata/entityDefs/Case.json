@@ -1579,6 +1579,11 @@
             "entity": "DecisionRutaJuridica",
             "foreign": "case"
         },
+        "evaluacionesResultado": {
+            "type": "hasMany",
+            "entity": "EvaluacionResultado",
+            "foreign": "case"
+        },
         "remisionesAutoridad": {
             "type": "hasMany",
             "entity": "RemisionAutoridad",

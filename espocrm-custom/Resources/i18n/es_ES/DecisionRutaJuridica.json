@@ -2,6 +2,7 @@
     "fields": {
         "name": "Nombre",
         "case": "Caso vinculado",
+        "evaluacionResultado": "Evaluación de resultado que originó la decisión",
         "decisor": "Decisor",
         "fechaDecision": "Fecha de decisión",
         "resultado": "Resultado",

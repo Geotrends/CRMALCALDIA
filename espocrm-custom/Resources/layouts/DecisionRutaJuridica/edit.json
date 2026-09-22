@@ -10,7 +10,8 @@
                 {"name": "fechaDecision"}
             ],
             [
-                {"name": "expediente"}
+                {"name": "expediente"},
+                {"name": "evaluacionResultado"}
             ],
             [
                 {"name": "fundamentoNormativo", "fullWidth": true}

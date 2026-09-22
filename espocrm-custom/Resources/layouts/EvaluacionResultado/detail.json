@@ -1,0 +1,38 @@
+[
+    {
+        "rows": [
+            [
+                {"name": "case"},
+                {"name": "estado"}
+            ],
+            [
+                {"name": "fecha"},
+                {"name": "responsableTecnico"}
+            ],
+            [
+                {"name": "informacionSuficiente"},
+                {"name": "situacionResuelta"}
+            ],
+            [
+                {"name": "recomiendaNuevaGestion"},
+                {"name": "recomiendaEscalamiento"}
+            ]
+        ],
+        "style": "default",
+        "label": "Información general"
+    },
+    {
+        "rows": [
+            [{"name": "resultadoTecnico", "fullWidth": true}]
+        ],
+        "style": "default",
+        "label": "Resultado técnico"
+    },
+    {
+        "rows": [
+            [{"name": "observaciones", "fullWidth": true}]
+        ],
+        "style": "default",
+        "label": "Observaciones"
+    }
+]

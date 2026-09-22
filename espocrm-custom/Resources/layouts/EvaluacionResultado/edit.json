@@ -1,0 +1,28 @@
+[
+    {
+        "rows": [
+            [
+                {"name": "case"},
+                {"name": "estado"}
+            ],
+            [
+                {"name": "fecha"},
+                {"name": "responsableTecnico"}
+            ],
+            [
+                {"name": "informacionSuficiente"},
+                {"name": "situacionResuelta"}
+            ],
+            [
+                {"name": "recomiendaNuevaGestion"},
+                {"name": "recomiendaEscalamiento"}
+            ],
+            [
+                {"name": "resultadoTecnico", "fullWidth": true}
+            ],
+            [
+                {"name": "observaciones", "fullWidth": true}
+            ]
+        ]
+    }
+]

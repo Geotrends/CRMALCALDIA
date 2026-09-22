@@ -67,5 +67,6 @@ Cada registro debe indicar como mínimo:
 | 2026-09-22 | Fase 2 (Proceso Verbal Abreviado) — Audiencia, SuspensionAudiencia, GrabacionAudiencia | Validado localmente | [Registro](2026-09-22-fase2-pva-audiencia.md) |
 | 2026-09-22 | Fase 2 (PVA) — OrdenPolicia, MedidaCorrectiva, EjecucionMedidaCorrectiva, NotificacionActo, Recurso, MovimientoExpediente | Validado localmente | [Registro](2026-09-22-fase2-pva-orden-medidas-notificacion-recurso.md) |
 | 2026-09-22 | Fase 2 — Convivencia Animal, Registro/Permiso Canino, Maltrato Animal | Validado localmente | [Registro](2026-09-22-fase2-maltrato-convivencia-canino.md) |
+| 2026-09-22 | Competencia y Clasificación (ya cubierto) + entidad EvaluacionResultado | Validado localmente | [Registro](2026-09-22-competencia-clasificacion-evaluacion-resultado.md) |
 
 Cuando se cree un registro, reemplazar la fila de ejemplo o agregar una fila nueva en orden descendente por fecha.

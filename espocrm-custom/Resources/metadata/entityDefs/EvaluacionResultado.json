@@ -13,47 +13,57 @@
             "readOnlyAfterCreate": true,
             "isCustom": true
         },
-        "evaluacionResultado": {
-            "type": "link",
-            "isCustom": true
-        },
-        "decisor": {
-            "type": "link",
+        "fecha": {
+            "type": "date",
             "required": true,
             "isCustom": true
         },
-        "fechaDecision": {
-            "type": "datetime",
+        "resultadoTecnico": {
+            "type": "text",
+            "rows": 4,
             "isCustom": true
         },
-        "resultado": {
-            "type": "enum",
-            "options": [
-                "Sin mérito",
-                "Nueva gestión técnica",
-                "Remisión a otra autoridad",
-                "Ruta policiva",
-                "Ruta Recursos Naturales - Competencia Municipal",
-                "Ruta Tenencia Animal",
-                "Ruta Maltrato Animal",
-                "Ruta Ambiental Preventiva / Remisión"
-            ],
-            "required": true,
+        "informacionSuficiente": {
+            "type": "bool",
+            "default": false,
             "isCustom": true
         },
-        "fundamentoNormativo": {
+        "situacionResuelta": {
+            "type": "bool",
+            "default": false,
+            "isCustom": true
+        },
+        "recomiendaNuevaGestion": {
+            "type": "bool",
+            "default": false,
+            "isCustom": true
+        },
+        "recomiendaEscalamiento": {
+            "type": "bool",
+            "default": false,
+            "isCustom": true
+        },
+        "responsableTecnico": {
+            "type": "link",
+            "isCustom": true
+        },
+        "observaciones": {
             "type": "text",
             "rows": 3,
             "isCustom": true
         },
-        "motivacion": {
-            "type": "text",
-            "rows": 6,
-            "required": true,
-            "isCustom": true
-        },
-        "expediente": {
-            "type": "link",
+        "estado": {
+            "type": "enum",
+            "options": [
+                "En preparación",
+                "Pendiente de soportes",
+                "Completa",
+                "Derivada a nueva gestión",
+                "Derivada a remisión",
+                "Derivada a valoración jurídica",
+                "Cerrada"
+            ],
+            "default": "En preparación",
             "isCustom": true
         },
         "assignedUser": {
@@ -78,21 +88,16 @@
         "case": {
             "type": "belongsTo",
             "entity": "Case",
-            "foreign": "decisionesRuta"
+            "foreign": "evaluacionesResultado"
         },
-        "evaluacionResultado": {
-            "type": "belongsTo",
-            "entity": "EvaluacionResultado",
-            "foreign": "decisionesRuta"
-        },
-        "decisor": {
+        "responsableTecnico": {
             "type": "belongsTo",
             "entity": "User"
         },
-        "expediente": {
-            "type": "belongsTo",
-            "entity": "Expediente",
-            "foreign": "decisionesRuta"
+        "decisionesRuta": {
+            "type": "hasMany",
+            "entity": "DecisionRutaJuridica",
+            "foreign": "evaluacionResultado"
         },
         "assignedUser": {
             "type": "belongsTo",
@@ -113,10 +118,10 @@
             "entity": "User"
         }
     },
-    "entityClassName": "Espo\\Custom\\Entities\\DecisionRutaJuridica",
+    "entityClassName": "Espo\\Custom\\Entities\\EvaluacionResultado",
     "collection": {
-        "orderBy": "createdAt",
+        "orderBy": "fecha",
         "order": "desc",
-        "textFilterFields": ["name", "motivacion"]
+        "textFilterFields": ["name", "resultadoTecnico"]
     }
 }

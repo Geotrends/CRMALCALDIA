@@ -44,11 +44,44 @@ Con esto, las 3 ramas de Recursos Naturales tienen construcción real (Auto de A
 
 **Con esto, la Fase 2 completa las 3 rutas jurídicas acordadas al inicio** (Recursos Naturales, Maltrato/Convivencia Animal + Canino, Proceso Verbal Abreviado) más Ambiental Preventiva (dependencia no anticipada de Recursos Naturales).
 
-Pendiente (sin orden fijo definido, candidatos para Fase 3 o iteraciones futuras de Fase 2):
-- `VerificacionCumplimiento` — entidad relacionada con `OrdenPolicia`/`MedidaCorrectiva`/`RecomendacionTecnica` en el modelo, no construida todavía: tiene una dependencia obligatoria (`intervencionTecnicaId` no opcional) que requiere resolverse antes de modelarla.
-- `ReporteRNMC` — sigue en Fase 3 (medidas correctivas, cierre formal y RNMC), como estaba planeado.
-- Proceso Verbal Inmediato (art. 222) — no se investigó todavía; el N3 de Recursos y Segunda Instancia excluye explícitamente su apelación, que se maneja dentro de ese N2 propio.
-- Vacíos reales detectados en el modelo fuente (no inventar, confirmar antes de dar por definitivo): `estados.md` no define catálogo oficial de estados para `OrdenPolicia` ni tenía uno para `SuspensionAudiencia` (ambos con estados propuestos, a validar); `ActuacionMaltratoAnimal` es diseño propio, sin respaldo en `domain.json`; FILMA sigue sin significado institucional confirmado en ningún archivo del repo fuente; ninguno de varios BPMN N3 usa `callActivity` de forma consistente (algunos solo referencian el subproceso siguiente en texto); `formatos.json` no tiene ningún formato IV-F confirmado para Determinación ni para Gestión y Ejecución de Medidas Correctivas.
+### Fase 2b — Inventario completo de los 28 BPMN de `config.json` 🟡 En curso
+
+El usuario pidió terminar **todos** los BPMN activos del repo, no solo las 3 rutas jurídicas originales. Checklist completo (✅ construido/cubierto, 🔲 pendiente):
+
+| BPMN | Nivel | Estado |
+|---|---|---|
+| Recepción y Radicación | N1 | ✅ (núcleo preexistente) |
+| Recepción y Clasificación RNMC | N1 | 🔲 |
+| Competencia y Clasificación | N1 | ✅ (ya cubierto por `Case.cClaseIngreso`/`cRecursoTema` + `RemisionAutoridad`, sin cambios) |
+| Relación de Casos | N1 | ✅ (`RelacionCasos`, Fase 1) |
+| Gestión Técnica | N1 | ✅ (`GestionTecnica`, Fase 1) |
+| Visita de Inspección | N2 | ✅ (`ActaVisita`, núcleo preexistente) |
+| Medición / Muestreo | N2 | 🔲 |
+| Informe / Concepto Técnico | N2 | 🔲 |
+| Recomendaciones Técnicas / Compromisos | N2 | 🔲 (`RecomendacionTecnica`, `Compromiso`) |
+| Verificación de Cumplimiento | N2 | 🔲 (bloqueada por dependencia `intervencionTecnicaId`) |
+| Evaluación de Resultado y Definición de Ruta | N1 | ✅ (`EvaluacionResultado`) |
+| Preparación y Apertura de Expediente | N1 | ✅ (`AutoInicio`/`Expediente`, núcleo preexistente) |
+| Proceso Verbal Inmediato de Policía | N2 | 🔲 |
+| Proceso Verbal Abreviado · Convivencia | N2 | ✅ (Fase 2) |
+| Recursos Naturales · Competencia Municipal | N2 | ✅ (Fase 2) |
+| Conductas de Convivencia con Animales | N2 | ✅ (Fase 2, sin entidad propia) |
+| Registro y Permiso de Canino de Manejo Especial | N2 | ✅ (Fase 2) |
+| Proceso Verbal de Maltrato Animal | N2 | ✅ (Fase 2) |
+| Ambiental Preventiva / Remisión | N2 | ✅ (Fase 2) |
+| Audiencia del Proceso Verbal Abreviado | N3 | ✅ (Fase 2) |
+| Audiencia de Maltrato Animal | N3 | ✅ (Fase 2, reutiliza `Audiencia`) |
+| Orden de Policía · Registro/Cumplimiento | N3 | ✅ (Fase 2) |
+| Determinación de Medidas Correctivas | N3 | ✅ (Fase 2, informó el diseño de `MedidaCorrectiva`) |
+| Notificación y Ejecutoria de Actos | N3 | ✅ (Fase 2) |
+| Recursos y Segunda Instancia | N3 | ✅ (Fase 2) |
+| Gestión y Ejecución de Medidas Correctivas | N3 | ✅ (Fase 2) |
+| Ejecución Pecuniaria / Tesorería | N3 | 🔲 |
+| Auto de Archivo y Cierre Documental | N2 | ✅ (`ActuoArchivo`, versión simple — el checklist completo de `CierreExpediente` sigue pendiente) |
+
+**Restan 6 diagramas**: Recepción/Clasificación RNMC, Medición, Informe/Concepto, Recomendaciones Técnicas/Compromisos, Verificación de Cumplimiento, Proceso Verbal Inmediato, Ejecución Pecuniaria/Tesorería (son 7, agrupados así porque Verificación de Cumplimiento y RNMC tienen dependencias/alcance especial).
+
+Vacíos reales detectados en el modelo fuente hasta ahora (no inventar, confirmar antes de dar por definitivo): `estados.md` no define catálogo oficial de estados para `OrdenPolicia` ni tenía uno para `SuspensionAudiencia` (ambos con estados propuestos, a validar); `ActuacionMaltratoAnimal` es diseño propio, sin respaldo en `domain.json`; FILMA sigue sin significado institucional confirmado en ningún archivo del repo fuente; ninguno de varios BPMN N3 usa `callActivity` de forma consistente (algunos solo referencian el subproceso siguiente en texto); `formatos.json` no tiene ningún formato IV-F confirmado para Determinación ni para Gestión y Ejecución de Medidas Correctivas.
 
 ### Fase 3 — Medidas correctivas, cierre formal y RNMC 🔲 No iniciada
 - `MedidaCorrectiva` + `EjecucionMedidaCorrectiva` + `VerificacionCumplimiento`.

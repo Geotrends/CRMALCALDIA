@@ -10,7 +10,8 @@
                 {"name": "fechaDecision"}
             ],
             [
-                {"name": "expediente", "readOnly": true}
+                {"name": "expediente", "readOnly": true},
+                {"name": "evaluacionResultado"}
             ]
         ],
         "style": "default",

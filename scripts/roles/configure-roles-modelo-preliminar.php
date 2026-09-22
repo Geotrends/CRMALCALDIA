@@ -108,6 +108,7 @@ $roleConfigs = [
         'ActaVisita' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
         'GestionTecnica' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
         'DecisionRutaJuridica' => $readOnlyAll,
+        'EvaluacionResultado' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
         'Document' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
     ],
 
@@ -145,6 +146,7 @@ $roleConfigs = [
         'RegistroCaninoManejoEspecial' => ['create' => 'yes', 'read' => 'all', 'edit' => 'all', 'delete' => 'no', 'stream' => 'no'],
         'PermisoCaninoManejoEspecial' => ['create' => 'yes', 'read' => 'all', 'edit' => 'all', 'delete' => 'no', 'stream' => 'no'],
         'ActuacionMaltratoAnimal' => ['create' => 'yes', 'read' => 'all', 'edit' => 'all', 'delete' => 'no', 'stream' => 'no'],
+        'EvaluacionResultado' => ['create' => 'yes', 'read' => 'all', 'edit' => 'all', 'delete' => 'no', 'stream' => 'no'],
     ],
 
     // Supervisión y suplencia registrada del Director Técnico; revisión/firma
@@ -154,6 +156,7 @@ $roleConfigs = [
         'GestionTecnica' => ['create' => 'no', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
         'Expediente' => $readOnlyAll,
         'DecisionRutaJuridica' => $readOnlyAll,
+        'EvaluacionResultado' => $readOnlyAll,
         'RemisionAutoridad' => $readOnlyAll,
         'Audiencia' => $readOnlyAll,
         'Document' => $readOnlyAll,

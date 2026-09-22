@@ -1,0 +1,38 @@
+{
+    "fields": {
+        "name": "Nombre",
+        "case": "Caso vinculado",
+        "fecha": "Fecha",
+        "resultadoTecnico": "Resultado técnico",
+        "informacionSuficiente": "¿Información técnica/documental suficiente?",
+        "situacionResuelta": "¿Situación técnicamente resuelta?",
+        "recomiendaNuevaGestion": "¿Recomienda nueva gestión técnica?",
+        "recomiendaEscalamiento": "¿Recomienda escalamiento a valoración jurídica?",
+        "responsableTecnico": "Responsable técnico",
+        "observaciones": "Observaciones",
+        "estado": "Estado",
+        "assignedUser": "Responsable",
+        "teams": "Equipos",
+        "createdAt": "Creado",
+        "modifiedAt": "Modificado"
+    },
+    "labels": {
+        "Create EvaluacionResultado": "Crear evaluación de resultado",
+        "EvaluacionResultado": "Evaluación de resultado",
+        "EvaluacionResultados": "Evaluaciones de resultado"
+    },
+    "options": {
+        "estado": {
+            "En preparación": "En preparación",
+            "Pendiente de soportes": "Pendiente de soportes",
+            "Completa": "Completa",
+            "Derivada a nueva gestión": "Derivada a nueva gestión",
+            "Derivada a remisión": "Derivada a remisión",
+            "Derivada a valoración jurídica": "Derivada a valoración jurídica",
+            "Cerrada": "Cerrada"
+        }
+    },
+    "links": {
+        "decisionesRuta": "Decisiones de ruta jurídica"
+    }
+}
