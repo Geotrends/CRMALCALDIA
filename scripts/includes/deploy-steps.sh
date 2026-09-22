@@ -5,7 +5,7 @@
 DEPLOY_SETUP_STEPS=(
   "Credenciales admin (Dokploy → archivo local)|write-admin-credentials.php"
   "Usuario administrador (desde .env)|ensure-admin-login.php"
-  "Roles operativos (Inspección, Radicación, Asignación, Patrullaje)|seed-alcaldia-roles.php"
+  "Roles operativos (Inspección, Radicación, Asignación, Patrullaje, Jurídica)|seed-alcaldia-roles.php"
   "Usuarios enrutamiento (Recibida por / Remitido a)|seed-gestion-routing-users.php"
   "Catálogos Excel Alcaldía (desplegables)|configure-excel-alcaldia-case-fields.php"
   "Placeholder en desplegables Case|configure-case-enum-placeholders.php"
@@ -22,6 +22,7 @@ DEPLOY_SETUP_STEPS=(
   "Rol Radicación — solo radicado/expediente|roles/configure-role-radicacion.php"
   "Rol Asignación — solo panel Asignación|roles/configure-role-asignacion.php"
   "Rol Patrullaje — acta de visita y casos asignados|roles/configure-role-patrullaje.php"
+  "Rol Jurídica — Auto de Inicio y Expediente|roles/configure-role-juridica.php"
   "Contraseñas usuarios operativos (inspeccion, radicacion, etc.)|fix-operational-login.php"
   "Permisos Radicación (campos radicado/expediente)|fix-radicacion-access.php"
   "Permisos ComunicacionCaso (todos los roles)|configure-comunicacion-caso-permissions.php"
@@ -79,8 +80,10 @@ deploy_run_legacy_migrations_docker() {
   fi
 }
 
-# Vacía datos de negocio una sola vez por servidor (inicio desde cero).
-# Forzar de nuevo: ESPO_WIPE_BUSINESS_DATA=1
+# Vacía datos de negocio solo cuando se solicita explícitamente.
+# Esta operación elimina usuarios, roles y datos operativos; nunca debe ser
+# una consecuencia automática de un deploy o de una instalación nueva.
+# Forzar: ESPO_WIPE_BUSINESS_DATA=1
 deploy_maybe_wipe_business_data() {
   local app_root="$1"
   local scripts_source="$2"
@@ -95,7 +98,7 @@ deploy_maybe_wipe_business_data() {
     return 0
   fi
 
-  if [ "$force_wipe" = "1" ] || [ ! -f "$wipe_stamp" ]; then
+  if [ "$force_wipe" = "1" ]; then
     echo "Reset total (usuarios, roles, datos)..."
     "$php_bin" "$wipe_script"
     mkdir -p "$app_root/data"
@@ -107,7 +110,7 @@ deploy_maybe_wipe_business_data() {
       "$php_bin" "$seed_script" || exit 1
     fi
   else
-    echo "Wipe omitido (ya ejecutado). Forzar: ESPO_WIPE_BUSINESS_DATA=1"
+    echo "Wipe omitido (solo se ejecuta con ESPO_WIPE_BUSINESS_DATA=1)."
   fi
 }
 
@@ -128,7 +131,7 @@ deploy_maybe_wipe_business_data_docker() {
     STAMP="$APP_ROOT/data/.alcaldia-full-reset-v2"
     FORCE="${ESPO_WIPE_BUSINESS_DATA:-0}"
 
-    if [ "$FORCE" = "1" ] || [ ! -f "$STAMP" ]; then
+    if [ "$FORCE" = "1" ]; then
       echo "Reset total (usuarios, roles, datos)..."
       php /tmp/wipe-business-data.php
       mkdir -p "$APP_ROOT/data"
@@ -139,7 +142,7 @@ deploy_maybe_wipe_business_data_docker() {
         php /tmp/ensure-admin-login.php || exit 1
       fi
     else
-      echo "Wipe omitido (ya ejecutado). Forzar: ESPO_WIPE_BUSINESS_DATA=1"
+      echo "Wipe omitido (solo se ejecuta con ESPO_WIPE_BUSINESS_DATA=1)."
     fi
   '
 }

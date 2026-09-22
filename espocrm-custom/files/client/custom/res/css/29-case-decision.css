@@ -1,0 +1,15 @@
+/* Bloque de decisión jurídica: conserva la superficie del panel y prioriza las acciones. */
+.case-decision-juridica { background:transparent; border:0; padding:0; }
+.case-visita-decision { border-top:1px solid #b5dfd8; margin-top:16px; padding-top:16px; }
+.case-visita-decision .case-decision-juridica-form { margin-bottom:0; }
+.case-decision-juridica__intro { align-items:flex-start; display:flex; gap:11px; }
+.case-decision-juridica__icon { align-items:center; background:#e6f0ef; border-radius:9px; color:#356963; display:inline-flex; flex:0 0 34px; font-size:15px; height:34px; justify-content:center; }
+.case-decision-juridica__eyebrow { color:#315955; display:block; font-size:12px; font-weight:700; line-height:1.25; margin:1px 0 3px; }
+.case-decision-juridica__intro p { color:#70818d; font-size:12px; line-height:1.45; margin:0; }
+.case-decision-juridica-actions { display:flex; flex-wrap:wrap; gap:9px; margin-top:14px; }
+.case-decision-juridica-btn { align-items:center; border-radius:9px !important; display:inline-flex; font-size:12px; font-weight:700; gap:7px; min-height:34px; padding:7px 12px; }
+.case-decision-juridica-btn--cerrar { background:#fff !important; border-color:#bdcfcd !important; color:#416561 !important; }
+.case-decision-juridica-btn--cerrar:hover, .case-decision-juridica-btn--cerrar:focus { background:#eef5f4 !important; border-color:#769a95 !important; }
+.case-decision-juridica-btn--abrir { background:#356963 !important; border-color:#356963 !important; color:#fff !important; }
+.case-decision-juridica-btn--abrir:hover, .case-decision-juridica-btn--abrir:focus { background:#274f4b !important; border-color:#274f4b !important; }
+@media (max-width:520px) { .case-decision-juridica-actions { flex-direction:column; } .case-decision-juridica-btn { justify-content:center; width:100%; } }

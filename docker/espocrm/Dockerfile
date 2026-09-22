@@ -1,4 +1,6 @@
-FROM espocrm/espocrm
+# EspoCRM 10 requiere montajes persistentes separados para data, custom y
+# client/custom; la configuración está definida en docker-compose.yml.
+FROM espocrm/espocrm:10.0.6
 
 USER root
 
@@ -9,8 +11,8 @@ RUN apt-get update \
         python3-openpyxl \
         python3-pymupdf \
         python3-uno \
-        libreoffice-calc \
-        libreoffice-writer \
+        libreoffice-calc-nogui \
+        libreoffice-writer-nogui \
         libreoffice-core \
     && rm -rf /var/lib/apt/lists/* \
     && a2enmod proxy proxy_http proxy_wstunnel

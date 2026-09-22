@@ -38,6 +38,16 @@
     {{/if}}
     <p class="text-muted small case-visita-archivo-help">{{archivoHelp}}</p>
     <div class="btn-group-vertical w-100 case-visita-archivo-actions">
+        {{#if canConsultar}}
+        <button
+            type="button"
+            class="btn btn-default btn-sm case-acta-visita-btn"
+            data-action="consultarActa"
+            data-acta-id="{{actaId}}"
+        >
+            <span class="fas fa-file-lines"></span> {{../buttonLabelConsultarActa}}
+        </button>
+        {{/if}}
         <button
             type="button"
             class="btn btn-primary btn-sm case-acta-visita-btn"
@@ -46,17 +56,32 @@
         >
             <span class="fas fa-laptop"></span> {{../buttonLabelEditarActa}}
         </button>
-        <button
-            type="button"
-            class="btn btn-default btn-sm case-acta-visita-btn"
-            data-action="imprimirActaArchivo"
-            data-acta-id="{{actaId}}"
-        >
-            <span class="fas fa-print"></span> {{../buttonLabelManual}}
-        </button>
     </div>
+    {{#if hasRevision}}
+    <div class="case-visita-decision-summary">
+        <strong>Revisión técnico-jurídica</strong>
+        <dl>
+            <div><dt>Decisión</dt><dd>{{decisionTramite}}</dd></div>
+            {{#if revisadoPor}}<div><dt>Registrada por</dt><dd>{{revisadoPor}}</dd></div>{{/if}}
+            {{#if fechaRevision}}<div><dt>Fecha de revisión</dt><dd>{{fechaRevision}}</dd></div>{{/if}}
+            {{#if entidadRemision}}<div><dt>Entidad competente</dt><dd>{{entidadRemision}}</dd></div>{{/if}}
+            {{#if motivacionRevision}}<div class="case-visita-decision-motivo"><dt>Motivación</dt><dd>{{motivacionRevision}}</dd></div>{{/if}}
+        </dl>
+    </div>
+    {{/if}}
 </div>
 {{/each}}
+{{#if wordDownloadEnabled}}
+<div class="case-acta-word-section">
+    <button
+        type="button"
+        class="btn btn-default btn-sm case-acta-visita-btn"
+        data-action="descargarActaWord"
+    >
+        <span class="fas fa-file-word"></span> {{buttonLabelWord}}
+    </button>
+</div>
+{{/if}}
 {{#if showAgregarVisitaArchivo}}
 <div class="case-agregar-visita-section">
     <p class="text-muted small case-agregar-visita-help">{{agregarVisitaHelp}}</p>
@@ -122,14 +147,6 @@
         {{#unless actionsEnabled}}disabled{{/unless}}
     >
         <span class="fas fa-laptop"></span> {{buttonLabelDigital}}
-    </button>
-    <button
-        type="button"
-        class="btn btn-default btn-sm case-acta-visita-btn"
-        data-action="imprimirActaManual"
-        {{#unless actionsEnabled}}disabled{{/unless}}
-    >
-        <span class="fas fa-print"></span> {{buttonLabelManual}}
     </button>
 </div>
 {{/if}}

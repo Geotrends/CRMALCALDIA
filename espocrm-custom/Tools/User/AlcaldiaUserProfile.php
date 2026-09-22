@@ -29,6 +29,13 @@ class AlcaldiaUserProfile
 
     public const ROLE_ASIGNACION_ALT = 'Asignacion';
 
+    public const ROLE_JURIDICA = 'Jurídica';
+
+    public const ROLE_JURIDICA_ALT = 'Juridica';
+
+    /** @var string[] */
+    private const NAMES_JURIDICA = [self::ROLE_JURIDICA, self::ROLE_JURIDICA_ALT];
+
     /** @var string[] */
     private const NAMES_INSPECCION = [self::ROLE_INSPECCION, self::ROLE_INSPECCION_ALT];
 
@@ -61,10 +68,12 @@ class AlcaldiaUserProfile
                 'isRadicacion' => true,
                 'isPatrullero' => true,
                 'isAsignador' => true,
+                'isJuridica' => true,
                 'canDownloadExcelAlcaldia' => true,
                 'homeProfile' => 'gestion',
                 'canEditRadicado' => true,
                 'canAssignCase' => true,
+                'canManageAutoInicio' => true,
                 'roles' => $this->getAssignedRoleNames($user),
             ];
         }
@@ -75,6 +84,7 @@ class AlcaldiaUserProfile
             'isRadicacion' => $this->isRadicacion($user),
             'isPatrullero' => $this->hasAnyRole($user, self::NAMES_PATRULLAJE),
             'isAsignador' => $this->isAsignador($user),
+            'isJuridica' => $this->isJuridica($user),
             'canDownloadExcelAlcaldia' => $this->canDownloadExcelAlcaldia($user),
             'roles' => $this->getAssignedRoleNames($user),
         ];
@@ -82,6 +92,7 @@ class AlcaldiaUserProfile
         $flags['homeProfile'] = $this->resolveHomeProfile($user, $flags);
         $flags['canEditRadicado'] = $this->canEditRadicado($user);
         $flags['canAssignCase'] = $this->canAssignCase($user);
+        $flags['canManageAutoInicio'] = $this->canManageAutoInicio($user);
 
         return $flags;
     }
@@ -124,6 +135,7 @@ class AlcaldiaUserProfile
             'isRadicacion' => $this->isRadicacion($user),
             'isPatrullero' => $this->hasAnyRole($user, self::NAMES_PATRULLAJE),
             'isAsignador' => $this->isAsignador($user),
+            'isJuridica' => $this->isJuridica($user),
         ];
 
         if ($flags['isInspeccion']) {
@@ -140,6 +152,10 @@ class AlcaldiaUserProfile
 
         if ($flags['isPatrullero']) {
             return 'patrullero';
+        }
+
+        if ($flags['isJuridica'] ?? false) {
+            return 'juridica';
         }
 
         return 'gestion';
@@ -163,6 +179,23 @@ class AlcaldiaUserProfile
     public function isAsignador(User $user): bool
     {
         return $user->isAdmin() || $this->hasAnyRole($user, self::NAMES_ASIGNADOR);
+    }
+
+    public function isJuridica(User $user): bool
+    {
+        return !$user->isAdmin() && $this->hasAnyRole($user, self::NAMES_JURIDICA);
+    }
+
+    /**
+     * Quién puede crear/gestionar el Auto de Inicio (abrir el trámite jurídico/policivo).
+     */
+    public function canManageAutoInicio(User $user): bool
+    {
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        return $this->isJuridica($user);
     }
 
     public function canEditRadicado(User $user): bool
@@ -251,5 +284,28 @@ class AlcaldiaUserProfile
         }
 
         return array_values(array_unique($ids));
+    }
+
+    /**
+     * Cuentas admin activas — para que las notificaciones por rol de negocio
+     * también lleguen a un admin que cumpla funciones operativas, igual que
+     * ya hace CaseAlertNotifier con las alertas de vencimiento.
+     *
+     * @return string[]
+     */
+    public function findActiveAdminUserIds(): array
+    {
+        $ids = [];
+
+        foreach (
+            $this->entityManager
+                ->getRDBRepositoryByClass(User::class)
+                ->where(['isActive' => true, 'type' => User::TYPE_ADMIN])
+                ->find() as $user
+        ) {
+            $ids[] = $user->getId();
+        }
+
+        return $ids;
     }
 }

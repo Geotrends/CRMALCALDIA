@@ -195,7 +195,14 @@ if (!$prefs) {
 
 $prefs->set('tabList', null);
 $prefs->set('useCustomTabList', false);
-$injectableFactory->create(AlcaldiaLocaleDefaults::class)->applyToPreferences($prefs);
+// En una instalación nueva de EspoCRM, este script se ejecuta antes de que
+// espocrm-init copie el custom. Las preferencias institucionales se aplican
+// en la verificación final, una vez la clase ya está disponible.
+if (class_exists(AlcaldiaLocaleDefaults::class)) {
+    $injectableFactory->create(AlcaldiaLocaleDefaults::class)->applyToPreferences($prefs);
+} else {
+    echo 'AVISO: custom aún no copiado; se omiten preferencias institucionales temporalmente.' . PHP_EOL;
+}
 $em->saveEntity($prefs, ['skipHooks' => true]);
 
 $adminCount = (int) $pdo->query(

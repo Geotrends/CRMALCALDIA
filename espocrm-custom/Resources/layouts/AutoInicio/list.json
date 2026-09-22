@@ -1,0 +1,8 @@
+[
+    {"name": "name", "width": 22, "link": true},
+    {"name": "case", "width": 15},
+    {"name": "expediente", "width": 15},
+    {"name": "tipoTramite", "width": 25},
+    {"name": "estado", "width": 12},
+    {"name": "createdAt", "width": 11}
+]

@@ -1,0 +1,32 @@
+{
+    "fields": {
+        "name": "Nombre",
+        "tipo": "Tipo",
+        "direccion": "Dirección",
+        "barrio": "Barrio",
+        "descripcion": "Descripción",
+        "casos": "Casos reportados",
+        "assignedUser": "Responsable",
+        "teams": "Equipos",
+        "createdAt": "Creado",
+        "modifiedAt": "Modificado"
+    },
+    "labels": {
+        "Create Destino": "Crear destino",
+        "Destino": "Destino",
+        "Destinos": "Destinos"
+    },
+    "options": {
+        "tipo": {
+            "Establecimiento": "Establecimiento",
+            "Persona": "Persona",
+            "Inmueble / Predio": "Inmueble / Predio",
+            "Lugar": "Lugar",
+            "Actividad": "Actividad",
+            "Fuente": "Fuente"
+        }
+    },
+    "links": {
+        "casos": "Casos reportados"
+    }
+}

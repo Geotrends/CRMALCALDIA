@@ -9,7 +9,7 @@
     window.__crmThemeButtons = true;
 
     var STYLE_ID = 'crm-modern-buttons-style';
-    var VERSION = 'ui-panel-btn-icons-dark-v2-2026-07-06';
+    var VERSION = 'ui-panel-btn-icons-dark-v3-2026-09-22';
 
     var INLINE_CSS = '' +
         'html.crm-modern-ui body .btn,' +
@@ -132,10 +132,8 @@
         'html.crm-modern-ui body .label[data-case-status="Radicado"]::before{content:"\\f15c";}' +
         'html.crm-modern-ui body .label-caseAsignado::before,' +
         'html.crm-modern-ui body .label[data-case-status="Asignado"]::before{content:"\\f4fc";}' +
-        'html.crm-modern-ui body .label-caseEnProceso::before,' +
-        'html.crm-modern-ui body .label[data-case-status="En proceso"]::before{content:"\\f085";}' +
-        'html.crm-modern-ui body .label-caseVisitaRealizada::before,' +
-        'html.crm-modern-ui body .label[data-case-status="Visita realizada"]::before{content:"\\f3c5";}' +
+        'html.crm-modern-ui body .label-caseEnGestionTecnica::before,' +
+        'html.crm-modern-ui body .label[data-case-status="En gestión técnica"]::before{content:"\\f085";}' +
         'html.crm-modern-ui body .label-caseVisitaAprobada::before,' +
         'html.crm-modern-ui body .label[data-case-status="Visita aprobada"]::before{content:"\\f058";}' +
         'html.crm-modern-ui body .label-caseFinalizado::before,' +

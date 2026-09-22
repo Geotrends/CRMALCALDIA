@@ -1,0 +1,46 @@
+{
+    "fields": {
+        "name": "Nombre",
+        "numero": "Número de expediente",
+        "anio": "Año",
+        "consecutivo": "Consecutivo",
+        "tipoTramite": "Tipo de trámite",
+        "estado": "Estado",
+        "assignedUser": "Responsable",
+        "teams": "Equipos",
+        "createdAt": "Creado",
+        "modifiedAt": "Modificado",
+        "casos": "Radicados vinculados",
+        "autosInicio": "Autos de inicio",
+        "decisionesRuta": "Decisiones de ruta jurídica"
+    },
+    "labels": {
+        "Create Expediente": "Crear expediente",
+        "Expediente": "Expediente",
+        "Expedientes": "Expedientes"
+    },
+    "options": {
+        "tipoTramite": {
+            "Sin definir": "Sin definir",
+            "Sancionatorio ambiental (Ley 1333/2009 - IV-P-028)": "Sancionatorio ambiental (Ley 1333/2009 - IV-P-028)",
+            "Código de policía y bienestar animal (Ley 1801/2016 - IV-P-021)": "Código de policía y bienestar animal (Ley 1801/2016 - IV-P-021)"
+        },
+        "estado": {
+            "Abierto": "Abierto",
+            "Elaboración de acto de decisión": "Elaboración de acto de decisión (Ley 1333/2009)",
+            "Notificación de acto administrativo": "Notificación de acto administrativo (Ley 1333/2009)",
+            "Remisión a Autoridad Ambiental": "Remisión a Autoridad Ambiental (Ley 1333/2009)",
+            "Audiencia pública": "Audiencia pública (Ley 1801/2016)",
+            "Práctica de pruebas": "Práctica de pruebas (Ley 1801/2016)",
+            "Recepción y respuesta de recursos": "Recepción y respuesta de recursos (Ley 1801/2016)",
+            "Revisión de pago de sanciones pecuniarias": "Revisión de pago de sanciones pecuniarias (Ley 1801/2016)",
+            "Verificación de acción correctiva": "Verificación de acción correctiva (Ley 1801/2016)",
+            "Auto de Archivo": "Auto de Archivo"
+        }
+    },
+    "links": {
+        "casos": "Radicados vinculados",
+        "autosInicio": "Autos de inicio",
+        "decisionesRuta": "Decisiones de ruta jurídica"
+    }
+}

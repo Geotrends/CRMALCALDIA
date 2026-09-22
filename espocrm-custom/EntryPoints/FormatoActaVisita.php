@@ -18,7 +18,7 @@ class FormatoActaVisita implements EntryPoint
     public function run(Request $request, Response $response): void
     {
         $id = $request->getQueryParam('id');
-        $format = 'pdf';
+        $format = strtolower(trim((string) ($request->getQueryParam('format') ?? 'pdf')));
 
         if (!$id) {
             throw new BadRequest('No id.');

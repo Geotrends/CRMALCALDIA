@@ -1,0 +1,21 @@
+[
+    {
+        "rows": [
+            [
+                {"name": "numero"},
+                {"name": "estado"}
+            ],
+            [
+                {"name": "anio"},
+                {"name": "consecutivo"}
+            ],
+            [
+                {"name": "tipoTramite", "fullWidth": true}
+            ],
+            [
+                {"name": "assignedUser"},
+                {"name": "teams"}
+            ]
+        ]
+    }
+]

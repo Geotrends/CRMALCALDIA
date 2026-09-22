@@ -1,0 +1,20 @@
+[
+    {
+        "rows": [
+            [
+                {"name": "case"},
+                {"name": "estado"}
+            ],
+            [
+                {"name": "responsable"},
+                {"name": "fechaSolicitud"}
+            ],
+            [
+                {"name": "motivo", "fullWidth": true}
+            ],
+            [
+                {"name": "observaciones", "fullWidth": true}
+            ]
+        ]
+    }
+]

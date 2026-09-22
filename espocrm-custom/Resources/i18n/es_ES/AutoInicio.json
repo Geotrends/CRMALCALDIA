@@ -1,0 +1,43 @@
+{
+    "fields": {
+        "name": "Nombre",
+        "case": "Caso vinculado",
+        "expediente": "Expediente",
+        "fechaAuto": "Fecha del auto",
+        "numeroRadicado": "Número de radicado",
+        "consecutivoInterno": "Número de expediente",
+        "tipoTramite": "Tipo de trámite",
+        "referencia": "Referencia (tema del proceso)",
+        "motivoApertura": "Fundamento de apertura",
+        "fechaDada": "Fecha de expedición",
+        "inspector": "Responsable",
+        "inspectorCargo": "Cargo del responsable",
+        "estado": "Estado",
+        "cFormatoAutoInicioPdf": "Auto de inicio (PDF)",
+        "assignedUser": "Responsable",
+        "teams": "Equipos",
+        "createdAt": "Creado",
+        "modifiedAt": "Modificado"
+    },
+    "labels": {
+        "Create AutoInicio": "Crear auto de inicio",
+        "AutoInicio": "Auto de inicio",
+        "AutosInicio": "Autos de inicio"
+    },
+    "options": {
+        "estado": {
+            "Pendiente": "Pendiente",
+            "Diligenciada": "Diligenciada"
+        },
+        "tipoTramite": {
+            "Sin definir": "Sin definir",
+            "Sancionatorio ambiental (Ley 1333/2009 - IV-P-028)": "Sancionatorio ambiental (Ley 1333/2009 - IV-P-028)",
+            "Código de policía y bienestar animal (Ley 1801/2016 - IV-P-021)": "Código de policía y bienestar animal (Ley 1801/2016 - IV-P-021)"
+        }
+    },
+    "links": {
+        "case": "Caso",
+        "expediente": "Expediente",
+        "inspector": "Responsable"
+    }
+}

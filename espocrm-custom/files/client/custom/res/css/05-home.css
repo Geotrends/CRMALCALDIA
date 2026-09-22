@@ -108,6 +108,75 @@ body:has(.custom-home) .row {
   display: block !important;
 }
 
+/* ── Portada de la plataforma ── */
+.custom-home-welcome {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 24px;
+  color: var(--crm-text);
+}
+
+.custom-home-welcome__hero {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(30px, 5vw, 64px);
+  border-radius: 24px;
+  background: linear-gradient(135deg, #244c49 0%, #365a57 57%, #47716b 100%);
+  color: #fff;
+  box-shadow: 0 18px 38px rgba(36, 76, 73, 0.2);
+}
+
+.custom-home-welcome__hero::after {
+  position: absolute;
+  right: -70px;
+  bottom: -120px;
+  width: 320px;
+  height: 320px;
+  border: 48px solid rgba(237, 196, 69, 0.18);
+  border-radius: 50%;
+  content: '';
+}
+
+.custom-home-welcome__hero > * { position: relative; z-index: 1; max-width: 780px; }
+.custom-home-welcome__eyebrow, .custom-home-welcome__section-heading > span { color: #c99820; font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+.custom-home-welcome__eyebrow .fas { margin-right: 7px; }
+.custom-home-welcome__hero h1 { max-width: 760px; margin: 13px 0; color: #fff; font-size: clamp(27px, 3.5vw, 46px); font-weight: 650; letter-spacing: -.03em; line-height: 1.1; }
+.custom-home-welcome__hero p { max-width: 690px; margin: 0; color: rgba(255,255,255,.86); font-size: 16px; line-height: 1.65; }
+.custom-home-welcome__hero .custom-home-welcome__subtitle { margin: 0 0 8px; color: #edc445; font-size: 17px; font-weight: 650; line-height: 1.4; }
+.custom-home-welcome__actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; }
+.custom-home-welcome__action { border: 1px solid #edc445; border-radius: 999px; padding: 11px 17px; background: #edc445; color: #244c49; font-size: 13px; font-weight: 700; cursor: pointer; }
+.custom-home-welcome__action .fas { margin-right: 7px; }
+.custom-home-welcome__action--secondary { border-color: rgba(255,255,255,.45); background: rgba(255,255,255,.1); color: #fff; }
+.custom-home-welcome__purpose { display: flex; gap: 14px; align-items: flex-start; margin: 20px 0 34px; padding: 18px 20px; border: 1px solid #d6e5e2; border-radius: 16px; background: #f4f9f8; }
+.custom-home-welcome__purpose > .fas { margin-top: 2px; color: #1d8a6e; font-size: 21px; }
+.custom-home-welcome__purpose strong { font-size: 14px; }
+.custom-home-welcome__purpose p { margin: 4px 0 0; color: var(--crm-text-secondary); line-height: 1.55; }
+.custom-home-welcome__section { margin-top: 38px; }
+.custom-home-welcome__section-heading h2, .custom-home-welcome__vigilance h2 { margin: 5px 0 0; color: var(--crm-text); font-size: 24px; letter-spacing: -.02em; }
+.custom-home-welcome__section-heading > p { margin: 8px 0 0; color: var(--crm-text-secondary); }
+.custom-home-welcome__flow { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; margin-top: 18px; }
+.custom-home-welcome__flow article { position: relative; min-height: 160px; padding: 19px; border: 1px solid var(--crm-border-light); border-radius: 16px; background: var(--crm-surface); box-shadow: 0 5px 16px rgba(15, 23, 42, .04); }
+.custom-home-welcome__flow article:not(:last-child)::after { position: absolute; z-index: 1; top: 36px; right: -19px; width: 25px; border-top: 1px dashed #9ab8b2; content: ''; }
+.custom-home-welcome__flow span { display: inline-flex; width: 29px; height: 29px; align-items: center; justify-content: center; border-radius: 50%; background: #dcefe9; color: #21675b; font-size: 11px; font-weight: 800; }
+.custom-home-welcome h3 { margin: 15px 0 6px; color: var(--crm-text); font-size: 15px; font-weight: 700; }
+.custom-home-welcome__flow p, .custom-home-welcome__roles p, .custom-home-welcome__resources p { margin: 0; color: var(--crm-text-secondary); font-size: 13px; line-height: 1.5; }
+.custom-home-welcome__roles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-top: 18px; }
+.custom-home-welcome__roles article { padding: 20px; border-radius: 16px; background: #fff; border: 1px solid var(--crm-border-light); }
+.custom-home-welcome__roles article > .fas { color: #1d8a6e; font-size: 22px; }
+.custom-home-welcome__vigilance { display: grid; grid-template-columns: minmax(200px, .85fr) minmax(280px, 1.15fr); gap: 26px; align-items: center; margin-top: 38px; padding: 28px; border-radius: 20px; background: #e8f2f0; }
+.custom-home-welcome__vigilance > div > .fas { color: #b78615; font-size: 24px; }
+.custom-home-welcome__vigilance h2 { margin-top: 10px; }
+.custom-home-welcome__vigilance ul { display: grid; gap: 10px; padding: 0; margin: 0; list-style: none; }
+.custom-home-welcome__vigilance li { color: var(--crm-text-secondary); line-height: 1.45; }
+.custom-home-welcome__vigilance li::before { margin-right: 9px; color: #1d8a6e; content: '✓'; font-weight: 800; }
+.custom-home-welcome__learning { margin-top: 38px; padding: 30px; border-top: 1px solid var(--crm-border-light); }
+.custom-home-welcome__resources { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 18px; }
+.custom-home-welcome__resources article { min-height: 178px; padding: 21px; border: 1px dashed #aac6c0; border-radius: 16px; background: #fafcfb; }
+.custom-home-welcome__resources article > .fas { color: #b78615; font-size: 22px; }
+.custom-home-welcome__resources em { display: inline-block; margin-top: 16px; color: #54736e; font-size: 11px; font-style: normal; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
+@media (max-width: 1050px) { .custom-home-welcome__flow { grid-template-columns: repeat(3, minmax(0, 1fr)); } .custom-home-welcome__flow article::after { display: none; } .custom-home-welcome__roles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 640px) { .custom-home-welcome { padding: 16px; } .custom-home-welcome__hero { border-radius: 18px; } .custom-home-welcome__hero h1 { font-size: 29px; } .custom-home-welcome__flow, .custom-home-welcome__roles, .custom-home-welcome__resources, .custom-home-welcome__vigilance { grid-template-columns: 1fr; } .custom-home-welcome__learning, .custom-home-welcome__vigilance { padding: 22px; } }
+
 .custom-home-panel[data-panel="dashboard"] {
   overflow: visible;
 }

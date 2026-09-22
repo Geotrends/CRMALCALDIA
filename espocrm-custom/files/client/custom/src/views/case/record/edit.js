@@ -10,13 +10,18 @@ define('custom:views/case/record/edit', [
     'custom:helpers/asignador-assignment-ui',
     'custom:helpers/case-create-form',
     'custom:helpers/case-create-optional-fields',
-], function (Dep, PersonaTipoFields, PartyDocumentLookup, DireccionEstructurada, RadicacionFields, InspeccionCaseFlow, RadicacionCaseFlow, AsignadorCaseFlow, AsignadorAssignmentUi, CaseCreateForm, CaseCreateOptionalFields) {
+    'custom:helpers/peticion-plazo-fields',
+    'custom:helpers/case-role-guidance',
+    'custom:helpers/compact-form-sections',
+], function (Dep, PersonaTipoFields, PartyDocumentLookup, DireccionEstructurada, RadicacionFields, InspeccionCaseFlow, RadicacionCaseFlow, AsignadorCaseFlow, AsignadorAssignmentUi, CaseCreateForm, CaseCreateOptionalFields, PeticionPlazoFields, CaseRoleGuidance, CompactFormSections) {
 
     return Dep.extend({
 
         setup: function () {
             CaseCreateForm.setup(this);
             CaseCreateOptionalFields.setup(this);
+            PeticionPlazoFields.setup(this);
+            CaseRoleGuidance.setup(this);
             InspeccionCaseFlow.setup(this);
             RadicacionCaseFlow.setup(this);
             AsignadorCaseFlow.setup(this);
@@ -210,6 +215,9 @@ define('custom:views/case/record/edit', [
             AsignadorCaseFlow.schedule(this);
             CaseCreateForm.schedule(this);
             CaseCreateOptionalFields.schedule(this);
+            PeticionPlazoFields.schedule(this);
+            CaseRoleGuidance.schedule(this);
+            CompactFormSections.schedule(this);
 
             if (
                 this._asignarMode

@@ -1,0 +1,30 @@
+.notification-item-head {
+    position: relative;
+}
+
+.notification-remove-button {
+    color: #829494;
+    opacity: .72;
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+.stream-item:hover .notification-remove-button,
+.notification-remove-button:focus {
+    opacity: 1;
+}
+
+.notification-clear-read-button {
+    color: #718585;
+    margin-right: 8px;
+}
+
+.notification-clear-read-button:hover,
+.notification-clear-read-button:focus {
+    color: #385f5a;
+}
+
+.notification-remove-button:hover {
+    color: #526b6b;
+}

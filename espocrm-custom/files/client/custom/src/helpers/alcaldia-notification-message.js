@@ -88,6 +88,7 @@ define('custom:helpers/alcaldia-notification-message', [
         const isVisitaAprobada = !!data.isVisitaAprobada
             || /aprobó la visita/i.test(rawMessage);
         const isNuevaSolicitud = !!data.isNuevaSolicitud;
+        const isPendienteRadicacion = !!data.isPendienteRadicacion;
         const isRadicado = !!data.isRadicado;
         const isPatrulleroAsignacion = !!data.isPatrulleroAsignacion
             || /te asignó el caso/i.test(rawMessage);
@@ -95,6 +96,8 @@ define('custom:helpers/alcaldia-notification-message', [
             || (/asignó el caso/i.test(rawMessage)
                 && / a /i.test(rawMessage)
                 && !isPatrulleroAsignacion);
+        const isListoParaDecision = data.eventKey === 'case.visita.aprobada.juridica';
+        const isActaPendienteRevision = data.eventKey === 'acta.diligenciada.pendiente';
         const isVencimientoAlert = !!data.isVencimientoAlert
             || /está vencido|vence en|vence hoy/i.test(rawMessage);
         const isFinalizadoAlert = !!data.isFinalizadoAlert
@@ -146,10 +149,23 @@ define('custom:helpers/alcaldia-notification-message', [
         } else if (isVisitaAprobada) {
             message = userLink(userId, userName)
                 + ' aprobó la visita del caso ' + caseLink(href, linkLabel) + '.';
+        } else if (isActaPendienteRevision) {
+            message = 'Hay un acta de visita lista para revisar en el caso '
+                + caseLink(href, linkLabel) + '.';
+        } else if (isListoParaDecision) {
+            message = 'El caso ' + caseLink(href, linkLabel)
+                + ' está listo para decidir: cerrar sin proceso o abrir Auto de Inicio.';
+        } else if (isPendienteRadicacion) {
+            message = userLink(userId, userName)
+                + ' registró el caso ' + caseLink(href, linkLabel)
+                + '. Requiere radicación.';
         } else if (isNuevaSolicitud) {
             message = userLink(userId, userName)
                 + ' creó una solicitud de queja: '
                 + caseLink(href, linkLabel);
+        } else if (data.isPendienteAsignacion) {
+            message = 'El caso ' + caseLink(href, linkLabel)
+                + ' fue radicado y requiere asignación.';
         } else if (isPatrulleroAsignacion) {
             message = userLink(userId, userName)
                 + ' te asignó el caso ' + caseLink(href, linkLabel);

@@ -4,14 +4,10 @@ define('custom:helpers/acta-visita-case-status', [
 ], function (SilentAjax, CaseFetchCache) {
 
     const POST_VISITA_STATUSES = [
-        'Visita realizada',
-        'Visita aprobada',
+        'En gestión técnica',
+        'Revisión de hallazgos',
         'Finalizado',
         'Proceso cerrado',
-    ];
-
-    const LEGACY_VISITA_STATUSES = [
-        'En proceso',
     ];
 
     const CLOSED_STATUSES = [
@@ -41,16 +37,19 @@ define('custom:helpers/acta-visita-case-status', [
         return status === 'Asignado' || status === 'Assigned';
     };
 
-    const isCaseEnProcesoOtraVisita = function (model) {
-        if (!model) {
-            return false;
-        }
-
-        return String(model.get('status') || '').trim() === 'En proceso de otra visita';
+    // 'En proceso de otra visita' se colapsó en 'En gestión técnica' junto con
+    // 'En proceso' y 'Visita realizada', así que Case.status ya no distingue
+    // "esperando la próxima visita tras solicitar una nueva" de "visita ya en
+    // curso/confirmada". Esa señal ahora vive en GestionTecnica, que solo el
+    // backend puede consultar (ver CaseActaVisitaHelper::isCaseEnProcesoOtraVisita).
+    // Se obtiene vía Case/action/enProcesoOtraVisita y se pasa explícitamente
+    // como parámetro en vez de inferirse solo del status del modelo.
+    const isCaseEnProcesoOtraVisita = function (enProcesoOtraVisita) {
+        return !!enProcesoOtraVisita;
     };
 
-    const isCaseAwaitingFieldVisita = function (model) {
-        return isCaseAsignado(model) || isCaseEnProcesoOtraVisita(model);
+    const isCaseAwaitingFieldVisita = function (model, enProcesoOtraVisita) {
+        return isCaseAsignado(model) || isCaseEnProcesoOtraVisita(enProcesoOtraVisita);
     };
 
     const isActaCompletada = function (acta) {
@@ -86,7 +85,7 @@ define('custom:helpers/acta-visita-case-status', [
             return true;
         }
 
-        return hasText(get('cFormatoActaVisitaPdfId'));
+        return hasText(get('formatoManoAdjuntoIds'));
     };
 
     const hasActaVisitContent = function (acta) {
@@ -185,8 +184,8 @@ define('custom:helpers/acta-visita-case-status', [
         });
     };
 
-    const isAwaitingNewVisita = function (model, actaList) {
-        if (!isCaseAwaitingFieldVisita(model) || !actaList || !actaList.length) {
+    const isAwaitingNewVisita = function (model, actaList, enProcesoOtraVisita) {
+        if (!isCaseAwaitingFieldVisita(model, enProcesoOtraVisita) || !actaList || !actaList.length) {
             return false;
         }
 
@@ -197,7 +196,7 @@ define('custom:helpers/acta-visita-case-status', [
         return !!pickLatestDiligenciada(actaList);
     };
 
-    const pickActaForEdit = function (list, model) {
+    const pickActaForEdit = function (list, model, enProcesoOtraVisita) {
         const actaList = list || [];
 
         if (!actaList.length) {
@@ -210,7 +209,7 @@ define('custom:helpers/acta-visita-case-status', [
             return pending;
         }
 
-        if (isAwaitingNewVisita(model, actaList)) {
+        if (isAwaitingNewVisita(model, actaList, enProcesoOtraVisita)) {
             return null;
         }
 
@@ -250,9 +249,22 @@ define('custom:helpers/acta-visita-case-status', [
         });
     };
 
-    const buildWorkflowState = function (list, model, solicitudState) {
+    // Señal que solo el backend puede calcular (ver comentario de
+    // isCaseEnProcesoOtraVisita): si el caso está en gestión técnica con una
+    // ronda de visita adicional preparada cuya acta aún no se diligencia.
+    const fetchEnProcesoOtraVisitaDirect = function (caseId) {
+        return SilentAjax.getRequest('Case/action/enProcesoOtraVisita', {
+            id: caseId,
+        }).then(function (response) {
+            return !!(response && response.enProcesoOtraVisita);
+        }).catch(function () {
+            return false;
+        });
+    };
+
+    const buildWorkflowState = function (list, model, solicitudState, enProcesoOtraVisita) {
         const actaList = list || [];
-        const awaitingNewVisita = isAwaitingNewVisita(model, actaList);
+        const awaitingNewVisita = isAwaitingNewVisita(model, actaList, enProcesoOtraVisita);
         const hasDiligenciadaActa = !!pickLatestDiligenciada(actaList);
         const solicitud = solicitudState || {
             solicitudNuevaVisitaActiva: false,
@@ -260,7 +272,7 @@ define('custom:helpers/acta-visita-case-status', [
         };
 
         return {
-            acta: pickActaForEdit(actaList, model),
+            acta: pickActaForEdit(actaList, model, enProcesoOtraVisita),
             latestActa: actaList.length ? actaList[0] : null,
             actasHistorial: sortActasHistorial(actaList),
             awaitingNewVisita: awaitingNewVisita,
@@ -270,6 +282,7 @@ define('custom:helpers/acta-visita-case-status', [
             latestPendienteAprobacion: pickLatestPendienteAprobacion(actaList),
             solicitudNuevaVisitaActiva: !!solicitud.solicitudNuevaVisitaActiva,
             latestSolicitud: solicitud.latestSolicitud,
+            enProcesoOtraVisita: !!enProcesoOtraVisita,
         };
     };
 
@@ -294,15 +307,11 @@ define('custom:helpers/acta-visita-case-status', [
 
         const status = String(model.get('status') || '').trim();
 
-        if (isCaseAsignado(model) || isCaseEnProcesoOtraVisita(model)) {
+        if (isCaseAsignado(model)) {
             return false;
         }
 
-        if (POST_VISITA_STATUSES.indexOf(status) !== -1) {
-            return true;
-        }
-
-        return LEGACY_VISITA_STATUSES.indexOf(status) !== -1;
+        return POST_VISITA_STATUSES.indexOf(status) !== -1;
     };
 
     const isVisitaRealizadaForFormatos = function (model, acta) {
@@ -318,7 +327,7 @@ define('custom:helpers/acta-visita-case-status', [
     };
 
     const canRequestNewVisita = function (model, workflow) {
-        if (!model || !workflow || !workflow.hasDiligenciadaActa) {
+        if (!model || !workflow || !(workflow.actaCount > 0)) {
             return false;
         }
 
@@ -328,7 +337,7 @@ define('custom:helpers/acta-visita-case-status', [
             return false;
         }
 
-        return ['Asignado', 'Assigned', 'Visita realizada', 'Visita aprobada', 'En proceso', 'En proceso de otra visita'].indexOf(status) !== -1;
+        return ['Asignado', 'Assigned', 'En gestión técnica', 'Revisión de hallazgos'].indexOf(status) !== -1;
     };
 
     const ACTA_SELECT = [
@@ -341,6 +350,12 @@ define('custom:helpers/acta-visita-case-status', [
         'requerimientos',
         'cFormatoActaVisitaPdfId',
         'cFormatoActaVisitaPdfName',
+        'formatoManoAdjuntoIds',
+        'cDecisionTramite',
+        'observacionesRevision',
+        'cEntidadRemision',
+        'fechaAprobacion',
+        'cRevisadoPor',
         'numeroVisita',
         'modifiedAt',
         'createdAt',
@@ -376,8 +391,11 @@ define('custom:helpers/acta-visita-case-status', [
         }
 
         return CaseFetchCache.fetchActa(caseId, fetchActaListDirect).then(function (list) {
-            return fetchSolicitudVisitaDirect(caseId).then(function (solicitudState) {
-                return buildWorkflowState(list, model, solicitudState);
+            return Promise.all([
+                fetchSolicitudVisitaDirect(caseId),
+                fetchEnProcesoOtraVisitaDirect(caseId),
+            ]).then(function (results) {
+                return buildWorkflowState(list, model, results[0], results[1]);
             });
         });
     };

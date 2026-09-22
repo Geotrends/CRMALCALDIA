@@ -569,6 +569,112 @@ body.alcaldia-asignador-asignar-page .edit[data-scope="Case"] .panel[data-name="
   gap: 8px;
 }
 
+/* Acción principal de Asignación: el selector usa todo el ancho del panel. */
+.detail[data-scope="Case"] .side .panel.alcaldia-asignacion-principal .panel-body > .row,
+.detail[data-scope="Case"] .side .panel.alcaldia-asignacion-principal .panel-body > .row > .cell {
+  width: 100%;
+}
+
+.detail[data-scope="Case"] .side .panel.alcaldia-asignacion-principal .cell[data-name="assignedUser"] {
+  flex: 0 0 100%;
+  max-width: 100%;
+}
+
+.detail[data-scope="Case"] .side .panel.alcaldia-asignacion-principal .cell[data-name="assignedUser"] .field,
+.detail[data-scope="Case"] .side .panel.alcaldia-asignacion-principal .cell[data-name="assignedUser"] .link-container,
+.detail[data-scope="Case"] .side .panel.alcaldia-asignacion-principal .cell[data-name="assignedUser"] .input-group {
+  width: 100%;
+}
+
+.detail[data-scope="Case"] .side .panel.alcaldia-asignacion-principal .cell[data-name="assignedUser"] .input-group {
+  display: flex;
+}
+
+.detail[data-scope="Case"] .side .panel.alcaldia-asignacion-principal .cell[data-name="assignedUser"] input {
+  min-width: 0;
+  width: 100%;
+}
+
+/* Asignación abre únicamente el sidecar; sin autocompletado ni acciones fuera del panel. */
+.detail[data-scope="Case"] .side .panel.alcaldia-asignacion-principal .alcaldia-sidecar-picker-only > :not(.alcaldia-open-patrullero-picker) {
+  display: none !important;
+}
+
+.detail[data-scope="Case"] .side .panel.alcaldia-asignacion-principal .alcaldia-open-patrullero-picker {
+  align-items: center;
+  background: var(--crm-surface);
+  border: 1px solid var(--crm-form-value-border);
+  border-radius: var(--crm-radius-md);
+  color: var(--crm-form-accent-dark);
+  display: flex;
+  font-weight: 600;
+  gap: 10px;
+  justify-content: flex-start;
+  min-height: 42px;
+  overflow: hidden;
+  padding: 10px 13px;
+  text-align: left;
+  width: 100%;
+}
+
+.detail[data-scope="Case"] .side .panel.alcaldia-asignacion-principal .alcaldia-open-patrullero-picker:hover,
+.detail[data-scope="Case"] .side .panel.alcaldia-asignacion-principal .alcaldia-open-patrullero-picker:focus {
+  background: #f3faf7;
+  border-color: var(--crm-primary);
+  outline: 0;
+}
+
+.detail[data-scope="Case"] .side .panel.alcaldia-asignacion-principal .alcaldia-open-patrullero-picker__label {
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* El campo original se conserva oculto para abrir el sidecar, pero nunca se
+   permite que su autocompletado o sus iconos afecten el alto/ancho del panel. */
+.detail[data-scope="Case"] .side .panel.alcaldia-asignacion-principal .cell.alcaldia-sidecar-only-control > :not(.alcaldia-assignment-sidecar-launcher) {
+  display: none !important;
+}
+
+.detail[data-scope="Case"] .side .panel.alcaldia-asignacion-principal .cell.alcaldia-sidecar-only-control {
+  display: block !important;
+  flex: 0 0 100% !important;
+  max-width: 100% !important;
+  overflow: hidden;
+  padding-bottom: 14px !important;
+}
+
+.detail[data-scope="Case"] .side .panel.alcaldia-asignacion-principal .alcaldia-assignment-sidecar-launcher {
+  align-items: center;
+  background: var(--crm-surface);
+  border: 1px solid var(--crm-form-value-border);
+  border-radius: var(--crm-radius-md);
+  color: var(--crm-form-accent-dark);
+  display: flex;
+  font-weight: 600;
+  gap: 10px;
+  justify-content: flex-start;
+  min-height: 42px;
+  padding: 10px 13px;
+  text-align: left;
+  width: 100%;
+}
+
+.detail[data-scope="Case"] .side .panel.alcaldia-asignacion-principal .alcaldia-assignment-sidecar-launcher:hover,
+.detail[data-scope="Case"] .side .panel.alcaldia-asignacion-principal .alcaldia-assignment-sidecar-launcher:focus {
+  background: #f3faf7;
+  border-color: var(--crm-primary);
+  outline: 0;
+}
+
+.detail[data-scope="Case"] .side .panel.alcaldia-asignacion-principal .alcaldia-assignment-sidecar-launcher__label {
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .alcaldia-asignacion-modal .modal-body .form-group {
   margin-bottom: 16px;
 }

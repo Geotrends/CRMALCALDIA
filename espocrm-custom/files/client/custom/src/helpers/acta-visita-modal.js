@@ -153,6 +153,30 @@ define('custom:helpers/acta-visita-modal', [
 
     return {
         open: open,
+        openDetailById: function (hostView, actaId) {
+            const host = resolveHostView(hostView);
+
+            if (!host || !actaId) {
+                Espo.Ui.error('No se pudo abrir la consulta del acta.');
+                return;
+            }
+
+            const helper = new RecordModalHelper();
+
+            // showDetail abre el resumen y deriva a otra pantalla para el
+            // formulario. showEdit con el layout detail conserva el sidecar
+            // pero carga todos los campos y adjuntos de una vez.
+            helper.showEdit(host, {
+                entityType: 'ActaVisita',
+                id: actaId,
+                layoutName: 'detail',
+                fullFormDisabled: true,
+                readOnly: true,
+                removeDisabled: true,
+            }).catch(function () {
+                // Cierre normal del panel de consulta.
+            });
+        },
         openEditById: function (hostView, caseModel, actaId, user, options) {
             options = options || {};
 

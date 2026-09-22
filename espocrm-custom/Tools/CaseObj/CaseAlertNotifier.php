@@ -126,10 +126,14 @@ class CaseAlertNotifier
             $userIds[] = $userId;
         }
 
-        $assignedUserId = $case->get('assignedUserId');
+        $assignedUserId = trim((string) $case->get('assignedUserId'));
 
-        if ($assignedUserId) {
-            $userIds[] = $assignedUserId;
+        if ($assignedUserId !== '') {
+            $assignedUser = $this->entityManager->getEntityById(User::ENTITY_TYPE, $assignedUserId);
+
+            if ($assignedUser && $assignedUser->get('isActive')) {
+                $userIds[] = $assignedUserId;
+            }
         }
 
         return array_values(array_unique($userIds));

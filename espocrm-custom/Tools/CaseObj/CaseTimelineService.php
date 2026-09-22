@@ -2,6 +2,8 @@
 
 namespace Espo\Custom\Tools\CaseObj;
 
+use Espo\Custom\Tools\Expediente\ExpedientePasosCatalog;
+use Espo\Custom\Tools\Expediente\ExpedienteVencimientoHelper;
 use Espo\ORM\Entity;
 use Espo\ORM\EntityManager;
 
@@ -12,13 +14,26 @@ class CaseTimelineService
         'Pendiente de radicacion',
         'Radicado',
         'Asignado',
-        'Visita realizada',
-        'Visita aprobada',
+        CaseActaVisitaHelper::STATUS_EN_GESTION_TECNICA,
+        'Revisión de hallazgos',
         'Finalizado',
-        'Proceso cerrado',
     ];
 
-    private const LEGACY_STATUS_EN_PROCESO = 'En proceso';
+    /** Índice posterior a la valoración, antes de una posible bifurcación policiva. */
+    private const BASE_LENGTH = 5;
+
+    /**
+     * Antes de colapsar el status del Case, este paso del flujo tuvo estos 3 nombres.
+     * Se conservan como alias de lectura para timelines de casos históricos (Notes
+     * antiguas, fechas ya registradas) que quedaron con esos valores.
+     *
+     * @var string[]
+     */
+    private const LEGACY_GESTION_TECNICA_STATUSES = [
+        'En proceso',
+        'Visita realizada',
+        'En proceso de otra visita',
+    ];
 
     public function __construct(
         private EntityManager $entityManager
@@ -30,17 +45,42 @@ class CaseTimelineService
     public function build(Entity $case, ?array $statusDates = null): array
     {
         $currentStatus = $this->normalizeStatus((string) $case->get('status'));
-        $currentIndex = $this->resolveCurrentIndex($case, $currentStatus);
+        $expediente = $this->resolveExpedienteInfo($case);
+        $flow = $this->resolveFlow($expediente);
+
+        $currentIndex = $expediente
+            ? self::BASE_LENGTH + $expediente['pasoIndex']
+            : $this->resolveCurrentIndex($case, $currentStatus);
+
+        // El registro es previo al trámite; la figura apunta a la siguiente
+        // actuación operativa sin confundirla con una etapa ya cumplida.
+        $nextActionByStatus = [
+            'Pendiente de radicacion' => 'Radicado',
+            'Radicado' => 'Asignado',
+            'Asignado' => CaseActaVisitaHelper::STATUS_EN_GESTION_TECNICA,
+            CaseActaVisitaHelper::STATUS_EN_GESTION_TECNICA => 'Revisión de hallazgos',
+            'Revisión de hallazgos' => 'Finalizado',
+        ];
+
+        if (!$expediente && isset($nextActionByStatus[$currentStatus])) {
+            $currentIndex = max(
+                $currentIndex,
+                array_search($nextActionByStatus[$currentStatus], self::STATUS_FLOW, true)
+            );
+        }
 
         $statusDates = $this->mergeLegacyStatusDates($statusDates ?? $this->resolveStatusDates($case));
         $actualDates = $statusDates;
-        $statusDates = $this->fillMissingDatesForCompletedSteps($statusDates, $currentIndex);
-        $total = count(self::STATUS_FLOW);
+        $statusDates = $this->fillMissingDatesForCompletedSteps($statusDates, min($currentIndex, count($flow) - 1), $flow);
+        $total = count($flow);
         $progress = $total > 1 ? (int) round(($currentIndex / ($total - 1)) * 100) : 0;
 
         $steps = [];
+        $numeroRadicado = trim((string) $case->get('cNumeroRadicado'));
+        $fechaLimiteRespuesta = trim((string) $case->get('cFechaVencimiento'));
+        $fechaLimitePasoPolicivo = $this->resolvePolicivoDeadline($expediente, $flow[$currentIndex] ?? '');
 
-        foreach (self::STATUS_FLOW as $index => $status) {
+        foreach ($flow as $index => $status) {
             $state = 'pending';
 
             if ($index < $currentIndex) {
@@ -51,22 +91,44 @@ class CaseTimelineService
 
             $startedAt = $actualDates[$status] ?? null;
 
-            if ($status === 'Visita realizada' && $startedAt === null) {
-                $startedAt = $actualDates[self::LEGACY_STATUS_EN_PROCESO] ?? null;
+            if ($status === CaseActaVisitaHelper::STATUS_EN_GESTION_TECNICA && $startedAt === null) {
+                foreach (self::LEGACY_GESTION_TECNICA_STATUSES as $legacyStatus) {
+                    if (isset($actualDates[$legacyStatus])) {
+                        $startedAt = $actualDates[$legacyStatus];
+
+                        break;
+                    }
+                }
             }
 
-            $endedAt = $this->resolveEndedAt($index, $actualDates);
+            $endedAt = $this->resolveEndedAt($index, $actualDates, $flow);
 
             if ($state === 'current') {
                 $endedAt = null;
             }
 
+            $fechaLimite = $index === $currentIndex
+                ? ($expediente ? $fechaLimitePasoPolicivo : ($fechaLimiteRespuesta ?: null))
+                : null;
+
             $steps[] = [
                 'status' => $status,
+                'label' => $status,
                 'state' => $state,
                 'date' => $statusDates[$status] ?? null,
                 'startedAt' => $startedAt,
                 'endedAt' => $endedAt,
+                // Misma fuente que el cronograma: fecha límite de respuesta
+                // o plazo del paso cuando existe un expediente definido.
+                'deadline' => $fechaLimite,
+                'deadlineLabel' => $expediente ? 'Fecha límite del paso' : 'Fecha límite de respuesta',
+                // Evidencia visible de la formalización del ingreso en el hito de radicación.
+                'reference' => $status === 'Radicado' && $numeroRadicado !== ''
+                    ? 'N.º de radicado: ' . $numeroRadicado
+                    : null,
+                'variant' => ($expediente && $index >= self::BASE_LENGTH && $status !== 'Finalizado')
+                    ? 'escalado'
+                    : null,
             ];
         }
 
@@ -76,7 +138,112 @@ class CaseTimelineService
             'totalSteps' => $total,
             'progress' => $progress,
             'steps' => $steps,
+            'expedienteId' => $expediente['expedienteId'] ?? null,
+            'tramiteRoute' => $this->resolveTramiteRoute($expediente),
         ];
+    }
+
+    /**
+     * Si el caso tiene un Expediente vinculado con una rama jurídica
+     * definida (tipoTramite), los pasos del proceso policivo se insertan
+     * entre la valoración de hallazgos y el cierre — el radicado ya cumplió los
+     * pasos anteriores; lo que sigue es el trámite propio del expediente
+     * (ver ExpedientePasosCatalog, tomado de IV-P-028/IV-P-021).
+     *
+     * @return array{expedienteId: string, tipoTramite: string, pasos: string[], plazos: array<string, int>, pasoIndex: int}|null
+     */
+    private function resolveExpedienteInfo(Entity $case): ?array
+    {
+        $expedienteId = trim((string) $case->get('expedienteId'));
+
+        if ($expedienteId === '') {
+            return null;
+        }
+
+        $expediente = $this->entityManager->getEntityById('Expediente', $expedienteId);
+
+        if (!$expediente) {
+            return null;
+        }
+
+        $tipoTramite = trim((string) $expediente->get('tipoTramite'));
+        $catalog = new ExpedientePasosCatalog();
+        $plazos = $catalog->getPasosConPlazo($tipoTramite);
+
+        if ($plazos === []) {
+            // Sin rama definida todavía: no hay pasos que insertar.
+            return null;
+        }
+
+        $pasos = array_keys($plazos);
+        $estadoActual = trim((string) $expediente->get('estado')) ?: ExpedientePasosCatalog::ESTADO_ABIERTO;
+        $pasoIndex = array_search($estadoActual, $pasos, true);
+
+        if ($pasoIndex === false) {
+            $pasoIndex = 0;
+        }
+
+        return [
+            'expedienteId' => $expedienteId,
+            'tipoTramite' => $tipoTramite,
+            'pasos' => $pasos,
+            'plazos' => $plazos,
+            'pasoIndex' => $pasoIndex,
+            'fechaInicioPaso' => $expediente->get('fechaInicioPaso')
+                ? (string) $expediente->get('fechaInicioPaso')
+                : null,
+        ];
+    }
+
+    /**
+     * @param array{pasos: string[]}|null $expediente
+     * @return string[]
+     */
+    private function resolveFlow(?array $expediente): array
+    {
+        if (!$expediente) {
+            return self::STATUS_FLOW;
+        }
+
+        $base = array_slice(self::STATUS_FLOW, 0, self::BASE_LENGTH);
+
+        return array_merge($base, $expediente['pasos'], ['Finalizado']);
+    }
+
+    /**
+     * La solicitud se registra inicialmente como una actuación administrativa.
+     * Solo la apertura de un expediente con rama definida permite identificar
+     * la ruta posterior; en particular, el trámite policivo aplica cuando el
+     * expediente se clasifica bajo la Ley 1801 de 2016.
+     *
+     * @param array{tipoTramite: string}|null $expediente
+     */
+    private function resolveTramiteRoute(?array $expediente): string
+    {
+        if (!$expediente) {
+            return 'evaluacion';
+        }
+
+        if (($expediente['tipoTramite'] ?? '') === ExpedientePasosCatalog::TRAMITE_POLICIA) {
+            return 'policivo';
+        }
+
+        return 'administrativo';
+    }
+
+    /** @param array{plazos: array<string, int>, fechaInicioPaso?: ?string}|null $expediente */
+    private function resolvePolicivoDeadline(?array $expediente, string $status): ?string
+    {
+        if (!$expediente || !isset($expediente['plazos'][$status])) {
+            return null;
+        }
+
+        $deadline = ExpedienteVencimientoHelper::fechaLimite(
+            $expediente['fechaInicioPaso'] ?? null,
+            $expediente['plazos'][$status]
+        );
+
+        return $deadline?->format('Y-m-d');
     }
 
     /**
@@ -220,7 +387,7 @@ class CaseTimelineService
     private function isValidFlowStatus(string $status): bool
     {
         return in_array($status, self::STATUS_FLOW, true)
-            || $status === self::LEGACY_STATUS_EN_PROCESO;
+            || in_array($status, self::LEGACY_GESTION_TECNICA_STATUSES, true);
     }
 
     /**
@@ -241,7 +408,7 @@ class CaseTimelineService
 
         $statusDates = $this->resolveStatusDates($case);
 
-        return $this->fillMissingDatesForCompletedSteps($statusDates, $currentIndex);
+        return $this->fillMissingDatesForCompletedSteps($statusDates, $currentIndex, self::STATUS_FLOW);
     }
 
     private function normalizeStatus(string $status): string
@@ -253,8 +420,15 @@ class CaseTimelineService
             'New' => self::STATUS_FLOW[0],
             'Pending' => self::STATUS_FLOW[0],
             'Assigned' => 'Asignado',
-            'In Progress' => 'En proceso',
-            'Closed' => 'Proceso cerrado',
+            'In Progress' => CaseActaVisitaHelper::STATUS_EN_GESTION_TECNICA,
+            'En proceso' => CaseActaVisitaHelper::STATUS_EN_GESTION_TECNICA,
+            'En proceso de otra visita' => CaseActaVisitaHelper::STATUS_EN_GESTION_TECNICA,
+            'Visita realizada' => CaseActaVisitaHelper::STATUS_EN_GESTION_TECNICA,
+            'Closed' => 'Finalizado',
+            'Proceso cerrado' => 'Finalizado',
+            'Remitido por competencia' => 'Finalizado',
+            // Compatibilidad: no se muestra ni se produce en casos nuevos.
+            'Visita aprobada' => 'Revisión de hallazgos',
             'Rejected' => 'Finalizado',
         ];
 
@@ -263,8 +437,8 @@ class CaseTimelineService
 
     private function resolveCurrentIndex(Entity $case, string $currentStatus): int
     {
-        if ($currentStatus === self::LEGACY_STATUS_EN_PROCESO) {
-            $currentStatus = 'Visita realizada';
+        if (in_array($currentStatus, self::LEGACY_GESTION_TECNICA_STATUSES, true)) {
+            $currentStatus = CaseActaVisitaHelper::STATUS_EN_GESTION_TECNICA;
         }
 
         $statusIndex = array_search($currentStatus, self::STATUS_FLOW, true);
@@ -291,23 +465,14 @@ class CaseTimelineService
         $acta = $this->findActaForCase($case->getId());
 
         if ($acta && $this->isActaWithContent($acta)) {
-            $index = max($index, 3);
-
-            $estado = trim((string) $acta->get('estado'));
-
-            if (in_array($estado, ['Diligenciada', 'Aprobada'], true)) {
-                $index = max($index, 3);
-            }
-
-            if ($estado === 'Aprobada') {
-                $index = max($index, 4);
-            }
+            // Acta elaborada: sigue la valoración de hallazgos por quien asigna.
+            $index = max($index, 4);
         }
 
         $actuo = $this->findActuoForCase($case->getId());
 
         if ($actuo && $this->isActuoWithContent($actuo)) {
-            $index = max($index, 6);
+            $index = max($index, 5);
         }
 
         return $index;
@@ -316,9 +481,7 @@ class CaseTimelineService
     private function isPostRadicado(Entity $case): bool
     {
         $numero = trim((string) $case->get('cNumeroRadicado'));
-        $expediente = trim((string) $case->get('cExpediente'));
-
-        return $numero !== '' && $expediente !== '';
+        return $numero !== '';
     }
 
     private function findActaForCase(?string $caseId): ?Entity
@@ -361,7 +524,11 @@ class CaseTimelineService
             }
         }
 
-        return (bool) $acta->get('cFormatoActaVisitaPdfId');
+        if (method_exists($acta, 'getLinkMultipleIdList')) {
+            return count($acta->getLinkMultipleIdList('formatoManoAdjunto')) > 0;
+        }
+
+        return trim((string) $acta->get('formatoManoAdjuntoIds')) !== '';
     }
 
     private function isActuoWithContent(Entity $actuo): bool
@@ -376,17 +543,22 @@ class CaseTimelineService
 
     /**
      * @param array<string, string> $actualDates
+     * @param string[] $flow
      */
-    private function resolveEndedAt(int $statusIndex, array $actualDates): ?string
+    private function resolveEndedAt(int $statusIndex, array $actualDates, array $flow): ?string
     {
-        $currentStatus = self::STATUS_FLOW[$statusIndex] ?? '';
+        $currentStatus = $flow[$statusIndex] ?? '';
 
-        if ($currentStatus === 'Asignado' && isset($actualDates[self::LEGACY_STATUS_EN_PROCESO])) {
-            return $actualDates[self::LEGACY_STATUS_EN_PROCESO];
+        if ($currentStatus === 'Asignado') {
+            foreach (self::LEGACY_GESTION_TECNICA_STATUSES as $legacyStatus) {
+                if (isset($actualDates[$legacyStatus])) {
+                    return $actualDates[$legacyStatus];
+                }
+            }
         }
 
-        for ($i = $statusIndex + 1, $count = count(self::STATUS_FLOW); $i < $count; $i++) {
-            $nextStatus = self::STATUS_FLOW[$i];
+        for ($i = $statusIndex + 1, $count = count($flow); $i < $count; $i++) {
+            $nextStatus = $flow[$i];
 
             if (isset($actualDates[$nextStatus])) {
                 return $actualDates[$nextStatus];
@@ -398,14 +570,19 @@ class CaseTimelineService
 
     /**
      * @param array<string, string> $dates
+     * @param string[] $flow
      * @return array<string, string>
      */
-    private function fillMissingDatesForCompletedSteps(array $dates, int $currentIndex): array
+    private function fillMissingDatesForCompletedSteps(array $dates, int $currentIndex, array $flow): array
     {
         $lastKnown = null;
 
         for ($i = 0; $i <= $currentIndex; $i++) {
-            $status = self::STATUS_FLOW[$i];
+            $status = $flow[$i] ?? null;
+
+            if ($status === null) {
+                continue;
+            }
 
             if (isset($dates[$status])) {
                 $lastKnown = $dates[$status];
@@ -427,8 +604,16 @@ class CaseTimelineService
      */
     private function mergeLegacyStatusDates(array $dates): array
     {
-        if (!isset($dates['Visita realizada']) && isset($dates[self::LEGACY_STATUS_EN_PROCESO])) {
-            $dates['Visita realizada'] = $dates[self::LEGACY_STATUS_EN_PROCESO];
+        if (isset($dates[CaseActaVisitaHelper::STATUS_EN_GESTION_TECNICA])) {
+            return $dates;
+        }
+
+        foreach (self::LEGACY_GESTION_TECNICA_STATUSES as $legacyStatus) {
+            if (isset($dates[$legacyStatus])) {
+                $dates[CaseActaVisitaHelper::STATUS_EN_GESTION_TECNICA] = $dates[$legacyStatus];
+
+                break;
+            }
         }
 
         return $dates;

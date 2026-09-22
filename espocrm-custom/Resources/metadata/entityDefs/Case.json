@@ -4,13 +4,15 @@
             "required": false,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "description": {
             "required": false,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cFechaVencimiento": {
             "notNull": false,
@@ -19,7 +21,53 @@
             "required": false,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
+        },
+        "cModalidadPeticion": {
+            "type": "enum",
+            "options": [
+                "Petición general, queja o reclamo",
+                "Solicitud de información o documentos",
+                "Consulta a la autoridad",
+                "Término legal especial"
+            ],
+            "default": "Petición general, queja o reclamo",
+            "isCustom": true,
+            "required": false,
+            "suppressValidationList": [
+                "required"
+            ],
+            "audited": true
+        },
+        "cClaseIngreso": {
+            "type": "enum",
+            "options": [
+                "Derecho de petición",
+                "Queja, reclamo o sugerencia (PQRSD)",
+                "Solicitud de información o documentos",
+                "Consulta a la autoridad",
+                "Querella policiva",
+                "Denuncia o puesta en conocimiento",
+                "Oficio o remisión institucional",
+                "Otro escrito"
+            ],
+            "default": "Derecho de petición",
+            "isCustom": true,
+            "required": false,
+            "suppressValidationList": [
+                "required"
+            ],
+            "audited": true
+        },
+        "cFundamentoPlazoEspecial": {
+            "type": "text",
+            "isCustom": true,
+            "required": false,
+            "suppressValidationList": [
+                "required"
+            ],
+            "audited": true
         },
         "cFechaCaso": {
             "notNull": false,
@@ -30,7 +78,8 @@
             "isCustom": true,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cNumeroRadicado": {
             "type": "varchar",
@@ -41,7 +90,8 @@
             "required": false,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cExpediente": {
             "type": "varchar",
@@ -51,20 +101,50 @@
             "required": false,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
+        },
+        "expediente": {
+            "type": "link",
+            "required": false,
+            "readOnly": true,
+            "isCustom": true,
+            "audited": true
+        },
+        "destino": {
+            "type": "link",
+            "required": false,
+            "isCustom": true,
+            "audited": true
+        },
+        "relacionesCasos": {
+            "type": "linkMultiple",
+            "required": false,
+            "isCustom": true,
+            "audited": true
+        },
+        "cPanelRelacionCasos": {
+            "type": "varchar",
+            "notStorable": true,
+            "readOnly": true,
+            "utility": true,
+            "isCustom": true,
+            "required": false,
+            "suppressValidationList": ["required"],
+            "audited": true
         },
         "cRadicadoModo": {
             "type": "enum",
             "options": [
-                "Automático",
                 "Manual"
             ],
-            "default": "Automático",
+            "default": "Manual",
             "isCustom": true,
             "required": false,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cRadicadoSiglas": {
             "type": "enum",
@@ -83,7 +163,8 @@
             "required": false,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cRadicadoAnio": {
             "type": "varchar",
@@ -93,7 +174,8 @@
             "required": false,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cTipoPersonaPeticionario": {
             "type": "enum",
@@ -112,7 +194,8 @@
             "isCustom": true,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cDocumentoPeticionario": {
             "type": "varchar",
@@ -123,7 +206,8 @@
             "view": "custom:views/case/fields/documento-peticionario",
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cNombrePeticionario": {
             "type": "varchar",
@@ -132,7 +216,8 @@
             "isCustom": true,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cApellidoPeticionario": {
             "type": "varchar",
@@ -141,7 +226,8 @@
             "isCustom": true,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cViaPrincipalPeticionario": {
             "type": "enum",
@@ -157,7 +243,8 @@
             "required": false,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cNumViaPrincipalPeticionario": {
             "type": "varchar",
@@ -167,7 +254,8 @@
             "required": false,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cLetraViaPrincipalPeticionario": {
             "type": "enum",
@@ -205,7 +293,8 @@
             "required": false,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cCuadranteViaPrincipalPeticionario": {
             "type": "enum",
@@ -221,7 +310,8 @@
             "required": false,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cGeneradoraPeticionario": {
             "type": "varchar",
@@ -231,7 +321,8 @@
             "required": false,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cLetraGeneradoraPeticionario": {
             "type": "enum",
@@ -269,7 +360,8 @@
             "required": false,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cCuadranteGeneradoraPeticionario": {
             "type": "enum",
@@ -285,7 +377,8 @@
             "required": false,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cPlacaPeticionario": {
             "type": "varchar",
@@ -295,7 +388,8 @@
             "required": false,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cBloquePeticionario": {
             "type": "varchar",
@@ -304,7 +398,8 @@
             "required": false,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cInteriorPeticionario": {
             "type": "varchar",
@@ -313,7 +408,8 @@
             "required": false,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cDireccionPeticionario": {
             "type": "varchar",
@@ -324,7 +420,8 @@
             "isCustom": true,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cTelefonoPeticionario": {
             "type": "varchar",
@@ -335,7 +432,8 @@
             "view": "custom:views/fields/numeric-only",
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cMunicipioPeticionario": {
             "type": "varchar",
@@ -347,7 +445,8 @@
             "required": false,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cBarrioPeticionario": {
             "type": "enum",
@@ -453,7 +552,8 @@
             "isCustom": true,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cCorreoPeticionario": {
             "type": "varchar",
@@ -463,7 +563,8 @@
             "isCustom": true,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cCanalDeReportePeticionario": {
             "type": "enum",
@@ -485,7 +586,8 @@
             "isCustom": true,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cTipoPersonaPerjudicante": {
             "type": "enum",
@@ -506,7 +608,8 @@
             "isCustom": true,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cDocumentoPerjudicante": {
             "type": "varchar",
@@ -517,7 +620,8 @@
             "view": "custom:views/case/fields/documento-perjudicante",
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cNombrePerjudicante": {
             "type": "varchar",
@@ -526,7 +630,8 @@
             "isCustom": true,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cApellidoPerjudicante": {
             "type": "varchar",
@@ -535,7 +640,8 @@
             "isCustom": true,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cPerjudicanteContact": {
             "type": "link",
@@ -545,7 +651,8 @@
             "required": false,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cPerjudicanteCuenta": {
             "type": "link",
@@ -555,7 +662,8 @@
             "required": false,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "contact": {
             "readOnly": true,
@@ -563,7 +671,8 @@
             "required": false,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "account": {
             "readOnly": true,
@@ -571,7 +680,8 @@
             "required": false,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cTelefonoPerjudicante": {
             "type": "varchar",
@@ -582,7 +692,8 @@
             "view": "custom:views/fields/numeric-only",
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cViaPrincipalPerjudicante": {
             "type": "enum",
@@ -598,7 +709,8 @@
             "required": false,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cNumViaPrincipalPerjudicante": {
             "type": "varchar",
@@ -608,7 +720,8 @@
             "required": false,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cLetraViaPrincipalPerjudicante": {
             "type": "enum",
@@ -646,7 +759,8 @@
             "required": false,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cCuadranteViaPrincipalPerjudicante": {
             "type": "enum",
@@ -662,7 +776,8 @@
             "required": false,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cGeneradoraPerjudicante": {
             "type": "varchar",
@@ -672,7 +787,8 @@
             "required": false,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cLetraGeneradoraPerjudicante": {
             "type": "enum",
@@ -710,7 +826,8 @@
             "required": false,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cCuadranteGeneradoraPerjudicante": {
             "type": "enum",
@@ -726,7 +843,8 @@
             "required": false,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cPlacaPerjudicante": {
             "type": "varchar",
@@ -736,7 +854,8 @@
             "required": false,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cBloquePerjudicante": {
             "type": "varchar",
@@ -745,7 +864,8 @@
             "required": false,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cInteriorPerjudicante": {
             "type": "varchar",
@@ -754,7 +874,8 @@
             "required": false,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cDireccionPerjudicante": {
             "type": "varchar",
@@ -765,7 +886,8 @@
             "isCustom": true,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cCorreoPerjudicante": {
             "type": "varchar",
@@ -775,7 +897,8 @@
             "isCustom": true,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cBarrioPerjudicante": {
             "type": "enum",
@@ -881,7 +1004,8 @@
             "isCustom": true,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cRespuestaInmediata": {
             "type": "text",
@@ -889,7 +1013,8 @@
             "isCustom": true,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cRecibidaPor": {
             "type": "link",
@@ -897,7 +1022,8 @@
             "isCustom": true,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cRemitidoA": {
             "type": "link",
@@ -905,7 +1031,8 @@
             "isCustom": true,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cFormatoSolicitudPdf": {
             "type": "file",
@@ -914,17 +1041,17 @@
             "required": false,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "status": {
             "options": [
                 "Pendiente de radicacion",
                 "Radicado",
                 "Asignado",
-                "En proceso",
-                "Visita realizada",
-                "Visita aprobada",
-                "En proceso de otra visita",
+                "En gestión técnica",
+                "Revisión de hallazgos",
+                "Remitido por competencia",
                 "Finalizado",
                 "Proceso cerrado"
             ],
@@ -933,24 +1060,44 @@
                 "Pendiente de radicacion": "casePendiente",
                 "Radicado": "caseRadicado",
                 "Asignado": "caseAsignado",
-                "En proceso": "caseEnProceso",
-                "Visita realizada": "caseVisitaRealizada",
-                "Visita aprobada": "caseVisitaAprobada",
-                "En proceso de otra visita": "caseEnProcesoOtraVisita",
+                "En gestión técnica": "caseEnGestionTecnica",
+                "Revisión de hallazgos": "caseVisitaAprobada",
+                "Remitido por competencia": "caseCerrado",
                 "Finalizado": "caseFinalizado",
                 "Proceso cerrado": "caseCerrado"
             },
             "required": false,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
+        },
+        "cDecisionTramite": {
+            "type": "enum",
+            "options": ["Seleccione una opción", "Visita complementaria", "Cierre de atención", "Remisión por competencia", "Apertura de actuación"],
+            "default": "Seleccione una opción",
+            "isCustom": true,
+            "audited": true
+        },
+        "cMotivoDecision": {
+            "type": "text",
+            "rows": 4,
+            "isCustom": true,
+            "audited": true
+        },
+        "cEntidadRemision": {
+            "type": "varchar",
+            "maxLength": 255,
+            "isCustom": true,
+            "audited": true
         },
         "assignedUser": {
             "default": null,
             "required": false,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cMotivoReasignacion": {
             "type": "text",
@@ -958,7 +1105,8 @@
             "isCustom": true,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cRecursoTema": {
             "type": "enum",
@@ -988,7 +1136,8 @@
             "isCustom": true,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cAsunto": {
             "type": "enum",
@@ -1044,7 +1193,8 @@
             "isCustom": true,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cZonaAlcaldiaPeticionario": {
             "type": "enum",
@@ -1082,7 +1232,8 @@
             "isCustom": true,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cUltimaActuacion": {
             "type": "enum",
@@ -1126,7 +1277,8 @@
             "isCustom": true,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cProximaActuacion": {
             "type": "enum",
@@ -1166,7 +1318,8 @@
             "isCustom": true,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cPanelActaVisita": {
             "type": "varchar",
@@ -1177,7 +1330,8 @@
             "required": false,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cPanelActuoArchivo": {
             "type": "varchar",
@@ -1188,7 +1342,44 @@
             "required": false,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
+        },
+        "cPanelDecisionJuridica": {
+            "type": "varchar",
+            "notStorable": true,
+            "readOnly": true,
+            "utility": true,
+            "isCustom": true,
+            "required": false,
+            "suppressValidationList": [
+                "required"
+            ],
+            "audited": true
+        },
+        "cNumeroSolicitudTemporal": {
+            "type": "varchar",
+            "notStorable": true,
+            "readOnly": true,
+            "utility": true,
+            "isCustom": true,
+            "required": false,
+            "suppressValidationList": [
+                "required"
+            ],
+            "audited": true
+        },
+        "cPanelExpedienteInfo": {
+            "type": "varchar",
+            "notStorable": true,
+            "readOnly": true,
+            "utility": true,
+            "isCustom": true,
+            "required": false,
+            "suppressValidationList": [
+                "required"
+            ],
+            "audited": true
         },
         "priority": {
             "type": "enum",
@@ -1202,27 +1393,31 @@
             "required": false,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "type": {
             "type": "enum",
             "required": false,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "teams": {
             "type": "linkMultiple",
             "required": false,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "number": {
             "required": false,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cPredio": {
             "type": "varchar",
@@ -1231,7 +1426,8 @@
             "isCustom": true,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cFechaActuacionInicial": {
             "type": "date",
@@ -1239,7 +1435,8 @@
             "isCustom": true,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cDiasAtencion": {
             "type": "int",
@@ -1248,7 +1445,8 @@
             "isCustom": true,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cFechaUltimaActuacion": {
             "type": "date",
@@ -1256,7 +1454,8 @@
             "isCustom": true,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cRespUltimaActuacion": {
             "type": "link",
@@ -1265,7 +1464,8 @@
             "isCustom": true,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cPeriodoAtencion": {
             "type": "varchar",
@@ -1274,7 +1474,8 @@
             "isCustom": true,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cInspectorResponsable": {
             "type": "link",
@@ -1283,7 +1484,8 @@
             "isCustom": true,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cRespProximaActuacion": {
             "type": "link",
@@ -1292,7 +1494,8 @@
             "isCustom": true,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cPqrsCobro": {
             "type": "varchar",
@@ -1301,7 +1504,8 @@
             "isCustom": true,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cAlertaPqrsCobro": {
             "type": "varchar",
@@ -1310,7 +1514,8 @@
             "isCustom": true,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         },
         "cObservaciones": {
             "type": "text",
@@ -1318,7 +1523,8 @@
             "isCustom": true,
             "suppressValidationList": [
                 "required"
-            ]
+            ],
+            "audited": true
         }
     },
     "collection": {
@@ -1357,6 +1563,37 @@
             "type": "hasMany",
             "entity": "ActuoArchivo",
             "foreign": "case"
+        },
+        "autosInicio": {
+            "type": "hasMany",
+            "entity": "AutoInicio",
+            "foreign": "case"
+        },
+        "gestionesTecnicas": {
+            "type": "hasMany",
+            "entity": "GestionTecnica",
+            "foreign": "case"
+        },
+        "decisionesRuta": {
+            "type": "hasMany",
+            "entity": "DecisionRutaJuridica",
+            "foreign": "case"
+        },
+        "destino": {
+            "type": "belongsTo",
+            "entity": "Destino",
+            "foreign": "casos"
+        },
+        "relacionesCasos": {
+            "type": "hasMany",
+            "entity": "RelacionCasos",
+            "relationName": "caseRelacionCasos",
+            "foreign": "casos"
+        },
+        "expediente": {
+            "type": "belongsTo",
+            "entity": "Expediente",
+            "foreign": "casos"
         },
         "asignacionesHistorial": {
             "type": "hasMany",

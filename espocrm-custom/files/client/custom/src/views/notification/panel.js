@@ -88,7 +88,54 @@ define('custom:views/notification/panel', [
             $('#navbar li.notifications-badge-container').addClass('open');
             this.$el.find('> .panel').focus();
 
+            this.addClearReadAction();
+
             this.markAllAsRead();
+        },
+
+        addClearReadAction: function () {
+            const $group = this.$el.find('.panel-heading .link-group').first();
+
+            if (!$group.length || $group.find('[data-action="clear-read-notifications"]').length) {
+                return;
+            }
+
+            const $button = $(
+                '<a role="button" tabindex="0" data-action="clear-read-notifications" ' +
+                'class="notification-clear-read-button" title="Eliminar notificaciones leídas">' +
+                '<span class="fas fa-trash-alt"></span></a>'
+            );
+
+            $button.on('click', function (event) {
+                event.preventDefault();
+                this.clearReadNotifications();
+            }.bind(this));
+
+            $group.prepend($button);
+        },
+
+        clearReadNotifications: function () {
+            const models = this.collection.models.filter(model => model.get('read'));
+
+            if (!models.length || this._clearReadPromise) {
+                return;
+            }
+
+            this._clearReadPromise = Promise.all(
+                models.map(model => Espo.Ajax.deleteRequest('Notification/' + model.id))
+            ).then(function () {
+                models.forEach(model => this.collection.remove(model));
+
+                const listView = this.getView('list');
+
+                return listView && typeof listView.reRender === 'function'
+                    ? SafeUiPromise.absorb(listView.reRender())
+                    : null;
+            }.bind(this)).catch(function () {
+                Espo.Ui.error('No fue posible eliminar las notificaciones leídas.');
+            }).finally(function () {
+                this._clearReadPromise = null;
+            }.bind(this));
         },
     });
 });

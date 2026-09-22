@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Crea los 4 roles operativos de la Alcaldía en la base de datos (sin permisos ni equipos).
+ * Crea los 5 roles operativos de la Alcaldía en la base de datos (sin permisos ni equipos).
  * Idempotente: seguro ejecutarlo en cada deploy.
  *
  * docker cp scripts/seed-alcaldia-roles.php espocrm:/tmp/seed-alcaldia-roles.php
@@ -24,6 +24,7 @@ $roles = [
     'Radicación',
     'Asignación',
     'Patrullaje',
+    'Jurídica',
 ];
 
 foreach ($roles as $name) {
@@ -42,4 +43,4 @@ foreach ($roles as $name) {
     echo "Rol creado: {$name} (id={$role->getId()})" . PHP_EOL;
 }
 
-echo 'Listo. Cuatro roles operativos en base de datos.' . PHP_EOL;
+echo 'Listo. Cinco roles operativos en base de datos.' . PHP_EOL;

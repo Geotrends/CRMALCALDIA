@@ -1,0 +1,141 @@
+{
+    "fields": {
+        "name": {
+            "type": "varchar",
+            "required": false,
+            "maxLength": 200,
+            "trim": true,
+            "readOnlyAfterCreate": true
+        },
+        "case": {
+            "type": "link",
+            "required": true,
+            "readOnlyAfterCreate": true,
+            "isCustom": true
+        },
+        "expediente": {
+            "type": "link",
+            "readOnlyAfterCreate": true,
+            "isCustom": true
+        },
+        "fechaAuto": {
+            "type": "date",
+            "isCustom": true
+        },
+        "numeroRadicado": {
+            "type": "varchar",
+            "maxLength": 100,
+            "readOnlyAfterCreate": true,
+            "isCustom": true
+        },
+        "consecutivoInterno": {
+            "type": "varchar",
+            "maxLength": 100,
+            "readOnly": true,
+            "isCustom": true
+        },
+        "tipoTramite": {
+            "type": "enum",
+            "options": [
+                "Sin definir",
+                "Sancionatorio ambiental (Ley 1333/2009 - IV-P-028)",
+                "Código de policía y bienestar animal (Ley 1801/2016 - IV-P-021)"
+            ],
+            "default": "Sin definir",
+            "isCustom": true
+        },
+        "referencia": {
+            "type": "text",
+            "rows": 3,
+            "isCustom": true
+        },
+        "motivoApertura": {
+            "type": "text",
+            "rows": 8,
+            "isCustom": true
+        },
+        "fechaDada": {
+            "type": "date",
+            "isCustom": true
+        },
+        "inspector": {
+            "type": "link",
+            "isCustom": true
+        },
+        "inspectorCargo": {
+            "type": "varchar",
+            "maxLength": 200,
+            "default": "Profesional Universitario - Área Jurídica",
+            "isCustom": true
+        },
+        "estado": {
+            "type": "enum",
+            "options": ["Pendiente", "Diligenciada"],
+            "default": "Pendiente",
+            "readOnlyAfterCreate": true,
+            "isCustom": true
+        },
+        "cFormatoAutoInicioPdf": {
+            "type": "file",
+            "readOnly": true,
+            "isCustom": true
+        },
+        "assignedUser": {
+            "type": "link",
+            "readOnlyAfterCreate": true,
+            "view": "views/fields/assigned-user"
+        },
+        "teams": {
+            "type": "linkMultiple",
+            "view": "views/fields/teams"
+        },
+        "createdAt": {
+            "type": "datetime",
+            "readOnly": true
+        },
+        "modifiedAt": {
+            "type": "datetime",
+            "readOnly": true
+        }
+    },
+    "links": {
+        "case": {
+            "type": "belongsTo",
+            "entity": "Case",
+            "foreign": "autosInicio"
+        },
+        "expediente": {
+            "type": "belongsTo",
+            "entity": "Expediente",
+            "foreign": "autosInicio"
+        },
+        "assignedUser": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "inspector": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "teams": {
+            "type": "hasMany",
+            "entity": "Team",
+            "relationName": "entityTeam",
+            "layoutRelationshipsDisabled": true
+        },
+        "createdBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "modifiedBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        }
+    },
+    "entityClassName": "Espo\\Custom\\Entities\\AutoInicio",
+    "collection": {
+        "orderBy": "createdAt",
+        "order": "desc",
+        "textFilterFields": ["name", "numeroRadicado", "consecutivoInterno", "referencia"]
+    }
+}

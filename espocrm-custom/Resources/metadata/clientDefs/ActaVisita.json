@@ -4,7 +4,7 @@
     "color": "#0d9488",
     "recordViews": {
         "detail": "custom:views/acta-visita/record/detail",
-        "edit": "views/record/edit",
+        "edit": "custom:views/acta-visita/record/edit",
         "list": "views/record/list"
     },
     "sidePanels": {

@@ -12,7 +12,13 @@ class ReporteGerencialService
 {
   private const ESTADOS_FIN = ['Finalizado', 'Proceso cerrado'];
 
-  private const ESTADOS_GESTION = ['Asignado', 'En proceso', 'Visita realizada', 'Visita aprobada'];
+  // La radicación formaliza el ingreso y habilita la gestión administrativa del caso.
+  private const ESTADOS_GESTION = [
+    'Radicado',
+    'Asignado',
+    CaseActaVisitaHelper::STATUS_EN_GESTION_TECNICA,
+    CaseActaVisitaHelper::STATUS_REVISION_HALLAZGOS,
+  ];
 
   public function __construct(
     private EntityManager $entityManager,

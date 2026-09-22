@@ -320,6 +320,22 @@
   font-weight: 700 !important;
 }
 
+/* Crear caso: tarjetas compactas y desplegables. */
+.edit[data-scope="Case"] .crm-form-section > .panel-heading { display:flex; align-items:center; gap:12px; cursor:pointer; user-select:none; }
+.edit[data-scope="Case"] .crm-form-section > .panel-heading { border-left:0 !important; }
+.edit[data-scope="Case"] .crm-form-section > .panel-heading:focus-visible { outline:3px solid rgba(59,97,93,.24); outline-offset:2px; }
+.edit[data-scope="Case"] .crm-form-section .panel-title { margin-right:auto; }
+.edit[data-scope="Case"] .crm-form-section__summary { max-width:42%; overflow:hidden; color:var(--crm-text-muted); font-size:12px; font-weight:500; text-align:right; text-overflow:ellipsis; white-space:nowrap; }
+.edit[data-scope="Case"] .crm-form-section__chevron::before { content:'\f078'; color:var(--crm-primary); font-family:'Font Awesome 6 Free','FontAwesome'; font-size:12px; font-weight:900; }
+.edit[data-scope="Case"] .crm-form-section > .panel-heading[aria-expanded="true"] .crm-form-section__chevron::before { transform:rotate(180deg); }
+.edit[data-scope="Case"] .crm-form-section--collapsed > .panel-body { display:none !important; }
+.edit[data-scope="Case"] .crm-form-section--collapsed > .panel-heading { border-bottom-color:transparent !important; border-radius:var(--crm-radius-lg) !important; }
+.edit[data-scope="Case"] .middle { max-width:1180px; margin-left:auto; margin-right:auto; }
+.edit[data-scope="Case"] .crm-case-create-mode .cell[data-name="status"],
+.edit[data-scope="Case"] .crm-case-create-mode .cell[data-name="cNumeroRadicado"],
+.edit[data-scope="Case"] .crm-case-create-mode .cell[data-name="cExpediente"] { display:none !important; }
+@media (max-width:767px) { .edit[data-scope="Case"] .crm-form-section__summary { display:none; } }
+
 .detail .side .panel,
 .edit .side .panel {
   margin-bottom: var(--crm-space-md) !important;

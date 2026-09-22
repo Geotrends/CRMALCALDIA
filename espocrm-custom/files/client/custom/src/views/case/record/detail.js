@@ -7,7 +7,9 @@ define('custom:views/case/record/detail', [
     'custom:helpers/asignador-case-flow',
     'custom:helpers/asignador-assignment-ui',
     'custom:helpers/case-detail-side-panels',
-], function (Dep, PersonaTipoFields, RadicacionFields, InspeccionCaseFlow, RadicacionCaseFlow, AsignadorCaseFlow, AsignadorAssignmentUi, CaseDetailSidePanels) {
+    'custom:helpers/case-role-guidance',
+    'custom:helpers/compact-form-sections',
+], function (Dep, PersonaTipoFields, RadicacionFields, InspeccionCaseFlow, RadicacionCaseFlow, AsignadorCaseFlow, AsignadorAssignmentUi, CaseDetailSidePanels, CaseRoleGuidance, CompactFormSections) {
 
     const PANEL_ASIGNACION = 'gestionPosteriorRadicacion';
 
@@ -151,6 +153,7 @@ define('custom:views/case/record/detail', [
             PersonaTipoFields.setup(this);
             InspeccionCaseFlow.setup(this);
             RadicacionCaseFlow.setup(this);
+            CaseRoleGuidance.setup(this);
             AsignadorCaseFlow.setup(this);
 
             this.listenTo(this.model, 'change:assignedUserId', function () {
@@ -214,6 +217,8 @@ define('custom:views/case/record/detail', [
             RadicacionCaseFlow.schedule(this);
             AsignadorCaseFlow.schedule(this);
             CaseDetailSidePanels.schedule(this);
+            CaseRoleGuidance.schedule(this);
+            CompactFormSections.schedule(this);
 
             if (this.isAsignadorOperator()) {
                 this._asignacionEditMode = false;

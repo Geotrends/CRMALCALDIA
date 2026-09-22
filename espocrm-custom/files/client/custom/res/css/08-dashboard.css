@@ -184,6 +184,137 @@ body {
   border: 1px solid var(--crm-border);
 }
 
+/* ── Filtros analíticos ── */
+.dashboard-filters {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 14px 16px;
+  border: 1px solid var(--crm-border-light);
+  border-radius: var(--crm-radius-md);
+  background: var(--crm-surface);
+  box-shadow: var(--crm-shadow-card);
+}
+
+.dashboard-filters__intro { min-width: 170px; }
+.dashboard-filters__eyebrow { color: #b78615; font-size: 10px; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; }
+.dashboard-filters h2 { margin: 3px 0 2px; color: var(--crm-text); font-size: 15px; font-weight: 750; }
+.dashboard-filters p { margin: 0; color: var(--crm-text-muted); font-size: 11px; line-height: 1.35; }
+.dashboard-filters__controls { display: flex; flex: 1; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+.dashboard-filters label { display: flex; flex-direction: column; gap: 4px; min-width: 128px; color: var(--crm-text-muted); font-size: 10px; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; }
+.dashboard-filters select, .dashboard-filters input[type="date"] { width: 100%; min-width: 128px; height: 33px; padding: 0 9px; border: 1px solid var(--crm-border); border-radius: 8px; outline: 0; background: #fff; color: var(--crm-text-secondary); font-family: var(--crm-font); font-size: 12px; font-weight: 500; }
+.dashboard-filters select { padding-right: 27px; }
+.dashboard-filters select:focus, .dashboard-filters input[type="date"]:focus { border-color: #4b8b7e; box-shadow: 0 0 0 3px rgba(75, 139, 126, .12); }
+.dashboard-filters__clear { align-self: flex-end; height: 33px; padding: 0 11px; border: 1px solid #b6cec8; border-radius: 8px; background: #f4f9f8; color: #286457; font-size: 12px; font-weight: 700; cursor: pointer; }
+.dashboard-filters__clear:disabled { opacity: .45; cursor: default; }
+@media (max-width: 1100px) { .dashboard-filters { align-items: flex-start; flex-direction: column; } .dashboard-filters__controls { justify-content: flex-start; } }
+@media (max-width: 640px) { .dashboard-filters__controls, .dashboard-filters label { width: 100%; } .dashboard-filters__clear { align-self: stretch; } }
+
+/* ── Mapa de inspección y vigilancia ── */
+.dashboard-map-card {
+  min-height: 430px;
+}
+
+.dashboard-map-card__header {
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.dashboard-map-card__header p {
+  margin: 4px 0 0;
+  color: var(--crm-text-muted);
+  font-size: var(--crm-font-size-sm);
+}
+
+.dashboard-map-card__layers {
+  display: inline-flex;
+  flex-shrink: 0;
+  padding: 3px;
+  border: 1px solid var(--crm-border-light);
+  border-radius: 999px;
+  background: #f6f8f8;
+}
+
+.dashboard-map-card__layer {
+  padding: 7px 11px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--crm-text-secondary);
+  font-size: 12px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.dashboard-map-card__layer.is-active {
+  background: #365a57;
+  color: #fff;
+  box-shadow: 0 1px 3px rgba(36, 76, 73, .2);
+}
+
+.dashboard-map-card__body {
+  position: relative;
+  min-height: 365px;
+  padding: 0 !important;
+}
+
+.dashboard-map {
+  width: 100%;
+  height: 365px;
+  background: #e7eeec;
+}
+
+.dashboard-map-card__status {
+  position: absolute;
+  z-index: 1;
+  bottom: 12px;
+  left: 12px;
+  max-width: min(480px, calc(100% - 24px));
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, .92);
+  box-shadow: 0 1px 6px rgba(15, 23, 42, .16);
+  color: #475569;
+  font-size: 12px;
+  line-height: 1.35;
+  pointer-events: none;
+}
+
+.dashboard-map-card__legend {
+  position: absolute;
+  z-index: 1;
+  right: 12px;
+  bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 7px 9px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, .92);
+  box-shadow: 0 1px 6px rgba(15, 23, 42, .16);
+  color: #475569;
+  font-size: 10px;
+  pointer-events: none;
+}
+
+.dashboard-map-card__legend span { margin: 0 2px; }
+.dashboard-map-card__legend i { width: 13px; height: 13px; border-radius: 3px; background: #dcebe7; }
+.dashboard-map-card__legend i:nth-of-type(2) { background: #b9d8cf; }
+.dashboard-map-card__legend i:nth-of-type(3) { background: #75ad9d; }
+.dashboard-map-card__legend i:nth-of-type(4) { background: #184b40; }
+
+@media (max-width: 640px) {
+  .dashboard-map-card__header { flex-direction: column; }
+  .dashboard-map-card__status { right: 12px; }
+  .dashboard-map-card__legend { display: none; }
+}
+
+.dashboard-map-card__status.is-error {
+  color: #a32d2d;
+}
+
 /* ── KPIs ── */
 .kpis {
   display: grid;
@@ -259,6 +390,11 @@ body {
 .kpi--proximo .kpi-icon {
   background: #f5f0e6;
   color: #a16207;
+}
+
+.kpi--policivo .kpi-icon {
+  background: #fdf1e2;
+  color: #b45309;
 }
 
 .kpi-label {
@@ -561,4 +697,51 @@ canvas {
   .kpi {
     padding: 14px 16px;
   }
+}
+
+.policivos-resumen {
+  display: flex;
+  gap: 8px;
+}
+
+.policivos-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.policivos-table th {
+  text-align: left;
+  padding: 8px 10px;
+  color: var(--crm-text-muted, #6b7280);
+  font-weight: 600;
+  border-bottom: 1px solid var(--crm-border, #e5e7eb);
+}
+
+.policivos-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--crm-border, #f1f5f9);
+}
+
+.policivo-semaforo {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.policivo-semaforo--ok {
+  background: #eef4f0;
+  color: #3d6b47;
+}
+
+.policivo-semaforo--proximo {
+  background: #f5f0e6;
+  color: #a16207;
+}
+
+.policivo-semaforo--vencido {
+  background: #f5ecec;
+  color: #b91c1c;
 }

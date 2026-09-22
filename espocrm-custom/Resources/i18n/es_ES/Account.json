@@ -5,6 +5,7 @@
     "fields": {
         "name": "Razón social",
         "cNit": "NIT",
+        "cPanelExpediente": "Expediente",
         "billingAddressStreet": "Dirección",
         "phoneNumber": "Teléfono",
         "emailAddress": "Correo electrónico",

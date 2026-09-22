@@ -1,0 +1,26 @@
+[
+    {
+        "rows": [
+            [
+                {"name": "numero", "readOnly": true},
+                {"name": "estado"}
+            ],
+            [
+                {"name": "anio", "readOnly": true},
+                {"name": "consecutivo", "readOnly": true}
+            ],
+            [
+                {"name": "tipoTramite", "fullWidth": true}
+            ]
+        ],
+        "style": "default",
+        "label": "Información general"
+    },
+    {
+        "rows": [
+            [{"name": "assignedUser"}, {"name": "teams"}]
+        ],
+        "style": "default",
+        "label": "Asignación"
+    }
+]

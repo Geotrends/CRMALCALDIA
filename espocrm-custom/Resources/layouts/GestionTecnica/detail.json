@@ -1,0 +1,30 @@
+[
+    {
+        "rows": [
+            [
+                {"name": "case"},
+                {"name": "estado"}
+            ],
+            [
+                {"name": "responsable"},
+                {"name": "fechaSolicitud"}
+            ]
+        ],
+        "style": "default",
+        "label": "Información general"
+    },
+    {
+        "rows": [
+            [{"name": "motivo", "fullWidth": true}]
+        ],
+        "style": "default",
+        "label": "Motivo"
+    },
+    {
+        "rows": [
+            [{"name": "observaciones", "fullWidth": true}]
+        ],
+        "style": "default",
+        "label": "Observaciones"
+    }
+]

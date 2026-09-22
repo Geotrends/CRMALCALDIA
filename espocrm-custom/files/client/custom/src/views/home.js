@@ -2,14 +2,16 @@ define('custom:views/home', ['views/dashboard'], function (Dep) {
 
     var PAGE_SIZE = 5;
 
+    // Permite presentar la nueva portada una vez a las sesiones existentes sin
+    // impedir que cada persona conserve después la última pestaña que eligió.
+    var HOME_DEFAULT_TAB_VERSION = 'inicio-plataforma-v1';
+
     var UNWANTED_DASHLETS = ['Memo', 'Records'];
 
     var SEGUIMIENTO_STATUSES = [
         'Asignado',
-        'En proceso',
-        'Visita realizada',
-        'Visita aprobada',
-        'En proceso de otra visita',
+        'En gestión técnica',
+        'Revisión de hallazgos',
     ];
 
     var normalize = function (value) {
@@ -44,6 +46,10 @@ define('custom:views/home', ['views/dashboard'], function (Dep) {
 
         if (names.indexOf('patrullero') !== -1 || names.indexOf('patrullaje') !== -1) {
             return 'patrullero';
+        }
+
+        if (names.indexOf('juridica') !== -1) {
+            return 'juridica';
         }
 
         return 'gestion';
@@ -108,23 +114,38 @@ define('custom:views/home', ['views/dashboard'], function (Dep) {
             iframeUrl += '&assignedUserId=' + encodeURIComponent(userId);
         }
 
+        var lists = [
+            {title: 'Todos los casos', where: []},
+            {
+                title: 'En seguimiento',
+                where: [{
+                    type: 'in',
+                    attribute: 'status',
+                    value: SEGUIMIENTO_STATUSES,
+                }],
+            },
+        ];
+
+        // Bandeja de decisión: hallazgos revisados y listos para definir
+        // visita complementaria, cierre, remisión o apertura de actuación.
+        if (profile === 'asignador' || profile === 'juridica' || profile === 'gestion' || isAdmin) {
+            lists.unshift({
+                title: 'Listos para decisión',
+                where: [{
+                    type: 'equals',
+                    attribute: 'status',
+                    value: 'Revisión de hallazgos',
+                }],
+            });
+        }
+
         return {
             profile: profile,
             showTablero: true,
             showHistorialAsignaciones: isAdmin || profile === 'asignador',
             showHistorialVisitas: canShowHistorialVisitas(user, profile, isAdmin, apiData),
             iframeUrl: iframeUrl,
-            lists: [
-                {title: 'Todos los casos', where: []},
-                {
-                    title: 'En seguimiento',
-                    where: [{
-                        type: 'in',
-                        attribute: 'status',
-                        value: SEGUIMIENTO_STATUSES,
-                    }],
-                },
-            ],
+            lists: lists,
         };
     };
 
@@ -330,7 +351,12 @@ define('custom:views/home', ['views/dashboard'], function (Dep) {
             this._historialVisitasLoaded = false;
 
             var cfg = this.config;
-            var activeTab = sessionStorage.getItem('crm-home-tab') || 'dashboard';
+            if (sessionStorage.getItem('crm-home-default-tab-version') !== HOME_DEFAULT_TAB_VERSION) {
+                sessionStorage.setItem('crm-home-default-tab-version', HOME_DEFAULT_TAB_VERSION);
+                sessionStorage.setItem('crm-home-tab', 'inicio');
+            }
+
+            var activeTab = sessionStorage.getItem('crm-home-tab') || 'inicio';
 
             if (activeTab === 'historial-asignaciones' && !cfg.showHistorialAsignaciones) {
                 activeTab = 'dashboard';
@@ -343,6 +369,8 @@ define('custom:views/home', ['views/dashboard'], function (Dep) {
             var html = '<div class="custom-home">';
 
             html += '<nav class="custom-home-tabs" role="tablist" aria-label="Secciones de inicio">';
+            html += this.buildHomeTabButton('inicio', 'Inicio', activeTab);
+            html += '<span class="custom-home-tab-sep" aria-hidden="true">/</span>';
             html += this.buildHomeTabButton('dashboard', 'Dashboard', activeTab);
             html += '<span class="custom-home-tab-sep" aria-hidden="true">/</span>';
             html += this.buildHomeTabButton('gestion', 'Gestión de casos', activeTab);
@@ -360,6 +388,10 @@ define('custom:views/home', ['views/dashboard'], function (Dep) {
             }
 
             html += '</nav><div class="custom-home-panels">';
+
+            html += '<div class="custom-home-panel custom-home-welcome-panel' +
+                (activeTab === 'inicio' ? ' is-active' : '') +
+                '" data-panel="inicio" role="tabpanel">' + this.buildWelcomePanel() + '</div>';
 
             html += '<div class="custom-home-panel' + (activeTab === 'dashboard' ? ' is-active' : '') + '" data-panel="dashboard" role="tabpanel">';
 
@@ -448,6 +480,60 @@ define('custom:views/home', ['views/dashboard'], function (Dep) {
             } else if (activeTab === 'dashboard') {
                 this.refreshDashboardIframeHeight();
             }
+        },
+
+        buildWelcomePanel: function () {
+            var user = this.getUser();
+            var userName = user.get('firstName') || user.get('name') || user.get('userName') || 'equipo';
+            var greeting = 'Bienvenido, ' + _.escape(userName);
+
+            return '<section class="custom-home-welcome" aria-labelledby="crm-welcome-title">' +
+                '<div class="custom-home-welcome__hero">' +
+                    '<div class="custom-home-welcome__eyebrow"><span class="fas fa-leaf" aria-hidden="true"></span> CRM Alcaldía</div>' +
+                    '<h1 id="crm-welcome-title">' + greeting + '.</h1>' +
+                    '<p class="custom-home-welcome__subtitle">Inspección y vigilancia ambiental, con trazabilidad de principio a fin.</p>' +
+                    '<p>Esta plataforma organiza la atención de solicitudes, quejas y procesos ambientales: desde su registro y radicación hasta la visita, el seguimiento y el cierre.</p>' +
+                    '<div class="custom-home-welcome__actions">' +
+                        '<button type="button" class="custom-home-welcome__action" data-tab="dashboard"><span class="fas fa-chart-line" aria-hidden="true"></span> Ver dashboard</button>' +
+                        '<button type="button" class="custom-home-welcome__action custom-home-welcome__action--secondary" data-tab="gestion"><span class="fas fa-folder-open" aria-hidden="true"></span> Consultar casos</button>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="custom-home-welcome__purpose">' +
+                    '<span class="fas fa-bullseye" aria-hidden="true"></span>' +
+                    '<div><strong>Propósito de la plataforma</strong><p>Facilitar una respuesta coordinada, oportuna y verificable para proteger el territorio, sus recursos naturales y la comunidad.</p></div>' +
+                '</div>' +
+                '<section class="custom-home-welcome__section" aria-labelledby="crm-flow-title">' +
+                    '<div class="custom-home-welcome__section-heading"><span>Flujo de atención</span><h2 id="crm-flow-title">Cada caso mantiene su historia operativa</h2></div>' +
+                    '<div class="custom-home-welcome__flow">' +
+                        '<article><span>01</span><h3>Registro</h3><p>Se recibe y clasifica la solicitud o hallazgo ambiental.</p></article>' +
+                        '<article><span>02</span><h3>Radicación</h3><p>Se formaliza el expediente y se asegura su identificación.</p></article>' +
+                        '<article><span>03</span><h3>Asignación</h3><p>Se asigna el responsable según zona, competencia y prioridad.</p></article>' +
+                        '<article><span>04</span><h3>Visita</h3><p>Se registran actuaciones, evidencias, actas y compromisos.</p></article>' +
+                        '<article><span>05</span><h3>Seguimiento</h3><p>Se controla el avance hasta su aprobación o cierre.</p></article>' +
+                    '</div>' +
+                '</section>' +
+                '<section class="custom-home-welcome__section" aria-labelledby="crm-roles-title">' +
+                    '<div class="custom-home-welcome__section-heading"><span>Roles y responsabilidades</span><h2 id="crm-roles-title">Un equipo, responsabilidades claras</h2></div>' +
+                    '<div class="custom-home-welcome__roles">' +
+                        '<article><span class="fas fa-clipboard-check" aria-hidden="true"></span><h3>Inspección</h3><p>Analiza los casos, orienta el proceso, hace seguimiento y valida las actuaciones requeridas.</p></article>' +
+                        '<article><span class="fas fa-file-signature" aria-hidden="true"></span><h3>Radicación</h3><p>Formaliza la entrada, conserva la trazabilidad documental y gestiona el expediente.</p></article>' +
+                        '<article><span class="fas fa-user-check" aria-hidden="true"></span><h3>Asignación</h3><p>Distribuye los casos, equilibra las cargas y coordina la atención en territorio.</p></article>' +
+                        '<article><span class="fas fa-map-marked-alt" aria-hidden="true"></span><h3>Patrullaje</h3><p>Realiza visitas, registra evidencias y reporta los resultados de la actuación.</p></article>' +
+                    '</div>' +
+                '</section>' +
+                '<section class="custom-home-welcome__vigilance" aria-labelledby="crm-vigilance-title">' +
+                    '<div><span class="fas fa-shield-alt" aria-hidden="true"></span><h2 id="crm-vigilance-title">¿Qué fortalece la inspección y vigilancia?</h2></div>' +
+                    '<ul><li>Seguimiento visible de responsables, fechas y estados.</li><li>Información de campo y documentos reunidos en un mismo caso.</li><li>Decisiones basadas en evidencia para responder a tiempo.</li></ul>' +
+                '</section>' +
+                '<section class="custom-home-welcome__learning" aria-labelledby="crm-learning-title">' +
+                    '<div class="custom-home-welcome__section-heading"><span>Centro de aprendizaje</span><h2 id="crm-learning-title">Recursos que iremos incorporando</h2><p>Este espacio crecerá con materiales para el equipo y los usuarios de la plataforma.</p></div>' +
+                    '<div class="custom-home-welcome__resources">' +
+                        '<article><span class="fas fa-book-open" aria-hidden="true"></span><h3>Guías de uso</h3><p>Recorridos paso a paso por cada proceso.</p><em>Próximamente</em></article>' +
+                        '<article><span class="fas fa-play-circle" aria-hidden="true"></span><h3>Videos</h3><p>Capacitaciones breves para operar la plataforma.</p><em>Próximamente</em></article>' +
+                        '<article><span class="fas fa-file-alt" aria-hidden="true"></span><h3>Manuales y formatos</h3><p>Documentos de apoyo y criterios operativos.</p><em>Próximamente</em></article>' +
+                    '</div>' +
+                '</section>' +
+            '</section>';
         },
 
         buildHomeTabButton: function (tabId, label, activeTab) {
@@ -582,7 +668,7 @@ define('custom:views/home', ['views/dashboard'], function (Dep) {
         bindHomeTabs: function () {
             var self = this;
 
-            this.$el.find('.custom-home-tabs [data-tab]').on('click', function () {
+            this.$el.find('.custom-home-tabs [data-tab], .custom-home-welcome__actions [data-tab]').on('click', function () {
                 self.switchHomeTab($(this).data('tab'));
             });
         },

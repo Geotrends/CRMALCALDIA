@@ -1,0 +1,33 @@
+{
+    "fields": {
+        "name": "Nombre",
+        "case": "Caso vinculado",
+        "decisor": "Decisor",
+        "fechaDecision": "Fecha de decisión",
+        "resultado": "Resultado",
+        "fundamentoNormativo": "Fundamento normativo",
+        "motivacion": "Motivación",
+        "expediente": "Expediente",
+        "assignedUser": "Responsable asignado",
+        "teams": "Equipos",
+        "createdAt": "Creado",
+        "modifiedAt": "Modificado"
+    },
+    "labels": {
+        "Create DecisionRutaJuridica": "Crear decisión de ruta jurídica",
+        "DecisionRutaJuridica": "Decisión de ruta jurídica",
+        "DecisionRutaJuridicas": "Decisiones de ruta jurídica"
+    },
+    "options": {
+        "resultado": {
+            "Sin mérito": "Sin mérito",
+            "Nueva gestión técnica": "Nueva gestión técnica",
+            "Remisión a otra autoridad": "Remisión a otra autoridad",
+            "Ruta policiva": "Ruta policiva",
+            "Ruta Recursos Naturales - Competencia Municipal": "Ruta Recursos Naturales - Competencia Municipal",
+            "Ruta Tenencia Animal": "Ruta Tenencia Animal",
+            "Ruta Maltrato Animal": "Ruta Maltrato Animal",
+            "Ruta Ambiental Preventiva / Remisión": "Ruta Ambiental Preventiva / Remisión"
+        }
+    }
+}

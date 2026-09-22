@@ -1,0 +1,40 @@
+/* Consulta y diligenciamiento del acta: una sola columna, como el caso. */
+.detail[data-scope="ActaVisita"] .record-grid > .left, .edit[data-scope="ActaVisita"] .record-grid > .left,
+.detail[data-scope="ActaVisita"] .record-grid > .left > .middle, .edit[data-scope="ActaVisita"] .record-grid > .left > .middle { float:none; width:100%; }
+.detail[data-scope="ActaVisita"] .alcaldia-acta-funcionario, .edit[data-scope="ActaVisita"] .alcaldia-acta-funcionario {
+  background:var(--crm-surface); border:1px solid var(--crm-form-value-border); border-radius:var(--crm-radius-lg);
+  box-shadow:var(--crm-shadow-sm); float:none; margin:0 0 16px; padding:14px 18px; width:100%;
+}
+.detail[data-scope="ActaVisita"] .panel-body > .row, .edit[data-scope="ActaVisita"] .panel-body > .row { display:block; }
+.detail[data-scope="ActaVisita"] .panel-body > .row > .cell, .edit[data-scope="ActaVisita"] .panel-body > .row > .cell { display:block; padding:8px 18px; width:100% !important; }
+.detail[data-scope="ActaVisita"] .panel-body label.control-label, .edit[data-scope="ActaVisita"] .panel-body label.control-label { line-height:1.15; margin-bottom:2px; }
+.detail[data-scope="ActaVisita"] .panel-body .field-value, .edit[data-scope="ActaVisita"] .panel-body .field-value,
+.detail[data-scope="ActaVisita"] .panel-body .field .complex-text, .edit[data-scope="ActaVisita"] .panel-body .field .complex-text { line-height:1.28; }
+.detail[data-scope="ActaVisita"] .panel-body, .edit[data-scope="ActaVisita"] .panel-body { padding-bottom:8px; padding-top:4px; }
+.detail[data-scope="ActaVisita"] .alcaldia-acta-collapsible > .panel-heading, .edit[data-scope="ActaVisita"] .alcaldia-acta-collapsible > .panel-heading { align-items:center; cursor:pointer; display:flex; }
+.detail[data-scope="ActaVisita"] .alcaldia-acta-collapsible > .panel-heading .panel-title, .edit[data-scope="ActaVisita"] .alcaldia-acta-collapsible > .panel-heading .panel-title { margin-right:auto; }
+.detail[data-scope="ActaVisita"] .alcaldia-acta-collapsible__chevron, .edit[data-scope="ActaVisita"] .alcaldia-acta-collapsible__chevron { color:var(--crm-primary); font-size:12px; }
+.detail[data-scope="ActaVisita"] .alcaldia-acta-collapsed > .panel-body, .edit[data-scope="ActaVisita"] .alcaldia-acta-collapsed > .panel-body { display:none !important; }
+.detail[data-scope="ActaVisita"] .alcaldia-acta-collapsed > .panel-heading, .edit[data-scope="ActaVisita"] .alcaldia-acta-collapsed > .panel-heading { border-bottom-color:transparent !important; }
+
+/* El editor se abre en un sidecar propio; esta clase evita depender de la
+   estructura global de la pantalla y aplica el mismo diseño compacto. */
+.alcaldia-acta-modal-layout .record-grid > .left,
+.alcaldia-acta-modal-layout .record-grid > .left > .middle { float:none !important; width:100% !important; }
+.alcaldia-acta-modal-layout .record-grid { display:block !important; }
+.alcaldia-acta-modal-layout .record-grid > .left { max-width:none !important; width:100% !important; }
+/* Si queda una columna auxiliar vacía después de mover el funcionario,
+   no debe reservar espacio a la derecha. */
+.alcaldia-acta-modal-layout .record-grid > .side { display:none !important; }
+.alcaldia-acta-modal-layout .alcaldia-acta-funcionario { background:var(--crm-surface); border:1px solid var(--crm-form-value-border); border-radius:var(--crm-radius-lg); box-shadow:var(--crm-shadow-sm); float:none !important; margin:0 0 16px; padding:14px 18px; width:100% !important; }
+.alcaldia-acta-modal-layout .panel { border-left:0 !important; }
+.alcaldia-acta-modal-layout .panel-heading { border-left:0 !important; box-shadow:none !important; }
+.alcaldia-acta-modal-layout .panel-body > .row { display:block; }
+.alcaldia-acta-modal-layout .panel-body > .row > .cell { display:block; padding:8px 18px; width:100% !important; }
+.alcaldia-acta-modal-layout .panel-body { padding-bottom:8px; padding-top:4px; }
+.alcaldia-acta-modal-layout .panel-body label.control-label { line-height:1.15; margin-bottom:2px; }
+.alcaldia-acta-modal-layout .alcaldia-acta-collapsible > .panel-heading { align-items:center; cursor:pointer; display:flex; }
+.alcaldia-acta-modal-layout .alcaldia-acta-collapsible > .panel-heading .panel-title { margin-right:auto; }
+.alcaldia-acta-modal-layout .alcaldia-acta-collapsible__chevron { color:var(--crm-primary); font-size:12px; }
+.alcaldia-acta-modal-layout .alcaldia-acta-collapsed > .panel-body { display:none !important; }
+.alcaldia-acta-modal-layout .alcaldia-acta-collapsed > .panel-heading { border-bottom-color:transparent !important; }

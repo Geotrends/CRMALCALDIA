@@ -4,12 +4,15 @@ namespace Espo\Custom\Hooks\ActaVisita;
 
 use Espo\Core\Hook\Hook\AfterSave;
 use Espo\Custom\Tools\CaseObj\CaseActaVisitaHelper;
+use Espo\Custom\Tools\CaseObj\CaseGestionTecnicaHelper;
 use Espo\ORM\Entity;
 use Espo\ORM\EntityManager;
 use Espo\ORM\Repository\Option\SaveOptions;
 
 /**
- * Acta de visita con contenido → caso pasa a Visita realizada (desde Asignado o En proceso legacy).
+ * Acta de visita con contenido → se abre/actualiza la GestionTecnica del caso con
+ * el resultado registrado, se vincula el acta a ella, y el caso pasa a
+ * "En gestión técnica" (desde Asignado o desde una ronda de gestión técnica previa).
  */
 class SetEnProcesoOnActaVisita implements AfterSave
 {
@@ -21,7 +24,11 @@ class SetEnProcesoOnActaVisita implements AfterSave
 
     public function afterSave(Entity $entity, SaveOptions $options): void
     {
-        if ($options->get('skipCaseStatusUpdate') || $options->get('skipCaseEnProcesoOnActa')) {
+        if (
+            $options->get('skipAll')
+            || $options->get('skipCaseStatusUpdate')
+            || $options->get('skipCaseEnProcesoOnActa')
+        ) {
             return;
         }
 
@@ -33,11 +40,23 @@ class SetEnProcesoOnActaVisita implements AfterSave
 
         $case = $this->entityManager->getEntityById('Case', $caseId);
 
-        if (!$case || !CaseActaVisitaHelper::canAdvanceCaseToVisitaRealizada($case)) {
+        if (!$case || !CaseActaVisitaHelper::canAdvanceCaseToGestionTecnica($case)) {
             return;
         }
 
-        $case->set('status', CaseActaVisitaHelper::STATUS_VISITA_REALIZADA);
+        $gestionTecnica = CaseGestionTecnicaHelper::openOrUpdateGestionTecnica(
+            $this->entityManager,
+            $caseId,
+            CaseGestionTecnicaHelper::ESTADO_RESULTADO_REGISTRADO
+        );
+
+        if (trim((string) $entity->get('gestionTecnicaId')) !== $gestionTecnica->getId()) {
+            $entity->set('gestionTecnicaId', $gestionTecnica->getId());
+
+            $this->entityManager->saveEntity($entity, ['skipAll' => true]);
+        }
+
+        $case->set('status', CaseActaVisitaHelper::STATUS_EN_GESTION_TECNICA);
 
         $this->entityManager->saveEntity($case, [
             'skipCaseStatusUpdate' => true,

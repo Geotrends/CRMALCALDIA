@@ -18,8 +18,8 @@ use Espo\ORM\Repository\Option\SaveOptions;
  * Al diligenciar el acta de visita, notifica a Inspección que puede revisar/aprobar.
  *
  * Corre antes de SetEnProcesoOnActaVisita (orden 48): mientras el caso sigue en
- * "Asignado" (canAdvanceCaseToVisitaRealizada), garantizando una sola notificación
- * en el primer diligenciamiento.
+ * "Asignado" o ya en "En gestión técnica" (canAdvanceCaseToGestionTecnica),
+ * garantizando una sola notificación por diligenciamiento.
  */
 class NotifyInspeccionOnActaDiligenciada implements AfterSave
 {
@@ -56,7 +56,7 @@ class NotifyInspeccionOnActaDiligenciada implements AfterSave
 
         $case = $this->entityManager->getEntityById('Case', $caseId);
 
-        if (!$case || !CaseActaVisitaHelper::canAdvanceCaseToVisitaRealizada($case)) {
+        if (!$case || !CaseActaVisitaHelper::canAdvanceCaseToGestionTecnica($case)) {
             return;
         }
 
@@ -72,6 +72,7 @@ class NotifyInspeccionOnActaDiligenciada implements AfterSave
         $notifyUserIds = array_values(array_unique(array_merge(
             $this->profile->findActiveUserIdsByRoleName(AlcaldiaUserProfile::ROLE_INSPECCION),
             $this->profile->findActiveUserIdsByRoleName(AlcaldiaUserProfile::ROLE_INSPECCION_ALT),
+            $this->profile->findActiveAdminUserIds(),
         )));
 
         foreach ($notifyUserIds as $notifyUserId) {

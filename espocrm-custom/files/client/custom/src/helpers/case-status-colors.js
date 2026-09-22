@@ -5,10 +5,8 @@ define('custom:helpers/case-status-colors', [], function () {
         'Pendiente de radicacion',
         'Radicado',
         'Asignado',
-        'En proceso',
-        'Visita realizada',
-        'Visita aprobada',
-        'En proceso de otra visita',
+        'En gestión técnica',
+        'Revisión de hallazgos',
         'Finalizado',
         'Proceso cerrado',
     ];
@@ -33,25 +31,15 @@ define('custom:helpers/case-status-colors', [], function () {
             text: '#9d174d',
             border: '#f9a8d4',
         },
-        'En proceso': {
-            bg: '#ede9fe',
-            text: '#5b21b6',
-            border: '#c4b5fd',
-        },
-        'Visita realizada': {
+        'En gestión técnica': {
             bg: '#fef9c3',
             text: '#854d0e',
             border: '#fde047',
         },
-        'Visita aprobada': {
+        'Revisión de hallazgos': {
             bg: '#dcfce7',
             text: '#166534',
             border: '#86efac',
-        },
-        'En proceso de otra visita': {
-            bg: '#e0f2fe',
-            text: '#0c4a6e',
-            border: '#7dd3fc',
         },
         'Finalizado': {
             bg: '#ede0d4',
@@ -69,10 +57,8 @@ define('custom:helpers/case-status-colors', [], function () {
         'Pendiente de radicacion': 'casePendiente',
         'Radicado': 'caseRadicado',
         'Asignado': 'caseAsignado',
-        'En proceso': 'caseEnProceso',
-        'Visita realizada': 'caseVisitaRealizada',
-        'Visita aprobada': 'caseVisitaAprobada',
-        'En proceso de otra visita': 'caseEnProcesoOtraVisita',
+        'En gestión técnica': 'caseEnGestionTecnica',
+        'Revisión de hallazgos': 'caseVisitaAprobada',
         'Finalizado': 'caseFinalizado',
         'Proceso cerrado': 'caseCerrado',
     };

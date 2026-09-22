@@ -70,9 +70,16 @@ $users = [
         'password' => trim((string) getenv('ESPOCRM_USER_PATRULLAJE_PASSWORD')) ?: 'patrullaje2026',
         'type' => 'regular',
     ],
+    [
+        'userName' => 'juridica',
+        'name' => 'Jurídica',
+        'role' => 'Jurídica',
+        'password' => trim((string) getenv('ESPOCRM_USER_JURIDICA_PASSWORD')) ?: 'juridica2026',
+        'type' => 'regular',
+    ],
 ];
 
-echo '=== Reparar login (admin + 4 operativos) ===' . PHP_EOL;
+echo '=== Reparar login (admin + 5 operativos) ===' . PHP_EOL;
 
 $failed = false;
 
@@ -125,6 +132,7 @@ echo '  inspeccion  → inspeccion2026' . PHP_EOL;
 echo '  radicacion  → radicacion2026' . PHP_EOL;
 echo '  asignacion  → asignacion2026' . PHP_EOL;
 echo '  patrullaje  → patrullaje2026' . PHP_EOL;
+echo '  juridica    → juridica2026' . PHP_EOL;
 echo PHP_EOL . 'Use ventana de incógnito y /#Login' . PHP_EOL;
 
 if ($failed || $cacheCode !== 0) {

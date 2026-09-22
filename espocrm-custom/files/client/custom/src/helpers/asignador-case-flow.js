@@ -12,8 +12,7 @@ define('custom:helpers/asignador-case-flow', [
 
     const POST_ASSIGNMENT_STATUSES = [
         'Asignado',
-        'En proceso',
-        'Visita realizada',
+        'En gestión técnica',
         'Visita aprobada',
     ];
 

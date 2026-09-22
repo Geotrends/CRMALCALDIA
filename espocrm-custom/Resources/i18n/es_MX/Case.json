@@ -66,8 +66,7 @@
       "Pendiente de radicacion": "Pendiente de radicación",
       "Radicado": "Radicado",
       "Asignado": "Asignado",
-      "En proceso": "En proceso",
-      "Visita realizada": "Visita realizada",
+      "En gestión técnica": "En gestión técnica",
       "Visita aprobada": "Visita aprobada",
       "Finalizado": "Finalizado",
       "Proceso cerrado": "Proceso cerrado"
@@ -99,8 +98,7 @@
     "Pendiente de radicacion": "Pend. radicación",
     "Radicado": "Radicado",
     "Asignado": "Asignado",
-    "En proceso": "En proceso",
-    "Visita realizada": "Visita hecha",
+    "En gestión técnica": "Gest. técnica",
     "Visita aprobada": "Visita aprob.",
     "Finalizado": "Finalizado",
     "Proceso cerrado": "Proc. cerrado"

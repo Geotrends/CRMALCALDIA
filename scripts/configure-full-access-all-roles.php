@@ -29,6 +29,8 @@ $globalTabList = [
         'id' => 'alcaldia-gestion',
     ],
     'Case',
+    'RelacionCasos',
+    'Expediente',
     'User',
     'Contact',
     'Account',
@@ -64,6 +66,12 @@ $scopes = [
     'Call',
     'ActaVisita',
     'ActuoArchivo',
+    'Expediente',
+    'AutoInicio',
+    'GestionTecnica',
+    'DecisionRutaJuridica',
+    'Destino',
+    'RelacionCasos',
 ];
 
 $fullScope = static function (string $scope = ''): array {
@@ -113,6 +121,8 @@ $restrictedCaseRoles = [
     'Asignador',
     'Patrullaje',
     'Patrullero',
+    'Jurídica',
+    'Juridica',
 ];
 
 foreach ($em->getRDBRepository('Role')->find() as $role) {

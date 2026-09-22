@@ -11,6 +11,9 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import zipfile
+import xml.etree.ElementTree as ET
+from copy import deepcopy
 
 import pymupdf as fitz
 
@@ -208,6 +211,96 @@ def fill_pdf(template_path, output_path, data):
     doc.close()
 
 
+WORD_NS = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+XML_SPACE = "{http://www.w3.org/XML/1998/namespace}space"
+
+
+def word_tag(name):
+    return f"{{{WORD_NS}}}{name}"
+
+
+def paragraph_text(paragraph):
+    return "".join(node.text or "" for node in paragraph.iter(word_tag("t")))
+
+
+def fill_word_line(paragraph, value):
+    """Reemplaza el espacio subrayado de un dato existente en el formato."""
+    value = str(value or "").strip()
+    if not value:
+        return False
+
+    for node in paragraph.iter(word_tag("t")):
+        original = node.text or ""
+        if "_" not in original:
+            continue
+
+        capacity = original.count("_")
+        if capacity < 2:
+            continue
+
+        text = value[:capacity]
+        node.text = text + ("_" * max(1, capacity - len(text)))
+        node.set(XML_SPACE, "preserve")
+        return True
+
+    return False
+
+
+def append_word_value(paragraph, value):
+    """Añade un valor a una etiqueta que no tiene línea de subrayado."""
+    value = str(value or "").strip()
+    runs = list(paragraph.findall(word_tag("r")))
+    if not value or not runs:
+        return False
+
+    run = deepcopy(runs[-1])
+    for child in list(run):
+        if child.tag != word_tag("rPr"):
+            run.remove(child)
+
+    text = ET.SubElement(run, word_tag("t"))
+    text.text = " " + value
+    text.set(XML_SPACE, "preserve")
+    paragraph.append(run)
+
+    return True
+
+
+def fill_docx(template_path, output_path, data):
+    """Genera una copia editable del Word oficial con datos previos a visita.
+
+    La plantilla no contiene campos de combinación. Se preserva su estructura
+    y se sustituyen únicamente los renglones de datos que ya están registrados
+    en el caso; las secciones de hallazgos siguen vacías para campo.
+    """
+    values = build_field_values(data)
+
+    with zipfile.ZipFile(template_path, "r") as source:
+        root = ET.fromstring(source.read("word/document.xml"))
+        replacements = [
+            ("INFORMACIÓN GENERAL FECHA", values.get("fecha")),
+            ("Posible Afectante", values.get("posibleAfectante")),
+            ("Radicado de la solicitud", values.get("radicado")),
+            ("Dirección donde se origina la afectación", values.get("direccionAfectacion")),
+            ("Teléfono:", values.get("telefono")),
+            ("Barrio:", values.get("barrio")),
+        ]
+
+        for label, value in replacements:
+            for paragraph in root.iter(word_tag("p")):
+                if label.lower() in paragraph_text(paragraph).lower():
+                    if not fill_word_line(paragraph, value) and label == "INFORMACIÓN GENERAL FECHA":
+                        append_word_value(paragraph, value)
+                    break
+
+        updated_document = ET.tostring(root, encoding="utf-8", xml_declaration=True)
+
+        with zipfile.ZipFile(output_path, "w", zipfile.ZIP_DEFLATED) as target:
+            for item in source.infolist():
+                content = updated_document if item.filename == "word/document.xml" else source.read(item.filename)
+                target.writestr(item, content)
+
+
 def main():
     if len(sys.argv) < 3:
         print(
@@ -221,12 +314,14 @@ def main():
     output_format = (sys.argv[3] if len(sys.argv) > 3 else "pdf").lower()
 
     payload = json.load(sys.stdin)
-    template_pdf = ensure_pdf_template(template_arg)
-
-    if output_format != "pdf":
-        raise RuntimeError("Solo se admite salida pdf con superposición sobre plantilla.")
-
-    fill_pdf(template_pdf, output_path, payload)
+    if output_format == "docx":
+        if not template_arg.lower().endswith(".docx"):
+            raise RuntimeError("La salida Word requiere la plantilla ActaVisita2.docx.")
+        fill_docx(template_arg, output_path, payload)
+    elif output_format == "pdf":
+        fill_pdf(ensure_pdf_template(template_arg), output_path, payload)
+    else:
+        raise RuntimeError("Formato de salida no válido. Use pdf o docx.")
     print(output_path)
 
 

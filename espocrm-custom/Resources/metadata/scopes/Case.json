@@ -1,10 +1,10 @@
 {
     "tab": true,
     "disabled": false,
-    "stream": false,
+    "stream": true,
     "statusField": "status",
     "kanbanStatusIgnoreList": [
-        "En proceso"
+        "En gestión técnica"
     ],
     "aclActionList": [
         "create",
@@ -14,7 +14,6 @@
         "stream",
         "alcaldiaProfile",
         "createDefaults",
-        "radicadoConsecutivo",
         "buscarParte",
         "calendarEvents",
         "timeline",
@@ -22,8 +21,13 @@
         "panelesDetalle",
         "confirmarVisitaRealizada",
         "confirmarVisitaAprobada",
+        "remitirPorCompetencia",
+        "guardarDefinicionTramite",
         "prepararNuevaVisita",
         "revertirVisitaAprobada",
-        "registrarSolicitudNuevaVisita"
+        "registrarSolicitudNuevaVisita",
+        "cerrarSinProceso",
+        "abrirAutoInicio",
+        "bandejaDecision"
     ]
 }

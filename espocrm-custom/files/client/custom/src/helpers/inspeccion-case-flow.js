@@ -95,6 +95,10 @@ define('custom:helpers/inspeccion-case-flow', [
         }
 
         RadicacionFields.RADICADO_ALL_FIELDS.forEach(function (field) {
+            if (RadicacionFields.RECEPCION_CLASSIFICATION_FIELDS.indexOf(field) !== -1) {
+                return;
+            }
+
             const view = recordView.getFieldView(field);
 
             if (view && typeof view.setReadOnly === 'function') {

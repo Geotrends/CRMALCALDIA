@@ -7,6 +7,10 @@ define('custom:views/notification/items/radicado', [
 
         template: 'custom:notification/items/radicado',
 
+        events: {
+            'click [data-action="remove-notification"]': 'actionRemoveNotification',
+        },
+
         setup: function () {
             let built = {
                 message: '',
@@ -32,6 +36,32 @@ define('custom:views/notification/items/radicado', [
                 style: this.style,
                 createdAt: this.getCreatedAtHtml(),
             };
+        },
+
+        actionRemoveNotification: function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            if (this._removing || !this.model || !this.model.id) {
+                return;
+            }
+
+            this._removing = true;
+
+            Espo.Ajax.deleteRequest('Notification/' + this.model.id)
+                .then(function () {
+                    if (this.model.collection) {
+                        this.model.collection.remove(this.model);
+                    }
+
+                    this.remove();
+                }.bind(this))
+                .catch(function () {
+                    Espo.Ui.error('No fue posible eliminar la notificación.');
+                })
+                .finally(function () {
+                    this._removing = false;
+                }.bind(this));
         },
 
         getCreatedAtHtml: function () {

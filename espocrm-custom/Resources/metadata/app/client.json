@@ -3,7 +3,12 @@
         "client/custom/res/css/main.css",
         "client/custom/res/css/22-ui-toasts.css",
         "client/custom/res/css/23-buttons.css",
-        "client/custom/res/css/26-navbar-mobile-fixes.css"
+        "client/custom/res/css/26-navbar-mobile-fixes.css",
+        "client/custom/res/css/28-case-create-guide.css",
+        "client/custom/res/css/29-case-decision.css",
+        "client/custom/res/css/30-case-detail-compact.css",
+        "client/custom/res/css/31-case-role-guidance.css",
+        "client/custom/res/css/32-notification-actions.css"
     ],
     "scriptList": [
         "client/custom/src/loader/route-sanitize.js",

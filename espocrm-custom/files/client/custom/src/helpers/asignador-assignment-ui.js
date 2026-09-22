@@ -262,7 +262,7 @@ define('custom:helpers/asignador-assignment-ui', [
             name: recordView.model.get('assignedUserName') || '',
         };
 
-        const title = isReasign ? 'Reasignar caso' : 'Asignar patrullero';
+        const title = isReasign ? 'Reasignar caso' : 'Asignar responsable';
         const motivoBlock = isReasign
             ? '<div class="form-group alcaldia-motivo-group">' +
             '<label>Motivo de reasignación <span class="text-danger">*</span></label>' +
@@ -283,7 +283,7 @@ define('custom:helpers/asignador-assignment-ui', [
             '<label>Asignado a <span class="text-danger">*</span></label>' +
             '<div class="input-group">' +
             '<input type="text" class="form-control js-user-name" readonly ' +
-            'placeholder="Seleccione un patrullero">' +
+            'placeholder="Seleccione un usuario">' +
             '<span class="input-group-btn">' +
             '<button type="button" class="btn btn-default" data-action="pick-user">Seleccionar</button>' +
             '</span></div></div>' +
@@ -323,7 +323,7 @@ define('custom:helpers/asignador-assignment-ui', [
             }
 
             if (!selectedUser.id) {
-                Espo.Ui.error('Debe seleccionar un patrullero.');
+                Espo.Ui.error('Debe seleccionar un usuario.');
 
                 return;
             }
@@ -360,7 +360,7 @@ define('custom:helpers/asignador-assignment-ui', [
 
     const openUserPicker = function (recordView, callback) {
         if (!recordView || typeof recordView.createView !== 'function') {
-            Espo.Ui.error('No se pudo abrir el selector de patrulleros.');
+            Espo.Ui.error('No se pudo abrir el selector de usuarios.');
 
             return;
         }
@@ -368,7 +368,6 @@ define('custom:helpers/asignador-assignment-ui', [
         recordView.createView('dialog', 'views/modals/select-records', {
             scope: 'User',
             multiple: false,
-            primaryFilterName: 'patrulleros',
             createButton: false,
         }, function (dialog) {
             dialog.render();
@@ -466,6 +465,7 @@ define('custom:helpers/asignador-assignment-ui', [
         consumeAssignmentSession: consumeAssignmentSession,
         clearAssignmentSession: clearAssignmentSession,
         isAssignmentSession: isAssignmentSession,
+        openPatrulleroPicker: openUserPicker,
         getEditableFields: getEditableFields,
         safeSetFieldNotReadOnly: safeSetFieldNotReadOnly,
         safeSetFieldReadOnly: safeSetFieldReadOnly,

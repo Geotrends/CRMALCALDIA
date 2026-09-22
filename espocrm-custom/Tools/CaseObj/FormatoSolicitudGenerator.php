@@ -33,8 +33,8 @@ class FormatoSolicitudGenerator
     {
         $format = strtolower($format);
 
-        if ($format !== 'pdf') {
-            throw new BadRequest('Formato no válido. Use pdf.');
+        if (!in_array($format, ['pdf', 'docx'], true)) {
+            throw new BadRequest('Formato no válido. Use pdf o docx.');
         }
 
         /** @var ?Entity $case */
@@ -48,16 +48,16 @@ class FormatoSolicitudGenerator
             throw new Forbidden();
         }
 
-        if (!$internal && !$this->canDownloadFormato($case)) {
+        if (!$internal && $format === 'pdf' && !$this->canDownloadFormato($case)) {
             throw new Forbidden();
         }
 
-        if (!$internal && !$this->isFormatoHabilitado($case)) {
+        if (!$internal && $format === 'pdf' && !$this->isFormatoHabilitado($case)) {
             throw new Forbidden('El formato de solicitud aún no está habilitado.');
         }
 
-        $templatePath = $this->getTemplatePath();
-        $scriptPath = $this->getScriptPath();
+        $templatePath = $this->getTemplatePath($format);
+        $scriptPath = $this->getScriptPath($format);
 
         if (!is_readable($templatePath)) {
             throw new Error('No se encontró la plantilla FormatoSolicitud (PDF o DOC).');
@@ -80,11 +80,10 @@ class FormatoSolicitudGenerator
             throw new Error('No se pudo crear el perfil de LibreOffice.');
         }
 
-        $radicado = trim((string) $case->get('cNumeroRadicado'));
-        $peticionario = CasePartyNameHelper::getPeticionarioFullName($case);
-        $slugSource = $radicado !== '' ? $radicado : $peticionario;
-        $safeRadicado = preg_replace('/[^\w\-]+/u', '_', $slugSource) ?: 'caso';
-        $outputPath = $workDir . '/FormatoSolicitud-' . $safeRadicado . '.' . $format;
+        $outputName = $format === 'docx'
+            ? $this->buildFormato007FileName($case)
+            : $this->buildPdfFileName($case);
+        $outputPath = $workDir . '/' . $outputName;
         $jsonPath = $workDir . '/payload.json';
 
         file_put_contents($jsonPath, json_encode($payload, JSON_UNESCAPED_UNICODE));
@@ -144,7 +143,7 @@ class FormatoSolicitudGenerator
             'name' => basename($outputPath),
             'type' => $format === 'pdf'
                 ? 'application/pdf'
-                : 'application/msword',
+                : 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         ];
     }
 
@@ -182,8 +181,12 @@ class FormatoSolicitudGenerator
         return in_array($role->getId(), $roles, true);
     }
 
-    private function getTemplatePath(): string
+    private function getTemplatePath(string $format): string
     {
+        if ($format === 'docx') {
+            return realpath(__DIR__ . '/../../files/templates/FormatoSolicitud.doc') ?: '';
+        }
+
         $pdf = realpath(__DIR__ . '/../../files/templates/FormatoSolicitud-template.pdf');
         if ($pdf) {
             return $pdf;
@@ -192,9 +195,31 @@ class FormatoSolicitudGenerator
         return realpath(__DIR__ . '/../../files/templates/FormatoSolicitud.doc') ?: '';
     }
 
-    private function getScriptPath(): string
+    private function getScriptPath(string $format): string
     {
+        if ($format === 'docx') {
+            return realpath(__DIR__ . '/../../files/scripts/fill-formato-solicitud-docx.py') ?: '';
+        }
+
         return realpath(__DIR__ . '/../../files/scripts/fill-formato-solicitud.py') ?: '';
+    }
+
+    private function buildPdfFileName(Entity $case): string
+    {
+        $radicado = trim((string) $case->get('cNumeroRadicado'));
+        $peticionario = CasePartyNameHelper::getPeticionarioFullName($case);
+        $slugSource = $radicado !== '' ? $radicado : $peticionario;
+        $safeRadicado = preg_replace('/[^\w\-]+/u', '_', $slugSource) ?: 'caso';
+
+        return 'FormatoSolicitud-' . $safeRadicado . '.pdf';
+    }
+
+    private function buildFormato007FileName(Entity $case): string
+    {
+        $timezone = new \DateTimeZone($this->config->get('timeZone') ?? 'America/Bogota');
+        $timestamp = (new \DateTimeImmutable('now', $timezone))->format('Ymd_Hi');
+
+        return 'IV-F-007_Caso-' . $case->getId() . '_' . $timestamp . '.docx';
     }
 
     /**

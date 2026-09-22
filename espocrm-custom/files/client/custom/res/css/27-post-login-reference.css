@@ -1,0 +1,153 @@
+/**
+ * Fase 1 — experiencia posterior al login.
+ * Referencia: navegación lateral profunda, superficies claras y acento dorado.
+ * Todos los selectores excluyen la pantalla de autenticación.
+ */
+
+body.crm-reference-shell {
+  --crm-bg: #edf3f1;
+  --crm-bg-elevated: #f6f9f8;
+  --crm-surface: #ffffff;
+  --crm-surface-hover: #f8faf9;
+  --crm-border: #dce7e3;
+  --crm-border-light: #e8f0ed;
+  --crm-text: #23413e;
+  --crm-text-secondary: #55706c;
+  --crm-text-muted: #819693;
+  --crm-primary: #3b615d;
+  --crm-primary-dark: #254845;
+  --crm-primary-deep: #1f3e3b;
+  --crm-primary-light: #e6efec;
+  --crm-primary-soft: #d7e7e1;
+  --crm-accent: #c99b2a;
+  --crm-accent-soft: #f7efd9;
+  --crm-radius-md: 16px;
+  --crm-radius-lg: 20px;
+  --crm-radius-xl: 24px;
+  --crm-shadow-card: 0 8px 24px rgba(36, 68, 64, 0.06);
+  --crm-shadow-md: 0 14px 32px rgba(36, 68, 64, 0.10);
+}
+
+body.crm-reference-shell #content {
+  background: var(--crm-bg) !important;
+}
+
+/* Barra lateral: el ancla visual del producto después de autenticarse. */
+body.crm-reference-shell #navbar > .navbar {
+  background: #365a57 !important;
+  border-right: 0 !important;
+  border-radius: 0 26px 26px 0 !important;
+  box-shadow: 8px 0 28px rgba(35, 65, 62, 0.12) !important;
+}
+
+body.crm-reference-shell #navbar .navbar-header {
+  background: transparent !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+body.crm-reference-shell #navbar > .navbar > .crm-sidebar-brand {
+  background: #ffffff !important;
+  border-top-color: #e8efed !important;
+  border-radius: 0 0 26px 0 !important;
+}
+
+body.crm-reference-shell #navbar ul.tabs > li.tab > a,
+body.crm-reference-shell #navbar .more-dropdown-menu > li.tab > a {
+  color: rgba(255, 255, 255, 0.76) !important;
+  margin: 5px 12px !important;
+  padding: 11px 14px !important;
+  border-color: transparent !important;
+  border-radius: 14px !important;
+}
+
+body.crm-reference-shell #navbar ul.tabs > li.tab > a:hover,
+body.crm-reference-shell #navbar ul.tabs > li.tab > a:focus,
+body.crm-reference-shell #navbar .more-dropdown-menu > li.tab > a:hover,
+body.crm-reference-shell #navbar .more-dropdown-menu > li.tab > a:focus {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.11) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+body.crm-reference-shell #navbar ul.tabs > li.tab.active > a,
+body.crm-reference-shell #navbar .more-dropdown-menu > li.tab.active > a {
+  color: #294b48 !important;
+  background: #f7fbfa !important;
+  border-color: #f7fbfa !important;
+  box-shadow: 0 5px 14px rgba(20, 46, 43, 0.12) !important;
+}
+
+body.crm-reference-shell:not(.minimized) #navbar ul.tabs > li.tab.active > a span.full-label {
+  color: #294b48 !important;
+}
+
+body.crm-reference-shell #navbar ul.tabs > li.tab-divider > div {
+  color: rgba(255, 255, 255, 0.48) !important;
+}
+
+body.crm-reference-shell #navbar a.minimizer {
+  color: rgba(255, 255, 255, 0.78) !important;
+}
+
+body.crm-reference-shell #navbar a.minimizer:hover,
+body.crm-reference-shell #navbar a.minimizer:focus {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+  border-color: transparent !important;
+}
+
+/* Búsqueda y acciones: controles compactos, claros y con el acento de la referencia. */
+body.crm-reference-shell:not(.side-menu-opened) #navbar .navbar-nav.navbar-right .global-search-container .input-group {
+  border-color: #d8e5e0 !important;
+  border-radius: 16px !important;
+  box-shadow: 0 4px 14px rgba(36, 68, 64, 0.06) !important;
+}
+
+body.crm-reference-shell #navbar .navbar-nav.navbar-right > li > a,
+body.crm-reference-shell #navbar .navbar-nav.navbar-right > li > a.notifications-button {
+  border-color: #d8e5e0 !important;
+  border-radius: 14px !important;
+  color: var(--crm-primary) !important;
+}
+
+body.crm-reference-shell #navbar .navbar-nav.navbar-right > li > a:hover,
+body.crm-reference-shell #navbar .navbar-nav.navbar-right > li > a:focus,
+body.crm-reference-shell #navbar .navbar-nav.navbar-right > li.open > a {
+  background: var(--crm-accent-soft) !important;
+  border-color: #e7d39f !important;
+  color: #8a6715 !important;
+}
+
+/* Tarjetas y encabezados ya existentes: misma geometría, con menos contraste duro. */
+body.crm-reference-shell .list,
+body.crm-reference-shell .record > .page-header,
+body.crm-reference-shell .modal .page-header {
+  border-color: var(--crm-border-light) !important;
+  box-shadow: var(--crm-shadow-card) !important;
+}
+
+body.crm-reference-shell .list > .search-container {
+  background: #f7faf8 !important;
+}
+
+html.crm-modern-ui body.crm-reference-shell .btn-primary,
+html.crm-modern-ui body.crm-reference-shell .btn.btn-primary,
+html.crm-modern-ui body.crm-reference-shell a.btn-primary {
+  background: #c99b2a !important;
+  border-color: #c99b2a !important;
+  color: #ffffff !important;
+}
+
+html.crm-modern-ui body.crm-reference-shell .btn-primary:hover,
+html.crm-modern-ui body.crm-reference-shell .btn.btn-primary:hover,
+html.crm-modern-ui body.crm-reference-shell a.btn-primary:hover {
+  background: #ad8120 !important;
+  border-color: #ad8120 !important;
+  color: #ffffff !important;
+}
+
+@media (max-width: 1024px) {
+  body.crm-reference-shell #navbar > .navbar {
+    border-radius: 0 22px 22px 0 !important;
+  }
+}

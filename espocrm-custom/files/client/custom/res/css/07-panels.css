@@ -410,3 +410,50 @@ body:has(.excel-alcaldia-modal-dialog .modal.in) #content {
 .detail[data-scope="Account"] .panel .list-container .list-buttons-container {
   margin-top: 4px;
 }
+
+.expediente-pasos-list {
+  list-style: none;
+  margin: 8px 0 12px;
+  padding: 0;
+}
+
+.expediente-paso {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 6px 0;
+  font-size: 13px;
+  color: var(--crm-text-muted, #6b7280);
+}
+
+.expediente-paso.is-done,
+.expediente-paso.is-current {
+  color: var(--crm-text, #1f2937);
+}
+
+.expediente-paso.is-current {
+  font-weight: 600;
+  color: #b45309;
+}
+
+.expediente-paso-marker {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid #d1d5db;
+  flex: none;
+  font-size: 10px;
+}
+
+.expediente-paso.is-done .expediente-paso-marker {
+  border-color: #16a34a;
+  background: #16a34a;
+  color: #fff;
+}
+
+.expediente-paso.is-current .expediente-paso-marker {
+  border-color: #b45309;
+}

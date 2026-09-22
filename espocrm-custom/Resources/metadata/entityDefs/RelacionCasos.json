@@ -1,0 +1,92 @@
+{
+    "fields": {
+        "name": {
+            "type": "varchar",
+            "required": false,
+            "maxLength": 200,
+            "trim": true
+        },
+        "tipo": {
+            "type": "enum",
+            "options": [
+                "Mismo hecho",
+                "Misma fuente",
+                "Misma ubicación",
+                "Continuación",
+                "Reincidencia",
+                "Posible duplicado"
+            ],
+            "isCustom": true
+        },
+        "estado": {
+            "type": "enum",
+            "options": [
+                "Activa",
+                "En seguimiento",
+                "Resuelta",
+                "Histórica",
+                "Descartada"
+            ],
+            "default": "Activa",
+            "isCustom": true
+        },
+        "observaciones": {
+            "type": "text",
+            "rows": 4,
+            "isCustom": true
+        },
+        "casos": {
+            "type": "linkMultiple",
+            "isCustom": true
+        },
+        "assignedUser": {
+            "type": "link",
+            "readOnlyAfterCreate": true,
+            "view": "views/fields/assigned-user"
+        },
+        "teams": {
+            "type": "linkMultiple",
+            "view": "views/fields/teams"
+        },
+        "createdAt": {
+            "type": "datetime",
+            "readOnly": true
+        },
+        "modifiedAt": {
+            "type": "datetime",
+            "readOnly": true
+        }
+    },
+    "links": {
+        "casos": {
+            "type": "hasMany",
+            "entity": "Case",
+            "relationName": "caseRelacionCasos",
+            "foreign": "relacionesCasos"
+        },
+        "assignedUser": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "teams": {
+            "type": "hasMany",
+            "entity": "Team",
+            "relationName": "entityTeam",
+            "layoutRelationshipsDisabled": true
+        },
+        "createdBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "modifiedBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        }
+    },
+    "entityClassName": "Espo\\Custom\\Entities\\RelacionCasos",
+    "collection": {
+        "orderBy": "createdAt",
+        "order": "desc",
+        "textFilterFields": ["name", "observaciones"]
+    }
+}

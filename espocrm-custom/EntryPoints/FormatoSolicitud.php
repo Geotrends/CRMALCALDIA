@@ -18,11 +18,15 @@ class FormatoSolicitud implements EntryPoint
     public function run(Request $request, Response $response): void
     {
         $id = $request->getQueryParam('id');
-        $format = 'pdf';
+        $format = strtolower((string) ($request->getQueryParam('format') ?? 'pdf'));
         $inline = $request->getQueryParam('inline') === '1';
 
         if (!$id) {
             throw new BadRequest("No id.");
+        }
+
+        if (!in_array($format, ['pdf', 'docx'], true)) {
+            throw new BadRequest('Formato no válido. Use pdf o docx.');
         }
 
         $file = $this->generator->generate($id, $format);

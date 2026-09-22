@@ -1,0 +1,33 @@
+{
+    "fields": {
+        "name": "Nombre",
+        "case": "Caso vinculado",
+        "estado": "Estado",
+        "motivo": "Motivo",
+        "fechaSolicitud": "Fecha de solicitud",
+        "responsable": "Responsable",
+        "observaciones": "Observaciones",
+        "assignedUser": "Responsable asignado",
+        "teams": "Equipos",
+        "createdAt": "Creado",
+        "modifiedAt": "Modificado"
+    },
+    "labels": {
+        "Create GestionTecnica": "Crear gestión técnica",
+        "GestionTecnica": "Gestión técnica",
+        "GestionTecnicas": "Gestiones técnicas"
+    },
+    "options": {
+        "estado": {
+            "Solicitada": "Solicitada",
+            "Asignada": "Asignada",
+            "Programada": "Programada",
+            "En ejecución": "En ejecución",
+            "Resultado registrado": "Resultado registrado",
+            "Cerrada": "Cerrada",
+            "No realizada": "No realizada",
+            "Reprogramada": "Reprogramada",
+            "Cancelada": "Cancelada"
+        }
+    }
+}

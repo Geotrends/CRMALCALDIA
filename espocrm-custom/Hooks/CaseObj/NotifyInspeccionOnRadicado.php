@@ -19,9 +19,13 @@ use Espo\ORM\Repository\Option\SaveOptions;
 use Exception;
 
 /**
- * Radicación completa un radicado → notifica a Inspección y Asignación.
+ * Radicación completa un radicado → notifica a Inspección.
+ *
+ * Asignación ya recibe su propio aviso accionable ("requiere asignación")
+ * desde AfterUpdateNotifyAsignacion; este hook no la incluye para evitar
+ * notificar dos veces el mismo evento a Asignación.
  */
-class NotifyInspeccionAndAsignadorOnRadicado implements AfterSave
+class NotifyInspeccionOnRadicado implements AfterSave
 {
     public static int $order = 25;
 
@@ -59,9 +63,7 @@ class NotifyInspeccionAndAsignadorOnRadicado implements AfterSave
         $notifyUserIds = array_values(array_unique(array_merge(
             $this->profile->findActiveUserIdsByRoleName(AlcaldiaUserProfile::ROLE_INSPECCION),
             $this->profile->findActiveUserIdsByRoleName(AlcaldiaUserProfile::ROLE_INSPECCION_ALT),
-            $this->profile->findActiveUserIdsByRoleName(AlcaldiaUserProfile::ROLE_ASIGNADOR),
-            $this->profile->findActiveUserIdsByRoleName(AlcaldiaUserProfile::ROLE_ASIGNACION),
-            $this->profile->findActiveUserIdsByRoleName(AlcaldiaUserProfile::ROLE_ASIGNACION_ALT),
+            $this->profile->findActiveAdminUserIds(),
         )));
 
         if ($notifyUserIds === []) {

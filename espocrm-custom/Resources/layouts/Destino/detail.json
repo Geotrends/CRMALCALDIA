@@ -1,0 +1,23 @@
+[
+    {
+        "rows": [
+            [
+                {"name": "name"},
+                {"name": "tipo"}
+            ],
+            [
+                {"name": "direccion"},
+                {"name": "barrio"}
+            ]
+        ],
+        "style": "default",
+        "label": "Información general"
+    },
+    {
+        "rows": [
+            [{"name": "descripcion", "fullWidth": true}]
+        ],
+        "style": "default",
+        "label": "Descripción"
+    }
+]

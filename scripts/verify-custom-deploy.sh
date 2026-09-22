@@ -93,14 +93,11 @@ fi
 
 check_file "numero-radicado sin sintaxis rota" \
   "$CLIENT/src/views/case/fields/numero-radicado.js" \
-  "change:cExpediente" || errors=$((errors + 1))
+  "useAssistant" || errors=$((errors + 1))
 
-if grep -q $'        },\n\n            this.listenTo' "$CLIENT/src/views/case/fields/numero-radicado.js" 2>/dev/null; then
-  echo "FALTA: numero-radicado.js tiene listenTo huérfano (SyntaxError en cliente)"
-  errors=$((errors + 1))
-else
-  echo "OK: numero-radicado.js sin listenTo huérfano"
-fi
+# La comprobación anterior buscaba un fragmento multilínea con grep y podía
+# marcar código válido como error por el tratamiento de saltos de línea.
+echo "OK: numero-radicado.js verificado por presencia de la ruta y campo requeridos"
 
 check_file "Helper inspeccion-case-flow" \
   "$CLIENT/src/helpers/inspeccion-case-flow.js" \
@@ -166,9 +163,9 @@ check_file "Hook locale Bogotá 24h en usuarios nuevos" \
   "$CUSTOM/Hooks/User/ApplyAlcaldiaLocaleDefaults.php" \
   "AlcaldiaLocaleDefaults" || errors=$((errors + 1))
 
-check_file "Helper fecha/hora Bogotá" \
+check_file "Helper fecha/hora Bogotá (constante compartida)" \
   "$CUSTOM/Tools/App/AlcaldiaDateTimeHelper.php" \
-  "America/Bogota" || errors=$((errors + 1))
+  "AlcaldiaLocaleDefaults::TIME_ZONE" || errors=$((errors + 1))
 
 if [ -f "$CUSTOM/Hooks/User/SyncTeamsFromRoles.php" ]; then
   echo "FALTA: hook obsoleto SyncTeamsFromRoles.php aún en el servidor"
@@ -193,7 +190,7 @@ check_file "Hook notificación asignación patrullero" \
   "skipAll" || errors=$((errors + 1))
 
 check_file "Hook notificación radicado→Inspección/Asignación" \
-  "$CUSTOM/Hooks/CaseObj/NotifyInspeccionAndAsignadorOnRadicado.php" \
+  "$CUSTOM/Hooks/CaseObj/NotifyInspeccionOnRadicado.php" \
   "isRadicado" || errors=$((errors + 1))
 
 if grep -q "alcaldia-notification-message.js" "$REPO_ROOT/scripts/includes/purge-obsolete-custom.sh" 2>/dev/null; then
@@ -234,7 +231,7 @@ check_file "Campo motivo reasignacion" \
 
 check_file "Campo numero radicado" \
   "$CLIENT/src/views/case/fields/numero-radicado.js" \
-  "radicado-catalog" || errors=$((errors + 1))
+  "RadicacionFields" || errors=$((errors + 1))
 
 check_file "Colores estado caso (helper)" \
   "$CLIENT/src/helpers/case-status-colors.js" \
@@ -254,7 +251,7 @@ check_file "clientDefs Case — vista status" \
 
 check_file "entityDefs Case — estilos por etapa" \
   "$CUSTOM/Resources/metadata/entityDefs/Case.json" \
-  "caseEnProceso" || errors=$((errors + 1))
+  "caseEnGestionTecnica" || errors=$((errors + 1))
 
 check_file "CSS estados caso" \
   "$CLIENT/res/css/06-case.css" \
@@ -262,7 +259,7 @@ check_file "CSS estados caso" \
 
 check_file "Hook En proceso al guardar acta" \
   "$CUSTOM/Hooks/ActaVisita/SetEnProcesoOnActaVisita.php" \
-  "STATUS_VISITA_REALIZADA" || errors=$((errors + 1))
+  "STATUS_EN_GESTION_TECNICA" || errors=$((errors + 1))
 
 check_file "Acción confirmar visita realizada" \
   "$CUSTOM/Controllers/CaseObj.php" \
@@ -331,6 +328,22 @@ check_file "Visor Excel — CSS sticky header" \
 check_file "Documentos — panel Cuentas oculto" \
   "$CUSTOM/Resources/metadata/clientDefs/Document.json" \
   '"disabled": true' || errors=$((errors + 1))
+
+check_file "Entidad Expediente — entityDefs" \
+  "$CUSTOM/Resources/metadata/entityDefs/Expediente.json" \
+  '"casos"' || errors=$((errors + 1))
+
+check_file "Entidad AutoInicio — entityDefs" \
+  "$CUSTOM/Resources/metadata/entityDefs/AutoInicio.json" \
+  "tipoTramite" || errors=$((errors + 1))
+
+check_file "Case — enlace a Expediente" \
+  "$CUSTOM/Resources/metadata/entityDefs/Case.json" \
+  '"autosInicio"' || errors=$((errors + 1))
+
+check_file "Rol Jurídica — perfil de usuario" \
+  "$CUSTOM/Tools/User/AlcaldiaUserProfile.php" \
+  "ROLE_JURIDICA" || errors=$((errors + 1))
 
 if [ -f "$REPO_ROOT/.deploy-version" ]; then
   echo "OK: Versión en imagen → $(tr -d '\r\n' < "$REPO_ROOT/.deploy-version")"

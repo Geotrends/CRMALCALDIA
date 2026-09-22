@@ -1,6 +1,7 @@
 {
     "fields": {
-        "cCategoria": "Categoría"
+        "cCategoria": "Categoría",
+        "cPanelExcelOnlyOffice": "Registro oficial Excel"
     },
     "labels": {
         "Create Document": "Crear documento",

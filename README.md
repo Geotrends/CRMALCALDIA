@@ -61,6 +61,10 @@ CRMALCALDIA/
 | **`backups/`** | `despliegue-inicial/env.txt` — plantilla de variables para Dokploy o `.env` local. |
 | **`.deploy-version`** | Texto corto (ej. `ui-doc-list-no-categoria-2026-07-02`) que el contenedor compara para saber si debe volver a aplicar el custom. **Actualízalo** en cada cambio relevante de frontend o metadata. |
 
+### Persistencia en EspoCRM 10
+
+La instalación usa EspoCRM **10.0.6** y no monta todo `/var/www/html`. Los volúmenes persistentes se separan en `espocrm-data`, `espocrm-custom` y `espocrm-custom-client`, para `data/`, `custom/` y `client/custom/` respectivamente. No reemplazar estos montajes por un volumen sobre `/var/www/html`.
+
 ---
 
 ## Qué hay dentro de `espocrm-custom`

@@ -29,6 +29,10 @@ class LimitAsignadorCaseEdit implements BeforeSave
 
     public function beforeSave(Entity $entity, SaveOptions $options): void
     {
+        if ($options->get('skipAsignadorLimit')) {
+            return;
+        }
+
         if ($this->user->isAdmin()) {
             return;
         }

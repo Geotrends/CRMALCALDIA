@@ -1,0 +1,133 @@
+{
+    "fields": {
+        "name": {
+            "type": "varchar",
+            "required": true,
+            "maxLength": 200,
+            "trim": true
+        },
+        "tipo": {
+            "type": "enum",
+            "options": [
+                "Establecimiento",
+                "Persona",
+                "Inmueble / Predio",
+                "Lugar",
+                "Actividad",
+                "Fuente"
+            ],
+            "isCustom": true
+        },
+        "direccion": {
+            "type": "varchar",
+            "maxLength": 300,
+            "isCustom": true
+        },
+        "barrio": {
+            "type": "enum",
+            "options": [
+                "Seleccione una opción",
+                "Alcalá",
+                "Alto de Misael",
+                "Bosques de Zúñiga",
+                "Bucarest",
+                "El Chingui",
+                "El Chocho",
+                "El Dorado",
+                "El Escobero",
+                "El Esmeraldal",
+                "El Portal",
+                "El Salado",
+                "El Trianón",
+                "El Vallano",
+                "Inmaculada",
+                "Jardines",
+                "La Magnolia",
+                "La Mina",
+                "La Paz",
+                "La Pradera",
+                "La Sebastiana",
+                "Las Antillas",
+                "Las Casitas",
+                "Las Flores",
+                "Las Orquídeas",
+                "Las Palmas",
+                "Las Vegas",
+                "Loma de las Brujas",
+                "Loma del Barro",
+                "Loma El Atravezado",
+                "Los Naranjos",
+                "Mesa",
+                "Milán- Vallejuelos",
+                "Obrero",
+                "Pantanillo",
+                "Perico",
+                "Pontevedra",
+                "Primavera",
+                "San José",
+                "San Marcos",
+                "San Rafael",
+                "Santa Catalina",
+                "Uribe Angel",
+                "Villagrande",
+                "Zona Centro",
+                "Zuñiga"
+            ],
+            "default": "Seleccione una opción",
+            "isCustom": true
+        },
+        "descripcion": {
+            "type": "text",
+            "rows": 4,
+            "isCustom": true
+        },
+        "assignedUser": {
+            "type": "link",
+            "readOnlyAfterCreate": true,
+            "view": "views/fields/assigned-user"
+        },
+        "teams": {
+            "type": "linkMultiple",
+            "view": "views/fields/teams"
+        },
+        "createdAt": {
+            "type": "datetime",
+            "readOnly": true
+        },
+        "modifiedAt": {
+            "type": "datetime",
+            "readOnly": true
+        }
+    },
+    "links": {
+        "casos": {
+            "type": "hasMany",
+            "entity": "Case",
+            "foreign": "destino"
+        },
+        "assignedUser": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "teams": {
+            "type": "hasMany",
+            "entity": "Team",
+            "relationName": "entityTeam",
+            "layoutRelationshipsDisabled": true
+        },
+        "createdBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "modifiedBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        }
+    },
+    "entityClassName": "Espo\\Custom\\Entities\\Destino",
+    "collection": {
+        "orderBy": "createdAt",
+        "order": "desc",
+        "textFilterFields": ["name", "direccion"]
+    }
+}

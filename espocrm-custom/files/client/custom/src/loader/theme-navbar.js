@@ -412,6 +412,49 @@
         }
     }
 
+    function applyPostLoginReferenceShell() {
+        var body = document.body;
+
+        if (!body) {
+            return;
+        }
+
+        if (isLoginPage()) {
+            body.classList.remove('crm-reference-shell');
+            return;
+        }
+
+        body.classList.add('crm-reference-shell');
+
+        var nav = document.querySelector('#navbar > .navbar');
+
+        if (!nav) {
+            return;
+        }
+
+        // El navbar puede traer estilos inline desde EspoCRM. Esta asignación
+        // garantiza que la capa visual posterior al login prevalezca.
+        nav.style.setProperty('background', '#365a57', 'important');
+        nav.style.setProperty('border-right', '0', 'important');
+        nav.style.setProperty('border-radius', '0 26px 26px 0', 'important');
+
+        var brand = nav.querySelector('.crm-sidebar-brand');
+
+        if (brand) {
+            brand.style.setProperty('display', 'block', 'important');
+            brand.style.setProperty('visibility', 'visible', 'important');
+            brand.style.setProperty('background', 'rgba(255,255,255,0.08)', 'important');
+
+            var image = brand.querySelector('img');
+
+            if (image) {
+                image.style.setProperty('display', 'block', 'important');
+                image.style.setProperty('visibility', 'visible', 'important');
+                image.style.setProperty('opacity', '1', 'important');
+            }
+        }
+    }
+
     function flattenMoreMenu() {
         var tabs = document.querySelector('#navbar ul.tabs');
 
@@ -470,6 +513,8 @@
             ensureSidebarLogo();
             logoDone = true;
         }
+
+        applyPostLoginReferenceShell();
 
         setupMinimizerButton();
         dedupeSideMenuButtons();

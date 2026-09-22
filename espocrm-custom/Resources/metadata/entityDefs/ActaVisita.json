@@ -14,6 +14,11 @@
             "isCustom": true,
             "view": "custom:views/acta-visita/fields/case"
         },
+        "gestionTecnica": {
+            "type": "link",
+            "readOnlyAfterCreate": true,
+            "isCustom": true
+        },
         "autorizacionDatos": {
             "type": "bool",
             "default": false,
@@ -164,6 +169,24 @@
             "type": "date",
             "isCustom": true
         },
+        "cDecisionTramite": {
+            "type": "enum",
+            "options": ["Visita complementaria", "Cierre de atención", "Remisión por competencia", "Apertura de actuación"],
+            "isCustom": true,
+            "audited": true
+        },
+        "cEntidadRemision": {
+            "type": "varchar",
+            "maxLength": 255,
+            "isCustom": true,
+            "audited": true
+        },
+        "cRevisadoPor": {
+            "type": "varchar",
+            "maxLength": 255,
+            "isCustom": true,
+            "audited": true
+        },
         "registroOficial": {
             "type": "bool",
             "default": false,
@@ -202,6 +225,11 @@
         "case": {
             "type": "belongsTo",
             "entity": "Case",
+            "foreign": "actasVisita"
+        },
+        "gestionTecnica": {
+            "type": "belongsTo",
+            "entity": "GestionTecnica",
             "foreign": "actasVisita"
         },
         "assignedUser": {

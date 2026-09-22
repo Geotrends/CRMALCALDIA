@@ -1,0 +1,30 @@
+[
+    {
+        "rows": [
+            [
+                {"name": "name"},
+                {"name": "tipo"}
+            ],
+            [
+                {"name": "estado"},
+                {"name": "assignedUser"}
+            ]
+        ],
+        "style": "default",
+        "label": "Información general"
+    },
+    {
+        "rows": [
+            [{"name": "casos", "fullWidth": true}]
+        ],
+        "style": "default",
+        "label": "Casos relacionados"
+    },
+    {
+        "rows": [
+            [{"name": "observaciones", "fullWidth": true}]
+        ],
+        "style": "default",
+        "label": "Observaciones"
+    }
+]

@@ -1,0 +1,6 @@
+[
+    {"name": "name", "width": 30, "link": true},
+    {"name": "numeroRadicado", "width": 15},
+    {"name": "consecutivoInterno", "width": 15},
+    {"name": "estado", "width": 15}
+]

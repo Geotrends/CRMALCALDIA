@@ -19,9 +19,9 @@ class FormatoActaVisitaCaso implements EntryPoint
     {
         $id = $request->getQueryParam('id');
         $actaId = trim((string) ($request->getQueryParam('actaId') ?? ''));
-        $format = 'pdf';
+        $format = strtolower(trim((string) ($request->getQueryParam('format') ?? 'pdf')));
         $modo = (string) ($request->getQueryParam('modo') ?? 'digital');
-        $inline = $request->getQueryParam('inline') === '1';
+        $inline = $format === 'pdf' && $request->getQueryParam('inline') === '1';
 
         if (!$id) {
             throw new BadRequest('No id.');

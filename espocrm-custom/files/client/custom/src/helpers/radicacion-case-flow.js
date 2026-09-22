@@ -279,8 +279,11 @@ define('custom:helpers/radicacion-case-flow', [
             return;
         }
 
-        if (recordView.mode === 'edit' && isRadicacionPendingCaseForUser(recordView)) {
-            document.body.classList.add('alcaldia-radicacion-radicar-page');
+        if (recordView.mode === 'edit' && isRadicacionOperator(user)) {
+            document.body.classList.toggle(
+                'alcaldia-radicacion-radicar-page',
+                isRadicacionPendingCaseForUser(recordView)
+            );
             document.body.classList.add(SOLO_RADICAR_CLASS);
             lockNonRadicadoFields(recordView);
             showRadicacionPanel(recordView);

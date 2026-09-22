@@ -1,0 +1,38 @@
+{
+    "fields": {
+        "name": "Nombre",
+        "tipo": "Tipo de relación",
+        "estado": "Estado",
+        "observaciones": "Observaciones",
+        "casos": "Casos relacionados",
+        "assignedUser": "Responsable",
+        "teams": "Equipos",
+        "createdAt": "Creado",
+        "modifiedAt": "Modificado"
+    },
+    "labels": {
+        "Create RelacionCasos": "Crear relación de casos",
+        "RelacionCasos": "Relación de casos",
+        "RelacionCasoses": "Relaciones de casos"
+    },
+    "options": {
+        "tipo": {
+            "Mismo hecho": "Mismo hecho",
+            "Misma fuente": "Misma fuente",
+            "Misma ubicación": "Misma ubicación",
+            "Continuación": "Continuación",
+            "Reincidencia": "Reincidencia",
+            "Posible duplicado": "Posible duplicado"
+        },
+        "estado": {
+            "Activa": "Activa",
+            "En seguimiento": "En seguimiento",
+            "Resuelta": "Resuelta",
+            "Histórica": "Histórica",
+            "Descartada": "Descartada"
+        }
+    },
+    "links": {
+        "casos": "Casos relacionados"
+    }
+}

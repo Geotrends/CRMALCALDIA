@@ -1,0 +1,108 @@
+{
+    "fields": {
+        "name": {
+            "type": "varchar",
+            "required": false,
+            "maxLength": 200,
+            "trim": true,
+            "readOnlyAfterCreate": true
+        },
+        "case": {
+            "type": "link",
+            "required": true,
+            "readOnlyAfterCreate": true,
+            "isCustom": true
+        },
+        "estado": {
+            "type": "enum",
+            "options": [
+                "Solicitada",
+                "Asignada",
+                "Programada",
+                "En ejecución",
+                "Resultado registrado",
+                "Cerrada",
+                "No realizada",
+                "Reprogramada",
+                "Cancelada"
+            ],
+            "default": "Solicitada",
+            "isCustom": true
+        },
+        "motivo": {
+            "type": "text",
+            "rows": 4,
+            "isCustom": true
+        },
+        "fechaSolicitud": {
+            "type": "datetime",
+            "isCustom": true
+        },
+        "responsable": {
+            "type": "link",
+            "isCustom": true
+        },
+        "observaciones": {
+            "type": "text",
+            "rows": 4,
+            "isCustom": true
+        },
+        "assignedUser": {
+            "type": "link",
+            "readOnlyAfterCreate": true,
+            "view": "views/fields/assigned-user"
+        },
+        "teams": {
+            "type": "linkMultiple",
+            "view": "views/fields/teams"
+        },
+        "createdAt": {
+            "type": "datetime",
+            "readOnly": true
+        },
+        "modifiedAt": {
+            "type": "datetime",
+            "readOnly": true
+        }
+    },
+    "links": {
+        "case": {
+            "type": "belongsTo",
+            "entity": "Case",
+            "foreign": "gestionesTecnicas"
+        },
+        "responsable": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "actasVisita": {
+            "type": "hasMany",
+            "entity": "ActaVisita",
+            "foreign": "gestionTecnica"
+        },
+        "assignedUser": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "teams": {
+            "type": "hasMany",
+            "entity": "Team",
+            "relationName": "entityTeam",
+            "layoutRelationshipsDisabled": true
+        },
+        "createdBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "modifiedBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        }
+    },
+    "entityClassName": "Espo\\Custom\\Entities\\GestionTecnica",
+    "collection": {
+        "orderBy": "createdAt",
+        "order": "desc",
+        "textFilterFields": ["name", "motivo"]
+    }
+}

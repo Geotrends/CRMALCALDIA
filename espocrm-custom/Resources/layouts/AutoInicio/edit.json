@@ -1,0 +1,27 @@
+[
+    {
+        "rows": [
+            [
+                {"name": "case"},
+                {"name": "estado"}
+            ],
+            [
+                {"name": "tipoTramite"},
+                {"name": "fechaAuto"}
+            ],
+            [
+                {"name": "fechaDada"}
+            ],
+            [
+                {"name": "referencia", "fullWidth": true}
+            ],
+            [
+                {"name": "motivoApertura", "fullWidth": true}
+            ],
+            [
+                {"name": "inspector"},
+                {"name": "inspectorCargo"}
+            ]
+        ]
+    }
+]

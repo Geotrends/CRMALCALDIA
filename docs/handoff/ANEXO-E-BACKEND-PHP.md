@@ -99,8 +99,9 @@
 - `RecordHooks/ActaVisita/EarlyBeforeCreate.php`
 - `RecordHooks/ActuoArchivo/EarlyBeforeCreate.php`
 - `RecordHooks/CaseObj/EarlyBeforeCreate.php`
-- `RecordHooks/CaseObj/EarlyClearInfractorWhenUnknown.php`
+- `RecordHooks/CaseObj/EarlyBeforeUpdatePeticionDeadline.php`
 - `RecordHooks/CaseObj/EarlyNormalizeCaseEnums.php`
+- `RecordHooks/CaseObj/AfterUpdateNotifyAsignacion.php`
 - `Select/Account/PrimaryFilters/ConCasosAsociados.php`
 - `Select/Account/Where/ItemConverters/CaseFieldEquals.php`
 - `Select/ComunicacionCaso/AccessControlFilters/Mandatory.php`

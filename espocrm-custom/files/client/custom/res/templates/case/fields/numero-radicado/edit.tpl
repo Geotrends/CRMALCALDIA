@@ -1,48 +1,7 @@
 <div class="radicado-assistant">
     {{#if isAssistant}}
-        <div class="form-group">
-            <label class="control-label">{{translate 'cRadicadoModo' scope='Case'}}</label>
-            <div>
-                <select class="form-control input-sm" data-role="modo">
-                    <option value="Automático" {{#if isAutomatico}}selected{{/if}}>{{translate 'Automático' scope='Case' category='options' optionName='cRadicadoModo'}}</option>
-                    <option value="Manual" {{#unless isAutomatico}}selected{{/unless}}>{{translate 'Manual' scope='Case' category='options' optionName='cRadicadoModo'}}</option>
-                </select>
-            </div>
-        </div>
-
-        {{#if isAutomatico}}
-            <div class="row">
-                <div class="col-sm-12">
-                    <div class="form-group">
-                        <label class="control-label">{{translate 'cRadicadoSiglas' scope='Case'}}</label>
-                        <p class="form-control-static text-muted" data-role="siglas-display" style="margin-bottom:0;">
-                            {{#if siglasDisplayLabel}}{{siglasDisplayLabel}}{{else}}
-                                <span class="text-warning">{{translate 'Seleccione recurso/tema en la solicitud'}}</span>
-                            {{/if}}
-                        </p>
-                    </div>
-                </div>
-                <div class="col-sm-5">
-                    <div class="form-group">
-                        <label class="control-label">{{translate 'cRadicadoAnio' scope='Case'}}</label>
-                        <input class="form-control input-sm" type="number" min="1900" max="9999" data-role="anio" value="{{anio}}">
-                    </div>
-                </div>
-            </div>
-            <div class="well well-sm radicado-preview">
-                <div class="form-group" style="margin-bottom:8px;">
-                    <label class="control-label">{{translate 'cNumeroRadicado' scope='Case'}} (automático)</label>
-                    <input class="form-control input-sm" type="text" data-role="preview-radicado" readonly value="{{previewRadicado}}" placeholder="ENV-SIGLAS-Nº-AÑO">
-                </div>
-                <div class="form-group" style="margin-bottom:0;">
-                    <label class="control-label">{{translate 'cExpediente' scope='Case'}}</label>
-                    <input class="form-control input-sm" type="text" data-role="auto-expediente" value="{{previewExpediente}}" placeholder="2026-1">
-                </div>
-                <div class="text-muted small m-t-s">{{translate 'radicadoPreviewHelp' scope='Case'}}</div>
-            </div>
-        {{else}}
-            <input type="text" class="form-control main-element" data-name="manual-radicado" value="{{manualRadicado}}" maxlength="100" autocomplete="espo-off">
-        {{/if}}
+        <input type="text" class="form-control main-element" data-name="manual-radicado" value="{{manualRadicado}}" maxlength="100" autocomplete="espo-off" placeholder="Ingrese el número de radicado">
+        <div class="text-muted small m-t-s">Registre manualmente el número de radicado asignado.</div>
     {{else}}
         <span class="none-value">{{value}}</span>
     {{/if}}

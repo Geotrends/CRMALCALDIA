@@ -30,6 +30,13 @@ class ValidatePersonaTipoOnSave implements BeforeSave
 
     public function beforeSave(Entity $entity, SaveOptions $options): void
     {
+        // La creación es un registro preliminar: ningún dato de las partes
+        // debe impedir guardar el caso. Las validaciones aplican después,
+        // cuando el caso ya esté radicado y se edite la información.
+        if ($entity->isNew()) {
+            return;
+        }
+
         if (!CaseRadicadoHelper::isRadicadoCompleto($entity)) {
             return;
         }

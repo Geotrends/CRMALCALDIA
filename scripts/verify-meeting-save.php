@@ -7,7 +7,6 @@
 require_once '/var/www/html/bootstrap.php';
 
 use Espo\Core\Application;
-use Espo\Core\ApplicationUser;
 use Espo\Core\DataManager;
 use Espo\Entities\User;
 use Espo\ORM\EntityManager;
@@ -37,10 +36,6 @@ if (!$admin) {
     fwrite(STDERR, 'ERROR: no hay usuario admin para probar Meeting.' . PHP_EOL);
     exit(1);
 }
-
-/** @var ApplicationUser $applicationUser */
-$applicationUser = $app->getContainer()->getByClass(ApplicationUser::class);
-$applicationUser->setUser($admin);
 
 $now = new DateTimeImmutable('now', new DateTimeZone('UTC'));
 $start = $now->format('Y-m-d H:i:s');

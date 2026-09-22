@@ -25,6 +25,45 @@ define('custom:helpers/case-create-form', [
             '[data-name="' + name + '"].panel';
     };
 
+    const PENDING_SOLICITUD_VALUES = {
+        status: 'Se establecerá al registrar la solicitud.',
+        cNumeroRadicado: 'Se asignará al radicar la solicitud.',
+        cExpediente: 'Se vinculará cuando se abra la actuación o el proceso aplicable.',
+    };
+
+    const renderPendingSolicitudValues = function (recordView) {
+        if (!recordView || !recordView.model || !recordView.$el) {
+            return;
+        }
+
+        const $panel = recordView.$el.find(panelSelector('solicitudInicial')).first();
+
+        if (!$panel.length) {
+            return;
+        }
+
+        Object.keys(PENDING_SOLICITUD_VALUES).forEach(function (field) {
+            const value = String(recordView.model.get(field) || '').trim();
+            const $field = $panel.find('.field[data-name="' + field + '"]').first();
+
+            if (!$field.length) {
+                return;
+            }
+
+            $field.find('.case-solicitud-pending-value').remove();
+
+            if (value) {
+                return;
+            }
+
+            $field.append(
+                '<span class="case-solicitud-pending-value is-pending">'
+                + PENDING_SOLICITUD_VALUES[field]
+                + '</span>'
+            );
+        });
+    };
+
     const hideDetailOnlyUi = function (recordView) {
         if (!recordView || !recordView.model || !recordView.model.isNew()) {
             return;
@@ -65,6 +104,40 @@ define('custom:helpers/case-create-form', [
     ];
 
     let cachedDefaults = null;
+
+    const downloadFormato007 = function (caseId) {
+        if (!caseId) {
+            return;
+        }
+
+        const iframe = document.createElement('iframe');
+        iframe.hidden = true;
+        iframe.src = '?entryPoint=FormatoSolicitud&id=' + encodeURIComponent(caseId) + '&format=docx';
+        document.body.appendChild(iframe);
+
+        window.setTimeout(function () {
+            iframe.remove();
+        }, 60000);
+    };
+
+    const scheduleFormato007AfterCreate = function (recordView) {
+        if (!recordView || !recordView.model || !recordView.model.isNew()) {
+            return;
+        }
+
+        let pending = true;
+
+        recordView.listenTo(recordView.model, 'sync', function () {
+            if (!pending || !recordView.model.id) {
+                return;
+            }
+
+            pending = false;
+            window.setTimeout(function () {
+                downloadFormato007(recordView.model.id);
+            }, 250);
+        });
+    };
 
     const fetchUserByUserName = function (userName) {
         if (typeof Espo === 'undefined' || !Espo.Ajax) {
@@ -191,12 +264,14 @@ define('custom:helpers/case-create-form', [
     const schedule = function (recordView) {
         hideDetailOnlyUi(recordView);
         applyCachedDefaults(recordView);
+        renderPendingSolicitudValues(recordView);
 
         [100, 400, 1000].forEach(function (delay) {
             window.setTimeout(function () {
                 hideDetailOnlyUi(recordView);
                 applyCachedDefaults(recordView);
                 applyGestionLinkDefaults(recordView);
+                renderPendingSolicitudValues(recordView);
             }, delay);
         });
     };
@@ -213,6 +288,11 @@ define('custom:helpers/case-create-form', [
         }
 
         fetchServerDefaults(recordView);
+        scheduleFormato007AfterCreate(recordView);
+
+        recordView.listenTo(recordView.model, 'change:status change:cNumeroRadicado change:cExpediente', function () {
+            renderPendingSolicitudValues(recordView);
+        });
     };
 
     return {
@@ -220,5 +300,6 @@ define('custom:helpers/case-create-form', [
         schedule: schedule,
         hideDetailOnlyUi: hideDetailOnlyUi,
         applyBogotaFechaCaso: applyBogotaFechaCaso,
+        scheduleFormato007AfterCreate: scheduleFormato007AfterCreate,
     };
 });

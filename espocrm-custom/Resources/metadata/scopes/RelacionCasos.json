@@ -1,0 +1,19 @@
+{
+    "entity": true,
+    "object": true,
+    "module": "Custom",
+    "type": "Base",
+    "status": "Stable",
+    "tab": true,
+    "acl": true,
+    "customizable": true,
+    "importable": false,
+    "stream": false,
+    "disabled": false,
+    "layouts": true,
+    "label": "Relación de casos",
+    "iconClass": "fas fa-link",
+    "assignment": true,
+    "hasAssignedUser": true,
+    "hasTeam": true
+}

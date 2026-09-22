@@ -7,7 +7,7 @@ Los inventarios exhaustivos (archivo por archivo) están en `docs/handoff/`.
 |------|--------|
 | **Repositorio** | [github.com/Geotrends/CRMALCALDIA](https://github.com/Geotrends/CRMALCALDIA) |
 | **Rama de trabajo** | `main` (única rama de integración y producción) |
-| **Stack** | EspoCRM 8.x + PostgreSQL 16 + Docker |
+| **Stack** | EspoCRM 10.0.6 + PostgreSQL 16 + Docker |
 | **Producción** | Dokploy (rebuild de imagen Docker) |
 | **Versión deploy actual** | Ver `.deploy-version` en la raíz del repo |
 | **Zona horaria** | `America/Bogota` |
@@ -110,6 +110,10 @@ CRMALCALDIA/
 | **`sql/`** | Volcado `esquema.sql` (~9500 líneas). Referencia y diagnóstico; **no** es la fuente de verdad (esa es la metadata EspoCRM). |
 | **`docs/`** | Consultas SQL, cumplimiento de objetivos, esta guía. |
 | **`.deploy-version`** | Texto corto que el contenedor compara. **Actualizar en cada cambio** de frontend/metadata relevante. |
+
+### Persistencia compatible con EspoCRM 10
+
+Los directorios persistentes se montan por separado: `data/`, `custom/` y `client/custom/`. En Docker Compose corresponden a los volúmenes `espocrm-data`, `espocrm-custom` y `espocrm-custom-client`. No montar `/var/www/html` completo, pues EspoCRM 10 usa los archivos base incluidos en la imagen.
 
 ---
 
@@ -334,7 +338,7 @@ Carpeta `Classes/` — extensiones del framework EspoCRM para permisos y validac
 | `Acl/CaseObj/` | `AssignmentChecker.php` | Reglas ACL de asignación de casos |
 | `AssignmentNotificators/` | `CaseObj.php` | Notificador de asignación nativo (complementa hooks) |
 | `Record/CaseObj/` | `CreateInputFilter.php`, `UpdateInputFilter.php` | Filtros de entrada al crear/editar caso |
-| `RecordHooks/CaseObj/` | `EarlyBeforeCreate.php`, `EarlyClearInfractorWhenUnknown.php`, `EarlyNormalizeCaseEnums.php` | Validación antes de persistir |
+| `RecordHooks/CaseObj/` | `EarlyBeforeCreate.php`, `EarlyBeforeUpdatePeticionDeadline.php`, `EarlyNormalizeCaseEnums.php`, `AfterUpdateNotifyAsignacion.php` | Validación antes de persistir / notificación de asignación |
 | `RecordHooks/ActaVisita/` | `EarlyBeforeCreate.php` | Validación creación acta |
 | `RecordHooks/ActuoArchivo/` | `EarlyBeforeCreate.php` | Validación creación actuo |
 | `Select/Account/` | `ConCasosAsociados.php`, `CaseFieldEquals.php` | Filtros de listado |

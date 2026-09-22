@@ -178,6 +178,42 @@ define('custom:views/case/fields/assigned-user', [
             }
         },
 
+        mountSidecarOnlyControl: function () {
+            const recordView = this.getRecordView();
+
+            if (!isAssignmentEditing(recordView) || !this.$el || !this.$el.length) {
+                return;
+            }
+
+            const selectedName = String(this.model.get('assignedUserName') || '').trim();
+            const label = selectedName
+                ? 'Cambiar responsable: ' + selectedName
+                : 'Seleccionar responsable';
+
+            this.$el.addClass('alcaldia-sidecar-picker-only');
+            this.$el.find('.alcaldia-open-patrullero-picker').remove();
+
+            const $button = $(
+                '<button type="button" class="btn alcaldia-open-patrullero-picker">' +
+                '<span class="fas fa-user-plus" aria-hidden="true"></span> ' +
+                '<span class="alcaldia-open-patrullero-picker__label"></span>' +
+                '<span class="fas fa-chevron-right" aria-hidden="true"></span>' +
+                '</button>'
+            );
+
+            $button.find('.alcaldia-open-patrullero-picker__label').text(label);
+            $button.on('click', (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+
+                // Usa el selector estándar de EspoCRM (sidecar), sin limitar
+                // la selección a un perfil específico.
+                this.$el.find('[data-action="selectLink"]').first().trigger('click');
+            });
+
+            this.$el.append($button);
+        },
+
         afterRender: function () {
             Dep.prototype.afterRender.call(this);
 
@@ -192,8 +228,11 @@ define('custom:views/case/fields/assigned-user', [
                 [150, 500, 1200].forEach(function (delay) {
                     window.setTimeout(function () {
                         self.enableAssignmentSelect();
+                        self.mountSidecarOnlyControl();
                     }, delay);
                 });
+
+                this.mountSidecarOnlyControl();
             }
 
             if (this.isEditMode() && this.model.isNew()) {
@@ -219,11 +258,15 @@ define('custom:views/case/fields/assigned-user', [
         },
 
         getSelectPrimaryFilterName: function () {
-            if (RadicacionFields.isCaseRadicado(this.model)) {
-                return 'patrulleros';
-            }
+            // La persona asignadora puede seleccionar cualquier usuario
+            // activo. No se aplica un filtro primario por rol.
+            return null;
+        },
 
-            return Dep.prototype.getSelectPrimaryFilterName.call(this);
+        getOnEmptyAutocomplete: function () {
+            // El campo base propone al usuario conectado; para Asignación eso
+            // es engañoso porque el asignador no debe asignarse a sí mismo.
+            return Promise.resolve([]);
         },
     });
 });

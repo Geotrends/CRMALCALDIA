@@ -1,6 +1,7 @@
 # Repo completo en Git para trabajar desde cualquier máquina (Mac/Windows).
 # Solo se ignoran artefactos locales regenerables o basura del sistema operativo.
 
+.env
 .DS_Store
 Thumbs.db
 __pycache__/

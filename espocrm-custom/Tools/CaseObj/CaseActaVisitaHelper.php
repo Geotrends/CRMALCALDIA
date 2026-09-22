@@ -10,14 +10,28 @@ use Espo\ORM\EntityManager;
  */
 class CaseActaVisitaHelper
 {
-    public const STATUS_VISITA_REALIZADA = 'Visita realizada';
+    /**
+     * Estado único de Case para todo el tramo de gestión técnica en campo.
+     * Agrupa lo que antes eran los status "En proceso", "Visita realizada" y
+     * "En proceso de otra visita". El detalle fino de cada ronda vive en
+     * GestionTecnica.estado y en ActaVisita.estado/numeroVisita.
+     */
+    public const STATUS_EN_GESTION_TECNICA = 'En gestión técnica';
 
+    /** @deprecated Alias histórico de STATUS_EN_GESTION_TECNICA. */
+    public const STATUS_VISITA_REALIZADA = self::STATUS_EN_GESTION_TECNICA;
+
+    /** Estado posterior a la revisión; el acta nunca se "aprueba". */
+    public const STATUS_REVISION_HALLAZGOS = 'Revisión de hallazgos';
+
+    /** @deprecated Se conserva únicamente para leer datos históricos. */
     public const STATUS_VISITA_APROBADA = 'Visita aprobada';
 
-    /** @deprecated Legacy — nuevos casos pasan directo a Visita realizada */
-    public const STATUS_EN_PROCESO = 'En proceso';
+    /** @deprecated Legacy — colapsado en STATUS_EN_GESTION_TECNICA. */
+    public const STATUS_EN_PROCESO = self::STATUS_EN_GESTION_TECNICA;
 
-    public const STATUS_EN_PROCESO_OTRA_VISITA = 'En proceso de otra visita';
+    /** @deprecated Legacy — colapsado en STATUS_EN_GESTION_TECNICA. */
+    public const STATUS_EN_PROCESO_OTRA_VISITA = self::STATUS_EN_GESTION_TECNICA;
 
     /** @var string[] */
     public const CONTENT_FIELDS = [
@@ -32,31 +46,29 @@ class CaseActaVisitaHelper
     private const ADVANCE_TO_VISITA_FROM = [
         'Asignado',
         'Assigned',
-        'En proceso',
-        self::STATUS_EN_PROCESO_OTRA_VISITA,
+        self::STATUS_EN_GESTION_TECNICA,
     ];
 
     /** @var string[] */
     private const ADVANCE_TO_VISITA_APROBADA_FROM = [
-        'Visita realizada',
-        'En proceso',
-        self::STATUS_EN_PROCESO_OTRA_VISITA,
+        self::STATUS_EN_GESTION_TECNICA,
     ];
 
     /** @var string[] */
     private const VISITA_APROBADA_STATUSES = [
-        'Visita aprobada',
+        self::STATUS_REVISION_HALLAZGOS,
+        self::STATUS_VISITA_APROBADA,
         'Finalizado',
         'Proceso cerrado',
     ];
 
     /** @var string[] */
     private const VISITA_CONFIRMADA_STATUSES = [
-        'Visita realizada',
-        'Visita aprobada',
+        self::STATUS_EN_GESTION_TECNICA,
+        self::STATUS_REVISION_HALLAZGOS,
+        self::STATUS_VISITA_APROBADA,
         'Finalizado',
         'Proceso cerrado',
-        'En proceso',
     ];
 
     public static function isActaWithContent(Entity $acta): bool
@@ -73,24 +85,50 @@ class CaseActaVisitaHelper
             }
         }
 
-        if ((bool) $acta->get('cFormatoActaVisitaPdfId')) {
-            return true;
-        }
-
-        return trim((string) $acta->get('formatoManoAdjuntoIds')) !== '';
+        return count(self::getFormatoManoAdjuntoIds($acta)) > 0;
     }
 
-    public static function canAdvanceCaseToVisitaRealizada(Entity $case): bool
+    /** El acta firmada adjunta es la evidencia habilitante de la visita. */
+    public static function hasActaFirmadaAdjunta(Entity $acta): bool
+    {
+        return count(self::getFormatoManoAdjuntoIds($acta)) > 0;
+    }
+
+    /**
+     * `formatoManoAdjuntoIds` no es una columna real: EspoCRM la carga de forma
+     * perezosa (link-multiple). Un `get()` directo tras un `find()` genérico
+     * siempre devuelve null aunque el acta sí tenga el archivo adjunto.
+     *
+     * @return string[]
+     */
+    private static function getFormatoManoAdjuntoIds(Entity $acta): array
+    {
+        if (method_exists($acta, 'getLinkMultipleIdList')) {
+            return $acta->getLinkMultipleIdList('formatoManoAdjunto');
+        }
+
+        $ids = $acta->get('formatoManoAdjuntoIds');
+
+        return is_array($ids) ? $ids : [];
+    }
+
+    public static function canAdvanceCaseToGestionTecnica(Entity $case): bool
     {
         $current = trim((string) $case->get('status'));
 
         return in_array($current, self::ADVANCE_TO_VISITA_FROM, true);
     }
 
-    /** @deprecated Use canAdvanceCaseToVisitaRealizada */
+    /** @deprecated Use canAdvanceCaseToGestionTecnica */
+    public static function canAdvanceCaseToVisitaRealizada(Entity $case): bool
+    {
+        return self::canAdvanceCaseToGestionTecnica($case);
+    }
+
+    /** @deprecated Use canAdvanceCaseToGestionTecnica */
     public static function canAdvanceCaseToEnProceso(Entity $case): bool
     {
-        return self::canAdvanceCaseToVisitaRealizada($case);
+        return self::canAdvanceCaseToGestionTecnica($case);
     }
 
     public static function canAdvanceCaseToVisitaAprobada(Entity $case, ?Entity $acta = null): bool
@@ -271,14 +309,23 @@ class CaseActaVisitaHelper
         return in_array($status, ['Asignado', 'Assigned'], true);
     }
 
-    public static function isCaseEnProcesoOtraVisita(Entity $case): bool
+    /**
+     * El caso está en gestión técnica y ya se preparó/solicitó una ronda de visita
+     * adicional (GestionTecnica en En ejecución/Reprogramada) cuya acta aún no se
+     * ha diligenciado.
+     */
+    public static function isCaseEnProcesoOtraVisita(EntityManager $entityManager, Entity $case): bool
     {
-        return trim((string) $case->get('status')) === self::STATUS_EN_PROCESO_OTRA_VISITA;
+        if (trim((string) $case->get('status')) !== self::STATUS_EN_GESTION_TECNICA) {
+            return false;
+        }
+
+        return CaseGestionTecnicaHelper::isPreparingNuevaVisita($entityManager, $case->getId());
     }
 
-    public static function isCaseAwaitingFieldVisita(Entity $case): bool
+    public static function isCaseAwaitingFieldVisita(EntityManager $entityManager, Entity $case): bool
     {
-        return self::isCaseAsignado($case) || self::isCaseEnProcesoOtraVisita($case);
+        return self::isCaseAsignado($case) || self::isCaseEnProcesoOtraVisita($entityManager, $case);
     }
 
     public static function canRequestNewVisita(Entity $case): bool
@@ -292,10 +339,9 @@ class CaseActaVisitaHelper
         return in_array($status, [
             'Asignado',
             'Assigned',
-            'Visita realizada',
+            self::STATUS_EN_GESTION_TECNICA,
+            self::STATUS_REVISION_HALLAZGOS,
             self::STATUS_VISITA_APROBADA,
-            self::STATUS_EN_PROCESO,
-            self::STATUS_EN_PROCESO_OTRA_VISITA,
         ], true);
     }
 
@@ -304,9 +350,9 @@ class CaseActaVisitaHelper
         return trim((string) $case->get('status')) === self::STATUS_VISITA_APROBADA;
     }
 
-    public static function isAwaitingNewVisita(Entity $case, ?Entity $latestActa): bool
+    public static function isAwaitingNewVisita(EntityManager $entityManager, Entity $case, ?Entity $latestActa): bool
     {
-        if (!$latestActa || !self::isCaseAwaitingFieldVisita($case)) {
+        if (!$latestActa || !self::isCaseAwaitingFieldVisita($entityManager, $case)) {
             return false;
         }
 
@@ -315,7 +361,7 @@ class CaseActaVisitaHelper
 
     public static function hasSolicitudNuevaVisitaActiva(EntityManager $entityManager, Entity $case): bool
     {
-        if (self::isCaseAwaitingFieldVisita($case)) {
+        if (self::isCaseAwaitingFieldVisita($entityManager, $case)) {
             $latest = $entityManager
                 ->getRDBRepository('VisitaHistorial')
                 ->where(['caseId' => $case->getId()])
@@ -331,7 +377,7 @@ class CaseActaVisitaHelper
 
         $status = trim((string) $case->get('status'));
 
-        if (!in_array($status, ['Visita realizada', self::STATUS_VISITA_APROBADA], true)) {
+        if (!in_array($status, [self::STATUS_EN_GESTION_TECNICA, self::STATUS_REVISION_HALLAZGOS, self::STATUS_VISITA_APROBADA], true)) {
             return false;
         }
 

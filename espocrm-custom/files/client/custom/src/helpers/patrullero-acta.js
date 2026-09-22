@@ -20,6 +20,10 @@ define('custom:helpers/patrullero-acta', [
         return RadicacionFields.isInspeccionUser(user);
     };
 
+    const isAsignadorUser = function (user) {
+        return RadicacionFields.isAsignadorUser(user);
+    };
+
     const isCasePostRadicado = function (model) {
         return RadicacionFields.isCaseRadicado(model);
     };
@@ -74,7 +78,7 @@ define('custom:helpers/patrullero-acta', [
             return false;
         }
 
-        if (!(isInspeccionUser(user) || (user.isAdmin && user.isAdmin()))) {
+        if (!(isInspeccionUser(user) || isAsignadorUser(user) || (user.isAdmin && user.isAdmin()))) {
             return false;
         }
 
@@ -123,6 +127,7 @@ define('custom:helpers/patrullero-acta', [
         canAprobarVisita: canAprobarVisita,
         isPatrulleroUser: isPatrulleroUser,
         isInspeccionUser: isInspeccionUser,
+        isAsignadorUser: isAsignadorUser,
         isCasePostRadicado: isCasePostRadicado,
         isCaseReadyForActa: isCaseReadyForActa,
         shouldShowActaVisitaButton: canUseActaVisitaTools,

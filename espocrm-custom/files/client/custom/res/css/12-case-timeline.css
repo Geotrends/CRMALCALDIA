@@ -68,6 +68,32 @@
   min-width: 0;
 }
 
+.case-timeline-route {
+  align-items: flex-start;
+  border-top: 1px solid var(--crm-border-light);
+  display: flex;
+  gap: 8px;
+  margin: 14px 4px 0;
+  padding: 11px 0 0;
+}
+
+.case-timeline-route__title {
+  color: var(--crm-text-secondary);
+  flex: 0 0 auto;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.case-timeline-route__text {
+  color: var(--crm-text-muted);
+  font-size: 10px;
+  line-height: 1.35;
+}
+
+.case-timeline-route--policivo .case-timeline-route__title {
+  color: var(--crm-text-secondary);
+}
+
 .case-timeline-track-wrap {
   position: relative;
   cursor: help;
@@ -321,6 +347,12 @@
   color: var(--crm-primary);
 }
 
+.case-timeline-reference {
+  color: var(--crm-primary);
+  font-size: 9px;
+  font-weight: 700;
+}
+
 .case-timeline-block-date:last-child {
   border-right: none;
 }
@@ -364,4 +396,27 @@
   .case-timeline-track-wrap {
     min-width: 720px;
   }
+}
+
+/* Último paso escalado a proceso policivo (Auto de Inicio) — distinto del
+   cierre administrativo genérico. */
+.case-timeline-block-label.is-variant-escalado .case-timeline-label-text {
+  color: #b45309;
+  font-weight: 600;
+}
+
+.case-timeline-marker-col.is-variant-escalado.is-done .case-timeline-marker,
+.case-timeline-marker-col.is-variant-escalado.is-current .case-timeline-marker {
+  border-color: #b45309;
+  background: #b45309;
+  box-shadow: 0 0 0 4px rgba(180, 83, 9, 0.18);
+}
+
+.case-timeline-block-date.is-variant-escalado {
+  color: #b45309;
+}
+
+.case-timeline-plazo-legal {
+  font-size: 10px;
+  opacity: 0.8;
 }

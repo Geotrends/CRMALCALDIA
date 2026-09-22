@@ -15,6 +15,12 @@ if [ -f "$STAMP_SCRIPT" ]; then
 fi
 
 is_espocrm_installed() {
+  if [ -x /var/www/html/bin/command ] && \
+    [ "$(cd /var/www/html && bin/command config:get isInstalled 2>/dev/null)" = "true" ]; then
+    echo "1"
+    return
+  fi
+
   php -r '
     foreach (["/var/www/html/data/config.php"] as $file) {
       if (!file_exists($file)) {

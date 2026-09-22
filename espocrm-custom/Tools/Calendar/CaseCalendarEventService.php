@@ -2,6 +2,7 @@
 
 namespace Espo\Custom\Tools\Calendar;
 
+use Espo\Custom\Tools\CaseObj\CaseActaVisitaHelper;
 use Espo\Custom\Tools\CaseObj\CasePartyNameHelper;
 use Espo\Core\Select\SelectBuilderFactory;
 use Espo\Custom\Tools\CaseObj\CaseTimelineService;
@@ -117,6 +118,19 @@ class CaseCalendarEventService
 
         $statusDates = (new CaseTimelineService($this->entityManager))->getActualStatusDates($case);
 
+        // Casos históricos pueden tener la fecha bajo los nombres previos a la
+        // unificación de status ("En proceso"/"Visita realizada"/"En proceso de
+        // otra visita" → "En gestión técnica"); se usa la más antigua disponible.
+        if (!isset($statusDates[CaseActaVisitaHelper::STATUS_EN_GESTION_TECNICA])) {
+            foreach (['En proceso', 'Visita realizada', 'En proceso de otra visita'] as $legacyStatus) {
+                if (isset($statusDates[$legacyStatus])) {
+                    $statusDates[CaseActaVisitaHelper::STATUS_EN_GESTION_TECNICA] = $statusDates[$legacyStatus];
+
+                    break;
+                }
+            }
+        }
+
         foreach (CaseTimelineService::STATUS_FLOW as $status) {
             if (!isset($statusDates[$status])) {
                 continue;
@@ -201,7 +215,7 @@ class CaseCalendarEventService
     {
         return match ($status) {
             'Pendiente de radicacion' => 'Pendiente de radicación',
-            'Visita realizada' => 'Visita realizada',
+            'En gestión técnica' => 'En gestión técnica',
             'Visita aprobada' => 'Visita aprobada',
             'Proceso cerrado' => 'Proceso cerrado',
             default => $status,

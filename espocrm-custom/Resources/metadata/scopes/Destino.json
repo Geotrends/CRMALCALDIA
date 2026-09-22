@@ -1,0 +1,19 @@
+{
+    "entity": true,
+    "object": true,
+    "module": "Custom",
+    "type": "Base",
+    "status": "Stable",
+    "tab": false,
+    "acl": true,
+    "customizable": true,
+    "importable": false,
+    "stream": false,
+    "disabled": false,
+    "layouts": true,
+    "label": "Destino",
+    "iconClass": "fas fa-map-marker-alt",
+    "assignment": true,
+    "hasAssignedUser": true,
+    "hasTeam": true
+}

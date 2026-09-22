@@ -1,0 +1,33 @@
+[
+    {
+        "rows": [
+            [
+                {"name": "case"},
+                {"name": "resultado"}
+            ],
+            [
+                {"name": "decisor"},
+                {"name": "fechaDecision"}
+            ],
+            [
+                {"name": "expediente", "readOnly": true}
+            ]
+        ],
+        "style": "default",
+        "label": "Información general"
+    },
+    {
+        "rows": [
+            [{"name": "fundamentoNormativo", "fullWidth": true}]
+        ],
+        "style": "default",
+        "label": "Fundamento normativo"
+    },
+    {
+        "rows": [
+            [{"name": "motivacion", "fullWidth": true}]
+        ],
+        "style": "default",
+        "label": "Motivación"
+    }
+]

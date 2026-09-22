@@ -3,6 +3,7 @@
 namespace Espo\Custom\Tools\ActaVisita;
 
 use Espo\Custom\Tools\App\AlcaldiaDateTimeHelper;
+use Espo\Custom\Tools\CaseObj\CaseActaVisitaHelper;
 use Espo\Custom\Tools\CaseObj\CasePartyNameHelper;
 use Espo\Custom\Tools\User\AlcaldiaUserProfile;
 use Espo\Core\Acl;
@@ -210,7 +211,7 @@ class FormatoActaVisitaGenerator
         $status = trim((string) $case->get('status'));
 
         return in_array($status, [
-            'Visita realizada',
+            CaseActaVisitaHelper::STATUS_EN_GESTION_TECNICA,
             'Visita aprobada',
             'Finalizado',
             'Proceso cerrado',
@@ -225,11 +226,11 @@ class FormatoActaVisitaGenerator
     {
         $format = strtolower($format);
 
-        if ($format !== 'pdf') {
-            throw new BadRequest('Formato no válido. Use pdf.');
+        if (!in_array($format, ['pdf', 'docx'], true)) {
+            throw new BadRequest('Formato no válido. Use pdf o docx.');
         }
 
-        $templatePath = $this->getTemplatePath();
+        $templatePath = $this->getTemplatePath($format);
         $scriptPath = $this->getScriptPath();
 
         if (!is_readable($templatePath)) {
@@ -466,8 +467,12 @@ class FormatoActaVisitaGenerator
         return in_array($role->getId(), $roles, true);
     }
 
-    private function getTemplatePath(): string
+    private function getTemplatePath(string $format): string
     {
+        if ($format === 'docx') {
+            return realpath(__DIR__ . '/../../files/templates/ActaVisita2.docx') ?: '';
+        }
+
         $pdf = realpath(__DIR__ . '/../../files/templates/ActaVisita2-template.pdf');
         if ($pdf) {
             return $pdf;

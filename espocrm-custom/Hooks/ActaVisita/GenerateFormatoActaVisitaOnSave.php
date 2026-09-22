@@ -44,20 +44,9 @@ class GenerateFormatoActaVisitaOnSave implements AfterSave
 
     public function afterSave(Entity $entity, SaveOptions $options): void
     {
-        if ($options->get('skipFormatoActaVisita')) {
-            return;
-        }
-
-        if ($this->isManualModeWithoutDigitalContent($entity)) {
-            return;
-        }
-
-        if (!$this->shouldGenerate($entity)) {
-            return;
-        }
-
-        $attacher = $this->injectableFactory->create(FormatoActaVisitaAttacher::class);
-        $attacher->attachToActa($entity);
+        // El soporte válido es el acta diligenciada y firmada que se adjunta.
+        // No se genera ni adjunta automáticamente un PDF a partir del formulario.
+        return;
     }
 
     private function isManualModeWithoutDigitalContent(Entity $entity): bool

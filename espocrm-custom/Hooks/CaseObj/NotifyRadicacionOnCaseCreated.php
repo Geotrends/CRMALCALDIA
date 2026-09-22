@@ -24,8 +24,6 @@ class NotifyRadicacionOnCaseCreated implements AfterSave
 {
     public static int $order = 20;
 
-    private const ROLE_RADICACION = 'Radicación';
-
     public function __construct(
         private EntityManager $entityManager,
         private User $user,
@@ -49,11 +47,15 @@ class NotifyRadicacionOnCaseCreated implements AfterSave
             return;
         }
 
-        if (!$this->profile->isInspeccion($this->user)) {
+        if (!$this->user->isAdmin() && !$this->profile->isInspeccion($this->user)) {
             return;
         }
 
-        $notifyUserIds = $this->profile->findActiveUserIdsByRoleName(self::ROLE_RADICACION);
+        $notifyUserIds = array_values(array_unique(array_merge(
+            $this->profile->findActiveUserIdsByRoleName(AlcaldiaUserProfile::ROLE_RADICACION),
+            $this->profile->findActiveUserIdsByRoleName(AlcaldiaUserProfile::ROLE_RADICACION_ALT),
+            $this->profile->findActiveAdminUserIds(),
+        )));
 
         if ($notifyUserIds === []) {
             return;

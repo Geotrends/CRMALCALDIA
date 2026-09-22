@@ -6,6 +6,7 @@ define('custom:helpers/radicacion-fields', [], function () {
     const ROLE_ASIGNACION = 'asignacion';
     const ROLE_PATRULLERO = 'patrullero';
     const ROLE_PATRULLAJE = 'patrullaje';
+    const ROLE_JURIDICA = 'juridica';
     const PROFILE_CACHE_KEY = 'alcaldiaCaseProfileCacheV10';
 
     const OPERATIONAL_USER_ROLE = {
@@ -14,19 +15,24 @@ define('custom:helpers/radicacion-fields', [], function () {
         asignacion: ROLE_ASIGNACION,
         asignador: ROLE_ASIGNADOR,
         patrullaje: ROLE_PATRULLAJE,
+        juridica: ROLE_JURIDICA,
     };
 
     const RADICADO_PERSISTED_FIELDS = [
         'cNumeroRadicado',
-        'cExpediente',
     ];
 
     const RADICADO_ALL_FIELDS = [
-        'cRadicadoModo',
-        'cRadicadoSiglas',
-        'cRadicadoAnio',
+        'cClaseIngreso',
+        'cModalidadPeticion',
+        'cFechaVencimiento',
+        'cFundamentoPlazoEspecial',
         'cNumeroRadicado',
-        'cExpediente',
+    ];
+
+    const RECEPCION_CLASSIFICATION_FIELDS = [
+        'cClaseIngreso',
+        'cModalidadPeticion',
     ];
 
     let serverProfile = null;
@@ -90,8 +96,10 @@ define('custom:helpers/radicacion-fields', [], function () {
             isRadicacion: roleKey === ROLE_RADICACION,
             isPatrullero: roleKey === ROLE_PATRULLAJE || roleKey === ROLE_PATRULLERO,
             isAsignador: roleKey === ROLE_ASIGNADOR || roleKey === ROLE_ASIGNACION,
+            isJuridica: roleKey === ROLE_JURIDICA,
             canEditRadicado: roleKey === ROLE_RADICACION,
             canAssignCase: roleKey === ROLE_ASIGNADOR || roleKey === ROLE_ASIGNACION,
+            canManageAutoInicio: roleKey === ROLE_JURIDICA,
             homeProfile: 'gestion',
         };
 
@@ -101,6 +109,8 @@ define('custom:helpers/radicacion-fields', [], function () {
             profile.homeProfile = 'asignador';
         } else if (roleKey === ROLE_PATRULLAJE || roleKey === ROLE_PATRULLERO) {
             profile.homeProfile = 'patrullero';
+        } else if (roleKey === ROLE_JURIDICA) {
+            profile.homeProfile = 'juridica';
         }
 
         return profile;
@@ -269,6 +279,10 @@ define('custom:helpers/radicacion-fields', [], function () {
             return 'patrullero';
         }
 
+        if (hasRole(user, ROLE_JURIDICA)) {
+            return 'juridica';
+        }
+
         const roleFromUserName = getRoleKeyForUserName(user);
 
         if (roleFromUserName === ROLE_RADICACION) {
@@ -281,6 +295,10 @@ define('custom:helpers/radicacion-fields', [], function () {
 
         if (roleFromUserName === ROLE_PATRULLERO || roleFromUserName === ROLE_PATRULLAJE) {
             return 'patrullero';
+        }
+
+        if (roleFromUserName === ROLE_JURIDICA) {
+            return 'juridica';
         }
 
         const profile = serverProfile && profileUserId === getCurrentUserId(user)
@@ -342,6 +360,26 @@ define('custom:helpers/radicacion-fields', [], function () {
         return !!(profile && profile.isRadicacion);
     };
 
+    const isPatrulleroUser = function (user) {
+        if (!user) {
+            return false;
+        }
+
+        if (isAdminUser(user)) {
+            return true;
+        }
+
+        if (hasRole(user, ROLE_PATRULLERO) || hasRole(user, ROLE_PATRULLAJE)) {
+            return true;
+        }
+
+        const profile = serverProfile && profileUserId === getCurrentUserId(user)
+            ? serverProfile
+            : null;
+
+        return !!(profile && profile.isPatrullero);
+    };
+
     const isAsignadorUser = function (user) {
         if (!user) {
             return false;
@@ -364,6 +402,30 @@ define('custom:helpers/radicacion-fields', [], function () {
         }
 
         return resolveHomeProfile(user) === 'asignador';
+    };
+
+    const isJuridicaUser = function (user) {
+        if (!user) {
+            return false;
+        }
+
+        if (isAdminUser(user)) {
+            return false;
+        }
+
+        if (hasRole(user, ROLE_JURIDICA)) {
+            return true;
+        }
+
+        const profile = serverProfile && profileUserId === getCurrentUserId(user)
+            ? serverProfile
+            : null;
+
+        if (profile && profile.isJuridica) {
+            return true;
+        }
+
+        return resolveHomeProfile(user) === 'juridica';
     };
 
     const canEditRadicadoCase = function (user) {
@@ -423,10 +485,7 @@ define('custom:helpers/radicacion-fields', [], function () {
             return false;
         }
 
-        const numero = normalizeRadicadoValue(model.get('cNumeroRadicado'));
-        const expediente = normalizeRadicadoValue(model.get('cExpediente'));
-
-        return numero !== '' || expediente !== '';
+        return normalizeRadicadoValue(model.get('cNumeroRadicado')) !== '';
     };
 
     const shouldShowRadicacionFields = function (user, model) {
@@ -457,6 +516,7 @@ define('custom:helpers/radicacion-fields', [], function () {
 
     return {
         RADICADO_ALL_FIELDS: RADICADO_ALL_FIELDS,
+        RECEPCION_CLASSIFICATION_FIELDS: RECEPCION_CLASSIFICATION_FIELDS,
         RADICADO_PERSISTED_FIELDS: RADICADO_PERSISTED_FIELDS,
         ensureProfile: ensureProfile,
         onProfileReady: onProfileReady,
@@ -465,7 +525,9 @@ define('custom:helpers/radicacion-fields', [], function () {
         resolveHomeProfile: resolveHomeProfile,
         isInspeccionUser: isInspeccionUser,
         isRadicacionUser: isRadicacionUser,
+        isPatrulleroUser: isPatrulleroUser,
         isAsignadorUser: isAsignadorUser,
+        isJuridicaUser: isJuridicaUser,
         canAssignCase: canAssignCase,
         canEditRadicadoCase: canEditRadicadoCase,
         isCaseRadicado: isCaseRadicado,

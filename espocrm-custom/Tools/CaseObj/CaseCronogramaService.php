@@ -4,14 +4,14 @@ namespace Espo\Custom\Tools\CaseObj;
 
 use DateTimeImmutable;
 use DateTimeZone;
+use Espo\Custom\Tools\Expediente\ExpedientePasosCatalog;
+use Espo\Custom\Tools\Expediente\ExpedienteVencimientoHelper;
 use Espo\ORM\Entity;
 use Espo\ORM\EntityManager;
 
 class CaseCronogramaService
 {
     private const BOGOTA_TZ = 'America/Bogota';
-
-    private const VISITA_PLAZO_DIAS = 15;
 
     public function __construct(
         private EntityManager $entityManager
@@ -44,17 +44,12 @@ class CaseCronogramaService
         );
 
         $entries[] = $this->milestone(
-            'ingresoCrm',
-            'Ingreso al sistema',
-            $case->get('createdAt'),
-            null,
-            $fechaLimite
-        );
-
-        $entries[] = $this->milestone(
-            'pendienteRadicacion',
-            'Pendiente de radicación',
-            $statusDates['Pendiente de radicacion'] ?? null,
+            'registroCaso',
+            'Registro del caso',
+            $this->firstNonEmpty(
+                $statusDates['Pendiente de radicacion'] ?? null,
+                $case->get('createdAt')
+            ),
             null,
             $fechaLimite
         );
@@ -73,8 +68,6 @@ class CaseCronogramaService
 
         $asignadoAt = $statusDates['Asignado'] ?? null;
         $assignedName = trim((string) $case->get('assignedUserName'));
-        $fechaLimiteVisita = $this->resolveVisitaFechaLimite($statusDates, $case, $asignadoAt, $radicadoAt);
-
         $entries[] = $this->milestone(
             'asignacion',
             'Asignación a patrullero',
@@ -83,12 +76,31 @@ class CaseCronogramaService
             $fechaLimite
         );
 
-        $entries[] = $this->milestone(
-            'enProceso',
-            'Gestión en campo (en proceso)',
+        // "En proceso", "Visita realizada" y "En proceso de otra visita" se
+        // colapsaron en un único status de Case ("En gestión técnica"): el hito
+        // del cronograma se unifica también, y el sub-detalle (ronda vigente)
+        // se toma de la GestionTecnica vinculada al caso.
+        $gestionTecnicaAt = $this->firstNonEmpty(
+            $statusDates[CaseActaVisitaHelper::STATUS_EN_GESTION_TECNICA] ?? null,
             $statusDates['En proceso'] ?? null,
-            $fechaLimiteVisita ? 'Plazo de visita: ' . self::VISITA_PLAZO_DIAS . ' días' : null,
-            $fechaLimiteVisita ?: $fechaLimite
+            $statusDates['Visita realizada'] ?? null,
+            $statusDates['En proceso de otra visita'] ?? null
+        );
+
+        $gestionTecnica = CaseGestionTecnicaHelper::findLatestGestionTecnicaForCase(
+            $this->entityManager,
+            (string) $case->getId()
+        );
+        $gestionTecnicaDetail = $gestionTecnica
+            ? 'Gestión técnica: ' . trim((string) $gestionTecnica->get('estado'))
+            : null;
+
+        $entries[] = $this->milestone(
+            'gestionTecnica',
+            'Gestión técnica en campo',
+            $gestionTecnicaAt,
+            $gestionTecnicaDetail,
+            $fechaLimite
         );
 
         $actaAt = null;
@@ -102,6 +114,10 @@ class CaseCronogramaService
 
             if ($actaEstado !== '') {
                 $actaDetail = 'Acta: ' . $actaEstado;
+
+                if ($acta->get('numeroVisita')) {
+                    $actaDetail .= ' (visita ' . (int) $acta->get('numeroVisita') . ')';
+                }
             }
         }
 
@@ -109,24 +125,16 @@ class CaseCronogramaService
             'actaVisita',
             'Acta de visita',
             $this->isActaRelevant($acta) ? $actaAt : null,
-            $this->buildVisitaDetail($actaDetail, $fechaLimiteVisita),
-            $fechaLimiteVisita ?: $fechaLimite
+            $this->buildVisitaDetail($actaDetail, $fechaLimite),
+            $fechaLimite
         );
 
         $entries[] = $this->milestone(
-            'visitaRealizada',
-            'Visita realizada',
-            $statusDates['Visita realizada'] ?? null,
-            $fechaLimiteVisita ? 'Plazo de visita: ' . self::VISITA_PLAZO_DIAS . ' días' : null,
-            $fechaLimiteVisita ?: $fechaLimite
-        );
-
-        $entries[] = $this->milestone(
-            'visitaAprobada',
-            'Visita aprobada por inspección',
-            $statusDates['Visita aprobada'] ?? null,
-            $fechaLimiteVisita ? 'Plazo de visita: ' . self::VISITA_PLAZO_DIAS . ' días' : null,
-            $fechaLimiteVisita ?: $fechaLimite
+            'revisionHallazgos',
+            'Revisión de hallazgos y definición de trámite',
+            $statusDates['Revisión de hallazgos'] ?? ($statusDates['Visita aprobada'] ?? null),
+            null,
+            $fechaLimite
         );
 
         if ($fechaLimite) {
@@ -137,36 +145,50 @@ class CaseCronogramaService
             );
         }
 
+        $policivoEntries = $this->buildPolicivoEntries($case);
+
+        if ($policivoEntries !== []) {
+            // Caso escalado: los pasos del expediente reemplazan el cierre
+            // administrativo genérico (auto de archivo / proceso cerrado
+            // del Case) — el cierre real es el "Auto de Archivo" del
+            // expediente, ya incluido como uno de los pasos.
+            array_push($entries, ...$policivoEntries);
+        } else {
+            $actuoAt = null;
+
+            if ($actuo) {
+                $actuoAt = $actuo->get('fechaAuto')
+                    ?: $actuo->get('modifiedAt')
+                    ?: $actuo->get('createdAt');
+            }
+
+            $entries[] = $this->milestone(
+                'autoArchivo',
+                'Auto de archivo',
+                $this->isActuoRelevant($actuo) ? $actuoAt : null,
+                $actuo ? trim((string) $actuo->get('estado')) : null,
+                $fechaLimite
+            );
+
+            $entries[] = $this->milestone(
+                'procesoCerrado',
+                'Proceso cerrado',
+                $statusDates['Proceso cerrado'] ?? null,
+                null,
+                $fechaLimite
+            );
+        }
+
         $entries[] = $this->milestone(
             'finalizado',
             'Cierre del caso (finalizado)',
             $statusDates['Finalizado'] ?? null,
             null,
-            $fechaLimite
-        );
-
-        $actuoAt = null;
-
-        if ($actuo) {
-            $actuoAt = $actuo->get('fechaAuto')
-                ?: $actuo->get('modifiedAt')
-                ?: $actuo->get('createdAt');
-        }
-
-        $entries[] = $this->milestone(
-            'autoArchivo',
-            'Auto de archivo',
-            $this->isActuoRelevant($actuo) ? $actuoAt : null,
-            $actuo ? trim((string) $actuo->get('estado')) : null,
-            $fechaLimite
-        );
-
-        $entries[] = $this->milestone(
-            'procesoCerrado',
-            'Proceso cerrado',
-            $statusDates['Proceso cerrado'] ?? null,
-            null,
-            $fechaLimite
+            // Si el caso escaló a proceso policivo, la fecha límite del
+            // derecho de petición (Ley 1755) ya no aplica al cierre: el
+            // proceso policivo tiene su propio plazo por paso, sin una
+            // fecha final conocida hasta llegar al último paso.
+            $policivoEntries !== [] ? null : $fechaLimite
         );
 
         $diasVencimiento = CaseVencimientoHelper::diasRestantes($fechaLimite);
@@ -178,6 +200,100 @@ class CaseCronogramaService
             'isEstadoFinal' => CaseVencimientoHelper::isEstadoFinal($currentStatus),
             'entries' => $entries,
         ];
+    }
+
+    /**
+     * Si el caso tiene un Expediente vinculado con rama definida, arma una
+     * entrada de cronograma por cada paso del proceso policivo (ver
+     * ExpedientePasosCatalog) — completados, el actual (con plazo y
+     * vencimiento) y los pendientes.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function buildPolicivoEntries(Entity $case): array
+    {
+        $expedienteId = trim((string) $case->get('expedienteId'));
+
+        if ($expedienteId === '') {
+            return [];
+        }
+
+        $expediente = $this->entityManager->getEntityById('Expediente', $expedienteId);
+
+        if (!$expediente) {
+            return [];
+        }
+
+        $tipoTramite = trim((string) $expediente->get('tipoTramite'));
+        $catalog = new ExpedientePasosCatalog();
+        $pasosConPlazo = $catalog->getPasosConPlazo($tipoTramite);
+
+        if ($pasosConPlazo === []) {
+            return [];
+        }
+
+        $pasos = array_keys($pasosConPlazo);
+        $estadoActual = trim((string) $expediente->get('estado')) ?: ExpedientePasosCatalog::ESTADO_ABIERTO;
+        $currentIndex = array_search($estadoActual, $pasos, true);
+        $currentIndex = $currentIndex === false ? 0 : $currentIndex;
+        $fechaInicioPaso = $expediente->get('fechaInicioPaso')
+            ? (string) $expediente->get('fechaInicioPaso')
+            : null;
+
+        $entries = [];
+
+        foreach ($pasos as $index => $paso) {
+            $plazo = $pasosConPlazo[$paso];
+            $detail = 'Plazo legal: ' . $plazo . ' día(s)';
+
+            if ($index < $currentIndex) {
+                $entries[] = [
+                    'key' => 'policivo_' . $index,
+                    'label' => $paso,
+                    'detail' => $detail,
+                    'at' => null,
+                    'type' => 'milestone',
+                    'statusText' => 'Completado',
+                    'timestampText' => null,
+                    'statusKind' => 'elapsed',
+                ];
+
+                continue;
+            }
+
+            if ($index === $currentIndex) {
+                $limite = ExpedienteVencimientoHelper::fechaLimite($fechaInicioPaso, $plazo);
+                $formatted = $limite
+                    ? $this->formatDeadlineStatus($limite->format('Y-m-d'))
+                    : ['statusText' => 'En curso', 'timestampText' => null, 'statusKind' => 'today'];
+
+                $entries[] = [
+                    'key' => 'policivo_' . $index,
+                    'label' => $paso,
+                    'detail' => $detail,
+                    'at' => $fechaInicioPaso,
+                    'type' => 'milestone',
+                    'statusText' => $formatted['statusText'],
+                    'timestampText' => $formatted['timestampText'],
+                    'statusKind' => $formatted['statusKind'],
+                ];
+
+                continue;
+            }
+
+            $entries[] = [
+                'key' => 'policivo_' . $index,
+                'label' => $paso,
+                'detail' => $detail,
+                'at' => null,
+                'type' => 'milestone',
+                'statusText' => 'Pendiente',
+                'timestampText' => null,
+                'statusKind' => 'pending',
+            ];
+        }
+
+        return $entries;
     }
 
     /**
@@ -384,49 +500,9 @@ class CaseCronogramaService
         return null;
     }
 
-    /**
-     * Plazo de 15 días para acta y etapas de visita, contados desde la asignación.
-     */
-    private function resolveVisitaFechaLimite(
-        array $statusDates,
-        Entity $case,
-        ?string $asignadoAt,
-        ?string $radicadoAt
-    ): ?string {
-        $base = $this->firstNonEmpty(
-            $asignadoAt,
-            $statusDates['En proceso'] ?? null,
-            $radicadoAt,
-            $statusDates['Radicado'] ?? null,
-            $statusDates['Pendiente de radicacion'] ?? null,
-            $case->get('createdAt')
-        );
-
-        if ($base === null) {
-            return null;
-        }
-
-        return $this->addDaysToDate($base, self::VISITA_PLAZO_DIAS);
-    }
-
-    private function addDaysToDate(string $at, int $days): string
+    private function buildVisitaDetail(?string $actaDetail, ?string $fechaLimite): ?string
     {
-        $dt = $this->toBogota($at)->setTime(0, 0)->modify('+' . $days . ' days');
-
-        return $dt->format('Y-m-d');
-    }
-
-    private function buildVisitaDetail(?string $actaDetail, ?string $fechaLimiteVisita): ?string
-    {
-        $plazo = $fechaLimiteVisita
-            ? 'Plazo de visita: ' . self::VISITA_PLAZO_DIAS . ' días'
-            : null;
-
-        if ($actaDetail && $plazo) {
-            return $actaDetail . ' · ' . $plazo;
-        }
-
-        return $actaDetail ?: $plazo;
+        return $actaDetail;
     }
 
     private function findActaForCase(?string $caseId): ?Entity
@@ -473,7 +549,11 @@ class CaseCronogramaService
             }
         }
 
-        return (bool) $acta->get('cFormatoActaVisitaPdfId');
+        if (method_exists($acta, 'getLinkMultipleIdList')) {
+            return count($acta->getLinkMultipleIdList('formatoManoAdjunto')) > 0;
+        }
+
+        return trim((string) $acta->get('formatoManoAdjuntoIds')) !== '';
     }
 
     private function isActuoRelevant(?Entity $actuo): bool

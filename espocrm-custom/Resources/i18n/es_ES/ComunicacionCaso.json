@@ -9,6 +9,7 @@
         "destinatarioTercero": "Destinatario",
         "asunto": "Asunto",
         "contenido": "Contenido / observaciones",
+        "cPanelDestinatarioSugerencias": "Sugerencias de destinatario",
         "esRespuestaFinal": "Respuesta final al ciudadano",
         "adjuntos": "Adjuntos"
     },

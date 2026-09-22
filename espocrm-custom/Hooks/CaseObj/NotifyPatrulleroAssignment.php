@@ -116,6 +116,7 @@ class NotifyPatrulleroAssignment implements AfterSave
         $notifyUserIds = array_values(array_unique(array_merge(
             $this->profile->findActiveUserIdsByRoleName(AlcaldiaUserProfile::ROLE_INSPECCION),
             $this->profile->findActiveUserIdsByRoleName(AlcaldiaUserProfile::ROLE_INSPECCION_ALT),
+            $this->profile->findActiveAdminUserIds(),
         )));
 
         foreach ($notifyUserIds as $notifyUserId) {

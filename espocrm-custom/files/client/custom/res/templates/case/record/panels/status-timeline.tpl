@@ -13,7 +13,7 @@
 
             <div class="case-timeline-labels" aria-hidden="true">
                 {{#each timeline.steps}}
-                <div class="case-timeline-block-label is-{{state}}">
+                <div class="case-timeline-block-label is-{{state}}{{#if variant}} is-variant-{{variant}}{{/if}}">
                     {{#if isDone}}
                     <span class="fas fa-check case-timeline-label-check" aria-hidden="true"></span>
                     {{/if}}
@@ -27,7 +27,7 @@
                 <div class="case-timeline-rail-fill" style="width: {{timeline.progress}}%;"></div>
                 <div class="case-timeline-markers">
                     {{#each timeline.steps}}
-                    <div class="case-timeline-marker-col is-{{state}}{{#if isCurrent}} is-active{{/if}}">
+                    <div class="case-timeline-marker-col is-{{state}}{{#if isCurrent}} is-active{{/if}}{{#if variant}} is-variant-{{variant}}{{/if}}">
                         <span class="case-timeline-marker">
                             {{#if isDone}}
                             <span class="fas fa-check" aria-hidden="true"></span>
@@ -63,6 +63,12 @@
                             <div class="case-timeline-date-line">{{dateFormatted}}</div>
                             {{/unless}}
                         {{/if}}
+                    {{/if}}
+                    {{#if deadlineLabel}}
+                    <div class="case-timeline-date-line case-timeline-plazo-legal text-muted">{{deadlineLabel}}</div>
+                    {{/if}}
+                    {{#if reference}}
+                    <div class="case-timeline-date-line case-timeline-reference" title="Número con el que se formalizó la radicación">{{reference}}</div>
                     {{/if}}
                 </div>
                 {{/each}}

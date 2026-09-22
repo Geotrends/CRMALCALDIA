@@ -5,42 +5,25 @@ namespace Espo\Custom\Tools\CaseObj;
 use Espo\ORM\Entity;
 
 /**
- * Radicado válido = número y expediente con formato oficial (solo tras radicación).
+ * La radicación se formaliza con el número de radicado registrado manualmente.
  */
 class CaseRadicadoHelper
 {
     /** @var string[] Campos que identifican radicado persistido (no tocar enums de modo/siglas). */
     public const PERSISTED_FIELD_LIST = [
         'cNumeroRadicado',
-        'cExpediente',
     ];
 
     /** @var string[] Todos los campos de radicación (restaurar en edición restringida). */
     public const FIELD_LIST = [
         'cNumeroRadicado',
-        'cExpediente',
-        'cRadicadoModo',
-        'cRadicadoSiglas',
-        'cRadicadoAnio',
     ];
 
     public const STATUS_PENDIENTE_RADICACION = 'Pendiente de radicacion';
 
     public static function isRadicadoCompleto(Entity $entity): bool
     {
-        $numero = trim((string) $entity->get('cNumeroRadicado'));
-        $expediente = trim((string) $entity->get('cExpediente'));
-
-        if ($numero === '' || $expediente === '') {
-            return false;
-        }
-
-        if (self::isPlaceholderExpediente($expediente)) {
-            return false;
-        }
-
-        return RadicadoCatalog::parseRadicado($numero) !== null
-            && RadicadoCatalog::parseExpediente($expediente) !== null;
+        return trim((string) $entity->get('cNumeroRadicado')) !== '';
     }
 
     public static function isPlaceholderExpediente(string $expediente): bool
@@ -56,19 +39,7 @@ class CaseRadicadoHelper
             return false;
         }
 
-        $numero = trim((string) $entity->getFetched('cNumeroRadicado'));
-        $expediente = trim((string) $entity->getFetched('cExpediente'));
-
-        if ($numero === '' || $expediente === '') {
-            return false;
-        }
-
-        if (self::isPlaceholderExpediente($expediente)) {
-            return false;
-        }
-
-        return RadicadoCatalog::parseRadicado($numero) !== null
-            && RadicadoCatalog::parseExpediente($expediente) !== null;
+        return trim((string) $entity->getFetched('cNumeroRadicado')) !== '';
     }
 
     public static function ensurePendienteRadicacionStatus(Entity $entity): void

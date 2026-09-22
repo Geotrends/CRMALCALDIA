@@ -1,0 +1,20 @@
+[
+    {
+        "rows": [
+            [
+                {"name": "name"},
+                {"name": "tipo"}
+            ],
+            [
+                {"name": "estado"},
+                {"name": "assignedUser"}
+            ],
+            [
+                {"name": "casos", "fullWidth": true}
+            ],
+            [
+                {"name": "observaciones", "fullWidth": true}
+            ]
+        ]
+    }
+]

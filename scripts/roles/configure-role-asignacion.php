@@ -42,6 +42,7 @@ $caseFields = array_keys($metadata->get(['entityDefs', 'Case', 'fields']) ?? [])
 $editableFields = [
     'assignedUser',
     'cMotivoReasignacion',
+    'cProximaActuacion',
 ];
 
 $readOnlyScopes = [
@@ -115,6 +116,8 @@ $caseApiActions = [
     'cronograma' => 'yes',
     'panelesDetalle' => 'yes',
     'radicadoConsecutivo' => 'no',
+    'confirmarVisitaAprobada' => 'yes',
+    'cerrarSinProceso' => 'yes',
 ];
 
 foreach ($caseApiActions as $action => $level) {

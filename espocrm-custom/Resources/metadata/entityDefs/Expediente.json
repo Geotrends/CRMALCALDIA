@@ -1,0 +1,119 @@
+{
+    "fields": {
+        "name": {
+            "type": "varchar",
+            "required": false,
+            "maxLength": 100,
+            "trim": true,
+            "readOnlyAfterCreate": true
+        },
+        "numero": {
+            "type": "varchar",
+            "maxLength": 100,
+            "readOnlyAfterCreate": true,
+            "isCustom": true
+        },
+        "anio": {
+            "type": "varchar",
+            "maxLength": 4,
+            "readOnlyAfterCreate": true,
+            "isCustom": true
+        },
+        "consecutivo": {
+            "type": "int",
+            "readOnlyAfterCreate": true,
+            "isCustom": true
+        },
+        "tipoTramite": {
+            "type": "enum",
+            "options": [
+                "Sin definir",
+                "Sancionatorio ambiental (Ley 1333/2009 - IV-P-028)",
+                "Código de policía y bienestar animal (Ley 1801/2016 - IV-P-021)"
+            ],
+            "default": "Sin definir",
+            "isCustom": true
+        },
+        "fechaInicioPaso": {
+            "type": "date",
+            "readOnly": true,
+            "isCustom": true
+        },
+        "estado": {
+            "type": "enum",
+            "options": [
+                "Abierto",
+                "Elaboración de acto de decisión",
+                "Notificación de acto administrativo",
+                "Remisión a Autoridad Ambiental",
+                "Audiencia pública",
+                "Práctica de pruebas",
+                "Recepción y respuesta de recursos",
+                "Revisión de pago de sanciones pecuniarias",
+                "Verificación de acción correctiva",
+                "Auto de Archivo"
+            ],
+            "default": "Abierto",
+            "isCustom": true,
+            "readOnly": true
+        },
+        "assignedUser": {
+            "type": "link",
+            "readOnlyAfterCreate": true,
+            "view": "views/fields/assigned-user"
+        },
+        "teams": {
+            "type": "linkMultiple",
+            "view": "views/fields/teams"
+        },
+        "createdAt": {
+            "type": "datetime",
+            "readOnly": true
+        },
+        "modifiedAt": {
+            "type": "datetime",
+            "readOnly": true
+        }
+    },
+    "links": {
+        "assignedUser": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "teams": {
+            "type": "hasMany",
+            "entity": "Team",
+            "relationName": "entityTeam",
+            "layoutRelationshipsDisabled": true
+        },
+        "casos": {
+            "type": "hasMany",
+            "entity": "Case",
+            "foreign": "expediente"
+        },
+        "autosInicio": {
+            "type": "hasMany",
+            "entity": "AutoInicio",
+            "foreign": "expediente"
+        },
+        "decisionesRuta": {
+            "type": "hasMany",
+            "entity": "DecisionRutaJuridica",
+            "foreign": "expediente"
+        },
+        "createdBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "modifiedBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        }
+    },
+    "entityClassName": "Espo\\Custom\\Entities\\Expediente",
+    "collection": {
+        "orderBy": "createdAt",
+        "order": "desc",
+        "textFilterFields": ["name", "numero"]
+    }
+}

@@ -93,21 +93,9 @@ define('custom:helpers/case-documentos', [
     };
 
     const pushActaDocument = function (docs, user, model, basePath, acta) {
-        if (!FormatoActaVisitaCaseAccess.canDownloadFormatoActaVisitaFromCase(user, model)
-            || !ActaVisitaCaseStatus.isVisitaRealizadaForFormatos(model, acta)) {
-            return;
-        }
-
-        const fileName = getValue(acta, 'cFormatoActaVisitaPdfName') || 'ActaVisita.pdf';
-
-        docs.push(buildDocumentEntry({
-            key: 'acta',
-            labelKey: 'formatoGeneradoActa',
-            name: fileName,
-            basePath: basePath,
-            entryPoint: 'FormatoActaVisitaCaso',
-            caseId: model.id,
-        }));
+        // El PDF automático del acta fue retirado. El soporte descargable es el
+        // archivo firmado adjunto dentro de cada visita.
+        return;
     };
 
     const pushActuoDocuments = function (docs, user, model, basePath, actuo) {
