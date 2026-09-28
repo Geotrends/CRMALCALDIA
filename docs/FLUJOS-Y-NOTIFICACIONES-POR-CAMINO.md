@@ -189,10 +189,11 @@ Igual que C1, pero con el informe técnico como anexo. Mismas notificaciones.
 |---|---|---|---|---|---|
 | G1 | Decide la apertura y la **ruta jurídica N2** (PVA, Recursos Naturales, Conductas con animales o Maltrato Animal; se sugiere según la clasificación · [ajuste](ajustes/2026-09-28-ruta-juridica-apertura.md)). Al guardar "Apertura de actuación" se avisa "pendiente de decisión" a quienes deciden | **Admin, Director Técnico, Inspector Ambiental, Apoyo Jurídico** | `DecisionRutaJuridica` + `Expediente` → **Preparación** | **Jurídica** · "Prepare el Auto de Inicio" · Director + Admin (copia) | ✅ |
 | G2 | Revisa expedientes abiertos con coincidencias (documento/nombre del infractor, destino, relación de casos, dirección, peticionario, barrio + tema, asunto) y decide incorporar | Mismos | `Case.expediente` = existente | Jurídica + Inspector | ✅ |
-| G3 | Prepara el Auto de Inicio (motivo, norma, audiencia) y lo envía a firma; se genera el **formato prellenado IV-F-364** (PDF y Word); en Maltrato Animal, borrador "POR VALIDAR" | Apoyo Jurídico | `AutoInicio` → Para firma | **Inspector** · "Descargue, firme y cargue el PDF" | ✅ |
+| G2b | Registra el **N.º de expediente** (manual, texto libre, sin repetir; no hay regla institucional definida). Obligatorio antes de enviar a firma porque se imprime en el Auto ([ajuste](ajustes/2026-09-28-numero-expediente-manual.md)) | **Todos los involucrados**: Admin, Director Técnico, Apoyo Jurídico, Inspector Ambiental, Aux. Inspección | `Expediente.numero` · nota en la historia | — | ✅ |
+| G3 | Prepara el Auto de Inicio (motivo, **normas y artículos del catálogo**, fecha y **hora con selector**) y lo envía a firma; se genera el **formato prellenado IV-F-364 en Word** ([ajuste](ajustes/2026-09-28-auto-inicio-normas-hora-word.md)); en Maltrato Animal, borrador "POR VALIDAR" | Apoyo Jurídico | `AutoInicio` → Para firma | **Inspector** · "Descargue, firme y cargue el PDF" | ✅ |
 | G4 | Firma fuera del CRM, carga el PDF → "Aprobar y abrir expediente" (o devuelve con observaciones) | **Inspector Ambiental** | `AutoInicio` → Firmado; `Expediente` → **Abierto** + fecha de apertura | **Jurídica + Aux. Inspección** · "Citar y notificar" · Director + Admin (copia). Devuelto: Jurídica | ✅ |
 | G5 | El caso queda vinculado; la línea de tiempo pasa a los pasos del proceso | Sistema | — | — | ✅ |
-| G6 | Continúa la ruta N2 elegida en G1: el expediente sigue sus pasos (p. ej. PVA: Citación → Audiencia → Pruebas → Decisión → Notificación y recursos → Cumplimiento → Archivo) | Inspector | `Expediente.estado` por paso | — | 🆕 |
+| G6 | Continúa la ruta N2 elegida en G1 en el bloque **"Proceso del expediente"** del caso (p. ej. PVA: Citación → Audiencia pública → Decisión → Notificación y recursos → Cumplimiento → Archivo). La línea de tiempo y el cronograma muestran "Apertura de expediente" y los pasos de la ruta desde que se define la apertura | Apoyo Jurídico, Inspector, Aux. Inspección | `Expediente.estado` + `historialPasos` | ver C7 | ✅ citación y audiencia · 🆕 lo demás |
 
 ### Avisos de la apertura (nunca a quien hace la acción)
 
@@ -205,18 +206,20 @@ Igual que C1, pero con el informe técnico como anexo. Mismas notificaciones.
 | Devuelve el Auto | Apoyo Jurídico, con el motivo |
 | Firma y abre el expediente | **Apoyo Jurídico y Aux. Administrativo · Inspección**: "Citar y notificar" (accionable) · Director y Admin (copia) |
 
-### C7. Proceso Verbal Abreviado · Convivencia (art. 223)
+### C7. Proceso Verbal Abreviado · Convivencia (art. 223) · tramo 1 ✅ 2026-09-28 ([ajuste](ajustes/2026-09-28-pva-citacion-audiencia.md))
+
+Mientras tanto, **Apoyo Jurídico, Inspector Ambiental y Aux. Inspección hacen todos los pasos** (y Admin). Los avisos van a esos perfiles y al Admin, nunca a quien hace la acción.
 
 | # | Paso | Quién hace | Registro / estado | Notifica a | Hoy |
 |---|---|---|---|---|---|
 | C7.1 | Verifica competencia, partes, conducta y antecedentes | Inspector | Expediente | — | — |
-| C7.2 | Cita a audiencia | Aux. Inspección | `Audiencia` (fecha) + citación | Inspector · recordatorio 1 día antes de la audiencia | 🆕 |
-| C7.3 | Audiencia | Inspector | → H1 | ver H1 | — |
-| C7.4 | Requiere prueba técnica fuera de la audiencia | Inspector | nueva `IntervencionTecnica` con origen jurídico | Director Técnico + responsable · "Prueba ordenada por el Inspector, plazo X" | 🆕 |
-| C7.5 | Carga la prueba y el caso queda listo para reanudar | Profesional / Patrullero | soporte cargado | Inspector · "Prueba lista, reprogramar audiencia" | 🆕 |
-| C7.6 | Determina medidas / Orden de Policía | Inspector | → H2 / H3 | — | — |
-| C7.7 | Adopta, firma y carga el fallo | Inspector | decisión | Aux. Inspección · "Fallo firmado: notificar" | 🆕 |
-| C7.8 | Notificación, recursos, ejecución y cierre | — | → H5, H4, H6, I | — | — |
+| C7.2 | Programa la audiencia y registra la citación (medio, documento, soporte de entrega). El paso se cumple con el soporte de entrega | Jurídica / Inspector / Aux. Inspección | `Audiencia` (N.º, fecha, citación) · Expediente → **Audiencia pública** | Gestores · "Audiencia programada" / "Citación entregada" · Inspector: recordatorio el día anterior (`AlertaProceso`) | ✅ |
+| C7.3 | Audiencia: se realizó, no compareció, se suspende por prueba o se aplaza | Mismos | → H1 | ver H1 | ✅ |
+| C7.4 | Requiere prueba técnica fuera de la audiencia | Mismos | `SuspensionAudiencia` (prueba, responsable, plazo) + `AlertaProceso` | **Responsable** (accionable) + Director Técnico + gestores · "Prueba ordenada por el Inspector, plazo X" | ✅ |
+| C7.5 | Carga la prueba y el caso queda listo para reanudar | Responsable de la prueba o gestores | soporte cargado · suspensión "Lista para reanudación" | Gestores · "Soporte probatorio cargado: reprogramar" | ✅ |
+| C7.6 | Marca las conductas probadas y el CRM muestra las medidas de la matriz (prescritas incluidas, condicionales con prueba, de otra autoridad bloqueadas y derivadas); orden de Policía aparte; genera el proyecto en Word ([ajuste](ajustes/2026-09-28-pva-decision-notificacion-recursos.md)) | Jurídica / Inspector / Aux. Inspección | `Expediente.decisionFondo` · → H2 | — | ✅ |
+| C7.7 | Carga la decisión firmada (PDF): se crean las `MedidaCorrectiva` y la `OrdenPolicia` | Mismos | → **Notificación y recursos** | Gestores · "Decisión adoptada: notificar" | ✅ |
+| C7.8 | Notificación y recursos (H5, H4). Retornos: el recurso **modifica** → vuelve a Decisión; **revoca** → Auto de Archivo; sin medidas ni orden → se omite Cumplimiento. Ejecución y cierre (H6, I) | — | → H5, H4, H6, I | ver H4/H5 | ✅ H4/H5 · 🆕 H6/I |
 
 ### C8. Recursos Naturales · competencia municipal
 
@@ -279,10 +282,11 @@ Igual que C1, pero con el informe técnico como anexo. Mismas notificaciones.
 
 | # | Paso | Quién hace | Registro / estado | Notifica a | Hoy |
 |---|---|---|---|---|---|
-| H1.1 | Verifica citación, comparecientes y grabación | Aux. Inspección | `Audiencia` | — | — |
-| H1.2 | Primera inasistencia → 3 días para justificar | Inspector | `SuspensionAudiencia.esPrimeraInasistencia` | Inspector + Aux. · alerta de 3 días | ✅ `CreateAlertaJustificacionInasistencia` |
-| H1.3 | Suspende para practicar pruebas | Inspector | `SuspensionAudiencia` + fecha de reanudación | Aux. Inspección · "Reprogramar para fecha X" | 🆕 |
-| H1.4 | Acta firmada y audio cargado | Inspector / Aux. | `GrabacionAudiencia` | Si falta el audio o el acta: Aux. Inspección · "Soporte faltante" | 🆕 |
+| H1.1 | Registra el resultado desde el día fijado (antes solo se puede aplazar) | Jurídica / Inspector / Aux. Inspección | `Audiencia` | — | ✅ |
+| H1.2 | Primera inasistencia → 3 días hábiles para justificar (desde el día siguiente); luego se resuelve (aceptada, rechazada, no presentada) y se reprograma | Mismos | `SuspensionAudiencia` (primera inasistencia) | Gestores · "Audiencia suspendida" · Inspector: alerta del término | ✅ |
+| H1.3 | Suspende por prueba externa (ver C7.4) o aplaza por otra causa, y reprograma con nueva citación | Mismos | `SuspensionAudiencia` → Reanudada · nueva `Audiencia` N.º siguiente | Gestores · "Audiencia suspendida" / "Audiencia reprogramada" | ✅ |
+| H1.4 | Se realizó: resultado, asistentes y conciliación o compromiso | Mismos | `Audiencia` → Pendiente de soportes · `Compromiso` | — | ✅ |
+| H1.5 | Acta firmada (PDF) y audio, o constancia de que no se pudo grabar. Con ambos, la audiencia queda completa y el expediente pasa a la decisión | Mismos | `GrabacionAudiencia` · `Audiencia` → Completa · Expediente → Decisión | Gestores · "Audiencia completa: sigue la decisión" | ✅ |
 
 ### H2. Determinación de medidas correctivas
 
@@ -300,17 +304,17 @@ Lo hace solo el Inspector. **Sin notificación propia**: termina en el fallo (C7
 
 | # | Paso | Quién hace | Registro / estado | Notifica a | Hoy |
 |---|---|---|---|---|---|
-| H4.1 | Registra el recurso | Aux. Inspección | `Recurso` | Inspector · "Recurso recibido" | 🆕 |
-| H4.2 | Resuelve la reposición | Inspector | decisión | Aux. Inspección · "Notificar reposición" | 🆕 |
-| H4.3 | Apelación → remite el expediente físico | Aux. Inspección | `MovimientoExpediente` (salida) | Inspector (informativo) + alerta de seguimiento a la devolución | 🆕 |
-| H4.4 | Registra la devolución y la decisión de segunda instancia | Aux. Inspección | `MovimientoExpediente` (entrada) | Inspector · "Segunda instancia resolvió: definir siguiente paso" | 🆕 |
+| H4.1 | Registra el recurso (reposición, reposición y en subsidio apelación, apelación), quién y sustentación | Jurídica / Inspector / Aux. Inspección | `Recurso` | Gestores · "Recurso interpuesto" | ✅ |
+| H4.2 | Resuelve la reposición: confirma, modifica (↩ Decisión) o revoca (→ Archivo); con subsidio y sin revocar, concede la apelación | Mismos | `Recurso` → Reposición resuelta | Gestores · "Apelación concedida" | ✅ |
+| H4.3 | Apelación → remite el expediente físico (autoridad, fecha, oficio) | Mismos | `MovimientoExpediente` (salida, en tránsito) · alerta de seguimiento con la fecha que se fije | Gestores · "Expediente en segunda instancia" | ✅ |
+| H4.4 | Registra la devolución y la decisión de segunda instancia (documento obligatorio): confirma → firmeza; modifica → ↩ Decisión; revoca → Archivo | Mismos | `MovimientoExpediente` → Devuelto · `Recurso` → Devuelto a inspección | Gestores · según resultado | ✅ |
 
 ### H5. Notificación y ejecutoria
 
 | # | Paso | Quién hace | Registro / estado | Notifica a | Hoy |
 |---|---|---|---|---|---|
-| H5.1 | Notifica: personal (IV-F-362), por aviso (IV-F-365) o en estrados | Aux. Inspección | `NotificacionActo.fechaEfectiva` | Inspector + Jurídica · término de recursos | ✅ `CreateAlertaOnFechaEfectiva` (informativa, sin fecha de vencimiento) ❓ P8 |
-| H5.2 | Sin recurso → firmeza / ejecutoria | Aux. Inspección | → En firme | Inspector · "Acto en firme: ejecutar" | 🆕 |
+| H5.1 | Notifica: en estrados (por defecto), personal o por aviso (formatos prellenados en Word, constancia firmada obligatoria) u otro medio. Si no fue efectiva, ↩ otro medio | Jurídica / Inspector / Aux. Inspección | `NotificacionActo` | — (la alerta informativa se atiende al quedar en firme) | ✅ |
+| H5.2 | Sin recurso (o única instancia) → firmeza: medidas "Pendiente de ejecución", orden "Notificada"; pasa a Cumplimiento o, si no hay nada por cumplir, a Auto de Archivo | Mismos | → En firme | Gestores · "Decisión en firme" | ✅ |
 
 ### H6. Gestión y ejecución de medidas correctivas
 

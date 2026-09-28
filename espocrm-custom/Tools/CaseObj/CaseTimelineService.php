@@ -58,15 +58,25 @@ class CaseTimelineService
         $expediente = $this->resolveExpedienteInfo($case);
         $flow = $this->resolveFlow($expediente);
 
-        $currentIndex = $expediente
-            ? self::BASE_LENGTH + $expediente['pasoIndex']
-            : $this->resolveCurrentIndex($case, $currentStatus);
+        // Apertura de actuación definida sin expediente todavía: el siguiente paso es la apertura.
+        $aperturaPendiente = !$expediente
+            && trim((string) $case->get('cDecisionTramite')) === 'Apertura de actuación';
 
-        $aperturaEnCurso = !$expediente ? $this->resolveAperturaEnPreparacion($case) : null;
-
-        if ($aperturaEnCurso) {
-            $currentIndex = (int) array_search('Revisión de hallazgos', self::STATUS_FLOW, true);
+        if ($aperturaPendiente) {
+            $flow = array_merge(array_slice(self::STATUS_FLOW, 0, self::BASE_LENGTH), [ExpedientePasosCatalog::PASO_APERTURA, 'Finalizado']);
         }
+
+        // Índice del paso «Apertura de expediente»; los pasos de la ruta van después.
+        $aperturaIndex = self::BASE_LENGTH;
+
+        $currentIndex = $expediente
+            ? ($expediente['preparacion'] ? $aperturaIndex : $aperturaIndex + 1 + $expediente['pasoIndex'])
+            : ($aperturaPendiente ? $aperturaIndex : $this->resolveCurrentIndex($case, $currentStatus));
+
+        $aperturaEnCurso = $expediente && $expediente['preparacion'] ? $this->resolveAperturaEnPreparacion($case) : null;
+        $procesoResumen = $expediente && !$expediente['preparacion']
+            ? (new CaseProcesoLectura($this->entityManager))->resumen($expediente['entity'])
+            : null;
 
         // Visita complementaria en curso: el caso vuelve a Gestión técnica aunque
         // ya tenga actas diligenciadas y una revisión de hallazgos anterior.
@@ -88,7 +98,7 @@ class CaseTimelineService
             'Revisión de hallazgos' => self::STEP_RESPUESTA_FINAL,
         ];
 
-        if (!$expediente && !$visitaEnCurso && !$aperturaEnCurso && isset($nextActionByStatus[$currentStatus])) {
+        if (!$expediente && !$aperturaPendiente && !$visitaEnCurso && isset($nextActionByStatus[$currentStatus])) {
             $currentIndex = max(
                 $currentIndex,
                 array_search($nextActionByStatus[$currentStatus], self::STATUS_FLOW, true)
@@ -96,6 +106,13 @@ class CaseTimelineService
         }
 
         $statusDates = $this->mergeLegacyStatusDates($statusDates ?? $this->resolveStatusDates($case));
+
+        // Fechas de la apertura y de cada paso de la ruta (historial del expediente).
+        if ($expediente) {
+            foreach ($expediente['fechas'] as $paso => $inicio) {
+                $statusDates[$paso] = $inicio;
+            }
+        }
         $actualDates = $statusDates;
         $statusDates = $this->fillMissingDatesForCompletedSteps($statusDates, min($currentIndex, count($flow) - 1), $flow);
         $total = count($flow);
@@ -163,8 +180,8 @@ class CaseTimelineService
                     ? 'N.º de radicado: ' . $numeroRadicado
                     : ($visitaEnCurso && $status === CaseActaVisitaHelper::STATUS_EN_GESTION_TECNICA
                         ? 'Visita complementaria N.º ' . $numeroVisitaEnCurso . ' en curso'
-                        : ($aperturaEnCurso && $status === 'Revisión de hallazgos' ? $aperturaEnCurso : null)),
-                'variant' => ($expediente && $index >= self::BASE_LENGTH && $status !== 'Finalizado')
+                        : $this->resolveReference($status, $state, $expediente, $aperturaEnCurso, $aperturaPendiente, $procesoResumen)),
+                'variant' => (($expediente || $aperturaPendiente) && $index >= self::BASE_LENGTH && $status !== 'Finalizado')
                     ? 'escalado'
                     : null,
             ];
@@ -204,12 +221,6 @@ class CaseTimelineService
             return null;
         }
 
-        // En preparación (Auto de Inicio sin firmar) el proceso aún no inicia:
-        // el caso sigue en su línea de tiempo normal.
-        if (trim((string) $expediente->get('estado')) === 'Preparación') {
-            return null;
-        }
-
         $tipoTramite = trim((string) $expediente->get('tipoTramite'));
         $catalog = new ExpedientePasosCatalog();
         $plazos = $catalog->getPasosConPlazo($tipoTramite);
@@ -227,7 +238,31 @@ class CaseTimelineService
             $pasoIndex = 0;
         }
 
+        // Auto de Archivo firmado: todos los pasos del proceso quedan cumplidos.
+        if ((new CaseProcesoLectura($this->entityManager))->archivado($expediente)) {
+            $pasoIndex = count($pasos);
+        }
+
+        // En preparación (Auto de Inicio sin firmar) la ruta se muestra, pero el
+        // paso en curso es la apertura.
+        $preparacion = $estadoActual === 'Preparación';
+        $fechas = [ExpedientePasosCatalog::PASO_APERTURA => (string) $expediente->get('createdAt')];
+
+        foreach ((new CaseProcesoLectura($this->entityManager))->historial($expediente) as $paso => $datos) {
+            if (!empty($datos['inicio']) && $paso !== ExpedientePasosCatalog::PASO_APERTURA) {
+                $fechas[$paso] = (string) $datos['inicio'];
+            }
+        }
+
+        if (!$preparacion && !isset($fechas[$pasos[0]]) && $expediente->get('fechaAperturaFormal')) {
+            $fechas[$pasos[0]] = (string) $expediente->get('fechaAperturaFormal');
+        }
+
         return [
+            'entity' => $expediente,
+            'preparacion' => $preparacion,
+            'fechas' => $preparacion ? [ExpedientePasosCatalog::PASO_APERTURA => $fechas[ExpedientePasosCatalog::PASO_APERTURA]] : $fechas,
+            'numero' => (string) $expediente->get('numero'),
             'expedienteId' => $expedienteId,
             'tipoTramite' => $tipoTramite,
             'pasos' => $pasos,
@@ -251,7 +286,7 @@ class CaseTimelineService
 
         $base = array_slice(self::STATUS_FLOW, 0, self::BASE_LENGTH);
 
-        return array_merge($base, $expediente['pasos'], ['Finalizado']);
+        return array_merge($base, [ExpedientePasosCatalog::PASO_APERTURA], $expediente['pasos'], ['Finalizado']);
     }
 
     /**
@@ -524,6 +559,33 @@ class CaseTimelineService
     }
 
     /**
+     * Texto bajo el paso: fase de la apertura, expediente abierto o situación del paso actual.
+     *
+     * @param array<string, mixed>|null $expediente
+     */
+    private function resolveReference(string $status, string $state, ?array $expediente, ?string $aperturaEnCurso, bool $aperturaPendiente, ?string $procesoResumen): ?string
+    {
+        if ($status === ExpedientePasosCatalog::PASO_APERTURA) {
+            if ($aperturaPendiente) {
+                return 'Pendiente decidir: expediente nuevo o incorporación, y ruta jurídica';
+            }
+
+            if ($aperturaEnCurso) {
+                return $aperturaEnCurso;
+            }
+
+            return $expediente ? 'Expediente N.º ' . $expediente['numero'] . ' · ' . $expediente['tipoTramite'] : null;
+        }
+
+        if ($expediente && !$expediente['preparacion'] && $state === 'done'
+            && !empty((new CaseProcesoLectura($this->entityManager))->historial($expediente['entity'])[$status]['omitido'])) {
+            return 'No aplica';
+        }
+
+        return $state === 'current' && $expediente && !$expediente['preparacion'] ? $procesoResumen : null;
+    }
+
+    /**
      * Texto de referencia si el caso tiene un Expediente en «Preparación».
      */
     private function resolveAperturaEnPreparacion(Entity $case): ?string
@@ -545,7 +607,7 @@ class CaseTimelineService
             default => $auto ? 'Jurídica prepara el Auto de Inicio' : 'Auto de Inicio por preparar',
         };
 
-        return 'Apertura de actuación · Expediente N.º ' . $expediente->get('numero') . ' en preparación · ' . $fase;
+        return 'Apertura de actuación · Expediente N.º ' . CaseAperturaService::numeroTexto($expediente) . ' en preparación · ' . $fase;
     }
 
     private function countActasConContenido(?string $caseId): int

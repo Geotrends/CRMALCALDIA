@@ -1,68 +1,109 @@
-/* Barra superior: nombre y rol del usuario, a la izquierda del buscador. */
+/* Identidad del usuario: se muestra en el encabezado del menú lateral abierto. */
 #navbar .navbar-user-identity-container {
-  align-items: center;
+  display: none !important;
+}
+
+body.crm-reference-shell #navbar .crm-sidebar-user-identity {
+  align-items: flex-start;
+  color: #ffffff !important;
   display: flex;
-  margin-right: 10px;
-}
-
-#navbar .alcaldia-user-identity {
-  align-items: flex-end;
-  color: var(--crm-text, #0f172a);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  line-height: 1.2;
-  max-width: 260px;
-  padding: 4px 6px;
-  text-align: right;
-  text-decoration: none;
-}
-
-#navbar .alcaldia-user-identity:hover,
-#navbar .alcaldia-user-identity:focus {
-  text-decoration: none;
-}
-
-#navbar .alcaldia-user-identity:hover .alcaldia-user-identity__name {
-  color: var(--crm-primary, #1d8a6e);
-}
-
-#navbar .alcaldia-user-identity__name {
+  flex: 1 1 auto;
   font-size: 14px;
-  font-weight: 600;
-  max-width: 100%;
+  font-weight: 700;
+  justify-content: center;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+  margin-left: 8px;
+  min-width: 0;
   overflow: hidden;
+  padding: 8px 10px;
+  text-align: left;
+  text-decoration: none;
   text-overflow: ellipsis;
   white-space: nowrap;
+  border-radius: 10px;
 }
 
-#navbar .alcaldia-user-identity__role {
-  color: var(--crm-text-secondary, #475569);
-  font-size: 12px;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+body.crm-reference-shell #navbar .crm-sidebar-user-identity:hover,
+body.crm-reference-shell #navbar .crm-sidebar-user-identity:focus {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff !important;
+  text-decoration: none;
 }
 
-#navbar .alcaldia-user-identity__role:empty {
-  display: none;
+/* Las tres líneas de abrir/cerrar siempre contrastan con el menú verde. */
+body.crm-reference-shell #navbar a.minimizer,
+body.crm-reference-shell #navbar a.minimizer::before {
+  color: #ffffff !important;
 }
 
-/* El tema convierte cada li > a de la barra en un botón circular de 38 px. */
-#navbar .navbar-nav.navbar-right > li.navbar-user-identity-container {
-  height: auto !important;
-  width: auto !important;
+body.crm-reference-shell #navbar a.minimizer:hover,
+body.crm-reference-shell #navbar a.minimizer:focus {
+  color: #ffffff !important;
 }
 
-#navbar .navbar-nav.navbar-right > li.navbar-user-identity-container > a.alcaldia-user-identity {
-  background: transparent !important;
-  border: 0 !important;
-  border-radius: 8px !important;
-  box-shadow: none !important;
-  height: auto !important;
-  min-height: 38px;
-  min-width: 0 !important;
-  padding: 2px 8px !important;
-  width: auto !important;
+/* Al colapsar, queda exclusivamente el botón de tres líneas. */
+body.crm-reference-shell.minimized:not(.side-menu-opened) #navbar .crm-sidebar-user-identity {
+  display: none !important;
+}
+
+@media (max-width: 1024px) {
+  body.crm-reference-shell #navbar .crm-sidebar-user-identity {
+    max-width: calc(100% - 64px);
+  }
+}
+
+/* Grupos plegables de primer nivel del menú lateral. */
+body.crm-reference-shell #navbar ul.tabs > li.tab-divider.crm-menu-group {
+  margin: 8px 10px 0 !important;
+}
+
+body.crm-reference-shell #navbar ul.tabs > li.tab-divider.crm-menu-group > .crm-menu-group-toggle {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  color: rgba(255, 255, 255, 0.62);
+  cursor: pointer;
+  display: flex;
+  font-size: 10px;
+  font-weight: 700;
+  justify-content: space-between;
+  letter-spacing: 0.06em;
+  line-height: 1.2;
+  padding: 7px 8px 5px;
+  text-align: left;
+  text-transform: uppercase;
+  transition: background 0.18s ease, color 0.18s ease;
+  width: 100%;
+}
+
+body.crm-reference-shell #navbar ul.tabs > li.tab-divider.crm-menu-group > .crm-menu-group-toggle::after {
+  content: "\f078";
+  font-family: "Font Awesome 5 Free", "Font Awesome 6 Free";
+  font-size: 10px;
+  font-weight: 900;
+  transition: transform 0.18s ease;
+}
+
+body.crm-reference-shell #navbar ul.tabs > li.tab-divider.crm-menu-group > .crm-menu-group-toggle[aria-expanded="false"]::after {
+  transform: rotate(-90deg);
+}
+
+body.crm-reference-shell #navbar ul.tabs > li.tab-divider.crm-menu-group > .crm-menu-group-toggle:hover,
+body.crm-reference-shell #navbar ul.tabs > li.tab-divider.crm-menu-group > .crm-menu-group-toggle:focus-visible {
+  background: rgba(255, 255, 255, 0.10);
+  color: #ffffff;
+  outline: none;
+}
+
+/* En modo expandido, solo se esconden las opciones del grupo cerrado. */
+body.crm-reference-shell:not(.minimized) #navbar ul.tabs > li.tab.crm-menu-group-item.crm-menu-group-item--collapsed {
+  display: none !important;
+}
+
+/* Menú más compacto: conserva la altura clicable y reduce el vacío entre opciones. */
+body.crm-reference-shell #navbar ul.tabs > li.tab > a,
+body.crm-reference-shell #navbar .more-dropdown-menu > li.tab > a {
+  margin-top: 2px !important;
+  margin-bottom: 2px !important;
 }

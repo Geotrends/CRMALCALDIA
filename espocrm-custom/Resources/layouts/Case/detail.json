@@ -9,6 +9,5 @@
   {"name":"gestionPosteriorRadicacion","label":"Asignación","style":"default","rows":[[{"name":"assignedUser"},false],[{"name":"cMotivoReasignacion","fullWidth":true}]]},
   {"name":"actaVisita","label":"Visitas","style":"default","rows":[[{"name":"cPanelActaVisita","view":"custom:views/case/fields/acta-visita-action","noLabel":true,"fullWidth":true}]]},
   {"name":"decisionJuridica","label":"6. Revisión de hallazgos y definición de trámite","style":"default","rows":[[{"name":"cPanelDecisionJuridica","view":"custom:views/case/fields/decision-juridica","noLabel":true,"fullWidth":true}]]},
-  {"name":"actuoArchivo","label":"Auto de archivo","style":"default","rows":[[{"name":"cPanelActuoArchivo","view":"custom:views/case/fields/actuo-archivo-action","noLabel":true,"fullWidth":true}]]},
-  {"name":"formatoGenerado","label":"Formato generado","style":"default","rows":[[{"name":"cFormatoSolicitudPdf","view":"custom:views/case/fields/formato-generado-docs","noLabel":true,"fullWidth":true}]]}
+  {"name":"actuoArchivo","label":"Auto de archivo","style":"default","rows":[[{"name":"cPanelActuoArchivo","view":"custom:views/case/fields/actuo-archivo-action","noLabel":true,"fullWidth":true}]]}
 ]

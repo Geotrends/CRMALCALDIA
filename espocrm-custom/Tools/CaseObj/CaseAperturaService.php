@@ -8,6 +8,7 @@ use Espo\Core\Exceptions\Forbidden;
 use Espo\Core\Field\LinkParent;
 use Espo\Core\Record\CreateParams;
 use Espo\Core\Record\ServiceContainer as RecordServiceContainer;
+use Espo\Core\Utils\Metadata;
 use Espo\Custom\Tools\Expediente\ExpedientePasosCatalog;
 use Espo\Custom\Tools\User\AlcaldiaUserProfile;
 use Espo\Entities\Attachment;
@@ -27,6 +28,7 @@ use Espo\ORM\EntityManager;
 class CaseAperturaService
 {
     public const ESTADO_PREPARACION = 'Preparación';
+    public const SIN_NUMERO = 'Expediente sin número';
 
     private const AUTO_PENDIENTE = 'Pendiente';
     private const AUTO_PARA_FIRMA = 'Para firma';
@@ -37,7 +39,8 @@ class CaseAperturaService
     public function __construct(
         private EntityManager $entityManager,
         private AlcaldiaUserProfile $profile,
-        private RecordServiceContainer $recordServiceContainer
+        private RecordServiceContainer $recordServiceContainer,
+        private Metadata $metadata
     ) {}
 
     /* ─────────────────────────── G2 · candidatos ─────────────────────────── */
@@ -83,7 +86,7 @@ class CaseAperturaService
 
             $resultado[] = [
                 'expedienteId' => $expediente->getId(),
-                'numero' => (string) $expediente->get('numero'),
+                'numero' => self::numeroTexto($expediente),
                 'estado' => (string) $expediente->get('estado'),
                 'tipoTramite' => (string) $expediente->get('tipoTramite'),
                 'puntaje' => $puntaje,
@@ -227,7 +230,7 @@ class CaseAperturaService
 
         $this->registrarDecision($case, $user, $expediente, $tipoTramite, $motivo);
         $this->nota($case, 'Decidió la apertura de actuación · ruta ' . $tipoTramite . '. Expediente '
-            . $expediente->get('numero') . ' en preparación. Motivación: ' . $motivo);
+            . self::numeroTexto($expediente) . ' en preparación. Motivación: ' . $motivo);
 
         $this->notificar(
             $case,
@@ -266,7 +269,7 @@ class CaseAperturaService
         $this->entityManager->saveEntity($case, ['skipAsignadorLimit' => true, 'skipPartyValidation' => true]);
 
         $this->registrarDecision($case, $user, $expediente, (string) $expediente->get('tipoTramite'), 'Incorporación: ' . $motivo);
-        $this->nota($case, 'Incorporó el caso al expediente ' . $expediente->get('numero') . '. Motivación: ' . $motivo);
+        $this->nota($case, 'Incorporó el caso al expediente ' . self::numeroTexto($expediente) . '. Motivación: ' . $motivo);
 
         $this->notificar(
             $case,
@@ -292,7 +295,7 @@ class CaseAperturaService
             return ExpedientePasosCatalog::RUTA_MALTRATO;
         }
 
-        if (str_contains($asunto, 'animales') || str_contains($asunto, 'tenencia')) {
+        if (str_contains($asunto, 'animales') || str_contains($asunto, 'caninos')) {
             return ExpedientePasosCatalog::RUTA_ANIMALES;
         }
 
@@ -377,10 +380,19 @@ class CaseAperturaService
             throw new BadRequest('Complete el motivo de apertura del Auto de Inicio antes de enviarlo a firma.');
         }
 
+        if (trim((string) $expediente->get('numero')) === '') {
+            throw new BadRequest('Registre el número del expediente antes de enviar el Auto de Inicio a firma: se imprime en el formato.');
+        }
+
+        if ($this->normaTexto($auto) === '') {
+            throw new BadRequest('Seleccione las normas y artículos aplicables del Auto de Inicio antes de enviarlo a firma.');
+        }
+
         $payload = $this->buildPayload($case, $auto, $expediente);
 
         $auto->set([
-            'cFormatoAutoInicioPdfId' => $this->generarAdjunto($payload, 'pdf', $auto, 'cFormatoAutoInicioPdf', (string) $expediente->get('tipoTramite')),
+            // Solo Word: el Inspector lo revisa, lo firma y carga el PDF firmado.
+            'cFormatoAutoInicioPdfId' => null,
             'cFormatoAutoInicioDocxId' => $this->generarAdjunto($payload, 'docx', $auto, 'cFormatoAutoInicioDocx', (string) $expediente->get('tipoTramite')),
             'estado' => self::AUTO_PARA_FIRMA,
             'observacionesDevolucion' => null,
@@ -436,10 +448,18 @@ class CaseAperturaService
         ]);
         $this->entityManager->saveEntity($auto, ['skipHooks' => true]);
 
+        // El expediente abre directamente en el primer paso de su ruta.
+        $primerPaso = (new ExpedientePasosCatalog())->getPrimerPaso((string) $expediente->get('tipoTramite'))
+            ?? ExpedientePasosCatalog::ESTADO_ABIERTO;
+
         $expediente->set([
-            'estado' => ExpedientePasosCatalog::ESTADO_ABIERTO,
+            'estado' => $primerPaso,
             'fechaAperturaFormal' => $ahora,
             'fechaInicioPaso' => date('Y-m-d'),
+            'historialPasos' => (object) [
+                ExpedientePasosCatalog::PASO_APERTURA => ['inicio' => $expediente->get('createdAt'), 'fin' => $ahora, 'por' => $user->getName()],
+                $primerPaso => ['inicio' => $ahora],
+            ],
         ]);
         $this->entityManager->saveEntity($expediente);
 
@@ -460,7 +480,7 @@ class CaseAperturaService
             'isExpedienteAbierto' => true, 'expedienteNumero' => (string) $expediente->get('numero'),
         ], 'case.apertura.abierto');
 
-        return ['success' => true, 'estado' => self::AUTO_FIRMADO, 'expedienteEstado' => ExpedientePasosCatalog::ESTADO_ABIERTO];
+        return ['success' => true, 'estado' => self::AUTO_FIRMADO, 'expedienteEstado' => $primerPaso];
     }
 
     /**
@@ -535,7 +555,8 @@ class CaseAperturaService
                     })),
             'expediente' => $expediente ? [
                 'id' => $expediente->getId(),
-                'numero' => (string) $expediente->get('numero'),
+                'numero' => self::numeroTexto($expediente),
+                'numeroOficial' => trim((string) $expediente->get('numero')),
                 'estado' => (string) $expediente->get('estado'),
                 'tipoTramite' => (string) $expediente->get('tipoTramite'),
                 'fechaAperturaFormal' => $expediente->get('fechaAperturaFormal'),
@@ -558,8 +579,65 @@ class CaseAperturaService
                 'decidir' => $this->profile->canDecidirApertura($user),
                 'preparar' => $this->profile->canManageAutoInicio($user),
                 'firmar' => $this->profile->canFirmarAutoInicio($user),
+                'numerar' => $this->profile->canDecidirApertura($user) || $this->profile->canGestionarProceso($user),
             ],
         ];
+    }
+
+    /** Número oficial o «sin número» mientras nadie lo ha asignado. */
+    public static function numeroTexto(Entity $expediente): string
+    {
+        return trim((string) $expediente->get('numero')) ?: 'sin número';
+    }
+
+    /**
+     * Número oficial del expediente: lo registran manualmente los involucrados en la
+     * apertura (texto libre, sin regla institucional aún); no puede repetirse.
+     *
+     * @return array<string, mixed>
+     */
+    public function numerar(Entity $case, User $user, string $numero): array
+    {
+        if (!$this->profile->canDecidirApertura($user) && !$this->profile->canGestionarProceso($user)) {
+            throw new Forbidden('El número del expediente lo registran los involucrados en la apertura.');
+        }
+
+        $expediente = $this->expedienteDe($case);
+        $numero = preg_replace('/\s+/', ' ', trim($numero)) ?? '';
+
+        if (!$expediente) {
+            throw new BadRequest('El caso no tiene expediente.');
+        }
+
+        if ($numero === '' || mb_strlen($numero) > 100) {
+            throw new BadRequest('Indique el número del expediente (máximo 100 caracteres).');
+        }
+
+        $anterior = trim((string) $expediente->get('numero'));
+
+        if ($anterior === $numero) {
+            return ['success' => true, 'numero' => $numero];
+        }
+
+        foreach ($this->entityManager->getRDBRepository('Expediente')->where(['id!=' => $expediente->getId()])->find() as $otro) {
+            if (mb_strtolower(trim((string) $otro->get('numero'))) === mb_strtolower($numero)) {
+                throw new BadRequest('El número ' . $numero . ' ya está asignado a otro expediente.');
+            }
+        }
+
+        $expediente->set(['numero' => $numero, 'name' => $numero]);
+        $this->entityManager->saveEntity($expediente);
+
+        foreach ($this->entityManager->getRDBRepository('AutoInicio')->where(['expedienteId' => $expediente->getId()])->find() as $auto) {
+            $auto->set('consecutivoInterno', $numero);
+            $this->entityManager->saveEntity($auto, ['skipHooks' => true]);
+        }
+
+        $this->nota($case, $anterior === ''
+            ? 'Asignó el número de expediente ' . $numero . '.'
+            : 'Cambió el número de expediente de ' . $anterior . ' a ' . $numero . '.');
+
+        return ['success' => true, 'numero' => $numero];
     }
 
     private function expedienteDe(Entity $case): ?Entity
@@ -613,9 +691,9 @@ class CaseAperturaService
             'direccion' => trim($direccion . ($barrio !== '' ? ', ' . $barrio : ''), ', '),
             'tema' => $tema,
             'afectacion' => 'ambiental: ' . mb_strtolower(trim((string) ($case->get('cAsunto') ?: $case->get('cRecursoTema')))),
-            'norma' => (string) $auto->get('normaAplicable'),
+            'norma' => $this->normaTexto($auto),
             'fechaAudiencia' => $this->fechaLarga((string) $auto->get('fechaAudiencia')),
-            'horaAudiencia' => (string) $auto->get('horaAudiencia'),
+            'horaAudiencia' => $this->hora12((string) $auto->get('horaAudiencia')),
             'expediente' => (string) $expediente->get('numero'),
             'radicado' => (string) $case->get('cNumeroRadicado'),
             'fecha' => $this->fechaLarga((new \DateTimeImmutable('now', new \DateTimeZone('America/Bogota')))->format('Y-m-d')),
@@ -699,6 +777,42 @@ class CaseAperturaService
         $this->entityManager->saveEntity($attachment);
 
         return $attachment->getId();
+    }
+
+    /**
+     * Normas seleccionadas del catálogo (metadata app.normasAutoInicio) más la precisión libre.
+     */
+    private function normaTexto(Entity $auto): string
+    {
+        $catalogo = [];
+
+        foreach ((array) $this->metadata->get(['app', 'normasAutoInicio', 'normas'], []) as $n) {
+            $catalogo[$n['id']] = $n['articulo'] . ': ' . $n['titulo'];
+        }
+
+        $partes = array_values(array_filter(array_map(
+            static fn ($id): ?string => $catalogo[$id] ?? null,
+            (array) ($auto->get('normasSeleccionadas') ?? [])
+        )));
+        $libre = trim((string) $auto->get('normaAplicable'));
+
+        if ($libre !== '') {
+            $partes[] = $libre;
+        }
+
+        return implode('; ', $partes) . ($partes !== [] ? '.' : '');
+    }
+
+    /** «14:30» → «2:30 p. m.»; otros textos se conservan. */
+    private function hora12(string $hora): string
+    {
+        if (!preg_match('/^(\d{1,2}):(\d{2})$/', trim($hora), $m)) {
+            return $hora;
+        }
+
+        $h = (int) $m[1];
+
+        return ($h % 12 ?: 12) . ':' . $m[2] . ($h >= 12 ? ' p. m.' : ' a. m.');
     }
 
     private function fechaLarga(string $fecha): string

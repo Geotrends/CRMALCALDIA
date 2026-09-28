@@ -60,6 +60,127 @@ class Expediente extends Record
     }
 
     /**
+     * GET Expediente/action/procesoCaso?id=...  Caso principal del expediente (el del
+     * Auto de Inicio o, si no hay, el primero vinculado), para llevar el proceso desde
+     * la vista del expediente con el mismo bloque del caso.
+     *
+     * @return array<string, mixed>
+     */
+    public function getActionProcesoCaso(Request $request): array
+    {
+        $id = trim((string) $request->getQueryParam('id'));
+        $expediente = $id !== '' ? $this->entityManager->getEntityById('Expediente', $id) : null;
+
+        if (!$expediente) {
+            throw new NotFound();
+        }
+
+        if (!$this->acl->checkEntityRead($expediente)) {
+            throw new Forbidden();
+        }
+
+        $auto = $this->entityManager->getRDBRepository('AutoInicio')
+            ->where(['expedienteId' => $id, 'caseId!=' => null])
+            ->order('createdAt', 'ASC')
+            ->findOne();
+        $case = $auto ? $this->entityManager->getEntityById('Case', (string) $auto->get('caseId')) : null;
+
+        if (!$case || (string) $case->get('expedienteId') !== $id) {
+            $case = $this->entityManager->getRDBRepository('Case')
+                ->where(['expedienteId' => $id])
+                ->order('createdAt', 'ASC')
+                ->findOne();
+        }
+
+        $total = $this->entityManager->getRDBRepository('Case')->where(['expedienteId' => $id])->count();
+
+        return [
+            'caseId' => $case?->getId(),
+            'caseName' => $case ? (string) ($case->get('cNumeroRadicado') ?: $case->get('name')) : null,
+            'casosVinculados' => $total,
+        ];
+    }
+
+    /**
+     * GET Expediente/action/documentos?id=...  Documentos de los casos vinculados y del proceso.
+     *
+     * @return array<string, mixed>
+     */
+    public function getActionDocumentos(Request $request): array
+    {
+        $id = trim((string) $request->getQueryParam('id'));
+        $expediente = $id !== '' ? $this->entityManager->getEntityById('Expediente', $id) : null;
+
+        if (!$expediente) {
+            throw new NotFound();
+        }
+
+        if (!$this->acl->checkEntityRead($expediente)) {
+            throw new Forbidden();
+        }
+
+        return $this->injectableFactory->create(\Espo\Custom\Tools\Expediente\ExpedienteDocumentosService::class)->listar($expediente);
+    }
+
+    /**
+     * GET Expediente/action/procesoPaneles?id=...  Línea de tiempo y cronograma del caso
+     * principal, solo el tramo del proceso (de «Apertura de expediente» al Auto de Archivo).
+     *
+     * @return array<string, mixed>
+     */
+    public function getActionProcesoPaneles(Request $request): array
+    {
+        $info = $this->getActionProcesoCaso($request);
+        $case = $info['caseId'] ? $this->entityManager->getEntityById('Case', $info['caseId']) : null;
+
+        if (!$case) {
+            return ['aplica' => false];
+        }
+
+        $timeline = (new \Espo\Custom\Tools\CaseObj\CaseTimelineService($this->entityManager))->build($case);
+        $inicio = null;
+
+        foreach ($timeline['steps'] as $i => $step) {
+            if ($step['status'] === ExpedientePasosCatalog::PASO_APERTURA) {
+                $inicio = $i;
+                break;
+            }
+        }
+
+        if ($inicio === null) {
+            return ['aplica' => false];
+        }
+
+        $steps = array_values(array_filter(
+            array_slice($timeline['steps'], $inicio),
+            static fn (array $s): bool => $s['status'] !== 'Finalizado'
+        ));
+        $total = count($steps);
+        $actual = max(0, min($total - 1, (int) $timeline['currentIndex'] - $inicio));
+
+        foreach ($steps as $i => $step) {
+            if ($step['state'] === 'current') {
+                $actual = $i;
+            }
+        }
+
+        $timeline['steps'] = $steps;
+        $timeline['totalSteps'] = $total;
+        $timeline['currentIndex'] = $actual;
+        $timeline['progress'] = $total > 1 ? (int) round($actual / ($total - 1) * 100) : 0;
+
+        $cronograma = (new \Espo\Custom\Tools\CaseObj\CaseCronogramaService($this->entityManager))->build($case);
+        $cronograma['entries'] = array_values(array_filter(
+            $cronograma['entries'],
+            static fn (array $e): bool => str_starts_with((string) $e['key'], 'policivo_') || str_starts_with((string) $e['key'], 'audiencia_')
+        ));
+        // El plazo de respuesta del derecho de petición no es del proceso.
+        $cronograma['diasRestantesVencimiento'] = null;
+
+        return ['aplica' => true, 'caseId' => $case->getId(), 'timeline' => $timeline, 'cronograma' => $cronograma];
+    }
+
+    /**
      * GET Expediente/action/timeline?id=...
      *
      * @return array<string, mixed>
@@ -127,6 +248,10 @@ class Expediente extends Record
         $catalog = $this->injectableFactory->create(ExpedientePasosCatalog::class);
         $tipoTramite = (string) $expediente->get('tipoTramite');
         $estadoActual = trim((string) $expediente->get('estado')) ?: ExpedientePasosCatalog::ESTADO_ABIERTO;
+
+        if (ExpedientePasosCatalog::isPasoGuiado($estadoActual)) {
+            throw new BadRequest('El paso «' . $estadoActual . '» se cumple desde el caso (bloque «Proceso del expediente»).');
+        }
 
         if ($catalog->isPasoFinal($tipoTramite, $estadoActual)) {
             return ['success' => true, 'estado' => $estadoActual, 'alreadyFinal' => true];

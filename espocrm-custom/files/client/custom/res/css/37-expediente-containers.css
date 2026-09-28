@@ -1,0 +1,110 @@
+/**
+ * Expediente — sistema visual de contenedores basado en el detalle de Casos.
+ * La misma tarjeta se aplica a información, asignación y paneles del proceso.
+ */
+body.crm-reference-shell :is(.detail, .edit)[data-scope="Expediente"] .middle > .panel,
+body.crm-reference-shell :is(.detail, .edit)[data-scope="Expediente"] .side .panel,
+body.crm-reference-shell .detail[data-scope="Expediente"] > .alcaldia-expediente-ancho {
+  background: var(--crm-surface) !important;
+  border: 1px solid var(--crm-form-value-border) !important;
+  border-left: 1px solid var(--crm-form-value-border) !important;
+  border-radius: var(--crm-radius-lg) !important;
+  box-shadow: var(--crm-shadow-sm) !important;
+  overflow: hidden !important;
+}
+
+body.crm-reference-shell .detail[data-scope="Expediente"] > .alcaldia-expediente-ancho {
+  margin-top: var(--crm-space-lg) !important;
+}
+
+body.crm-reference-shell :is(.detail, .edit)[data-scope="Expediente"] .middle > .panel > .panel-heading,
+body.crm-reference-shell :is(.detail, .edit)[data-scope="Expediente"] .side .panel > .panel-heading,
+body.crm-reference-shell .detail[data-scope="Expediente"] > .alcaldia-expediente-ancho > .panel-heading {
+  align-items: center;
+  background: linear-gradient(
+    90deg,
+    var(--crm-form-heading-bg) 0%,
+    var(--crm-form-heading-bg-end) 78%
+  ) !important;
+  border-bottom: 1px solid var(--crm-form-value-border) !important;
+  border-left: 0 !important;
+  border-radius: var(--crm-radius-lg) var(--crm-radius-lg) 0 0 !important;
+  display: flex;
+  min-height: 0;
+  padding: 14px 20px 14px 16px !important;
+}
+
+body.crm-reference-shell :is(.detail, .edit)[data-scope="Expediente"] .middle > .panel > .panel-heading .panel-title,
+body.crm-reference-shell :is(.detail, .edit)[data-scope="Expediente"] .side .panel > .panel-heading .panel-title,
+body.crm-reference-shell .detail[data-scope="Expediente"] > .alcaldia-expediente-ancho > .panel-heading .panel-title {
+  color: var(--crm-form-accent-dark) !important;
+  font-size: var(--crm-font-size-lg) !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em;
+}
+
+/* Rejilla compacta: hace legible la información sin recargar con cajas. */
+body.crm-reference-shell .detail[data-scope="Expediente"] .middle > .panel > .panel-body {
+  background: var(--crm-surface) !important;
+  padding: 0 !important;
+}
+
+body.crm-reference-shell .detail[data-scope="Expediente"] .middle > .panel > .panel-body > .row {
+  align-items: stretch;
+  border-bottom: 1px solid var(--crm-form-value-border);
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 !important;
+}
+
+body.crm-reference-shell .detail[data-scope="Expediente"] .middle > .panel > .panel-body > .row:last-child {
+  border-bottom: 0;
+}
+
+body.crm-reference-shell .detail[data-scope="Expediente"] .middle > .panel > .panel-body > .row > .cell {
+  border-right: 1px solid #f1f5f9;
+  flex: 1 1 50%;
+  min-width: 0;
+  padding: 11px 18px;
+}
+
+body.crm-reference-shell .detail[data-scope="Expediente"] .middle > .panel > .panel-body > .row > .cell:last-child,
+body.crm-reference-shell .detail[data-scope="Expediente"] .middle > .panel > .panel-body > .row > .cell:only-child {
+  border-right: 0;
+}
+
+body.crm-reference-shell .detail[data-scope="Expediente"] .middle > .panel > .panel-body > .row > .cell:only-child,
+body.crm-reference-shell .detail[data-scope="Expediente"] .middle > .panel > .panel-body > .row > .cell.col-sm-12 {
+  flex-basis: 100%;
+}
+
+/* Datos clave del expediente: se distinguen sin crear un bloque adicional. */
+body.crm-reference-shell .detail[data-scope="Expediente"] .field[data-name="numero"] .field-value {
+  color: var(--crm-primary-dark) !important;
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.01em;
+}
+
+body.crm-reference-shell .detail[data-scope="Expediente"] .field[data-name="estado"] .field-value {
+  color: var(--crm-primary-dark) !important;
+  font-weight: 700 !important;
+}
+
+/* Los paneles anchos conservan su contenido especializado, pero comparten la tarjeta. */
+body.crm-reference-shell .detail[data-scope="Expediente"] > .alcaldia-expediente-ancho > .panel-body {
+  background: var(--crm-surface) !important;
+}
+
+@media (max-width: 767px) {
+  body.crm-reference-shell .detail[data-scope="Expediente"] .middle > .panel > .panel-body > .row > .cell {
+    border-bottom: 1px solid #f1f5f9;
+    border-right: 0;
+    flex-basis: 100%;
+    padding: 11px 14px;
+  }
+
+  body.crm-reference-shell .detail[data-scope="Expediente"] .middle > .panel > .panel-body > .row > .cell:last-child {
+    border-bottom: 0;
+  }
+}

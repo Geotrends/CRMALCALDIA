@@ -4,15 +4,14 @@ namespace Espo\Custom\Classes\RecordHooks\Expediente;
 
 use Espo\Core\Record\Hook\SaveHook;
 use Espo\Custom\Tools\App\AlcaldiaDateTimeHelper;
+use Espo\Custom\Tools\CaseObj\CaseAperturaService;
 use Espo\Custom\Tools\CaseObj\RadicadoCatalog;
-use Espo\Custom\Tools\Expediente\ExpedienteConsecutivoService;
 use Espo\Entities\User;
 use Espo\ORM\Entity;
 
 class EarlyBeforeCreate implements SaveHook
 {
     public function __construct(
-        private ExpedienteConsecutivoService $consecutivoService,
         private User $user
     ) {}
 
@@ -42,16 +41,12 @@ class EarlyBeforeCreate implements SaveHook
                 $entity->set('anio', (string) $parsed['anio']);
                 $entity->set('consecutivo', $parsed['consecutivo']);
             }
-        } else {
-            $consecutivo = $this->consecutivoService->getNextConsecutivo($anio);
-            $numero = RadicadoCatalog::buildExpediente($anio, $consecutivo);
-
-            $entity->set('consecutivo', $consecutivo);
-            $entity->set('numero', $numero);
         }
 
+        // El número oficial lo asignan manualmente los involucrados en la apertura
+        // (no hay regla institucional definida); mientras tanto solo hay id interno.
         if (!trim((string) $entity->get('name'))) {
-            $entity->set('name', $numero);
+            $entity->set('name', $numero !== '' ? $numero : CaseAperturaService::SIN_NUMERO);
         }
     }
 }

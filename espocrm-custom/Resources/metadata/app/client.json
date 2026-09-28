@@ -11,7 +11,14 @@
         "client/custom/res/css/32-notification-actions.css",
         "client/custom/res/css/33-case-asignacion.css",
         "client/custom/res/css/34-navbar-user-identity.css",
-        "client/custom/res/css/35-acta-visita-summary.css"
+        "client/custom/res/css/35-acta-visita-summary.css",
+        "client/custom/res/css/36-relacion-casos-clean-panels.css",
+        "client/custom/res/css/37-expediente-containers.css",
+        "client/custom/res/css/38-auto-inicio-containers.css",
+        "client/custom/res/css/39-actuo-archivo-containers.css",
+        "client/custom/res/css/40-user-containers.css",
+        "client/custom/res/css/41-party-containers.css",
+        "client/custom/res/css/42-document-template-containers.css"
     ],
     "scriptList": [
         "client/custom/src/loader/route-sanitize.js",

@@ -71,6 +71,18 @@ def replace_run(p, old, new):
     return T_RE.sub(repl, p)
 
 
+def replace_last_run(p, old, new):
+    """Como replace_run, pero sobre el último run cuyo texto es `old`."""
+    matches = [m for m in T_RE.finditer(p) if html.unescape(m.group(2)) == old]
+    if not matches:
+        return p
+    m = matches[-1]
+    open_tag = m.group(1)
+    if "xml:space" not in open_tag:
+        open_tag = open_tag.replace("<w:t", '<w:t xml:space="preserve"', 1)
+    return p[: m.start()] + open_tag + xml_escape(new) + m.group(3) + p[m.end():]
+
+
 def plain(p):
     """Quita subrayado y negrita heredados de la línea guía del formato."""
     return re.sub(r"<w:u [^>]*/>|<w:b/>|<w:bCs/>", "", p)
@@ -148,7 +160,8 @@ def fill_docx_template(template, output_docx, p):
             par = replace_run(par, "hora de audiencia", "")
             par = replace_run(par, ")", "")
             par = replace_run(par, " _", " ")
-            par = replace_run(par, "________________", hora_aud)
+            # La hora va en el último espacio: si la fecha quedó en blanco, su espacio sigue igual.
+            par = replace_last_run(par, "________________", hora_aud)
             return par
         if text == "NOMBRE":
             return set_paragraph_text(par, p.get("inspector") or "NOMBRE")

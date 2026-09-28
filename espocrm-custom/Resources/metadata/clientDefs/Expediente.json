@@ -11,8 +11,26 @@
         "detail": [
             {
                 "name": "expedientePasos",
-                "label": "Pasos del proceso policivo",
+                "label": "Proceso del expediente",
                 "view": "custom:views/expediente/record/panels/pasos",
+                "notRefreshable": true
+            },
+            {
+                "name": "expedienteTimeline",
+                "label": "Línea de tiempo del proceso",
+                "view": "custom:views/expediente/record/panels/proceso-timeline",
+                "notRefreshable": true
+            },
+            {
+                "name": "expedienteCronograma",
+                "label": "Cronograma del proceso",
+                "view": "custom:views/expediente/record/panels/proceso-cronograma",
+                "notRefreshable": true
+            },
+            {
+                "name": "expedienteDocumentos",
+                "label": "Documentos del expediente",
+                "view": "custom:views/expediente/record/panels/documentos",
                 "notRefreshable": true
             }
         ]

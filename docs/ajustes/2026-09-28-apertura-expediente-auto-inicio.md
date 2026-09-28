@@ -27,7 +27,7 @@ Antes, "Abrir Auto de Inicio" abría el formulario a quien decidía, y al guarda
 |---|---|---|---|
 | Definición "Apertura de actuación" → "Guardar y decidir la apertura" | Admin / Director / Inspector Ambiental (la opción no aparece para los demás; servidor: 403) | Se guarda la revisión | — |
 | **G1/G2 · Decidir** (bloque "Apertura de expediente") | Mismos | Se elige **abrir expediente nuevo** (**ruta jurídica N2**, ver [ajuste de ruta](2026-09-28-ruta-juridica-apertura.md)) o **incorporar** a uno sugerido, con motivación. Se registra una `DecisionRutaJuridica` y una nota en la historia. | Nuevo: **Jurídica** "Prepare el Auto de Inicio…" + copia al Director y al Admin. Incorporación: Jurídica + Inspector |
-| **G3 · Preparar** | Apoyo Jurídico (o Admin) | "Preparar / Editar Auto de Inicio" (motivo, **norma aplicable**, **fecha y hora de la audiencia**) → "Enviar a firma". Genera el **formato prellenado en PDF y Word**. | **Inspector**: "…Descargue el formato prellenado, fírmelo y cargue el PDF" |
+| **G3 · Preparar** | Apoyo Jurídico (o Admin) | "Preparar / Editar Auto de Inicio" (motivo, **norma aplicable**, **fecha y hora de la audiencia**) → "Enviar a firma". Genera el **formato prellenado en Word** (antes también en PDF; ver [ajuste posterior](2026-09-28-auto-inicio-normas-hora-word.md)). | **Inspector**: "…Descargue el formato prellenado, fírmelo y cargue el PDF" |
 | **G4 · Firmar** | Inspector Ambiental (o Inspección, o Admin) | Descarga el formato, lo firma y **carga el PDF** → "Aprobar y abrir expediente". O "Devolver a Jurídica" con observaciones. | Firmado: **Jurídica + Aux. Inspección** "Proceda con la citación y notificación" + copia al Director y al Admin. Devuelto: Jurídica con el motivo |
 | G5 | Sistema | Expediente "Abierto" con `fechaAperturaFormal`; la línea de tiempo pasa a los pasos del proceso (Ley 1801: "Audiencia pública"…) | — |
 
@@ -111,6 +111,20 @@ Datos de prueba eliminados.
 **Validación:** `juridica` recibe el aviso; en `RAD-PJ-001` ve el bloque "Decisión de apertura" con el régimen, la motivación y "Confirmar apertura" (`puede.decidir = true`).
 
 **Ajuste posterior:** la copia "Apertura decidida" llegaba solo al Director y al Admin; ahora llega también al Inspector Ambiental (a todos los que pueden decidir, excepto Jurídica, que recibe el aviso accionable).
+
+## Ajuste posterior: ubicación de los bloques
+
+Pedido del usuario: "cuando se haga la apertura, pon encima de la línea de tiempo la apertura".
+
+Los bloques **"Apertura de expediente"** y **"Proceso del expediente"** quedaban al final de la columna lateral, debajo de visitas, publicaciones y comunicaciones. Ahora quedan **encima de la línea de tiempo**, en este orden:
+
+1. Apertura
+2. Proceso del expediente
+3. Línea de tiempo
+4. Cronograma
+5. El resto
+
+El orden se mantiene al actualizar el caso. Se implementa con `ubicarBloquesExpediente()` en `case-detail-side-panels.js`.
 
 ## Pendientes
 

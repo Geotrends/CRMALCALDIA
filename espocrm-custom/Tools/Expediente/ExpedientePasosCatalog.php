@@ -27,11 +27,24 @@ class ExpedientePasosCatalog
 
     public const ESTADO_ABIERTO = 'Abierto';
 
-    /** proceso_verbal_abreviado_convivencia_v1.0 + Ley 1801, art. 223. */
+    /* Pasos con acciones guiadas desde el caso (bloque «Proceso del expediente»). */
+    public const PASO_CITACION = 'Citación';
+    public const PASO_AUDIENCIA = 'Audiencia pública';
+    public const PASO_DECISION = 'Decisión: orden de policía o medida correctiva';
+    public const PASO_NOTIFICACION = 'Notificación y recursos';
+    public const PASO_CUMPLIMIENTO = 'Cumplimiento de la orden o medida';
+    public const PASO_ARCHIVO = 'Auto de Archivo';
+
+    /** Paso de la línea de tiempo del caso entre la definición del trámite y la ruta. */
+    public const PASO_APERTURA = 'Apertura de expediente';
+
+    /**
+     * proceso_verbal_abreviado_convivencia_v1.0 + Ley 1801, art. 223. Las pruebas,
+     * suspensiones y reprogramaciones ocurren dentro de la audiencia (N3 audiencia PVA).
+     */
     private const PASOS_PVA = [
         'Citación' => 5,
         'Audiencia pública' => 10,
-        'Práctica de pruebas' => 5,
         'Decisión: orden de policía o medida correctiva' => 1,
         'Notificación y recursos' => 3,
         'Cumplimiento de la orden o medida' => 5,
@@ -44,7 +57,6 @@ class ExpedientePasosCatalog
         'Valoración de competencia municipal y concurrencia ambiental' => 5,
         'Citación' => 5,
         'Audiencia pública' => 10,
-        'Práctica de pruebas' => 5,
         'Decisión: orden de policía o medida correctiva' => 1,
         'Notificación y recursos' => 3,
         'Cumplimiento de la orden o medida' => 5,
@@ -56,7 +68,6 @@ class ExpedientePasosCatalog
         'Clasificación de la conducta (artículo y numeral)' => 3,
         'Citación' => 5,
         'Audiencia pública' => 10,
-        'Práctica de pruebas' => 5,
         'Decisión: orden de policía o medida correctiva' => 1,
         'Notificación y recursos' => 3,
         'Cumplimiento de la orden o medida' => 5,
@@ -121,6 +132,12 @@ class ExpedientePasosCatalog
     public static function usaFormatoIvF364(string $ruta): bool
     {
         return in_array($ruta, [self::RUTA_PVA, self::RUTA_RECURSOS_NATURALES, self::RUTA_ANIMALES, self::TRAMITE_POLICIA], true);
+    }
+
+    /** Pasos que se cumplen con las acciones guiadas del caso, no con «avanzar paso». */
+    public static function isPasoGuiado(string $paso): bool
+    {
+        return in_array($paso, [self::PASO_CITACION, self::PASO_AUDIENCIA, self::PASO_DECISION, self::PASO_NOTIFICACION], true);
     }
 
     public static function isPolicivo(?string $ruta): bool

@@ -82,6 +82,32 @@
             "isCustom": true,
             "readOnly": true
         },
+        "decisionFondo": {
+            "type": "jsonObject",
+            "isCustom": true
+        },
+        "decisionBorrador": {
+            "type": "file",
+            "readOnly": true,
+            "isCustom": true
+        },
+        "decisionFirmada": {
+            "type": "file",
+            "isCustom": true
+        },
+        "autoArchivoFormato": {
+            "type": "file",
+            "readOnly": true,
+            "isCustom": true
+        },
+        "autoArchivoFirmado": {
+            "type": "file",
+            "isCustom": true
+        },
+        "historialPasos": {
+            "type": "jsonObject",
+            "isCustom": true
+        },
         "assignedUser": {
             "type": "link",
             "readOnlyAfterCreate": true,
@@ -194,6 +220,9 @@
     "collection": {
         "orderBy": "createdAt",
         "order": "desc",
-        "textFilterFields": ["name", "numero"]
+        "textFilterFields": [
+            "name",
+            "numero"
+        ]
     }
 }

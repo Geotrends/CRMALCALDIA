@@ -474,26 +474,93 @@ html.crm-modern-ui body .detail[data-scope="Case"] .btn.btn-primary.case-acta-ca
 }
 
 /* Bloque «Apertura de expediente» (tramo G). */
-.detail[data-scope="Case"] .alcaldia-apertura { border: 1px solid var(--crm-primary-soft) !important; }
-.detail[data-scope="Case"] .alcaldia-apertura > .panel-heading { align-items: center; display: flex; justify-content: space-between; }
-.detail[data-scope="Case"] .alcaldia-apertura__fase { border-radius: 999px; font-size: 11px; font-weight: 600; padding: 2px 10px; background: var(--crm-bg-elevated); color: var(--crm-text-secondary); }
-.detail[data-scope="Case"] .alcaldia-apertura__fase.is-firma { background: var(--crm-warning-soft); color: #92400e; }
-.detail[data-scope="Case"] .alcaldia-apertura__fase.is-devuelto { background: var(--crm-danger-soft); color: #991b1b; }
-.detail[data-scope="Case"] .alcaldia-apertura__fase.is-abierto { background: var(--crm-success-soft); color: #166534; }
-.detail[data-scope="Case"] .alcaldia-apertura .panel-body { display: flex; flex-direction: column; gap: 8px; }
-.detail[data-scope="Case"] .alcaldia-apertura label { color: var(--crm-text-secondary); font-size: 12px; font-weight: 600; margin: 4px 0 0; }
-.detail[data-scope="Case"] .alcaldia-apertura__texto { margin: 0; }
-.detail[data-scope="Case"] .alcaldia-apertura__ayuda { background: var(--crm-bg-elevated); border-radius: 8px; color: var(--crm-text-secondary); font-size: 12px; margin: 0; padding: 8px 10px; }
-.detail[data-scope="Case"] .alcaldia-apertura__devuelto { background: var(--crm-danger-soft); border-radius: 8px; font-size: 13px; padding: 8px 10px; }
-.detail[data-scope="Case"] .alcaldia-apertura__opciones { display: flex; flex-direction: column; gap: 6px; }
-.detail[data-scope="Case"] .alcaldia-apertura__opcion { align-items: flex-start; background: var(--crm-surface); border: 1px solid var(--crm-border); border-radius: 8px; cursor: pointer; display: flex; font-weight: 400 !important; gap: 10px; padding: 8px 10px; }
-.detail[data-scope="Case"] .alcaldia-apertura__opcion:has(input:checked) { background: var(--crm-primary-light); border-color: var(--crm-primary); }
-.detail[data-scope="Case"] .alcaldia-apertura__opcion input[type="radio"] { flex: 0 0 auto !important; height: 16px !important; margin: 3px 0 0 !important; min-width: 0 !important; width: 16px !important; }
-.detail[data-scope="Case"] .alcaldia-apertura__opcion > span { color: var(--crm-text); display: flex; flex-direction: column; flex: 1 1 auto; }
-.detail[data-scope="Case"] .alcaldia-apertura__opcion small { color: var(--crm-text-secondary); font-size: 12px; }
-.detail[data-scope="Case"] .alcaldia-apertura__motivos { color: #166534 !important; }
-.detail[data-scope="Case"] .alcaldia-apertura__acciones { display: flex; flex-wrap: wrap; gap: 8px; }
-.detail[data-scope="Case"] .alcaldia-apertura__descargas { display: flex; flex-wrap: wrap; gap: 14px; }
-.detail[data-scope="Case"] .alcaldia-apertura__devolver { display: flex; flex-direction: column; gap: 6px; }
-.detail[data-scope="Case"] .alcaldia-apertura__ayuda { color: var(--crm-text-secondary); display: block; font-size: 11px; margin-top: 4px; }
-.detail[data-scope="Case"] .alcaldia-apertura .js-apertura-decidir { align-self: flex-start; margin-top: 4px; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-apertura { border: 1px solid var(--crm-primary-soft) !important; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-apertura > .panel-heading { align-items: center; display: flex; justify-content: space-between; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-apertura__fase { border-radius: 999px; font-size: 11px; font-weight: 600; padding: 2px 10px; background: var(--crm-bg-elevated); color: var(--crm-text-secondary); }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-apertura__fase.is-firma { background: var(--crm-warning-soft); color: #92400e; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-apertura__fase.is-devuelto { background: var(--crm-danger-soft); color: #991b1b; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-apertura__fase.is-abierto { background: var(--crm-success-soft); color: #166534; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-apertura .panel-body { display: flex; flex-direction: column; gap: 8px; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-apertura label { color: var(--crm-text-secondary); font-size: 12px; font-weight: 600; margin: 4px 0 0; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-apertura__texto { margin: 0; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-apertura__ayuda { background: var(--crm-bg-elevated); border-radius: 8px; color: var(--crm-text-secondary); font-size: 12px; margin: 0; padding: 8px 10px; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-apertura__devuelto { background: var(--crm-danger-soft); border-radius: 8px; font-size: 13px; padding: 8px 10px; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-apertura__opciones { display: flex; flex-direction: column; gap: 6px; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-apertura__opcion { align-items: flex-start; background: var(--crm-surface); border: 1px solid var(--crm-border); border-radius: 8px; cursor: pointer; display: flex; font-weight: 400 !important; gap: 10px; padding: 8px 10px; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-apertura__opcion:has(input:checked) { background: var(--crm-primary-light); border-color: var(--crm-primary); }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-apertura__opcion input[type="radio"] { flex: 0 0 auto !important; height: 16px !important; margin: 3px 0 0 !important; min-width: 0 !important; width: 16px !important; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-apertura__opcion > span { color: var(--crm-text); display: flex; flex-direction: column; flex: 1 1 auto; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-apertura__opcion small { color: var(--crm-text-secondary); font-size: 12px; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-apertura__motivos { color: #166534 !important; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-apertura__acciones { display: flex; flex-wrap: wrap; gap: 8px; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-apertura__descargas { display: flex; flex-wrap: wrap; gap: 14px; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-apertura__devolver { display: flex; flex-direction: column; gap: 6px; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-apertura .js-apertura-decidir { align-self: flex-start; margin-top: 4px; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-apertura__numero { border-bottom: 1px solid var(--crm-border); display: flex; flex-direction: column; gap: 4px; padding-bottom: 8px; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-apertura__numero-editor { display: flex; gap: 6px; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-apertura .hidden { display: none !important; }
+
+/* Proceso del expediente (ruta jurídica N2) */
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso { border: 1px solid var(--crm-primary-soft) !important; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso > .panel-heading { align-items: center; display: flex; gap: 8px; justify-content: space-between; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso .panel-body { display: flex; flex-direction: column; gap: 8px; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso label { color: var(--crm-text-secondary); font-size: 12px; font-weight: 600; margin: 4px 0 0; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso .btn { align-self: flex-start; margin-top: 4px; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso .hidden { display: none !important; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso__pasos { display: flex; flex-direction: column; gap: 2px; list-style: none; margin: 0; padding: 0; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso__pasos li { align-items: flex-start; display: flex; gap: 8px; padding: 3px 0; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso__pasos li > span:last-child { display: flex; flex-direction: column; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso__pasos small { color: var(--crm-text-secondary); font-size: 11px; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso__pasos li.is-pending b { color: var(--crm-text-secondary); font-weight: 500; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso__punto { border: 2px solid var(--crm-border); border-radius: 50%; flex: 0 0 12px; height: 12px; margin-top: 3px; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso__pasos li.is-done .alcaldia-proceso__punto { background: #16a34a; border-color: #16a34a; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso__pasos li.is-current .alcaldia-proceso__punto { background: var(--crm-primary); border-color: var(--crm-primary); box-shadow: 0 0 0 3px var(--crm-primary-light); }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso__accion { background: var(--crm-surface); border: 1px solid var(--crm-border); border-radius: 8px; display: flex; flex-direction: column; gap: 6px; padding: 10px; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso__fila { display: flex; gap: 8px; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso__fila > div { flex: 1 1 0; min-width: 0; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso__form { display: flex; flex-direction: column; gap: 4px; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso__check { align-items: center; display: flex !important; gap: 6px; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso__check input { margin: 0; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso__pendiente { background: var(--crm-warning-soft); border-radius: 8px; padding: 6px 10px; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso__pendiente summary { color: #92400e; cursor: pointer; font-size: 12px; font-weight: 600; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso__pendiente[open] { display: flex; flex-direction: column; gap: 6px; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso__audiencias { display: flex; flex-direction: column; gap: 6px; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso__audiencia { border-left: 3px solid var(--crm-primary-soft); display: flex; flex-direction: column; gap: 2px; padding: 4px 0 4px 10px; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso__audiencia small { color: var(--crm-text-secondary); font-size: 12px; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso__conducta { border: 1px solid var(--crm-border); border-radius: 8px; display: flex; flex-direction: column; gap: 6px; padding: 6px 8px; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso__conducta .alcaldia-proceso__check { align-items: flex-start; font-weight: 400 !important; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso__reglas { display: flex; flex-direction: column; gap: 6px; padding-left: 20px; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso__regla { background: var(--crm-bg-elevated); border-radius: 6px; display: flex; flex-direction: column; gap: 4px; padding: 6px 8px; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso__regla small { color: var(--crm-text-secondary); font-size: 11px; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso__regla.is-prescrita b { color: #166534; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso__regla.is-bloqueada { opacity: .75; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso__regla.is-bloqueada b { color: var(--crm-text-secondary); }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso__especial { background: var(--crm-warning-soft); border-radius: 6px; color: #92400e !important; display: block; padding: 4px 8px; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso__pasos li.is-omitido b { color: var(--crm-text-secondary); font-weight: 500; text-decoration: line-through; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso__pasos li.is-omitido .alcaldia-proceso__punto { background: var(--crm-border); }
+
+/* Proceso del expediente a todo el ancho (vista del expediente): formularios | proceso */
+.detail[data-scope="Expediente"] > .panel.alcaldia-expediente-ancho { margin-top: 16px; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso--ancho { border: 0 !important; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso .panel-body.alcaldia-proceso__grid { display: grid; gap: 20px; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); align-items: start; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso .panel-body.alcaldia-proceso__grid::before,
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso .panel-body.alcaldia-proceso__grid::after { content: none; display: none; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso__izq,
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso__der { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso__der { border-left: 1px solid var(--crm-border); padding-left: 20px; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso__titulo { font-size: 14px; font-weight: 700; margin: 0; }
+@media (max-width: 900px) {
+    .detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso .panel-body.alcaldia-proceso__grid { grid-template-columns: minmax(0, 1fr); }
+    .detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso__der { border-left: 0; padding-left: 0; }
+}
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso__pendientes { color: #991b1b; font-size: 13px; margin: 0; padding-left: 18px; }
+
+/* Documentos del expediente (consulta) */
+.detail[data-scope="Expediente"] .alcaldia-docs__filtros { align-items: center; display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+.detail[data-scope="Expediente"] .alcaldia-docs__filtros .form-control { max-width: 260px; }
+.detail[data-scope="Expediente"] .alcaldia-docs__tabla { overflow-x: auto; }
+.detail[data-scope="Expediente"] .alcaldia-docs__tabla table { margin: 0; min-width: 760px; }
+.detail[data-scope="Expediente"] .alcaldia-docs__tabla th { color: var(--crm-text-secondary); font-size: 12px; font-weight: 600; white-space: nowrap; }
+.detail[data-scope="Expediente"] .alcaldia-docs__tabla td { font-size: 13px; vertical-align: top; }
+.detail[data-scope="Expediente"] .alcaldia-docs__fecha, .detail[data-scope="Expediente"] .alcaldia-docs__acciones { white-space: nowrap; }
+.detail[data-scope="Expediente"] .alcaldia-docs__tabla .fas { color: var(--crm-primary); }

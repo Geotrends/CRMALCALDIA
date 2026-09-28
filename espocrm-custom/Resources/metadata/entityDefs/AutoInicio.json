@@ -84,6 +84,12 @@
             "readOnly": true,
             "isCustom": true
         },
+        "normasSeleccionadas": {
+            "type": "array",
+            "view": "custom:views/auto-inicio/fields/normas",
+            "isCustom": true,
+            "audited": true
+        },
         "normaAplicable": {
             "type": "text",
             "isCustom": true,
@@ -96,6 +102,7 @@
         },
         "horaAudiencia": {
             "type": "varchar",
+            "view": "custom:views/fields/hora-reloj",
             "maxLength": 20,
             "isCustom": true,
             "audited": true

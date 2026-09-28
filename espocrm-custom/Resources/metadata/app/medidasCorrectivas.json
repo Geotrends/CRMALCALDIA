@@ -1,0 +1,848 @@
+{
+    "fuente": "InspeccionAmbiental-Workflow · matriz conducta → medida v1.1 (2026-09-10) · viewer/public/medidas_correctivas.json",
+    "modos": {
+        "PRESCRITA": "Prescrita",
+        "CONDICIONAL": "Condicional",
+        "ALTERNATIVA": "Alternativa",
+        "FACULTATIVA": "Facultativa"
+    },
+    "autoridades": {
+        "INSPECTOR_CONVIVENCIA_PAZ": "Inspector de Convivencia y Paz / Inspector competente",
+        "COMANDANTE_ESTACION_O_DELEGADO": "Comandante de estación/subestación/CAI o delegado competente",
+        "PERSONAL_UNIFORMADO_POLICIA": "Personal uniformado de la Policía Nacional competente",
+        "AUTORIDAD_POLICIA_POR_VALIDAR": "Autoridad de Policía competente por validar"
+    },
+    "instancias": {
+        "PRIMERA_INSTANCIA": "Primera instancia",
+        "UNICA_INSTANCIA": "Única instancia",
+        "PRIMERA_INSTANCIA_SEGUN_REGLA_COMPETENCIAL": "Primera instancia (según regla competencial)"
+    },
+    "medidas": {
+        "AMONESTACION": {
+            "nombre": "Amonestación",
+            "familia": "INMEDIATA",
+            "tipoMedida": "Amonestación"
+        },
+        "PROGRAMA_PEDAGOGICO": {
+            "nombre": "Participación en programa comunitario o actividad pedagógica de convivencia",
+            "familia": "PEDAGOGICA",
+            "tipoMedida": "Programa comunitario / actividad pedagógica"
+        },
+        "DISOLUCION_REUNION": {
+            "nombre": "Disolución de reunión o actividad que involucra aglomeraciones de público no complejas",
+            "familia": "INMEDIATA_MATERIAL",
+            "tipoMedida": "Disolución de reunión / actividad"
+        },
+        "DECOMISO": {
+            "nombre": "Decomiso",
+            "familia": "MATERIAL_BIEN",
+            "tipoMedida": "Decomiso"
+        },
+        "MULTA_GENERAL_T1": {
+            "nombre": "Multa General tipo 1",
+            "familia": "PECUNIARIA",
+            "tipoMedida": "Multa General tipo 1"
+        },
+        "MULTA_GENERAL_T2": {
+            "nombre": "Multa General tipo 2",
+            "familia": "PECUNIARIA",
+            "tipoMedida": "Multa General tipo 2"
+        },
+        "MULTA_GENERAL_T3": {
+            "nombre": "Multa General tipo 3",
+            "familia": "PECUNIARIA",
+            "tipoMedida": "Multa General tipo 3"
+        },
+        "MULTA_GENERAL_T4": {
+            "nombre": "Multa General tipo 4",
+            "familia": "PECUNIARIA",
+            "tipoMedida": "Multa General tipo 4"
+        },
+        "MULTA_ESPECIAL_RUIDO": {
+            "nombre": "Multa especial por contaminación acústica o ruido que afecta la convivencia",
+            "familia": "PECUNIARIA",
+            "tipoMedida": "Multa especial por ruido"
+        },
+        "SUSPENSION_TEMPORAL": {
+            "nombre": "Suspensión temporal de actividad",
+            "familia": "MATERIAL_ACTIVIDAD",
+            "tipoMedida": "Suspensión temporal de actividad"
+        },
+        "SUSPENSION_DEFINITIVA": {
+            "nombre": "Suspensión definitiva de actividad",
+            "familia": "MATERIAL_ACTIVIDAD",
+            "tipoMedida": "Suspensión definitiva de actividad"
+        },
+        "DESTRUCCION_BIEN": {
+            "nombre": "Destrucción de bien",
+            "familia": "MATERIAL_BIEN",
+            "tipoMedida": "Destrucción de bien"
+        },
+        "INUTILIZACION_BIEN": {
+            "nombre": "Inutilización de bienes",
+            "familia": "MATERIAL_BIEN",
+            "tipoMedida": "Inutilización de bienes"
+        },
+        "RESTITUCION_PROTECCION_INMUEBLE": {
+            "nombre": "Restitución y protección de bienes inmuebles",
+            "familia": "MATERIAL_RESTITUTIVA",
+            "tipoMedida": "Restitución y protección de bienes inmuebles"
+        }
+    },
+    "reglas": {
+        "L2450-A93-N3": [
+            {
+                "measureId": "SUSPENSION_TEMPORAL",
+                "applicationMode": "CONDICIONAL",
+                "condition": "Procede si, conforme a la actuación aplicable, no opera la abstención permitida por el parágrafo 7 o no se supera efectivamente la afectación dentro del plazo otorgado.",
+                "authorityId": "COMANDANTE_ESTACION_O_DELEGADO",
+                "instance": "PRIMERA_INSTANCIA_SEGUN_REGLA_COMPETENCIAL",
+                "currentInspectorCanImpose": false,
+                "competenceBasis": "Ley 1801 arts. 206, 209 y 210 + Ley 2450/2025"
+            },
+            {
+                "measureId": "MULTA_ESPECIAL_RUIDO",
+                "applicationMode": "CONDICIONAL",
+                "condition": "Procede si no opera la abstención jurídicamente aplicable después de la orden/plazo de insonorización del parágrafo 7.",
+                "authorityId": "INSPECTOR_CONVIVENCIA_PAZ",
+                "instance": "PRIMERA_INSTANCIA",
+                "currentInspectorCanImpose": true,
+                "competenceBasis": "Ley 1801 art. 206 mod. Ley 2492/2025 + Ley 2450/2025"
+            }
+        ],
+        "L2450-A93-N15": [
+            {
+                "measureId": "SUSPENSION_TEMPORAL",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "COMANDANTE_ESTACION_O_DELEGADO",
+                "instance": "PRIMERA_INSTANCIA_SEGUN_REGLA_COMPETENCIAL",
+                "currentInspectorCanImpose": false,
+                "competenceBasis": "Ley 1801 arts. 206, 209 y 210 + Ley 2450/2025"
+            },
+            {
+                "measureId": "MULTA_ESPECIAL_RUIDO",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "INSPECTOR_CONVIVENCIA_PAZ",
+                "instance": "PRIMERA_INSTANCIA",
+                "currentInspectorCanImpose": true,
+                "competenceBasis": "Ley 1801 art. 206 mod. Ley 2492/2025 + Ley 2450/2025"
+            }
+        ],
+        "L1801-A100-N1": [
+            {
+                "measureId": "AMONESTACION",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "PERSONAL_UNIFORMADO_POLICIA",
+                "instance": "PRIMERA_INSTANCIA_SEGUN_REGLA_COMPETENCIAL",
+                "currentInspectorCanImpose": false,
+                "competenceBasis": "Ley 1801 arts. 209-210"
+            },
+            {
+                "measureId": "SUSPENSION_TEMPORAL",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "COMANDANTE_ESTACION_O_DELEGADO",
+                "instance": "PRIMERA_INSTANCIA_SEGUN_REGLA_COMPETENCIAL",
+                "currentInspectorCanImpose": false,
+                "competenceBasis": "Ley 1801 arts. 209-210"
+            }
+        ],
+        "L1801-A100-N2": [
+            {
+                "measureId": "AMONESTACION",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "PERSONAL_UNIFORMADO_POLICIA",
+                "instance": "PRIMERA_INSTANCIA_SEGUN_REGLA_COMPETENCIAL",
+                "currentInspectorCanImpose": false,
+                "competenceBasis": "Ley 1801 arts. 209-210"
+            },
+            {
+                "measureId": "MULTA_GENERAL_T4",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "INSPECTOR_CONVIVENCIA_PAZ",
+                "instance": "PRIMERA_INSTANCIA",
+                "currentInspectorCanImpose": true,
+                "competenceBasis": "Ley 1801 art. 206 mod. Ley 2492/2025"
+            },
+            {
+                "measureId": "SUSPENSION_TEMPORAL",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "COMANDANTE_ESTACION_O_DELEGADO",
+                "instance": "PRIMERA_INSTANCIA_SEGUN_REGLA_COMPETENCIAL",
+                "currentInspectorCanImpose": false,
+                "competenceBasis": "Ley 1801 arts. 209-210"
+            }
+        ],
+        "L1801-A100-N3": [
+            {
+                "measureId": "SUSPENSION_TEMPORAL",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "COMANDANTE_ESTACION_O_DELEGADO",
+                "instance": "PRIMERA_INSTANCIA_SEGUN_REGLA_COMPETENCIAL",
+                "currentInspectorCanImpose": false,
+                "competenceBasis": "Ley 1801 arts. 209-210"
+            }
+        ],
+        "L1801-A100-N4": [
+            {
+                "measureId": "AMONESTACION",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "PERSONAL_UNIFORMADO_POLICIA",
+                "instance": "PRIMERA_INSTANCIA_SEGUN_REGLA_COMPETENCIAL",
+                "currentInspectorCanImpose": false,
+                "competenceBasis": "Ley 1801 arts. 209-210"
+            },
+            {
+                "measureId": "SUSPENSION_TEMPORAL",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "COMANDANTE_ESTACION_O_DELEGADO",
+                "instance": "PRIMERA_INSTANCIA_SEGUN_REGLA_COMPETENCIAL",
+                "currentInspectorCanImpose": false,
+                "competenceBasis": "Ley 1801 arts. 209-210"
+            }
+        ],
+        "L1801-A100-N5": [
+            {
+                "measureId": "MULTA_GENERAL_T4",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "INSPECTOR_CONVIVENCIA_PAZ",
+                "instance": "PRIMERA_INSTANCIA",
+                "currentInspectorCanImpose": true,
+                "competenceBasis": "Ley 1801 art. 206 mod. Ley 2492/2025"
+            }
+        ],
+        "L1801-A100-N6": [
+            {
+                "measureId": "AMONESTACION",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "PERSONAL_UNIFORMADO_POLICIA",
+                "instance": "PRIMERA_INSTANCIA_SEGUN_REGLA_COMPETENCIAL",
+                "currentInspectorCanImpose": false,
+                "competenceBasis": "Ley 1801 arts. 209-210"
+            },
+            {
+                "measureId": "MULTA_GENERAL_T4",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "INSPECTOR_CONVIVENCIA_PAZ",
+                "instance": "PRIMERA_INSTANCIA",
+                "currentInspectorCanImpose": true,
+                "competenceBasis": "Ley 1801 art. 206 mod. Ley 2492/2025"
+            },
+            {
+                "measureId": "SUSPENSION_TEMPORAL",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "COMANDANTE_ESTACION_O_DELEGADO",
+                "instance": "PRIMERA_INSTANCIA_SEGUN_REGLA_COMPETENCIAL",
+                "currentInspectorCanImpose": false,
+                "competenceBasis": "Ley 1801 arts. 209-210"
+            }
+        ],
+        "L1801-A101-N1": [
+            {
+                "measureId": "AMONESTACION",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "PERSONAL_UNIFORMADO_POLICIA",
+                "instance": "PRIMERA_INSTANCIA_SEGUN_REGLA_COMPETENCIAL",
+                "currentInspectorCanImpose": false,
+                "competenceBasis": "Ley 1801 arts. 209-210"
+            },
+            {
+                "measureId": "PROGRAMA_PEDAGOGICO",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "PERSONAL_UNIFORMADO_POLICIA",
+                "instance": "PRIMERA_INSTANCIA_SEGUN_REGLA_COMPETENCIAL",
+                "currentInspectorCanImpose": false,
+                "competenceBasis": "Ley 1801 arts. 209-210"
+            },
+            {
+                "measureId": "SUSPENSION_TEMPORAL",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "COMANDANTE_ESTACION_O_DELEGADO",
+                "instance": "PRIMERA_INSTANCIA_SEGUN_REGLA_COMPETENCIAL",
+                "currentInspectorCanImpose": false,
+                "competenceBasis": "Ley 1801 arts. 209-210"
+            }
+        ],
+        "L1801-A101-N2": [
+            {
+                "measureId": "AMONESTACION",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "PERSONAL_UNIFORMADO_POLICIA",
+                "instance": "PRIMERA_INSTANCIA_SEGUN_REGLA_COMPETENCIAL",
+                "currentInspectorCanImpose": false,
+                "competenceBasis": "Ley 1801 arts. 209-210"
+            },
+            {
+                "measureId": "PROGRAMA_PEDAGOGICO",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "PERSONAL_UNIFORMADO_POLICIA",
+                "instance": "PRIMERA_INSTANCIA_SEGUN_REGLA_COMPETENCIAL",
+                "currentInspectorCanImpose": false,
+                "competenceBasis": "Ley 1801 arts. 209-210"
+            },
+            {
+                "measureId": "SUSPENSION_TEMPORAL",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "COMANDANTE_ESTACION_O_DELEGADO",
+                "instance": "PRIMERA_INSTANCIA_SEGUN_REGLA_COMPETENCIAL",
+                "currentInspectorCanImpose": false,
+                "competenceBasis": "Ley 1801 arts. 209-210"
+            }
+        ],
+        "L1801-A101-N3": [
+            {
+                "measureId": "AMONESTACION",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "PERSONAL_UNIFORMADO_POLICIA",
+                "instance": "PRIMERA_INSTANCIA_SEGUN_REGLA_COMPETENCIAL",
+                "currentInspectorCanImpose": false,
+                "competenceBasis": "Ley 1801 arts. 209-210"
+            },
+            {
+                "measureId": "PROGRAMA_PEDAGOGICO",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "PERSONAL_UNIFORMADO_POLICIA",
+                "instance": "PRIMERA_INSTANCIA_SEGUN_REGLA_COMPETENCIAL",
+                "currentInspectorCanImpose": false,
+                "competenceBasis": "Ley 1801 arts. 209-210"
+            },
+            {
+                "measureId": "SUSPENSION_TEMPORAL",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "COMANDANTE_ESTACION_O_DELEGADO",
+                "instance": "PRIMERA_INSTANCIA_SEGUN_REGLA_COMPETENCIAL",
+                "currentInspectorCanImpose": false,
+                "competenceBasis": "Ley 1801 arts. 209-210"
+            }
+        ],
+        "L1801-A101-N4": [
+            {
+                "measureId": "AMONESTACION",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "PERSONAL_UNIFORMADO_POLICIA",
+                "instance": "PRIMERA_INSTANCIA_SEGUN_REGLA_COMPETENCIAL",
+                "currentInspectorCanImpose": false,
+                "competenceBasis": "Ley 1801 arts. 209-210"
+            },
+            {
+                "measureId": "PROGRAMA_PEDAGOGICO",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "PERSONAL_UNIFORMADO_POLICIA",
+                "instance": "PRIMERA_INSTANCIA_SEGUN_REGLA_COMPETENCIAL",
+                "currentInspectorCanImpose": false,
+                "competenceBasis": "Ley 1801 arts. 209-210"
+            },
+            {
+                "measureId": "SUSPENSION_TEMPORAL",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "COMANDANTE_ESTACION_O_DELEGADO",
+                "instance": "PRIMERA_INSTANCIA_SEGUN_REGLA_COMPETENCIAL",
+                "currentInspectorCanImpose": false,
+                "competenceBasis": "Ley 1801 arts. 209-210"
+            }
+        ],
+        "L1801-A101-N5": [
+            {
+                "measureId": "AMONESTACION",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "PERSONAL_UNIFORMADO_POLICIA",
+                "instance": "PRIMERA_INSTANCIA_SEGUN_REGLA_COMPETENCIAL",
+                "currentInspectorCanImpose": false,
+                "competenceBasis": "Ley 1801 arts. 209-210"
+            },
+            {
+                "measureId": "PROGRAMA_PEDAGOGICO",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "PERSONAL_UNIFORMADO_POLICIA",
+                "instance": "PRIMERA_INSTANCIA_SEGUN_REGLA_COMPETENCIAL",
+                "currentInspectorCanImpose": false,
+                "competenceBasis": "Ley 1801 arts. 209-210"
+            },
+            {
+                "measureId": "SUSPENSION_TEMPORAL",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "COMANDANTE_ESTACION_O_DELEGADO",
+                "instance": "PRIMERA_INSTANCIA_SEGUN_REGLA_COMPETENCIAL",
+                "currentInspectorCanImpose": false,
+                "competenceBasis": "Ley 1801 arts. 209-210"
+            }
+        ],
+        "L1801-A101-N6": [
+            {
+                "measureId": "SUSPENSION_TEMPORAL",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "COMANDANTE_ESTACION_O_DELEGADO",
+                "instance": "PRIMERA_INSTANCIA_SEGUN_REGLA_COMPETENCIAL",
+                "currentInspectorCanImpose": false,
+                "competenceBasis": "Ley 1801 arts. 209-210"
+            },
+            {
+                "measureId": "PROGRAMA_PEDAGOGICO",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "PERSONAL_UNIFORMADO_POLICIA",
+                "instance": "PRIMERA_INSTANCIA_SEGUN_REGLA_COMPETENCIAL",
+                "currentInspectorCanImpose": false,
+                "competenceBasis": "Ley 1801 arts. 209-210"
+            }
+        ],
+        "L1801-A101-N7": [
+            {
+                "measureId": "MULTA_GENERAL_T4",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "INSPECTOR_CONVIVENCIA_PAZ",
+                "instance": "PRIMERA_INSTANCIA",
+                "currentInspectorCanImpose": true,
+                "competenceBasis": "Ley 1801 art. 206 mod. Ley 2492/2025"
+            },
+            {
+                "measureId": "SUSPENSION_TEMPORAL",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "COMANDANTE_ESTACION_O_DELEGADO",
+                "instance": "PRIMERA_INSTANCIA_SEGUN_REGLA_COMPETENCIAL",
+                "currentInspectorCanImpose": false,
+                "competenceBasis": "Ley 1801 arts. 209-210"
+            }
+        ],
+        "L1801-A101-N8": [
+            {
+                "measureId": "MULTA_GENERAL_T4",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "INSPECTOR_CONVIVENCIA_PAZ",
+                "instance": "PRIMERA_INSTANCIA",
+                "currentInspectorCanImpose": true,
+                "competenceBasis": "Ley 1801 art. 206 mod. Ley 2492/2025"
+            },
+            {
+                "measureId": "SUSPENSION_TEMPORAL",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "COMANDANTE_ESTACION_O_DELEGADO",
+                "instance": "PRIMERA_INSTANCIA_SEGUN_REGLA_COMPETENCIAL",
+                "currentInspectorCanImpose": false,
+                "competenceBasis": "Ley 1801 arts. 209-210"
+            }
+        ],
+        "L1801-A101-N9": [
+            {
+                "measureId": "MULTA_GENERAL_T4",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "INSPECTOR_CONVIVENCIA_PAZ",
+                "instance": "PRIMERA_INSTANCIA",
+                "currentInspectorCanImpose": true,
+                "competenceBasis": "Ley 1801 art. 206 mod. Ley 2492/2025"
+            },
+            {
+                "measureId": "SUSPENSION_TEMPORAL",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "COMANDANTE_ESTACION_O_DELEGADO",
+                "instance": "PRIMERA_INSTANCIA_SEGUN_REGLA_COMPETENCIAL",
+                "currentInspectorCanImpose": false,
+                "competenceBasis": "Ley 1801 arts. 209-210"
+            }
+        ],
+        "L1801-A101-N10": [
+            {
+                "measureId": "MULTA_GENERAL_T3",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "INSPECTOR_CONVIVENCIA_PAZ",
+                "instance": "PRIMERA_INSTANCIA",
+                "currentInspectorCanImpose": true,
+                "competenceBasis": "Ley 1801 art. 206 mod. Ley 2492/2025"
+            },
+            {
+                "measureId": "DECOMISO",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "INSPECTOR_CONVIVENCIA_PAZ",
+                "instance": "UNICA_INSTANCIA",
+                "currentInspectorCanImpose": true,
+                "competenceBasis": "Ley 1801 art. 206 mod. Ley 2492/2025"
+            }
+        ],
+        "L1801-A102-N1": [
+            {
+                "measureId": "MULTA_GENERAL_T4",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "INSPECTOR_CONVIVENCIA_PAZ",
+                "instance": "PRIMERA_INSTANCIA",
+                "currentInspectorCanImpose": true,
+                "competenceBasis": "Ley 1801 art. 206 mod. Ley 2492/2025"
+            },
+            {
+                "measureId": "SUSPENSION_TEMPORAL",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "COMANDANTE_ESTACION_O_DELEGADO",
+                "instance": "PRIMERA_INSTANCIA_SEGUN_REGLA_COMPETENCIAL",
+                "currentInspectorCanImpose": false,
+                "competenceBasis": "Ley 1801 arts. 209-210"
+            }
+        ],
+        "L1801-A102-N2": [
+            {
+                "measureId": "MULTA_GENERAL_T4",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "INSPECTOR_CONVIVENCIA_PAZ",
+                "instance": "PRIMERA_INSTANCIA",
+                "currentInspectorCanImpose": true,
+                "competenceBasis": "Ley 1801 art. 206 mod. Ley 2492/2025"
+            }
+        ],
+        "L1801-A116-N1": [
+            {
+                "measureId": "MULTA_GENERAL_T3",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "INSPECTOR_CONVIVENCIA_PAZ",
+                "instance": "PRIMERA_INSTANCIA",
+                "currentInspectorCanImpose": true,
+                "competenceBasis": "Ley 1801 art. 206 mod. Ley 2492/2025"
+            }
+        ],
+        "L1801-A116-N2": [
+            {
+                "measureId": "MULTA_GENERAL_T3",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "INSPECTOR_CONVIVENCIA_PAZ",
+                "instance": "PRIMERA_INSTANCIA",
+                "currentInspectorCanImpose": true,
+                "competenceBasis": "Ley 1801 art. 206 mod. Ley 2492/2025"
+            }
+        ],
+        "L1801-A116-N3": [
+            {
+                "measureId": "PROGRAMA_PEDAGOGICO",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "PERSONAL_UNIFORMADO_POLICIA",
+                "instance": "PRIMERA_INSTANCIA_SEGUN_REGLA_COMPETENCIAL",
+                "currentInspectorCanImpose": false,
+                "competenceBasis": "Ley 1801 arts. 209-210"
+            }
+        ],
+        "L1801-A124-N1": [
+            {
+                "measureId": "MULTA_GENERAL_T2",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "INSPECTOR_CONVIVENCIA_PAZ",
+                "instance": "PRIMERA_INSTANCIA",
+                "currentInspectorCanImpose": true,
+                "competenceBasis": "Ley 1801 art. 206 mod. Ley 2492/2025"
+            }
+        ],
+        "L1801-A124-N2": [
+            {
+                "measureId": "MULTA_GENERAL_T2",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "INSPECTOR_CONVIVENCIA_PAZ",
+                "instance": "PRIMERA_INSTANCIA",
+                "currentInspectorCanImpose": true,
+                "competenceBasis": "Ley 1801 art. 206 mod. Ley 2492/2025"
+            }
+        ],
+        "L1801-A124-N3": [
+            {
+                "measureId": "MULTA_GENERAL_T1",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "INSPECTOR_CONVIVENCIA_PAZ",
+                "instance": "PRIMERA_INSTANCIA",
+                "currentInspectorCanImpose": true,
+                "competenceBasis": "Ley 1801 art. 206 mod. Ley 2492/2025"
+            }
+        ],
+        "L1801-A124-N4": [
+            {
+                "measureId": "MULTA_GENERAL_T2",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "INSPECTOR_CONVIVENCIA_PAZ",
+                "instance": "PRIMERA_INSTANCIA",
+                "currentInspectorCanImpose": true,
+                "competenceBasis": "Ley 1801 art. 206 mod. Ley 2492/2025"
+            }
+        ],
+        "L1801-A124-N5": [
+            {
+                "measureId": "MULTA_GENERAL_T2",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "INSPECTOR_CONVIVENCIA_PAZ",
+                "instance": "PRIMERA_INSTANCIA",
+                "currentInspectorCanImpose": true,
+                "competenceBasis": "Ley 1801 art. 206 mod. Ley 2492/2025"
+            }
+        ],
+        "L1801-A124-N6": [
+            {
+                "measureId": "MULTA_GENERAL_T2",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "INSPECTOR_CONVIVENCIA_PAZ",
+                "instance": "PRIMERA_INSTANCIA",
+                "currentInspectorCanImpose": true,
+                "competenceBasis": "Ley 1801 art. 206 mod. Ley 2492/2025"
+            }
+        ],
+        "L1801-A124-N7": [
+            {
+                "measureId": "MULTA_GENERAL_T4",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "INSPECTOR_CONVIVENCIA_PAZ",
+                "instance": "PRIMERA_INSTANCIA",
+                "currentInspectorCanImpose": true,
+                "competenceBasis": "Ley 1801 art. 206 mod. Ley 2492/2025"
+            }
+        ],
+        "L1801-A124-N8": [
+            {
+                "measureId": "MULTA_GENERAL_T4",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "INSPECTOR_CONVIVENCIA_PAZ",
+                "instance": "PRIMERA_INSTANCIA",
+                "currentInspectorCanImpose": true,
+                "competenceBasis": "Ley 1801 art. 206 mod. Ley 2492/2025"
+            }
+        ],
+        "L1801-A124-N9": [
+            {
+                "measureId": "MULTA_GENERAL_T1",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "INSPECTOR_CONVIVENCIA_PAZ",
+                "instance": "PRIMERA_INSTANCIA",
+                "currentInspectorCanImpose": true,
+                "competenceBasis": "Ley 1801 art. 206 mod. Ley 2492/2025"
+            }
+        ],
+        "L1801-A134-N1": [
+            {
+                "measureId": "MULTA_GENERAL_T2",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "INSPECTOR_CONVIVENCIA_PAZ",
+                "instance": "PRIMERA_INSTANCIA",
+                "currentInspectorCanImpose": true,
+                "competenceBasis": "Ley 1801 art. 206 mod. Ley 2492/2025"
+            }
+        ],
+        "L1801-A134-N2": [
+            {
+                "measureId": "MULTA_GENERAL_T2",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "INSPECTOR_CONVIVENCIA_PAZ",
+                "instance": "PRIMERA_INSTANCIA",
+                "currentInspectorCanImpose": true,
+                "competenceBasis": "Ley 1801 art. 206 mod. Ley 2492/2025"
+            }
+        ],
+        "L1801-A134-N3": [
+            {
+                "measureId": "MULTA_GENERAL_T4",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "INSPECTOR_CONVIVENCIA_PAZ",
+                "instance": "PRIMERA_INSTANCIA",
+                "currentInspectorCanImpose": true,
+                "competenceBasis": "Ley 1801 art. 206 mod. Ley 2492/2025"
+            }
+        ],
+        "L1801-A134-N4": [
+            {
+                "measureId": "MULTA_GENERAL_T4",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "INSPECTOR_CONVIVENCIA_PAZ",
+                "instance": "PRIMERA_INSTANCIA",
+                "currentInspectorCanImpose": true,
+                "competenceBasis": "Ley 1801 art. 206 mod. Ley 2492/2025"
+            },
+            {
+                "measureId": "SUSPENSION_DEFINITIVA",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "INSPECTOR_CONVIVENCIA_PAZ",
+                "instance": "PRIMERA_INSTANCIA",
+                "currentInspectorCanImpose": true,
+                "competenceBasis": "Ley 1801 art. 206 mod. Ley 2492/2025"
+            }
+        ],
+        "L1801-A134-N5": [
+            {
+                "measureId": "MULTA_GENERAL_T4",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "INSPECTOR_CONVIVENCIA_PAZ",
+                "instance": "PRIMERA_INSTANCIA",
+                "currentInspectorCanImpose": true,
+                "competenceBasis": "Ley 1801 art. 206 mod. Ley 2492/2025"
+            }
+        ],
+        "L1801-A134-N6": [
+            {
+                "measureId": "MULTA_GENERAL_T2",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "INSPECTOR_CONVIVENCIA_PAZ",
+                "instance": "PRIMERA_INSTANCIA",
+                "currentInspectorCanImpose": true,
+                "competenceBasis": "Ley 1801 art. 206 mod. Ley 2492/2025"
+            }
+        ],
+        "L1801-A134-N7": [
+            {
+                "measureId": "MULTA_GENERAL_T2",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "INSPECTOR_CONVIVENCIA_PAZ",
+                "instance": "PRIMERA_INSTANCIA",
+                "currentInspectorCanImpose": true,
+                "competenceBasis": "Ley 1801 art. 206 mod. Ley 2492/2025"
+            }
+        ],
+        "L1801-A134-N8": [
+            {
+                "measureId": "MULTA_GENERAL_T2",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "INSPECTOR_CONVIVENCIA_PAZ",
+                "instance": "PRIMERA_INSTANCIA",
+                "currentInspectorCanImpose": true,
+                "competenceBasis": "Ley 1801 art. 206 mod. Ley 2492/2025"
+            }
+        ],
+        "L1801-A134-N9": [
+            {
+                "measureId": "MULTA_GENERAL_T4",
+                "applicationMode": "CONDICIONAL",
+                "condition": "Solo cuando el requisito de póliza sea jurídicamente exigible en el caso concreto.",
+                "authorityId": "INSPECTOR_CONVIVENCIA_PAZ",
+                "instance": "PRIMERA_INSTANCIA",
+                "currentInspectorCanImpose": true,
+                "competenceBasis": "Ley 1801 art. 206 mod. Ley 2492/2025 + regla especial de exigibilidad"
+            }
+        ],
+        "L1801-A134-P2": [
+            {
+                "measureId": "MULTA_GENERAL_T3",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "INSPECTOR_CONVIVENCIA_PAZ",
+                "instance": "PRIMERA_INSTANCIA",
+                "currentInspectorCanImpose": true,
+                "competenceBasis": "Ley 1801 art. 206 mod. Ley 2492/2025"
+            },
+            {
+                "measureId": "DECOMISO",
+                "applicationMode": "CONDICIONAL",
+                "condition": "Reincidencia acreditada y cumplimiento de la valoración veterinaria/etológica prevista por la regla especial.",
+                "authorityId": "INSPECTOR_CONVIVENCIA_PAZ",
+                "instance": "UNICA_INSTANCIA",
+                "currentInspectorCanImpose": true,
+                "competenceBasis": "Ley 1801 art. 206 mod. Ley 2492/2025 + art. 134 par. 2"
+            }
+        ],
+        "L1801-A134-P3": [
+            {
+                "measureId": "MULTA_GENERAL_T4",
+                "applicationMode": "PRESCRITA",
+                "condition": null,
+                "authorityId": "INSPECTOR_CONVIVENCIA_PAZ",
+                "instance": "PRIMERA_INSTANCIA",
+                "currentInspectorCanImpose": true,
+                "competenceBasis": "Ley 1801 art. 206 mod. Ley 2492/2025"
+            },
+            {
+                "measureId": "DECOMISO",
+                "applicationMode": "CONDICIONAL",
+                "condition": "Reincidencia acreditada y cumplimiento de la valoración veterinaria/etológica prevista por la regla especial.",
+                "authorityId": "INSPECTOR_CONVIVENCIA_PAZ",
+                "instance": "UNICA_INSTANCIA",
+                "currentInspectorCanImpose": true,
+                "competenceBasis": "Ley 1801 art. 206 mod. Ley 2492/2025 + art. 134 par. 3"
+            }
+        ]
+    },
+    "reglasEspeciales": {
+        "L2450-A93-N3": [
+            "El parágrafo 7 permite a la autoridad competente otorgar plazo de insonorización; superada efectivamente la afectación, puede abstenerse de imponer las medidas correctivas del numeral 3."
+        ],
+        "L2450-A93-N15": [
+            "Aplicar las reglas probatorias y de actuación inmediata de Ley 2450 de 2025."
+        ],
+        "L1801-A116-N1": [
+            "Sin perjuicio de las normas especiales de protección animal."
+        ],
+        "L1801-A116-N2": [
+            "Sin perjuicio de las normas especiales de protección animal."
+        ],
+        "L1801-A116-N3": [
+            "Sin perjuicio de las normas especiales de protección animal."
+        ],
+        "L1801-A124-N4": [
+            "Usar la denominación vigente de canino/animal de manejo especial."
+        ],
+        "L1801-A124-N7": [
+            "Sin perjuicio de normas de protección animal y otras responsabilidades aplicables."
+        ],
+        "L1801-A124-N8": [
+            "Puede coexistir con rutas de protección animal o penal; no fusionar automáticamente los procesos."
+        ],
+        "L1801-A134-N1": [
+            "Aplicar el texto vigente y las decisiones de constitucionalidad pertinentes."
+        ],
+        "L1801-A134-N9": [
+            "Validar exigibilidad y reglamentación vigente del requisito de póliza."
+        ],
+        "L1801-A134-P2": [
+            "El decomiso no es seleccionable en el primer evento por esta regla; exige acreditar reincidencia y la valoración aplicable."
+        ],
+        "L1801-A134-P3": [
+            "El decomiso exige acreditar reincidencia y aplicar la valoración veterinaria/etológica prevista."
+        ]
+    }
+}

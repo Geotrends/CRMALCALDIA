@@ -2,7 +2,9 @@ define('custom:views/expediente/record/panels/pasos', [
     'views/record/panels/side',
     'custom:helpers/radicacion-fields',
     'custom:helpers/safe-ui-promise',
-], function (Dep, RadicacionFields, SafeUiPromise) {
+    'custom:helpers/case-detail-side-panels',
+    'custom:helpers/expediente-ancho',
+], function (Dep, RadicacionFields, SafeUiPromise, CaseDetailSidePanels, ExpedienteAncho) {
 
     return Dep.extend({
 
@@ -65,10 +67,42 @@ define('custom:views/expediente/record/panels/pasos', [
 
                     self.timeline = timeline;
                     SafeUiPromise.safeReRender(self);
+                    self.mountProceso();
                 })
                 .catch(function () {
                     self.timeline = null;
                 });
+        },
+
+        /**
+         * Con ruta en curso, el panel lleva el mismo bloque «Proceso del expediente» del caso
+         * (acciones sobre el caso principal). Sin caso o sin ruta, queda la lista de pasos.
+         */
+        mountProceso: function () {
+            const self = this;
+
+            Espo.Ajax.getRequest('Expediente/action/procesoCaso', {id: this.model.id}).then(function (info) {
+                if (!info || !info.caseId || !self.isRendered()) {
+                    return;
+                }
+
+                const $host = self.$el.find('.expediente-pasos');
+
+                CaseDetailSidePanels.mountProcesoEn($host, info.caseId, function () {
+                    self.model.fetch();
+                }, true).then(function (montado) {
+                    if (!montado) {
+                        return;
+                    }
+
+                    ExpedienteAncho.ubicar(self, 1);
+
+                    $host.children('.expediente-pasos-caso').remove();
+                    $host.prepend('<p class="text-muted small expediente-pasos-caso">Caso principal: <a href="#Case/view/'
+                        + info.caseId + '">' + $('<span>').text(info.caseName || info.caseId).html() + '</a>'
+                        + (info.casosVinculados > 1 ? ' · ' + info.casosVinculados + ' casos vinculados' : '') + '</p>');
+                });
+            }).catch(function () {});
         },
 
         bindUi: function () {

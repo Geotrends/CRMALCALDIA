@@ -23,6 +23,7 @@ use Espo\Custom\Tools\CaseObj\CaseActaVisitaHelper;
 use Espo\Custom\Tools\CaseObj\CaseAperturaService;
 use Espo\Custom\Tools\CaseObj\CaseCierreService;
 use Espo\Custom\Tools\CaseObj\CaseCompetenciaService;
+use Espo\Custom\Tools\CaseObj\CaseProcesoService;
 use Espo\Custom\Tools\CaseObj\CaseCreateDefaultsService;
 use Espo\Custom\Tools\CaseObj\CaseCronogramaService;
 use Espo\Custom\Tools\CaseObj\CaseGestionTecnicaHelper;
@@ -739,8 +740,69 @@ class CaseObj extends BaseCaseObj
             'enviarAFirma' => $service->enviarAFirma($case, $user),
             'firmar' => $service->firmar($case, $user, $txt('attachmentId')),
             'devolver' => $service->devolver($case, $user, $txt('observaciones')),
+            'numerar' => $service->numerar($case, $user, $txt('numero')),
             default => throw new BadRequest('Acción no válida.'),
         };
+    }
+
+    /**
+     * GET Case/action/procesoEstado?id=  Pasos de la ruta jurídica del expediente y fase actual.
+     *
+     * @return array<string, mixed>
+     */
+    public function getActionProcesoEstado(Request $request): array
+    {
+        $case = $this->getCaseOrFail(trim((string) $request->getQueryParam('id')));
+
+        if (!$this->acl->checkEntityRead($case)) {
+            throw new Forbidden();
+        }
+
+        return $this->injectableFactory->create(CaseProcesoService::class)->estado($case, $this->getUser());
+    }
+
+    /**
+     * POST Case/action/procesoAccion  body: { id, accion: citar|soporteCitacion|inasistencia|
+     * resolverJustificacion|suspender|soportePrueba|realizada|soportes|cumplirPaso, ... }
+     *
+     * @return array<string, mixed>
+     */
+    public function postActionProcesoAccion(Request $request): array
+    {
+        $body = $request->getParsedBody();
+        $case = $this->getCaseOrFail($this->parseCaseIdFromRequest($body));
+
+        if (!$this->acl->checkEntityRead($case)) {
+            throw new Forbidden();
+        }
+
+        $data = is_object($body) ? get_object_vars($body) : (is_array($body) ? $body : []);
+
+        return $this->injectableFactory->create(CaseProcesoService::class)
+            ->accion($case, $this->getUser(), trim((string) ($data['accion'] ?? '')), $data);
+    }
+
+    /**
+     * POST Case/action/procesoArchivo  body: { id, name, type, file (data URL) } → { id }
+     *
+     * @return array{id: string}
+     */
+    public function postActionProcesoArchivo(Request $request): array
+    {
+        $body = $request->getParsedBody();
+        $case = $this->getCaseOrFail($this->parseCaseIdFromRequest($body));
+
+        if (!$this->acl->checkEntityRead($case)) {
+            throw new Forbidden();
+        }
+
+        return $this->injectableFactory->create(CaseProcesoService::class)->cargarArchivo(
+            $case,
+            $this->getUser(),
+            trim((string) ($body->name ?? '')),
+            trim((string) ($body->type ?? '')),
+            (string) ($body->file ?? '')
+        );
     }
 
     /**

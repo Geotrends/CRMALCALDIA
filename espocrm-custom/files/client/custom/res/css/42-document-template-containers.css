@@ -1,0 +1,112 @@
+/**
+ * Documentos y Plantillas PDF — sistema visual de contenedores de Casos.
+ * Aplica la misma jerarquía a los documentos cargados y a las plantillas PDF.
+ */
+body.crm-reference-shell :is(.detail, .edit):is([data-scope="Document"], [data-scope="Template"]) :is(.middle, .side, .bottom) > .panel,
+body.crm-reference-shell .modal-body .edit:is([data-scope="Document"], [data-scope="Template"]) .panel {
+  background: var(--crm-surface) !important;
+  border: 1px solid var(--crm-form-value-border) !important;
+  border-left: 1px solid var(--crm-form-value-border) !important;
+  border-radius: var(--crm-radius-lg) !important;
+  box-shadow: var(--crm-shadow-sm) !important;
+  overflow: hidden !important;
+}
+
+body.crm-reference-shell :is(.detail, .edit):is([data-scope="Document"], [data-scope="Template"]) :is(.middle, .side, .bottom) > .panel > .panel-heading,
+body.crm-reference-shell .modal-body .edit:is([data-scope="Document"], [data-scope="Template"]) .panel > .panel-heading {
+  align-items: center;
+  background: linear-gradient(
+    90deg,
+    var(--crm-form-heading-bg) 0%,
+    var(--crm-form-heading-bg-end) 78%
+  ) !important;
+  border-bottom: 1px solid var(--crm-form-value-border) !important;
+  border-left: 0 !important;
+  border-radius: var(--crm-radius-lg) var(--crm-radius-lg) 0 0 !important;
+  display: flex;
+  min-height: 0;
+  padding: 14px 20px 14px 16px !important;
+}
+
+body.crm-reference-shell :is(.detail, .edit):is([data-scope="Document"], [data-scope="Template"]) :is(.middle, .side, .bottom) > .panel > .panel-heading .panel-title,
+body.crm-reference-shell .modal-body .edit:is([data-scope="Document"], [data-scope="Template"]) .panel > .panel-heading .panel-title {
+  color: var(--crm-form-accent-dark) !important;
+  font-size: var(--crm-font-size-lg) !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em;
+}
+
+/* Las propiedades se consultan en una sola rejilla, sin cajas anidadas. */
+body.crm-reference-shell .detail:is([data-scope="Document"], [data-scope="Template"]) .middle > .panel > .panel-body {
+  background: var(--crm-surface) !important;
+  padding: 0 !important;
+}
+
+body.crm-reference-shell .detail:is([data-scope="Document"], [data-scope="Template"]) .middle > .panel > .panel-body > .row {
+  align-items: stretch;
+  border-bottom: 1px solid var(--crm-form-value-border);
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 !important;
+}
+
+body.crm-reference-shell .detail:is([data-scope="Document"], [data-scope="Template"]) .middle > .panel > .panel-body > .row:last-child {
+  border-bottom: 0;
+}
+
+body.crm-reference-shell .detail:is([data-scope="Document"], [data-scope="Template"]) .middle > .panel > .panel-body > .row > .cell {
+  border-right: 1px solid #f1f5f9;
+  flex: 1 1 50%;
+  min-width: 0;
+  padding: 11px 18px;
+}
+
+body.crm-reference-shell .detail:is([data-scope="Document"], [data-scope="Template"]) .middle > .panel > .panel-body > .row > .cell:last-child,
+body.crm-reference-shell .detail:is([data-scope="Document"], [data-scope="Template"]) .middle > .panel > .panel-body > .row > .cell:only-child {
+  border-right: 0;
+}
+
+body.crm-reference-shell .detail:is([data-scope="Document"], [data-scope="Template"]) .middle > .panel > .panel-body > .row > .cell:only-child,
+body.crm-reference-shell .detail:is([data-scope="Document"], [data-scope="Template"]) .middle > .panel > .panel-body > .row > .cell.col-sm-12 {
+  flex-basis: 100%;
+}
+
+/* El nombre y el estado permiten identificar el documento o plantilla de inmediato. */
+body.crm-reference-shell .detail:is([data-scope="Document"], [data-scope="Template"]) .field[data-name="name"] .field-value,
+body.crm-reference-shell .detail:is([data-scope="Document"], [data-scope="Template"]) .field[data-name="status"] .field-value {
+  color: var(--crm-primary-dark) !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.01em;
+}
+
+body.crm-reference-shell .detail:is([data-scope="Document"], [data-scope="Template"]) :is(.field[data-name="description"], .field[data-name="body"], .field[data-name="header"], .field[data-name="footer"]) .field-value {
+  line-height: 1.45;
+}
+
+/* El acceso al Excel oficial conserva el espaciado y las acciones legibles. */
+body.crm-reference-shell .detail[data-scope="Document"] .panel[data-name="excelOnlyOfficeViewer"] .excel-alcaldia-panel {
+  padding: 4px 0 2px;
+}
+
+/* Edición y formularios modales conservan espacio para controles extensos. */
+body.crm-reference-shell .edit:is([data-scope="Document"], [data-scope="Template"]) .middle > .panel > .panel-body,
+body.crm-reference-shell .edit:is([data-scope="Document"], [data-scope="Template"]) .side .panel > .panel-body,
+body.crm-reference-shell .edit:is([data-scope="Document"], [data-scope="Template"]) .bottom > .panel > .panel-body,
+body.crm-reference-shell .modal-body .edit:is([data-scope="Document"], [data-scope="Template"]) .panel > .panel-body {
+  background: var(--crm-surface) !important;
+  padding: 20px 22px 22px !important;
+}
+
+@media (max-width: 767px) {
+  body.crm-reference-shell .detail:is([data-scope="Document"], [data-scope="Template"]) .middle > .panel > .panel-body > .row > .cell {
+    border-bottom: 1px solid #f1f5f9;
+    border-right: 0;
+    flex-basis: 100%;
+    padding: 11px 14px;
+  }
+
+  body.crm-reference-shell .detail:is([data-scope="Document"], [data-scope="Template"]) .middle > .panel > .panel-body > .row > .cell:last-child {
+    border-bottom: 0;
+  }
+}

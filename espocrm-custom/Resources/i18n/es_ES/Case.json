@@ -1,6 +1,7 @@
 {
   "fields": {
     "expediente": "Expediente (vinculado)",
+    "cSoportesExpediente": "Soportes del proceso (carga temporal)",
     "autosInicio": "Autos de inicio",
     "gestionesTecnicas": "Gestiones técnicas",
     "decisionesRuta": "Decisiones de ruta jurídica",

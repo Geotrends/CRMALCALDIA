@@ -50,6 +50,7 @@
             "options": [
                 "Programada",
                 "En curso",
+                "Suspendida",
                 "Pendiente de audio",
                 "Pendiente de acta",
                 "Pendiente de soportes",
@@ -67,6 +68,54 @@
         },
         "actaDocumento": {
             "type": "file",
+            "isCustom": true
+        },
+        "numero": {
+            "type": "int",
+            "min": 1,
+            "isCustom": true
+        },
+        "lugarTipo": {
+            "type": "enum",
+            "options": [
+                "Despacho de la Inspección",
+                "Lugar de los hechos",
+                "Otra dirección"
+            ],
+            "default": "Despacho de la Inspección",
+            "isCustom": true
+        },
+        "lugar": {
+            "type": "varchar",
+            "maxLength": 255,
+            "isCustom": true
+        },
+        "citacionMedio": {
+            "type": "enum",
+            "options": [
+                "",
+                "Personal",
+                "Correo certificado",
+                "Correo electrónico",
+                "Aviso",
+                "Otro"
+            ],
+            "isCustom": true
+        },
+        "citacionDocumento": {
+            "type": "file",
+            "isCustom": true
+        },
+        "citacionSoporte": {
+            "type": "file",
+            "isCustom": true
+        },
+        "citacionFechaEntrega": {
+            "type": "date",
+            "isCustom": true
+        },
+        "conciliacion": {
+            "type": "bool",
             "isCustom": true
         },
         "assignedUser": {
@@ -135,6 +184,9 @@
     "collection": {
         "orderBy": "fechaInicio",
         "order": "desc",
-        "textFilterFields": ["name", "resultadoDiligencia"]
+        "textFilterFields": [
+            "name",
+            "resultadoDiligencia"
+        ]
     }
 }

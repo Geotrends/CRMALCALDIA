@@ -43,6 +43,7 @@
                 "Pendiente",
                 "Aceptada",
                 "Rechazada",
+                "No presentada",
                 "No aplica"
             ],
             "default": "Pendiente",
@@ -68,10 +69,36 @@
                 "Con término de justificación pendiente",
                 "Justificación resuelta",
                 "Actuación pendiente en curso",
+                "Lista para reanudación",
                 "Reanudada",
                 "Cerrada"
             ],
             "default": "Registrada",
+            "isCustom": true
+        },
+        "tipoSuspension": {
+            "type": "enum",
+            "options": [
+                "Primera inasistencia",
+                "Prueba o actuación externa",
+                "Otra causa"
+            ],
+            "isCustom": true
+        },
+        "tipoPrueba": {
+            "type": "enum",
+            "options": [
+                "",
+                "Inspección ocular",
+                "Visita técnica",
+                "Informe especializado",
+                "Ampliación o aclaración de informe",
+                "Otra prueba"
+            ],
+            "isCustom": true
+        },
+        "fechaLimiteActuacion": {
+            "type": "date",
             "isCustom": true
         },
         "assignedUser": {
@@ -121,6 +148,9 @@
     "collection": {
         "orderBy": "fechaSuspension",
         "order": "desc",
-        "textFilterFields": ["name", "causa"]
+        "textFilterFields": [
+            "name",
+            "causa"
+        ]
     }
 }

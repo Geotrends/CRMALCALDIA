@@ -177,6 +177,9 @@ define('custom:helpers/alcaldia-notification-message', [
             message = userLink(userId, userName)
                 + ' creó una solicitud de queja: '
                 + caseLink(href, linkLabel);
+        } else if (data.isProcesoAviso) {
+            message = userLink(userId, userName) + ' ' + escapeHtml(data.textoAviso || '') + ' (caso ' + caseLink(href, linkLabel) + ').'
+                + (data.indicacion ? ' ' + escapeHtml(data.indicacion) : '');
         } else if (data.isAperturaPendiente) {
             message = userLink(userId, userName) + ' definió la apertura de actuación en el caso ' + caseLink(href, linkLabel)
                 + '. Decida si se abre un expediente nuevo o se incorpora a uno existente.';
@@ -193,7 +196,7 @@ define('custom:helpers/alcaldia-notification-message', [
                 : data.isAperturaIncorporado
                 ? quien + ' incorporó el caso ' + caso + ' al expediente' + exp + '.'
                 : data.isAutoInicioParaFirma
-                ? quien + ' envió a firma el Auto de Inicio del expediente' + exp + ' (caso ' + caso + '). Descargue el formato prellenado, fírmelo y cargue el PDF.'
+                ? quien + ' envió a firma el Auto de Inicio del expediente' + exp + ' (caso ' + caso + '). Descargue el formato prellenado en Word, fírmelo y cargue el PDF.'
                 : data.isAutoInicioDevuelto
                 ? quien + ' devolvió el Auto de Inicio del expediente' + exp + ' (caso ' + caso + ').' + motivoText
                 : quien + ' firmó el Auto de Inicio: expediente' + exp + ' abierto (caso ' + caso + ').'

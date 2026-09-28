@@ -9,6 +9,7 @@
 
     var STYLE_ID = 'crm-modern-buttons-style';
     var NAV_FIX_STYLE_ID = 'crm-navbar-mobile-fix-style';
+    var MENU_GROUP_STORAGE_KEY = 'crm-sidebar-menu-groups';
 
     function injectNavbarMobileFixStyle() {
         if (document.getElementById(NAV_FIX_STYLE_ID)) {
@@ -412,6 +413,44 @@
         }
     }
 
+    /**
+     * Reutiliza la identidad renderizada por EspoCRM en el encabezado del
+     * menú lateral. La fuente original se oculta por CSS para evitar repetir
+     * el nombre en la barra superior.
+     */
+    function ensureSidebarUserIdentity() {
+        var header = document.querySelector('#navbar .navbar-header');
+        var source = document.querySelector(
+            '#navbar .navbar-user-identity-container .alcaldia-user-identity'
+        );
+
+        if (!header || !source) {
+            return;
+        }
+
+        var nameNode = source.querySelector('.alcaldia-user-identity__name');
+        var name = nameNode && nameNode.textContent
+            ? nameNode.textContent.trim()
+            : source.textContent.trim();
+
+        if (!name) {
+            return;
+        }
+
+        var identity = header.querySelector('.crm-sidebar-user-identity');
+
+        if (!identity) {
+            identity = document.createElement('a');
+            identity.className = 'crm-sidebar-user-identity';
+            identity.setAttribute('aria-label', 'Ver perfil de usuario');
+            header.appendChild(identity);
+        }
+
+        identity.href = source.getAttribute('href') || '#';
+        identity.title = name;
+        identity.textContent = name;
+    }
+
     function applyPostLoginReferenceShell() {
         var body = document.body;
 
@@ -500,6 +539,169 @@
         flattenDone = true;
     }
 
+    function normalizeMenuLabel(value) {
+        return (value || '')
+            .toLocaleLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .trim();
+    }
+
+    function getMenuGroupId(label) {
+        var normalized = normalizeMenuLabel(label);
+
+        // Conserva la clave usada en la primera versión plegable para no
+        // perder la elección que ya haya guardado el usuario.
+        if (normalized.indexOf('proceso verbal') === 0) {
+            return 'proceso-verbal';
+        }
+
+        return normalized
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-+|-+$/g, '') || null;
+    }
+
+    function readMenuGroupStates() {
+        try {
+            var value = window.localStorage.getItem(MENU_GROUP_STORAGE_KEY);
+            var states = value ? JSON.parse(value) : {};
+
+            return states && typeof states === 'object' ? states : {};
+        } catch (e) {
+            return {};
+        }
+    }
+
+    function writeMenuGroupStates(states) {
+        try {
+            window.localStorage.setItem(MENU_GROUP_STORAGE_KEY, JSON.stringify(states));
+        } catch (e) {
+            // Si el navegador bloquea almacenamiento, el menú sigue funcionando
+            // durante la sesión actual.
+        }
+    }
+
+    function setMenuGroupOpen(tabs, groupId, open) {
+        Array.prototype.slice.call(tabs.children).forEach(function (item) {
+            if (item.dataset.crmMenuGroup !== groupId) {
+                return;
+            }
+
+            if (item.classList.contains('tab-divider')) {
+                item.classList.toggle('crm-menu-group--collapsed', !open);
+                var toggle = item.querySelector('.crm-menu-group-toggle');
+
+                if (toggle) {
+                    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+                }
+
+                return;
+            }
+
+            item.classList.toggle('crm-menu-group-item--collapsed', !open);
+        });
+    }
+
+    /**
+     * Convierte tres divisores existentes de EspoCRM en cabeceras plegables,
+     * sin cambiar los enlaces ni las reglas de acceso que ya los filtran.
+     */
+    function syncMenuGroups() {
+        var tabs = document.querySelector('#navbar ul.tabs');
+
+        if (!tabs) {
+            return;
+        }
+
+        var children = Array.prototype.slice.call(tabs.children);
+        var states = readMenuGroupStates();
+        var currentGroupId = null;
+        var groupIds = [];
+
+        children.forEach(function (item) {
+            item.classList.remove('crm-menu-group-item', 'crm-menu-group-item--collapsed');
+            item.removeAttribute('data-crm-menu-group');
+        });
+
+        children.forEach(function (item) {
+            if (item.classList.contains('tab-divider')) {
+                currentGroupId = getMenuGroupId(item.textContent);
+
+                if (!currentGroupId) {
+                    return;
+                }
+
+                item.classList.add('crm-menu-group');
+                item.dataset.crmMenuGroup = currentGroupId;
+
+                if (groupIds.indexOf(currentGroupId) === -1) {
+                    groupIds.push(currentGroupId);
+                }
+
+                var toggle = item.querySelector('.crm-menu-group-toggle');
+
+                if (!toggle) {
+                    toggle = document.createElement('button');
+                    toggle.type = 'button';
+                    toggle.className = 'crm-menu-group-toggle';
+                    toggle.textContent = item.textContent.trim();
+                    item.replaceChildren(toggle);
+
+                    (function (groupId, groupToggle) {
+                        groupToggle.addEventListener('click', function () {
+                            var isOpen = groupToggle.getAttribute('aria-expanded') === 'true';
+                            var nextOpen = !isOpen;
+                            var savedStates = readMenuGroupStates();
+
+                            savedStates[groupId] = nextOpen;
+                            writeMenuGroupStates(savedStates);
+                            setMenuGroupOpen(tabs, groupId, nextOpen);
+                        });
+                    }(currentGroupId, toggle));
+                }
+
+                return;
+            }
+
+            if (currentGroupId && item.classList.contains('tab')) {
+                item.classList.add('crm-menu-group-item');
+                item.dataset.crmMenuGroup = currentGroupId;
+            }
+        });
+
+        var activeGroupId = null;
+
+        groupIds.some(function (groupId) {
+            var hasActiveItem = children.some(function (item) {
+                return item.dataset.crmMenuGroup === groupId && item.classList.contains('active');
+            });
+
+            if (hasActiveItem) {
+                activeGroupId = groupId;
+            }
+
+            return hasActiveItem;
+        });
+
+        var previousActiveGroupId = tabs.dataset.crmMenuActiveGroup || '';
+
+        groupIds.forEach(function (groupId) {
+            var open = typeof states[groupId] === 'boolean'
+                ? states[groupId]
+                : groupId === 'gestion';
+
+            // Al navegar a otra sección, se despliega automáticamente para
+            // que el enlace activo nunca quede oculto por sorpresa.
+            if (activeGroupId === groupId && activeGroupId !== previousActiveGroupId) {
+                open = true;
+            }
+
+            setMenuGroupOpen(tabs, groupId, open);
+        });
+
+        tabs.dataset.crmMenuActiveGroup = activeGroupId || '';
+    }
+
     function syncNavbar() {
         if (!document.querySelector('#navbar .navbar-left-container')) {
             return;
@@ -517,6 +719,8 @@
         applyPostLoginReferenceShell();
 
         setupMinimizerButton();
+        ensureSidebarUserIdentity();
+        syncMenuGroups();
         dedupeSideMenuButtons();
         ensureDrawerToggleButton();
         syncMobileNavState();
@@ -567,6 +771,8 @@
                 }
 
                 setupMinimizerButton();
+                ensureSidebarUserIdentity();
+                syncMenuGroups();
                 ensureDrawerToggleButton();
                 dedupeSideMenuButtons();
             }, 100);

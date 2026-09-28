@@ -15,7 +15,10 @@
         "assignedUser": "Responsable",
         "teams": "Equipos",
         "createdAt": "Creado",
-        "modifiedAt": "Modificado"
+        "modifiedAt": "Modificado",
+        "tipoSuspension": "Tipo de suspensión",
+        "tipoPrueba": "Prueba o actuación",
+        "fechaLimiteActuacion": "Plazo de la actuación"
     },
     "labels": {
         "Create SuspensionAudiencia": "Crear suspensión de audiencia",
@@ -27,6 +30,7 @@
             "Pendiente": "Pendiente",
             "Aceptada": "Aceptada",
             "Rechazada": "Rechazada",
+            "No presentada": "No presentada",
             "No aplica": "No aplica"
         },
         "estado": {
@@ -34,8 +38,22 @@
             "Con término de justificación pendiente": "Con término de justificación pendiente",
             "Justificación resuelta": "Justificación resuelta",
             "Actuación pendiente en curso": "Actuación pendiente en curso",
+            "Lista para reanudación": "Lista para reanudación",
             "Reanudada": "Reanudada",
             "Cerrada": "Cerrada"
+        },
+        "tipoSuspension": {
+            "Primera inasistencia": "Primera inasistencia",
+            "Prueba o actuación externa": "Prueba o actuación externa",
+            "Otra causa": "Otra causa"
+        },
+        "tipoPrueba": {
+            "": "",
+            "Inspección ocular": "Inspección ocular",
+            "Visita técnica": "Visita técnica",
+            "Informe especializado": "Informe especializado",
+            "Ampliación o aclaración de informe": "Ampliación o aclaración de informe",
+            "Otra prueba": "Otra prueba"
         }
     }
 }

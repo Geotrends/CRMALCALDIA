@@ -39,6 +39,12 @@
             ],
             [
                 {
+                    "name": "normasSeleccionadas",
+                    "fullWidth": true
+                }
+            ],
+            [
+                {
                     "name": "normaAplicable",
                     "fullWidth": true
                 }

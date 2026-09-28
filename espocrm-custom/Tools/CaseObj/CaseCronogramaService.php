@@ -193,9 +193,16 @@ class CaseCronogramaService
 
         $diasVencimiento = CaseVencimientoHelper::diasRestantes($fechaLimite);
 
+        // Con el expediente en curso, el estado que importa es el paso de la ruta.
+        $lectura = new CaseProcesoLectura($this->entityManager);
+        $expedienteEnCurso = $lectura->expedienteEnCurso($case);
+        $estadoVisible = $expedienteEnCurso
+            ? 'Expediente N.º ' . $expedienteEnCurso->get('numero') . ' · ' . $lectura->pasoActual($expedienteEnCurso)
+            : $currentStatus;
+
         return [
             'timeZoneLabel' => '(UTC-05:00) Bogotá, Lima, Quito',
-            'currentStatus' => $currentStatus,
+            'currentStatus' => $estadoVisible,
             'diasRestantesVencimiento' => $diasVencimiento,
             'isEstadoFinal' => CaseVencimientoHelper::isEstadoFinal($currentStatus),
             'entries' => $entries,
@@ -215,6 +222,12 @@ class CaseCronogramaService
         $expedienteId = trim((string) $case->get('expedienteId'));
 
         if ($expedienteId === '') {
+            // Apertura definida y aún sin decidir: el siguiente hito es la apertura.
+            if (trim((string) $case->get('cDecisionTramite')) === 'Apertura de actuación') {
+                return [$this->policivoEntry('policivo_apertura', ExpedientePasosCatalog::PASO_APERTURA,
+                    'Pendiente decidir: expediente nuevo o incorporación, y ruta jurídica', null, 'En curso', null, 'today')];
+            }
+
             return [];
         }
 
@@ -232,68 +245,94 @@ class CaseCronogramaService
             return [];
         }
 
+        $lectura = new CaseProcesoLectura($this->entityManager);
+        $historial = $lectura->historial($expediente);
         $pasos = array_keys($pasosConPlazo);
-        $estadoActual = trim((string) $expediente->get('estado')) ?: ExpedientePasosCatalog::ESTADO_ABIERTO;
-        $currentIndex = array_search($estadoActual, $pasos, true);
-        $currentIndex = $currentIndex === false ? 0 : $currentIndex;
+        $preparacion = trim((string) $expediente->get('estado')) === CaseAperturaService::ESTADO_PREPARACION;
+        $currentIndex = $preparacion ? -1 : ($lectura->archivado($expediente) ? count($pasos) : (int) array_search($lectura->pasoActual($expediente), $pasos, true));
         $fechaInicioPaso = $expediente->get('fechaInicioPaso')
             ? (string) $expediente->get('fechaInicioPaso')
             : null;
+        $expedienteTexto = 'Expediente N.º ' . CaseAperturaService::numeroTexto($expediente) . ' · ' . $tipoTramite;
 
         $entries = [];
 
+        $entries[] = $preparacion
+            ? $this->policivoEntry('policivo_apertura', ExpedientePasosCatalog::PASO_APERTURA,
+                $expedienteTexto . ' · en preparación (Auto de Inicio sin firmar)', (string) $expediente->get('createdAt'), 'En curso', null, 'today')
+            : $this->milestone('policivo_apertura', ExpedientePasosCatalog::PASO_APERTURA,
+                $expediente->get('fechaAperturaFormal'), $expedienteTexto . ' · Auto de Inicio firmado');
+
         foreach ($pasos as $index => $paso) {
             $plazo = $pasosConPlazo[$paso];
-            $detail = 'Plazo legal: ' . $plazo . ' día(s)';
+            $detail = 'Plazo de referencia: ' . $plazo . ' día(s)';
+            $fin = $historial[$paso]['fin'] ?? null;
 
-            if ($index < $currentIndex) {
-                $entries[] = [
-                    'key' => 'policivo_' . $index,
-                    'label' => $paso,
-                    'detail' => $detail,
-                    'at' => null,
-                    'type' => 'milestone',
-                    'statusText' => 'Completado',
-                    'timestampText' => null,
-                    'statusKind' => 'elapsed',
-                ];
-
-                continue;
-            }
-
-            if ($index === $currentIndex) {
+            if ($index < $currentIndex && !empty($historial[$paso]['omitido'])) {
+                $entries[] = $this->policivoEntry('policivo_' . $index, $paso, $historial[$paso]['observacion'] ?? 'No aplica', null, 'No aplica', null, 'elapsed');
+            } elseif ($index < $currentIndex) {
+                $entries[] = $fin
+                    ? $this->milestone('policivo_' . $index, $paso, $fin, $historial[$paso]['observacion'] ?? $detail)
+                    : $this->policivoEntry('policivo_' . $index, $paso, $detail, null, 'Completado', null, 'elapsed');
+            } elseif ($index === $currentIndex) {
                 $limite = ExpedienteVencimientoHelper::fechaLimite($fechaInicioPaso, $plazo);
                 $formatted = $limite
                     ? $this->formatDeadlineStatus($limite->format('Y-m-d'))
                     : ['statusText' => 'En curso', 'timestampText' => null, 'statusKind' => 'today'];
 
-                $entries[] = [
-                    'key' => 'policivo_' . $index,
-                    'label' => $paso,
-                    'detail' => $detail,
-                    'at' => $fechaInicioPaso,
-                    'type' => 'milestone',
-                    'statusText' => $formatted['statusText'],
-                    'timestampText' => $formatted['timestampText'],
-                    'statusKind' => $formatted['statusKind'],
-                ];
-
-                continue;
+                $entries[] = $this->policivoEntry('policivo_' . $index, $paso, $detail, $fechaInicioPaso,
+                    $formatted['statusText'], $formatted['timestampText'], $formatted['statusKind']);
+            } else {
+                $entries[] = $this->policivoEntry('policivo_' . $index, $paso, $detail, null, 'Pendiente', null, 'pending');
             }
 
-            $entries[] = [
-                'key' => 'policivo_' . $index,
-                'label' => $paso,
-                'detail' => $detail,
-                'at' => null,
-                'type' => 'milestone',
-                'statusText' => 'Pendiente',
-                'timestampText' => null,
-                'statusKind' => 'pending',
-            ];
+            // Las audiencias (y sus reprogramaciones) se listan dentro del paso de audiencia.
+            if ($paso === ExpedientePasosCatalog::PASO_AUDIENCIA) {
+                foreach ($lectura->hitosAudiencia($expediente) as $hito) {
+                    $entries[] = $this->audienciaEntry($hito, $lectura);
+                }
+            }
         }
 
         return $entries;
+    }
+
+    /**
+     * @param array<string, mixed> $hito
+     * @return array<string, mixed>
+     */
+    private function audienciaEntry(array $hito, CaseProcesoLectura $lectura): array
+    {
+        $cuando = $lectura->fechaHora($hito['fecha']);
+        $futura = $hito['fecha'] !== '' && $this->toBogota($hito['fecha']) > $this->nowBogota();
+
+        [$texto, $kind] = match ($hito['estado']) {
+            CaseProcesoLectura::AUD_COMPLETA => ['Realizada · acta y audio completos', 'elapsed'],
+            CaseProcesoLectura::AUD_PENDIENTE_SOPORTES => ['Realizada · faltan acta y audio', 'today'],
+            CaseProcesoLectura::AUD_SUSPENDIDA => ['Suspendida', 'overdue'],
+            CaseProcesoLectura::AUD_REPROGRAMADA => ['Reprogramada', 'elapsed'],
+            default => [$futura ? 'Programada' : 'Programada · pendiente registrar resultado', $futura ? 'remaining' : 'today'],
+        };
+
+        return $this->policivoEntry('audiencia_' . $hito['numero'], '↳ Audiencia N.º ' . $hito['numero'],
+            $hito['detalle'], $hito['fecha'], $texto, $cuando, $kind);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function policivoEntry(string $key, string $label, ?string $detail, ?string $at, string $statusText, ?string $timestampText, string $statusKind): array
+    {
+        return [
+            'key' => $key,
+            'label' => $label,
+            'detail' => $detail,
+            'at' => $at,
+            'type' => 'milestone',
+            'statusText' => $statusText,
+            'timestampText' => $timestampText,
+            'statusKind' => $statusKind,
+        ];
     }
 
     /**

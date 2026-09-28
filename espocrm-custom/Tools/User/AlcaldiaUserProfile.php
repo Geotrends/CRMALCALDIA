@@ -51,6 +51,8 @@ class AlcaldiaUserProfile
     /** Nombre oficial según 90_MODELO_CRM/matriz_roles_v1.0.md (BPMN). */
     public const ROLE_INSPECTOR_AMBIENTAL = 'Inspector Ambiental';
 
+    public const ROLE_AUX_INSPECCION = 'Auxiliar Administrativo · Inspección';
+
     /** @var string[] */
     private const NAMES_JURIDICA = [self::ROLE_JURIDICA, self::ROLE_JURIDICA_ALT, self::ROLE_JURIDICA_BPMN];
 
@@ -391,6 +393,32 @@ class AlcaldiaUserProfile
     public function findActiveInspectorFirmanteUserIds(): array
     {
         return $this->findActiveUserIdsByRoleNames(array_merge([self::ROLE_INSPECTOR_AMBIENTAL], self::NAMES_INSPECCION));
+    }
+
+    /**
+     * Gestiona los pasos de la ruta jurídica del expediente (citación, audiencia, …):
+     * Apoyo Jurídico, Inspector Ambiental (o el rol histórico Inspección),
+     * Aux. Administrativo · Inspección y Admin (decisión del usuario, 2026-09-28).
+     */
+    public function canGestionarProceso(User $user): bool
+    {
+        return $user->isAdmin()
+            || $this->hasAnyRole($user, self::NAMES_JURIDICA)
+            || $this->isInspectorAmbiental($user)
+            || $this->hasAnyRole($user, self::NAMES_INSPECCION)
+            || $this->hasAnyRole($user, [self::ROLE_AUX_INSPECCION]);
+    }
+
+    /**
+     * @return string[]
+     */
+    public function findActiveGestoresProcesoUserIds(): array
+    {
+        return array_values(array_unique(array_merge(
+            $this->findActiveUserIdsByRoleNames(self::NAMES_JURIDICA),
+            $this->findActiveUserIdsByRoleNames(array_merge([self::ROLE_INSPECTOR_AMBIENTAL, self::ROLE_AUX_INSPECCION], self::NAMES_INSPECCION)),
+            $this->findActiveAdminUserIds(),
+        )));
     }
 
     /**

@@ -1074,6 +1074,10 @@
             ],
             "audited": true
         },
+        "cSoportesExpediente": {
+            "type": "attachmentMultiple",
+            "isCustom": true
+        },
         "cDecisionTramite": {
             "type": "enum",
             "options": ["Seleccione una opción", "Visita complementaria", "Cierre de atención", "Remisión por competencia", "Apertura de actuación"],

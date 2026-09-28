@@ -14,7 +14,15 @@
         "assignedUser": "Responsable",
         "teams": "Equipos",
         "createdAt": "Creado",
-        "modifiedAt": "Modificado"
+        "modifiedAt": "Modificado",
+        "numero": "N.º de audiencia",
+        "lugarTipo": "Lugar de la audiencia",
+        "lugar": "Dirección de la audiencia",
+        "citacionMedio": "Medio de citación",
+        "citacionDocumento": "Citación",
+        "citacionSoporte": "Soporte de entrega de la citación",
+        "citacionFechaEntrega": "Fecha de entrega de la citación",
+        "conciliacion": "Hubo conciliación o compromiso"
     },
     "labels": {
         "Create Audiencia": "Crear audiencia",
@@ -29,12 +37,26 @@
         "estado": {
             "Programada": "Programada",
             "En curso": "En curso",
+            "Suspendida": "Suspendida",
             "Pendiente de audio": "Pendiente de audio",
             "Pendiente de acta": "Pendiente de acta",
             "Pendiente de soportes": "Pendiente de soportes",
             "Completa documentalmente": "Completa documentalmente",
             "Cancelada": "Cancelada",
             "Reprogramada": "Reprogramada"
+        },
+        "lugarTipo": {
+            "Despacho de la Inspección": "Despacho de la Inspección",
+            "Lugar de los hechos": "Lugar de los hechos",
+            "Otra dirección": "Otra dirección"
+        },
+        "citacionMedio": {
+            "": "",
+            "Personal": "Personal",
+            "Correo certificado": "Correo certificado",
+            "Correo electrónico": "Correo electrónico",
+            "Aviso": "Aviso",
+            "Otro": "Otro"
         }
     },
     "links": {

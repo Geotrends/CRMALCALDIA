@@ -1,0 +1,360 @@
+{
+    "fuente": "InspeccionAmbiental-Workflow · 90_MODELO_CRM/matriz_conducta_medida v1.1 (viewer/public/medidas_correctivas.json, 2026-09-10); procedimiento de 07_RUTAS_JURIDICAS",
+    "grupos": {
+        "PROCEDIMIENTO": "Procedimiento y competencia",
+        "RUIDO": "Ruido",
+        "AGUA": "Agua",
+        "FLORA_FAUNA_SILVESTRE": "Flora y fauna silvestre",
+        "AIRE": "Aire",
+        "ANIMALES_GENERAL": "Animales",
+        "TENENCIA_ANIMAL": "Tenencia de animales",
+        "CANINO_MANEJO_ESPECIAL": "Caninos de manejo especial",
+        "MALTRATO": "Maltrato animal"
+    },
+    "porRuta": {
+        "Proceso Verbal de Maltrato Animal (Ley 84/1989 - Ley 2455/2025)": [
+            "L84-1989"
+        ],
+        "_default": [
+            "L1801-A223",
+            "L1801-A206"
+        ]
+    },
+    "sugerencias": [
+        {
+            "patron": "ruido",
+            "grupos": [
+                "RUIDO"
+            ]
+        },
+        {
+            "patron": "emision|atmosfer|quema|incendio",
+            "grupos": [
+                "AIRE"
+            ]
+        },
+        {
+            "patron": "aguas|cauce|vertimiento|escorrentia|hidric",
+            "grupos": [
+                "AGUA"
+            ]
+        },
+        {
+            "patron": "arbol|arbore|forestal|vegetacion|flora|zona verde",
+            "grupos": [
+                "FLORA_FAUNA_SILVESTRE"
+            ]
+        },
+        {
+            "patron": "fauna silvestre",
+            "grupos": [
+                "FLORA_FAUNA_SILVESTRE"
+            ]
+        },
+        {
+            "patron": "maltrato",
+            "grupos": [
+                "MALTRATO",
+                "ANIMALES_GENERAL"
+            ]
+        },
+        {
+            "patron": "caninos? de manejo especial",
+            "grupos": [
+                "CANINO_MANEJO_ESPECIAL"
+            ]
+        },
+        {
+            "patron": "ataque de animales",
+            "grupos": [
+                "TENENCIA_ANIMAL",
+                "CANINO_MANEJO_ESPECIAL"
+            ]
+        },
+        {
+            "patron": "animales de compania|fauna domestica",
+            "grupos": [
+                "TENENCIA_ANIMAL",
+                "ANIMALES_GENERAL"
+            ]
+        }
+    ],
+    "normas": [
+        {
+            "id": "L1801-A223",
+            "grupo": "PROCEDIMIENTO",
+            "articulo": "Ley 1801 de 2016, art. 223",
+            "titulo": "Trámite del Proceso Verbal Abreviado"
+        },
+        {
+            "id": "L1801-A206",
+            "grupo": "PROCEDIMIENTO",
+            "articulo": "Ley 1801 de 2016, art. 206 modificado por Ley 2492 de 2025",
+            "titulo": "Competencia de los Inspectores de Convivencia y Paz"
+        },
+        {
+            "id": "L2450-A93-N3",
+            "grupo": "RUIDO",
+            "articulo": "Ley 1801 de 2016, art. 93 num. 3 modificado por Ley 2450 de 2025",
+            "titulo": "Ruido que afecta la convivencia en actividad económica"
+        },
+        {
+            "id": "L2450-A93-N15",
+            "grupo": "RUIDO",
+            "articulo": "Ley 1801 de 2016, art. 93 num. 15 adicionado por Ley 2450 de 2025",
+            "titulo": "Ruido, sonidos o vibraciones en espacios residenciales/PH con actividad económica"
+        },
+        {
+            "id": "L1801-A100-N1",
+            "grupo": "AGUA",
+            "articulo": "Ley 1801 de 2016, art. 100 num. 1",
+            "titulo": "Uso del agua distinto de la autorización"
+        },
+        {
+            "id": "L1801-A100-N2",
+            "grupo": "AGUA",
+            "articulo": "Ley 1801 de 2016, art. 100 num. 2",
+            "titulo": "Vertimiento de sustancias/residuos a cuerpos de agua"
+        },
+        {
+            "id": "L1801-A100-N3",
+            "grupo": "AGUA",
+            "articulo": "Ley 1801 de 2016, art. 100 num. 3",
+            "titulo": "Deterioro o alteración de cuerpos de agua/rondas"
+        },
+        {
+            "id": "L1801-A100-N4",
+            "grupo": "AGUA",
+            "articulo": "Ley 1801 de 2016, art. 100 num. 4",
+            "titulo": "Captación sin autorización ambiental"
+        },
+        {
+            "id": "L1801-A100-N5",
+            "grupo": "AGUA",
+            "articulo": "Ley 1801 de 2016, art. 100 num. 5",
+            "titulo": "Lavado de bienes en espacio público/cuerpos de agua"
+        },
+        {
+            "id": "L1801-A100-N6",
+            "grupo": "AGUA",
+            "articulo": "Ley 1801 de 2016, art. 100 num. 6",
+            "titulo": "Afectación de humedales y ecosistemas asociados"
+        },
+        {
+            "id": "L1801-A101-N1",
+            "grupo": "FLORA_FAUNA_SILVESTRE",
+            "articulo": "Ley 1801 de 2016, art. 101 num. 1",
+            "titulo": "Fauna silvestre sin autorización"
+        },
+        {
+            "id": "L1801-A101-N2",
+            "grupo": "FLORA_FAUNA_SILVESTRE",
+            "articulo": "Ley 1801 de 2016, art. 101 num. 2",
+            "titulo": "Flora silvestre sin autorización"
+        },
+        {
+            "id": "L1801-A101-N3",
+            "grupo": "FLORA_FAUNA_SILVESTRE",
+            "articulo": "Ley 1801 de 2016, art. 101 num. 3",
+            "titulo": "Movilización de madera sin salvoconducto/guía"
+        },
+        {
+            "id": "L1801-A101-N4",
+            "grupo": "FLORA_FAUNA_SILVESTRE",
+            "articulo": "Ley 1801 de 2016, art. 101 num. 4",
+            "titulo": "Permisos forestales con inconsistencias"
+        },
+        {
+            "id": "L1801-A101-N5",
+            "grupo": "FLORA_FAUNA_SILVESTRE",
+            "articulo": "Ley 1801 de 2016, art. 101 num. 5",
+            "titulo": "Aprovechamiento/comercio de flora silvestre de parques"
+        },
+        {
+            "id": "L1801-A101-N6",
+            "grupo": "FLORA_FAUNA_SILVESTRE",
+            "articulo": "Ley 1801 de 2016, art. 101 num. 6",
+            "titulo": "Caza o pesca industrial sin permiso"
+        },
+        {
+            "id": "L1801-A101-N7",
+            "grupo": "FLORA_FAUNA_SILVESTRE",
+            "articulo": "Ley 1801 de 2016, art. 101 num. 7",
+            "titulo": "Contaminación/envenenamiento de recursos naturales"
+        },
+        {
+            "id": "L1801-A101-N8",
+            "grupo": "FLORA_FAUNA_SILVESTRE",
+            "articulo": "Ley 1801 de 2016, art. 101 num. 8",
+            "titulo": "Experimentación/manipulación de especies silvestres sin permiso"
+        },
+        {
+            "id": "L1801-A101-N9",
+            "grupo": "FLORA_FAUNA_SILVESTRE",
+            "articulo": "Ley 1801 de 2016, art. 101 num. 9",
+            "titulo": "Violación de vedas de caza y pesca"
+        },
+        {
+            "id": "L1801-A101-N10",
+            "grupo": "FLORA_FAUNA_SILVESTRE",
+            "articulo": "Ley 1801 de 2016, art. 101 num. 10",
+            "titulo": "Animal silvestre como mascota"
+        },
+        {
+            "id": "L1801-A102-N1",
+            "grupo": "AIRE",
+            "articulo": "Ley 1801 de 2016, art. 102 num. 1",
+            "titulo": "Quemas no autorizadas"
+        },
+        {
+            "id": "L1801-A102-N2",
+            "grupo": "AIRE",
+            "articulo": "Ley 1801 de 2016, art. 102 num. 2",
+            "titulo": "Emisión de contaminantes a la atmósfera"
+        },
+        {
+            "id": "L1801-A116-N1",
+            "grupo": "ANIMALES_GENERAL",
+            "articulo": "Ley 1801 de 2016, art. 116 num. 1",
+            "titulo": "Apuestas con animales"
+        },
+        {
+            "id": "L1801-A116-N2",
+            "grupo": "ANIMALES_GENERAL",
+            "articulo": "Ley 1801 de 2016, art. 116 num. 2",
+            "titulo": "Venta/promoción de animales domésticos en vía pública"
+        },
+        {
+            "id": "L1801-A116-N3",
+            "grupo": "ANIMALES_GENERAL",
+            "articulo": "Ley 1801 de 2016, art. 116 num. 3",
+            "titulo": "Semovientes sin control en espacio público"
+        },
+        {
+            "id": "L1801-A124-N1",
+            "grupo": "TENENCIA_ANIMAL",
+            "articulo": "Ley 1801 de 2016, art. 124 num. 1",
+            "titulo": "Animal/semoviente sin medidas de seguridad"
+        },
+        {
+            "id": "L1801-A124-N2",
+            "grupo": "TENENCIA_ANIMAL",
+            "articulo": "Ley 1801 de 2016, art. 124 num. 2",
+            "titulo": "Impedir ingreso de perro guía"
+        },
+        {
+            "id": "L1801-A124-N3",
+            "grupo": "TENENCIA_ANIMAL",
+            "articulo": "Ley 1801 de 2016, art. 124 num. 3",
+            "titulo": "No recoger excrementos"
+        },
+        {
+            "id": "L1801-A124-N4",
+            "grupo": "TENENCIA_ANIMAL",
+            "articulo": "Ley 1801 de 2016, art. 124 num. 4",
+            "titulo": "Traslado de canino de manejo especial sin elementos exigidos"
+        },
+        {
+            "id": "L1801-A124-N5",
+            "grupo": "TENENCIA_ANIMAL",
+            "articulo": "Ley 1801 de 2016, art. 124 num. 5",
+            "titulo": "Incumplimiento de reglas de albergue de animales"
+        },
+        {
+            "id": "L1801-A124-N6",
+            "grupo": "TENENCIA_ANIMAL",
+            "articulo": "Ley 1801 de 2016, art. 124 num. 6",
+            "titulo": "Incumplimiento de reglas sobre propiedad/registro de animal de manejo especial"
+        },
+        {
+            "id": "L1801-A124-N7",
+            "grupo": "TENENCIA_ANIMAL",
+            "articulo": "Ley 1801 de 2016, art. 124 num. 7",
+            "titulo": "Permitir o inducir ataque de animal"
+        },
+        {
+            "id": "L1801-A124-N8",
+            "grupo": "TENENCIA_ANIMAL",
+            "articulo": "Ley 1801 de 2016, art. 124 num. 8",
+            "titulo": "Entrenamiento de caninos para peleas/agresión"
+        },
+        {
+            "id": "L1801-A124-N9",
+            "grupo": "TENENCIA_ANIMAL",
+            "articulo": "Ley 1801 de 2016, art. 124 num. 9",
+            "titulo": "Animal dispersa residuos"
+        },
+        {
+            "id": "L1801-A134-N1",
+            "grupo": "CANINO_MANEJO_ESPECIAL",
+            "articulo": "Ley 1801 de 2016, art. 134 num. 1",
+            "titulo": "Canino de manejo especial deambulando"
+        },
+        {
+            "id": "L1801-A134-N2",
+            "grupo": "CANINO_MANEJO_ESPECIAL",
+            "articulo": "Ley 1801 de 2016, art. 134 num. 2",
+            "titulo": "Traslado sin bozal/traílla/implementos"
+        },
+        {
+            "id": "L1801-A134-N3",
+            "grupo": "CANINO_MANEJO_ESPECIAL",
+            "articulo": "Ley 1801 de 2016, art. 134 num. 3",
+            "titulo": "Incumplimiento de reglas de albergue"
+        },
+        {
+            "id": "L1801-A134-N4",
+            "grupo": "CANINO_MANEJO_ESPECIAL",
+            "articulo": "Ley 1801 de 2016, art. 134 num. 4",
+            "titulo": "Centro de crianza/importación no autorizado"
+        },
+        {
+            "id": "L1801-A134-N5",
+            "grupo": "CANINO_MANEJO_ESPECIAL",
+            "articulo": "Ley 1801 de 2016, art. 134 num. 5",
+            "titulo": "Incumplimiento de registro/posesión/transferencia"
+        },
+        {
+            "id": "L1801-A134-N6",
+            "grupo": "CANINO_MANEJO_ESPECIAL",
+            "articulo": "Ley 1801 de 2016, art. 134 num. 6",
+            "titulo": "Tenencia/transporte por niños o adolescentes"
+        },
+        {
+            "id": "L1801-A134-N7",
+            "grupo": "CANINO_MANEJO_ESPECIAL",
+            "articulo": "Ley 1801 de 2016, art. 134 num. 7",
+            "titulo": "Tenencia/transporte por persona sin capacidad de control"
+        },
+        {
+            "id": "L1801-A134-N8",
+            "grupo": "CANINO_MANEJO_ESPECIAL",
+            "articulo": "Ley 1801 de 2016, art. 134 num. 8",
+            "titulo": "Tenencia/transporte bajo embriaguez o sustancias"
+        },
+        {
+            "id": "L1801-A134-N9",
+            "grupo": "CANINO_MANEJO_ESPECIAL",
+            "articulo": "Ley 1801 de 2016, art. 134 num. 9",
+            "titulo": "Falta de póliza cuando sea exigible"
+        },
+        {
+            "id": "L1801-A134-P2",
+            "grupo": "CANINO_MANEJO_ESPECIAL",
+            "articulo": "Ley 1801 de 2016, art. 134 par. 2",
+            "titulo": "Ataque a otra mascota"
+        },
+        {
+            "id": "L1801-A134-P3",
+            "grupo": "CANINO_MANEJO_ESPECIAL",
+            "articulo": "Ley 1801 de 2016, art. 134 par. 3",
+            "titulo": "Ataque a persona con lesiones permanentes"
+        },
+        {
+            "id": "L84-1989",
+            "grupo": "MALTRATO",
+            "articulo": "Ley 84 de 1989 modificada por Ley 2455 de 2025",
+            "titulo": "Proceso verbal de maltrato animal"
+        }
+    ]
+}
