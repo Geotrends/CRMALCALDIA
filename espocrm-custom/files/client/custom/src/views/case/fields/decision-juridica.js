@@ -34,10 +34,10 @@ define('custom:views/case/fields/decision-juridica', [
             success: 'Caso remitido por competencia. Remisión registrada para el oficio.',
         },
         'Apertura de actuación': {
-            label: 'Guardar y abrir Auto de Inicio',
+            label: 'Guardar y decidir la apertura',
             icon: 'fa-gavel',
             endpoint: null,
-            confirm: '¿Confirma la apertura de actuación? A continuación diligencie el Auto de Inicio.',
+            confirm: '¿Confirma la apertura de actuación? A continuación elija el régimen y si se abre un expediente nuevo o se incorpora a uno existente.',
             success: '',
         },
     };
@@ -77,7 +77,23 @@ define('custom:views/case/fields/decision-juridica', [
 
             return RadicacionFields.isInspeccionUser(user)
                 || RadicacionFields.isAsignadorUser(user)
-                || RadicacionFields.isJuridicaUser(user);
+                || RadicacionFields.isJuridicaUser(user)
+                || this.tieneRol('Inspector Ambiental');
+        },
+
+        /** Roles del usuario según el perfil del servidor (cargado en loadState). */
+        tieneRol: function (nombre) {
+            return (this.profileRoles || []).indexOf(nombre) !== -1;
+        },
+
+        /** Apertura de actuación: Admin, Director Técnico, Inspector Ambiental o Apoyo Jurídico. */
+        canDecidirApertura: function () {
+            const user = this.getUser();
+
+            return (user.isAdmin && user.isAdmin())
+                || RadicacionFields.isAsignadorUser(user)
+                || RadicacionFields.isJuridicaUser(user)
+                || this.tieneRol('Inspector Ambiental');
         },
 
         isCaseReadyForDecision: function () {
@@ -104,6 +120,20 @@ define('custom:views/case/fields/decision-juridica', [
             const user = this.getUser();
 
             if (!this.model.id || this._loading) {
+                return;
+            }
+
+            if (!this.profileRoles) {
+                this._loading = true;
+                RadicacionFields.ensureProfile(user).then(function (profile) {
+                    self.profileRoles = (profile && profile.roles) || [];
+                }).catch(function () {
+                    self.profileRoles = [];
+                }).finally(function () {
+                    self._loading = false;
+                    self.loadState();
+                });
+
                 return;
             }
 
@@ -188,7 +218,11 @@ define('custom:views/case/fields/decision-juridica', [
 
         data: function () {
             const user = this.getUser();
-            const canDecidir = this.stateReady && this.canDecidir(user) && !this.hasAutoInicio && this.hasActaFirmada;
+            // Con expediente (en preparación o abierto) la revisión ya se resolvió: la
+            // apertura sigue en el bloque «Apertura de expediente».
+            const canDecidir = this.stateReady && this.canDecidir(user) && !this.hasAutoInicio && this.hasActaFirmada
+                && !this.model.get('expedienteId')
+                && this.model.get('cDecisionTramite') !== 'Apertura de actuación';
             const status = String(this.model.get('status') || '').trim();
             const showRevisar = canDecidir && status === STATUS_VISITA_REALIZADA;
             const showDecisiones = canDecidir && (status === STATUS_REVISION || status === STATUS_LEGACY_APPROVED);
@@ -303,6 +337,10 @@ define('custom:views/case/fields/decision-juridica', [
                 $btn.find('.js-ejecutar-icon').attr('class', 'fas ' + (accion ? accion.icon : 'fa-circle-check') + ' js-ejecutar-icon');
             };
 
+            if (!this.canDecidirApertura()) {
+                $decision.find('option[value="Apertura de actuación"]').remove();
+            }
+
             $decision.off('change.decisionForm').on('change.decisionForm', syncForm);
             syncForm();
 
@@ -358,15 +396,10 @@ define('custom:views/case/fields/decision-juridica', [
                     Espo.Ui.notify(false);
 
                     if (!accion.endpoint) {
-                        // Apertura de actuación: el Auto de Inicio se diligencia en su formulario.
+                        // Apertura de actuación: se decide el régimen y si se abre un expediente
+                        // nuevo o se incorpora a uno existente en el bloque «Apertura de expediente».
+                        Espo.Ui.success('Definición guardada. Complete la apertura en «Apertura de expediente».');
                         self.model.fetch();
-                        AutoInicioModal.open(self, self.model, self.getUser(), {
-                            onAfterSave: function () {
-                                self.hasAutoInicio = true;
-                                self.model.fetch();
-                                self.scheduleLoadState();
-                            },
-                        });
 
                         return;
                     }

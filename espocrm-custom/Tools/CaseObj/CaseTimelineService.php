@@ -62,6 +62,12 @@ class CaseTimelineService
             ? self::BASE_LENGTH + $expediente['pasoIndex']
             : $this->resolveCurrentIndex($case, $currentStatus);
 
+        $aperturaEnCurso = !$expediente ? $this->resolveAperturaEnPreparacion($case) : null;
+
+        if ($aperturaEnCurso) {
+            $currentIndex = (int) array_search('Revisión de hallazgos', self::STATUS_FLOW, true);
+        }
+
         // Visita complementaria en curso: el caso vuelve a Gestión técnica aunque
         // ya tenga actas diligenciadas y una revisión de hallazgos anterior.
         $visitaEnCurso = !$expediente
@@ -82,7 +88,7 @@ class CaseTimelineService
             'Revisión de hallazgos' => self::STEP_RESPUESTA_FINAL,
         ];
 
-        if (!$expediente && !$visitaEnCurso && isset($nextActionByStatus[$currentStatus])) {
+        if (!$expediente && !$visitaEnCurso && !$aperturaEnCurso && isset($nextActionByStatus[$currentStatus])) {
             $currentIndex = max(
                 $currentIndex,
                 array_search($nextActionByStatus[$currentStatus], self::STATUS_FLOW, true)
@@ -157,7 +163,7 @@ class CaseTimelineService
                     ? 'N.º de radicado: ' . $numeroRadicado
                     : ($visitaEnCurso && $status === CaseActaVisitaHelper::STATUS_EN_GESTION_TECNICA
                         ? 'Visita complementaria N.º ' . $numeroVisitaEnCurso . ' en curso'
-                        : null),
+                        : ($aperturaEnCurso && $status === 'Revisión de hallazgos' ? $aperturaEnCurso : null)),
                 'variant' => ($expediente && $index >= self::BASE_LENGTH && $status !== 'Finalizado')
                     ? 'escalado'
                     : null,
@@ -195,6 +201,12 @@ class CaseTimelineService
         $expediente = $this->entityManager->getEntityById('Expediente', $expedienteId);
 
         if (!$expediente) {
+            return null;
+        }
+
+        // En preparación (Auto de Inicio sin firmar) el proceso aún no inicia:
+        // el caso sigue en su línea de tiempo normal.
+        if (trim((string) $expediente->get('estado')) === 'Preparación') {
             return null;
         }
 
@@ -256,7 +268,7 @@ class CaseTimelineService
             return 'evaluacion';
         }
 
-        if (($expediente['tipoTramite'] ?? '') === ExpedientePasosCatalog::TRAMITE_POLICIA) {
+        if (ExpedientePasosCatalog::isPolicivo($expediente['tipoTramite'] ?? '')) {
             return 'policivo';
         }
 
@@ -509,6 +521,31 @@ class CaseTimelineService
         }
 
         return $index;
+    }
+
+    /**
+     * Texto de referencia si el caso tiene un Expediente en «Preparación».
+     */
+    private function resolveAperturaEnPreparacion(Entity $case): ?string
+    {
+        $id = trim((string) $case->get('expedienteId'));
+        $expediente = $id !== '' ? $this->entityManager->getEntityById('Expediente', $id) : null;
+
+        if (!$expediente || trim((string) $expediente->get('estado')) !== 'Preparación') {
+            return null;
+        }
+
+        $auto = $this->entityManager->getRDBRepository('AutoInicio')
+            ->where(['caseId' => $case->getId()])
+            ->order('createdAt', 'DESC')
+            ->findOne();
+        $fase = match ((string) ($auto?->get('estado') ?? '')) {
+            'Para firma' => 'Auto de Inicio para firma del Inspector',
+            'Devuelto' => 'Auto de Inicio devuelto a Jurídica',
+            default => $auto ? 'Jurídica prepara el Auto de Inicio' : 'Auto de Inicio por preparar',
+        };
+
+        return 'Apertura de actuación · Expediente N.º ' . $expediente->get('numero') . ' en preparación · ' . $fase;
     }
 
     private function countActasConContenido(?string $caseId): int

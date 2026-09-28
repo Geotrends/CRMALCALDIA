@@ -49,6 +49,15 @@ class NotifyOnAutoInicioCreated implements AfterSave
             return;
         }
 
+        // Apertura en curso (expediente en «Preparación»): el Auto recién creado es un
+        // borrador de Jurídica; el aviso de apertura se envía al firmarlo el Inspector.
+        $expedienteId = trim((string) $case->get('expedienteId'));
+        $expediente = $expedienteId !== '' ? $this->entityManager->getEntityById('Expediente', $expedienteId) : null;
+
+        if ($expediente && $expediente->get('estado') === 'Preparación') {
+            return;
+        }
+
         $this->notifier->notifyAperturaAutoInicio($case, $this->user);
     }
 }

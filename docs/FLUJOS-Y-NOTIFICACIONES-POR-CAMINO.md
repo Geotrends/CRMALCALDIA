@@ -183,16 +183,27 @@ Igual que C1, pero con el informe técnico como anexo. Mismas notificaciones.
 
 ---
 
-## G. Preparación y Apertura de Expediente (común a C7–C11)
+## G. Preparación y Apertura de Expediente (común a C7–C11) · ✅ 2026-09-28 ([ajuste](ajustes/2026-09-28-apertura-expediente-auto-inicio.md))
 
 | # | Paso | Quién hace | Registro / estado | Notifica a | Hoy |
 |---|---|---|---|---|---|
-| G1 | Autoriza la actuación formal | Inspector | `DecisionRutaJuridica.requiereExpediente = true` | **Jurídica** · "Preparar expediente y Auto de Inicio" | 🆕 |
-| G2 | Revisa si ya hay un expediente abierto para el mismo objeto | Jurídica | sugerencia | Inspector · "Existe el expediente X: ¿incorporar?" | 🆕 |
-| G3 | Crea el Expediente y proyecta el Auto de Inicio (IV-F-364) | Jurídica · `juridica` | `Expediente` → PREPARACION, `AutoInicio` → Proyecto | Inspector · "Auto de Inicio para revisión y firma" | 🟠 `NotifyOnAutoInicioCreated` existe; revisar destinatario |
-| G4 | Revisa, firma y carga el acto final | Inspector | `AutoInicio` → Firmado, `fechaAperturaFormal` | Jurídica + Aux. Inspección · "Expediente abierto: citar/notificar" | 🆕 |
-| G5 | Vincula el Case o los Cases | Jurídica | `ExpedienteCase` | Responsable técnico de cada Case · "Tu caso pasó al expediente X" | 🆕 |
-| G6 | Continúa a la ruta N2 que corresponda | Inspector | ruta | — | — |
+| G1 | Decide la apertura y la **ruta jurídica N2** (PVA, Recursos Naturales, Conductas con animales o Maltrato Animal; se sugiere según la clasificación · [ajuste](ajustes/2026-09-28-ruta-juridica-apertura.md)). Al guardar "Apertura de actuación" se avisa "pendiente de decisión" a quienes deciden | **Admin, Director Técnico, Inspector Ambiental, Apoyo Jurídico** | `DecisionRutaJuridica` + `Expediente` → **Preparación** | **Jurídica** · "Prepare el Auto de Inicio" · Director + Admin (copia) | ✅ |
+| G2 | Revisa expedientes abiertos con coincidencias (documento/nombre del infractor, destino, relación de casos, dirección, peticionario, barrio + tema, asunto) y decide incorporar | Mismos | `Case.expediente` = existente | Jurídica + Inspector | ✅ |
+| G3 | Prepara el Auto de Inicio (motivo, norma, audiencia) y lo envía a firma; se genera el **formato prellenado IV-F-364** (PDF y Word); en Maltrato Animal, borrador "POR VALIDAR" | Apoyo Jurídico | `AutoInicio` → Para firma | **Inspector** · "Descargue, firme y cargue el PDF" | ✅ |
+| G4 | Firma fuera del CRM, carga el PDF → "Aprobar y abrir expediente" (o devuelve con observaciones) | **Inspector Ambiental** | `AutoInicio` → Firmado; `Expediente` → **Abierto** + fecha de apertura | **Jurídica + Aux. Inspección** · "Citar y notificar" · Director + Admin (copia). Devuelto: Jurídica | ✅ |
+| G5 | El caso queda vinculado; la línea de tiempo pasa a los pasos del proceso | Sistema | — | — | ✅ |
+| G6 | Continúa la ruta N2 elegida en G1: el expediente sigue sus pasos (p. ej. PVA: Citación → Audiencia → Pruebas → Decisión → Notificación y recursos → Cumplimiento → Archivo) | Inspector | `Expediente.estado` por paso | — | 🆕 |
+
+### Avisos de la apertura (nunca a quien hace la acción)
+
+| Cuando alguien… | Reciben aviso |
+|---|---|
+| Guarda la definición "Apertura de actuación" | Director Técnico, Inspector Ambiental, Apoyo Jurídico y Admin: "pendiente de decisión" |
+| Decide abrir expediente nuevo | **Apoyo Jurídico**: "Prepare el Auto de Inicio" (accionable) · Director, Inspector Ambiental y Admin: "Apertura decidida" (copia) |
+| Incorpora el caso a un expediente existente | Apoyo Jurídico e Inspector |
+| Envía el Auto a firma | Inspector (Inspector Ambiental / Inspección): "Descargue, firme y cargue el PDF" |
+| Devuelve el Auto | Apoyo Jurídico, con el motivo |
+| Firma y abre el expediente | **Apoyo Jurídico y Aux. Administrativo · Inspección**: "Citar y notificar" (accionable) · Director y Admin (copia) |
 
 ### C7. Proceso Verbal Abreviado · Convivencia (art. 223)
 

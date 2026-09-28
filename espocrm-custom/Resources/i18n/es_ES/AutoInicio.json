@@ -13,6 +13,13 @@
         "inspector": "Responsable",
         "inspectorCargo": "Cargo del responsable",
         "estado": "Estado",
+        "cFormatoAutoInicioDocx": "Formato prellenado (Word)",
+        "normaAplicable": "Norma o artículo por el que se abre el proceso",
+        "fechaAudiencia": "Fecha de la audiencia pública",
+        "horaAudiencia": "Hora de la audiencia (p. ej. 9:00 a. m.)",
+        "actoFirmado": "Auto de Inicio firmado (PDF)",
+        "fechaFirma": "Fecha de firma",
+        "observacionesDevolucion": "Observaciones de devolución",
         "cFormatoAutoInicioPdf": "Auto de inicio (PDF)",
         "assignedUser": "Responsable",
         "teams": "Equipos",
@@ -26,10 +33,17 @@
     },
     "options": {
         "estado": {
-            "Pendiente": "Pendiente",
+            "Pendiente": "En preparación (Jurídica)",
+            "Para firma": "Para firma del Inspector",
+            "Devuelto": "Devuelto a Jurídica",
+            "Firmado": "Firmado",
             "Diligenciada": "Diligenciada"
         },
         "tipoTramite": {
+            "Proceso Verbal de Maltrato Animal (Ley 84/1989 - Ley 2455/2025)": "Proceso Verbal de Maltrato Animal (Ley 84/1989 - Ley 2455/2025)",
+            "Conductas de convivencia con animales (Ley 1801/2016)": "Conductas de convivencia con animales (Ley 1801/2016)",
+            "Recursos Naturales · competencia municipal (Ley 1801/2016)": "Recursos Naturales · competencia municipal (Ley 1801/2016)",
+            "Proceso Verbal Abreviado · Convivencia (Ley 1801/2016)": "Proceso Verbal Abreviado · Convivencia (Ley 1801/2016)",
             "Sin definir": "Sin definir",
             "Sancionatorio ambiental (Ley 1333/2009 - IV-P-028)": "Sancionatorio ambiental (Ley 1333/2009 - IV-P-028)",
             "Código de policía y bienestar animal (Ley 1801/2016 - IV-P-021)": "Código de policía y bienestar animal (Ley 1801/2016 - IV-P-021)"

@@ -134,6 +134,7 @@ if [ -d "$FORMATOS_SOURCE" ]; then
   [ -f "$FORMATOS_SOURCE/ActaVisita2.docx" ] && cp "$FORMATOS_SOURCE/ActaVisita2.docx" "$TEMPLATES_TARGET/ActaVisita2.docx"
   [ -f "$FORMATOS_SOURCE/ActaVisita.xlsx" ] && cp "$FORMATOS_SOURCE/ActaVisita.xlsx" "$TEMPLATES_TARGET/ActaVisita.xlsx"
   [ -f "$FORMATOS_SOURCE/ActuoArchivo.docx" ] && cp "$FORMATOS_SOURCE/ActuoArchivo.docx" "$TEMPLATES_TARGET/ActuoArchivo.docx"
+  [ -f "$FORMATOS_SOURCE/AutoInicio.docx" ] && cp "$FORMATOS_SOURCE/AutoInicio.docx" "$TEMPLATES_TARGET/AutoInicio.docx"
 fi
 
 echo "Copying frontend client/custom (sync limpio)..."

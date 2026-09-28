@@ -232,7 +232,9 @@ define('custom:views/case/fields/acta-visita-action', [
             const caseCerrado = ['Finalizado', 'Proceso cerrado'].indexOf(status) !== -1;
             // El formulario de revisión técnico-jurídica solo se muestra mientras falta
             // definir el trámite; ejecutada la decisión, la visita actual muestra su resumen.
-            const formularioDecisionVisible = ['En gestión técnica', 'Revisión de hallazgos', 'Visita aprobada'].indexOf(status) !== -1;
+            const formularioDecisionVisible = ['En gestión técnica', 'Revisión de hallazgos', 'Visita aprobada'].indexOf(status) !== -1
+                && !this.model.get('expedienteId')
+                && this.model.get('cDecisionTramite') !== 'Apertura de actuación';
 
             return historial
                 .filter(function (acta) {

@@ -2,20 +2,54 @@
     {
         "rows": [
             [
-                {"name": "case"},
-                {"name": "expediente", "readOnly": true}
+                {
+                    "name": "case"
+                },
+                {
+                    "name": "expediente",
+                    "readOnly": true
+                }
             ],
             [
-                {"name": "estado", "readOnly": true},
-                {"name": "tipoTramite"}
+                {
+                    "name": "estado",
+                    "readOnly": true
+                },
+                {
+                    "name": "tipoTramite"
+                }
             ],
             [
-                {"name": "fechaAuto"},
-                {"name": "fechaDada"}
+                {
+                    "name": "fechaAuto"
+                },
+                {
+                    "name": "fechaDada"
+                }
             ],
             [
-                {"name": "numeroRadicado", "readOnly": true},
-                {"name": "consecutivoInterno", "readOnly": true}
+                {
+                    "name": "numeroRadicado",
+                    "readOnly": true
+                },
+                {
+                    "name": "consecutivoInterno",
+                    "readOnly": true
+                }
+            ],
+            [
+                {
+                    "name": "normaAplicable",
+                    "fullWidth": true
+                }
+            ],
+            [
+                {
+                    "name": "fechaAudiencia"
+                },
+                {
+                    "name": "horaAudiencia"
+                }
             ]
         ],
         "style": "default",
@@ -23,22 +57,41 @@
     },
     {
         "rows": [
-            [{"name": "referencia", "fullWidth": true}]
+            [
+                {
+                    "name": "referencia",
+                    "fullWidth": true
+                }
+            ]
         ],
         "style": "default",
         "label": "Referencia"
     },
     {
         "rows": [
-            [{"name": "motivoApertura", "fullWidth": true}]
+            [
+                {
+                    "name": "motivoApertura",
+                    "fullWidth": true
+                }
+            ]
         ],
         "style": "default",
         "label": "Fundamento de apertura"
     },
     {
         "rows": [
-            [{"name": "inspector"}],
-            [{"name": "inspectorCargo", "fullWidth": true}]
+            [
+                {
+                    "name": "inspector"
+                }
+            ],
+            [
+                {
+                    "name": "inspectorCargo",
+                    "fullWidth": true
+                }
+            ]
         ],
         "style": "default",
         "label": "Responsable"

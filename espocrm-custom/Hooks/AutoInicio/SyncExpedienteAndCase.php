@@ -45,6 +45,27 @@ class SyncExpedienteAndCase implements AfterSave
             return;
         }
 
+        // Apertura en curso: el caso ya tiene su Expediente (en «Preparación»)
+        // creado por la decisión de apertura; el Auto se enlaza a ese.
+        $caseExistente = $this->entityManager->getEntityById('Case', $caseId);
+        $expedienteCaso = $caseExistente ? trim((string) $caseExistente->get('expedienteId')) : '';
+
+        if ($expedienteCaso !== '') {
+            $expedienteExistente = $this->entityManager->getEntityById('Expediente', $expedienteCaso);
+
+            $entity->set('expedienteId', $expedienteCaso);
+            $entity->set('consecutivoInterno', $expedienteExistente ? (string) $expedienteExistente->get('numero') : null);
+
+            // El Auto toma la ruta del expediente (decidida en la apertura).
+            if ($expedienteExistente && in_array(trim((string) $entity->get('tipoTramite')), ['', 'Sin definir'], true)) {
+                $entity->set('tipoTramite', $expedienteExistente->get('tipoTramite'));
+            }
+
+            $this->entityManager->saveEntity($entity, ['skipAll' => true]);
+
+            return;
+        }
+
         $tipoTramite = trim((string) $entity->get('tipoTramite')) ?: 'Sin definir';
 
         $result = $this->recordServiceContainer->get('Expediente')->create(

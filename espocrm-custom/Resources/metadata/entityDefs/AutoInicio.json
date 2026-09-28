@@ -37,6 +37,10 @@
         "tipoTramite": {
             "type": "enum",
             "options": [
+                "Proceso Verbal Abreviado · Convivencia (Ley 1801/2016)",
+                "Recursos Naturales · competencia municipal (Ley 1801/2016)",
+                "Conductas de convivencia con animales (Ley 1801/2016)",
+                "Proceso Verbal de Maltrato Animal (Ley 84/1989 - Ley 2455/2025)",
                 "Sin definir",
                 "Sancionatorio ambiental (Ley 1333/2009 - IV-P-028)",
                 "Código de policía y bienestar animal (Ley 1801/2016 - IV-P-021)"
@@ -70,7 +74,7 @@
         },
         "estado": {
             "type": "enum",
-            "options": ["Pendiente", "Diligenciada"],
+            "options": ["Pendiente", "Para firma", "Devuelto", "Firmado", "Diligenciada"],
             "default": "Pendiente",
             "readOnlyAfterCreate": true,
             "isCustom": true
@@ -79,6 +83,44 @@
             "type": "file",
             "readOnly": true,
             "isCustom": true
+        },
+        "normaAplicable": {
+            "type": "text",
+            "isCustom": true,
+            "audited": true
+        },
+        "fechaAudiencia": {
+            "type": "date",
+            "isCustom": true,
+            "audited": true
+        },
+        "horaAudiencia": {
+            "type": "varchar",
+            "maxLength": 20,
+            "isCustom": true,
+            "audited": true
+        },
+        "cFormatoAutoInicioDocx": {
+            "type": "file",
+            "readOnly": true,
+            "isCustom": true
+        },
+        "actoFirmado": {
+            "type": "file",
+            "isCustom": true,
+            "audited": true
+        },
+        "fechaFirma": {
+            "type": "datetime",
+            "readOnly": true,
+            "isCustom": true,
+            "audited": true
+        },
+        "observacionesDevolucion": {
+            "type": "text",
+            "readOnly": true,
+            "isCustom": true,
+            "audited": true
         },
         "assignedUser": {
             "type": "link",

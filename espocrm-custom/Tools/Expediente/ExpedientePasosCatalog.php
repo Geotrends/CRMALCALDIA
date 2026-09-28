@@ -3,26 +3,80 @@
 namespace Espo\Custom\Tools\Expediente;
 
 /**
- * Pasos del Expediente posteriores al Auto de Inicio, por rama jurídica —
- * tomados de las tablas "Flujos de trabajo y actividades del proceso" de
- * IV-P-028 (Ley 1333/2009) e IV-P-021 (Ley 1801/2016, Ley 84/1989). El Auto
- * de Inicio corresponde al paso 6 de ambos procedimientos; el radicado
- * (Case) ya cumplió los pasos anteriores (solicitud, visita, informe,
- * respuesta al peticionario).
+ * Pasos del Expediente posteriores al Auto de Inicio, por ruta jurídica N2.
  *
- * Igual que PlazoLegalCatalog para el Case: mapa fijo en código por ahora.
- * Un módulo configurable futuro solo debe reemplazar getPasos(), sin tocar
- * ExpedienteTimelineService.
+ * Las rutas salen de la compuerta ER-D04 de Evaluación de Resultado (BPMN
+ * evaluacion_resultado_v1.1) y de la salida de 06_APERTURA_EXPEDIENTE; los pasos,
+ * de cada BPMN N2 activo en 07_RUTAS_JURIDICAS. Los días son de referencia
+ * (plazo del paso) y no amplían el término general que gobierne.
+ *
+ * Los dos regímenes anteriores (Ley 1333 / Ley 1801 genérico) se conservan solo
+ * para expedientes ya existentes.
  */
 class ExpedientePasosCatalog
 {
-    public const TRAMITE_SANCIONATORIO = 'Sancionatorio ambiental (Ley 1333/2009 - IV-P-028)';
+    /* Rutas N2 que pasan por la apertura con Auto de Inicio. */
+    public const RUTA_PVA = 'Proceso Verbal Abreviado · Convivencia (Ley 1801/2016)';
+    public const RUTA_RECURSOS_NATURALES = 'Recursos Naturales · competencia municipal (Ley 1801/2016)';
+    public const RUTA_ANIMALES = 'Conductas de convivencia con animales (Ley 1801/2016)';
+    public const RUTA_MALTRATO = 'Proceso Verbal de Maltrato Animal (Ley 84/1989 - Ley 2455/2025)';
 
+    /* Regímenes históricos (expedientes creados antes de las rutas). */
+    public const TRAMITE_SANCIONATORIO = 'Sancionatorio ambiental (Ley 1333/2009 - IV-P-028)';
     public const TRAMITE_POLICIA = 'Código de policía y bienestar animal (Ley 1801/2016 - IV-P-021)';
 
     public const ESTADO_ABIERTO = 'Abierto';
 
-    /** @var array<string, string> */
+    /** proceso_verbal_abreviado_convivencia_v1.0 + Ley 1801, art. 223. */
+    private const PASOS_PVA = [
+        'Citación' => 5,
+        'Audiencia pública' => 10,
+        'Práctica de pruebas' => 5,
+        'Decisión: orden de policía o medida correctiva' => 1,
+        'Notificación y recursos' => 3,
+        'Cumplimiento de la orden o medida' => 5,
+        'Auto de Archivo' => 0,
+    ];
+
+    /** recursos_naturales_municipal_v1.4: consolidación, valoración y derivación (a PVA). */
+    private const PASOS_RECURSOS_NATURALES = [
+        'Consolidación técnica y antecedentes' => 5,
+        'Valoración de competencia municipal y concurrencia ambiental' => 5,
+        'Citación' => 5,
+        'Audiencia pública' => 10,
+        'Práctica de pruebas' => 5,
+        'Decisión: orden de policía o medida correctiva' => 1,
+        'Notificación y recursos' => 3,
+        'Cumplimiento de la orden o medida' => 5,
+        'Auto de Archivo' => 0,
+    ];
+
+    /** conductas_convivencia_animales_v1.0: clasificación y continúa en PVA. */
+    private const PASOS_ANIMALES = [
+        'Clasificación de la conducta (artículo y numeral)' => 3,
+        'Citación' => 5,
+        'Audiencia pública' => 10,
+        'Práctica de pruebas' => 5,
+        'Decisión: orden de policía o medida correctiva' => 1,
+        'Notificación y recursos' => 3,
+        'Cumplimiento de la orden o medida' => 5,
+        'Auto de Archivo' => 0,
+    ];
+
+    /** proceso_verbal_maltrato_animal_v1.0 (Ley 84/1989 modificada por Ley 2455/2025). */
+    private const PASOS_MALTRATO = [
+        'Atención y verificación de urgencia' => 1,
+        'Aprehensión material preventiva (si aplica)' => 1,
+        'Clasificación jurídica: maltrato leve o posible delito' => 3,
+        'Remisión a Fiscalía / GELMA (si aplica)' => 3,
+        'Audiencia de maltrato animal' => 10,
+        'Decisión de fondo' => 1,
+        'Notificación y recursos' => 3,
+        'Cumplimiento y seguimiento' => 5,
+        'Auto de Archivo' => 0,
+    ];
+
+    /** @var array<string, int> */
     private const PASOS_SANCIONATORIO = [
         'Elaboración de acto de decisión' => 10,
         'Notificación de acto administrativo' => 5,
@@ -42,6 +96,41 @@ class ExpedientePasosCatalog
     ];
 
     /**
+     * Rutas que se ofrecen al decidir la apertura, en orden.
+     *
+     * @return string[]
+     */
+    public static function rutasApertura(): array
+    {
+        return [self::RUTA_PVA, self::RUTA_RECURSOS_NATURALES, self::RUTA_ANIMALES, self::RUTA_MALTRATO];
+    }
+
+    /** Resultado equivalente en DecisionRutaJuridica. */
+    public static function resultadoDecision(string $ruta): ?string
+    {
+        return match ($ruta) {
+            self::RUTA_PVA, self::TRAMITE_POLICIA => 'Ruta policiva',
+            self::RUTA_RECURSOS_NATURALES => 'Ruta Recursos Naturales - Competencia Municipal',
+            self::RUTA_ANIMALES => 'Ruta Tenencia Animal',
+            self::RUTA_MALTRATO => 'Ruta Maltrato Animal',
+            default => null,
+        };
+    }
+
+    /** Las rutas bajo Ley 1801 usan el formato oficial IV-F-364. */
+    public static function usaFormatoIvF364(string $ruta): bool
+    {
+        return in_array($ruta, [self::RUTA_PVA, self::RUTA_RECURSOS_NATURALES, self::RUTA_ANIMALES, self::TRAMITE_POLICIA], true);
+    }
+
+    public static function isPolicivo(?string $ruta): bool
+    {
+        return in_array(trim((string) $ruta), [
+            self::RUTA_PVA, self::RUTA_RECURSOS_NATURALES, self::RUTA_ANIMALES, self::RUTA_MALTRATO, self::TRAMITE_POLICIA,
+        ], true);
+    }
+
+    /**
      * @return string[] pasos en orden, sin incluir "Abierto" (el estado inicial).
      */
     public function getPasos(?string $tipoTramite): array
@@ -55,6 +144,10 @@ class ExpedientePasosCatalog
     public function getPasosConPlazo(?string $tipoTramite): array
     {
         return match (trim((string) $tipoTramite)) {
+            self::RUTA_PVA => self::PASOS_PVA,
+            self::RUTA_RECURSOS_NATURALES => self::PASOS_RECURSOS_NATURALES,
+            self::RUTA_ANIMALES => self::PASOS_ANIMALES,
+            self::RUTA_MALTRATO => self::PASOS_MALTRATO,
             self::TRAMITE_SANCIONATORIO => self::PASOS_SANCIONATORIO,
             self::TRAMITE_POLICIA => self::PASOS_POLICIA,
             default => [],

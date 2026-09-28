@@ -3,7 +3,8 @@ define('custom:helpers/case-detail-side-panels', [
     'custom:helpers/asignador-assignment-ui',
     'custom:helpers/patrullero-acta',
     'custom:helpers/silent-ajax',
-], function (RadicacionFields, AsignadorAssignmentUi, PatrulleroActa, SilentAjax) {
+    'custom:helpers/auto-inicio-modal',
+], function (RadicacionFields, AsignadorAssignmentUi, PatrulleroActa, SilentAjax, AutoInicioModal) {
 
     const TOP_PANELS = [
         'caseTimeline',
@@ -458,6 +459,21 @@ define('custom:helpers/case-detail-side-panels', [
      */
     const mountCierreBlock = function (recordView, $side) {
         const model = recordView.model;
+
+        if (!recordView._alcaldiaCierreListener) {
+            recordView._alcaldiaCierreListener = true;
+
+            recordView.listenTo(model, 'sync change:status', function () {
+                const $currentSide = recordView.$el.find('.record-grid > .side');
+
+                if ($currentSide.length) {
+                    $currentSide.find('.alcaldia-cierre-caso').removeData('cierreKey');
+                    Object.keys(cierreCache).forEach(function (k) { delete cierreCache[k]; });
+                    mountCierreBlock(recordView, $currentSide);
+                }
+            });
+        }
+
         const status = String(model.get('status') || '').trim();
         let $block = $side.find('.alcaldia-cierre-caso');
 
@@ -546,19 +562,242 @@ define('custom:helpers/case-detail-side-panels', [
             });
         });
 
-        if (!recordView._alcaldiaCierreListener) {
-            recordView._alcaldiaCierreListener = true;
+    };
 
-            recordView.listenTo(model, 'sync change:status', function () {
-                const $currentSide = recordView.$el.find('.record-grid > .side');
+    /* ───────────── Apertura de expediente (tramo G) ───────────── */
 
-                if ($currentSide.length) {
-                    $currentSide.find('.alcaldia-cierre-caso').removeData('cierreKey');
-                    Object.keys(cierreCache).forEach(function (k) { delete cierreCache[k]; });
-                    mountCierreBlock(recordView, $currentSide);
+    const descargaUrl = function (id) {
+        return '?entryPoint=download&id=' + encodeURIComponent(id);
+    };
+
+    const aperturaAccion = function (recordView, datos, exito) {
+        Espo.Ui.notify('Procesando…');
+
+        return Espo.Ajax.postRequest('Case/action/aperturaAccion', Object.assign({id: recordView.model.id}, datos))
+            .then(function () {
+                Espo.Ui.notify(false);
+                Espo.Ui.success(exito);
+                recordView.model.fetch();
+            })
+            .catch(function () {
+                Espo.Ui.notify(false);
+            });
+    };
+
+    const htmlAperturaDecidir = function (estado) {
+        if (!estado.puede.decidir) {
+            return '<p class="alcaldia-apertura__texto">Pendiente: la apertura la deciden el Admin, el Director Técnico, el Inspector Ambiental o Apoyo Jurídico.</p>';
+        }
+
+        const rutas = (estado.rutas || []).map(function (r) {
+            const sugerida = r === estado.rutaSugerida;
+
+            return '<option value="' + escapeHtml(r) + '"' + (sugerida ? ' selected' : '') + '>'
+                + escapeHtml(r) + (sugerida ? ' (sugerida)' : '') + '</option>';
+        }).join('');
+        const candidatos = (estado.candidatos || []).map(function (c) {
+            return '<label class="alcaldia-apertura__opcion">'
+                + '<input type="radio" name="alcaldia-apertura-destino" value="' + escapeHtml(c.expedienteId) + '">'
+                + '<span><b>Incorporar al expediente ' + escapeHtml(c.numero) + '</b> · ' + escapeHtml(c.estado)
+                + '<small>' + escapeHtml(c.tipoTramite) + '</small>'
+                + '<small class="alcaldia-apertura__motivos">Coincide: ' + escapeHtml(c.motivos.join(' · ')) + '</small></span></label>';
+        }).join('');
+
+        return '<p class="alcaldia-apertura__texto">' + (candidatos
+            ? 'Hay expedientes abiertos que podrían corresponder al mismo asunto. Revise si el caso debe incorporarse a uno de ellos.'
+            : 'No se encontraron expedientes abiertos relacionados. Se abrirá uno nuevo.') + '</p>'
+            + '<div class="alcaldia-apertura__opciones">'
+            + '<label class="alcaldia-apertura__opcion"><input type="radio" name="alcaldia-apertura-destino" value="" checked>'
+            + '<span><b>Abrir expediente nuevo</b><small>Queda en «Preparación» hasta que el Inspector firme el Auto de Inicio.</small></span></label>'
+            + candidatos + '</div>'
+            + '<div class="alcaldia-apertura__regimen"><label>Ruta jurídica <span class="text-danger">*</span></label>'
+            + '<select class="form-control js-apertura-regimen"><option value="">Seleccione…</option>' + rutas + '</select>'
+            + '<small class="alcaldia-apertura__ayuda">Sugerida según la clasificación del caso. Define los pasos del expediente'
+            + ' (BPMN N2) y el formato del Auto de Inicio.</small></div>'
+            + '<label>Motivación <span class="text-danger">*</span></label>'
+            + '<textarea class="form-control js-apertura-motivo" rows="2" placeholder="Por qué procede abrir la actuación (o incorporar el caso)"></textarea>'
+            + '<button type="button" class="btn btn-primary btn-sm js-apertura-decidir"><span class="fas fa-gavel"></span> Confirmar apertura</button>';
+    };
+
+    const htmlAperturaPreparar = function (estado) {
+        const auto = estado.auto;
+        const devuelto = estado.fase === 'devuelto';
+        let html = '<p class="alcaldia-apertura__texto">Expediente <b>' + escapeHtml(estado.expediente.numero)
+            + '</b> en preparación · ' + escapeHtml(estado.expediente.tipoTramite) + '</p>';
+
+        if (devuelto && auto && auto.observacionesDevolucion) {
+            html += '<div class="alcaldia-apertura__devuelto"><b>Devuelto por el Inspector:</b> ' + escapeHtml(auto.observacionesDevolucion) + '</div>';
+        }
+
+        if (!estado.puede.preparar) {
+            return html + '<p class="alcaldia-apertura__texto">Apoyo Jurídico prepara el Auto de Inicio.</p>';
+        }
+
+        return html
+            + '<p class="alcaldia-apertura__ayuda">Complete el Auto de Inicio (motivo, norma aplicable y, si ya se conoce, fecha y hora de la audiencia). Al enviarlo a firma se genera el formato prellenado para el Inspector.</p>'
+            + '<div class="alcaldia-apertura__acciones">'
+            + '<button type="button" class="btn btn-default btn-sm js-apertura-preparar"><span class="fas fa-pen"></span> ' + (auto ? 'Editar' : 'Preparar') + ' Auto de Inicio</button>'
+            + '<button type="button" class="btn btn-primary btn-sm js-apertura-enviar"' + (auto ? '' : ' disabled') + '><span class="fas fa-paper-plane"></span> Enviar a firma</button>'
+            + '</div>';
+    };
+
+    const htmlAperturaFirma = function (estado) {
+        const auto = estado.auto;
+        const descargas = '<div class="alcaldia-apertura__descargas">'
+            + (auto.formatoPdfId ? '<a href="' + descargaUrl(auto.formatoPdfId) + '" target="_blank"><span class="fas fa-file-pdf"></span> Formato prellenado (PDF)</a>' : '')
+            + (auto.formatoDocxId ? '<a href="' + descargaUrl(auto.formatoDocxId) + '" target="_blank"><span class="fas fa-file-word"></span> Formato prellenado (Word)</a>' : '')
+            + '</div>';
+        const cabecera = '<p class="alcaldia-apertura__texto">Auto de Inicio del expediente <b>' + escapeHtml(estado.expediente.numero) + '</b> listo para firma.</p>';
+
+        if (!estado.puede.firmar) {
+            return cabecera + descargas + '<p class="alcaldia-apertura__texto">Pendiente de la firma del Inspector.</p>';
+        }
+
+        return cabecera + descargas
+            + '<p class="alcaldia-apertura__ayuda">Descargue el formato, revíselo, fírmelo y cargue el PDF firmado.</p>'
+            + '<label>Auto de Inicio firmado (PDF) <span class="text-danger">*</span></label>'
+            + '<input type="file" class="form-control js-apertura-pdf" accept="application/pdf,.pdf">'
+            + '<div class="alcaldia-apertura__acciones">'
+            + '<button type="button" class="btn btn-primary btn-sm js-apertura-firmar"><span class="fas fa-signature"></span> Aprobar y abrir expediente</button>'
+            + '<button type="button" class="btn btn-default btn-sm js-apertura-devolver-toggle"><span class="fas fa-rotate-left"></span> Devolver a Jurídica</button>'
+            + '</div>'
+            + '<div class="alcaldia-apertura__devolver hidden"><label>Qué debe corregirse <span class="text-danger">*</span></label>'
+            + '<textarea class="form-control js-apertura-observaciones" rows="2"></textarea>'
+            + '<button type="button" class="btn btn-default btn-sm js-apertura-devolver">Confirmar devolución</button></div>';
+    };
+
+    const htmlAperturaAbierto = function (estado) {
+        const auto = estado.auto || {};
+
+        return '<p class="alcaldia-apertura__texto">Expediente <a href="#Expediente/view/' + escapeHtml(estado.expediente.id) + '"><b>'
+            + escapeHtml(estado.expediente.numero) + '</b></a> · ' + escapeHtml(estado.expediente.estado)
+            + (estado.expediente.fechaAperturaFormal ? ' · abierto el ' + escapeHtml(String(estado.expediente.fechaAperturaFormal).slice(0, 10)) : '') + '</p>'
+            + (auto.actoFirmadoId ? '<p><a href="' + descargaUrl(auto.actoFirmadoId) + '" target="_blank"><span class="fas fa-file-signature"></span> Auto de Inicio firmado</a></p>' : '');
+    };
+
+    const bindApertura = function (recordView, $block) {
+        $block.find('.js-apertura-decidir').on('click', function () {
+            const destino = String($block.find('input[name="alcaldia-apertura-destino"]:checked').val() || '');
+            const regimen = String($block.find('.js-apertura-regimen').val() || '');
+            const motivo = String($block.find('.js-apertura-motivo').val() || '').trim();
+
+            if (!destino && !regimen) { Espo.Ui.error('Seleccione la ruta jurídica.'); return; }
+            if (!motivo) { Espo.Ui.error('Escriba la motivación.'); return; }
+
+            Espo.Ui.confirm(destino
+                ? '¿Confirma incorporar el caso a ese expediente? Quedará registrado quién lo decidió y por qué.'
+                : '¿Confirma abrir un expediente nuevo? Apoyo Jurídico recibirá el aviso para preparar el Auto de Inicio.', {
+                title: 'Apertura de actuación', confirmText: 'Sí, confirmar', cancelText: 'Cancelar', confirmStyle: 'primary',
+            }, function () {
+                aperturaAccion(recordView, {accion: 'decidir', tipoTramite: regimen, expedienteId: destino, motivo: motivo},
+                    destino ? 'Caso incorporado al expediente.' : 'Expediente en preparación. Se avisó a Apoyo Jurídico.');
+            });
+        });
+
+        $block.find('.js-apertura-preparar').on('click', function () {
+            AutoInicioModal.open(recordView, recordView.model, recordView.getUser(), {
+                onAfterSave: function () { recordView.model.fetch(); },
+            });
+        });
+
+        $block.find('.js-apertura-enviar').on('click', function () {
+            aperturaAccion(recordView, {accion: 'enviarAFirma'}, 'Auto de Inicio enviado a firma. Se generó el formato prellenado.');
+        });
+
+        $block.find('.js-apertura-devolver-toggle').on('click', function () {
+            $block.find('.alcaldia-apertura__devolver').toggleClass('hidden');
+        });
+
+        $block.find('.js-apertura-devolver').on('click', function () {
+            const obs = String($block.find('.js-apertura-observaciones').val() || '').trim();
+
+            if (!obs) { Espo.Ui.error('Indique qué debe corregirse.'); return; }
+
+            aperturaAccion(recordView, {accion: 'devolver', observaciones: obs}, 'Auto de Inicio devuelto a Jurídica.');
+        });
+
+        $block.find('.js-apertura-firmar').on('click', function () {
+            const file = ($block.find('.js-apertura-pdf').get(0) || {}).files;
+            const pdf = file && file[0];
+
+            if (!pdf) { Espo.Ui.error('Cargue el PDF del Auto de Inicio firmado.'); return; }
+            if (!/pdf$/i.test(pdf.type) && !/\.pdf$/i.test(pdf.name)) { Espo.Ui.error('El acto firmado debe ser un PDF.'); return; }
+
+            Espo.Ui.confirm('¿Confirma que el Auto de Inicio está firmado? El expediente quedará abierto formalmente.', {
+                title: 'Aprobar y abrir expediente', confirmText: 'Sí, abrir', cancelText: 'Cancelar', confirmStyle: 'primary',
+            }, function () {
+                const reader = new FileReader();
+
+                reader.onload = function () {
+                    Espo.Ui.notify('Cargando PDF…');
+                    Espo.Ajax.postRequest('Attachment', {
+                        name: pdf.name, type: 'application/pdf', role: 'Attachment',
+                        relatedType: 'AutoInicio', field: 'actoFirmado', file: reader.result,
+                    }).then(function (att) {
+                        aperturaAccion(recordView, {accion: 'firmar', attachmentId: att.id}, 'Expediente abierto formalmente.');
+                    }).catch(function () { Espo.Ui.notify(false); });
+                };
+                reader.readAsDataURL(pdf);
+            });
+        });
+    };
+
+    const mountAperturaBlock = function (recordView, $side) {
+        const model = recordView.model;
+
+        if (!recordView._alcaldiaAperturaListener) {
+            recordView._alcaldiaAperturaListener = true;
+            recordView.listenTo(model, 'sync', function () {
+                const $s = recordView.$el.find('.record-grid > .side');
+
+                if ($s.length) {
+                    $s.find('.alcaldia-apertura').removeData('aperturaKey');
+                    mountAperturaBlock(recordView, $s);
                 }
             });
         }
+
+        let $block = $side.find('.alcaldia-apertura');
+
+        if (!model.get('expedienteId') && model.get('cDecisionTramite') !== 'Apertura de actuación') {
+            $block.remove();
+
+            return;
+        }
+
+        if (!$block.length) {
+            $block = $('<section class="alcaldia-apertura panel panel-default"></section>');
+            $side.prepend($block);
+        }
+
+        const key = model.id + '|' + (model.get('expedienteId') || '') + '|' + Math.floor(Date.now() / 5000);
+
+        if ($block.data('aperturaKey') === key) {
+            return;
+        }
+
+        $block.data('aperturaKey', key);
+
+        SilentAjax.getRequest('Case/action/aperturaEstado', {id: model.id}).then(function (estado) {
+            if (!estado || !estado.aplica) {
+                $block.remove();
+
+                return;
+            }
+
+            const cuerpo = estado.fase === 'decidir' ? htmlAperturaDecidir(estado)
+                : estado.fase === 'firma' ? htmlAperturaFirma(estado)
+                    : estado.fase === 'abierto' ? htmlAperturaAbierto(estado)
+                        : htmlAperturaPreparar(estado);
+            const etiquetas = {decidir: 'Decisión de apertura', preparar: 'Preparación del Auto', devuelto: 'Auto devuelto', firma: 'Pendiente de firma', abierto: 'Expediente abierto'};
+
+            $block.html('<div class="panel-heading"><h4 class="panel-title">Apertura de expediente</h4>'
+                + '<span class="alcaldia-apertura__fase is-' + escapeHtml(estado.fase) + '">' + escapeHtml(etiquetas[estado.fase] || '') + '</span></div>'
+                + '<div class="panel-body">' + cuerpo + '</div>');
+
+            bindApertura(recordView, $block);
+        });
+
     };
 
     const removeLeftHistoryDuplicates = function (recordView) {
@@ -739,6 +978,7 @@ define('custom:helpers/case-detail-side-panels', [
 
         removeLeftHistoryDuplicates(recordView);
         mountCierreBlock(recordView, $side);
+        mountAperturaBlock(recordView, $side);
     };
 
     const schedule = function (recordView) {

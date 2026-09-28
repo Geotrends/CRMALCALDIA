@@ -48,6 +48,9 @@ class AlcaldiaUserProfile
     /** Nombre oficial según 90_MODELO_CRM/matriz_roles_v1.0.md (BPMN). */
     public const ROLE_JURIDICA_BPMN = 'Apoyo Jurídico';
 
+    /** Nombre oficial según 90_MODELO_CRM/matriz_roles_v1.0.md (BPMN). */
+    public const ROLE_INSPECTOR_AMBIENTAL = 'Inspector Ambiental';
+
     /** @var string[] */
     private const NAMES_JURIDICA = [self::ROLE_JURIDICA, self::ROLE_JURIDICA_ALT, self::ROLE_JURIDICA_BPMN];
 
@@ -340,6 +343,54 @@ class AlcaldiaUserProfile
     public function findActiveJuridicaUserIds(): array
     {
         return $this->findActiveUserIdsByRoleNames(self::NAMES_JURIDICA);
+    }
+
+    public function isInspectorAmbiental(User $user): bool
+    {
+        return !$user->isAdmin() && $this->hasAnyRole($user, [self::ROLE_INSPECTOR_AMBIENTAL]);
+    }
+
+    /**
+     * Decide la apertura de actuación (G1): Admin, Director Técnico, Inspector Ambiental
+     * y Apoyo Jurídico (decisión del usuario, 2026-09-28).
+     */
+    public function canDecidirApertura(User $user): bool
+    {
+        return $user->isAdmin()
+            || $this->hasAnyRole($user, self::NAMES_ASIGNADOR)
+            || $this->isInspectorAmbiental($user)
+            || $this->hasAnyRole($user, self::NAMES_JURIDICA);
+    }
+
+    /**
+     * @return string[]
+     */
+    public function findActiveDecisoresAperturaUserIds(): array
+    {
+        return array_values(array_unique(array_merge(
+            $this->findActiveUserIdsByRoleNames(self::NAMES_ASIGNADOR),
+            $this->findActiveUserIdsByRoleNames([self::ROLE_INSPECTOR_AMBIENTAL]),
+            $this->findActiveUserIdsByRoleNames(self::NAMES_JURIDICA),
+            $this->findActiveAdminUserIds(),
+        )));
+    }
+
+    /**
+     * Firma el Auto de Inicio (G4): Inspector Ambiental (o el rol histórico Inspección) y Admin.
+     */
+    public function canFirmarAutoInicio(User $user): bool
+    {
+        return $user->isAdmin()
+            || $this->isInspectorAmbiental($user)
+            || $this->hasAnyRole($user, self::NAMES_INSPECCION);
+    }
+
+    /**
+     * @return string[]
+     */
+    public function findActiveInspectorFirmanteUserIds(): array
+    {
+        return $this->findActiveUserIdsByRoleNames(array_merge([self::ROLE_INSPECTOR_AMBIENTAL], self::NAMES_INSPECCION));
     }
 
     /**

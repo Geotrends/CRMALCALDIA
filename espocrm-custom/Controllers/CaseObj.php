@@ -20,6 +20,7 @@ use Espo\Core\Utils\Config;
 use Espo\Custom\Tools\App\AlcaldiaDateTimeHelper;
 use Espo\Custom\Tools\Calendar\CaseCalendarEventService;
 use Espo\Custom\Tools\CaseObj\CaseActaVisitaHelper;
+use Espo\Custom\Tools\CaseObj\CaseAperturaService;
 use Espo\Custom\Tools\CaseObj\CaseCierreService;
 use Espo\Custom\Tools\CaseObj\CaseCompetenciaService;
 use Espo\Custom\Tools\CaseObj\CaseCreateDefaultsService;
@@ -517,7 +518,7 @@ class CaseObj extends BaseCaseObj
 
         $user = $this->getUser();
         $profile = $this->injectableFactory->create(AlcaldiaUserProfile::class);
-        $canApprove = $user->isAdmin() || $profile->isInspeccion($user)
+        $canApprove = $user->isAdmin() || $profile->isInspeccion($user) || $profile->isInspectorAmbiental($user)
             || $profile->isAsignador($user) || $profile->isJuridica($user);
 
         // Perfil Inspección o Asignador manda: la acción ACL a veces no está sincronizada
@@ -656,7 +657,7 @@ class CaseObj extends BaseCaseObj
         $user = $this->getUser();
         $profile = $this->injectableFactory->create(AlcaldiaUserProfile::class);
 
-        if (!$user->isAdmin() && !$profile->isInspeccion($user)
+        if (!$user->isAdmin() && !$profile->isInspeccion($user) && !$profile->isInspectorAmbiental($user)
             && !$profile->isAsignador($user) && !$profile->isJuridica($user)) {
             throw new Forbidden('Solo Inspección, Asignación o Jurídica pueden cerrar el caso.');
         }
@@ -697,6 +698,49 @@ class CaseObj extends BaseCaseObj
         }
 
         return ['success' => true, 'status' => CaseCierreService::STATUS_PENDIENTE_RESPUESTA, 'alreadyClosed' => false];
+    }
+
+    /**
+     * GET Case/action/aperturaEstado?id=  Fase de la apertura (G1–G4) y candidatos.
+     *
+     * @return array<string, mixed>
+     */
+    public function getActionAperturaEstado(Request $request): array
+    {
+        $case = $this->getCaseOrFail(trim((string) $request->getQueryParam('id')));
+
+        if (!$this->acl->checkEntityRead($case)) {
+            throw new Forbidden();
+        }
+
+        return $this->injectableFactory->create(CaseAperturaService::class)->estado($case, $this->getUser());
+    }
+
+    /**
+     * POST Case/action/aperturaAccion  body: { id, accion: decidir|enviarAFirma|firmar|devolver, ... }
+     *
+     * @return array<string, mixed>
+     */
+    public function postActionAperturaAccion(Request $request): array
+    {
+        $body = $request->getParsedBody();
+        $case = $this->getCaseOrFail($this->parseCaseIdFromRequest($body));
+
+        if (!$this->acl->checkEntityRead($case)) {
+            throw new Forbidden();
+        }
+
+        $service = $this->injectableFactory->create(CaseAperturaService::class);
+        $user = $this->getUser();
+        $txt = static fn (string $key): string => trim((string) ($body->$key ?? ''));
+
+        return match ($txt('accion')) {
+            'decidir' => $service->decidir($case, $user, $txt('tipoTramite'), $txt('expedienteId'), $txt('motivo')),
+            'enviarAFirma' => $service->enviarAFirma($case, $user),
+            'firmar' => $service->firmar($case, $user, $txt('attachmentId')),
+            'devolver' => $service->devolver($case, $user, $txt('observaciones')),
+            default => throw new BadRequest('Acción no válida.'),
+        };
     }
 
     /**
@@ -773,7 +817,7 @@ class CaseObj extends BaseCaseObj
         $user = $this->getUser();
         $profile = $this->injectableFactory->create(AlcaldiaUserProfile::class);
 
-        if (!$user->isAdmin() && !$profile->isInspeccion($user)
+        if (!$user->isAdmin() && !$profile->isInspeccion($user) && !$profile->isInspectorAmbiental($user)
             && !$profile->isAsignador($user) && !$profile->isJuridica($user)) {
             throw new Forbidden('Solo Inspección, Asignación o Jurídica pueden remitir por competencia.');
         }
@@ -827,9 +871,13 @@ class CaseObj extends BaseCaseObj
         $user = $this->getUser();
         $profile = $this->injectableFactory->create(AlcaldiaUserProfile::class);
 
-        if (!$user->isAdmin() && !$profile->isInspeccion($user)
+        if (!$user->isAdmin() && !$profile->isInspeccion($user) && !$profile->isInspectorAmbiental($user)
             && !$profile->isAsignador($user) && !$profile->isJuridica($user)) {
             throw new Forbidden('No tiene permiso para definir el trámite.');
+        }
+
+        if ($decision === 'Apertura de actuación' && !$profile->canDecidirApertura($user)) {
+            throw new Forbidden('La apertura de actuación la deciden el Admin, el Director Técnico, el Inspector Ambiental o Apoyo Jurídico.');
         }
 
         $status = trim((string) $case->get('status'));
@@ -864,6 +912,14 @@ class CaseObj extends BaseCaseObj
         $this->entityManager->saveEntity($acta);
         $this->entityManager->saveEntity($case, ['skipAsignadorLimit' => true]);
 
+        if ($decision === 'Apertura de actuación') {
+            try {
+                $this->injectableFactory->create(CaseAperturaService::class)->notificarDecisionPendiente($case, $user);
+            } catch (\Throwable) {
+                // El aviso no debe impedir guardar la definición.
+            }
+        }
+
         return ['success' => true, 'status' => CaseActaVisitaHelper::STATUS_REVISION_HALLAZGOS];
     }
 
@@ -883,7 +939,7 @@ class CaseObj extends BaseCaseObj
         $user = $this->getUser();
         $profile = $this->injectableFactory->create(AlcaldiaUserProfile::class);
 
-        if (!$user->isAdmin() && !$profile->isInspeccion($user)
+        if (!$user->isAdmin() && !$profile->isInspeccion($user) && !$profile->isInspectorAmbiental($user)
             && !$profile->isAsignador($user) && !$profile->isJuridica($user)) {
             throw new Forbidden('No tiene permiso para editar la revisión de hallazgos.');
         }
@@ -1378,7 +1434,8 @@ class CaseObj extends BaseCaseObj
             return;
         }
 
-        if ($profile->isInspeccion($user) || $profile->isAsignador($user) || $profile->isJuridica($user)) {
+        if ($profile->isInspeccion($user) || $profile->isInspectorAmbiental($user)
+            || $profile->isAsignador($user) || $profile->isJuridica($user)) {
             return;
         }
 
