@@ -633,7 +633,7 @@ body.alcaldia-asignador-asignar-page .edit[data-scope="Case"] .panel[data-name="
 
 /* El campo original se conserva oculto para abrir el sidecar, pero nunca se
    permite que su autocompletado o sus iconos afecten el alto/ancho del panel. */
-.detail[data-scope="Case"] .side .panel.alcaldia-asignacion-principal .cell.alcaldia-sidecar-only-control > :not(.alcaldia-assignment-sidecar-launcher) {
+.detail[data-scope="Case"] .side .panel.alcaldia-asignacion-principal .cell.alcaldia-sidecar-only-control > :not(.alcaldia-assignment-sidecar-launcher):not(.alcaldia-asignacion-card) {
   display: none !important;
 }
 
@@ -732,3 +732,4 @@ body.alcaldia-asignador-asignar-page .edit[data-scope="Case"] .panel[data-name="
   color: #0f172a;
   opacity: 1;
 }
+

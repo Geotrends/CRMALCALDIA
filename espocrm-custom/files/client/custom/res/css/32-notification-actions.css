@@ -28,3 +28,12 @@
 .notification-remove-button:hover {
     color: #526b6b;
 }
+
+/* Toda la tarjeta abre el registro; el texto no queda bajo el botón de eliminar. */
+#notifications-panel .notification-item-head {
+    cursor: pointer;
+}
+
+#notifications-panel .notification-item-head .stream-head-text-container {
+    padding-right: 28px;
+}

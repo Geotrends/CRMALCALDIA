@@ -19,15 +19,18 @@ use Espo\ORM\Repository\Option\SaveOptions;
 use Exception;
 
 /**
- * Radicación completa un radicado → notifica a Inspección.
+ * Se completa el radicado (primera vez que aparece cNumeroRadicado):
+ * - Director Técnico + admins → "Caso radicado: requiere asignación" (accionable).
+ * - Inspección + Receptor + creador del caso → "Caso radicado" (informativo).
  *
- * Asignación ya recibe su propio aviso accionable ("requiere asignación")
- * desde AfterUpdateNotifyAsignacion; este hook no la incluye para evitar
- * notificar dos veces el mismo evento a Asignación.
+ * Los admins solo reciben el accionable, para no notificar dos veces el mismo evento.
+ * Es un hook de ORM (no un record hook) para dispararse con cualquier vía de guardado.
  */
 class NotifyInspeccionOnRadicado implements AfterSave
 {
     public static int $order = 25;
+
+    private const EVENT_KEY_ASIGNACION = 'case.radicado.asignacion';
 
     public function __construct(
         private EntityManager $entityManager,
@@ -52,19 +55,20 @@ class NotifyInspeccionOnRadicado implements AfterSave
             return;
         }
 
-        if (!$this->profile->isOperationalRadicacion($this->user)) {
-            return;
-        }
-
         if (!$this->wasRadicadoJustCompleted($entity)) {
             return;
         }
 
+        $this->notifyAsignacion($entity);
+
         $notifyUserIds = array_values(array_unique(array_merge(
-            $this->profile->findActiveUserIdsByRoleName(AlcaldiaUserProfile::ROLE_INSPECCION),
-            $this->profile->findActiveUserIdsByRoleName(AlcaldiaUserProfile::ROLE_INSPECCION_ALT),
-            $this->profile->findActiveAdminUserIds(),
+            $this->profile->findActiveInspeccionUserIds(),
+            $this->profile->findActiveReceptorUserIds(),
+            array_filter([(string) $entity->get('createdById')]),
         )));
+
+        $adminIds = $this->profile->findActiveAdminUserIds();
+        $notifyUserIds = array_values(array_diff($notifyUserIds, $adminIds));
 
         if ($notifyUserIds === []) {
             return;
@@ -99,25 +103,56 @@ class NotifyInspeccionOnRadicado implements AfterSave
         }
     }
 
+    private function notifyAsignacion(Entity $entity): void
+    {
+        $recipientIds = array_values(array_unique(array_merge(
+            $this->profile->findActiveAsignadorUserIds(),
+            $this->profile->findActiveAdminUserIds(),
+        )));
+
+        $numero = trim((string) $entity->get('cNumeroRadicado'));
+        $caseLabel = CasePartyNameHelper::getNotificationReferenceLabel($entity);
+        $guard = new CaseNotificationDuplicateGuard($this->entityManager);
+
+        foreach ($recipientIds as $recipientId) {
+            if (
+                $recipientId === $this->user->getId()
+                || $guard->existsRecent($entity, $recipientId, self::EVENT_KEY_ASIGNACION)
+            ) {
+                continue;
+            }
+
+            $notification = $this->entityManager
+                ->getRDBRepositoryByClass(Notification::class)
+                ->getNew();
+
+            $notification
+                ->setType(Notification::TYPE_MESSAGE)
+                ->setUserId($recipientId)
+                ->setMessage('Caso radicado: requiere asignación')
+                ->setData([
+                    'entityType' => $entity->getEntityType(),
+                    'entityId' => $entity->getId(),
+                    'entityName' => $caseLabel,
+                    'cNumeroRadicado' => $numero,
+                    'numeroRadicacion' => $numero,
+                    'userId' => $this->user->getId(),
+                    'userName' => $this->user->getName(),
+                    'isRadicado' => true,
+                    'isPendienteAsignacion' => true,
+                    'eventKey' => self::EVENT_KEY_ASIGNACION,
+                    'recordUrl' => '#Case/view/' . $entity->getId(),
+                ])
+                ->setRelated(LinkParent::createFromEntity($entity));
+
+            $this->entityManager->saveEntity($notification);
+        }
+    }
+
     private function wasRadicadoJustCompleted(Entity $entity): bool
     {
-        if (!CaseRadicadoHelper::isRadicadoCompleto($entity)) {
-            return false;
-        }
-
-        $beforeNumero = trim((string) $entity->getFetched('cNumeroRadicado'));
-        $beforeExpediente = trim((string) $entity->getFetched('cExpediente'));
-
-        if ($beforeNumero === '' || $beforeExpediente === '') {
-            return true;
-        }
-
-        if (CaseRadicadoHelper::isPlaceholderExpediente($beforeExpediente)) {
-            return true;
-        }
-
-        return $beforeNumero !== trim((string) $entity->get('cNumeroRadicado'))
-            || $beforeExpediente !== trim((string) $entity->get('cExpediente'));
+        return CaseRadicadoHelper::isRadicadoCompleto($entity)
+            && !CaseRadicadoHelper::wasRadicadoCompleto($entity);
     }
 
     private function createNotification(
@@ -151,7 +186,7 @@ class NotifyInspeccionOnRadicado implements AfterSave
             ])
             ->setRelated(LinkParent::createFromEntity($entity));
 
-        $this->entityManager->saveEntity($notification, ['skipAll' => true]);
+        $this->entityManager->saveEntity($notification);
     }
 
     private function sendEmail(

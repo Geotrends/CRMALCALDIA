@@ -101,7 +101,6 @@
 - `RecordHooks/CaseObj/EarlyBeforeCreate.php`
 - `RecordHooks/CaseObj/EarlyBeforeUpdatePeticionDeadline.php`
 - `RecordHooks/CaseObj/EarlyNormalizeCaseEnums.php`
-- `RecordHooks/CaseObj/AfterUpdateNotifyAsignacion.php`
 - `Select/Account/PrimaryFilters/ConCasosAsociados.php`
 - `Select/Account/Where/ItemConverters/CaseFieldEquals.php`
 - `Select/ComunicacionCaso/AccessControlFilters/Mandatory.php`

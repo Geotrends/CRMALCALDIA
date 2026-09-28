@@ -15,7 +15,13 @@ use Espo\ORM\EntityManager;
 use Espo\ORM\Repository\Option\SaveOptions;
 
 /**
- * Asignación asigna patrullero → notifica al patrullero e Inspección.
+ * Asignación / reasignación de un caso radicado (B3):
+ * - nuevo responsable → «X te asignó / reasignó el caso»;
+ * - Inspección + admins → «X asignó el caso a Y» / «X reasignó el caso de A a B»;
+ * - responsable anterior (solo en reasignación) → «el caso ya no está a tu cargo».
+ *
+ * Nunca se notifica a quien hace la asignación. La clave de duplicados incluye
+ * la transición anterior → nuevo, para no perder avisos en reasignaciones seguidas.
  */
 class NotifyPatrulleroAssignment implements AfterSave
 {
@@ -38,7 +44,7 @@ class NotifyPatrulleroAssignment implements AfterSave
 
     private function runAfterSave(Entity $entity): void
     {
-        if (!$entity->isAttributeChanged('assignedUserId')) {
+        if ($entity->isNew() || !$entity->isAttributeChanged('assignedUserId')) {
             return;
         }
 
@@ -46,40 +52,84 @@ class NotifyPatrulleroAssignment implements AfterSave
             return;
         }
 
-        if (!$this->profile->isAsignador($this->user)) {
+        $newUserId = (string) $entity->get('assignedUserId');
+        $prevUserId = (string) $entity->getFetched('assignedUserId');
+
+        if ($newUserId === '' || $newUserId === $prevUserId) {
             return;
         }
 
-        $assignedUserId = $entity->get('assignedUserId');
+        $newUser = $this->entityManager->getEntityById(User::ENTITY_TYPE, $newUserId);
 
-        if (!$assignedUserId) {
+        if (!$newUser) {
             return;
         }
 
-        $assignedUser = $this->entityManager->getEntityById(User::ENTITY_TYPE, $assignedUserId);
+        $prevUser = $prevUserId !== ''
+            ? $this->entityManager->getEntityById(User::ENTITY_TYPE, $prevUserId)
+            : null;
 
-        if (!$assignedUser) {
-            return;
+        $isReasignacion = $prevUser !== null;
+        $transition = ($prevUserId !== '' ? $prevUserId : 'none') . '>' . $newUserId;
+        $motivo = $isReasignacion ? trim((string) $entity->get('cMotivoReasignacion')) : '';
+
+        $base = [
+            'assignedUserId' => $newUserId,
+            'assignedUserName' => $newUser->getName(),
+            'previousUserId' => $prevUser?->getId(),
+            'previousUserName' => $prevUser?->getName(),
+            'isReasignacion' => $isReasignacion,
+            'motivo' => $motivo !== '' ? $motivo : null,
+        ];
+
+        $this->notify($entity, $newUserId, 'case.assigned.responsable:' . $transition,
+            $isReasignacion ? 'Reasignación de caso' : 'Asignación de caso',
+            $base + ['isPatrulleroAsignacion' => true]);
+
+        if ($prevUser) {
+            $this->notify($entity, $prevUser->getId(), 'case.assigned.anterior:' . $transition,
+                'Caso reasignado a otro responsable',
+                $base + ['isDesasignacion' => true]);
         }
 
-        if ($assignedUserId !== $this->user->getId()) {
-            $this->notifyAssignedUser($entity, $assignedUser);
-        }
+        $observerIds = array_values(array_unique(array_merge(
+            $this->profile->findActiveInspeccionUserIds(),
+            $this->profile->findActiveAdminUserIds(),
+        )));
 
-        $this->notifyInspeccion($entity, $assignedUser);
+        foreach ($observerIds as $observerId) {
+            if ($observerId === $newUserId || $observerId === $prevUserId) {
+                continue;
+            }
+
+            $this->notify($entity, $observerId, 'case.assigned.inspeccion:' . $transition,
+                $isReasignacion ? 'Caso reasignado' : 'Caso asignado',
+                $base + ['isAsignacion' => true]);
+        }
     }
 
-    private function notifyAssignedUser(Entity $entity, User $assignedUser): void
+    /**
+     * @param array<string, mixed> $extra
+     */
+    private function notify(Entity $entity, string $userId, string $eventKey, string $message, array $extra): void
     {
-        $guard = new CaseNotificationDuplicateGuard($this->entityManager);
-
-        if ($guard->existsRecent($entity, $assignedUser->getId(), 'case.assigned.patrullero')) {
+        if ($userId === $this->user->getId()) {
             return;
         }
 
-        $caseHref = '#Case/view/' . $entity->getId();
+        $recipient = $this->entityManager->getEntityById(User::ENTITY_TYPE, $userId);
+
+        if (!$recipient || !$recipient->get('isActive')) {
+            return;
+        }
+
+        $guard = new CaseNotificationDuplicateGuard($this->entityManager);
+
+        if ($guard->existsRecent($entity, $userId, $eventKey)) {
+            return;
+        }
+
         $numero = trim((string) $entity->get('cNumeroRadicado'));
-        $linkLabel = CasePartyNameHelper::getNotificationReferenceLabel($entity);
 
         $notification = $this->entityManager
             ->getRDBRepositoryByClass(Notification::class)
@@ -87,80 +137,21 @@ class NotifyPatrulleroAssignment implements AfterSave
 
         $notification
             ->setType(Notification::TYPE_MESSAGE)
-            ->setUserId($assignedUser->getId())
-            ->setMessage('Asignación de caso')
-            ->setData([
+            ->setUserId($userId)
+            ->setMessage($message)
+            ->setData(array_merge([
                 'entityType' => $entity->getEntityType(),
                 'entityId' => $entity->getId(),
-                'entityName' => $linkLabel,
+                'entityName' => CasePartyNameHelper::getNotificationReferenceLabel($entity),
                 'cNumeroRadicado' => $numero,
                 'numeroRadicacion' => $numero,
                 'userId' => $this->user->getId(),
                 'userName' => $this->user->getName(),
-                'isPatrulleroAsignacion' => true,
-                'eventKey' => 'case.assigned.patrullero',
-                'recordUrl' => $caseHref,
-            ])
+                'eventKey' => $eventKey,
+                'recordUrl' => '#Case/view/' . $entity->getId(),
+            ], $extra))
             ->setRelated(LinkParent::createFromEntity($entity));
 
-        $this->entityManager->saveEntity($notification, ['skipAll' => true]);
-    }
-
-    private function notifyInspeccion(Entity $entity, User $assignedUser): void
-    {
-        $caseHref = '#Case/view/' . $entity->getId();
-        $numero = trim((string) $entity->get('cNumeroRadicado'));
-        $linkLabel = CasePartyNameHelper::getNotificationReferenceLabel($entity);
-        $assignedName = $assignedUser->getName();
-
-        $notifyUserIds = array_values(array_unique(array_merge(
-            $this->profile->findActiveUserIdsByRoleName(AlcaldiaUserProfile::ROLE_INSPECCION),
-            $this->profile->findActiveUserIdsByRoleName(AlcaldiaUserProfile::ROLE_INSPECCION_ALT),
-            $this->profile->findActiveAdminUserIds(),
-        )));
-
-        foreach ($notifyUserIds as $notifyUserId) {
-            if ($notifyUserId === $this->user->getId()) {
-                continue;
-            }
-
-            $notifyUser = $this->entityManager->getEntityById(User::ENTITY_TYPE, $notifyUserId);
-
-            if (!$notifyUser || !$notifyUser->get('isActive')) {
-                continue;
-            }
-
-            $guard = new CaseNotificationDuplicateGuard($this->entityManager);
-
-            if ($guard->existsRecent($entity, $notifyUserId, 'case.assigned.inspeccion')) {
-                continue;
-            }
-
-            $notification = $this->entityManager
-                ->getRDBRepositoryByClass(Notification::class)
-                ->getNew();
-
-            $notification
-                ->setType(Notification::TYPE_MESSAGE)
-                ->setUserId($notifyUser->getId())
-                ->setMessage('Caso asignado')
-                ->setData([
-                    'entityType' => $entity->getEntityType(),
-                    'entityId' => $entity->getId(),
-                    'entityName' => $linkLabel,
-                    'cNumeroRadicado' => $numero,
-                    'numeroRadicacion' => $numero,
-                    'userId' => $this->user->getId(),
-                    'userName' => $this->user->getName(),
-                    'assignedUserId' => $assignedUser->getId(),
-                    'assignedUserName' => $assignedName,
-                    'isAsignacion' => true,
-                    'eventKey' => 'case.assigned.inspeccion',
-                    'recordUrl' => $caseHref,
-                ])
-                ->setRelated(LinkParent::createFromEntity($entity));
-
-            $this->entityManager->saveEntity($notification, ['skipAll' => true]);
-        }
+        $this->entityManager->saveEntity($notification);
     }
 }

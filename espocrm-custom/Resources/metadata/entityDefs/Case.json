@@ -1108,6 +1108,42 @@
             ],
             "audited": true
         },
+        "cCompetencia": {
+            "type": "enum",
+            "options": ["Total", "Parcial", "Ninguna"],
+            "default": "Total",
+            "required": false,
+            "isCustom": true,
+            "suppressValidationList": ["required"],
+            "audited": true
+        },
+        "cCompetenciaConfirmada": {
+            "type": "bool",
+            "default": false,
+            "isCustom": true,
+            "audited": true
+        },
+        "cCompetenciaFecha": {
+            "type": "datetime",
+            "readOnly": true,
+            "isCustom": true,
+            "audited": true
+        },
+        "cCompetenciaRevisadaPor": {
+            "type": "link",
+            "readOnly": true,
+            "required": false,
+            "isCustom": true,
+            "suppressValidationList": ["required"],
+            "audited": true
+        },
+        "cCompetenciaObservacion": {
+            "type": "text",
+            "required": false,
+            "isCustom": true,
+            "suppressValidationList": ["required"],
+            "audited": true
+        },
         "cRecursoTema": {
             "type": "enum",
             "required": false,
@@ -1669,6 +1705,10 @@
             "type": "hasMany",
             "entity": "AsignacionHistorial",
             "foreign": "case"
+        },
+        "cCompetenciaRevisadaPor": {
+            "type": "belongsTo",
+            "entity": "User"
         },
         "visitasHistorial": {
             "type": "hasMany",

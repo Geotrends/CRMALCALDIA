@@ -47,23 +47,16 @@ define('custom:views/notification/panel', [
                 return this._markAllReadPromise;
             }
 
+            // Sin re-fetch ni reRender: repintar la lista mientras el usuario hace clic
+            // deja el elemento clicado fuera del DOM y el panel se cierra sin navegar.
             this._markAllReadPromise = Espo.Ajax.postRequest('Notification/action/markAllRead')
                 .then(function () {
                     self.persistReadState();
                     self.trigger('all-read');
 
-                    return self.collection.fetch();
-                })
-                .then(function () {
                     self.collection.models.forEach(function (model) {
-                        model.set('read', true, {sync: true});
+                        model.set('read', true, {sync: true, silent: true});
                     });
-
-                    var listView = self.getView('list');
-
-                    if (listView && typeof listView.reRender === 'function') {
-                        return SafeUiPromise.absorb(listView.reRender());
-                    }
                 })
                 .catch(function () {
                     // Mantener panel usable aunque falle markAllRead.

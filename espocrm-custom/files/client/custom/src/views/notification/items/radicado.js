@@ -9,6 +9,7 @@ define('custom:views/notification/items/radicado', [
 
         events: {
             'click [data-action="remove-notification"]': 'actionRemoveNotification',
+            'click': 'actionOpenRecord',
         },
 
         setup: function () {
@@ -36,6 +37,46 @@ define('custom:views/notification/items/radicado', [
                 style: this.style,
                 createdAt: this.getCreatedAtHtml(),
             };
+        },
+
+        /**
+         * Clic en cualquier parte de la tarjeta → abre el registro relacionado.
+         * Los enlaces internos (usuario, caso) conservan su propio destino.
+         */
+        actionOpenRecord: function (event) {
+            if ($(event.target).closest('a, button, [data-action]').length) {
+                return;
+            }
+
+            const href = this.getRecordHref();
+
+            if (!href) {
+                return;
+            }
+
+            event.preventDefault();
+            this.getRouter().navigate(href, {trigger: true});
+        },
+
+        getRecordHref: function () {
+            let data = this.model.get('data') || {};
+
+            if (typeof data === 'string') {
+                try {
+                    data = JSON.parse(data) || {};
+                } catch (e) {
+                    data = {};
+                }
+            }
+
+            if (data.recordUrl) {
+                return data.recordUrl;
+            }
+
+            const entityType = data.entityType || this.model.get('relatedType');
+            const entityId = data.entityId || this.model.get('relatedId');
+
+            return entityType && entityId ? '#' + entityType + '/view/' + entityId : null;
         },
 
         actionRemoveNotification: function (event) {

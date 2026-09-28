@@ -37,7 +37,9 @@ define('custom:helpers/inspeccion-case-flow', [
             return false;
         }
 
-        return !isAsignadorAssignmentPage();
+        // Inspección consulta el responsable y el histórico de asignaciones
+        // en modo lectura; solo se oculta al crear el caso.
+        return false;
     };
 
     const showAsignacionPanel = function (recordView) {

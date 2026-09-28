@@ -364,7 +364,7 @@ Carpeta `Classes/` — extensiones del framework EspoCRM para permisos y validac
 | `Acl/CaseObj/` | `AssignmentChecker.php` | Reglas ACL de asignación de casos |
 | `AssignmentNotificators/` | `CaseObj.php` | Notificador de asignación nativo (complementa hooks) |
 | `Record/CaseObj/` | `CreateInputFilter.php`, `UpdateInputFilter.php` | Filtros de entrada al crear/editar caso |
-| `RecordHooks/CaseObj/` | `EarlyBeforeCreate.php`, `EarlyBeforeUpdatePeticionDeadline.php`, `EarlyNormalizeCaseEnums.php`, `AfterUpdateNotifyAsignacion.php` | Validación antes de persistir / notificación de asignación |
+| `RecordHooks/CaseObj/` | `EarlyBeforeCreate.php`, `EarlyBeforeUpdatePeticionDeadline.php`, `EarlyNormalizeCaseEnums.php` | Validación antes de persistir (el aviso de asignación al radicar pasó a `Hooks/CaseObj/NotifyInspeccionOnRadicado.php` el 2026-09-28) |
 | `RecordHooks/ActaVisita/` | `EarlyBeforeCreate.php` | Validación creación acta |
 | `RecordHooks/ActuoArchivo/` | `EarlyBeforeCreate.php` | Validación creación actuo |
 | `Select/Account/` | `ConCasosAsociados.php`, `CaseFieldEquals.php` | Filtros de listado |

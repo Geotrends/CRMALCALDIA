@@ -1,0 +1,68 @@
+/* Barra superior: nombre y rol del usuario, a la izquierda del buscador. */
+#navbar .navbar-user-identity-container {
+  align-items: center;
+  display: flex;
+  margin-right: 10px;
+}
+
+#navbar .alcaldia-user-identity {
+  align-items: flex-end;
+  color: var(--crm-text, #0f172a);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  line-height: 1.2;
+  max-width: 260px;
+  padding: 4px 6px;
+  text-align: right;
+  text-decoration: none;
+}
+
+#navbar .alcaldia-user-identity:hover,
+#navbar .alcaldia-user-identity:focus {
+  text-decoration: none;
+}
+
+#navbar .alcaldia-user-identity:hover .alcaldia-user-identity__name {
+  color: var(--crm-primary, #1d8a6e);
+}
+
+#navbar .alcaldia-user-identity__name {
+  font-size: 14px;
+  font-weight: 600;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#navbar .alcaldia-user-identity__role {
+  color: var(--crm-text-secondary, #475569);
+  font-size: 12px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#navbar .alcaldia-user-identity__role:empty {
+  display: none;
+}
+
+/* El tema convierte cada li > a de la barra en un botón circular de 38 px. */
+#navbar .navbar-nav.navbar-right > li.navbar-user-identity-container {
+  height: auto !important;
+  width: auto !important;
+}
+
+#navbar .navbar-nav.navbar-right > li.navbar-user-identity-container > a.alcaldia-user-identity {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  height: auto !important;
+  min-height: 38px;
+  min-width: 0 !important;
+  padding: 2px 8px !important;
+  width: auto !important;
+}

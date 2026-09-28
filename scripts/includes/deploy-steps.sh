@@ -29,6 +29,7 @@ DEPLOY_SETUP_STEPS=(
   "Contraseñas usuarios operativos (inspeccion, radicacion, etc.)|fix-operational-login.php"
   "Permisos Radicación (campos radicado/expediente)|fix-radicacion-access.php"
   "Permisos ComunicacionCaso (todos los roles)|configure-comunicacion-caso-permissions.php"
+  "Permisos RemisionAutoridad (todos menos Radicador)|configure-remision-autoridad-permissions.php"
   "Permisos Task — crear tareas (todos los roles)|configure-task-permissions.php"
   "Permisos Meeting — solo propias (todos los roles)|configure-meeting-permissions.php"
   "Verificar creación de reuniones|verify-meeting-save.php"

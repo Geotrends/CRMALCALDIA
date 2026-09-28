@@ -211,6 +211,9 @@ done
 echo "Rebuild final..."
 (cd "$APP_ROOT" && "$PHP_BIN" command.php rebuild)
 (cd "$APP_ROOT" && "$PHP_BIN" command.php clear-cache)
+# Los módulos custom del cliente se piden con ?r=<appTimestamp>, que ni
+# rebuild ni clear-cache cambian: sin esto el navegador sigue usando el JS anterior.
+(cd "$APP_ROOT" && "$PHP_BIN" command.php update-app-timestamp)
 
 echo "Verificación final: usuario admin..."
 if ! run_php_script ensure-admin-login.php; then

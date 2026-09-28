@@ -8,7 +8,9 @@
         "client/custom/res/css/29-case-decision.css",
         "client/custom/res/css/30-case-detail-compact.css",
         "client/custom/res/css/31-case-role-guidance.css",
-        "client/custom/res/css/32-notification-actions.css"
+        "client/custom/res/css/32-notification-actions.css",
+        "client/custom/res/css/33-case-asignacion.css",
+        "client/custom/res/css/34-navbar-user-identity.css"
     ],
     "scriptList": [
         "client/custom/src/loader/route-sanitize.js",

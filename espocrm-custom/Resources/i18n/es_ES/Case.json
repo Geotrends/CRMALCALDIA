@@ -24,6 +24,11 @@
     "cBarrioPerjudicante": "Barrio del perjudicante",
     "assignedUser": "Asignado a",
     "cMotivoReasignacion": "Motivo de reasignación",
+    "cCompetencia": "Competencia municipal",
+    "cCompetenciaConfirmada": "Competencia confirmada",
+    "cCompetenciaFecha": "Fecha de revisión de competencia",
+    "cCompetenciaRevisadaPor": "Competencia revisada por",
+    "cCompetenciaObservacion": "Observación de competencia",
     "cRespuestaInmediata": "Respuesta inmediata",
     "cRecibidaPor": "Recibida por",
     "cRemitidoA": "Remitido a",
@@ -94,6 +99,7 @@
     "cObservaciones": "Observaciones"
   },
   "links": {
+    "cCompetenciaRevisadaPor": "Competencia revisada por",
     "compromisos": "Compromisos",
     "ordenesComparendo": "Órdenes de comparendo",
     "actuacionesRNMC": "Actuaciones RNMC",
@@ -277,6 +283,11 @@
     "Proceso cerrado": "Proc. cerrado"
   },
   "options": {
+    "cCompetencia": {
+      "Total": "Total (competente)",
+      "Parcial": "Parcial",
+      "Ninguna": "Ninguna (no competente)"
+    },
     "status": {
       "Pendiente de radicacion": "Pendiente de radicación",
       "Radicado": "Radicado",

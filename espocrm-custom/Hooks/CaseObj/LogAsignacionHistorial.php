@@ -128,12 +128,13 @@ class LogAsignacionHistorial implements AfterSave
         return $row !== null;
     }
 
+    /**
+     * Basta el número de radicado: el Expediente se vincula mucho después
+     * (al abrir la actuación), y exigirlo dejaba sin histórico las asignaciones.
+     */
     private function isPostRadicado(Entity $entity): bool
     {
-        $numero = trim((string) $entity->get('cNumeroRadicado'));
-        $expediente = trim((string) $entity->get('cExpediente'));
-
-        return $numero !== '' && $expediente !== '';
+        return trim((string) $entity->get('cNumeroRadicado')) !== '';
     }
 
     private function resolveUserLabel(?string $userId, mixed $name): string

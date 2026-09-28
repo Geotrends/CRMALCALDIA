@@ -257,9 +257,12 @@ define('custom:helpers/asignador-assignment-ui', [
 
         const isReasign = AsignadorCaseFlow.isReasignacionCaseOnOpen(recordView.model);
         const caseId = recordView.model.id;
+        const currentAssignedUserId = recordView.model.get('assignedUserId') || null;
+        // Al reasignar se parte vacío: precargar al responsable actual permitía
+        // guardar solo el motivo sin cambiar de persona.
         const selectedUser = {
-            id: recordView.model.get('assignedUserId') || null,
-            name: recordView.model.get('assignedUserName') || '',
+            id: isReasign ? null : currentAssignedUserId,
+            name: isReasign ? '' : (recordView.model.get('assignedUserName') || ''),
         };
 
         const title = isReasign ? 'Reasignar caso' : 'Asignar responsable';
@@ -279,11 +282,15 @@ define('custom:helpers/asignador-assignment-ui', [
             '<h4 class="modal-title">' + escapeHtml(title) + '</h4>' +
             '</div>' +
             '<div class="modal-body">' +
+            (isReasign
+                ? '<p class="alcaldia-asignacion-modal__actual">Responsable actual: <b>'
+                    + escapeHtml(recordView.model.get('assignedUserName') || '') + '</b></p>'
+                : '') +
             '<div class="form-group">' +
-            '<label>Asignado a <span class="text-danger">*</span></label>' +
+            '<label>' + (isReasign ? 'Nuevo responsable' : 'Asignado a') + ' <span class="text-danger">*</span></label>' +
             '<div class="input-group">' +
             '<input type="text" class="form-control js-user-name" readonly ' +
-            'placeholder="Seleccione un usuario">' +
+            'placeholder="' + (isReasign ? 'Seleccione el nuevo responsable' : 'Seleccione un usuario') + '">' +
             '<span class="input-group-btn">' +
             '<button type="button" class="btn btn-default" data-action="pick-user">Seleccionar</button>' +
             '</span></div></div>' +
@@ -324,6 +331,12 @@ define('custom:helpers/asignador-assignment-ui', [
 
             if (!selectedUser.id) {
                 Espo.Ui.error('Debe seleccionar un usuario.');
+
+                return;
+            }
+
+            if (isReasign && selectedUser.id === currentAssignedUserId) {
+                Espo.Ui.error('Seleccione un responsable diferente al actual.');
 
                 return;
             }

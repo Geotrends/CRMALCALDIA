@@ -5,7 +5,7 @@ define('custom:helpers/silent-ajax', [], function () {
      */
     const getRequest = function (url, params) {
         return new Promise(function (resolve) {
-            Espo.Ajax.request(url, 'GET', params, {
+            const request = Espo.Ajax.request(url, 'GET', params, {
                 success: function (response) {
                     resolve(response);
                 },
@@ -14,6 +14,10 @@ define('custom:helpers/silent-ajax', [], function () {
                     resolve(null);
                 },
             });
+
+            if (request && typeof request.catch === 'function') {
+                request.catch(function () {});
+            }
         });
     };
 

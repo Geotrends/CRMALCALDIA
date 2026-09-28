@@ -143,6 +143,10 @@ define('custom:views/notification/badge', [
             var $document = $(document);
 
             $document.on('mouseup.notification', function (e) {
+                if (!document.contains(e.target)) {
+                    return;
+                }
+
                 if (
                     !$container.is(e.target) &&
                     $container.has(e.target).length === 0 &&
@@ -153,11 +157,9 @@ define('custom:views/notification/badge', [
                 }
             });
 
-            if (window.innerWidth < this.getThemeManager().getParam('screenWidthXs')) {
-                this.listenToOnce(this.getRouter(), 'route', function () {
-                    self.closeNotifications();
-                });
-            }
+            this.listenToOnce(this.getRouter(), 'route', function () {
+                self.closeNotifications();
+            });
         },
 
         closeNotifications: function () {

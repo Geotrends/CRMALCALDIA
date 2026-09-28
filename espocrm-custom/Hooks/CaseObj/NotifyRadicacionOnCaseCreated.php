@@ -18,7 +18,8 @@ use Espo\ORM\Repository\Option\SaveOptions;
 use Exception;
 
 /**
- * Inspección crea un caso → notifica a usuarios con rol Radicación.
+ * Cualquier usuario crea un caso → notifica a usuarios con rol Radicador
+ * (salvo al propio creador).
  */
 class NotifyRadicacionOnCaseCreated implements AfterSave
 {
@@ -47,13 +48,8 @@ class NotifyRadicacionOnCaseCreated implements AfterSave
             return;
         }
 
-        if (!$this->user->isAdmin() && !$this->profile->isInspeccion($this->user)) {
-            return;
-        }
-
         $notifyUserIds = array_values(array_unique(array_merge(
-            $this->profile->findActiveUserIdsByRoleName(AlcaldiaUserProfile::ROLE_RADICACION),
-            $this->profile->findActiveUserIdsByRoleName(AlcaldiaUserProfile::ROLE_RADICACION_ALT),
+            $this->profile->findActiveRadicacionUserIds(),
             $this->profile->findActiveAdminUserIds(),
         )));
 
@@ -88,12 +84,13 @@ class NotifyRadicacionOnCaseCreated implements AfterSave
         }
     }
 
+    /**
+     * En AfterSave, isNew() sigue siendo true solo en la creación. No se usa
+     * createdAt === modifiedAt porque modifiedAt no se actualiza en Case.
+     */
     private function isJustCreated(Entity $entity): bool
     {
-        $createdAt = $entity->get('createdAt');
-        $modifiedAt = $entity->get('modifiedAt');
-
-        return $createdAt && $modifiedAt && $createdAt === $modifiedAt;
+        return $entity->isNew();
     }
 
     private function createNotification(Entity $entity, User $notifyUser, string $label, string $caseHref): void
@@ -118,7 +115,7 @@ class NotifyRadicacionOnCaseCreated implements AfterSave
             ])
             ->setRelated(LinkParent::createFromEntity($entity));
 
-        $this->entityManager->saveEntity($notification, ['skipAll' => true]);
+        $this->entityManager->saveEntity($notification);
     }
 
     private function sendEmail(Entity $entity, User $notifyUser, string $label, string $recordUrl): void

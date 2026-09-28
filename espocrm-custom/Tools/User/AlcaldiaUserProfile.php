@@ -22,6 +22,9 @@ class AlcaldiaUserProfile
     /** Nombre oficial según 90_MODELO_CRM/matriz_roles_v1.0.md (BPMN). */
     public const ROLE_RADICACION_BPMN = 'Auxiliar Administrativo · Radicador';
 
+    /** Nombre oficial según 90_MODELO_CRM/matriz_roles_v1.0.md (BPMN). */
+    public const ROLE_RECEPTOR_BPMN = 'Auxiliar Administrativo · Receptor';
+
     public const ROLE_PATRULLAJE = 'Patrullaje';
 
     public const ROLE_PATRULLERO = 'Patrullero';
@@ -53,6 +56,9 @@ class AlcaldiaUserProfile
 
     /** @var string[] */
     private const NAMES_RADICACION = [self::ROLE_RADICACION, self::ROLE_RADICACION_ALT, self::ROLE_RADICACION_BPMN];
+
+    /** @var string[] */
+    private const NAMES_RECEPTOR = [self::ROLE_RECEPTOR_BPMN];
 
     /** @var string[] */
     private const NAMES_PATRULLAJE = [self::ROLE_PATRULLAJE, self::ROLE_PATRULLERO, self::ROLE_PATRULLAJE_BPMN];
@@ -294,6 +300,58 @@ class AlcaldiaUserProfile
             if (in_array($role->getId(), $roles, true)) {
                 $ids[] = $user->getId();
             }
+        }
+
+        return array_values(array_unique($ids));
+    }
+
+    /**
+     * Usuarios activos con rol Radicador, bajo cualquiera de sus nombres
+     * (histórico o BPMN), para no depender de un rename del rol.
+     *
+     * @return string[]
+     */
+    public function findActiveRadicacionUserIds(): array
+    {
+        return $this->findActiveUserIdsByRoleNames(self::NAMES_RADICACION);
+    }
+
+    /**
+     * Director Técnico (antes Asignador / Asignación).
+     *
+     * @return string[]
+     */
+    public function findActiveAsignadorUserIds(): array
+    {
+        return $this->findActiveUserIdsByRoleNames(self::NAMES_ASIGNADOR);
+    }
+
+    /**
+     * @return string[]
+     */
+    public function findActiveInspeccionUserIds(): array
+    {
+        return $this->findActiveUserIdsByRoleNames(self::NAMES_INSPECCION);
+    }
+
+    /**
+     * @return string[]
+     */
+    public function findActiveReceptorUserIds(): array
+    {
+        return $this->findActiveUserIdsByRoleNames(self::NAMES_RECEPTOR);
+    }
+
+    /**
+     * @param string[] $roleNames
+     * @return string[]
+     */
+    private function findActiveUserIdsByRoleNames(array $roleNames): array
+    {
+        $ids = [];
+
+        foreach ($roleNames as $roleName) {
+            $ids = array_merge($ids, $this->findActiveUserIdsByRoleName($roleName));
         }
 
         return array_values(array_unique($ids));

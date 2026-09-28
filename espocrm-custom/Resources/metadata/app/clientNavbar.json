@@ -1,5 +1,11 @@
 {
     "items": {
+        "userIdentity": {
+            "view": "custom:views/site/navbar/user-identity",
+            "class": "hidden-xs navbar-user-identity-container",
+            "order": 1,
+            "disabled": false
+        },
         "notificationBadge": {
             "view": "custom:views/notification/badge"
         }

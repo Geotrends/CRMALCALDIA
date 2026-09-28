@@ -20,6 +20,7 @@ use Espo\Core\Utils\Config;
 use Espo\Custom\Tools\App\AlcaldiaDateTimeHelper;
 use Espo\Custom\Tools\Calendar\CaseCalendarEventService;
 use Espo\Custom\Tools\CaseObj\CaseActaVisitaHelper;
+use Espo\Custom\Tools\CaseObj\CaseCompetenciaService;
 use Espo\Custom\Tools\CaseObj\CaseCreateDefaultsService;
 use Espo\Custom\Tools\CaseObj\CaseCronogramaService;
 use Espo\Custom\Tools\CaseObj\CaseGestionTecnicaHelper;
@@ -695,6 +696,36 @@ class CaseObj extends BaseCaseObj
     }
 
     /** POST Case/action/remitirPorCompetencia body: {id: caseId}. */
+    /**
+     * POST Case/action/revisarCompetencia
+     * body: { "id", "competencia": "Total|Parcial|Ninguna", "cClaseIngreso", "cRecursoTema", "cAsunto",
+     *         "autoridadDestino"?, "observacion"? }
+     *
+     * Revisión de competencia previa a la asignación (N1 · Competencia y Clasificación).
+     *
+     * @return array<string, mixed>
+     */
+    public function postActionRevisarCompetencia(Request $request): array
+    {
+        $body = $request->getParsedBody();
+        $case = $this->getCaseOrFail($this->parseCaseIdFromRequest($body));
+
+        return $this->injectableFactory
+            ->create(CaseCompetenciaService::class)
+            ->revisar(
+                $case,
+                $this->getUser(),
+                trim((string) ($body->competencia ?? '')),
+                trim((string) ($body->autoridadDestino ?? '')),
+                trim((string) ($body->observacion ?? '')),
+                [
+                    'cClaseIngreso' => (string) ($body->cClaseIngreso ?? ''),
+                    'cRecursoTema' => (string) ($body->cRecursoTema ?? ''),
+                    'cAsunto' => (string) ($body->cAsunto ?? ''),
+                ]
+            );
+    }
+
     public function postActionRemitirPorCompetencia(Request $request): array
     {
         $case = $this->getCaseOrFail($this->parseCaseIdFromRequest($request->getParsedBody()));

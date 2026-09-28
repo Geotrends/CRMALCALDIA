@@ -23,6 +23,17 @@ class ValidatePersonaTipoOnSave implements BeforeSave
     private const NO_SE_CONOCE = 'No se conoce';
     private const PLACEHOLDER = 'Seleccione una opción';
 
+    /** @var string[] */
+    private const PARTY_ATTRIBUTES = [
+        'cTipoPersonaPeticionario',
+        'cNombrePeticionario',
+        'cApellidoPeticionario',
+        'cDocumentoPeticionario',
+        'cTipoPersonaPerjudicante',
+        'cNombrePerjudicante',
+        'cApellidoPerjudicante',
+    ];
+
     public function __construct(
         private User $user,
         private AlcaldiaUserProfile $profile
@@ -37,11 +48,23 @@ class ValidatePersonaTipoOnSave implements BeforeSave
             return;
         }
 
+        // Acciones de flujo que no tocan a las partes (p. ej. revisión de competencia).
+        if ($options->get('skipPartyValidation')) {
+            return;
+        }
+
         if (!CaseRadicadoHelper::isRadicadoCompleto($entity)) {
             return;
         }
 
         if ($this->user->isAdmin()) {
+            // Asignar/reasignar no toca a las partes: igual que para el Director
+            // Técnico, no se revalidan (si no, un caso con partes incompletas
+            // no podía reasignarse desde la cuenta admin).
+            if ($this->isAssignmentOnly($entity)) {
+                return;
+            }
+
             $this->validatePeticionario($entity);
             $this->validatePerjudicante($entity);
 
@@ -62,6 +85,21 @@ class ValidatePersonaTipoOnSave implements BeforeSave
 
         $this->validatePeticionario($entity);
         $this->validatePerjudicante($entity);
+    }
+
+    private function isAssignmentOnly(Entity $entity): bool
+    {
+        if (!$entity->isAttributeChanged('assignedUserId')) {
+            return false;
+        }
+
+        foreach (self::PARTY_ATTRIBUTES as $attribute) {
+            if ($entity->isAttributeChanged($attribute)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private function validatePeticionario(Entity $entity): void

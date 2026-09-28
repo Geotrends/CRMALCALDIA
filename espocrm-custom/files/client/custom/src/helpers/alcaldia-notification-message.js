@@ -23,7 +23,7 @@ define('custom:helpers/alcaldia-notification-message', [
     };
 
     const userLink = function (userId, name) {
-        const label = escapeHtml(name || 'Usuario');
+        const label = escapeHtml(String(name || '').trim() || 'Usuario');
 
         if (!userId) {
             return label;
@@ -121,6 +121,7 @@ define('custom:helpers/alcaldia-notification-message', [
         }
 
         let message = '';
+        const motivoText = data.motivo ? ' Motivo: ' + escapeHtml(data.motivo) : '';
 
         if (isVencimientoAlert) {
             const fechaVenc = data.fechaVencimiento || '';
@@ -163,16 +164,33 @@ define('custom:helpers/alcaldia-notification-message', [
             message = userLink(userId, userName)
                 + ' creó una solicitud de queja: '
                 + caseLink(href, linkLabel);
+        } else if (data.isRemisionCompetencia) {
+            message = userLink(userId, userName)
+                + ' confirmó competencia ' + escapeHtml(String(data.competencia || '').toLowerCase())
+                + ' en el caso ' + caseLink(href, linkLabel)
+                + '. Prepare el oficio de remisión'
+                + (data.autoridadDestino ? ' a ' + escapeHtml(data.autoridadDestino) : '') + '.';
         } else if (data.isPendienteAsignacion) {
             message = 'El caso ' + caseLink(href, linkLabel)
-                + ' fue radicado y requiere asignación.';
+                + ' fue radicado: revise la competencia y asigne el responsable.';
+        } else if (data.isDesasignacion) {
+            message = userLink(userId, userName)
+                + ' reasignó el caso ' + caseLink(href, linkLabel)
+                + ' a ' + userLink(data.assignedUserId, data.assignedUserName || 'otro responsable')
+                + '; ya no está a tu cargo.' + motivoText;
         } else if (isPatrulleroAsignacion) {
             message = userLink(userId, userName)
-                + ' te asignó el caso ' + caseLink(href, linkLabel);
+                + (data.isReasignacion ? ' te reasignó el caso ' : ' te asignó el caso ')
+                + caseLink(href, linkLabel) + (data.isReasignacion ? '.' + motivoText : '');
         } else if (isAsignacion) {
             message = userLink(userId, userName)
-                + ' asignó el caso ' + caseLink(href, linkLabel)
-                + ' a ' + userLink(data.assignedUserId, data.assignedUserName || 'patrullero');
+                + (data.isReasignacion ? ' reasignó el caso ' : ' asignó el caso ')
+                + caseLink(href, linkLabel)
+                + (data.isReasignacion && data.previousUserId
+                    ? ' de ' + userLink(data.previousUserId, data.previousUserName || 'responsable anterior')
+                    : '')
+                + ' a ' + userLink(data.assignedUserId, data.assignedUserName || 'patrullero')
+                + (data.isReasignacion ? '.' + motivoText : '');
         } else if (isRadicado || /radicó el caso|radicó un caso/i.test(rawMessage)) {
             message = userLink(userId, userName)
                 + ' radicó el caso '

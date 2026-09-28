@@ -3,9 +3,6 @@
         "Espo\\Custom\\Classes\\RecordHooks\\CaseObj\\EarlyBeforeCreate",
         "Espo\\Custom\\Classes\\RecordHooks\\CaseObj\\EarlyNormalizeCaseEnums"
     ],
-    "afterUpdateHookClassNameList": [
-        "Espo\\Custom\\Classes\\RecordHooks\\CaseObj\\AfterUpdateNotifyAsignacion"
-    ],
     "earlyBeforeUpdateHookClassNameList": [
         "Espo\\Custom\\Classes\\RecordHooks\\CaseObj\\EarlyBeforeUpdatePeticionDeadline",
         "Espo\\Custom\\Classes\\RecordHooks\\CaseObj\\EarlyNormalizeCaseEnums"

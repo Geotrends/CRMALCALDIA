@@ -7,7 +7,12 @@ define('custom:helpers/compact-form-sections', [], function () {
         perjudicante: {open: false, fields: ['cNombrePerjudicante', 'cApellidoPerjudicante', 'cDocumentoPerjudicante']},
         clasificacionSeguimiento: {open: false, fields: ['cRecursoTema', 'cFechaVencimiento']},
         radicacionCaso: {open: false, fields: ['cNumeroRadicado']},
-        gestionPosteriorRadicacion: {open: false, fields: ['assignedUser']},
+        gestionPosteriorRadicacion: {open: false, fields: ['assignedUserName'], summaryFn: function (model) {
+            if (model.get('assignedUserName')) return model.get('assignedUserName');
+            if (!String(model.get('cNumeroRadicado') || '').trim()) return '';
+            if (!model.get('cCompetenciaConfirmada')) return 'Pendiente: revisar competencia';
+            return model.get('cCompetencia') === 'Ninguna' ? 'Remitido por competencia' : 'Pendiente de asignar';
+        }},
         actaVisita: {open: false, fields: []},
         decisionJuridica: {open: false, fields: []},
         actuoArchivo: {open: false, fields: []},
@@ -58,7 +63,7 @@ define('custom:helpers/compact-form-sections', [], function () {
             $panel.addClass('crm-form-section');
             $heading.attr({role: 'button', tabindex: '0'}).append('<span class="crm-form-section__summary"></span><span class="crm-form-section__chevron" aria-hidden="true"></span>');
             const update = function () {
-                const text = rule.summary || rule.fields.map(field => String(view.model.get(field) || '').trim()).filter(Boolean).join(' · ');
+                const text = rule.summary || (rule.summaryFn ? rule.summaryFn(view.model) : '') || rule.fields.map(field => String(view.model.get(field) || '').trim()).filter(Boolean).join(' · ');
                 $heading.find('.crm-form-section__summary').text(text || 'Sin información registrada');
             };
             const state = function (open) {
