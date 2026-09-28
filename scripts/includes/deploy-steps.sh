@@ -50,6 +50,7 @@ DEPLOY_POST_LEGACY_STEPS=(
   "Job alertas de vencimiento (campana)|configure-case-vencimiento-alerts.php"
   "Vínculos caso ↔ tercero (peticionario / infractor)|sync-case-party-links.php"
   "Historial de visitas (tabla + backfill)|ensure-visita-historial.php"
+  "Actas: quitar decisión sin revisión (valor por defecto)|fix-acta-decision-sin-revision.php"
 )
 
 deploy_run_steps_docker() {

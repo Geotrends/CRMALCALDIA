@@ -1,7 +1,8 @@
 define('custom:views/acta-visita/record/detail', [
     'views/record/detail',
     'custom:helpers/formato-acta-visita-access',
-], function (Dep, FormatoActaVisitaAccess) {
+    'custom:helpers/acta-visita-section-summary',
+], function (Dep, FormatoActaVisitaAccess, ActaSectionSummary) {
 
     return Dep.extend({
 
@@ -52,6 +53,8 @@ define('custom:views/acta-visita/record/detail', [
         },
 
         makePanelsCollapsible: function () {
+            const view = this;
+
             this.$el.find('.panel, .record-panel').each(function () {
                 const $panel = $(this);
                 const $heading = $panel.children('.panel-heading').first();
@@ -63,6 +66,7 @@ define('custom:views/acta-visita/record/detail', [
                 $panel.addClass('alcaldia-acta-collapsible');
                 $heading.attr({role: 'button', tabindex: '0', 'aria-expanded': 'true'});
                 $heading.append('<span class="alcaldia-acta-collapsible__chevron fas fa-chevron-up" aria-hidden="true"></span>');
+                ActaSectionSummary.attach(view, $panel, $heading);
 
                 const toggle = function () {
                     const collapsed = !$panel.hasClass('alcaldia-acta-collapsed');

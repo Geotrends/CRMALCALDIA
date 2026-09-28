@@ -20,12 +20,14 @@ use Espo\Core\Utils\Config;
 use Espo\Custom\Tools\App\AlcaldiaDateTimeHelper;
 use Espo\Custom\Tools\Calendar\CaseCalendarEventService;
 use Espo\Custom\Tools\CaseObj\CaseActaVisitaHelper;
+use Espo\Custom\Tools\CaseObj\CaseCierreService;
 use Espo\Custom\Tools\CaseObj\CaseCompetenciaService;
 use Espo\Custom\Tools\CaseObj\CaseCreateDefaultsService;
 use Espo\Custom\Tools\CaseObj\CaseCronogramaService;
 use Espo\Custom\Tools\CaseObj\CaseGestionTecnicaHelper;
 use Espo\Custom\Tools\CaseObj\CaseTimelineService;
 use Espo\Custom\Tools\CaseObj\CaseVisitaAprobadaNotifier;
+use Espo\Custom\Tools\CaseObj\VisitaComplementariaService;
 use Espo\Custom\Tools\CaseObj\VisitaHistorialLogger;
 use Espo\Custom\Tools\CaseObj\RadicadoCatalog;
 use Espo\Custom\Tools\CaseObj\RadicadoConsecutivoService;
@@ -661,7 +663,7 @@ class CaseObj extends BaseCaseObj
 
         $currentStatus = trim((string) $case->get('status'));
 
-        if ($currentStatus === self::STATUS_PROCESO_CERRADO) {
+        if (in_array($currentStatus, [self::STATUS_PROCESO_CERRADO, CaseCierreService::STATUS_PENDIENTE_RESPUESTA], true)) {
             return ['success' => true, 'status' => $currentStatus, 'alreadyClosed' => true];
         }
 
@@ -681,21 +683,54 @@ class CaseObj extends BaseCaseObj
             throw new BadRequest('El caso ya tiene un Auto de Inicio; no se puede cerrar sin proceso.');
         }
 
-        $case->set('status', self::STATUS_PROCESO_CERRADO);
-        $this->entityManager->saveEntity($case, ['skipAsignadorLimit' => true]);
+        // Cierre de atención: el caso no se da por terminado hasta que se registre la
+        // respuesta final y alguien pulse «Finalizar caso»; el plazo sigue vigilado.
+        $case->set('status', CaseCierreService::STATUS_PENDIENTE_RESPUESTA);
+        $this->entityManager->saveEntity($case, ['skipAsignadorLimit' => true, 'skipPartyValidation' => true]);
 
         try {
             $this->injectableFactory
-                ->create(CaseVisitaAprobadaNotifier::class)
-                ->notifyCierreSinProceso($case, $user);
+                ->create(CaseCierreService::class)
+                ->notificarRespuestaPendiente($case, $user);
         } catch (\Throwable) {
             // No bloquear el cierre por fallos de notificación.
         }
 
-        return ['success' => true, 'status' => self::STATUS_PROCESO_CERRADO, 'alreadyClosed' => false];
+        return ['success' => true, 'status' => CaseCierreService::STATUS_PENDIENTE_RESPUESTA, 'alreadyClosed' => false];
     }
 
-    /** POST Case/action/remitirPorCompetencia body: {id: caseId}. */
+    /**
+     * GET Case/action/cierreEstado?id=  Lista de verificación para «Finalizar caso».
+     *
+     * @return array<string, mixed>
+     */
+    public function getActionCierreEstado(Request $request): array
+    {
+        $case = $this->getCaseOrFail(trim((string) $request->getQueryParam('id')));
+
+        if (!$this->acl->checkEntityRead($case)) {
+            throw new Forbidden();
+        }
+
+        return $this->injectableFactory->create(CaseCierreService::class)->estado($case, $this->getUser());
+    }
+
+    /**
+     * POST Case/action/finalizarCaso  body: { "id" }  (todos los roles excepto Radicador).
+     *
+     * @return array<string, mixed>
+     */
+    public function postActionFinalizarCaso(Request $request): array
+    {
+        $case = $this->getCaseOrFail($this->parseCaseIdFromRequest($request->getParsedBody()));
+
+        if (!$this->acl->checkEntityRead($case)) {
+            throw new Forbidden();
+        }
+
+        return $this->injectableFactory->create(CaseCierreService::class)->finalizar($case, $this->getUser());
+    }
+
     /**
      * POST Case/action/revisarCompetencia
      * body: { "id", "competencia": "Total|Parcial|Ninguna", "cClaseIngreso", "cRecursoTema", "cAsunto",
@@ -726,6 +761,12 @@ class CaseObj extends BaseCaseObj
             );
     }
 
+    /**
+     * POST Case/action/remitirPorCompetencia body: {id: caseId}.
+     *
+     * Remisión decidida en la revisión de hallazgos: además del estado, registra la
+     * RemisionAutoridad (entidad y motivación de la definición) y avisa a quien prepara el oficio.
+     */
     public function postActionRemitirPorCompetencia(Request $request): array
     {
         $case = $this->getCaseOrFail($this->parseCaseIdFromRequest($request->getParsedBody()));
@@ -743,6 +784,14 @@ class CaseObj extends BaseCaseObj
 
         $case->set('status', 'Remitido por competencia');
         $this->entityManager->saveEntity($case, ['skipAsignadorLimit' => true]);
+
+        $entidad = trim((string) $case->get('cEntidadRemision'));
+
+        if ($entidad !== '') {
+            $this->injectableFactory
+                ->create(CaseCompetenciaService::class)
+                ->registrarRemision($case, $user, CaseCompetenciaService::ORIGEN_HALLAZGOS, $entidad, trim((string) $case->get('cMotivoDecision')));
+        }
 
         try {
             $this->injectableFactory
@@ -793,21 +842,111 @@ class CaseObj extends BaseCaseObj
             throw new BadRequest('Debe adjuntar el acta de visita diligenciada y firmada antes de definir el trámite.');
         }
 
+        $esRemision = $decision === 'Remisión por competencia';
+
         $case->set('cDecisionTramite', $decision);
         $case->set('cMotivoDecision', $motivo);
-        $case->set('cEntidadRemision', $entidad);
+
+        // La entidad solo aplica a la remisión; otra decisión no debe borrar la
+        // registrada en la revisión de competencia.
+        if ($esRemision) {
+            $case->set('cEntidadRemision', $entidad);
+        }
+
         $case->set('status', CaseActaVisitaHelper::STATUS_REVISION_HALLAZGOS);
         // La definición pertenece a la visita cuyos hallazgos se revisaron.
         // El caso conserva la última decisión para el flujo general.
         $acta->set('cDecisionTramite', $decision);
         $acta->set('observacionesRevision', $motivo);
-        $acta->set('cEntidadRemision', $entidad);
+        $acta->set('cEntidadRemision', $esRemision ? $entidad : null);
         $acta->set('fechaAprobacion', date('Y-m-d'));
         $acta->set('cRevisadoPor', (string) ($user->get('name') ?: $user->get('userName')));
         $this->entityManager->saveEntity($acta);
         $this->entityManager->saveEntity($case, ['skipAsignadorLimit' => true]);
 
         return ['success' => true, 'status' => CaseActaVisitaHelper::STATUS_REVISION_HALLAZGOS];
+    }
+
+    /**
+     * POST Case/action/editarRevisionActa  body: { "id": caseId, "actaId", "motivo", "entidadRemision"? }
+     *
+     * Corrige la motivación (y la entidad, si fue remisión) de la revisión de hallazgos
+     * de una visita ya revisada. El tipo de decisión no cambia: ya fue ejecutado.
+     *
+     * @return array<string, mixed>
+     */
+    public function postActionEditarRevisionActa(Request $request): array
+    {
+        $body = $request->getParsedBody();
+        $data = is_object($body) ? get_object_vars($body) : (is_array($body) ? $body : []);
+        $case = $this->getCaseOrFail($this->parseCaseIdFromRequest($body));
+        $user = $this->getUser();
+        $profile = $this->injectableFactory->create(AlcaldiaUserProfile::class);
+
+        if (!$user->isAdmin() && !$profile->isInspeccion($user)
+            && !$profile->isAsignador($user) && !$profile->isJuridica($user)) {
+            throw new Forbidden('No tiene permiso para editar la revisión de hallazgos.');
+        }
+
+        $acta = $this->entityManager->getEntityById('ActaVisita', trim((string) ($data['actaId'] ?? '')));
+
+        if (!$acta || trim((string) $acta->get('caseId')) !== $case->getId()) {
+            throw new BadRequest('El acta de visita no pertenece a este caso.');
+        }
+
+        $decision = trim((string) $acta->get('cDecisionTramite'));
+
+        if ($decision === '' || (trim((string) $acta->get('cRevisadoPor')) === '' && !$acta->get('fechaAprobacion'))) {
+            throw new BadRequest('Esta visita aún no tiene una revisión registrada.');
+        }
+
+        $motivo = trim((string) ($data['motivo'] ?? ''));
+        $entidad = trim((string) ($data['entidadRemision'] ?? ''));
+        $esRemision = $decision === 'Remisión por competencia';
+
+        if ($motivo === '') {
+            throw new BadRequest('Escriba la motivación de la revisión.');
+        }
+
+        if ($esRemision && $entidad === '') {
+            throw new BadRequest('Indique la entidad competente.');
+        }
+
+        $acta->set('observacionesRevision', $motivo);
+
+        if ($esRemision) {
+            $acta->set('cEntidadRemision', $entidad);
+        }
+
+        $this->entityManager->saveEntity($acta);
+
+        // Si es la revisión vigente del caso, el caso refleja la corrección.
+        if (trim((string) $case->get('cDecisionTramite')) === $decision) {
+            $latest = CaseActaVisitaHelper::findLatestDiligenciadaActaForCase($this->entityManager, $case->getId());
+
+            if ($latest && $latest->getId() === $acta->getId()) {
+                $case->set('cMotivoDecision', $motivo);
+
+                if ($esRemision) {
+                    $case->set('cEntidadRemision', $entidad);
+                }
+
+                $this->entityManager->saveEntity($case, ['skipAsignadorLimit' => true, 'skipPartyValidation' => true]);
+            }
+        }
+
+        $note = $this->entityManager->getNewEntity('Note');
+        $note->set([
+            'type' => 'Post',
+            'parentType' => 'Case',
+            'parentId' => $case->getId(),
+            'post' => 'Editó la revisión de hallazgos de ' . ($acta->get('name') ?: 'la visita')
+                . ' (' . $decision . '). Nueva motivación: ' . $motivo
+                . ($esRemision ? ' · Entidad: ' . $entidad : ''),
+        ]);
+        $this->entityManager->saveEntity($note);
+
+        return ['success' => true, 'actaId' => $acta->getId()];
     }
 
     /**
@@ -857,6 +996,9 @@ class CaseObj extends BaseCaseObj
             throw new BadRequest('Debe existir al menos un acta de visita previa.');
         }
 
+        $visitaComplementaria = $this->injectableFactory->create(VisitaComplementariaService::class);
+        $motivo = $visitaComplementaria->resolveMotivo($case, $visitNumber);
+
         $currentStatus = trim((string) $case->get('status'));
 
         if (CaseActaVisitaHelper::isCaseEnProcesoOtraVisita($this->entityManager, $case)) {
@@ -867,6 +1009,8 @@ class CaseObj extends BaseCaseObj
                 'alreadyPrepared' => true,
             ];
         }
+
+        $visitaComplementaria->assertMotivo($motivo);
 
         // Reabre (o crea) la GestionTecnica del caso para la nueva ronda de visita.
         // Tanto si el caso venía de "Asignado" (primera visita) como de una ronda de
@@ -884,7 +1028,11 @@ class CaseObj extends BaseCaseObj
             'skipCaseExcelAlcaldia' => true,
         ]);
 
-        $this->notifyNuevaVisitaAlPatrullero($case, $user, $visitNumber);
+        try {
+            $visitaComplementaria->notificarYProgramar($case, $user, $visitNumber, $motivo);
+        } catch (\Throwable) {
+            // Los avisos y la alerta no deben impedir que quede preparada la visita.
+        }
 
         return [
             'success' => true,
@@ -892,17 +1040,6 @@ class CaseObj extends BaseCaseObj
             'visitNumber' => $visitNumber,
             'alreadyPrepared' => false,
         ];
-    }
-
-    private function notifyNuevaVisitaAlPatrullero(Entity $case, User $actor, int $visitNumber): void
-    {
-        try {
-            $this->injectableFactory
-                ->create(CaseVisitaAprobadaNotifier::class)
-                ->notifyNuevaVisitaPatrullero($case, $actor, $visitNumber);
-        } catch (\Throwable) {
-            // La notificación no debe impedir que quede preparada la visita.
-        }
     }
 
     /**
@@ -996,13 +1133,8 @@ class CaseObj extends BaseCaseObj
             );
         }
 
-        try {
-            $this->injectableFactory
-                ->create(CaseVisitaAprobadaNotifier::class)
-                ->notifySolicitudNuevaVisita($case, $user);
-        } catch (\Throwable) {
-            // No bloquear el registro por fallos de notificación.
-        }
+        // Los avisos se envían al preparar la visita (prepararNuevaVisita), que
+        // es el paso siguiente de este flujo: ahí se incluye el motivo y el plazo.
 
         return [
             'success' => true,

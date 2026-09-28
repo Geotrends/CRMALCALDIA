@@ -175,7 +175,8 @@
         },
         "cDecisionTramite": {
             "type": "enum",
-            "options": ["Visita complementaria", "Cierre de atención", "Remisión por competencia", "Apertura de actuación"],
+            "options": ["", "Visita complementaria", "Cierre de atención", "Remisión por competencia", "Apertura de actuación"],
+            "default": "",
             "isCustom": true,
             "audited": true
         },

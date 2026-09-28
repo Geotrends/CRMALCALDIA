@@ -1,5 +1,6 @@
 {
     "controller": "controllers/record",
+    "defaultSidePanelDisabled": true,
     "iconClass": "fas fa-clipboard-list",
     "color": "#0d9488",
     "recordViews": {

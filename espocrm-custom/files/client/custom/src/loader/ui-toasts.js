@@ -116,7 +116,42 @@
         });
     }
 
+    // El servidor envía X-Status-Reason en UTF-8 y el navegador lo lee como
+    // Latin-1 («definiciÃ³n»): se repara antes de mostrarlo.
+    function fixMojibake(text) {
+        if (!/[ÃÂ][\u0080-\u00BF]/.test(text)) {
+            return text;
+        }
+
+        try {
+            return decodeURIComponent(escape(text));
+        } catch (e) {
+            return text;
+        }
+    }
+
+    var TECHNICAL_TITLES = {
+        'bad request': 'Revise la información',
+        'forbidden': 'Sin permiso',
+        'not found': 'No encontrado',
+        'error': 'Ocurrió un error',
+    };
+
+    function friendlyTitle(title) {
+        var key = String(title || '').trim().toLowerCase();
+
+        return TECHNICAL_TITLES[key] || title;
+    }
+
     function parseMessage(raw) {
+        var meta = parseRawMessage(fixMojibake(String(raw || '')));
+
+        meta.title = friendlyTitle(meta.title);
+
+        return meta;
+    }
+
+    function parseRawMessage(raw) {
         var text = String(raw || '').trim();
 
         if (!text || text === '...' || text === ' ... ') {

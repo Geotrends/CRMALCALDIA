@@ -322,6 +322,13 @@ body {
   gap: 8px;
 }
 
+/* 13 indicadores: dos filas completas (7 + 6) en pantallas anchas. */
+@media (min-width: 1400px) {
+  .kpis {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+  }
+}
+
 .kpi {
   background: var(--crm-surface);
   border-radius: var(--crm-radius-md);
@@ -396,6 +403,14 @@ body {
   background: #fdf1e2;
   color: #b45309;
 }
+
+/* Indicadores del flujo: competencia, visitas, decisión y cierre. */
+.kpi--competencia .kpi-icon { background: #eef2ff; color: #4338ca; }
+.kpi--visita-pend .kpi-icon { background: #fdf4e3; color: #b45309; }
+.kpi--visita-hecha .kpi-icon { background: #ecf7f0; color: #2f7a4a; }
+.kpi--definir .kpi-icon { background: #eaf3f8; color: #1f6a8a; }
+.kpi--por-finalizar .kpi-icon { background: #f3edfb; color: #6b21a8; }
+.kpi--remision .kpi-icon { background: #f5eef0; color: #9d3b55; }
 
 .kpi-label {
   font-size: var(--crm-font-size-xs);

@@ -120,6 +120,19 @@ define('custom:helpers/alcaldia-notification-message', [
             };
         }
 
+        // Alertas de plazo (AlertaProceso): el mensaje ya viene redactado por el servidor.
+        if (data.isAlertaProcesoNotification) {
+            const alertaId = data.alertaProcesoId || model.get('relatedId') || '';
+            const vencida = String(data.fase || '').indexOf('vencida') === 0;
+
+            return {
+                message: escapeHtml(rawMessage.replace(/<[^>]+>/g, ''))
+                    + (alertaId ? ' · <a href="#AlertaProceso/view/' + encodeURIComponent(alertaId) + '">Ver alerta</a>' : ''),
+                style: vencida ? 'text-danger' : 'text-warning',
+                userId: null,
+            };
+        }
+
         let message = '';
         const motivoText = data.motivo ? ' Motivo: ' + escapeHtml(data.motivo) : '';
 
@@ -164,10 +177,30 @@ define('custom:helpers/alcaldia-notification-message', [
             message = userLink(userId, userName)
                 + ' creó una solicitud de queja: '
                 + caseLink(href, linkLabel);
+        } else if (data.isRespuestaFinalPendiente) {
+            message = userLink(userId, userName) + ' cerró la atención del caso ' + caseLink(href, linkLabel)
+                + (data.esAccionable
+                    ? ' sin abrir proceso. Proyecte la respuesta final al peticionario (Comunicaciones, marcada como respuesta final) y finalice el caso.'
+                    : ' sin abrir proceso. Queda pendiente la respuesta final al peticionario.');
+        } else if (data.isVisitaComplementaria) {
+            const numeroVisita = data.numeroVisita ? ' N° ' + escapeHtml(String(data.numeroVisita)) : '';
+            const plazoText = data.plazo ? ' Plazo: ' + escapeHtml(data.plazo) + '.' : '';
+
+            message = data.esResponsable
+                ? userLink(userId, userName) + ' solicitó que realices la visita complementaria' + numeroVisita
+                    + ' del caso ' + caseLink(href, linkLabel) + '.' + motivoText + plazoText
+                : userLink(userId, userName) + ' solicitó la visita complementaria' + numeroVisita
+                    + ' del caso ' + caseLink(href, linkLabel)
+                    + (data.assignedUserId
+                        ? ', a cargo de ' + userLink(data.assignedUserId, data.assignedUserName)
+                        : ' (sin responsable asignado)')
+                    + '.' + motivoText + plazoText;
         } else if (data.isRemisionCompetencia) {
             message = userLink(userId, userName)
-                + ' confirmó competencia ' + escapeHtml(String(data.competencia || '').toLowerCase())
-                + ' en el caso ' + caseLink(href, linkLabel)
+                + (data.competencia === 'Hallazgos'
+                    ? ' definió remitir por competencia, tras la revisión de hallazgos, el caso '
+                    : ' confirmó competencia ' + escapeHtml(String(data.competencia || '').toLowerCase()) + ' en el caso ')
+                + caseLink(href, linkLabel)
                 + '. Prepare el oficio de remisión'
                 + (data.autoridadDestino ? ' a ' + escapeHtml(data.autoridadDestino) : '') + '.';
         } else if (data.isPendienteAsignacion) {

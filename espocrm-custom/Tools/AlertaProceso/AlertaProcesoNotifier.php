@@ -3,6 +3,7 @@
 namespace Espo\Custom\Tools\AlertaProceso;
 
 use Espo\Core\Field\LinkParent;
+use Espo\Custom\Tools\User\AlcaldiaUserProfile;
 use Espo\Entities\Notification;
 use Espo\ORM\Entity;
 use Espo\ORM\EntityManager;
@@ -14,7 +15,8 @@ use Espo\ORM\EntityManager;
 class AlertaProcesoNotifier
 {
     public function __construct(
-        private EntityManager $entityManager
+        private EntityManager $entityManager,
+        private AlcaldiaUserProfile $profile
     ) {}
 
     /**
@@ -65,7 +67,9 @@ class AlertaProcesoNotifier
         $this->entityManager->saveEntity($alerta);
 
         try {
-            $this->notificarCreacion($alerta);
+            if (empty($datos['sinAvisoCreacion'])) {
+                $this->notificarCreacion($alerta);
+            }
         } catch (\Throwable) {
             // No bloquear la creación de la alerta por fallos de notificación.
         }
@@ -106,6 +110,58 @@ class AlertaProcesoNotifier
             'alertaProcesoId' => $alerta->getId(),
             'fase' => 'vencida',
         ]);
+
+        if ($alerta->get('tipoAlerta') === 'Seguimiento operativo') {
+            $this->escalarVencida($alerta, $message);
+        }
+    }
+
+    /**
+     * Seguimiento operativo vencido: además del responsable, se entera quien
+     * coordina (Director Técnico) y los admins, para reasignar o intervenir.
+     */
+    private function escalarVencida(Entity $alerta, string $message): void
+    {
+        $userIds = array_values(array_unique(array_merge(
+            $this->profile->findActiveAsignadorUserIds(),
+            $this->profile->findActiveAdminUserIds(),
+        )));
+
+        foreach ($userIds as $userId) {
+            if ($userId === (string) $alerta->get('responsableId')) {
+                continue;
+            }
+
+            $ya = $this->entityManager
+                ->getRDBRepositoryByClass(Notification::class)
+                ->where([
+                    'userId' => $userId,
+                    'relatedId' => $alerta->getId(),
+                    'relatedType' => $alerta->getEntityType(),
+                ])
+                ->findOne();
+
+            if ($ya) {
+                continue;
+            }
+
+            $notification = $this->entityManager
+                ->getRDBRepositoryByClass(Notification::class)
+                ->getNew();
+
+            $notification
+                ->setType(Notification::TYPE_MESSAGE)
+                ->setUserId($userId)
+                ->setMessage($message . ' (responsable: ' . $alerta->get('responsableName') . ')')
+                ->setData([
+                    'isAlertaProcesoNotification' => true,
+                    'alertaProcesoId' => $alerta->getId(),
+                    'fase' => 'vencida-escalada',
+                ])
+                ->setRelated(LinkParent::createFromEntity($alerta));
+
+            $this->entityManager->saveEntity($notification);
+        }
     }
 
     private function notificarCreacion(Entity $alerta): void

@@ -449,6 +449,118 @@ define('custom:helpers/case-detail-side-panels', [
         });
     };
 
+    const CIERRE_STATUSES = ['Pendiente de respuesta final', 'Remitido por competencia'];
+    const cierreCache = {};
+
+    /**
+     * Bloque «Cierre del caso»: requisitos para finalizar (respuesta final y, en
+     * remisión, oficio enviado) y botón «Finalizar caso» (todos menos Radicador).
+     */
+    const mountCierreBlock = function (recordView, $side) {
+        const model = recordView.model;
+        const status = String(model.get('status') || '').trim();
+        let $block = $side.find('.alcaldia-cierre-caso');
+
+        if (CIERRE_STATUSES.indexOf(status) === -1) {
+            $block.remove();
+
+            return;
+        }
+
+        if (!$block.length) {
+            $block = $('<section class="alcaldia-cierre-caso panel panel-default"></section>');
+            $side.prepend($block);
+        } else if (!$block.is($side.children().first())) {
+            $side.prepend($block);
+        }
+
+        // Case.modifiedAt no cambia al guardar: la clave caduca en unos segundos para
+        // reflejar comunicaciones o remisiones registradas desde otros paneles.
+        const key = model.id + '|' + status + '|' + Math.floor(Date.now() / 5000);
+
+        if ($block.data('cierreKey') === key) {
+            return;
+        }
+
+        $block.data('cierreKey', key);
+
+        if (!cierreCache[key]) {
+            cierreCache[key] = SilentAjax.getRequest('Case/action/cierreEstado', {id: model.id});
+        }
+
+        cierreCache[key].then(function (estado) {
+            if (!estado || !estado.aplica) {
+                $block.remove();
+
+                return;
+            }
+
+            const esRemision = estado.tipo === 'remision';
+            const items = (estado.requisitos || []).map(function (r) {
+                return '<li class="' + (r.ok ? 'is-ok' : 'is-pending') + '">'
+                    + '<span class="fas ' + (r.ok ? 'fa-circle-check' : 'fa-circle') + '" aria-hidden="true"></span>'
+                    + '<span>' + escapeHtml(r.label) + (r.detalle ? ' · <b>' + escapeHtml(r.detalle) + '</b>' : '') + '</span>'
+                    + '</li>';
+            }).join('');
+            const ayuda = esRemision
+                ? 'Envíe el oficio (en «Remisiones a autoridad» cambie el estado a «Enviada» y cargue la constancia) e informe al peticionario desde Comunicaciones marcando «Respuesta final».'
+                : 'Inspección proyecta la respuesta al peticionario: regístrela en Comunicaciones marcando «Respuesta final».';
+            const puede = estado.completo && estado.canFinalizar;
+
+            $block.html(
+                '<div class="panel-heading"><h4 class="panel-title">Cierre del caso</h4>'
+                + '<span class="alcaldia-cierre-caso__tipo">' + (esRemision ? 'Remisión por competencia' : 'Cierre de atención')
+                + ' · <a role="button" class="js-cierre-actualizar">Actualizar</a></span></div>'
+                + '<div class="panel-body">'
+                + '<ul class="alcaldia-cierre-caso__lista">' + items + '</ul>'
+                + '<p class="alcaldia-cierre-caso__ayuda">' + escapeHtml(ayuda) + '</p>'
+                + (estado.canFinalizar
+                    ? '<button type="button" class="btn btn-primary btn-sm js-finalizar-caso"' + (puede ? '' : ' disabled') + '>'
+                        + '<span class="fas fa-flag-checkered"></span> Finalizar caso</button>'
+                        + (puede ? '' : '<span class="alcaldia-cierre-caso__falta">Complete los requisitos para finalizar.</span>')
+                    : '')
+                + '</div>'
+            );
+
+            $block.find('.js-cierre-actualizar').on('click', function (event) {
+                event.preventDefault();
+                $block.removeData('cierreKey');
+                Object.keys(cierreCache).forEach(function (k) { delete cierreCache[k]; });
+                mountCierreBlock(recordView, $side);
+            });
+
+            $block.find('.js-finalizar-caso').on('click', function (event) {
+                event.preventDefault();
+
+                Espo.Ui.confirm('¿Confirma que desea finalizar el caso? Quedará cerrado y se avisará a los responsables.', {
+                    title: 'Finalizar caso',
+                    confirmText: 'Sí, finalizar',
+                    cancelText: 'Cancelar',
+                    confirmStyle: 'primary',
+                }, function () {
+                    Espo.Ajax.postRequest('Case/action/finalizarCaso', {id: model.id}).then(function () {
+                        Espo.Ui.success('Caso finalizado.');
+                        model.fetch();
+                    }).catch(function () {});
+                });
+            });
+        });
+
+        if (!recordView._alcaldiaCierreListener) {
+            recordView._alcaldiaCierreListener = true;
+
+            recordView.listenTo(model, 'sync change:status', function () {
+                const $currentSide = recordView.$el.find('.record-grid > .side');
+
+                if ($currentSide.length) {
+                    $currentSide.find('.alcaldia-cierre-caso').removeData('cierreKey');
+                    Object.keys(cierreCache).forEach(function (k) { delete cierreCache[k]; });
+                    mountCierreBlock(recordView, $currentSide);
+                }
+            });
+        }
+    };
+
     const removeLeftHistoryDuplicates = function (recordView) {
         const $left = recordView.$el.find('.record-grid > .left');
 
@@ -626,6 +738,7 @@ define('custom:helpers/case-detail-side-panels', [
         });
 
         removeLeftHistoryDuplicates(recordView);
+        mountCierreBlock(recordView, $side);
     };
 
     const schedule = function (recordView) {

@@ -186,6 +186,8 @@
         'Asignado': {bg: '#fce7f3', text: '#9d174d'},
         'En gestión técnica': {bg: '#fef9c3', text: '#854d0e'},
         'Revisión de hallazgos': {bg: '#dcfce7', text: '#166534'},
+        'Pendiente de respuesta final': {bg: '#e0e7ff', text: '#3730a3'},
+        'Remitido por competencia': {bg: '#f3e8ff', text: '#6b21a8'},
         'Finalizado': {bg: '#ede0d4', text: '#6b4423'},
         'Proceso cerrado': {bg: '#e2e8f0', text: '#334155'},
     };
@@ -196,6 +198,8 @@
         'Asignado': ESTADO_PALETTE['Asignado'].bg,
         'En gestión técnica': ESTADO_PALETTE['En gestión técnica'].bg,
         'Revisión de hallazgos': ESTADO_PALETTE['Revisión de hallazgos'].bg,
+        'Pendiente de respuesta final': ESTADO_PALETTE['Pendiente de respuesta final'].bg,
+        'Remitido por competencia': ESTADO_PALETTE['Remitido por competencia'].bg,
         'Finalizado': ESTADO_PALETTE['Finalizado'].bg,
         'Proceso cerrado': ESTADO_PALETTE['Proceso cerrado'].bg,
     };
@@ -206,6 +210,8 @@
         'Asignado': ESTADO_PALETTE['Asignado'].text,
         'En gestión técnica': ESTADO_PALETTE['En gestión técnica'].text,
         'Revisión de hallazgos': ESTADO_PALETTE['Revisión de hallazgos'].text,
+        'Pendiente de respuesta final': ESTADO_PALETTE['Pendiente de respuesta final'].text,
+        'Remitido por competencia': ESTADO_PALETTE['Remitido por competencia'].text,
         'Finalizado': ESTADO_PALETTE['Finalizado'].text,
         'Proceso cerrado': ESTADO_PALETTE['Proceso cerrado'].text,
     };
@@ -232,7 +238,97 @@
 
     var ESTADOS_FIN = ['Finalizado', 'Proceso cerrado'];
     // Una vez radicada, la solicitud entra en gestión administrativa aunque aún no tenga asignación.
-    var ESTADOS_GESTION = ['Radicado', 'Asignado', 'En gestión técnica', 'Revisión de hallazgos'];
+    var ESTADOS_GESTION = ['Radicado', 'Asignado', 'En gestión técnica', 'Revisión de hallazgos',
+        'Pendiente de respuesta final', 'Remitido por competencia'];
+    var ESTADOS_POR_FINALIZAR = ['Pendiente de respuesta final', 'Remitido por competencia'];
+
+    /* Datos de apoyo para los indicadores de visitas, decisiones y remisiones.
+     * Si el rol no puede leer alguna entidad, el indicador se muestra como «–». */
+    var APOYO = {listo: false, actasPorCaso: {}, gestionEnCursoPorCaso: {}, remisionesPorCaso: {}, sinAcceso: {}};
+
+    function fetchLista(url, clave) {
+        return fetch(url, {credentials: 'include'})
+            .then(function (res) {
+                if (!res.ok) { APOYO.sinAcceso[clave] = true; return {list: []}; }
+                return res.json();
+            })
+            .then(function (data) { return data.list || []; })
+            .catch(function () { APOYO.sinAcceso[clave] = true; return []; });
+    }
+
+    function fetchDatosApoyo() {
+        return Promise.all([
+            fetchLista('/api/v1/ActaVisita?select=caseId,estado,cDecisionTramite,cRevisadoPor,fechaAprobacion,createdAt&maxSize=200&orderBy=createdAt&order=asc', 'actas'),
+            fetchLista('/api/v1/GestionTecnica?select=caseId,estado,createdAt&maxSize=200&orderBy=createdAt&order=asc', 'gestion'),
+            fetchLista('/api/v1/RemisionAutoridad?select=caseId,estadoSeguimiento&maxSize=200', 'remisiones'),
+        ]).then(function (res) {
+            res[0].forEach(function (a) { (APOYO.actasPorCaso[a.caseId] = APOYO.actasPorCaso[a.caseId] || []).push(a); });
+            // La última gestión técnica del caso manda: «En ejecución»/«Reprogramada» = visita en curso.
+            res[1].forEach(function (g) { APOYO.gestionEnCursoPorCaso[g.caseId] = ['En ejecución', 'Reprogramada'].indexOf(g.estado) !== -1; });
+            res[2].forEach(function (r) { (APOYO.remisionesPorCaso[r.caseId] = APOYO.remisionesPorCaso[r.caseId] || []).push(r); });
+            APOYO.listo = true;
+        });
+    }
+
+    function actaDiligenciada(a) { return ['Diligenciada', 'Aprobada'].indexOf(a.estado) !== -1; }
+
+    function actaRevisada(a) {
+        return !!String(a.cDecisionTramite || '').trim()
+            && (!!String(a.cRevisadoPor || '').trim() || !!String(a.fechaAprobacion || '').trim());
+    }
+
+    function visitaPendiente(c) {
+        return c.status === 'Asignado'
+            || (c.status === 'En gestión técnica' && !!APOYO.gestionEnCursoPorCaso[c.id]);
+    }
+
+    /* Indicadores del flujo (competencia, visitas, decisión, cierre) sobre los casos filtrados. */
+    function calcularFlujo(casos) {
+        var r = {competenciaPendiente: 0, visitasPendientes: 0, visitasRealizadas: 0, actasSinRevisar: 0, actasRevisadas: 0,
+            porDefinir: 0, porFinalizar: 0, remisionesSinEnviar: 0, decisiones: {}, competencia: {}};
+
+        casos.forEach(function (c) {
+            var fin = ESTADOS_FIN.indexOf(c.status) !== -1;
+            var actas = APOYO.actasPorCaso[c.id] || [];
+            var diligenciadas = actas.filter(actaDiligenciada);
+            var ultima = diligenciadas[diligenciadas.length - 1];
+
+            if (c.status === 'Radicado' && !c.cCompetenciaConfirmada) { r.competenciaPendiente++; }
+            if (!fin && visitaPendiente(c)) { r.visitasPendientes++; }
+            if (ESTADOS_POR_FINALIZAR.indexOf(c.status) !== -1) { r.porFinalizar++; }
+
+            if (!fin && ['En gestión técnica', 'Revisión de hallazgos'].indexOf(c.status) !== -1
+                && !APOYO.gestionEnCursoPorCaso[c.id] && ultima && !actaRevisada(ultima)) {
+                r.porDefinir++;
+            }
+
+            diligenciadas.forEach(function (a) {
+                r.visitasRealizadas++;
+                if (actaRevisada(a)) {
+                    r.actasRevisadas++;
+                    r.decisiones[a.cDecisionTramite] = (r.decisiones[a.cDecisionTramite] || 0) + 1;
+                } else {
+                    r.actasSinRevisar++;
+                }
+            });
+
+            (APOYO.remisionesPorCaso[c.id] || []).forEach(function (rem) {
+                if (!rem.estadoSeguimiento || rem.estadoSeguimiento === 'Preparación') { r.remisionesSinEnviar++; }
+            });
+
+            if (tieneRadicado(c)) {
+                var comp = c.cCompetenciaConfirmada ? (c.cCompetencia || 'Total') : (fin ? null : 'Por revisar');
+                if (comp) { r.competencia[comp] = (r.competencia[comp] || 0) + 1; }
+            }
+        });
+
+        return r;
+    }
+
+    function setKpi(id, valor, clave) {
+        var el = document.getElementById(id);
+        if (el) { el.textContent = (clave && APOYO.sinAcceso[clave]) || (clave && !APOYO.listo) ? '–' : valor; }
+    }
 
     /* Casos que escalaron a proceso policivo (tienen Auto de Inicio). Se
      * carga aparte porque Case no trae esa info en su propio select. */
@@ -319,6 +415,8 @@
         {status: 'Asignado', label: 'Asignado'},
         {status: 'En gestión técnica', label: 'En gestión técnica'},
         {status: 'Revisión de hallazgos', label: 'Revisión de hallazgos'},
+        {status: 'Pendiente de respuesta final', label: 'Pendiente de respuesta final'},
+        {status: 'Remitido por competencia', label: 'Remitido por competencia'},
         {status: 'Finalizado', label: 'Finalizado'},
         {status: 'Proceso cerrado', label: 'Proceso cerrado'},
     ];
@@ -1014,7 +1112,7 @@
             return String(c.assignedUserName || c.assignedUserId || '').trim() || 'Sin asignar';
         }},
     };
-    var CHART_IDS = ['grafica-semaforo', 'grafica-canal', 'grafica-recurso', 'grafica-tiempo', 'grafica-barrio', 'grafica-radicados-dia', 'grafica-sin-asignar'];
+    var CHART_IDS = ['grafica-visitas', 'grafica-decisiones', 'grafica-competencia', 'grafica-semaforo', 'grafica-canal', 'grafica-recurso', 'grafica-tiempo', 'grafica-barrio', 'grafica-radicados-dia', 'grafica-sin-asignar'];
 
     function resetChartSurface(canvasId) {
         var canvas = document.getElementById(canvasId);
@@ -1172,6 +1270,43 @@
         document.getElementById('kpi-proximos').textContent = proximos;
         document.getElementById('total-casos').textContent = 'Total: ' + casos.length;
 
+        var flujo = calcularFlujo(casos);
+        setKpi('kpi-competencia', flujo.competenciaPendiente);
+        setKpi('kpi-visitas-pendientes', flujo.visitasPendientes, 'gestion');
+        setKpi('kpi-visitas-realizadas', flujo.visitasRealizadas, 'actas');
+        setKpi('kpi-por-definir', flujo.porDefinir, 'actas');
+        setKpi('kpi-por-finalizar', flujo.porFinalizar);
+        setKpi('kpi-remisiones', flujo.remisionesSinEnviar, 'remisiones');
+
+        var badgeVisitas = document.getElementById('badge-visitas');
+        if (badgeVisitas) { badgeVisitas.textContent = flujo.visitasRealizadas + ' realizada(s)'; }
+
+        if (!APOYO.listo || APOYO.sinAcceso.actas) {
+            mensajeVacio('grafica-visitas', APOYO.listo ? 'Sin acceso a las actas de visita.' : 'Cargando visitas…');
+            mensajeVacio('grafica-decisiones', APOYO.listo ? 'Sin acceso a las actas de visita.' : 'Cargando decisiones…');
+        } else {
+            if (!(flujo.visitasPendientes + flujo.actasSinRevisar + flujo.actasRevisadas)) {
+                mensajeVacio('grafica-visitas', 'Aún no hay visitas.');
+            } else {
+                dibujarDonut('grafica-visitas', ['Pendientes', 'Realizadas sin revisar', 'Revisadas'],
+                    [flujo.visitasPendientes, flujo.actasSinRevisar, flujo.actasRevisadas], ['#f2c37e', '#9eb5c8', '#9ec4a8']);
+            }
+
+            var DECISIONES = ['Visita complementaria', 'Cierre de atención', 'Remisión por competencia', 'Apertura de actuación'];
+            if (!flujo.actasRevisadas) {
+                mensajeVacio('grafica-decisiones', 'Aún no hay revisiones de hallazgos.');
+            } else {
+                dibujarBarrasHorizontales('grafica-decisiones', DECISIONES, DECISIONES.map(function (d) { return flujo.decisiones[d] || 0; }));
+            }
+        }
+
+        var COMPETENCIAS = ['Total', 'Parcial', 'Ninguna', 'Por revisar'];
+        var totalCompetencia = COMPETENCIAS.reduce(function (sum, k) { return sum + (flujo.competencia[k] || 0); }, 0);
+        if (!totalCompetencia) { mensajeVacio('grafica-competencia', 'Aún no hay casos radicados.'); } else {
+            dibujarDonut('grafica-competencia', COMPETENCIAS, COMPETENCIAS.map(function (k) { return flujo.competencia[k] || 0; }),
+                ['#9ec4a8', '#d4c48a', '#c9a0a0', '#c5ccd3']);
+        }
+
         var kpiPolicivo = document.getElementById('kpi-policivo');
         if (kpiPolicivo) {
             if (casosPolicivoIds === null) {
@@ -1243,7 +1378,7 @@
         });
     }
 
-    var fetchUrl = '/api/v1/Case?select=cRecursoTema,cCanalDeReportePeticionario,status,assignedUserId,createdAt,cFechaCaso,cFechaVencimiento,cNumeroRadicado,cExpediente,cNombrePeticionario,cApellidoPeticionario,cBarrioPeticionario'
+    var fetchUrl = '/api/v1/Case?select=cRecursoTema,cCanalDeReportePeticionario,status,assignedUserId,createdAt,cFechaCaso,cFechaVencimiento,cNumeroRadicado,cExpediente,cNombrePeticionario,cApellidoPeticionario,cBarrioPeticionario,cCompetencia,cCompetenciaConfirmada'
         + '&maxSize=200&orderBy=cFechaCaso&order=desc';
 
     if (assignedUserId) {
@@ -1258,6 +1393,12 @@
     });
 
     fetchExpedientesResumen().then(renderPolicivosSeccion);
+
+    fetchDatosApoyo().then(function () {
+        if (window.crmDashboardCases && window.crmDashboardCases.length) {
+            renderDashboard(window.crmDashboardCases);
+        }
+    });
 
     fetch(fetchUrl, {credentials: 'include'})
         .then(function (res) {

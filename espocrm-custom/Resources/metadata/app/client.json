@@ -10,7 +10,8 @@
         "client/custom/res/css/31-case-role-guidance.css",
         "client/custom/res/css/32-notification-actions.css",
         "client/custom/res/css/33-case-asignacion.css",
-        "client/custom/res/css/34-navbar-user-identity.css"
+        "client/custom/res/css/34-navbar-user-identity.css",
+        "client/custom/res/css/35-acta-visita-summary.css"
     ],
     "scriptList": [
         "client/custom/src/loader/route-sanitize.js",

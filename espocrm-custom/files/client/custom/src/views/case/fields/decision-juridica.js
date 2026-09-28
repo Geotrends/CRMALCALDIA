@@ -10,6 +10,38 @@ define('custom:views/case/fields/decision-juridica', [
     const STATUS_REVISION = 'Revisión de hallazgos';
     const STATUS_LEGACY_APPROVED = 'Visita aprobada';
 
+    /** Definición de trámite → acción que ejecuta el botón único. */
+    const ACCIONES = {
+        'Visita complementaria': {
+            label: 'Guardar y solicitar visita complementaria',
+            icon: 'fa-plus',
+            endpoint: 'Case/action/prepararNuevaVisita',
+            confirm: '¿Confirma que desea solicitar una visita complementaria? Se avisará al responsable con la motivación y un plazo de 5 días hábiles.',
+            success: 'Visita complementaria solicitada.',
+        },
+        'Cierre de atención': {
+            label: 'Guardar y cerrar la atención',
+            icon: 'fa-box-archive',
+            endpoint: 'Case/action/cerrarSinProceso',
+            confirm: '¿Confirma el cierre de la atención sin abrir proceso? El caso quedará pendiente de la respuesta final al peticionario (la proyecta Inspección) y se finaliza con «Finalizar caso».',
+            success: 'Atención cerrada: pendiente de la respuesta final al peticionario.',
+        },
+        'Remisión por competencia': {
+            label: 'Guardar y remitir por competencia',
+            icon: 'fa-share-from-square',
+            endpoint: 'Case/action/remitirPorCompetencia',
+            confirm: '¿Confirma la remisión por competencia? Se registrará la remisión, se avisará a quien prepara el oficio (plazo de 5 días hábiles) y el caso se finaliza con «Finalizar caso» cuando se envíe el oficio y se informe al peticionario.',
+            success: 'Caso remitido por competencia. Remisión registrada para el oficio.',
+        },
+        'Apertura de actuación': {
+            label: 'Guardar y abrir Auto de Inicio',
+            icon: 'fa-gavel',
+            endpoint: null,
+            confirm: '¿Confirma la apertura de actuación? A continuación diligencie el Auto de Inicio.',
+            success: '',
+        },
+    };
+
     return Dep.extend({
 
         detailTemplate: 'custom:case/fields/decision-juridica',
@@ -99,8 +131,8 @@ define('custom:views/case/fields/decision-juridica', [
             });
             const actaRequest = SilentAjax.getRequest('ActaVisita', {
                 where: [{type: 'equals', attribute: 'caseId', value: this.model.id}],
-                select: 'id,formatoManoAdjuntoIds',
-                orderBy: 'modifiedAt',
+                select: 'id,formatoManoAdjuntoIds,cDecisionTramite,observacionesRevision,cEntidadRemision,cRevisadoPor,fechaAprobacion',
+                orderBy: 'createdAt',
                 order: 'desc',
                 maxSize: 1,
             });
@@ -111,6 +143,7 @@ define('custom:views/case/fields/decision-juridica', [
 
                 self.hasAutoInicio = list.length > 0;
                 self.hasActaFirmada = !!(actas[0] && String(actas[0].formatoManoAdjuntoIds || '').trim());
+                self.currentActa = actas[0] || null;
                 self.stateReady = true;
                 self.refreshViewState();
             }).catch(function () {
@@ -149,11 +182,6 @@ define('custom:views/case/fields/decision-juridica', [
             this.updatePanelVisibility(showPanel);
 
             if (showPanel) {
-                this.$el.find('[data-action="revisarHallazgos"]').toggle(data.showRevisar);
-                this.$el.find('[data-action="solicitarVisitaComplementaria"]').toggle(data.showDecisiones);
-                this.$el.find('[data-action="cerrarSinProceso"]').toggle(data.showDecisiones);
-                this.$el.find('[data-action="remitirPorCompetencia"]').toggle(data.showDecisiones);
-                this.$el.find('[data-action="abrirAutoInicio"]').toggle(data.showDecisiones);
                 this.bindUi();
             }
         },
@@ -238,117 +266,131 @@ define('custom:views/case/fields/decision-juridica', [
             }
 
             const self = this;
+            const $decision = this.$el.find('[data-name="decisionTramite"]');
+            const $entidad = this.$el.find('[data-name="entidadRemision"]');
 
-            this.$el.find('[data-name="decisionTramite"]').val(this.model.get('cDecisionTramite') || '');
-            this.$el.find('[data-name="motivoDecision"]').val(this.model.get('cMotivoDecision') || '');
-            this.$el.find('[data-name="entidadRemision"]').val(this.model.get('cEntidadRemision') || '');
+            // Se precarga la revisión de ESTA visita (la en curso), si ya se registró;
+            // la decisión de una visita anterior se consulta en su propia tarjeta.
+            const acta = this.currentActa || {};
+            const revisada = String(acta.cDecisionTramite || '').trim() !== ''
+                && (String(acta.cRevisadoPor || '').trim() !== '' || String(acta.fechaAprobacion || '').trim() !== '');
 
-            this.$el.find('[data-action="guardarDefinicionTramite"]').off('click.decisionGuardar')
-                .on('click.decisionGuardar', function (e) {
-                    e.preventDefault();
-                    const decision = String(self.$el.find('[data-name="decisionTramite"]').val() || '').trim();
-                    const motivo = String(self.$el.find('[data-name="motivoDecision"]').val() || '').trim();
-                    const entidadRemision = String(self.$el.find('[data-name="entidadRemision"]').val() || '').trim();
+            $decision.val(revisada ? acta.cDecisionTramite : '');
+            this.$el.find('[data-name="motivoDecision"]').val(revisada ? (acta.observacionesRevision || '') : '');
+            $entidad.val(revisada ? (acta.cEntidadRemision || '') : '');
 
-                    Espo.Ajax.postRequest('Case/action/guardarDefinicionTramite', {
-                        id: self.model.id, decision: decision, motivo: motivo, entidadRemision: entidadRemision,
-                    }).then(function (response) {
-                        Espo.Ui.success('Definición de trámite guardada.');
-                        self.model.set('status', response.status);
-                        self.model.fetch();
-                    }).catch(function (xhr) { Espo.Ui.error((xhr && xhr.responseText) || 'Error'); });
-                });
+            // «Entidad competente» solo se habilita con «Remisión por competencia»;
+            // el botón único cambia su texto según la definición elegida.
+            const syncForm = function () {
+                const decision = String($decision.val() || '');
+                const esRemision = decision === 'Remisión por competencia';
+                const accion = ACCIONES[decision];
 
-            this.$el.find('[data-action="cerrarSinProceso"]').off('click.decisionCerrar')
-                .on('click.decisionCerrar', function (e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    self.actionCerrarSinProceso();
-                });
+                $entidad.prop('disabled', !esRemision)
+                    .attr('placeholder', esRemision
+                        ? 'Entidad destinataria de la remisión'
+                        : 'Solo aplica para remisión por competencia');
+                $entidad.closest('.case-entidad-remision').toggleClass('is-disabled', !esRemision);
 
-            this.$el.find('[data-action="revisarHallazgos"]').off('click.decisionRevisar')
-                .on('click.decisionRevisar', function (e) {
-                    e.preventDefault();
-                    Espo.Ui.confirm(self.translateCaseLabel('revisarHallazgosConfirm'), function () {
-                        Espo.Ajax.postRequest('Case/action/confirmarVisitaAprobada', {id: self.model.id})
-                            .then(function (response) {
-                                Espo.Ui.success(self.translateCaseLabel('revisarHallazgosSuccess'));
-                                self.model.set('status', response.status);
-                                self.model.fetch();
-                            })
-                            .catch(function (xhr) { Espo.Ui.error((xhr && xhr.responseText) || 'Error'); });
-                    });
-                });
+                if (!esRemision) {
+                    $entidad.val('');
+                }
 
-            this.$el.find('[data-action="solicitarVisitaComplementaria"]').off('click.decisionNuevaVisita')
-                .on('click.decisionNuevaVisita', function (e) {
-                    e.preventDefault();
-                    Espo.Ajax.postRequest('Case/action/prepararNuevaVisita', {id: self.model.id})
-                        .then(function (response) { self.model.set('status', response.status); self.model.fetch(); })
-                        .catch(function (xhr) { Espo.Ui.error((xhr && xhr.responseText) || 'Error'); });
-                });
+                const $btn = self.$el.find('[data-action="ejecutarDefinicion"]');
 
-            this.$el.find('[data-action="remitirPorCompetencia"]').off('click.decisionRemitir')
-                .on('click.decisionRemitir', function (e) {
-                    e.preventDefault();
-                    Espo.Ui.confirm('¿Confirma la remisión por competencia? Registre el oficio y la entidad destinataria en Comunicaciones.', function () {
-                        Espo.Ajax.postRequest('Case/action/remitirPorCompetencia', {id: self.model.id})
-                            .then(function (response) { self.model.set('status', response.status); self.model.fetch(); })
-                            .catch(function (xhr) { Espo.Ui.error((xhr && xhr.responseText) || 'Error'); });
-                    });
-                });
+                $btn.prop('disabled', !accion);
+                $btn.find('.js-ejecutar-label').text(accion ? accion.label : 'Seleccione la definición de trámite');
+                $btn.find('.js-ejecutar-icon').attr('class', 'fas ' + (accion ? accion.icon : 'fa-circle-check') + ' js-ejecutar-icon');
+            };
 
-            this.$el.find('[data-action="abrirAutoInicio"]').off('click.decisionAbrir')
-                .on('click.decisionAbrir', function (e) {
+            $decision.off('change.decisionForm').on('change.decisionForm', syncForm);
+            syncForm();
+
+            this.$el.find('[data-action="ejecutarDefinicion"]').off('click.decisionEjecutar')
+                .on('click.decisionEjecutar', function (e) {
                     e.preventDefault();
                     e.stopPropagation();
-
-                    AutoInicioModal.open(self, self.model, self.getUser(), {
-                        onAfterSave: function () {
-                            self.hasAutoInicio = true;
-                            self.model.fetch();
-                            self.scheduleLoadState();
-                        },
-                    });
+                    self.actionEjecutarDefinicion();
                 });
         },
 
-        actionCerrarSinProceso: function () {
+        /**
+         * Un solo paso: valida, confirma, guarda la definición (queda la revisión de
+         * hallazgos registrada) y ejecuta la acción correspondiente.
+         */
+        actionEjecutarDefinicion: function () {
             const self = this;
+            const decision = String(this.$el.find('[data-name="decisionTramite"]').val() || '').trim();
+            const motivo = String(this.$el.find('[data-name="motivoDecision"]').val() || '').trim();
+            const entidadRemision = String(this.$el.find('[data-name="entidadRemision"]').val() || '').trim();
+            const accion = ACCIONES[decision];
 
-            Espo.Ui.confirm(
-                this.translateCaseLabel('confirmarCerrarSinProceso'),
-                {
-                    title: this.translateCaseLabel('cerrarSinProceso'),
-                    confirmText: 'Sí, cerrar',
-                    cancelText: 'Cancelar',
-                    confirmStyle: 'primary',
-                },
-                function () {
-                    Espo.Ui.notify(self.translate('pleaseWait', 'messages'));
+            const faltante = !accion ? ['decisionTramite', 'Seleccione la definición de trámite.']
+                : !motivo ? ['motivoDecision', 'Escriba la motivación de la revisión: los hallazgos y la razón de la definición.']
+                    : (decision === 'Remisión por competencia' && !entidadRemision)
+                        ? ['entidadRemision', 'Indique la entidad competente a la que se remitirá el caso.']
+                        : null;
 
-                    Espo.Ajax.postRequest('Case/action/cerrarSinProceso', {id: self.model.id})
-                        .then(function (response) {
-                            Espo.Ui.notify(false);
-                            Espo.Ui.success(self.translateCaseLabel('casoCerradoSinProceso'));
+            this.$el.find('.case-decision-juridica-form .has-error').removeClass('has-error');
 
-                            if (response && response.status) {
-                                self.model.set('status', response.status);
-                            }
+            if (faltante) {
+                const $campo = this.$el.find('[data-name="' + faltante[0] + '"]');
 
-                            self.model.fetch();
-                        })
-                        .catch(function (xhr) {
-                            Espo.Ui.notify(false);
+                $campo.closest('.form-group').addClass('has-error');
+                $campo.trigger('focus');
+                Espo.Ui.error(faltante[1]);
 
-                            const message = (xhr && xhr.responseText)
-                                ? String(xhr.responseText).replace(/^"|"$/g, '')
-                                : self.translate('Error');
+                return;
+            }
 
-                            Espo.Ui.error(message);
+            const ejecutar = function () {
+                Espo.Ui.notify(self.translate('pleaseWait', 'messages'));
+
+                Espo.Ajax.postRequest('Case/action/guardarDefinicionTramite', {
+                    id: self.model.id, decision: decision, motivo: motivo, entidadRemision: entidadRemision,
+                }).then(function () {
+                    if (accion.endpoint) {
+                        return Espo.Ajax.postRequest(accion.endpoint, {id: self.model.id});
+                    }
+
+                    return null;
+                }).then(function (response) {
+                    Espo.Ui.notify(false);
+
+                    if (!accion.endpoint) {
+                        // Apertura de actuación: el Auto de Inicio se diligencia en su formulario.
+                        self.model.fetch();
+                        AutoInicioModal.open(self, self.model, self.getUser(), {
+                            onAfterSave: function () {
+                                self.hasAutoInicio = true;
+                                self.model.fetch();
+                                self.scheduleLoadState();
+                            },
                         });
-                }
-            );
+
+                        return;
+                    }
+
+                    Espo.Ui.success(accion.success);
+
+                    if (response && response.status) {
+                        self.model.set('status', response.status);
+                    }
+
+                    self.model.fetch();
+                }).catch(function () {
+                    // El detalle del error lo muestra el aviso global (ui-toasts).
+                    Espo.Ui.notify(false);
+                    self.model.fetch();
+                });
+            };
+
+            Espo.Ui.confirm(accion.confirm, {
+                title: accion.label,
+                confirmText: 'Sí, continuar',
+                cancelText: 'Cancelar',
+                confirmStyle: 'primary',
+            }, ejecutar);
         },
     });
 });

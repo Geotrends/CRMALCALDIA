@@ -230,6 +230,9 @@ define('custom:views/case/fields/acta-visita-action', [
             const canConsultar = this.canConsultarVisita(user);
             const status = String(this.model.get('status') || '').trim();
             const caseCerrado = ['Finalizado', 'Proceso cerrado'].indexOf(status) !== -1;
+            // El formulario de revisión técnico-jurídica solo se muestra mientras falta
+            // definir el trámite; ejecutada la decisión, la visita actual muestra su resumen.
+            const formularioDecisionVisible = ['En gestión técnica', 'Revisión de hallazgos', 'Visita aprobada'].indexOf(status) !== -1;
 
             return historial
                 .filter(function (acta) {
@@ -269,6 +272,10 @@ define('custom:views/case/fields/acta-visita-action', [
                             || ActaVisitaCaseStatus.hasActaVisitContent(acta)
                         );
 
+                    const isCurrent = !!(latestPendienteId && acta.id === latestPendienteId);
+                    const tieneRevision = String(acta.cDecisionTramite || '').trim() !== ''
+                        && (String(acta.cRevisadoPor || '').trim() !== '' || String(acta.fechaAprobacion || '').trim() !== '');
+
                     return {
                         actaId: acta.id,
                         numeroVisita: numero,
@@ -277,12 +284,17 @@ define('custom:views/case/fields/acta-visita-action', [
                         isAprobada: isAprobada,
                         canApproveThis: canApproveThis,
                         canConsultar: canConsultar,
-                        isCurrent: !!(latestPendienteId && acta.id === latestPendienteId),
+                        isCurrent: isCurrent,
                         // Quien puede decidir (canConsultar) ya ve estos mismos
                         // datos editables en el panel de revisión técnico-jurídica;
                         // mostrar aquí también el resumen sería duplicado e
                         // incoherente con poder seguir editando la decisión.
-                        hasRevision: String(acta.cDecisionTramite || '').trim() !== '' && !canConsultar,
+                        // Solo hay revisión si alguien la registró (quién o cuándo): el valor
+                        // de la decisión por sí solo pudo quedar por defecto al crear el acta.
+                        // En la visita en curso quien decide ya tiene el formulario editable.
+                        hasRevision: tieneRevision && !(canConsultar && isCurrent && formularioDecisionVisible),
+                        canEditRevision: tieneRevision && canConsultar && !(isCurrent && formularioDecisionVisible),
+                        esRemision: String(acta.cDecisionTramite || '').trim() === 'Remisión por competencia',
                         decisionTramite: String(acta.cDecisionTramite || '').trim(),
                         motivacionRevision: String(acta.observacionesRevision || '').trim(),
                         entidadRemision: String(acta.cEntidadRemision || '').trim(),
@@ -291,7 +303,7 @@ define('custom:views/case/fields/acta-visita-action', [
                         archivoHelp: self.translateCaseLabel(
                             !tieneActaFirmada
                                 ? 'actaFirmadaRequeridaHelp'
-                                : latestPendienteId && acta.id === latestPendienteId
+                                : isCurrent && !(tieneRevision && !formularioDecisionVisible)
                                 ? 'visitaEnCursoHelp'
                                 : 'actaVisitaEditHelp'
                         ),
@@ -835,6 +847,25 @@ define('custom:views/case/fields/acta-visita-action', [
             this.$el.find('[data-action="verActa"]').off('click.verActa');
             this.$el.find('[data-action="consultarActa"]').off('click.consultarActa');
             this.$el.find('[data-action="aprobarVisitaActa"]').off('click.aprobarVisitaActa');
+            this.$el.find('[data-action="editarRevisionActa"], [data-action="guardarRevisionActa"], [data-action="cancelarRevisionActa"]').off('.revisionActa');
+
+            this.$el.find('[data-action="editarRevisionActa"]').on('click.revisionActa', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                $(e.currentTarget).closest('.case-visita-decision-summary').find('.case-visita-revision-edit').removeClass('hidden');
+            });
+
+            this.$el.find('[data-action="cancelarRevisionActa"]').on('click.revisionActa', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                $(e.currentTarget).closest('.case-visita-revision-edit').addClass('hidden');
+            });
+
+            this.$el.find('[data-action="guardarRevisionActa"]').on('click.revisionActa', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                self.actionGuardarRevisionActa($(e.currentTarget));
+            });
 
             this.$el.find('[data-action="llenarActa"]').on('click.acta', function (e) {
                 e.preventDefault();
@@ -923,6 +954,42 @@ define('custom:views/case/fields/acta-visita-action', [
                 }
             });
 
+        },
+
+        actionGuardarRevisionActa: function ($btn) {
+            const self = this;
+            const $edit = $btn.closest('.case-visita-revision-edit');
+            const motivo = String($edit.find('.js-revision-motivo').val() || '').trim();
+            const $entidad = $edit.find('.js-revision-entidad');
+            const entidad = String($entidad.val() || '').trim();
+
+            if (!motivo) {
+                Espo.Ui.error('Escriba la motivación de la revisión.');
+                $edit.find('.js-revision-motivo').trigger('focus');
+
+                return;
+            }
+
+            if ($entidad.length && !entidad) {
+                Espo.Ui.error('Indique la entidad competente.');
+                $entidad.trigger('focus');
+
+                return;
+            }
+
+            $btn.prop('disabled', true);
+
+            Espo.Ajax.postRequest('Case/action/editarRevisionActa', {
+                id: this.model.id,
+                actaId: $btn.data('acta-id'),
+                motivo: motivo,
+                entidadRemision: entidad,
+            }).then(function () {
+                Espo.Ui.success('Revisión actualizada.');
+                self.model.fetch();
+            }).catch(function () {
+                $btn.prop('disabled', false);
+            });
         },
 
         actionVerActa: function (actaId) {

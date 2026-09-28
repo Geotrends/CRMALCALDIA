@@ -8,6 +8,7 @@ define('custom:helpers/case-status-timeline', [
         'Asignado',
         'En gestión técnica',
         'Revisión de hallazgos',
+        'Respuesta final',
         'Finalizado',
     ];
 
@@ -17,6 +18,8 @@ define('custom:helpers/case-status-timeline', [
             label: 'Valoración de hallazgos y definición de trámite',
             shortLabel: 'Definición de trámite',
         },
+        // Respuesta final al peticionario o, en remisión, envío del oficio.
+        'Respuesta final': {label: 'Respuesta final al peticionario', shortLabel: 'Respuesta final'},
     };
 
     const STATUS_ALIASES = {
@@ -33,7 +36,8 @@ define('custom:helpers/case-status-timeline', [
         'En proceso de otra visita': 'En gestión técnica',
         'Closed': 'Finalizado',
         'Proceso cerrado': 'Finalizado',
-        'Remitido por competencia': 'Finalizado',
+        'Pendiente de respuesta final': 'Respuesta final',
+        'Remitido por competencia': 'Respuesta final',
         'Visita aprobada': 'Revisión de hallazgos',
         'Rejected': 'Finalizado',
     };
@@ -210,7 +214,9 @@ define('custom:helpers/case-status-timeline', [
             const status = rawStep.status;
             const optionLabel = view.translate(status, 'options', 'Case', 'status');
             const isRegistro = status === 'Pendiente de radicacion';
-            const display = DISPLAY_LABELS[status] || null;
+            const display = status === 'Respuesta final' && rawStep.label === 'Remisión por competencia'
+                ? {label: 'Remisión por competencia (oficio y comunicación)', shortLabel: 'Remisión'}
+                : (DISPLAY_LABELS[status] || null);
             const label = isRegistro
                 ? 'Registro del caso'
                 : display
@@ -243,6 +249,10 @@ define('custom:helpers/case-status-timeline', [
                 ? 'Visita pendiente'
                 : status === 'Revisión de hallazgos' && currentStatus === 'En gestión técnica'
                 ? 'Valoración de hallazgos pendiente'
+                : status === 'Respuesta final' && currentStatus === 'Revisión de hallazgos'
+                ? 'Definición de trámite pendiente'
+                : status === 'Respuesta final' && currentStatus === 'Respuesta final'
+                ? 'Pendiente: registrar la respuesta y finalizar el caso'
                 : status === 'Finalizado' && currentStatus === 'Revisión de hallazgos'
                 ? 'Decisión de cierre o escalamiento pendiente'
                 : status === 'Radicado'

@@ -337,6 +337,22 @@ class AlcaldiaUserProfile
     /**
      * @return string[]
      */
+    public function findActiveJuridicaUserIds(): array
+    {
+        return $this->findActiveUserIdsByRoleNames(self::NAMES_JURIDICA);
+    }
+
+    /**
+     * Rol Radicador (no admin): excluido de respuestas, oficios y cierre del caso.
+     */
+    public function isRadicadorRole(User $user): bool
+    {
+        return !$user->isAdmin() && $this->hasAnyRole($user, self::NAMES_RADICACION);
+    }
+
+    /**
+     * @return string[]
+     */
     public function findActiveReceptorUserIds(): array
     {
         return $this->findActiveUserIdsByRoleNames(self::NAMES_RECEPTOR);

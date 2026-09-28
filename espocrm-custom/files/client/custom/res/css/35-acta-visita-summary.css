@@ -1,0 +1,17 @@
+/* Acta de visita: resumen a la derecha del encabezado de cada sección,
+   igual que en las secciones del Caso (.crm-form-section__summary). */
+.alcaldia-acta-collapsible > .panel-heading .alcaldia-acta-summary {
+  color: var(--crm-text-muted);
+  font-size: 12px;
+  font-weight: 500;
+  margin-left: auto;
+  max-width: 55%;
+  overflow: hidden;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.alcaldia-acta-collapsible > .panel-heading .alcaldia-acta-summary + .alcaldia-acta-collapsible__chevron {
+  margin-left: 12px !important;
+}

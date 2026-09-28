@@ -345,3 +345,130 @@
   font-size: 13px;
   font-weight: 500;
 }
+
+/* Visitas: «CARGAR ACTAS DE VISITA» en el verde institucional (color del menú),
+   distinto del dorado de los .btn-primary (27-post-login-reference.css). */
+html.crm-modern-ui body .detail[data-scope="Case"] .btn.btn-primary.case-acta-cargar-btn,
+html.crm-modern-ui body .detail[data-scope="Case"] .btn.btn-primary.case-acta-cargar-btn:focus {
+  background: var(--crm-primary) !important;
+  border-color: var(--crm-primary) !important;
+  color: #ffffff !important;
+  font-weight: 700;
+  letter-spacing: .03em;
+}
+
+html.crm-modern-ui body .detail[data-scope="Case"] .btn.btn-primary.case-acta-cargar-btn:hover {
+  background: var(--crm-primary-dark) !important;
+  border-color: var(--crm-primary-dark) !important;
+}
+
+html.crm-modern-ui body .detail[data-scope="Case"] .panel .btn.btn-primary.case-acta-cargar-btn .fas {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html.crm-modern-ui body .detail[data-scope="Case"] .btn.btn-primary.case-acta-cargar-btn[disabled] {
+  opacity: .55;
+}
+
+/* Revisión de hallazgos: «Entidad competente» deshabilitada salvo en remisión. */
+.detail[data-scope="Case"] .case-entidad-remision.is-disabled label {
+  color: var(--crm-text-muted);
+}
+
+.detail[data-scope="Case"] .case-entidad-remision.is-disabled .form-control {
+  background: var(--crm-bg-elevated);
+  cursor: not-allowed;
+}
+
+.detail[data-scope="Case"] .case-decision-juridica-form .has-error .form-control {
+  border-color: var(--crm-danger, #ef4444) !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, .15) !important;
+}
+
+.detail[data-scope="Case"] .case-decision-juridica-form .has-error label {
+  color: var(--crm-danger, #ef4444) !important;
+}
+
+/* Tarjeta de visita: revisión anterior visible y editable por quien decide. */
+.detail[data-scope="Case"] .case-visita-decision-summary__head {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.detail[data-scope="Case"] .case-visita-revision-edit {
+  border-top: 1px dashed var(--crm-border);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 10px;
+  padding-top: 10px;
+}
+
+.detail[data-scope="Case"] .case-visita-revision-edit label {
+  color: var(--crm-text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  margin: 4px 0 0;
+}
+
+.detail[data-scope="Case"] .case-visita-revision-edit__actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+/* Bloque «Cierre del caso» (pendiente de respuesta final o remitido). */
+.detail[data-scope="Case"] .alcaldia-cierre-caso {
+  border: 1px solid var(--crm-primary-soft) !important;
+}
+
+.detail[data-scope="Case"] .alcaldia-cierre-caso > .panel-heading {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+
+.detail[data-scope="Case"] .alcaldia-cierre-caso__tipo {
+  color: var(--crm-text-secondary);
+  font-size: 12px;
+}
+
+.detail[data-scope="Case"] .alcaldia-cierre-caso__lista {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  list-style: none;
+  margin: 0 0 10px;
+  padding: 0;
+}
+
+.detail[data-scope="Case"] .alcaldia-cierre-caso__lista li {
+  align-items: flex-start;
+  display: flex;
+  gap: 8px;
+}
+
+.detail[data-scope="Case"] .alcaldia-cierre-caso__lista li.is-ok .fas {
+  color: var(--crm-success);
+}
+
+.detail[data-scope="Case"] .alcaldia-cierre-caso__lista li.is-pending .fas {
+  color: var(--crm-text-muted);
+}
+
+.detail[data-scope="Case"] .alcaldia-cierre-caso__ayuda {
+  background: var(--crm-bg-elevated);
+  border-radius: 8px;
+  color: var(--crm-text-secondary);
+  font-size: 12px;
+  padding: 8px 10px;
+}
+
+.detail[data-scope="Case"] .alcaldia-cierre-caso__falta {
+  color: var(--crm-text-muted);
+  font-size: 12px;
+  margin-left: 10px;
+}

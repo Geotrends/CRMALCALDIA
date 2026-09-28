@@ -1,7 +1,8 @@
 define('custom:views/modals/acta-visita', [
     'views/modals/edit',
     'custom:helpers/acta-visita-from-case',
-], function (Dep, ActaFromCase) {
+    'custom:helpers/acta-visita-section-summary',
+], function (Dep, ActaFromCase, ActaSectionSummary) {
 
     return Dep.extend({
 
@@ -18,6 +19,15 @@ define('custom:views/modals/acta-visita', [
                 });
 
                 this.listenToOnce(view, 'after:render', () => {
+                    // El funcionario que diligencia el acta viene por defecto;
+                    // se puede cambiar si la visita la hizo otra persona.
+                    if (view.model.isNew() && !view.model.get('assignedUserId')) {
+                        view.model.set({
+                            assignedUserId: this.getUser().id,
+                            assignedUserName: this.getUser().get('name'),
+                        });
+                    }
+
                     ActaFromCase.lockAutoFields(view);
                     [0, 180, 600].forEach((delay) => window.setTimeout(() => {
                         this.applyCompactActaLayout(view);
@@ -69,7 +79,8 @@ define('custom:views/modals/acta-visita', [
                 $heading.css({alignItems: 'center', display: 'flex'});
                 $heading.find('.panel-title').css({display: 'block', marginRight: 'auto', width: 'auto'});
                 $heading.append('<span class="alcaldia-acta-collapsible__chevron fas fa-chevron-up" aria-hidden="true"></span>');
-                $heading.find('.alcaldia-acta-collapsible__chevron').css({marginLeft: 'auto', marginTop: 0});
+                $heading.find('.alcaldia-acta-collapsible__chevron').css({marginLeft: '12px', marginTop: 0});
+                ActaSectionSummary.attach(view, $panel, $heading);
 
                 const toggle = function () {
                     const collapsed = !$panel.hasClass('alcaldia-acta-collapsed');

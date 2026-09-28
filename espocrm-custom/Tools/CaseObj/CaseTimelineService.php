@@ -16,8 +16,18 @@ class CaseTimelineService
         'Asignado',
         CaseActaVisitaHelper::STATUS_EN_GESTION_TECNICA,
         'Revisión de hallazgos',
+        self::STEP_RESPUESTA_FINAL,
         'Finalizado',
     ];
+
+    /**
+     * Paso previo al cierre: respuesta final al peticionario (Cierre de atención)
+     * o envío del oficio de remisión (Remisión por competencia). El caso solo se
+     * finaliza con el botón «Finalizar caso» cuando ese paso está completo.
+     */
+    public const STEP_RESPUESTA_FINAL = 'Respuesta final';
+
+    public const STATUS_PENDIENTE_RESPUESTA = 'Pendiente de respuesta final';
 
     /** Índice posterior a la valoración, antes de una posible bifurcación policiva. */
     private const BASE_LENGTH = 5;
@@ -52,6 +62,16 @@ class CaseTimelineService
             ? self::BASE_LENGTH + $expediente['pasoIndex']
             : $this->resolveCurrentIndex($case, $currentStatus);
 
+        // Visita complementaria en curso: el caso vuelve a Gestión técnica aunque
+        // ya tenga actas diligenciadas y una revisión de hallazgos anterior.
+        $visitaEnCurso = !$expediente
+            && CaseActaVisitaHelper::isCaseEnProcesoOtraVisita($this->entityManager, $case);
+        $numeroVisitaEnCurso = $visitaEnCurso ? $this->countActasConContenido($case->getId()) + 1 : null;
+
+        if ($visitaEnCurso) {
+            $currentIndex = (int) array_search(CaseActaVisitaHelper::STATUS_EN_GESTION_TECNICA, self::STATUS_FLOW, true);
+        }
+
         // El registro es previo al trámite; la figura apunta a la siguiente
         // actuación operativa sin confundirla con una etapa ya cumplida.
         $nextActionByStatus = [
@@ -59,10 +79,10 @@ class CaseTimelineService
             'Radicado' => 'Asignado',
             'Asignado' => CaseActaVisitaHelper::STATUS_EN_GESTION_TECNICA,
             CaseActaVisitaHelper::STATUS_EN_GESTION_TECNICA => 'Revisión de hallazgos',
-            'Revisión de hallazgos' => 'Finalizado',
+            'Revisión de hallazgos' => self::STEP_RESPUESTA_FINAL,
         ];
 
-        if (!$expediente && isset($nextActionByStatus[$currentStatus])) {
+        if (!$expediente && !$visitaEnCurso && isset($nextActionByStatus[$currentStatus])) {
             $currentIndex = max(
                 $currentIndex,
                 array_search($nextActionByStatus[$currentStatus], self::STATUS_FLOW, true)
@@ -107,13 +127,23 @@ class CaseTimelineService
                 $endedAt = null;
             }
 
+            // Con una visita en curso, los pasos siguientes se repetirán: no se
+            // muestran las fechas de la ronda anterior como si fueran próximas.
+            if ($visitaEnCurso && $state === 'pending') {
+                $startedAt = null;
+                $endedAt = null;
+                $statusDates[$status] = null;
+            }
+
             $fechaLimite = $index === $currentIndex
                 ? ($expediente ? $fechaLimitePasoPolicivo : ($fechaLimiteRespuesta ?: null))
                 : null;
 
             $steps[] = [
                 'status' => $status,
-                'label' => $status,
+                'label' => $status === self::STEP_RESPUESTA_FINAL && trim((string) $case->get('status')) === 'Remitido por competencia'
+                    ? 'Remisión por competencia'
+                    : $status,
                 'state' => $state,
                 'date' => $statusDates[$status] ?? null,
                 'startedAt' => $startedAt,
@@ -125,7 +155,9 @@ class CaseTimelineService
                 // Evidencia visible de la formalización del ingreso en el hito de radicación.
                 'reference' => $status === 'Radicado' && $numeroRadicado !== ''
                     ? 'N.º de radicado: ' . $numeroRadicado
-                    : null,
+                    : ($visitaEnCurso && $status === CaseActaVisitaHelper::STATUS_EN_GESTION_TECNICA
+                        ? 'Visita complementaria N.º ' . $numeroVisitaEnCurso . ' en curso'
+                        : null),
                 'variant' => ($expediente && $index >= self::BASE_LENGTH && $status !== 'Finalizado')
                     ? 'escalado'
                     : null,
@@ -426,7 +458,8 @@ class CaseTimelineService
             'Visita realizada' => CaseActaVisitaHelper::STATUS_EN_GESTION_TECNICA,
             'Closed' => 'Finalizado',
             'Proceso cerrado' => 'Finalizado',
-            'Remitido por competencia' => 'Finalizado',
+            self::STATUS_PENDIENTE_RESPUESTA => self::STEP_RESPUESTA_FINAL,
+            'Remitido por competencia' => self::STEP_RESPUESTA_FINAL,
             // Compatibilidad: no se muestra ni se produce en casos nuevos.
             'Visita aprobada' => 'Revisión de hallazgos',
             'Rejected' => 'Finalizado',
@@ -472,10 +505,27 @@ class CaseTimelineService
         $actuo = $this->findActuoForCase($case->getId());
 
         if ($actuo && $this->isActuoWithContent($actuo)) {
-            $index = max($index, 5);
+            $index = max($index, (int) array_search('Finalizado', self::STATUS_FLOW, true));
         }
 
         return $index;
+    }
+
+    private function countActasConContenido(?string $caseId): int
+    {
+        if (!$caseId) {
+            return 0;
+        }
+
+        $count = 0;
+
+        foreach ($this->entityManager->getRDBRepository('ActaVisita')->where(['caseId' => $caseId])->find() as $acta) {
+            if ($this->isActaWithContent($acta)) {
+                $count++;
+            }
+        }
+
+        return $count;
     }
 
     private function isPostRadicado(Entity $case): bool

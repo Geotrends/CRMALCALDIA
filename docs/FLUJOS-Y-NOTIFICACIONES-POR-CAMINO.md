@@ -118,7 +118,7 @@ INGRESO
 | E6 | Revisa el informe: lo aprueba o lo devuelve | Director Técnico (o Secretario si hay suplencia) | Informe → Aprobado / Devuelto | Si lo aprueba: el autor. Si lo devuelve: el autor, con el motivo | 🆕 |
 | E7 | Registra recomendaciones técnicas o compromisos con plazo | Profesional | `RecomendacionTecnica` / `Compromiso` (`fechaLimite`) | Responsable de verificar · alerta al vencer el plazo (`AlertaProceso`) | 🆕 |
 | E8 | Verifica el cumplimiento | Profesional / Patrullero | `VerificacionCumplimiento` (Cumplida / Parcial / No cumplida / No verificable) | Director Técnico · "Verificación registrada: resultado X" | 🆕 |
-| E9 | Solicita una nueva visita (vuelve a E2) | Director / Inspección | nueva visita | Patrullero asignado · "Nueva visita #N" | ✅ `notifyNuevaVisitaPatrullero` / `notifySolicitudNuevaVisita` |
+| E9 | Solicita una visita complementaria (vuelve a E2). **Motivo obligatorio** | Director / Inspección / Admin (o el patrullero asignado desde "agregar visita") | nueva visita N° N + `AlertaProceso` de 5 días hábiles | **Responsable** · instrucción con motivo y plazo · **Director + Admin + Inspección** · copia "a cargo de …" · si vence: responsable + **Director + Admin** | ✅ 2026-09-28 ([ajuste](ajustes/2026-09-28-visita-complementaria-avisos-y-plazo.md)) |
 
 ### F. Evaluación de Resultado
 
@@ -141,21 +141,21 @@ INGRESO
 |---|---|---|---|---|---|
 | C1.1 | Identifica la autoridad competente | Director Técnico | `RemisionAutoridad.autoridadDestino` | — | — |
 | C1.2 | Proyecta el oficio de remisión con la solicitud y anexos (la `RemisionAutoridad` se crea sola al confirmar Parcial o Ninguna) | **Cualquier rol excepto el Radicador** | `RemisionAutoridad` → Proyectada | Director Técnico · "Oficio de remisión para firma" | 🆕 |
-| C1.3 | Envía el oficio y carga la constancia de envío o recibido | Aux. Inspección | → Enviada | Director (informativo) | 🟠 hoy `notifyRemisionPorCompetencia` avisa en la decisión, no en el envío |
+| C1.3 | Envía el oficio y carga la constancia (remisión → "Enviada"). **Alerta de 5 días hábiles** (Ley 1755, art. 21) desde que se registra la remisión | Cualquier rol excepto Radicador | `RemisionAutoridad` → Enviada; la alerta queda "Atendida" | Responsable de la alerta (Aux. Inspección) | ✅ 2026-09-28 |
 | C1.4 | Informa al peticionario | Aux. Inspección | `ComunicacionCaso` (externa) | ⛔ interno; se registra la comunicación | — |
-| C1.5 | El Case queda conservado, sin cerrar la trazabilidad | Sistema | `Case` → Remitido | Radicador (para registrar la salida en DÉBORA) | 🆕 ❓ P5 |
+| C1.5 | Informa al peticionario (comunicación marcada como respuesta final) y pulsa **"Finalizar caso"** | Cualquier rol excepto Radicador | `Case`: Remitido → Finalizado | Aviso de caso finalizado | ✅ 2026-09-28 (registro en DÉBORA: ❓ P5) |
 
 ### C2. Competencia parcial
 
 Igual que C1 para el componente ajeno, **sin cerrar el Case**: el componente propio sigue en D. Se notifica lo mismo que en C1.2 y C1.3, y además al responsable técnico: "El caso sigue con el componente municipal".
 
-### C3. Resuelto o sin mérito jurídico: cierre sin expediente
+### C3. Resuelto o sin mérito jurídico: cierre sin expediente (✅ 2026-09-28, [ajuste](ajustes/2026-09-28-cierre-caso-respuesta-final-y-remision.md))
 
 | # | Paso | Quién hace | Registro / estado | Notifica a | Hoy |
 |---|---|---|---|---|---|
-| C3.1 | Decide el cierre (resuelto en lo técnico o sin mérito jurídico) | Director Técnico (resuelto) / Inspector (sin mérito) | `EvaluacionResultado` / `DecisionRutaJuridica` | Aux. Inspección / Radicador · "Proyectar respuesta final" | ✅ `notifyCierreSinProceso` 🟠 revisar destinatarios |
-| C3.2 | Proyecta y envía la respuesta final al peticionario | Aux. Inspección / Radicador | `ComunicacionCaso.esRespuestaFinal = true` | Director + Inspección · "Respuesta final registrada" | ✅ `NotifyOnRespuestaFinal` |
-| C3.3 | Cierra el Case | Director Técnico | `Case` → Finalizado | Responsable + Radicación + Director + Inspección | ✅ `NotifyOnCaseFinalizado` |
+| C3.1 | "Guardar y cerrar la atención" (definición "Cierre de atención") | Quien revisa hallazgos | `Case` → **Pendiente de respuesta final** (el plazo sigue vigilado) | **Inspección** · "Proyecte la respuesta final" · **Director + Admin** · copia | ✅ |
+| C3.2 | Proyecta y registra la respuesta final al peticionario | **Inspección** (la proyecta); cualquier rol excepto Radicador | `ComunicacionCaso.esRespuestaFinal = true` | Director + Jurídica + Inspección · "Respuesta final registrada" | ✅ |
+| C3.3 | Pulsa **"Finalizar caso"** (bloque "Cierre del caso") | Cualquier rol excepto Radicador | `Case` → Finalizado | Responsable + Radicación + Director + Inspección + Admin | ✅ |
 
 ### C4. Remisión directa a otra autoridad (después de la gestión técnica)
 

@@ -291,12 +291,10 @@ class CaseVisitaAprobadaNotifier
     /** @return string[] */
     private function collectAsignadorYJuridicaIds(): array
     {
+        // Director Técnico y Apoyo Jurídico bajo todos sus nombres (históricos y BPMN).
         return array_values(array_unique(array_merge(
-            $this->profile->findActiveUserIdsByRoleName(AlcaldiaUserProfile::ROLE_ASIGNADOR),
-            $this->profile->findActiveUserIdsByRoleName(AlcaldiaUserProfile::ROLE_ASIGNACION),
-            $this->profile->findActiveUserIdsByRoleName(AlcaldiaUserProfile::ROLE_ASIGNACION_ALT),
-            $this->profile->findActiveUserIdsByRoleName(AlcaldiaUserProfile::ROLE_JURIDICA),
-            $this->profile->findActiveUserIdsByRoleName(AlcaldiaUserProfile::ROLE_JURIDICA_ALT),
+            $this->profile->findActiveAsignadorUserIds(),
+            $this->profile->findActiveJuridicaUserIds(),
             $this->profile->findActiveAdminUserIds(),
         )));
     }

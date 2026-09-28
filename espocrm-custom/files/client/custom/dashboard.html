@@ -223,6 +223,16 @@
         <span class="kpi-hint">Por radicar</span>
       </article>
 
+      <article class="kpi kpi--competencia">
+        <div class="kpi__top">
+          <span class="kpi-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/><path d="M9 12l2 2 4-4"/></svg>
+          </span>
+          <span class="kpi-label">Competencia por revisar</span>
+        </div>
+        <span class="kpi-valor" id="kpi-competencia">–</span>
+        <span class="kpi-hint">Radicados sin competencia confirmada</span>
+      </article>
       <article class="kpi kpi--asignado">
         <div class="kpi__top">
           <span class="kpi-icon" aria-hidden="true">
@@ -234,6 +244,56 @@
         <span class="kpi-hint">Casos activos</span>
       </article>
 
+      <article class="kpi kpi--visita-pend">
+        <div class="kpi__top">
+          <span class="kpi-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="10" r="3"/><path d="M12 21s-7-6.5-7-11a7 7 0 0114 0c0 4.5-7 11-7 11z"/></svg>
+          </span>
+          <span class="kpi-label">Visitas pendientes</span>
+        </div>
+        <span class="kpi-valor" id="kpi-visitas-pendientes">–</span>
+        <span class="kpi-hint">Por realizar (incluye complementarias)</span>
+      </article>
+      <article class="kpi kpi--visita-hecha">
+        <div class="kpi__top">
+          <span class="kpi-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 01-2 2H6a2 2 0 01-2-2V5a2 2 0 012-2h9"/></svg>
+          </span>
+          <span class="kpi-label">Visitas realizadas</span>
+        </div>
+        <span class="kpi-valor" id="kpi-visitas-realizadas">–</span>
+        <span class="kpi-hint">Actas diligenciadas</span>
+      </article>
+      <article class="kpi kpi--definir">
+        <div class="kpi__top">
+          <span class="kpi-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M5 7h14M7 7l-3 7h6zM17 7l-3 7h6z"/></svg>
+          </span>
+          <span class="kpi-label">Por definir trámite</span>
+        </div>
+        <span class="kpi-valor" id="kpi-por-definir">–</span>
+        <span class="kpi-hint">Visitas sin revisión de hallazgos</span>
+      </article>
+      <article class="kpi kpi--por-finalizar">
+        <div class="kpi__top">
+          <span class="kpi-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 21V4h11l-1 4h6v9H9l1-4H4"/></svg>
+          </span>
+          <span class="kpi-label">Por finalizar</span>
+        </div>
+        <span class="kpi-valor" id="kpi-por-finalizar">–</span>
+        <span class="kpi-hint">Respuesta final o remisión en curso</span>
+      </article>
+      <article class="kpi kpi--remision">
+        <div class="kpi__top">
+          <span class="kpi-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg>
+          </span>
+          <span class="kpi-label">Remisiones sin enviar</span>
+        </div>
+        <span class="kpi-valor" id="kpi-remisiones">–</span>
+        <span class="kpi-hint">Oficios en preparación</span>
+      </article>
       <article class="kpi kpi--cerrado">
         <div class="kpi__top">
           <span class="kpi-icon" aria-hidden="true">
@@ -242,7 +302,7 @@
           <span class="kpi-label">Finalizados</span>
         </div>
         <span class="kpi-valor" id="kpi-finalizados">–</span>
-        <span class="kpi-hint">Proceso cerrado</span>
+        <span class="kpi-hint">Finalizados o cerrados</span>
       </article>
 
       <article class="kpi kpi--vencido kpi--featured">
@@ -283,8 +343,20 @@
 
     <section class="graficas-grid">
       <div class="grafica-card grafica-card--embudo">
-        <header class="grafica-header"><h2>Embudo del proceso</h2><span class="badge badge--muted">8 etapas</span></header>
+        <header class="grafica-header"><h2>Embudo del proceso</h2><span class="badge badge--muted">9 etapas</span></header>
         <div class="grafica-cuerpo grafica-cuerpo--embudo"><div id="grafica-embudo" class="funnel-chart"></div></div>
+      </div>
+      <div class="grafica-card">
+        <header class="grafica-header"><h2>Visitas</h2><span id="badge-visitas" class="badge badge--muted">…</span></header>
+        <div class="grafica-cuerpo grafica-cuerpo--donut"><canvas id="grafica-visitas"></canvas></div>
+      </div>
+      <div class="grafica-card">
+        <header class="grafica-header"><h2>Decisiones de trámite</h2><span class="badge badge--muted">Revisión de hallazgos</span></header>
+        <div class="grafica-cuerpo"><canvas id="grafica-decisiones"></canvas></div>
+      </div>
+      <div class="grafica-card">
+        <header class="grafica-header"><h2>Competencia</h2><span class="badge badge--muted">Revisión inicial</span></header>
+        <div class="grafica-cuerpo grafica-cuerpo--donut"><canvas id="grafica-competencia"></canvas></div>
       </div>
       <div class="grafica-card">
         <header class="grafica-header"><h2>Semáforo de vencimiento</h2></header>

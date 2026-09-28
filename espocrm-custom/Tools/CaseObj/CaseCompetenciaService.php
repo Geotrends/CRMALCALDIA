@@ -6,6 +6,7 @@ use Espo\Core\Exceptions\BadRequest;
 use Espo\Core\Exceptions\Forbidden;
 use Espo\Core\Field\LinkParent;
 use Espo\Core\Utils\Metadata;
+use Espo\Custom\Tools\AlertaProceso\AlertaProcesoNotifier;
 use Espo\Custom\Tools\User\AlcaldiaUserProfile;
 use Espo\Entities\Notification;
 use Espo\Entities\User;
@@ -30,6 +31,9 @@ class CaseCompetenciaService
     public const PARCIAL = 'Parcial';
     public const NINGUNA = 'Ninguna';
 
+    /** Remisión decidida después de la visita, en la revisión de hallazgos. */
+    public const ORIGEN_HALLAZGOS = 'Hallazgos';
+
     private const STATUS_REMITIDO = 'Remitido por competencia';
     private const EVENT_KEY_REMISION = 'case.competencia.remision';
     private const ROLE_AUX_INSPECCION = 'Auxiliar Administrativo · Inspección';
@@ -45,7 +49,8 @@ class CaseCompetenciaService
     public function __construct(
         private EntityManager $entityManager,
         private AlcaldiaUserProfile $profile,
-        private Metadata $metadata
+        private Metadata $metadata,
+        private AlertaProcesoNotifier $alertaNotifier
     ) {}
 
     /**
@@ -110,8 +115,7 @@ class CaseCompetenciaService
         $remision = null;
 
         if ($requiresRemision) {
-            $remision = $this->createRemision($case, $competencia, $autoridadDestino, $observacion);
-            $this->notifyRemisionPendiente($case, $user, $competencia, $autoridadDestino);
+            $remision = $this->registrarRemision($case, $user, $competencia, $autoridadDestino, $observacion);
         }
 
         return [
@@ -148,6 +152,59 @@ class CaseCompetenciaService
         return $values;
     }
 
+    /**
+     * Crea la RemisionAutoridad (estado Preparación) y avisa a quien prepara el oficio.
+     *
+     * @param string $origen self::PARCIAL, self::NINGUNA o self::ORIGEN_HALLAZGOS
+     */
+    public function registrarRemision(
+        Entity $case,
+        User $actor,
+        string $origen,
+        string $autoridadDestino,
+        string $observacion
+    ): Entity {
+        $remision = $this->createRemision($case, $origen, $autoridadDestino, $observacion);
+        $this->notifyRemisionPendiente($case, $actor, $origen, $autoridadDestino);
+
+        try {
+            $this->crearAlertaEnvio($case, $actor, $remision, $autoridadDestino);
+        } catch (\Throwable) {
+            // La alerta no debe impedir registrar la remisión.
+        }
+
+        return $remision;
+    }
+
+    /**
+     * Ley 1755 de 2015, art. 21: la remisión al competente dentro de los 5 días
+     * hábiles siguientes. La alerta se atiende sola cuando la remisión pasa a «Enviada».
+     */
+    private function crearAlertaEnvio(Entity $case, User $actor, Entity $remision, string $autoridadDestino): void
+    {
+        $responsableId = $this->profile->findActiveUserIdsByRoleName(self::ROLE_AUX_INSPECCION)[0]
+            ?? $this->profile->findActiveInspeccionUserIds()[0]
+            ?? $actor->getId();
+        $numero = trim((string) $case->get('cNumeroRadicado'));
+
+        $this->alertaNotifier->crearYNotificar([
+            'name' => 'Enviar oficio de remisión a ' . $autoridadDestino . ' · ' . ($numero !== '' ? $numero : $case->get('name')),
+            'entidadTipo' => 'RemisionAutoridad',
+            'entidadId' => $remision->getId(),
+            'caseId' => $case->getId(),
+            'tipoAlerta' => 'Vencimiento de término legal',
+            'fechaBase' => date('Y-m-d'),
+            'fechaVencimiento' => VisitaComplementariaService::addDiasHabiles(
+                new \DateTimeImmutable('now', new \DateTimeZone('America/Bogota')),
+                5
+            ),
+            'reglaFuente' => 'Ley 1755 de 2015, art. 21: remitir al competente dentro de los 5 días hábiles '
+                . 'siguientes a la recepción. Aproximación: solo se descuentan fines de semana, no festivos.',
+            'prioridad' => 'Alta',
+            'responsableId' => $responsableId,
+        ]);
+    }
+
     private function createRemision(
         Entity $case,
         string $competencia,
@@ -155,7 +212,11 @@ class CaseCompetenciaService
         string $observacion
     ): Entity {
         $numero = trim((string) $case->get('cNumeroRadicado'));
-        $componente = $competencia === self::PARCIAL ? 'componente ajeno' : 'totalidad';
+        $componente = match ($competencia) {
+            self::PARCIAL => 'componente ajeno',
+            self::ORIGEN_HALLAZGOS => 'tras revisión de hallazgos',
+            default => 'totalidad',
+        };
 
         $remision = $this->entityManager->getNewEntity('RemisionAutoridad');
 
