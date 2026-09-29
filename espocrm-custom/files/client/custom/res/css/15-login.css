@@ -330,3 +330,138 @@ body:not(.has-navbar):has(#login) footer a {
     padding: 8px 28px 32px !important;
   }
 }
+
+/*
+ * Login sin scroll: la página ocupa exactamente la pantalla (100dvh) y la tarjeta
+ * se ajusta al alto disponible. Logo, imagen y espacios escalan con el alto; en
+ * pantallas bajas la imagen se oculta y los campos se compactan.
+ */
+html:has(body.login-page),
+html:has(body:not(.has-navbar) #login) {
+  height: 100% !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+
+body.login-page,
+body:not(.has-navbar):has(#login) {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+
+body.login-page > .content,
+body.login-page > .container.content,
+body:not(.has-navbar):has(#login) > .content,
+body:not(.has-navbar):has(#login) > .container.content {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  height: auto !important;
+  padding: clamp(10px, 3vh, 32px) 16px !important;
+  overflow: hidden auto !important;
+  scrollbar-width: none;
+}
+
+body.login-page > .content::-webkit-scrollbar,
+body:not(.has-navbar):has(#login) > .content::-webkit-scrollbar { display: none; }
+
+body.login-page .container-centering,
+body:not(.has-navbar) .container-centering {
+  top: 0 !important;
+  height: auto !important;
+  margin: auto !important;
+}
+
+/* EspoCRM centra con .container-centering (alto 100vh - 100px, top -50px) y la tarjeta con top: 20%; aquí se centra con flex. */
+body.login-page #login.panel,
+body:not(.has-navbar):has(#login) #login.panel {
+  top: 0 !important;
+}
+
+body.login-page,
+body:not(.has-navbar):has(#login) {
+  padding-top: 0 !important;
+}
+
+body.login-page > footer,
+body:not(.has-navbar):has(#login) > footer {
+  flex: 0 0 auto !important;
+  padding: 0 16px clamp(6px, 1.5vh, 14px) !important;
+  font-size: 12px !important;
+  line-height: 1.4 !important;
+}
+
+#login.panel.block-center-sm::after {
+  min-height: 0 !important;
+}
+
+#login .panel-heading {
+  padding: clamp(16px, 4vh, 40px) 40px clamp(4px, 1vh, 8px) !important;
+}
+
+#login .logo-container img.logo {
+  max-height: clamp(56px, 19vh, 190px) !important;
+}
+
+#login .panel-body {
+  padding: clamp(4px, 1vh, 8px) 40px clamp(18px, 4vh, 40px) !important;
+}
+
+#login .panel-body::before {
+  margin-bottom: clamp(12px, 2.6vh, 24px) !important;
+  font-size: clamp(19px, 3vh, 24px) !important;
+}
+
+#login .cell { margin-bottom: clamp(10px, 1.8vh, 16px) !important; }
+#login .cell[data-name="submit"] { margin-top: clamp(14px, 2.6vh, 24px) !important; }
+
+@media (max-width: 860px) {
+  body.login-page .container-centering,
+  body:not(.has-navbar) .container-centering {
+    max-width: 440px !important;
+  }
+
+  #login.panel.block-center-sm { border-radius: 22px !important; }
+
+  #login.panel.block-center-sm::after {
+    height: clamp(0px, calc(100dvh - 560px), 180px);
+    min-height: 0 !important;
+  }
+
+  #login .panel-heading { padding: clamp(14px, 3vh, 28px) 24px 4px !important; }
+  #login .panel-body { padding: 4px 24px clamp(16px, 3.5vh, 32px) !important; }
+  #login .logo-container img.logo { max-height: clamp(48px, 13vh, 140px) !important; }
+}
+
+/* Pantallas bajas (portátiles pequeños, celular horizontal): sin imagen y campos compactos. */
+@media (max-height: 620px) {
+  #login .form-control,
+  #login #btn-login,
+  #login #btn-send {
+    height: 42px !important;
+    min-height: 42px !important;
+  }
+
+  #login .cell label { margin-bottom: 4px !important; }
+}
+
+@media (max-height: 520px) and (max-width: 860px) {
+  #login.panel.block-center-sm::after { display: none !important; }
+}
+
+@media (max-height: 460px) {
+  #login .logo-container img.logo { max-height: 40px !important; }
+  #login .panel-heading { padding-top: 12px !important; }
+  #login .panel-body::before { margin-bottom: 8px !important; font-size: 18px !important; }
+  #login .cell { margin-bottom: 8px !important; }
+  #login .cell[data-name="submit"] { margin-top: 10px !important; }
+  #login .form-control,
+  #login #btn-login,
+  #login #btn-send {
+    height: 38px !important;
+    min-height: 38px !important;
+  }
+}
