@@ -18,7 +18,11 @@
         "client/custom/res/css/39-actuo-archivo-containers.css",
         "client/custom/res/css/40-user-containers.css",
         "client/custom/res/css/41-party-containers.css",
-        "client/custom/res/css/42-document-template-containers.css"
+        "client/custom/res/css/42-document-template-containers.css",
+        "client/custom/res/css/43-gestion-tecnica-containers.css",
+        "client/custom/res/css/44-proceso-verbal-abreviado-containers.css",
+        "client/custom/res/css/45-policia-rnmc-containers.css",
+        "client/custom/res/css/46-otras-rutas-seguimiento-containers.css"
     ],
     "scriptList": [
         "client/custom/src/loader/route-sanitize.js",
