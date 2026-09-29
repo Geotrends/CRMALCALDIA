@@ -746,6 +746,21 @@ class CaseObj extends BaseCaseObj
     }
 
     /**
+     * GET Case/action/dashboardProceso  Tiempos por etapa y datos del proceso de Policía
+     * para el tablero (el cliente aplica sus filtros por caso).
+     *
+     * @return array<string, mixed>
+     */
+    public function getActionDashboardProceso(Request $request): array
+    {
+        if (!$this->acl->checkScope('Case', 'read')) {
+            throw new Forbidden();
+        }
+
+        return $this->injectableFactory->create(\Espo\Custom\Tools\Dashboard\DashboardProcesoService::class)->build();
+    }
+
+    /**
      * GET Case/action/procesoEstado?id=  Pasos de la ruta jurídica del expediente y fase actual.
      *
      * @return array<string, mixed>

@@ -760,3 +760,112 @@ canvas {
   background: #f5ecec;
   color: #b91c1c;
 }
+
+/* ── Tablero agrupado por partes del proceso (storytelling) ── */
+.dash-grupo {
+  margin-top: 18px;
+  padding: 16px;
+  border: 1px solid var(--crm-border-light);
+  border-radius: calc(var(--crm-radius-md) + 4px);
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.dash-grupo__header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.dash-grupo__num {
+  display: inline-flex;
+  flex: 0 0 30px;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #dcefe9;
+  color: #21675b;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.dash-grupo__header h2 {
+  margin: 0;
+  color: var(--crm-text);
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.dash-grupo__insight {
+  margin: 3px 0 0;
+  color: var(--crm-text-secondary);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.dash-grupo__insight b { color: var(--crm-text); }
+
+.kpis--grupo {
+  grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)) !important;
+  margin-bottom: 10px;
+}
+
+.graficas-grid--grupo {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.graficas-grid--grupo .grafica-card--embudo { grid-row: auto; }
+.grafica-card--full { grid-column: 1 / -1; }
+.kpi--multas .kpi-valor, .kpi--recaudo .kpi-valor { font-size: 22px !important; }
+
+.graficas-grid--panorama {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+}
+
+.graficas-grid--panorama .grafica-card--embudo { grid-column: 1; grid-row: 1 / span 2; }
+.graficas-grid--panorama .grafica-card--wide { grid-column: 2; }
+
+.dash-historia {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 8px;
+  margin: 0 0 12px;
+  padding: 0;
+  list-style: none;
+}
+
+.dash-historia li {
+  padding: 10px 12px;
+  border-left: 3px solid #1d8a6e;
+  border-radius: 8px;
+  background: var(--crm-surface);
+  color: var(--crm-text-secondary);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.dash-historia li b { color: var(--crm-text); }
+.dash-historia li.is-alerta { border-left-color: #c2410c; }
+
+.kpi--radicados .kpi-icon, .kpi--mes .kpi-icon { background: #eaf3f8; color: #1f6a8a; }
+.kpi--sin-asignar .kpi-icon { background: #fdf4e3; color: #b45309; }
+.kpi--dias .kpi-icon { background: #f1f5f9; color: #475569; }
+.kpi--audiencia .kpi-icon { background: #eef2ff; color: #4338ca; }
+.kpi--medidas .kpi-icon { background: #f3edfb; color: #6b21a8; }
+.kpi--multas .kpi-icon, .kpi--recaudo .kpi-icon { background: #ecf7f0; color: #2f7a4a; }
+.kpi--rnmc .kpi-icon { background: #f5eef0; color: #9d3b55; }
+.kpi--archivados .kpi-icon, .kpi--a-tiempo .kpi-icon { background: #ecf7f0; color: #1d8a6e; }
+
+@media (max-width: 1100px) {
+  .graficas-grid--grupo { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .graficas-grid--panorama { grid-template-columns: minmax(0, 1fr); }
+  .graficas-grid--panorama .grafica-card--embudo, .graficas-grid--panorama .grafica-card--wide { grid-column: auto; grid-row: auto; }
+}
+
+@media (max-width: 700px) {
+  .dash-grupo { padding: 12px; }
+  .graficas-grid--grupo { grid-template-columns: minmax(0, 1fr); }
+  .graficas-grid--grupo .grafica-card--wide { grid-column: auto; }
+}

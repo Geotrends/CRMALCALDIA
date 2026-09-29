@@ -1112,7 +1112,8 @@
             return String(c.assignedUserName || c.assignedUserId || '').trim() || 'Sin asignar';
         }},
     };
-    var CHART_IDS = ['grafica-visitas', 'grafica-decisiones', 'grafica-competencia', 'grafica-semaforo', 'grafica-canal', 'grafica-recurso', 'grafica-tiempo', 'grafica-barrio', 'grafica-radicados-dia', 'grafica-sin-asignar'];
+    var CHART_IDS = ['grafica-visitas', 'grafica-decisiones', 'grafica-competencia', 'grafica-semaforo', 'grafica-canal', 'grafica-recurso', 'grafica-tiempo', 'grafica-barrio', 'grafica-radicados-dia', 'grafica-sin-asignar',
+        'grafica-tendencia', 'grafica-etapas', 'grafica-carga', 'grafica-exp-paso', 'grafica-ruta', 'grafica-audiencias', 'grafica-recursos', 'grafica-medidas', 'grafica-multas'];
 
     function resetChartSurface(canvasId) {
         var canvas = document.getElementById(canvasId);
@@ -1358,8 +1359,264 @@
             dibujarPolar('grafica-sin-asignar', ['Con patrullero', 'Sin asignar', 'Sin radicado'], [asignados, sinAsignar, sinRadicado], ['rgba(158, 184, 168, 0.78)', 'rgba(197, 204, 211, 0.85)', 'rgba(242, 195, 126, 0.9)']);
         }
 
+        renderLectura(casos);
+
         ajustarAlturaIframe();
         setTimeout(ajustarAlturaIframe, 250);
+    }
+
+    /* ── Proceso de Policía, tiempos por etapa y lectura del tablero ── */
+
+    var DATOS_PROCESO = null;
+
+    function fetchDatosProceso() {
+        return fetch('/api/v1/Case/action/dashboardProceso', {credentials: 'include'})
+            .then(function (res) { return res.ok ? res.json() : null; })
+            .then(function (data) { DATOS_PROCESO = data || {tiempos: [], proceso: null}; })
+            .catch(function () { DATOS_PROCESO = {tiempos: [], proceso: null}; });
+    }
+
+    function hoyClave() {
+        var d = new Date();
+
+        return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    }
+
+    function diasEntre(a, b) {
+        if (!a || !b) { return null; }
+        var d = (new Date(b + 'T00:00:00') - new Date(a + 'T00:00:00')) / 86400000;
+
+        return isNaN(d) || d < 0 ? null : d;
+    }
+
+    function promedio(lista) {
+        var v = lista.filter(function (x) { return x !== null; });
+
+        return v.length ? Math.round(v.reduce(function (s, x) { return s + x; }, 0) / v.length * 10) / 10 : null;
+    }
+
+    function pesos(n) {
+        return '$ ' + Math.round(n || 0).toLocaleString('es-CO');
+    }
+
+    function textoKpi(id, valor) {
+        var el = document.getElementById(id);
+
+        if (el) { el.textContent = valor === null || valor === undefined ? '–' : valor; }
+    }
+
+    function insight(id, html) {
+        var el = document.getElementById(id);
+
+        if (el) { el.innerHTML = html; }
+    }
+
+    function dibujarSeries(canvasId, etiquetas, series) {
+        return new Chart(document.getElementById(canvasId), {
+            type: 'line',
+            data: {
+                labels: etiquetas,
+                datasets: series.map(function (s) {
+                    return {label: s.label, data: s.data, borderColor: s.color, backgroundColor: s.fondo || 'transparent', fill: !!s.fondo, tension: 0.3, pointRadius: 3, borderWidth: 2};
+                }),
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {legend: {display: true, position: 'bottom', labels: {boxWidth: 12, font: {family: 'Inter, sans-serif'}}}},
+                scales: {
+                    x: {grid: {display: false}, ticks: {color: '#64748b', font: {family: 'Inter, sans-serif'}}},
+                    y: {beginAtZero: true, ticks: {precision: 0, color: '#94a3b8'}, grid: {color: '#f1f5f9'}},
+                },
+            },
+        });
+    }
+
+    var MESES_CORTOS = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+
+    function renderLectura(casos) {
+        var datos = DATOS_PROCESO || {tiempos: [], proceso: null};
+        var ids = {};
+        casos.forEach(function (c) { ids[c.id] = true; });
+        var tiempos = (datos.tiempos || []).filter(function (t) { return ids[t.caseId]; });
+        var tPorCaso = {};
+        tiempos.forEach(function (t) { tPorCaso[t.caseId] = t; });
+        var hoy = hoyClave();
+        var activos = casos.filter(function (c) { return ESTADOS_FIN.indexOf(c.status) === -1; });
+
+        /* 1 · Ingreso */
+        var radicados = casos.filter(tieneRadicado).length;
+        var mesActual = hoy.slice(0, 7);
+        var mesPrevio = (function () { var d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - 1); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'); })();
+        var claveMes = function (c) { var f = parseFechaCaso(c); return f ? f.getFullYear() + '-' + String(f.getMonth() + 1).padStart(2, '0') : null; };
+        var esteMes = casos.filter(function (c) { return claveMes(c) === mesActual; }).length;
+        var mesAnterior = casos.filter(function (c) { return claveMes(c) === mesPrevio; }).length;
+        textoKpi('kpi-radicados', radicados);
+        textoKpi('kpi-mes', esteMes);
+        var conDato = function (e) { return e && !/^sin /i.test(e); };
+        var canalTop = ordenarDesc(agrupar(casos.filter(function (c) { return conDato(claveCanal(c)); }), claveCanal));
+        var recursoTop = ordenarDesc(agrupar(casos.filter(function (c) { return conDato(claveRecurso(c)); }), claveRecurso));
+        insight('insight-ingreso', '<b>' + esteMes + '</b> caso(s) este mes' + (mesAnterior ? ' frente a <b>' + mesAnterior + '</b> el mes anterior' : '') + '.'
+            + (canalTop.etiquetas.length ? ' Canal más usado: <b>' + canalTop.etiquetas[0] + '</b>.' : '')
+            + (recursoTop.etiquetas.length ? ' Recurso más afectado: <b>' + recursoTop.etiquetas[0] + '</b>.' : ''));
+
+        /* 2 · Competencia y asignación */
+        var radicadosActivos = activos.filter(tieneRadicado);
+        var sinResp = radicadosActivos.filter(function (c) { return !c.assignedUserId; }).length;
+        textoKpi('kpi-sin-asignar', sinResp);
+        var diasAsig = promedio(tiempos.map(function (t) { return diasEntre(t.radicado, t.asignado); }));
+        textoKpi('kpi-dias-asignacion', diasAsig);
+        var carga = topN(agrupar(activos.filter(function (c) { return !!c.assignedUserId; }), function (c) { return c.assignedUserName || 'Sin nombre'; }), 10);
+        if (!carga.etiquetas.length) { mensajeVacio('grafica-carga', 'No hay casos activos asignados.'); } else { dibujarBarrasHorizontales('grafica-carga', carga.etiquetas, carga.valores); }
+        insight('insight-asignacion', (sinResp ? '<b>' + sinResp + '</b> caso(s) radicado(s) esperan responsable. ' : 'Todos los casos radicados activos tienen responsable. ')
+            + (diasAsig !== null ? 'La asignación tarda en promedio <b>' + diasAsig + '</b> día(s) desde la radicación.' : '')
+            + (carga.etiquetas.length ? ' Mayor carga: <b>' + carga.etiquetas[0] + '</b> (' + carga.valores[0] + ').' : ''));
+
+        /* 3 · Gestión técnica */
+        var diasVisita = promedio(tiempos.map(function (t) { return diasEntre(t.asignado, t.visita); }));
+        textoKpi('kpi-dias-visita', diasVisita);
+        var visPend = document.getElementById('kpi-visitas-pendientes');
+        insight('insight-tecnica', '<b>' + (visPend ? visPend.textContent : '–') + '</b> visita(s) pendiente(s).'
+            + (diasVisita !== null ? ' Entre la asignación y la visita pasan en promedio <b>' + diasVisita + '</b> día(s).' : ''));
+
+        /* 4 · Definición y cierre */
+        var diasCierre = promedio(tiempos.map(function (t) { return diasEntre(t.registro, t.finalizado); }));
+        textoKpi('kpi-dias-cierre', diasCierre);
+        var flujo = calcularFlujo(casos);
+        var totalDec = Object.keys(flujo.decisiones || {}).reduce(function (s, k) { return s + flujo.decisiones[k]; }, 0);
+        var aperturas = (flujo.decisiones || {})['Apertura de actuación'] || 0;
+        insight('insight-definicion', (totalDec ? '<b>' + Math.round(aperturas / totalDec * 100) + ' %</b> de las revisiones terminó en apertura de actuación. ' : '')
+            + '<b>' + flujo.porDefinir + '</b> por definir y <b>' + flujo.porFinalizar + '</b> por finalizar.'
+            + (diasCierre !== null ? ' Un caso tarda en promedio <b>' + diasCierre + '</b> día(s) en cerrarse.' : ''));
+
+        /* 6 · Oportunidad */
+        var finConFecha = tiempos.filter(function (t) { return t.finalizado && t.vencimiento; });
+        var aTiempo = finConFecha.filter(function (t) { return t.finalizado <= t.vencimiento; }).length;
+        var pctATiempo = finConFecha.length ? Math.round(aTiempo / finConFecha.length * 100) : null;
+        textoKpi('kpi-a-tiempo', pctATiempo === null ? '–' : pctATiempo + ' %');
+        var vencidos = document.getElementById('kpi-vencidos');
+        insight('insight-oportunidad', '<b>' + (vencidos ? vencidos.textContent : '–') + '</b> caso(s) vencido(s) sin cerrar.'
+            + (pctATiempo !== null ? ' El <b>' + pctATiempo + ' %</b> de los finalizados respondió antes de su fecha límite.' : ''));
+
+        /* Panorama · tendencia y tiempos por etapa */
+        var meses = {};
+        casos.forEach(function (c) { var m = claveMes(c); if (m) { meses[m] = meses[m] || {i: 0, f: 0}; meses[m].i++; } });
+        tiempos.forEach(function (t) { if (t.finalizado) { var m = t.finalizado.slice(0, 7); meses[m] = meses[m] || {i: 0, f: 0}; meses[m].f++; } });
+        var claves = Object.keys(meses).sort().slice(-12);
+        if (!claves.length) { mensajeVacio('grafica-tendencia', 'Sin fechas para la tendencia.'); } else {
+            dibujarSeries('grafica-tendencia', claves.map(function (k) { return MESES_CORTOS[Number(k.slice(5)) - 1] + ' ' + k.slice(2, 4); }), [
+                {label: 'Ingresados', data: claves.map(function (k) { return meses[k].i; }), color: '#1f6a8a', fondo: 'rgba(31, 106, 138, 0.08)'},
+                {label: 'Finalizados', data: claves.map(function (k) { return meses[k].f; }), color: '#1d8a6e'},
+            ]);
+        }
+
+        var etapas = [
+            ['Registro → radicación', 'registro', 'radicado'],
+            ['Radicación → asignación', 'radicado', 'asignado'],
+            ['Asignación → visita', 'asignado', 'visita'],
+            ['Visita → definición', 'visita', 'definicion'],
+            ['Definición → cierre', 'definicion', 'finalizado'],
+        ];
+        var prom = etapas.map(function (e) { return promedio(tiempos.map(function (t) { return diasEntre(t[e[1]], t[e[2]]); })); });
+        if (!prom.some(function (x) { return x !== null; })) { mensajeVacio('grafica-etapas', 'Aún no hay etapas completas para medir.'); } else {
+            dibujarBarras('grafica-etapas', etapas.map(function (e) { return e[0]; }), prom.map(function (x) { return x || 0; }), {etiquetaDataset: 'Días promedio', unidad: 'día(s)', colorBarra: '#9eb5c8'});
+        }
+
+        /* 5 · Proceso de Policía */
+        var pr = datos.proceso;
+        var historiaProceso = '';
+
+        if (!pr) {
+            ['grafica-exp-paso', 'grafica-ruta', 'grafica-audiencias', 'grafica-recursos', 'grafica-medidas', 'grafica-multas'].forEach(function (id) { mensajeVacio(id, 'Cargando el proceso…'); });
+        } else {
+            var exps = (pr.expedientes || []).filter(function (e) { return e.casos.some(function (id) { return ids[id]; }); });
+            var expIds = {};
+            exps.forEach(function (e) { expIds[e.id] = true; });
+            var enExp = function (x) { return expIds[x.expedienteId]; };
+            var auds = (pr.audiencias || []).filter(enExp);
+            var meds = (pr.medidas || []).filter(enExp);
+            var mults = (pr.multas || []).filter(enExp);
+            var recs = (pr.recursos || []).filter(enExp);
+            var ords = (pr.ordenes || []).filter(enExp);
+            var en7 = (function () { var d = new Date(); d.setDate(d.getDate() + 7); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); })();
+            var abiertos = exps.filter(function (e) { return e.estado !== 'Archivado'; });
+            var remitido = mults.reduce(function (s, m) { return s + m.valor; }, 0);
+            var recaudado = mults.filter(function (m) { return m.estado === 'Pagada'; }).reduce(function (s, m) { return s + m.valor; }, 0);
+            var coactivo = mults.filter(function (m) { return m.estado === 'En cobro coactivo'; }).reduce(function (s, m) { return s + m.valor; }, 0);
+
+            textoKpi('kpi-exp-abiertos', abiertos.length);
+            textoKpi('kpi-exp-vencidos', abiertos.filter(function (e) { return e.vencido; }).length);
+            textoKpi('kpi-audiencias-proximas', auds.filter(function (a) { return a.estado === 'Programada' && a.fecha >= hoy && a.fecha <= en7; }).length);
+            textoKpi('kpi-medidas', meds.length);
+            textoKpi('kpi-multas', pesos(remitido));
+            textoKpi('kpi-recaudo', pesos(recaudado));
+            textoKpi('kpi-ordenes-incumplidas', ords.filter(function (o) { return o.estado === 'Incumplida'; }).length);
+            textoKpi('kpi-rnmc', meds.filter(function (m) { return !m.rnmc; }).length);
+            textoKpi('kpi-archivados', exps.filter(function (e) { return e.estado === 'Archivado'; }).length);
+
+            var corto = function (t) { return String(t || '').replace(/^Decisión: /, 'Decisión: ').replace(/ de la orden o medida$/, '').replace(/^Apertura de expediente$/, 'Apertura (preparación)'); };
+            var porPaso = (pr.pasos || []).map(function (p) { return exps.filter(function (e) { return e.paso === p; }).length; });
+            if (!exps.length) {
+                ['grafica-exp-paso', 'grafica-ruta', 'grafica-audiencias', 'grafica-recursos', 'grafica-medidas', 'grafica-multas'].forEach(function (id) { mensajeVacio(id, 'Aún no hay expedientes.'); });
+            } else {
+                dibujarBarrasHorizontales('grafica-exp-paso', (pr.pasos || []).map(corto), porPaso);
+                var rutaCorta = function (r) {
+                    r = String(r || '');
+                    if (/Abreviado/.test(r)) { return 'PVA · Convivencia'; }
+                    if (/Recursos Naturales/.test(r)) { return 'Recursos Naturales'; }
+                    if (/animales/.test(r)) { return 'Convivencia con animales'; }
+                    if (/Maltrato/.test(r)) { return 'Maltrato animal'; }
+                    if (/Sancionatorio/.test(r)) { return 'Sancionatorio (anterior)'; }
+                    if (/Código de policía/.test(r)) { return 'Policía (anterior)'; }
+                    return r || 'Sin ruta';
+                };
+                var rutas = ordenarDesc(agrupar(exps, function (e) { return rutaCorta(e.ruta); }));
+                dibujarDonut('grafica-ruta', rutas.etiquetas, rutas.valores, ['#9ec4a8', '#9eb5c8', '#d4c48a', '#c9a0a0', '#c5ccd3']);
+
+                var catAud = function (a) {
+                    if (a.estado === 'Completa documentalmente') { return 'Realizada'; }
+                    if (a.estado === 'Pendiente de soportes') { return 'Realizada, sin soportes'; }
+                    if (a.suspension === 'Primera inasistencia') { return 'Inasistencia'; }
+                    if (a.suspension === 'Prueba o actuación externa') { return 'Suspendida por prueba'; }
+                    if (a.suspension) { return 'Aplazada'; }
+                    return a.estado === 'Programada' ? 'Programada' : a.estado;
+                };
+                var ca = ordenarDesc(agrupar(auds, catAud));
+                if (!auds.length) { mensajeVacio('grafica-audiencias', 'Aún no hay audiencias.'); } else { dibujarDonut('grafica-audiencias', ca.etiquetas, ca.valores, ['#9ec4a8', '#f2c37e', '#c9a0a0', '#9eb5c8', '#d4c48a', '#c5ccd3']); }
+
+                var cr = ordenarDesc(agrupar(recs, function (r) { return r.resultado; }));
+                if (!recs.length) { mensajeVacio('grafica-recursos', 'No se han interpuesto recursos.'); } else { dibujarDonut('grafica-recursos', cr.etiquetas, cr.valores, ['#9ec4a8', '#d4c48a', '#c9a0a0', '#c5ccd3', '#9eb5c8']); }
+
+                var cm = ordenarDesc(agrupar(meds, function (m) { return m.tipo; }));
+                if (!meds.length) { mensajeVacio('grafica-medidas', 'Aún no hay medidas impuestas.'); } else { dibujarBarras('grafica-medidas', cm.etiquetas, cm.valores, {etiquetaDataset: 'Medidas', unidad: 'medida(s)', colorBarra: '#b8a3d6'}); }
+
+                if (!mults.length) { mensajeVacio('grafica-multas', 'Aún no hay multas remitidas a Tesorería.'); } else {
+                    var millones = function (v) { return Math.round(v / 100000) / 10; };
+                    dibujarBarras('grafica-multas', ['Remitido', 'Recaudado', 'En cobro coactivo', 'Por recaudar'],
+                        [millones(remitido), millones(recaudado), millones(coactivo), millones(Math.max(0, remitido - recaudado - coactivo))],
+                        {etiquetaDataset: 'Millones de pesos', unidad: 'millones', colores: ['#9eb5c8', '#9ec4a8', '#c9a0a0', '#f2c37e'], maxBarThickness: 90});
+                }
+            }
+
+            var pasoMayor = porPaso.length ? (pr.pasos || [])[porPaso.indexOf(Math.max.apply(null, porPaso))] : null;
+            insight('insight-proceso', exps.length
+                ? '<b>' + abiertos.length + '</b> expediente(s) abierto(s)' + (pasoMayor && Math.max.apply(null, porPaso) > 0 ? '; el paso con más expedientes es <b>' + corto(pasoMayor) + '</b>' : '')
+                    + '. <b>' + meds.length + '</b> medida(s) impuesta(s)' + (remitido ? ', <b>' + pesos(recaudado) + '</b> recaudado de <b>' + pesos(remitido) + '</b> remitido.' : '.')
+                : 'Aún no hay expedientes abiertos en los casos filtrados.');
+            historiaProceso = exps.length ? '<b>' + exps.length + '</b> caso(s) llegaron a proceso de Policía; <b>' + exps.filter(function (e) { return e.estado === 'Archivado'; }).length + '</b> ya están archivados.' : '';
+        }
+
+        /* Panorama · historia */
+        var items = [];
+        items.push('<li>Hay <b>' + casos.length + '</b> caso(s): <b>' + activos.length + '</b> activo(s) y <b>' + (casos.length - activos.length) + '</b> cerrado(s).</li>');
+        var vencNum = Number((document.getElementById('kpi-vencidos') || {}).textContent) || 0;
+        items.push('<li' + (vencNum ? ' class="is-alerta"' : '') + '><b>' + vencNum + '</b> vencido(s) y <b>' + ((document.getElementById('kpi-proximos') || {}).textContent || 0) + '</b> por vencer en 3 días.</li>');
+        var lentaIdx = prom.reduce(function (best, x, i) { return x !== null && (best === -1 || x > prom[best]) ? i : best; }, -1);
+        if (lentaIdx !== -1) { items.push('<li>La etapa más lenta es <b>' + etapas[lentaIdx][0] + '</b>: ' + prom[lentaIdx] + ' día(s) en promedio.</li>'); }
+        if (historiaProceso) { items.push('<li>' + historiaProceso + '</li>'); }
+        if (pctATiempo !== null) { items.push('<li' + (pctATiempo < 80 ? ' class="is-alerta"' : '') + '>El <b>' + pctATiempo + ' %</b> de los casos finalizados respondió a tiempo.</li>'); }
+        var hist = document.getElementById('dash-historia');
+        if (hist) { hist.innerHTML = items.join(''); }
     }
 
     function bindDashboardFilters(cases) {
@@ -1378,7 +1635,7 @@
         });
     }
 
-    var fetchUrl = '/api/v1/Case?select=cRecursoTema,cCanalDeReportePeticionario,status,assignedUserId,createdAt,cFechaCaso,cFechaVencimiento,cNumeroRadicado,cExpediente,cNombrePeticionario,cApellidoPeticionario,cBarrioPeticionario,cCompetencia,cCompetenciaConfirmada'
+    var fetchUrl = '/api/v1/Case?select=cRecursoTema,cCanalDeReportePeticionario,status,assignedUserId,assignedUserName,createdAt,cFechaCaso,cFechaVencimiento,cNumeroRadicado,cExpediente,cNombrePeticionario,cApellidoPeticionario,cBarrioPeticionario,cCompetencia,cCompetenciaConfirmada'
         + '&maxSize=200&orderBy=cFechaCaso&order=desc';
 
     if (assignedUserId) {
@@ -1394,13 +1651,41 @@
 
     fetchExpedientesResumen().then(renderPolicivosSeccion);
 
+    fetchDatosProceso().then(function () {
+        if (window.crmDashboardCases && window.crmDashboardCases.length) {
+            renderDashboard(updateNestedFilters(window.crmDashboardCases));
+        }
+    });
+
     fetchDatosApoyo().then(function () {
         if (window.crmDashboardCases && window.crmDashboardCases.length) {
             renderDashboard(window.crmDashboardCases);
         }
     });
 
-    fetch(fetchUrl, {credentials: 'include'})
+    // Todas las páginas de casos (la API entrega hasta 200 por consulta).
+    var fetchTodosLosCasos = function () {
+        var todos = [];
+        var pagina = function (offset) {
+            return fetch(fetchUrl + '&offset=' + offset, {credentials: 'include'}).then(function (res) {
+                if (!res.ok) { return res; }
+
+                return res.json().then(function (data) {
+                    todos = todos.concat(data.list || []);
+
+                    if ((data.list || []).length === 200 && todos.length < (data.total || 0) && todos.length < 5000) {
+                        return pagina(offset + 200);
+                    }
+
+                    return {ok: true, json: function () { return Promise.resolve({list: todos, total: todos.length}); }};
+                });
+            });
+        };
+
+        return pagina(0);
+    };
+
+    fetchTodosLosCasos()
         .then(function (res) {
             if (!res.ok) {
                 if (res.status === 403) {

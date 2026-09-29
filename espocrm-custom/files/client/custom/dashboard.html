@@ -200,7 +200,28 @@
       </div>
     </section>
 
-    <section class="kpis">
+    <div id="estado" class="estado">Cargando datos…</div>
+    <section class="dash-grupo dash-grupo--panorama" id="grupo-panorama" aria-labelledby="grupo-panorama-titulo">
+      <header class="dash-grupo__header"><span class="dash-grupo__num"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M4 19V5M4 19h16M8 15l4-4 3 3 5-6"/></svg></span><div><h2 id="grupo-panorama-titulo">Panorama</h2><p class="dash-grupo__insight">La historia de los casos, de su ingreso a su cierre.</p></div></header>
+      <ul class="dash-historia" id="dash-historia"><li>Cargando…</li></ul>
+      <div class="graficas-grid graficas-grid--panorama">
+      <div class="grafica-card grafica-card--embudo">
+        <header class="grafica-header"><h2>Embudo del proceso</h2><span class="badge badge--muted">Estado actual de los casos</span></header>
+        <div class="grafica-cuerpo grafica-cuerpo--embudo"><div id="grafica-embudo" class="funnel-chart"></div></div>
+      </div>
+      <div class="grafica-card grafica-card--wide">
+        <header class="grafica-header"><h2>Tendencia mensual</h2><span class="badge badge--muted">Ingresados · finalizados</span></header>
+        <div class="grafica-cuerpo"><canvas id="grafica-tendencia"></canvas></div>
+      </div>
+      <div class="grafica-card grafica-card--wide">
+        <header class="grafica-header"><h2>Tiempo promedio por etapa</h2><span class="badge badge--muted">Días calendario</span></header>
+        <div class="grafica-cuerpo"><canvas id="grafica-etapas"></canvas></div>
+      </div>
+      </div>
+    </section>
+    <section class="dash-grupo" id="grupo-ingreso" aria-labelledby="grupo-ingreso-titulo">
+      <header class="dash-grupo__header"><span class="dash-grupo__num">1</span><div><h2 id="grupo-ingreso-titulo">Ingreso y radicación</h2><p class="dash-grupo__insight" id="insight-ingreso">…</p></div></header>
+      <div class="kpis kpis--grupo">
       <article class="kpi kpi--total">
         <div class="kpi__top">
           <span class="kpi-icon" aria-hidden="true">
@@ -211,7 +232,6 @@
         <span class="kpi-valor" id="kpi-total">–</span>
         <span class="kpi-hint">Todos los registros</span>
       </article>
-
       <article class="kpi kpi--nuevo">
         <div class="kpi__top">
           <span class="kpi-icon" aria-hidden="true">
@@ -222,7 +242,53 @@
         <span class="kpi-valor" id="kpi-pendiente">–</span>
         <span class="kpi-hint">Por radicar</span>
       </article>
-
+      <article class="kpi kpi--radicados">
+        <div class="kpi__top">
+          <span class="kpi-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h9l3 3v15H6z"/><path d="M9 9h6M9 13h6M9 17h4"/></svg>
+          </span>
+          <span class="kpi-label">Radicados</span>
+        </div>
+        <span class="kpi-valor" id="kpi-radicados">–</span>
+        <span class="kpi-hint">Con número de radicado</span>
+      </article>
+      <article class="kpi kpi--mes">
+        <div class="kpi__top">
+          <span class="kpi-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+          </span>
+          <span class="kpi-label">Ingresados este mes</span>
+        </div>
+        <span class="kpi-valor" id="kpi-mes">–</span>
+        <span class="kpi-hint">Según la fecha del caso</span>
+      </article>
+      </div>
+      <div class="graficas-grid graficas-grid--grupo">
+      <div class="grafica-card">
+        <header class="grafica-header"><h2>Canal de reporte</h2><span class="badge badge--muted">Ingreso</span></header>
+        <div class="grafica-cuerpo grafica-cuerpo--donut"><canvas id="grafica-canal"></canvas></div>
+      </div>
+      <div class="grafica-card grafica-card--wide">
+        <header class="grafica-header"><h2>Casos por recurso</h2><span id="total-casos" class="badge">…</span></header>
+        <div class="grafica-cuerpo"><canvas id="grafica-recurso"></canvas></div>
+      </div>
+      <div class="grafica-card grafica-card--wide">
+        <header class="grafica-header"><h2>Ingreso diario de casos</h2><span class="badge">Fecha del caso</span></header>
+        <div class="grafica-cuerpo"><canvas id="grafica-tiempo"></canvas></div>
+      </div>
+      <div class="grafica-card">
+        <header class="grafica-header"><h2>Radicados por día</h2><span class="badge badge--azul">Radicación</span></header>
+        <div class="grafica-cuerpo"><canvas id="grafica-radicados-dia"></canvas></div>
+      </div>
+      <div class="grafica-card">
+        <header class="grafica-header"><h2>Casos por barrio</h2><span class="badge badge--muted">Top 8</span></header>
+        <div class="grafica-cuerpo grafica-cuerpo--alta"><canvas id="grafica-barrio"></canvas></div>
+      </div>
+      </div>
+    </section>
+    <section class="dash-grupo" id="grupo-asignacion" aria-labelledby="grupo-asignacion-titulo">
+      <header class="dash-grupo__header"><span class="dash-grupo__num">2</span><div><h2 id="grupo-asignacion-titulo">Competencia y asignación</h2><p class="dash-grupo__insight" id="insight-asignacion">…</p></div></header>
+      <div class="kpis kpis--grupo">
       <article class="kpi kpi--competencia">
         <div class="kpi__top">
           <span class="kpi-icon" aria-hidden="true">
@@ -232,6 +298,16 @@
         </div>
         <span class="kpi-valor" id="kpi-competencia">–</span>
         <span class="kpi-hint">Radicados sin competencia confirmada</span>
+      </article>
+      <article class="kpi kpi--sin-asignar">
+        <div class="kpi__top">
+          <span class="kpi-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg>
+          </span>
+          <span class="kpi-label">Sin responsable</span>
+        </div>
+        <span class="kpi-valor" id="kpi-sin-asignar">–</span>
+        <span class="kpi-hint">Radicados activos sin asignar</span>
       </article>
       <article class="kpi kpi--asignado">
         <div class="kpi__top">
@@ -243,7 +319,35 @@
         <span class="kpi-valor" id="kpi-gestion">–</span>
         <span class="kpi-hint">Casos activos</span>
       </article>
-
+      <article class="kpi kpi--dias">
+        <div class="kpi__top">
+          <span class="kpi-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+          </span>
+          <span class="kpi-label">Días a la asignación</span>
+        </div>
+        <span class="kpi-valor" id="kpi-dias-asignacion">–</span>
+        <span class="kpi-hint">Promedio desde la radicación</span>
+      </article>
+      </div>
+      <div class="graficas-grid graficas-grid--grupo">
+      <div class="grafica-card">
+        <header class="grafica-header"><h2>Competencia</h2><span class="badge badge--muted">Revisión inicial</span></header>
+        <div class="grafica-cuerpo grafica-cuerpo--donut"><canvas id="grafica-competencia"></canvas></div>
+      </div>
+      <div class="grafica-card">
+        <header class="grafica-header"><h2>Asignación de casos</h2><span id="badge-sin-asignar" class="badge badge--alerta">…</span></header>
+        <div class="grafica-cuerpo grafica-cuerpo--donut"><canvas id="grafica-sin-asignar"></canvas></div>
+      </div>
+      <div class="grafica-card">
+        <header class="grafica-header"><h2>Carga por responsable</h2><span class="badge badge--muted">Casos activos</span></header>
+        <div class="grafica-cuerpo grafica-cuerpo--alta"><canvas id="grafica-carga"></canvas></div>
+      </div>
+      </div>
+    </section>
+    <section class="dash-grupo" id="grupo-tecnica" aria-labelledby="grupo-tecnica-titulo">
+      <header class="dash-grupo__header"><span class="dash-grupo__num">3</span><div><h2 id="grupo-tecnica-titulo">Gestión técnica</h2><p class="dash-grupo__insight" id="insight-tecnica">…</p></div></header>
+      <div class="kpis kpis--grupo">
       <article class="kpi kpi--visita-pend">
         <div class="kpi__top">
           <span class="kpi-icon" aria-hidden="true">
@@ -264,6 +368,27 @@
         <span class="kpi-valor" id="kpi-visitas-realizadas">–</span>
         <span class="kpi-hint">Actas diligenciadas</span>
       </article>
+      <article class="kpi kpi--dias">
+        <div class="kpi__top">
+          <span class="kpi-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+          </span>
+          <span class="kpi-label">Días a la visita</span>
+        </div>
+        <span class="kpi-valor" id="kpi-dias-visita">–</span>
+        <span class="kpi-hint">Promedio desde la asignación</span>
+      </article>
+      </div>
+      <div class="graficas-grid graficas-grid--grupo">
+      <div class="grafica-card">
+        <header class="grafica-header"><h2>Visitas</h2><span id="badge-visitas" class="badge badge--muted">…</span></header>
+        <div class="grafica-cuerpo grafica-cuerpo--donut"><canvas id="grafica-visitas"></canvas></div>
+      </div>
+      </div>
+    </section>
+    <section class="dash-grupo" id="grupo-definicion" aria-labelledby="grupo-definicion-titulo">
+      <header class="dash-grupo__header"><span class="dash-grupo__num">4</span><div><h2 id="grupo-definicion-titulo">Definición del trámite y cierre</h2><p class="dash-grupo__insight" id="insight-definicion">…</p></div></header>
+      <div class="kpis kpis--grupo">
       <article class="kpi kpi--definir">
         <div class="kpi__top">
           <span class="kpi-icon" aria-hidden="true">
@@ -304,107 +429,154 @@
         <span class="kpi-valor" id="kpi-finalizados">–</span>
         <span class="kpi-hint">Finalizados o cerrados</span>
       </article>
-
-      <article class="kpi kpi--vencido kpi--featured">
+      <article class="kpi kpi--dias">
         <div class="kpi__top">
           <span class="kpi-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 16h.01"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
           </span>
-          <span class="kpi-label">Vencidos</span>
+          <span class="kpi-label">Días al cierre</span>
         </div>
-        <span class="kpi-valor" id="kpi-vencidos">–</span>
-        <span class="kpi-hint">Requieren atención</span>
+        <span class="kpi-valor" id="kpi-dias-cierre">–</span>
+        <span class="kpi-hint">Promedio del registro al finalizado</span>
       </article>
-
-      <article class="kpi kpi--proximo">
-        <div class="kpi__top">
-          <span class="kpi-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></svg>
-          </span>
-          <span class="kpi-label">Próx. a vencer</span>
-        </div>
-        <span class="kpi-valor" id="kpi-proximos">–</span>
-        <span class="kpi-hint">Próximos 3 días</span>
-      </article>
-
+      </div>
+      <div class="graficas-grid graficas-grid--grupo">
+      <div class="grafica-card">
+        <header class="grafica-header"><h2>Decisiones de trámite</h2><span class="badge badge--muted">Revisión de hallazgos</span></header>
+        <div class="grafica-cuerpo"><canvas id="grafica-decisiones"></canvas></div>
+      </div>
+      </div>
+    </section>
+    <section class="dash-grupo" id="grupo-proceso" aria-labelledby="grupo-proceso-titulo">
+      <header class="dash-grupo__header"><span class="dash-grupo__num">5</span><div><h2 id="grupo-proceso-titulo">Proceso de Policía (expedientes)</h2><p class="dash-grupo__insight" id="insight-proceso">…</p></div></header>
+      <div class="kpis kpis--grupo">
       <article class="kpi kpi--policivo">
         <div class="kpi__top">
           <span class="kpi-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l7 4v6c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6l7-4z"/></svg>
           </span>
-          <span class="kpi-label">Procesos policivos</span>
+          <span class="kpi-label">Casos con proceso</span>
         </div>
         <span class="kpi-valor" id="kpi-policivo">–</span>
-        <span class="kpi-hint">Con Auto de Inicio</span>
+        <span class="kpi-hint">Con expediente de Policía</span>
       </article>
-    </section>
-
-    <div id="estado" class="estado">Cargando datos…</div>
-
-    <section class="graficas-grid">
-      <div class="grafica-card grafica-card--embudo">
-        <header class="grafica-header"><h2>Embudo del proceso</h2><span class="badge badge--muted">9 etapas</span></header>
-        <div class="grafica-cuerpo grafica-cuerpo--embudo"><div id="grafica-embudo" class="funnel-chart"></div></div>
-      </div>
-      <div class="grafica-card">
-        <header class="grafica-header"><h2>Visitas</h2><span id="badge-visitas" class="badge badge--muted">…</span></header>
-        <div class="grafica-cuerpo grafica-cuerpo--donut"><canvas id="grafica-visitas"></canvas></div>
-      </div>
-      <div class="grafica-card">
-        <header class="grafica-header"><h2>Decisiones de trámite</h2><span class="badge badge--muted">Revisión de hallazgos</span></header>
-        <div class="grafica-cuerpo"><canvas id="grafica-decisiones"></canvas></div>
-      </div>
-      <div class="grafica-card">
-        <header class="grafica-header"><h2>Competencia</h2><span class="badge badge--muted">Revisión inicial</span></header>
-        <div class="grafica-cuerpo grafica-cuerpo--donut"><canvas id="grafica-competencia"></canvas></div>
-      </div>
-      <div class="grafica-card">
-        <header class="grafica-header"><h2>Semáforo de vencimiento</h2></header>
-        <div class="grafica-cuerpo grafica-cuerpo--donut"><canvas id="grafica-semaforo"></canvas></div>
-      </div>
-      <div class="grafica-card">
-        <header class="grafica-header"><h2>Canal de reporte</h2><span class="badge badge--muted">Ingreso</span></header>
-        <div class="grafica-cuerpo grafica-cuerpo--donut"><canvas id="grafica-canal"></canvas></div>
-      </div>
-      <div class="grafica-card grafica-card--wide">
-        <header class="grafica-header"><h2>Casos por recurso</h2><span id="total-casos" class="badge">…</span></header>
-        <div class="grafica-cuerpo"><canvas id="grafica-recurso"></canvas></div>
-      </div>
-      <div class="grafica-card grafica-card--wide">
-        <header class="grafica-header"><h2>Ingreso diario de casos</h2><span class="badge">Fecha del caso</span></header>
-        <div class="grafica-cuerpo"><canvas id="grafica-tiempo"></canvas></div>
-      </div>
-      <div class="grafica-card">
-        <header class="grafica-header"><h2>Casos por barrio</h2><span class="badge badge--muted">Top 8</span></header>
-        <div class="grafica-cuerpo grafica-cuerpo--alta"><canvas id="grafica-barrio"></canvas></div>
-      </div>
-      <div class="grafica-card">
-        <header class="grafica-header"><h2>Radicados por día</h2><span class="badge badge--azul">Radicación</span></header>
-        <div class="grafica-cuerpo"><canvas id="grafica-radicados-dia"></canvas></div>
-      </div>
-      <div class="grafica-card">
-        <header class="grafica-header"><h2>Asignación de casos</h2><span id="badge-sin-asignar" class="badge badge--alerta">…</span></header>
-        <div class="grafica-cuerpo grafica-cuerpo--donut"><canvas id="grafica-sin-asignar"></canvas></div>
-      </div>
-      <section class="grafica-card grafica-card--wide dashboard-map-card" aria-labelledby="mapa-title">
-        <header class="grafica-header dashboard-map-card__header">
-          <div>
-            <h2 id="mapa-title">Mapa de inspección y vigilancia</h2>
-            <p>Vista territorial preparada para ubicar y consultar casos.</p>
-          </div>
-          <div class="dashboard-map-card__layers" role="group" aria-label="Capa base del mapa">
-            <button type="button" class="dashboard-map-card__layer is-active" data-map-style="osm" aria-pressed="true">OpenStreetMap</button>
-            <button type="button" class="dashboard-map-card__layer" data-map-style="satellite" aria-pressed="false">Satelital</button>
-          </div>
-        </header>
-        <div class="dashboard-map-card__body">
-          <div id="mapa-inspeccion" class="dashboard-map" role="application" aria-label="Mapa de casos agregados por barrio en Envigado"></div>
-          <div class="dashboard-map-card__legend" aria-label="Escala de cantidad de casos por barrio"><span>Casos</span><i></i><i></i><i></i><i></i><span>Más</span></div>
-          <p id="mapa-estado" class="dashboard-map-card__status" aria-live="polite">Cargando barrios y casos…</p>
+      <article class="kpi kpi--policivo">
+        <div class="kpi__top">
+          <span class="kpi-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 4l6 6-3 3-6-6z"/><path d="M11 7L4 14l3 3 7-7"/><path d="M3 21h9"/></svg>
+          </span>
+          <span class="kpi-label">Expedientes abiertos</span>
         </div>
-      </section>
-    </section>
-
+        <span class="kpi-valor" id="kpi-exp-abiertos">–</span>
+        <span class="kpi-hint">Sin contar los archivados</span>
+      </article>
+      <article class="kpi kpi--vencido">
+        <div class="kpi__top">
+          <span class="kpi-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17h.01"/></svg>
+          </span>
+          <span class="kpi-label">Pasos vencidos</span>
+        </div>
+        <span class="kpi-valor" id="kpi-exp-vencidos">–</span>
+        <span class="kpi-hint">Expedientes con el paso fuera de plazo</span>
+      </article>
+      <article class="kpi kpi--audiencia">
+        <div class="kpi__top">
+          <span class="kpi-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+          </span>
+          <span class="kpi-label">Audiencias próximas</span>
+        </div>
+        <span class="kpi-valor" id="kpi-audiencias-proximas">–</span>
+        <span class="kpi-hint">En los próximos 7 días</span>
+      </article>
+      <article class="kpi kpi--medidas">
+        <div class="kpi__top">
+          <span class="kpi-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M5 7h14M5 7l-3 7a4 4 0 006 0zM19 7l-3 7a4 4 0 006 0z"/></svg>
+          </span>
+          <span class="kpi-label">Medidas impuestas</span>
+        </div>
+        <span class="kpi-valor" id="kpi-medidas">–</span>
+        <span class="kpi-hint">Vigentes en las decisiones</span>
+      </article>
+      <article class="kpi kpi--multas">
+        <div class="kpi__top">
+          <span class="kpi-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="3"/></svg>
+          </span>
+          <span class="kpi-label">Multas remitidas</span>
+        </div>
+        <span class="kpi-valor" id="kpi-multas">–</span>
+        <span class="kpi-hint">Valor enviado a Tesorería</span>
+      </article>
+      <article class="kpi kpi--recaudo">
+        <div class="kpi__top">
+          <span class="kpi-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="3"/></svg>
+          </span>
+          <span class="kpi-label">Recaudado</span>
+        </div>
+        <span class="kpi-valor" id="kpi-recaudo">–</span>
+        <span class="kpi-hint">Valor de multas pagadas</span>
+      </article>
+      <article class="kpi kpi--vencido">
+        <div class="kpi__top">
+          <span class="kpi-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17h.01"/></svg>
+          </span>
+          <span class="kpi-label">Órdenes incumplidas</span>
+        </div>
+        <span class="kpi-valor" id="kpi-ordenes-incumplidas">–</span>
+        <span class="kpi-hint">Esperando valoración jurídica</span>
+      </article>
+      <article class="kpi kpi--rnmc">
+        <div class="kpi__top">
+          <span class="kpi-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h9l3 3v15H6z"/><path d="M9 9h6M9 13h6M9 17h4"/></svg>
+          </span>
+          <span class="kpi-label">RNMC pendiente</span>
+        </div>
+        <span class="kpi-valor" id="kpi-rnmc">–</span>
+        <span class="kpi-hint">Medidas sin reporte (art. 172)</span>
+      </article>
+      <article class="kpi kpi--archivados">
+        <div class="kpi__top">
+          <span class="kpi-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="5" rx="1"/><path d="M5 9v11h14V9M10 13h4"/></svg>
+          </span>
+          <span class="kpi-label">Expedientes archivados</span>
+        </div>
+        <span class="kpi-valor" id="kpi-archivados">–</span>
+        <span class="kpi-hint">Con Auto de Archivo firmado</span>
+      </article>
+      </div>
+      <div class="graficas-grid graficas-grid--grupo">
+      <div class="grafica-card grafica-card--wide">
+        <header class="grafica-header"><h2>Expedientes por paso</h2><span class="badge badge--muted">Dónde están hoy</span></header>
+        <div class="grafica-cuerpo grafica-cuerpo--alta"><canvas id="grafica-exp-paso"></canvas></div>
+      </div>
+      <div class="grafica-card">
+        <header class="grafica-header"><h2>Ruta jurídica</h2></header>
+        <div class="grafica-cuerpo grafica-cuerpo--donut"><canvas id="grafica-ruta"></canvas></div>
+      </div>
+      <div class="grafica-card">
+        <header class="grafica-header"><h2>Audiencias</h2><span class="badge badge--muted">Resultado</span></header>
+        <div class="grafica-cuerpo grafica-cuerpo--donut"><canvas id="grafica-audiencias"></canvas></div>
+      </div>
+      <div class="grafica-card">
+        <header class="grafica-header"><h2>Recursos</h2><span class="badge badge--muted">Resultado</span></header>
+        <div class="grafica-cuerpo grafica-cuerpo--donut"><canvas id="grafica-recursos"></canvas></div>
+      </div>
+      <div class="grafica-card">
+        <header class="grafica-header"><h2>Medidas impuestas por tipo</h2></header>
+        <div class="grafica-cuerpo"><canvas id="grafica-medidas"></canvas></div>
+      </div>
+      <div class="grafica-card grafica-card--full">
+        <header class="grafica-header"><h2>Multas (millones de pesos)</h2><span class="badge badge--muted">Remitido · recaudado</span></header>
+        <div class="grafica-cuerpo"><canvas id="grafica-multas"></canvas></div>
+      </div>
+      </div>
     <section class="grafica-card grafica-card--wide" id="seccion-policivos" aria-labelledby="policivos-title">
       <header class="grafica-header">
         <h2 id="policivos-title">Procesos policivos abiertos</h2>
@@ -428,6 +600,70 @@
             <tr><td colspan="5" class="text-muted">Cargando…</td></tr>
           </tbody>
         </table>
+      </div>
+    </section>
+    </section>
+    <section class="dash-grupo" id="grupo-oportunidad" aria-labelledby="grupo-oportunidad-titulo">
+      <header class="dash-grupo__header"><span class="dash-grupo__num">6</span><div><h2 id="grupo-oportunidad-titulo">Oportunidad de la respuesta</h2><p class="dash-grupo__insight" id="insight-oportunidad">…</p></div></header>
+      <div class="kpis kpis--grupo">
+      <article class="kpi kpi--vencido kpi--featured">
+        <div class="kpi__top">
+          <span class="kpi-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 16h.01"/></svg>
+          </span>
+          <span class="kpi-label">Vencidos</span>
+        </div>
+        <span class="kpi-valor" id="kpi-vencidos">–</span>
+        <span class="kpi-hint">Requieren atención</span>
+      </article>
+      <article class="kpi kpi--proximo">
+        <div class="kpi__top">
+          <span class="kpi-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></svg>
+          </span>
+          <span class="kpi-label">Próx. a vencer</span>
+        </div>
+        <span class="kpi-valor" id="kpi-proximos">–</span>
+        <span class="kpi-hint">Próximos 3 días</span>
+      </article>
+      <article class="kpi kpi--a-tiempo">
+        <div class="kpi__top">
+          <span class="kpi-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></svg>
+          </span>
+          <span class="kpi-label">Finalizados a tiempo</span>
+        </div>
+        <span class="kpi-valor" id="kpi-a-tiempo">–</span>
+        <span class="kpi-hint">Antes de la fecha límite</span>
+      </article>
+      </div>
+      <div class="graficas-grid graficas-grid--grupo">
+      <div class="grafica-card">
+        <header class="grafica-header"><h2>Semáforo de vencimiento</h2></header>
+        <div class="grafica-cuerpo grafica-cuerpo--donut"><canvas id="grafica-semaforo"></canvas></div>
+      </div>
+      </div>
+    </section>
+    <section class="dash-grupo" id="grupo-territorio" aria-labelledby="grupo-territorio-titulo">
+      <header class="dash-grupo__header"><span class="dash-grupo__num">7</span><div><h2 id="grupo-territorio-titulo">Territorio</h2><p class="dash-grupo__insight" id="insight-territorio">Dónde se concentran los casos.</p></div></header>
+      <div class="graficas-grid graficas-grid--grupo">
+      <section class="grafica-card grafica-card--wide dashboard-map-card" aria-labelledby="mapa-title">
+        <header class="grafica-header dashboard-map-card__header">
+          <div>
+            <h2 id="mapa-title">Mapa de inspección y vigilancia</h2>
+            <p>Vista territorial preparada para ubicar y consultar casos.</p>
+          </div>
+          <div class="dashboard-map-card__layers" role="group" aria-label="Capa base del mapa">
+            <button type="button" class="dashboard-map-card__layer is-active" data-map-style="osm" aria-pressed="true">OpenStreetMap</button>
+            <button type="button" class="dashboard-map-card__layer" data-map-style="satellite" aria-pressed="false">Satelital</button>
+          </div>
+        </header>
+        <div class="dashboard-map-card__body">
+          <div id="mapa-inspeccion" class="dashboard-map" role="application" aria-label="Mapa de casos agregados por barrio en Envigado"></div>
+          <div class="dashboard-map-card__legend" aria-label="Escala de cantidad de casos por barrio"><span>Casos</span><i></i><i></i><i></i><i></i><span>Más</span></div>
+          <p id="mapa-estado" class="dashboard-map-card__status" aria-live="polite">Cargando barrios y casos…</p>
+        </div>
+      </section>
       </div>
     </section>
   </div>
