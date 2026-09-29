@@ -121,13 +121,39 @@ body[data-navbar=side].minimized:not(.side-menu-opened) #navbar > .navbar > .crm
   max-height: 44px !important;
 }
 
-body[data-navbar=side] #navbar .navbar-left-container ul.tabs::-webkit-scrollbar {
-  width: 4px;
+/* Scroll del menú: fino, sobre el verde del menú, sin carril blanco. */
+body[data-navbar=side] #navbar ul.tabs,
+body[data-navbar=side] #navbar .navbar-collapse {
+  scrollbar-width: thin !important;
+  scrollbar-color: rgba(255, 255, 255, 0.28) transparent !important;
 }
 
-body[data-navbar=side] #navbar .navbar-left-container ul.tabs::-webkit-scrollbar-thumb {
-  background: rgba(15, 23, 42, 0.12);
-  border-radius: 4px;
+body[data-navbar=side] #navbar ul.tabs:hover,
+body[data-navbar=side] #navbar .navbar-collapse:hover {
+  scrollbar-color: rgba(255, 255, 255, 0.5) transparent !important;
+}
+
+/* Navegadores que solo leen ::-webkit-scrollbar */
+body[data-navbar=side] #navbar ul.tabs::-webkit-scrollbar,
+body[data-navbar=side] #navbar .navbar-collapse::-webkit-scrollbar {
+  width: 6px;
+  background: transparent;
+}
+
+body[data-navbar=side] #navbar ul.tabs::-webkit-scrollbar-track,
+body[data-navbar=side] #navbar .navbar-collapse::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+body[data-navbar=side] #navbar ul.tabs::-webkit-scrollbar-thumb,
+body[data-navbar=side] #navbar .navbar-collapse::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.28);
+  border-radius: 6px;
+}
+
+body[data-navbar=side] #navbar ul.tabs::-webkit-scrollbar-thumb:hover,
+body[data-navbar=side] #navbar .navbar-collapse::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
 }
 
 /* Submenú "⋯" — ocultar botón y mostrar ítems en la lista principal */
