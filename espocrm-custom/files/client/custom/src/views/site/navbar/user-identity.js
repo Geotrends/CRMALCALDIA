@@ -11,7 +11,7 @@ define('custom:views/site/navbar/user-identity', [
         templateContent:
             '<a class="alcaldia-user-identity" href="#User/view/{{userId}}" title="{{name}} · {{role}}">' +
             '<span class="alcaldia-user-identity__name">{{name}}</span>' +
-            '<span class="alcaldia-user-identity__role">{{role}}</span>' +
+            '{{#if role}}<span class="alcaldia-user-identity__role">{{role}}</span>{{/if}}' +
             '</a>',
 
         setup: function () {
@@ -31,10 +31,13 @@ define('custom:views/site/navbar/user-identity', [
         },
 
         data: function () {
+            const name = (this.getUser().get('name') || this.getUser().get('userName') || '').trim();
+
             return {
                 userId: this.getUser().id,
-                name: this.getUser().get('name') || this.getUser().get('userName') || '',
-                role: this.role,
+                name: name,
+                // Si el rol repite el nombre (p. ej. «Administrador»), no se muestra dos veces.
+                role: this.role && this.role !== name ? this.role : '',
             };
         },
 
