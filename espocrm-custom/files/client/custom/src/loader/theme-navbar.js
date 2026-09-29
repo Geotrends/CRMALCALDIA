@@ -482,7 +482,7 @@
         if (brand) {
             brand.style.setProperty('display', 'block', 'important');
             brand.style.setProperty('visibility', 'visible', 'important');
-            brand.style.setProperty('background', 'rgba(255,255,255,0.08)', 'important');
+            brand.style.setProperty('background', '#ffffff', 'important');
 
             var image = brand.querySelector('img');
 
