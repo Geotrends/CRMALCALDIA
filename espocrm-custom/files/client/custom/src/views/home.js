@@ -4,7 +4,7 @@ define('custom:views/home', ['views/dashboard'], function (Dep) {
 
     // Permite presentar la nueva portada una vez a las sesiones existentes sin
     // impedir que cada persona conserve después la última pestaña que eligió.
-    var HOME_DEFAULT_TAB_VERSION = 'inicio-plataforma-v1';
+    var HOME_DEFAULT_TAB_VERSION = 'inicio-plataforma-v2';
 
     var UNWANTED_DASHLETS = ['Memo', 'Records'];
 
@@ -170,6 +170,13 @@ define('custom:views/home', ['views/dashboard'], function (Dep) {
 
             Espo.Ajax.getRequest('Case/action/alcaldiaProfile').then(function (data) {
                 var apiProfile = detectProfileFromApi(data);
+
+                // Roles reales (el modelo del usuario no siempre trae sus nombres): guía «Su rol».
+                self._rolesApi = (data && data.roles) || null;
+
+                if (self.isRendered()) {
+                    self.$el.find('.custom-home-welcome__mi-rol').replaceWith(self.buildRolGuia());
+                }
                 var apiIsAdmin = !!(data && data.isAdmin);
 
                 if ((!apiProfile || apiProfile === self.config.profile) && apiIsAdmin === isAdmin) {
@@ -482,56 +489,179 @@ define('custom:views/home', ['views/dashboard'], function (Dep) {
             }
         },
 
+        /**
+         * Guía del rol de quien entra: qué hace en la plataforma y dónde.
+         */
+        buildRolGuia: function () {
+            var user = this.getUser();
+            var roles = (this._rolesApi || Object.values(user.get('rolesNames') || {})).map(normalize).join(' | ');
+            var tiene = function (t) { return roles.indexOf(t) !== -1; };
+            var guias = [];
+
+            if (user.isAdmin()) {
+                guias.push({rol: 'Administrador', tareas: [
+                    'Puede hacer todas las acciones de todos los perfiles.',
+                    'Recibe todos los avisos de la plataforma (campana).',
+                    'Decide aperturas, asigna, revisa y cierra cuando haga falta.',
+                ]});
+            }
+
+            if (tiene('receptor')) {
+                guias.push({rol: 'Aux. Administrativo · Receptor', tareas: [
+                    'Registre la solicitud en Casos → Crear: peticionario, presunto infractor, dirección y clasificación (recurso, asunto y clase de escrito).',
+                    'El caso queda "Pendiente de radicación" y se avisa al Radicador.',
+                ]});
+            }
+
+            if (tiene('radicador') || (tiene('radicacion') && !tiene('receptor'))) {
+                guias.push({rol: 'Aux. Administrativo · Radicador', tareas: [
+                    'Asigne el número de radicado; el sistema calcula el término de respuesta.',
+                    'Con la radicación se avisa al Director Técnico para revisar competencia y asignar.',
+                    'No hace remisiones ni finaliza casos.',
+                ]});
+            }
+
+            if (tiene('director tecnico') || tiene('asignacion') || tiene('asignador')) {
+                guias.push({rol: 'Director Técnico', tareas: [
+                    'Revise la competencia (total, parcial o ninguna) y asigne el caso a un patrullero o técnico.',
+                    'Siga la carga del equipo y reasigne cuando sea necesario.',
+                    'Puede decidir la apertura de actuación y recibe copia de los avisos del proceso.',
+                ]});
+            }
+
+            if (tiene('patrull') || tiene('tecnico operativo') || tiene('profesional')) {
+                guias.push({rol: 'Patrullero · Técnico · Profesional', tareas: [
+                    'Prepare y realice la visita: diligencie el acta, cargue fotos y el acta firmada.',
+                    'Atienda las visitas complementarias, las pruebas que ordene el Inspector y las verificaciones de órdenes de Policía que le asignen.',
+                    'Los encargos le llegan como avisos con su plazo.',
+                ]});
+            }
+
+            if (tiene('auxiliar administrativo · inspeccion') || tiene('auxiliar administrativo inspeccion')) {
+                guias.push({rol: 'Aux. Administrativo · Inspección', tareas: [
+                    'Programe audiencias, genere la citación en Word y cargue la citación firmada y escaneada.',
+                    'Cargue actas, audios, notificaciones y soportes del proceso.',
+                    'Registre el reporte al RNMC y las remisiones a Tesorería.',
+                ]});
+            } else if (tiene('inspeccion')) {
+                guias.push({rol: 'Inspección', tareas: [
+                    'Revise los hallazgos de la visita y defina el trámite: visita complementaria, cierre de atención, remisión por competencia o apertura de actuación.',
+                    'Proyecte la respuesta final al peticionario en Comunicaciones.',
+                ]});
+            }
+
+            if (tiene('juridic')) {
+                guias.push({rol: 'Apoyo Jurídico', tareas: [
+                    'Prepare el Auto de Inicio (normas del catálogo, fecha y hora de audiencia) y asigne el número de expediente.',
+                    'Registre la decisión: conductas probadas, medidas de la matriz y orden de Policía; se genera la resolución IV-F-117.',
+                    'Gestione notificación, recursos, cumplimiento y Auto de Archivo.',
+                ]});
+            }
+
+            if (tiene('inspector ambiental')) {
+                guias.push({rol: 'Inspector Ambiental', tareas: [
+                    'Decida la apertura de actuación y la ruta jurídica.',
+                    'Firme el Auto de Inicio, la resolución y el Auto de Archivo (fuera del CRM) y cargue el PDF firmado.',
+                    'Registre el resultado de las audiencias, ordene pruebas y valore los incumplimientos.',
+                ]});
+            }
+
+            if (!guias.length) {
+                guias.push({rol: 'Su perfil', tareas: ['Consulte los casos y expedientes a su cargo desde "Gestión de casos" y atienda los avisos de la campana.']});
+            }
+
+            return '<section class="custom-home-welcome__mi-rol" aria-labelledby="crm-mirol-title">' +
+                '<div class="custom-home-welcome__section-heading"><span>Su rol en la plataforma</span><h2 id="crm-mirol-title">Qué le corresponde hacer</h2></div>' +
+                '<div class="custom-home-welcome__roles">' + guias.map(function (g) {
+                    return '<article><span class="fas fa-id-badge" aria-hidden="true"></span><h3>' + _.escape(g.rol) + '</h3><ul>' +
+                        g.tareas.map(function (t) { return '<li>' + _.escape(t) + '</li>'; }).join('') + '</ul></article>';
+                }).join('') + '</div>' +
+            '</section>';
+        },
+
         buildWelcomePanel: function () {
             var user = this.getUser();
             var userName = user.get('firstName') || user.get('name') || user.get('userName') || 'equipo';
             var greeting = 'Bienvenido, ' + _.escape(userName);
+            var paso = function (n, titulo, texto, quien) {
+                return '<article><span>' + n + '</span><h3>' + titulo + '</h3><p>' + texto + '</p><small class="custom-home-welcome__who"><span class="fas fa-user" aria-hidden="true"></span> ' + quien + '</small></article>';
+            };
+            var tip = function (icono, titulo, texto) {
+                return '<article><span class="fas ' + icono + '" aria-hidden="true"></span><h3>' + titulo + '</h3><p>' + texto + '</p></article>';
+            };
 
             return '<section class="custom-home-welcome" aria-labelledby="crm-welcome-title">' +
                 '<div class="custom-home-welcome__hero">' +
-                    '<div class="custom-home-welcome__eyebrow"><span class="fas fa-leaf" aria-hidden="true"></span> CRM Alcaldía</div>' +
+                    '<div class="custom-home-welcome__eyebrow"><span class="fas fa-leaf" aria-hidden="true"></span> CRM Alcaldía · Inspección Ambiental</div>' +
                     '<h1 id="crm-welcome-title">' + greeting + '.</h1>' +
                     '<p class="custom-home-welcome__subtitle">Inspección y vigilancia ambiental, con trazabilidad de principio a fin.</p>' +
-                    '<p>Esta plataforma organiza la atención de solicitudes, quejas y procesos ambientales: desde su registro y radicación hasta la visita, el seguimiento y el cierre.</p>' +
+                    '<p>Aquí se atiende cada solicitud o queja ambiental desde su registro hasta su cierre: la visita técnica, la definición del trámite y, cuando procede, el proceso de Policía con su expediente, audiencias, decisión, cumplimiento y archivo. Cada paso deja su fecha, su responsable y sus documentos.</p>' +
                     '<div class="custom-home-welcome__actions">' +
-                        '<button type="button" class="custom-home-welcome__action" data-tab="dashboard"><span class="fas fa-chart-line" aria-hidden="true"></span> Ver dashboard</button>' +
-                        '<button type="button" class="custom-home-welcome__action custom-home-welcome__action--secondary" data-tab="gestion"><span class="fas fa-folder-open" aria-hidden="true"></span> Consultar casos</button>' +
+                        '<button type="button" class="custom-home-welcome__action" data-tab="gestion"><span class="fas fa-folder-open" aria-hidden="true"></span> Mis casos</button>' +
+                        '<button type="button" class="custom-home-welcome__action custom-home-welcome__action--secondary" data-tab="dashboard"><span class="fas fa-chart-line" aria-hidden="true"></span> Ver dashboard</button>' +
                     '</div>' +
                 '</div>' +
+                this.buildRolGuia() +
                 '<div class="custom-home-welcome__purpose">' +
                     '<span class="fas fa-bullseye" aria-hidden="true"></span>' +
-                    '<div><strong>Propósito de la plataforma</strong><p>Facilitar una respuesta coordinada, oportuna y verificable para proteger el territorio, sus recursos naturales y la comunidad.</p></div>' +
+                    '<div><strong>Propósito de la plataforma</strong><p>Facilitar una respuesta coordinada, oportuna y verificable para proteger el territorio, sus recursos naturales y la comunidad, siguiendo el procedimiento de la Inspección y la Ley 1801 de 2016.</p></div>' +
                 '</div>' +
                 '<section class="custom-home-welcome__section" aria-labelledby="crm-flow-title">' +
-                    '<div class="custom-home-welcome__section-heading"><span>Flujo de atención</span><h2 id="crm-flow-title">Cada caso mantiene su historia operativa</h2></div>' +
-                    '<div class="custom-home-welcome__flow">' +
-                        '<article><span>01</span><h3>Registro</h3><p>Se recibe y clasifica la solicitud o hallazgo ambiental.</p></article>' +
-                        '<article><span>02</span><h3>Radicación</h3><p>Se formaliza el expediente y se asegura su identificación.</p></article>' +
-                        '<article><span>03</span><h3>Asignación</h3><p>Se asigna el responsable según zona, competencia y prioridad.</p></article>' +
-                        '<article><span>04</span><h3>Visita</h3><p>Se registran actuaciones, evidencias, actas y compromisos.</p></article>' +
-                        '<article><span>05</span><h3>Seguimiento</h3><p>Se controla el avance hasta su aprobación o cierre.</p></article>' +
+                    '<div class="custom-home-welcome__section-heading"><span>1 · Atención del caso</span><h2 id="crm-flow-title">De la solicitud a la definición del trámite</h2></div>' +
+                    '<div class="custom-home-welcome__flow custom-home-welcome__flow--seis">' +
+                        paso('01', 'Registro', 'Se recibe la solicitud, se registran las partes y se clasifica (recurso, asunto, clase de escrito).', 'Receptor') +
+                        paso('02', 'Radicación', 'Se asigna el número de radicado y el término de respuesta al peticionario.', 'Radicador') +
+                        paso('03', 'Competencia y asignación', 'Se revisa si el caso es de competencia municipal y se asigna el responsable de la visita.', 'Director Técnico') +
+                        paso('04', 'Visita técnica', 'Se diligencia el acta con hallazgos, fotos y el acta firmada. Puede haber visitas complementarias.', 'Patrullero / Técnico') +
+                        paso('05', 'Definición del trámite', 'Con los hallazgos se decide: visita complementaria, cierre de atención, remisión por competencia o apertura de actuación.', 'Inspección · Director · Jurídica · Inspector') +
+                        paso('06', 'Respuesta y cierre', 'Se responde al peticionario en Comunicaciones y se usa "Finalizar caso". Si hubo proceso, el caso se finaliza al archivarlo.', 'Todos, excepto el Radicador') +
+                    '</div>' +
+                '</section>' +
+                '<section class="custom-home-welcome__section" aria-labelledby="crm-proceso-title">' +
+                    '<div class="custom-home-welcome__section-heading"><span>2 · Proceso de Policía (expediente)</span><h2 id="crm-proceso-title">Cuando se abre una actuación</h2>' +
+                    '<p>Se lleva desde el bloque "Proceso del expediente", en el caso o en el expediente. Cada paso muestra solo lo que corresponde hacer en ese momento.</p></div>' +
+                    '<div class="custom-home-welcome__flow custom-home-welcome__flow--proceso">' +
+                        paso('A', 'Apertura', 'Se elige la ruta jurídica (sugerida por la clasificación), se numera el expediente y se prepara el Auto de Inicio con las normas del catálogo. El Inspector lo firma y lo carga.', 'Director · Jurídica · Inspector') +
+                        paso('B', 'Citación', 'Se fija fecha, hora y lugar de la audiencia; se genera la citación en Word y se carga firmada y escaneada.', 'Jurídica · Aux. Inspección') +
+                        paso('C', 'Audiencia', 'Se registra si se realizó, si no compareció (3 días para justificar) o si se suspende por pruebas. Se cierra con acta firmada y audio.', 'Inspector · Aux. Inspección') +
+                        paso('D', 'Decisión', 'Se marcan las conductas probadas; el CRM muestra las medidas que permite la matriz y genera la resolución IV-F-117 para firmar.', 'Jurídica · Inspector') +
+                        paso('E', 'Notificación y recursos', 'Notificación en estrados, personal o por aviso; reposición y apelación. Si el recurso modifica la decisión, se vuelve a ella.', 'Jurídica · Aux. Inspección') +
+                        paso('F', 'Cumplimiento', 'Multas a Tesorería, ejecución de medidas, reporte al RNMC y verificación de la orden de Policía.', 'Equipo del proceso · verificador') +
+                        paso('G', 'Auto de Archivo', 'Sin pendientes, se genera el Auto de Archivo, se firma y el expediente queda archivado; sus casos se finalizan.', 'Jurídica · Inspector') +
                     '</div>' +
                 '</section>' +
                 '<section class="custom-home-welcome__section" aria-labelledby="crm-roles-title">' +
                     '<div class="custom-home-welcome__section-heading"><span>Roles y responsabilidades</span><h2 id="crm-roles-title">Un equipo, responsabilidades claras</h2></div>' +
                     '<div class="custom-home-welcome__roles">' +
-                        '<article><span class="fas fa-clipboard-check" aria-hidden="true"></span><h3>Inspección</h3><p>Analiza los casos, orienta el proceso, hace seguimiento y valida las actuaciones requeridas.</p></article>' +
-                        '<article><span class="fas fa-file-signature" aria-hidden="true"></span><h3>Radicación</h3><p>Formaliza la entrada, conserva la trazabilidad documental y gestiona el expediente.</p></article>' +
-                        '<article><span class="fas fa-user-check" aria-hidden="true"></span><h3>Asignación</h3><p>Distribuye los casos, equilibra las cargas y coordina la atención en territorio.</p></article>' +
-                        '<article><span class="fas fa-map-marked-alt" aria-hidden="true"></span><h3>Patrullaje</h3><p>Realiza visitas, registra evidencias y reporta los resultados de la actuación.</p></article>' +
+                        '<article><span class="fas fa-inbox" aria-hidden="true"></span><h3>Receptor y Radicador</h3><p>Registran la solicitud y la radican con su número y término de respuesta.</p></article>' +
+                        '<article><span class="fas fa-user-check" aria-hidden="true"></span><h3>Director Técnico</h3><p>Revisa la competencia, asigna y reasigna las visitas y puede decidir la apertura.</p></article>' +
+                        '<article><span class="fas fa-map-marked-alt" aria-hidden="true"></span><h3>Patrullero · Técnico · Profesional</h3><p>Realizan visitas, pruebas y verificaciones, con actas y evidencias.</p></article>' +
+                        '<article><span class="fas fa-clipboard-check" aria-hidden="true"></span><h3>Inspección y Aux. Inspección</h3><p>Definen el trámite, responden al peticionario, citan, notifican y cargan los soportes.</p></article>' +
+                        '<article><span class="fas fa-balance-scale" aria-hidden="true"></span><h3>Apoyo Jurídico</h3><p>Prepara el Auto de Inicio, la decisión y la resolución, y lleva recursos, cumplimiento y archivo.</p></article>' +
+                        '<article><span class="fas fa-gavel" aria-hidden="true"></span><h3>Inspector Ambiental</h3><p>Decide la apertura, dirige la audiencia, firma los actos y valora los incumplimientos.</p></article>' +
+                        '<article><span class="fas fa-user-shield" aria-hidden="true"></span><h3>Administrador</h3><p>Puede hacer todo y recibe todos los avisos.</p></article>' +
+                    '</div>' +
+                '</section>' +
+                '<section class="custom-home-welcome__learning" aria-labelledby="crm-tips-title">' +
+                    '<div class="custom-home-welcome__section-heading"><span>Cómo trabajar en la plataforma</span><h2 id="crm-tips-title">Lo que conviene saber</h2></div>' +
+                    '<div class="custom-home-welcome__resources custom-home-welcome__resources--tips">' +
+                        tip('fa-bell', 'Avisos', 'La campana le indica qué le corresponde y en qué caso. Nunca recibe aviso de lo que usted mismo hizo.') +
+                        tip('fa-stream', 'Línea de tiempo y cronograma', 'En cada caso y expediente muestran el paso actual, las fechas de cada paso y los días que quedan.') +
+                        tip('fa-file-word', 'Formatos', 'El CRM genera en Word el Auto de Inicio, la citación, la resolución, las notificaciones y el Auto de Archivo. Se firman fuera y se cargan en PDF.') +
+                        tip('fa-folder-open', 'Documentos del expediente', 'En el expediente se consultan todos los documentos de sus casos y del proceso, con la fecha del acto y quién los cargó.') +
+                        tip('fa-undo', 'Retornos', 'Si un recurso modifica la decisión, o falta algo para archivar, el proceso vuelve al paso que corresponde y queda registrado el motivo.') +
+                        tip('fa-hourglass-half', 'Plazos', 'Los plazos se cuentan en días hábiles (sin fines de semana). Las alertas avisan antes de vencer.') +
                     '</div>' +
                 '</section>' +
                 '<section class="custom-home-welcome__vigilance" aria-labelledby="crm-vigilance-title">' +
-                    '<div><span class="fas fa-shield-alt" aria-hidden="true"></span><h2 id="crm-vigilance-title">¿Qué fortalece la inspección y vigilancia?</h2></div>' +
-                    '<ul><li>Seguimiento visible de responsables, fechas y estados.</li><li>Información de campo y documentos reunidos en un mismo caso.</li><li>Decisiones basadas en evidencia para responder a tiempo.</li></ul>' +
-                '</section>' +
-                '<section class="custom-home-welcome__learning" aria-labelledby="crm-learning-title">' +
-                    '<div class="custom-home-welcome__section-heading"><span>Centro de aprendizaje</span><h2 id="crm-learning-title">Recursos que iremos incorporando</h2><p>Este espacio crecerá con materiales para el equipo y los usuarios de la plataforma.</p></div>' +
-                    '<div class="custom-home-welcome__resources">' +
-                        '<article><span class="fas fa-book-open" aria-hidden="true"></span><h3>Guías de uso</h3><p>Recorridos paso a paso por cada proceso.</p><em>Próximamente</em></article>' +
-                        '<article><span class="fas fa-play-circle" aria-hidden="true"></span><h3>Videos</h3><p>Capacitaciones breves para operar la plataforma.</p><em>Próximamente</em></article>' +
-                        '<article><span class="fas fa-file-alt" aria-hidden="true"></span><h3>Manuales y formatos</h3><p>Documentos de apoyo y criterios operativos.</p><em>Próximamente</em></article>' +
-                    '</div>' +
+                    '<div><span class="fas fa-shield-alt" aria-hidden="true"></span><h2 id="crm-vigilance-title">Reglas clave del proceso</h2></div>' +
+                    '<ul>' +
+                        '<li>Todo caso debe cerrar con una respuesta final al peticionario.</li>' +
+                        '<li>La apertura y la decisión las toma la autoridad; el CRM sugiere la ruta, las normas y las medidas, pero no decide.</li>' +
+                        '<li>Las medidas de otra autoridad se remiten; nunca se imponen desde aquí.</li>' +
+                        '<li>Un incumplimiento se valora jurídicamente: el CRM no impone multas ni medidas nuevas por su cuenta.</li>' +
+                        '<li>Los actos firmados (Auto de Inicio, resolución, Auto de Archivo) se cargan en PDF para que el paso quede cumplido.</li>' +
+                    '</ul>' +
                 '</section>' +
             '</section>';
         },

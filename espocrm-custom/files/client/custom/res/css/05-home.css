@@ -174,8 +174,21 @@ body:has(.custom-home) .row {
 .custom-home-welcome__resources article { min-height: 178px; padding: 21px; border: 1px dashed #aac6c0; border-radius: 16px; background: #fafcfb; }
 .custom-home-welcome__resources article > .fas { color: #b78615; font-size: 22px; }
 .custom-home-welcome__resources em { display: inline-block; margin-top: 16px; color: #54736e; font-size: 11px; font-style: normal; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
-@media (max-width: 1050px) { .custom-home-welcome__flow { grid-template-columns: repeat(3, minmax(0, 1fr)); } .custom-home-welcome__flow article::after { display: none; } .custom-home-welcome__roles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 640px) { .custom-home-welcome { padding: 16px; } .custom-home-welcome__hero { border-radius: 18px; } .custom-home-welcome__hero h1 { font-size: 29px; } .custom-home-welcome__flow, .custom-home-welcome__roles, .custom-home-welcome__resources, .custom-home-welcome__vigilance { grid-template-columns: 1fr; } .custom-home-welcome__learning, .custom-home-welcome__vigilance { padding: 22px; } }
+.custom-home-welcome__mi-rol { margin-top: 26px; }
+.custom-home-welcome__mi-rol .custom-home-welcome__roles { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+.custom-home-welcome__mi-rol ul { margin: 10px 0 0; padding-left: 18px; color: var(--crm-text-secondary); font-size: 13px; line-height: 1.5; }
+.custom-home-welcome__mi-rol li + li { margin-top: 5px; }
+.custom-home-welcome__flow--seis { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.custom-home-welcome__flow--proceso { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.custom-home-welcome__flow--proceso article::after { display: none; }
+.custom-home-welcome__flow--proceso span { background: #fbf1d6; color: #8a6410; }
+.custom-home-welcome__who { display: block; margin-top: 10px; color: #21675b; font-size: 11px; font-weight: 700; }
+.custom-home-welcome__who .fas { margin-right: 4px; }
+.custom-home-welcome__section-heading p { margin: 6px 0 0; color: var(--crm-text-secondary); font-size: 13px; }
+.custom-home-welcome__resources--tips article { min-height: 0; border-style: solid; background: #fff; }
+.custom-home-welcome__resources--tips article > .fas { color: #1d8a6e; }
+@media (max-width: 1050px) { .custom-home-welcome__flow, .custom-home-welcome__flow--seis, .custom-home-welcome__flow--proceso { grid-template-columns: repeat(3, minmax(0, 1fr)); } .custom-home-welcome__flow article::after { display: none; } .custom-home-welcome__roles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 640px) { .custom-home-welcome { padding: 16px; } .custom-home-welcome__hero { border-radius: 18px; } .custom-home-welcome__hero h1 { font-size: 29px; } .custom-home-welcome__flow, .custom-home-welcome__flow--seis, .custom-home-welcome__flow--proceso, .custom-home-welcome__roles, .custom-home-welcome__resources, .custom-home-welcome__vigilance { grid-template-columns: 1fr; } .custom-home-welcome__learning, .custom-home-welcome__vigilance { padding: 22px; } }
 
 .custom-home-panel[data-panel="dashboard"] {
   overflow: visible;
