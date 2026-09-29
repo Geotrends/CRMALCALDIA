@@ -201,6 +201,14 @@
     </section>
 
     <div id="estado" class="estado">Cargando datos…</div>
+    <div class="dash-carrusel" id="dash-carrusel" aria-roledescription="carrusel">
+      <div class="dash-carrusel__arriba">
+        <button type="button" class="dash-carrusel__flecha" data-carrusel="prev" aria-label="Grupo anterior">&#8249;</button>
+        <div class="dash-carrusel__mini" id="dash-carrusel-mini" aria-label="Ir al grupo"></div>
+        <button type="button" class="dash-carrusel__flecha" data-carrusel="next" aria-label="Grupo siguiente">&#8250;</button>
+      </div>
+      <div class="dash-carrusel__ventana">
+      <div class="dash-carrusel__pista">
     <section class="dash-grupo dash-grupo--panorama" id="grupo-panorama" aria-labelledby="grupo-panorama-titulo">
       <header class="dash-grupo__header"><span class="dash-grupo__num"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M4 19V5M4 19h16M8 15l4-4 3 3 5-6"/></svg></span><div><h2 id="grupo-panorama-titulo">Panorama</h2><p class="dash-grupo__insight">La historia de los casos, de su ingreso a su cierre.</p></div></header>
       <ul class="dash-historia" id="dash-historia"><li>Cargando…</li></ul>
@@ -666,6 +674,10 @@
       </section>
       </div>
     </section>
+      </div>
+      </div>
+    </div>
+    <nav class="dash-carrusel__nav" id="dash-carrusel-nav" aria-label="Grupos del tablero"></nav>
   </div>
   <script>
     (function () {

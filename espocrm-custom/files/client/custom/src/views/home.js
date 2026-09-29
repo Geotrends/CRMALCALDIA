@@ -233,6 +233,16 @@ define('custom:views/home', ['views/dashboard'], function (Dep) {
                     return;
                 }
 
+                if (event.data.type === 'crm-dashboard-scroll-top') {
+                    var iframe = self.$el.find('.custom-home-iframe').get(0);
+
+                    if (iframe && iframe.getBoundingClientRect().top < 0) {
+                        iframe.scrollIntoView({behavior: 'smooth', block: 'start'});
+                    }
+
+                    return;
+                }
+
                 if (event.data.type !== 'crm-dashboard-height') {
                     return;
                 }

@@ -1,3 +1,134 @@
+/* Carrusel de grupos: uno a la vez, numeración debajo, flechas, teclado y deslizamiento. */
+(function () {
+    if (window.parent !== window) {
+        document.documentElement.classList.add('en-iframe');
+    }
+
+    var raiz = document.getElementById('dash-carrusel');
+    var nav = document.getElementById('dash-carrusel-nav');
+    var mini = document.getElementById('dash-carrusel-mini');
+
+    if (!raiz || !nav) {
+        return;
+    }
+
+    var ventana = raiz.querySelector('.dash-carrusel__ventana');
+    var pista = raiz.querySelector('.dash-carrusel__pista');
+    var slides = Array.prototype.slice.call(pista.children).filter(function (el) { return el.classList.contains('dash-grupo'); });
+    var CLAVE = 'crm-dashboard-grupo';
+    var actual = 0;
+
+    try {
+        actual = Math.min(slides.length - 1, Math.max(0, parseInt(localStorage.getItem(CLAVE) || '0', 10) || 0));
+    } catch (e) { actual = 0; }
+
+    nav.innerHTML = slides.map(function (sl, i) {
+        var titulo = (sl.querySelector('.dash-grupo__header h2') || {}).textContent || ('Grupo ' + i);
+        var corto = titulo.replace(/\s*\(.*\)$/, '');
+
+        return '<button type="button" class="dash-carrusel__punto" data-slide="' + i + '" aria-label="' + titulo + '" title="' + titulo + '">'
+            + '<span class="dash-carrusel__num">' + i + '</span><span class="dash-carrusel__txt">' + corto + '</span></button>';
+    }).join('');
+
+    if (mini) {
+        mini.innerHTML = slides.map(function (sl, i) {
+            var titulo = (sl.querySelector('.dash-grupo__header h2') || {}).textContent || '';
+
+            return '<button type="button" data-slide="' + i + '" title="' + titulo + '" aria-label="' + titulo + '">' + i + '</button>';
+        }).join('');
+        mini.addEventListener('click', function (e) {
+            var b = e.target.closest('[data-slide]');
+
+            if (b) { ir(Number(b.getAttribute('data-slide'))); }
+        });
+    }
+
+    var avisarAltura = function () {
+        var sl = slides[actual];
+
+        if (!sl) { return; }
+
+        ventana.style.height = sl.offsetHeight + 'px';
+        window.dispatchEvent(new CustomEvent('crm-dashboard-relayout'));
+
+        if (window.parent !== window) {
+            var root = document.querySelector('.dashboard');
+            window.parent.postMessage({type: 'crm-dashboard-height', height: Math.ceil(root.getBoundingClientRect().height) + 16}, window.location.origin);
+        }
+    };
+
+    var ir = function (i, foco) {
+        actual = (i + slides.length) % slides.length;
+        pista.style.transform = 'translateX(' + (-100 * actual) + '%)';
+        slides.forEach(function (sl, k) {
+            sl.setAttribute('aria-hidden', k === actual ? 'false' : 'true');
+            sl.classList.toggle('is-activo', k === actual);
+        });
+        [nav, mini].forEach(function (cont) {
+            if (!cont) { return; }
+            Array.prototype.forEach.call(cont.children, function (b, k) {
+                b.classList.toggle('is-activo', k === actual);
+                b.setAttribute('aria-current', k === actual ? 'true' : 'false');
+            });
+        });
+
+        try { localStorage.setItem(CLAVE, String(actual)); } catch (e) { /* sin almacenamiento */ }
+
+        // Los gráficos y el mapa recalculan su tamaño al quedar visibles.
+        window.dispatchEvent(new Event('resize'));
+        setTimeout(avisarAltura, 60);
+        setTimeout(avisarAltura, 400);
+
+        if (foco) {
+            nav.children[actual].focus({preventScroll: true});
+        }
+    };
+
+    nav.addEventListener('click', function (e) {
+        var b = e.target.closest('[data-slide]');
+
+        if (b) { ir(Number(b.getAttribute('data-slide'))); }
+    });
+
+    raiz.querySelector('[data-carrusel="prev"]').addEventListener('click', function () { ir(actual - 1); });
+    raiz.querySelector('[data-carrusel="next"]').addEventListener('click', function () { ir(actual + 1); });
+
+    // Al cambiar desde la numeración de abajo, se vuelve al inicio del grupo.
+    nav.addEventListener('click', function () {
+        try { raiz.scrollIntoView({behavior: 'smooth', block: 'start'}); } catch (e) { /* sin soporte */ }
+        if (window.parent !== window) { window.parent.postMessage({type: 'crm-dashboard-scroll-top'}, window.location.origin); }
+    });
+
+    document.addEventListener('keydown', function (e) {
+        var tag = (e.target && e.target.tagName) || '';
+
+        if (/INPUT|SELECT|TEXTAREA/.test(tag)) { return; }
+        if (e.key === 'ArrowRight') { ir(actual + 1, true); }
+        if (e.key === 'ArrowLeft') { ir(actual - 1, true); }
+    });
+
+    // Deslizamiento táctil (horizontal y claro, para no confundirlo con el desplazamiento vertical).
+    var x0 = null;
+    var y0 = null;
+
+    ventana.addEventListener('touchstart', function (e) { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, {passive: true});
+    ventana.addEventListener('touchend', function (e) {
+        if (x0 === null) { return; }
+        var dx = e.changedTouches[0].clientX - x0;
+        var dy = e.changedTouches[0].clientY - y0;
+
+        if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) { ir(actual + (dx < 0 ? 1 : -1)); }
+        x0 = null;
+    });
+
+    if (window.ResizeObserver) {
+        new ResizeObserver(function () { avisarAltura(); }).observe(pista);
+    }
+
+    window.addEventListener('crm-dashboard-cases', function () { setTimeout(avisarAltura, 300); });
+    ir(actual);
+})();
+
 (function () {
     var estado = document.getElementById('estado');
 

@@ -58,3 +58,17 @@ Pedido del usuario: "revisa todas las variables que hoy se pueden medir y están
 
 - Los reportes PDF y Excel ("Reporte gerencial") todavía no incluyen los indicadores nuevos del proceso de Policía.
 - Las etiquetas externas de las donas pueden cruzarse con la leyenda cuando hay una sola categoría; venía del diseño anterior.
+
+## Carrusel de grupos (2026-09-29)
+
+Los ocho grupos del tablero (0 Panorama … 7 Territorio) se muestran como un carrusel: un grupo a la vez, ocupando el ancho disponible.
+
+- **Numeración abajo:** barra fija al pie con el número y el nombre de cada grupo; el activo queda en verde. En pantallas de 900 px o menos solo se ve el nombre del grupo activo. Al elegir un grupo desde abajo, la vista vuelve al inicio del grupo (también dentro de Inicio → Dashboard).
+- **Arriba a la derecha:** flechas ‹ › y números compactos 0–7 (se ocultan en móvil).
+- **Otras formas de moverse:** flechas ← → del teclado (no cuando se escribe en un filtro) y deslizar con el dedo en táctil.
+- **Alto responsivo:** la ventana toma el alto del grupo activo. Abierto solo, cada grupo ocupa al menos el alto de la pantalla. Dentro del iframe de Inicio, el alto se ajusta al contenido del grupo, sin crecer indefinidamente.
+- **Recuerda el grupo:** al volver se muestra el último grupo visto (almacenamiento local del navegador; si no está disponible, abre en Panorama).
+- **Territorio:** el mapa ocupa todo el ancho y se redimensiona al entrar al grupo.
+- Los filtros siguen aplicando a todos los grupos. Las gráficas se redibujan al cambiar de grupo.
+
+Archivos: `files/client/custom/dashboard.html`, `dashboard.js` (IIFE del carrusel), `res/css/08-dashboard.css`, `src/views/home.js` (mensaje `crm-dashboard-scroll-top`).
