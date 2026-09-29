@@ -216,6 +216,40 @@ Pregunta del usuario (con el expediente en "Auto de Archivo"): "¿esto dónde lo
 
 **En Dokploy:** este cambio aún no está desplegado. Al desplegar no hay casos que actualizar, salvo que ya existan expedientes archivados.
 
+## Ajuste posterior (2026-09-29): Cumplimiento de la orden o medida, paso guiado
+
+Se implementan los N3 `gestion_ejecucion_medidas_correctivas_v1.0`, `orden_policia_cumplimiento_v1.0` y `tesoreria_ejecucion_pecuniaria_v1.1`. Se retira el "Registrar paso cumplido" provisional, que cerraba las medidas sin detalle.
+
+**Tarjetas según la familia de cada medida** (la familia sale de la matriz)
+
+| Familia | Qué se registra | Efecto |
+|---|---|---|
+| **Pecuniaria** (multas) | Remisión a Tesorería: **valor a mano**, fecha y oficio | Se crea la `ObligacionPecuniaria`, con alerta de control a 30 días (TES04A). Luego, con el resultado de Tesorería: **pagada** → Cumplida; **en cobro coactivo** → Ejecutada; en acuerdo o pendiente → sigue en ejecución |
+| Inmediata / material (amonestación, suspensión, decomiso, destrucción…) | Ejecución: fecha, quién la ejecutó o apoyó, cómo, acta o soporte (`EjecucionMedidaCorrectiva`) | Ejecutada |
+| Pedagógica | Programar la actividad (programa o entidad y fecha) y luego la asistencia | Cumplida, o Incumplida si no asistió |
+
+**Reporte al RNMC**
+- Obligatorio por cada medida (Ley 1801, art. 172 par. 2): fecha, medio, identificador y constancia (`ReporteRNMC`).
+
+**Orden de Policía**
+- **Con verificación:** se programa con responsable (técnico, patrullero, profesional o gestores), plazo y método (visita, revisión documental, medición u otro).
+  - El responsable recibe un aviso accionable y una alerta al vencer.
+  - El responsable **puede registrar el resultado y cargar la evidencia aunque no sea de los perfiles gestores** (`VerificacionCumplimiento`).
+- **Sin verificación:** "Registrar cumplimiento".
+- **Incumplimiento** (medida u orden: no cumplida, parcial o no verificable): va a **valoración jurídica humana**, "Ejecución a costa del obligado (art. 223 par. 3)" o "Nueva actuación", con motivación. El CRM no impone medidas nuevas por su cuenta. Se avisa "Orden de Policía incumplida".
+
+**Cierre del paso**
+- "Cerrar cumplimiento y pasar al Auto de Archivo" solo se habilita sin pendientes. Si falta algo, lo lista (medidas sin cerrar, falta de RNMC, orden sin cumplir o sin valorar).
+- El Auto de Archivo usa las mismas reglas.
+
+**Archivos:** `Tools/CaseObj/CaseCumplimientoService.php` (nuevo); `CaseProcesoService` (fase `cumplimiento`, `avisarUsuarios`, carga de archivos del verificador); `CaseArchivoService`; `CaseProcesoLectura`; `ExpedientePasosCatalog` (Cumplimiento y Archivo guiados); bloque en `case-detail-side-panels.js`.
+
+**Validación (API y navegador)**
+1. Decisión con multa por ruido, multa tipo 3, decomiso y orden de Policía con verificación. "Cerrar" antes de gestionar → 400 con los 7 pendientes.
+2. RNMC de las 3 medidas. Multas remitidas por "$ 1.300.000" (guardado como 1.300.000): una pagada y otra en cobro coactivo. Decomiso ejecutado.
+3. Verificación programada al técnico → el técnico registra "No cumplida" con evidencia → el Inspector valora "Ejecución a costa del obligado".
+4. Cierre → Auto de Archivo sin pendientes. Las alertas de control y de verificación quedaron atendidas.
+
 ## Pendientes
 
 - **Tramo 3:**

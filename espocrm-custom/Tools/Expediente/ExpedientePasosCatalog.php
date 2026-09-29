@@ -137,7 +137,7 @@ class ExpedientePasosCatalog
     /** Pasos que se cumplen con las acciones guiadas del caso, no con «avanzar paso». */
     public static function isPasoGuiado(string $paso): bool
     {
-        return in_array($paso, [self::PASO_CITACION, self::PASO_AUDIENCIA, self::PASO_DECISION, self::PASO_NOTIFICACION], true);
+        return in_array($paso, [self::PASO_CITACION, self::PASO_AUDIENCIA, self::PASO_DECISION, self::PASO_NOTIFICACION, self::PASO_CUMPLIMIENTO, self::PASO_ARCHIVO], true);
     }
 
     public static function isPolicivo(?string $ruta): bool

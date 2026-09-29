@@ -20,8 +20,6 @@ class CaseArchivoService
 {
     public const CAUSAL = 'El proceso se cerró conforme al procedimiento';
 
-    private const MEDIDA_CERRADA = ['Cumplida', 'Ejecutada', 'Anulada por acto', 'Sustituida', 'No verificable'];
-    private const ORDEN_CERRADA = ['Cumplida / Ejecutada'];
     private const RECURSO_CERRADO = ['Reposición resuelta', 'Decidido', 'Devuelto a inspección', 'Cerrado', 'Improcedente'];
 
     private CaseProcesoLectura $lectura;
@@ -29,7 +27,8 @@ class CaseArchivoService
     public function __construct(
         private EntityManager $entityManager,
         private ProcesoFormatoGenerator $formatos,
-        private CaseProcesoService $proceso
+        private CaseProcesoService $proceso,
+        private CaseCumplimientoService $cumplimiento
     ) {
         $this->lectura = new CaseProcesoLectura($entityManager);
     }
@@ -41,20 +40,8 @@ class CaseArchivoService
      */
     public function pendientes(Entity $expediente): array
     {
-        $lista = [];
-        $d = $this->lectura->datosDecision($expediente);
-
-        foreach ($this->entityManager->getRDBRepository('MedidaCorrectiva')->where(['expedienteId' => $expediente->getId()])->find() as $m) {
-            if (!in_array((string) $m->get('estado'), self::MEDIDA_CERRADA, true)) {
-                $lista[] = 'Medida correctiva «' . $m->get('tipoMedida') . '» en estado «' . $m->get('estado') . '»';
-            }
-        }
-
-        foreach ($this->entityManager->getRDBRepository('OrdenPolicia')->where(['expedienteId' => $expediente->getId()])->find() as $o) {
-            if ((string) $o->get('id') === (string) ($d['ordenId'] ?? '') && !in_array((string) $o->get('estado'), self::ORDEN_CERRADA, true)) {
-                $lista[] = 'Orden de Policía en estado «' . $o->get('estado') . '»';
-            }
-        }
+        // Medidas, orden de Policía y reporte RNMC: mismas reglas que Cumplimiento.
+        $lista = $this->cumplimiento->pendientes($expediente);
 
         foreach ($this->entityManager->getRDBRepository('Recurso')->where(['expedienteId' => $expediente->getId()])->find() as $r) {
             if (!in_array((string) $r->get('estado'), self::RECURSO_CERRADO, true)) {

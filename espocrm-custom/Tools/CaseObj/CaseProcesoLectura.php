@@ -62,6 +62,10 @@ class CaseProcesoLectura
             return $expediente && $this->archivado($expediente) ? 'archivado' : 'archivo';
         }
 
+        if ($paso === ExpedientePasosCatalog::PASO_CUMPLIMIENTO) {
+            return 'cumplimiento';
+        }
+
         if ($paso === ExpedientePasosCatalog::PASO_CITACION) {
             return !$ultima ? 'citar' : 'soporteCitacion';
         }
@@ -109,6 +113,10 @@ class CaseProcesoLectura
 
         if (in_array($paso, [ExpedientePasosCatalog::PASO_DECISION, ExpedientePasosCatalog::PASO_NOTIFICACION], true)) {
             return $this->resumenDecision($expediente, $paso);
+        }
+
+        if ($paso === ExpedientePasosCatalog::PASO_CUMPLIMIENTO) {
+            return 'Ejecución y verificación de las medidas y órdenes; reporte al RNMC';
         }
 
         if ($paso === ExpedientePasosCatalog::PASO_ARCHIVO) {

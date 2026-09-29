@@ -219,7 +219,7 @@ Mientras tanto, **Apoyo Jurídico, Inspector Ambiental y Aux. Inspección hacen 
 | C7.5 | Carga la prueba y el caso queda listo para reanudar | Responsable de la prueba o gestores | soporte cargado · suspensión "Lista para reanudación" | Gestores · "Soporte probatorio cargado: reprogramar" | ✅ |
 | C7.6 | Marca las conductas probadas y el CRM muestra las medidas de la matriz (prescritas incluidas, condicionales con prueba, de otra autoridad bloqueadas y derivadas); orden de Policía aparte; genera el proyecto en Word ([ajuste](ajustes/2026-09-28-pva-decision-notificacion-recursos.md)) | Jurídica / Inspector / Aux. Inspección | `Expediente.decisionFondo` · → H2 | — | ✅ |
 | C7.7 | Carga la decisión firmada (PDF): se crean las `MedidaCorrectiva` y la `OrdenPolicia` | Mismos | → **Notificación y recursos** | Gestores · "Decisión adoptada: notificar" | ✅ |
-| C7.8 | Notificación y recursos (H5, H4). Retornos: el recurso **modifica** → vuelve a Decisión; **revoca** → Auto de Archivo; sin medidas ni orden → se omite Cumplimiento. Ejecución y cierre (H6, I) | — | → H5, H4, H6, I | ver H4/H5 | ✅ H4/H5 · 🆕 H6/I |
+| C7.8 | Notificación y recursos (H5, H4). Retornos: el recurso **modifica** → vuelve a Decisión; **revoca** → Auto de Archivo; sin medidas ni orden → se omite Cumplimiento. Cumplimiento guiado (H3, H6: Tesorería, ejecución, RNMC, verificación y valoración del incumplimiento) y Auto de Archivo (I) | — | → H5, H4, H3, H6, I | ver H3–H6 | ✅ |
 
 ### C8. Recursos Naturales · competencia municipal
 

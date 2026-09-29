@@ -564,3 +564,5 @@ html.crm-modern-ui body .detail[data-scope="Case"] .btn.btn-primary.case-acta-ca
 .detail[data-scope="Expediente"] .alcaldia-docs__tabla td { font-size: 13px; vertical-align: top; }
 .detail[data-scope="Expediente"] .alcaldia-docs__fecha, .detail[data-scope="Expediente"] .alcaldia-docs__acciones { white-space: nowrap; }
 .detail[data-scope="Expediente"] .alcaldia-docs__tabla .fas { color: var(--crm-primary); }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso__ok { color: #166534 !important; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso__incumple { color: #991b1b !important; font-weight: 600; }

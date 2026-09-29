@@ -47,6 +47,7 @@ class CaseProcesoService
     private CaseProcesoLectura $lectura;
     private CaseDecisionService $decision;
     private CaseArchivoService $archivo;
+    private CaseCumplimientoService $cumplimiento;
     private ProcesoFormatoGenerator $formatos;
 
     public function __construct(
@@ -58,7 +59,8 @@ class CaseProcesoService
         $this->lectura = new CaseProcesoLectura($entityManager);
         $this->formatos = new ProcesoFormatoGenerator($entityManager);
         $this->decision = new CaseDecisionService($entityManager, $metadata, $this->formatos, $this);
-        $this->archivo = new CaseArchivoService($entityManager, $this->formatos, $this);
+        $this->cumplimiento = new CaseCumplimientoService($entityManager, $metadata, $this);
+        $this->archivo = new CaseArchivoService($entityManager, $this->formatos, $this, $this->cumplimiento);
     }
 
     /* ─────────────────────────── consulta ─────────────────────────── */
@@ -123,6 +125,7 @@ class CaseProcesoService
             'responsables' => $this->responsablesPrueba(),
             'audienciaYaFue' => $this->audienciaYaFue($ultima),
             'decision' => $this->decisionEstado($case, $expediente, $actual),
+            'cumplimiento' => $actual === ExpedientePasosCatalog::PASO_CUMPLIMIENTO ? $this->cumplimiento->estado($expediente) : null,
             'archivo' => $actual === ExpedientePasosCatalog::PASO_ARCHIVO ? [
                 'pendientes' => $this->archivo->pendientes($expediente),
                 'causal' => CaseArchivoService::CAUSAL,
@@ -154,7 +157,10 @@ class CaseProcesoService
         $ultima = $audiencias !== [] ? end($audiencias) : null;
         $fase = $this->lectura->fase($paso, $ultima, $expediente);
 
-        if (!$this->profile->canGestionarProceso($user) && !$this->esResponsablePrueba($user, $fase, $ultima, $accion)) {
+        $responsableVerificacion = $fase === 'cumplimiento' && $accion === 'cumplimiento'
+            && $this->cumplimiento->esResponsableVerificacion($user, $expediente, trim((string) ($data['tipo'] ?? '')));
+
+        if (!$this->profile->canGestionarProceso($user) && !$this->esResponsablePrueba($user, $fase, $ultima, $accion) && !$responsableVerificacion) {
             throw new Forbidden('El proceso lo gestionan Apoyo Jurídico, el Inspector Ambiental y Aux. Administrativo · Inspección.');
         }
         $esperadas = [
@@ -172,6 +178,7 @@ class CaseProcesoService
             'reposicion' => ['resolverReposicion'],
             'apelacionRemitir' => ['remitirApelacion'],
             'apelacionEspera' => ['resolverApelacion'],
+            'cumplimiento' => ['cumplimiento'],
             'archivo' => ['archivoGenerar', 'archivoFirmar'],
             'archivado' => [],
         ];
@@ -209,6 +216,7 @@ class CaseProcesoService
             'resolverReposicion' => $this->decision->resolverReposicion($case, $user, $expediente, $data),
             'remitirApelacion' => $this->decision->remitirApelacion($case, $user, $expediente, $data),
             'resolverApelacion' => $this->decision->resolverApelacion($case, $user, $expediente, $data),
+            'cumplimiento' => $this->cumplimiento->accion($case, $user, $expediente, $data),
             'archivoGenerar' => $this->archivo->generar($case, $user, $expediente, $data),
             'archivoFirmar' => $this->archivo->firmar($case, $user, $expediente, $texto('documentoId')),
         };
@@ -659,22 +667,6 @@ class CaseProcesoService
 
         $siguiente = $catalog->getSiguientePaso($tipoTramite, $paso);
 
-        // Provisional hasta el tramo guiado de Cumplimiento: las medidas y la orden de la
-        // decisión quedan cumplidas con la observación registrada.
-        if ($paso === ExpedientePasosCatalog::PASO_CUMPLIMIENTO) {
-            foreach ($this->entityManager->getRDBRepository('MedidaCorrectiva')->where(['expedienteId' => $expediente->getId(), 'estado' => ['Pendiente de validación', 'Validada', 'Pendiente de ejecución', 'En ejecución', 'Pendiente de verificación']])->find() as $m) {
-                $m->set(['estado' => 'Cumplida', 'resultado' => $observacion, 'fechaResolucion' => date('Y-m-d')]);
-                $this->entityManager->saveEntity($m);
-            }
-
-            $ordenId = (string) ($this->lectura->datosDecision($expediente)['ordenId'] ?? '');
-
-            if ($ordenId !== '' && ($o = $this->entityManager->getEntityById('OrdenPolicia', $ordenId))) {
-                $o->set('estado', 'Cumplida / Ejecutada');
-                $this->entityManager->saveEntity($o);
-            }
-        }
-
         $this->avanzar($expediente, $user, (string) $siguiente, $observacion);
         $this->nota($case, 'Registró como cumplido el paso «' . $paso . '» del expediente: ' . $observacion);
         $this->avisar($case, $user, $expediente, 'Paso del expediente cumplido',
@@ -1052,7 +1044,9 @@ class CaseProcesoService
         $ultima = $audiencias !== [] ? end($audiencias) : null;
         $fase = $expediente ? $this->lectura->fase($this->lectura->pasoActual($expediente), $ultima, $expediente) : '';
 
-        if (!$expediente || (!$this->profile->canGestionarProceso($user) && !$this->esResponsablePrueba($user, $fase, $ultima, 'soportePrueba'))) {
+        $verificador = $expediente && $fase === 'cumplimiento' && $this->cumplimiento->esResponsableVerificacion($user, $expediente, 'verificacion');
+
+        if (!$expediente || (!$this->profile->canGestionarProceso($user) && !$this->esResponsablePrueba($user, $fase, $ultima, 'soportePrueba') && !$verificador)) {
             throw new Forbidden('No puede cargar archivos en este proceso.');
         }
 
@@ -1148,6 +1142,22 @@ class CaseProcesoService
     {
         $this->notificar($case, $actor, array_merge($this->profile->findActiveGestoresProcesoUserIds(), $otros), $message, [
             'isProcesoAviso' => true,
+            'textoAviso' => $texto,
+            'indicacion' => $indicacion,
+            'expedienteNumero' => (string) $expediente->get('numero'),
+        ], $eventKey);
+    }
+
+    /**
+     * Aviso del proceso a usuarios puntuales (p. ej. el responsable de una verificación).
+     *
+     * @param string[] $userIds
+     */
+    public function avisarUsuarios(Entity $case, User $actor, Entity $expediente, array $userIds, string $message, string $texto, ?string $indicacion, string $eventKey): void
+    {
+        $this->notificar($case, $actor, $userIds, $message, [
+            'isProcesoAviso' => true,
+            'esAccionable' => true,
             'textoAviso' => $texto,
             'indicacion' => $indicacion,
             'expedienteNumero' => (string) $expediente->get('numero'),
