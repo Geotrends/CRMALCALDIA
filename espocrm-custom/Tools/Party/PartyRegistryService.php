@@ -25,7 +25,11 @@ class PartyRegistryService
         'cCorreoPerjudicante',
     ];
 
-    /** @var list<string> */
+    /**
+     * El canal de reporte es dato de cada solicitud, no del peticionario: no se precarga.
+     *
+     * @var list<string>
+     */
     private const PETICIONARIO_CASE_FIELDS = [
         'cNombrePeticionario',
         'cApellidoPeticionario',
@@ -33,7 +37,6 @@ class PartyRegistryService
         'cDireccionPeticionario',
         'cTelefonoPeticionario',
         'cCorreoPeticionario',
-        'cCanalDeReportePeticionario',
         'cMunicipioPeticionario',
         'cZonaAlcaldiaPeticionario',
     ];
