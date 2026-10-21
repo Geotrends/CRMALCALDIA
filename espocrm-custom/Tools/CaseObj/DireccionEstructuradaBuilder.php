@@ -42,6 +42,8 @@ class DireccionEstructuradaBuilder
 
     public static function applyToEntity(Entity $entity): void
     {
+        self::clearPlaceholders($entity, self::PETICIONARIO_FIELDS);
+
         $entity->set('cDireccionPeticionario', self::buildFromFields($entity, self::PETICIONARIO_FIELDS));
         $entity->set('cDireccionPerjudicante', self::buildFromFields($entity, self::PERJUDICANTE_FIELDS));
     }
@@ -83,6 +85,21 @@ class DireccionEstructuradaBuilder
         }
 
         return $result;
+    }
+
+    /**
+     * Los componentes sin diligenciar llegan con el placeholder del enum: se guardan en nulo.
+     * Va en beforeSave (tras la validación), porque el enum no admite nulo entre sus opciones.
+     *
+     * @param list<string> $fields
+     */
+    private static function clearPlaceholders(Entity $entity, array $fields): void
+    {
+        foreach ($fields as $field) {
+            if ($entity->has($field) && trim((string) $entity->get($field)) === CaseEnumNormalizer::PLACEHOLDER) {
+                $entity->set($field, null);
+            }
+        }
     }
 
     /**
