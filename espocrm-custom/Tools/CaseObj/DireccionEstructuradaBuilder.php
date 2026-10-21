@@ -43,6 +43,7 @@ class DireccionEstructuradaBuilder
     public static function applyToEntity(Entity $entity): void
     {
         self::clearPlaceholders($entity, self::PETICIONARIO_FIELDS);
+        self::clearPlaceholders($entity, self::PERJUDICANTE_FIELDS);
 
         $entity->set('cDireccionPeticionario', self::buildFromFields($entity, self::PETICIONARIO_FIELDS));
         $entity->set('cDireccionPerjudicante', self::buildFromFields($entity, self::PERJUDICANTE_FIELDS));
