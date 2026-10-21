@@ -9,7 +9,8 @@ define('custom:views/case/record/detail', [
     'custom:helpers/case-detail-side-panels',
     'custom:helpers/case-role-guidance',
     'custom:helpers/compact-form-sections',
-], function (Dep, PersonaTipoFields, RadicacionFields, InspeccionCaseFlow, RadicacionCaseFlow, AsignadorCaseFlow, AsignadorAssignmentUi, CaseDetailSidePanels, CaseRoleGuidance, CompactFormSections) {
+    'custom:helpers/destino-relacion-panel',
+], function (Dep, PersonaTipoFields, RadicacionFields, InspeccionCaseFlow, RadicacionCaseFlow, AsignadorCaseFlow, AsignadorAssignmentUi, CaseDetailSidePanels, CaseRoleGuidance, CompactFormSections, DestinoRelacionPanel) {
 
     const PANEL_ASIGNACION = 'gestionPosteriorRadicacion';
 
@@ -25,6 +26,12 @@ define('custom:views/case/record/detail', [
     return Dep.extend({
 
         bottomDisabled: false,
+
+        hasModifyDetailLayout: true,
+
+        modifyDetailLayout: function (layout) {
+            DestinoRelacionPanel.removeFromLayout(this, layout);
+        },
 
         getActionMenuHost: function () {
             if (typeof this.addMenuItem === 'function') {

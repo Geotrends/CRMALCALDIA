@@ -13,9 +13,16 @@ define('custom:views/case/record/edit', [
     'custom:helpers/peticion-plazo-fields',
     'custom:helpers/case-role-guidance',
     'custom:helpers/compact-form-sections',
-], function (Dep, PersonaTipoFields, PartyDocumentLookup, DireccionEstructurada, RadicacionFields, InspeccionCaseFlow, RadicacionCaseFlow, AsignadorCaseFlow, AsignadorAssignmentUi, CaseCreateForm, CaseCreateOptionalFields, PeticionPlazoFields, CaseRoleGuidance, CompactFormSections) {
+    'custom:helpers/destino-relacion-panel',
+], function (Dep, PersonaTipoFields, PartyDocumentLookup, DireccionEstructurada, RadicacionFields, InspeccionCaseFlow, RadicacionCaseFlow, AsignadorCaseFlow, AsignadorAssignmentUi, CaseCreateForm, CaseCreateOptionalFields, PeticionPlazoFields, CaseRoleGuidance, CompactFormSections, DestinoRelacionPanel) {
 
     return Dep.extend({
+
+        hasModifyDetailLayout: true,
+
+        modifyDetailLayout: function (layout) {
+            DestinoRelacionPanel.removeFromLayout(this, layout);
+        },
 
         setup: function () {
             CaseCreateForm.setup(this);
