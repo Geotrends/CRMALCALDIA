@@ -78,6 +78,9 @@ define('custom:views/case/fields/destino', [
                 this.model.set({destinoId: response.destinoId, destinoName: response.destinoName});
                 Espo.Ui.success(destinoId ? 'Destino actualizado.' : 'Destino quitado.');
                 this.reRender();
+
+                // El panel Historia escucha el "sync" del modelo para traer la nota nueva.
+                this.model.trigger('sync', this.model, {}, {});
             }).catch(() => Espo.Ui.notify(false));
         },
     });
