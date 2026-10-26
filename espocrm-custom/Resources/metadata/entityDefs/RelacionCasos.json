@@ -37,6 +37,7 @@
         },
         "casos": {
             "type": "linkMultiple",
+            "view": "custom:views/relacion-casos/fields/casos",
             "isCustom": true
         },
         "assignedUser": {
