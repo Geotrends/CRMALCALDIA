@@ -71,17 +71,17 @@ define('custom:views/case/fields/destino', [
         guardarDestino: function (destinoId) {
             Espo.Ui.notifyWait();
 
+            const terminar = () => Espo.Ui.notify(false);
+
             Espo.Ajax.postRequest('Case/action/cambiarDestino', {
                 id: this.model.id,
                 destinoId: destinoId,
-            }).then(response => {
-                this.model.set({destinoId: response.destinoId, destinoName: response.destinoName});
+            }).then(() => {
+                // fetch emite el "sync" del modelo: el panel Historia trae la nota nueva y el campo se repinta.
+                return this.model.fetch();
+            }).then(() => {
                 Espo.Ui.success(destinoId ? 'Destino actualizado.' : 'Destino quitado.');
-                this.reRender();
-
-                // El panel Historia escucha el "sync" del modelo para traer la nota nueva.
-                this.model.trigger('sync', this.model, {}, {});
-            }).catch(() => Espo.Ui.notify(false));
+            }).catch(terminar);
         },
     });
 });
