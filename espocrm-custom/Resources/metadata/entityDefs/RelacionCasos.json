@@ -33,6 +33,7 @@
         "destino": {
             "type": "link",
             "required": false,
+            "audited": true,
             "isCustom": true
         },
         "observaciones": {
@@ -72,7 +73,8 @@
             "type": "hasMany",
             "entity": "Case",
             "relationName": "caseRelacionCasos",
-            "foreign": "relacionesCasos"
+            "foreign": "relacionesCasos",
+            "audited": true
         },
         "assignedUser": {
             "type": "belongsTo",
