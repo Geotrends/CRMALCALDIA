@@ -18,7 +18,7 @@ class SuppressCaseRelacionNotifications implements AfterSave
 {
     public static int $order = 15;
 
-    private const RELATED_TYPES = ['RelacionCasos', 'GestionTecnica'];
+    private const RELATED_TYPES = ['RelacionCasos', 'GestionTecnica', 'IntervencionTecnica'];
 
     private const TYPES = [
         Note::TYPE_RELATE,

@@ -1,19 +1,21 @@
 {
     "fields": {
         "name": {
+            "audited": true,
             "type": "varchar",
-            "required": false,
+            "required": true,
             "maxLength": 200,
-            "trim": true,
-            "readOnlyAfterCreate": true
+            "trim": true
         },
         "gestionTecnica": {
+            "audited": true,
             "type": "link",
             "required": true,
             "readOnlyAfterCreate": true,
             "isCustom": true
         },
         "tipo": {
+            "audited": true,
             "type": "enum",
             "options": [
                 "Visita",
@@ -29,22 +31,27 @@
             "isCustom": true
         },
         "fechaSolicitud": {
+            "audited": true,
             "type": "datetime",
             "isCustom": true
         },
         "fechaProgramada": {
+            "audited": true,
             "type": "date",
             "isCustom": true
         },
         "fechaEjecucion": {
+            "audited": true,
             "type": "date",
             "isCustom": true
         },
         "responsable": {
+            "audited": true,
             "type": "link",
             "isCustom": true
         },
         "estado": {
+            "audited": true,
             "type": "enum",
             "options": [
                 "Pendiente",
@@ -60,6 +67,7 @@
             "isCustom": true
         },
         "resultado": {
+            "audited": true,
             "type": "text",
             "rows": 4,
             "isCustom": true
