@@ -19,7 +19,8 @@ define('custom:views/case/fields/relacion-casos-action', [
                 e.preventDefault();
                 RelacionCasosContexto.set(
                     this.model.id,
-                    this.model.get('cNumeroRadicado') || this.model.get('name') || this.model.id
+                    this.model.get('cNumeroRadicado') || this.model.get('name') || this.model.id,
+                    this.getUser().id
                 );
                 this.getRouter().navigate('#RelacionCasos', {trigger: true});
             }.bind(this));

@@ -9,7 +9,7 @@ define('custom:views/relacion-casos/record/detail', [
         setup: function () {
             Dep.prototype.setup.call(this);
 
-            const contexto = RelacionCasosContexto.get();
+            const contexto = RelacionCasosContexto.get(this.getUser().id);
 
             if (!contexto || this.model.isNew()) {
                 return;

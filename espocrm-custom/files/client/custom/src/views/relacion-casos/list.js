@@ -12,7 +12,7 @@ define('custom:views/relacion-casos/list', [
 
             this.$el.find('.relacion-casos-contexto').remove();
 
-            const contexto = RelacionCasosContexto.get();
+            const contexto = RelacionCasosContexto.get(this.getUser().id);
 
             if (!contexto) {
                 return;
