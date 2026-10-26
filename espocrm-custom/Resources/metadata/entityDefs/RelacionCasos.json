@@ -41,8 +41,7 @@
         },
         "assignedUser": {
             "type": "link",
-            "readOnlyAfterCreate": true,
-            "view": "views/fields/assigned-user"
+            "view": "custom:views/relacion-casos/fields/assigned-user"
         },
         "teams": {
             "type": "linkMultiple",
