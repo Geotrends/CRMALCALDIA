@@ -1700,7 +1700,8 @@
             "type": "hasMany",
             "entity": "RelacionCasos",
             "relationName": "caseRelacionCasos",
-            "foreign": "casos"
+            "foreign": "casos",
+            "audited": true
         },
         "expediente": {
             "type": "belongsTo",

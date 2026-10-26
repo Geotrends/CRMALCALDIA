@@ -12,7 +12,8 @@ use Espo\Tools\Stream\Service as StreamService;
 /**
  * Historial de la relación al crearla: Espo enlaza en silencio los casos de un registro
  * nuevo y no anota el destino inicial, así que aquí se registran igual que los cambios
- * posteriores (Relate por caso y Update del destino).
+ * posteriores (Relate por caso y Update del destino). En el historial de cada caso queda
+ * también la relación a la que se vinculó (Espo solo lo anota en el primero).
  */
 class LogHistorialInicial implements AfterSave
 {
@@ -34,12 +35,30 @@ class LogHistorialInicial implements AfterSave
 
             if ($case) {
                 $this->streamService->noteRelate($case, $entity);
+
+                if (!$this->hasCreateRelatedNote($case, $entity)) {
+                    $this->streamService->noteRelate($entity, $case);
+                }
             }
         }
 
         if ($entity->get('destinoId')) {
             $this->noteDestinoInicial($entity);
         }
+    }
+
+    private function hasCreateRelatedNote(Entity $case, Entity $relacion): bool
+    {
+        return (bool) $this->entityManager
+            ->getRDBRepositoryByClass(Note::class)
+            ->where([
+                'type' => Note::TYPE_CREATE_RELATED,
+                'parentType' => $case->getEntityType(),
+                'parentId' => $case->getId(),
+                'relatedType' => $relacion->getEntityType(),
+                'relatedId' => $relacion->getId(),
+            ])
+            ->findOne();
     }
 
     private function noteDestinoInicial(Entity $entity): void
