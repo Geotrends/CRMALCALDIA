@@ -2,10 +2,9 @@
     "fields": {
         "name": {
             "type": "varchar",
-            "required": false,
+            "required": true,
             "maxLength": 200,
-            "trim": true,
-            "readOnlyAfterCreate": true
+            "trim": true
         },
         "case": {
             "type": "link",

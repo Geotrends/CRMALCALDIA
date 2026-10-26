@@ -1,6 +1,7 @@
 [
     {
         "rows": [
+            [{"name": "name", "fullWidth": true}],
             [
                 {"name": "case"},
                 {"name": "estado"}
