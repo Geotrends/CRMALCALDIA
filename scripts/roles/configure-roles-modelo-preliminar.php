@@ -254,6 +254,12 @@ foreach ($roleConfigs as $roleName => $scopePermissions) {
     // El Receptor no: la sección de destino no se muestra en la recepción (CRM-005).
     if ($roleName !== 'Auxiliar Administrativo · Receptor') {
         $data['Destino'] = ['create' => 'yes', 'read' => 'all', 'edit' => 'no', 'delete' => 'no', 'stream' => 'no'];
+
+        // Y ve las relaciones de su caso con otros casos (solo lectura; se gestionan en RelacionCasos
+        // con los permisos que ya tenga el rol) y su historial en el Flujo del caso.
+        if (!isset($data['RelacionCasos']) || ($data['RelacionCasos']['read'] ?? 'no') === 'no') {
+            $data['RelacionCasos'] = ['create' => 'no', 'read' => 'all', 'edit' => 'no', 'delete' => 'no', 'stream' => 'all'];
+        }
     }
 
     // Línea base que sí tienen los demás roles operativos (excluidos a
