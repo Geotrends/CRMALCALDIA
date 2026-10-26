@@ -398,3 +398,39 @@
 .detail[data-scope="Case"] .panel[data-panel-name="actuoArchivoPanel"] .case-actuo-archivo-btn--print .fas {
   color: #1a5c47 !important;
 }
+
+/* Historia: tabla de campos actualizados (nombre del campo · antes → después).
+   El padding global de .table dejaba la primera columna sin ancho y el nombre del campo ilegible. */
+table.table.audited-summary-table {
+  table-layout: auto !important;
+  width: 100%;
+}
+
+table.table.audited-summary-table > tbody > tr > td {
+  padding: 6px 8px !important;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+  word-break: break-word;
+  vertical-align: top !important;
+  border-top: 0 !important;
+}
+
+table.table.audited-summary-table > tbody > tr > td:first-child {
+  width: 34% !important;
+  min-width: 110px;
+  padding-left: 0 !important;
+  font-weight: 600;
+}
+
+table.table.audited-summary-table > tbody > tr > td.cell-was,
+table.table.audited-summary-table > tbody > tr > td.cell-became {
+  width: auto !important;
+}
+
+table.table.audited-summary-table > tbody > tr > td:nth-child(3) {
+  width: 24px !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  text-align: center;
+}
