@@ -10,6 +10,10 @@
                 {"name": "assignedUser"}
             ],
             [
+                {"name": "destino"},
+                false
+            ],
+            [
                 {"name": "casos", "fullWidth": true}
             ],
             [

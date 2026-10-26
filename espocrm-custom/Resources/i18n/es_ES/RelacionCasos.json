@@ -3,6 +3,7 @@
         "name": "Nombre",
         "tipo": "Tipo de relación",
         "estado": "Estado",
+        "destino": "Destino",
         "observaciones": "Observaciones",
         "casos": "Casos relacionados",
         "assignedUser": "Responsable",
@@ -33,6 +34,7 @@
         }
     },
     "links": {
-        "casos": "Casos relacionados"
+        "casos": "Casos relacionados",
+        "destino": "Destino"
     }
 }

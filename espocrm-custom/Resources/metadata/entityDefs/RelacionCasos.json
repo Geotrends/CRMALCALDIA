@@ -30,6 +30,11 @@
             "default": "Activa",
             "isCustom": true
         },
+        "destino": {
+            "type": "link",
+            "required": false,
+            "isCustom": true
+        },
         "observaciones": {
             "type": "text",
             "rows": 4,
@@ -58,6 +63,11 @@
         }
     },
     "links": {
+        "destino": {
+            "type": "belongsTo",
+            "entity": "Destino",
+            "foreign": "relacionesCasos"
+        },
         "casos": {
             "type": "hasMany",
             "entity": "Case",
