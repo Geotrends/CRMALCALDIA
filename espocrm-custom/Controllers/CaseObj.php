@@ -23,6 +23,7 @@ use Espo\Custom\Tools\CaseObj\CaseActaVisitaHelper;
 use Espo\Custom\Tools\CaseObj\CaseAperturaService;
 use Espo\Custom\Tools\CaseObj\CaseCierreService;
 use Espo\Custom\Tools\CaseObj\CaseCompetenciaService;
+use Espo\Custom\Tools\CaseObj\CaseDestinoService;
 use Espo\Custom\Tools\CaseObj\CaseProcesoService;
 use Espo\Custom\Tools\CaseObj\CaseCreateDefaultsService;
 use Espo\Custom\Tools\CaseObj\CaseCronogramaService;
@@ -880,6 +881,30 @@ class CaseObj extends BaseCaseObj
                     'cAsunto' => (string) ($body->cAsunto ?? ''),
                 ]
             );
+    }
+
+    /**
+     * POST Case/action/cambiarDestino  body: { "id": "caseId", "destinoId": "destinoId" | null }
+     *
+     * Cambia o quita el destino del caso. Solo el Director Técnico o la persona asignada,
+     * aunque su rol no tenga edición sobre Casos.
+     *
+     * @return array<string, mixed>
+     */
+    public function postActionCambiarDestino(Request $request): array
+    {
+        $body = $request->getParsedBody();
+        $case = $this->getCaseOrFail($this->parseCaseIdFromRequest($body));
+
+        if (!$this->acl->checkEntityRead($case)) {
+            throw new Forbidden();
+        }
+
+        $destinoId = trim((string) ($body->destinoId ?? ''));
+
+        return $this->injectableFactory
+            ->create(CaseDestinoService::class)
+            ->cambiar($this->getUser(), $case, $destinoId !== '' ? $destinoId : null);
     }
 
     /**

@@ -250,6 +250,12 @@ foreach ($roleConfigs as $roleName => $scopePermissions) {
         $data[$scope] = $perms;
     }
 
+    // Quien queda asignado a un caso puede elegir o crear su Destino (decisión 2026-10-26).
+    // El Receptor no: la sección de destino no se muestra en la recepción (CRM-005).
+    if ($roleName !== 'Auxiliar Administrativo · Receptor') {
+        $data['Destino'] = ['create' => 'yes', 'read' => 'all', 'edit' => 'no', 'delete' => 'no', 'stream' => 'no'];
+    }
+
     // Línea base que sí tienen los demás roles operativos (excluidos a
     // propósito de configure-{comunicacion-caso,task,meeting}-permissions.php
     // mientras no tenían ACL propio).

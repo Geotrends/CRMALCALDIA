@@ -205,6 +205,12 @@ class AlcaldiaUserProfile
         return $user->isAdmin() || $this->hasAnyRole($user, self::NAMES_ASIGNADOR);
     }
 
+    /** Rol de asignación (Director Técnico) por sus roles, sin contar el tipo administrador. */
+    public function isDirectorTecnico(User $user): bool
+    {
+        return $this->hasAnyRole($user, self::NAMES_ASIGNADOR);
+    }
+
     public function isJuridica(User $user): bool
     {
         return !$user->isAdmin() && $this->hasAnyRole($user, self::NAMES_JURIDICA);
