@@ -4,13 +4,15 @@
             "type": "varchar",
             "required": true,
             "maxLength": 200,
-            "trim": true
+            "trim": true,
+            "audited": true
         },
         "case": {
             "type": "link",
             "required": true,
             "readOnlyAfterCreate": true,
-            "isCustom": true
+            "isCustom": true,
+            "audited": true
         },
         "estado": {
             "type": "enum",
@@ -26,25 +28,30 @@
                 "Cancelada"
             ],
             "default": "Solicitada",
-            "isCustom": true
+            "isCustom": true,
+            "audited": true
         },
         "motivo": {
             "type": "text",
             "rows": 4,
-            "isCustom": true
+            "isCustom": true,
+            "audited": true
         },
         "fechaSolicitud": {
             "type": "datetime",
-            "isCustom": true
+            "isCustom": true,
+            "audited": true
         },
         "responsable": {
             "type": "link",
-            "isCustom": true
+            "isCustom": true,
+            "audited": true
         },
         "observaciones": {
             "type": "text",
             "rows": 4,
-            "isCustom": true
+            "isCustom": true,
+            "audited": true
         },
         "assignedUser": {
             "type": "link",

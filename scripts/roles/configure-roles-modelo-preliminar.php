@@ -262,6 +262,11 @@ foreach ($roleConfigs as $roleName => $scopePermissions) {
         }
     }
 
+    // Quien puede leer una gestión técnica ve su historial (y su vinculación en el Flujo del caso).
+    if (isset($data['GestionTecnica']) && ($data['GestionTecnica']['read'] ?? 'no') !== 'no') {
+        $data['GestionTecnica']['stream'] = 'all';
+    }
+
     // Línea base que sí tienen los demás roles operativos (excluidos a
     // propósito de configure-{comunicacion-caso,task,meeting}-permissions.php
     // mientras no tenían ACL propio).

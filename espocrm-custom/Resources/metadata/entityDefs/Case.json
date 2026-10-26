@@ -1614,7 +1614,8 @@
         "gestionesTecnicas": {
             "type": "hasMany",
             "entity": "GestionTecnica",
-            "foreign": "case"
+            "foreign": "case",
+            "audited": true
         },
         "decisionesRuta": {
             "type": "hasMany",
