@@ -80,6 +80,7 @@ define('custom:views/case/fields/destino', [
                 // fetch emite el "sync" del modelo: el panel Historia trae la nota nueva y el campo se repinta.
                 return this.model.fetch();
             }).then(() => {
+                terminar();
                 Espo.Ui.success(destinoId ? 'Destino actualizado.' : 'Destino quitado.');
             }).catch(terminar);
         },
