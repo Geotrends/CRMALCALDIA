@@ -1,13 +1,14 @@
 {
     "fields": {
         "name": {
+            "audited": true,
             "type": "varchar",
             "required": false,
             "maxLength": 200,
-            "trim": true,
-            "readOnlyAfterCreate": true
+            "trim": true
         },
         "case": {
+            "audited": true,
             "type": "link",
             "required": true,
             "readOnlyAfterCreate": true,
@@ -15,25 +16,30 @@
             "view": "custom:views/acta-visita/fields/case"
         },
         "gestionTecnica": {
+            "audited": true,
             "type": "link",
             "readOnlyAfterCreate": true,
             "isCustom": true
         },
         "intervencionTecnica": {
+            "audited": true,
             "type": "link",
             "isCustom": true
         },
         "autorizacionDatos": {
+            "audited": true,
             "type": "bool",
             "default": false,
             "isCustom": true
         },
         "fecha": {
+            "audited": true,
             "type": "date",
             "readOnlyAfterCreate": true,
             "isCustom": true
         },
         "posibleAfectante": {
+            "audited": true,
             "type": "varchar",
             "maxLength": 255,
             "isCustom": true
@@ -57,47 +63,56 @@
             "min": 1
         },
         "direccionAfectacion": {
+            "audited": true,
             "type": "varchar",
             "maxLength": 500,
             "isCustom": true
         },
         "telefono": {
+            "audited": true,
             "type": "varchar",
             "maxLength": 50,
             "isCustom": true,
             "view": "custom:views/fields/numeric-only"
         },
         "barrio": {
+            "audited": true,
             "type": "varchar",
             "maxLength": 150,
             "isCustom": true
         },
         "zona": {
+            "audited": true,
             "type": "enum",
             "options": ["", "Urbano", "Rural"],
             "default": "",
             "isCustom": true
         },
         "fechaVisita": {
+            "audited": true,
             "type": "date",
             "isCustom": true
         },
         "objetoVisita": {
+            "audited": true,
             "type": "text",
             "rows": 4,
             "isCustom": true
         },
         "situacionEncontrada": {
+            "audited": true,
             "type": "text",
             "rows": 5,
             "isCustom": true
         },
         "analisisSituacion": {
+            "audited": true,
             "type": "text",
             "rows": 5,
             "isCustom": true
         },
         "registroFotografico": {
+            "audited": true,
             "type": "attachmentMultiple",
             "previewSize": "medium",
             "sourceList": ["Document"],
@@ -105,48 +120,57 @@
             "isCustom": true
         },
         "conclusion": {
+            "audited": true,
             "type": "text",
             "rows": 4,
             "isCustom": true
         },
         "requerimientos": {
+            "audited": true,
             "type": "text",
             "rows": 4,
             "isCustom": true
         },
         "funcionarioNombre": {
+            "audited": true,
             "type": "varchar",
             "maxLength": 150,
             "isCustom": true
         },
         "funcionarioCedula": {
+            "audited": true,
             "type": "varchar",
             "maxLength": 50,
             "isCustom": true,
             "view": "custom:views/fields/numeric-only"
         },
         "funcionarioCargo": {
+            "audited": true,
             "type": "varchar",
             "maxLength": 150,
             "isCustom": true
         },
         "establecimientoNombre": {
+            "audited": true,
             "type": "varchar",
             "maxLength": 150,
             "isCustom": true
         },
         "establecimientoCedula": {
+            "audited": true,
             "type": "varchar",
             "maxLength": 50,
             "isCustom": true,
             "view": "custom:views/fields/numeric-only"
         },
         "establecimientoCargo": {
+            "audited": true,
             "type": "varchar",
             "maxLength": 150,
             "isCustom": true
         },
         "estado": {
+            "audited": true,
             "type": "enum",
             "options": ["Pendiente", "Diligenciada", "Aprobada"],
             "default": "Pendiente",
@@ -154,22 +178,26 @@
             "isCustom": true
         },
         "modoDiligenciamiento": {
+            "audited": true,
             "type": "enum",
             "options": ["Digital", "Manual"],
             "default": "Digital",
             "isCustom": true
         },
         "vistoBueno": {
+            "audited": true,
             "type": "bool",
             "default": false,
             "isCustom": true
         },
         "observacionesRevision": {
+            "audited": true,
             "type": "text",
             "rows": 3,
             "isCustom": true
         },
         "fechaAprobacion": {
+            "audited": true,
             "type": "date",
             "isCustom": true
         },
@@ -198,6 +226,7 @@
             "isCustom": true
         },
         "formatoManoAdjunto": {
+            "audited": true,
             "type": "attachmentMultiple",
             "previewSize": "medium",
             "accept": ["image/*", "application/pdf", ".doc", ".docx"],
@@ -209,6 +238,7 @@
             "isCustom": true
         },
         "assignedUser": {
+            "audited": true,
             "type": "link",
             "readOnlyAfterCreate": true,
             "view": "views/fields/assigned-user"

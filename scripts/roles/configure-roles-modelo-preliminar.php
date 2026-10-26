@@ -267,6 +267,10 @@ foreach ($roleConfigs as $roleName => $scopePermissions) {
         $data['GestionTecnica']['stream'] = 'all';
     }
 
+    if (isset($data['ActaVisita']) && ($data['ActaVisita']['read'] ?? 'no') !== 'no') {
+        $data['ActaVisita']['stream'] = 'all';
+    }
+
     if (isset($data['IntervencionTecnica']) && ($data['IntervencionTecnica']['read'] ?? 'no') !== 'no') {
         $data['IntervencionTecnica']['stream'] = 'all';
     }
