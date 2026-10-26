@@ -29,7 +29,8 @@ body.crm-reference-shell :is(.detail, .edit)[data-scope="ActaVisita"] .alcaldia-
   border-left: 1px solid var(--crm-form-value-border) !important;
   border-radius: var(--crm-radius-lg) !important;
   box-shadow: var(--crm-shadow-sm) !important;
-  overflow: hidden !important;
+  /* visible: con hidden se recortaban los desplegables (p. ej. Estado) que sobresalen del panel. */
+  overflow: visible !important;
 }
 
 body.crm-reference-shell :is(.detail, .edit):is(
@@ -106,6 +107,7 @@ body.crm-reference-shell .detail:is(
   [data-scope="VerificacionCumplimiento"]
 ) .middle > .panel > .panel-body {
   background: var(--crm-surface) !important;
+  border-radius: 0 0 var(--crm-radius-lg) var(--crm-radius-lg) !important;
   padding: 0 !important;
 }
 
@@ -283,6 +285,7 @@ body.crm-reference-shell .modal-body .edit:is(
 ) .panel > .panel-body,
 body.crm-reference-shell .edit[data-scope="ActaVisita"] .alcaldia-acta-funcionario > .panel > .panel-body {
   background: var(--crm-surface) !important;
+  border-radius: 0 0 var(--crm-radius-lg) var(--crm-radius-lg) !important;
   padding: 20px 22px 22px !important;
 }
 
