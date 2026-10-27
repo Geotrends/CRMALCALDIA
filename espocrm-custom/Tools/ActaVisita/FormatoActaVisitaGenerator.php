@@ -55,13 +55,8 @@ class FormatoActaVisitaGenerator
             throw new Forbidden('El formato de acta de visita aún no está habilitado.');
         }
 
-        $slug = preg_replace(
-            '/[^\w\-]+/u',
-            '_',
-            trim((string) $acta->get('numeroRadicado')) ?: $actaId
-        ) ?: 'acta';
-
         $case = $this->resolveCaseForActa($acta);
+        $slug = $case ? $case->getId() : $actaId;
 
         return $this->runGenerator(
             $format,
@@ -141,6 +136,12 @@ class FormatoActaVisitaGenerator
         $modo = strtolower($modo) === 'manual' ? 'manual' : 'digital';
         $acta = $this->resolveActaForCase($caseId);
 
+        // El formato en blanco (manual) solo aplica mientras el acta no tenga contenido;
+        // después se imprime con lo diligenciado.
+        if ($modo === 'manual' && $acta && $this->actaHasContenidoVisita($acta)) {
+            $modo = 'digital';
+        }
+
         if (!$internal && $modo === 'digital' && !$this->isFormatoActaHabilitadoForCase($case, $acta)) {
             $hasActaData = $acta && $this->actaHasFormatoData($acta);
 
@@ -158,17 +159,7 @@ class FormatoActaVisitaGenerator
             $payload['modoDiligenciamiento'] = 'digital';
         }
 
-        $slug = preg_replace(
-            '/[^\w\-]+/u',
-            '_',
-            trim((string) $case->get('cNumeroRadicado')) ?: $caseId
-        ) ?: 'caso';
-
-        if ($modo === 'manual') {
-            $slug .= '-manual';
-        }
-
-        return $this->runGenerator($format, $payload, $slug);
+        return $this->runGenerator($format, $payload, $caseId);
     }
 
     public function isFormatoActaHabilitado(?Entity $acta): bool
@@ -254,7 +245,10 @@ class FormatoActaVisitaGenerator
         }
 
         $outputFormat = $format === 'pdf' ? 'pdf' : 'docx';
-        $outputPath = $workDir . '/ActaVisita-' . $slug . '.' . $outputFormat;
+        $baseName = 'IV-F-094_' . (preg_replace('/[^\w\-]+/u', '_', $slug) ?: 'acta');
+        $outputPath = $workDir . '/' . $baseName . '.' . $outputFormat;
+        // Título del PDF: el visor del navegador lo usa como nombre al guardar.
+        $payload['tituloDocumento'] = $baseName;
 
         $env = [
             'HOME' => $workDir,
@@ -376,6 +370,30 @@ class FormatoActaVisitaGenerator
         }
 
         return false;
+    }
+
+    private function actaHasContenidoVisita(Entity $acta): bool
+    {
+        $fields = [
+            'objetoVisita',
+            'situacionEncontrada',
+            'analisisSituacion',
+            'conclusion',
+            'requerimientos',
+            'funcionarioCedula',
+            'funcionarioCargo',
+            'establecimientoNombre',
+            'establecimientoCedula',
+            'establecimientoCargo',
+        ];
+
+        foreach ($fields as $field) {
+            if (trim((string) $acta->get($field)) !== '') {
+                return true;
+            }
+        }
+
+        return (bool) $acta->get('registroFotograficoIds');
     }
 
     private function isCasePostRadicado(Entity $case): bool
@@ -574,14 +592,15 @@ class FormatoActaVisitaGenerator
             $registroFotografico = 'Ver registro fotográfico adjunto en el CRM.';
         }
 
+        $manual = strcasecmp(trim((string) $acta->get('modoDiligenciamiento')), 'Manual') === 0
+            && !$this->actaHasContenidoVisita($acta);
+
         return [
             'fecha' => $this->formatDate($acta->get('fecha')),
             'fechaVisita' => $this->formatDateTime($acta->get('fechaVisita')),
             'fechaHora' => $this->formatDateTime($acta->get('fechaVisita')),
-            'modoDiligenciamiento' => trim((string) $acta->get('modoDiligenciamiento')) ?: 'Digital',
-            'modo' => strtolower(trim((string) $acta->get('modoDiligenciamiento')) ?: 'digital') === 'manual'
-                ? 'manual'
-                : 'digital',
+            'modoDiligenciamiento' => $manual ? 'Manual' : 'Digital',
+            'modo' => $manual ? 'manual' : 'digital',
             'posibleAfectante' => trim((string) $acta->get('posibleAfectante')),
             'acompanante' => trim((string) $acta->get('posibleAfectante')),
             'acompananteCedula' => '',

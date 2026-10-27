@@ -207,6 +207,12 @@ def fill_pdf(template_path, output_path, data):
         elif zona == "Rural" and "zonaRural" in marks:
             overlay.put_mark(page, marks["zonaRural"], layout)
 
+    titulo = str(data.get("tituloDocumento") or "").strip()
+    if titulo:
+        metadata = dict(doc.metadata or {})
+        metadata["title"] = titulo
+        doc.set_metadata(metadata)
+
     doc.save(output_path)
     doc.close()
 
