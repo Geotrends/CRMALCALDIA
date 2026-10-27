@@ -11,42 +11,50 @@
             "type": "link",
             "required": true,
             "readOnlyAfterCreate": true,
-            "isCustom": true
+            "isCustom": true,
+            "audited": true
         },
         "texto": {
             "type": "text",
             "rows": 5,
             "required": true,
-            "isCustom": true
+            "isCustom": true,
+            "audited": true
         },
         "fundamentoTecnico": {
             "type": "text",
             "rows": 4,
-            "isCustom": true
+            "isCustom": true,
+            "audited": true
         },
         "destinatario": {
             "type": "varchar",
             "maxLength": 255,
-            "isCustom": true
+            "isCustom": true,
+            "audited": true
         },
         "fechaInicio": {
             "type": "date",
             "required": true,
-            "isCustom": true
+            "isCustom": true,
+            "audited": true
         },
         "fechaLimite": {
             "type": "date",
-            "isCustom": true
+            "isCustom": true,
+            "audited": true
         },
         "criterioVerificacion": {
             "type": "text",
             "rows": 3,
-            "isCustom": true
+            "isCustom": true,
+            "audited": true
         },
         "requiereVerificacion": {
             "type": "bool",
             "default": false,
-            "isCustom": true
+            "isCustom": true,
+            "audited": true
         },
         "estado": {
             "type": "enum",
@@ -62,7 +70,8 @@
                 "Cerrada"
             ],
             "default": "Pendiente",
-            "isCustom": true
+            "isCustom": true,
+            "audited": true
         },
         "documentoOrigen": {
             "type": "file",

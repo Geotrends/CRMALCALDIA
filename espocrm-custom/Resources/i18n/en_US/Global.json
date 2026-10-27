@@ -13,6 +13,10 @@
     "GestionTecnica": "Gestión técnica",
     "IntervencionTecnica": "Intervención técnica",
     "ProgramacionVisita": "Programación de visita",
+    "EvaluacionResultado": "Evaluación de resultado",
+    "RecomendacionTecnica": "Recomendación técnica",
+    "Compromiso": "Compromiso",
+    "VerificacionCumplimiento": "Verificación de cumplimiento",
     "Destino": "Destino"
   },
   "scopeNamesPlural": {
@@ -28,6 +32,10 @@
     "GestionTecnica": "Gestiones técnicas",
     "IntervencionTecnica": "Intervenciones técnicas",
     "ProgramacionVisita": "Programación de visitas",
+    "EvaluacionResultado": "Evaluaciones de resultado",
+    "RecomendacionTecnica": "Recomendaciones técnicas",
+    "Compromiso": "Compromisos",
+    "VerificacionCumplimiento": "Verificaciones de cumplimiento",
     "Destino": "Destinos"
   },
   "labels": {

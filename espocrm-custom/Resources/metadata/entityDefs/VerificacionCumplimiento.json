@@ -10,43 +10,51 @@
         "recomendacionTecnica": {
             "type": "link",
             "readOnlyAfterCreate": true,
-            "isCustom": true
+            "isCustom": true,
+            "audited": true
         },
         "compromiso": {
             "type": "link",
             "readOnlyAfterCreate": true,
-            "isCustom": true
+            "isCustom": true,
+            "audited": true
         },
         "medidaCorrectiva": {
             "type": "link",
             "readOnlyAfterCreate": true,
-            "isCustom": true
+            "isCustom": true,
+            "audited": true
         },
         "ordenPolicia": {
             "type": "link",
             "readOnlyAfterCreate": true,
-            "isCustom": true
+            "isCustom": true,
+            "audited": true
         },
         "ordenExternaReferencia": {
             "type": "varchar",
             "maxLength": 255,
-            "isCustom": true
+            "isCustom": true,
+            "audited": true
         },
         "intervencionTecnica": {
             "type": "link",
             "required": true,
             "readOnlyAfterCreate": true,
-            "isCustom": true
+            "isCustom": true,
+            "audited": true
         },
         "fecha": {
             "type": "date",
             "required": true,
-            "isCustom": true
+            "isCustom": true,
+            "audited": true
         },
         "metodo": {
             "type": "varchar",
             "maxLength": 255,
-            "isCustom": true
+            "isCustom": true,
+            "audited": true
         },
         "resultado": {
             "type": "enum",
@@ -57,12 +65,14 @@
                 "No verificable"
             ],
             "required": true,
-            "isCustom": true
+            "isCustom": true,
+            "audited": true
         },
         "observacion": {
             "type": "text",
             "rows": 4,
-            "isCustom": true
+            "isCustom": true,
+            "audited": true
         },
         "documentoSoporte": {
             "type": "file",

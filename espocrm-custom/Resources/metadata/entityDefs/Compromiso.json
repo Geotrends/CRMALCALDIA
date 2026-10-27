@@ -10,43 +10,51 @@
         "case": {
             "type": "link",
             "readOnlyAfterCreate": true,
-            "isCustom": true
+            "isCustom": true,
+            "audited": true
         },
         "expediente": {
             "type": "link",
             "readOnlyAfterCreate": true,
-            "isCustom": true
+            "isCustom": true,
+            "audited": true
         },
         "intervencionOrigen": {
             "type": "link",
             "readOnlyAfterCreate": true,
-            "isCustom": true
+            "isCustom": true,
+            "audited": true
         },
         "texto": {
             "type": "text",
             "rows": 5,
             "required": true,
-            "isCustom": true
+            "isCustom": true,
+            "audited": true
         },
         "partes": {
             "type": "text",
             "rows": 3,
             "required": true,
-            "isCustom": true
+            "isCustom": true,
+            "audited": true
         },
         "fecha": {
             "type": "date",
             "required": true,
-            "isCustom": true
+            "isCustom": true,
+            "audited": true
         },
         "fechaLimite": {
             "type": "date",
-            "isCustom": true
+            "isCustom": true,
+            "audited": true
         },
         "criterioCumplimiento": {
             "type": "text",
             "rows": 3,
-            "isCustom": true
+            "isCustom": true,
+            "audited": true
         },
         "estado": {
             "type": "enum",
@@ -62,7 +70,8 @@
                 "Cerrada"
             ],
             "default": "Pendiente",
-            "isCustom": true
+            "isCustom": true,
+            "audited": true
         },
         "documentoOrigen": {
             "type": "file",

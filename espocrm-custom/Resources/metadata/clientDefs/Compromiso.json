@@ -3,9 +3,31 @@
     "iconClass": "fas fa-handshake",
     "color": "#15803d",
     "recordViews": {
-        "detail": "views/record/detail",
+        "detail": "custom:views/gestion-tecnica/record/detail",
         "edit": "custom:views/record-sin-panel-lateral/edit",
         "editSmall": "custom:views/record-sin-panel-lateral/edit-small",
         "list": "views/record/list"
+    },
+    "defaultSidePanelDisabled": true,
+    "sidePanels": {
+        "detail": [
+            {
+                "name": "fechasRegistro",
+                "view": "views/record/panels/side",
+                "isForm": true,
+                "options": {
+                    "fieldList": [
+                        {"name": "createdAt"},
+                        {"name": "modifiedAt"}
+                    ]
+                }
+            },
+            {
+                "name": "seguimientoStream",
+                "label": "Historia",
+                "view": "views/stream/panel",
+                "notRefreshable": true
+            }
+        ]
     }
 }

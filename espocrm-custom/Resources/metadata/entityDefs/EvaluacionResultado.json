@@ -11,46 +11,55 @@
             "type": "link",
             "required": true,
             "readOnlyAfterCreate": true,
-            "isCustom": true
+            "isCustom": true,
+            "audited": true
         },
         "fecha": {
             "type": "date",
             "required": true,
-            "isCustom": true
+            "isCustom": true,
+            "audited": true
         },
         "resultadoTecnico": {
             "type": "text",
             "rows": 4,
-            "isCustom": true
+            "isCustom": true,
+            "audited": true
         },
         "informacionSuficiente": {
             "type": "bool",
             "default": false,
-            "isCustom": true
+            "isCustom": true,
+            "audited": true
         },
         "situacionResuelta": {
             "type": "bool",
             "default": false,
-            "isCustom": true
+            "isCustom": true,
+            "audited": true
         },
         "recomiendaNuevaGestion": {
             "type": "bool",
             "default": false,
-            "isCustom": true
+            "isCustom": true,
+            "audited": true
         },
         "recomiendaEscalamiento": {
             "type": "bool",
             "default": false,
-            "isCustom": true
+            "isCustom": true,
+            "audited": true
         },
         "responsableTecnico": {
             "type": "link",
-            "isCustom": true
+            "isCustom": true,
+            "audited": true
         },
         "observaciones": {
             "type": "text",
             "rows": 3,
-            "isCustom": true
+            "isCustom": true,
+            "audited": true
         },
         "estado": {
             "type": "enum",
@@ -64,7 +73,8 @@
                 "Cerrada"
             ],
             "default": "En preparación",
-            "isCustom": true
+            "isCustom": true,
+            "audited": true
         },
         "assignedUser": {
             "type": "link",
