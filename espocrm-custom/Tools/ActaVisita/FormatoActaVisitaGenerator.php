@@ -603,8 +603,8 @@ class FormatoActaVisitaGenerator
 
         return [
             'fecha' => $this->formatDate($acta->get('fecha')),
-            'fechaVisita' => $this->formatDateTime($acta->get('fechaVisita')),
-            'fechaHora' => $this->formatDateTime($acta->get('fechaVisita')),
+            'fechaVisita' => $this->formatDate($acta->get('fechaVisita')),
+            'fechaHora' => $this->formatDate($acta->get('fechaVisita')),
             'modoDiligenciamiento' => $manual ? 'Manual' : 'Digital',
             'modo' => $manual ? 'manual' : 'digital',
             'posibleAfectante' => trim((string) $acta->get('posibleAfectante')),
@@ -687,18 +687,14 @@ class FormatoActaVisitaGenerator
             return '';
         }
 
-        $formatted = AlcaldiaDateTimeHelper::formatDocumentDate($value);
+        // Una fecha sin hora no se convierte de zona horaria (la corría al día anterior).
+        $date = \DateTimeImmutable::createFromFormat('!Y-m-d', (string) $value);
 
-        return $formatted !== '' ? $formatted : (string) $value;
-    }
-
-    private function formatDateTime(mixed $value): string
-    {
-        if (!$value) {
-            return '';
+        if ($date) {
+            return $date->format(AlcaldiaDateTimeHelper::PHP_DOCUMENT_DATE);
         }
 
-        $formatted = AlcaldiaDateTimeHelper::formatDocumentDateTime($value);
+        $formatted = AlcaldiaDateTimeHelper::formatDocumentDate($value);
 
         return $formatted !== '' ? $formatted : (string) $value;
     }
