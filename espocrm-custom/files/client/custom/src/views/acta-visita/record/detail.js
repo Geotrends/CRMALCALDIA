@@ -4,7 +4,10 @@ define('custom:views/acta-visita/record/detail', [
     'custom:helpers/acta-visita-section-summary',
 ], function (Dep, FormatoActaVisitaAccess, ActaSectionSummary) {
 
+    // La historia va en el panel lateral (clientDefs.sidePanels), no en el inferior.
     return Dep.extend({
+
+        bottomView: 'custom:views/gestion-tecnica/record/bottom',
 
         setup: function () {
             Dep.prototype.setup.call(this);
@@ -17,7 +20,6 @@ define('custom:views/acta-visita/record/detail', [
         afterRender: function () {
             Dep.prototype.afterRender.call(this);
             this.toggleFormatoGeneradoPanel();
-            this.organizeActaLayout();
             this.makePanelsCollapsible();
         },
 
@@ -37,25 +39,10 @@ define('custom:views/acta-visita/record/detail', [
             this.findPanel('formatoGenerado').toggle(show);
         },
 
-        organizeActaLayout: function () {
-            const $grid = this.$el.find('.record-grid').first();
-            const $side = $grid.children('.side').first();
-            const $middle = $grid.children('.left').find('> .middle').first();
-
-            if (!$side.length || !$middle.length || $side.hasClass('alcaldia-acta-funcionario')) {
-                return;
-            }
-
-            // El responsable y sus equipos son el primer dato operativo de
-            // la visita. Se conservan sus campos, pero en una sola columna.
-            $side.addClass('alcaldia-acta-funcionario');
-            $middle.prepend($side);
-        },
-
         makePanelsCollapsible: function () {
             const view = this;
 
-            this.$el.find('.panel, .record-panel').each(function () {
+            this.$el.find('.panel, .record-panel').not('.side .panel, .side .record-panel').each(function () {
                 const $panel = $(this);
                 const $heading = $panel.children('.panel-heading').first();
 
