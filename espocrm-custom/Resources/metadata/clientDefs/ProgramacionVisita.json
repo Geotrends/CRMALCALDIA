@@ -4,7 +4,8 @@
     "color": "#0369a1",
     "recordViews": {
         "detail": "views/record/detail",
-        "edit": "views/record/edit",
+        "edit": "custom:views/programacion-visita/record/edit",
+        "editSmall": "custom:views/programacion-visita/record/edit-small",
         "list": "views/record/list"
     },
     "dynamicLogic": {
