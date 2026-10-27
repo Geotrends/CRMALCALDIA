@@ -5,9 +5,10 @@
 {{#each visitasArchivo}}
 <div class="case-visita-archivo-card{{#if isCurrent}} is-current{{/if}}" data-acta-id="{{actaId}}">
     <p class="case-visita-archivo-heading">
-        <strong>{{../visitaLabel}} {{numeroVisita}}</strong>
+        <strong>{{../visitaLabel}} {{numeroVisita}} - <a href="#ActaVisita/view/{{actaId}}" class="case-visita-archivo-link">{{nombre}}</a></strong>
         <span class="case-visita-archivo-estado">{{estadoLabel}}</span>
     </p>
+    <p class="case-visita-archivo-fecha">Fecha de la visita: {{fechaVisita}}</p>
     {{#if isAprobada}}
     <div class="case-visita-aprobada-check is-readonly">
         <label class="case-visita-aprobada-check-label">
@@ -51,10 +52,11 @@
         <button
             type="button"
             class="btn btn-primary btn-sm case-acta-visita-btn"
-            data-action="editarActaArchivo"
+            data-action="descargarActaArchivo"
             data-acta-id="{{actaId}}"
+            {{#unless canDescargar}}disabled title="El acta aún no tiene datos de la visita."{{/unless}}
         >
-            <span class="fas fa-laptop"></span> {{../buttonLabelEditarActa}}
+            <span class="fas fa-download"></span> Descargar acta
         </button>
     </div>
     {{#if hasRevision}}

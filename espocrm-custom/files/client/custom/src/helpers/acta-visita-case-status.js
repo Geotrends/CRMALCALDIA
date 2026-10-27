@@ -342,6 +342,8 @@ define('custom:helpers/acta-visita-case-status', [
 
     const ACTA_SELECT = [
         'id',
+        'name',
+        'fechaVisita',
         'estado',
         'objetoVisita',
         'situacionEncontrada',

@@ -281,6 +281,11 @@ define('custom:views/case/fields/acta-visita-action', [
                     return {
                         actaId: acta.id,
                         numeroVisita: numero,
+                        nombre: String(acta.name || '').trim() || 'Acta de visita',
+                        fechaVisita: acta.fechaVisita
+                            ? self.getDateTime().toDisplayDate(acta.fechaVisita)
+                            : 'Sin fecha',
+                        canDescargar: ActaVisitaCaseStatus.hasActaVisitContent(acta),
                         estado: estado,
                         estadoLabel: estadoLabel,
                         isAprobada: isAprobada,
@@ -385,7 +390,6 @@ define('custom:views/case/fields/acta-visita-action', [
                 showCurrentVisitaSection: this.resolveShowCurrentVisitaSection(),
                 visitaLabel: this.translateCaseLabel('visitaNumeroLabel'),
                 visitaAprobadaArchivoHelp: this.translateCaseLabel('visitaAprobadaArchivoHelp'),
-                buttonLabelEditarActa: this.translateCaseLabel('editarActaVisita'),
                 buttonLabelConsultarActa: this.translateCaseLabel('consultarActaVisita'),
             };
         },
@@ -845,7 +849,7 @@ define('custom:views/case/fields/acta-visita-action', [
             this.$el.find('[data-action="llenarActa"]').off('click.acta');
             this.$el.find('[data-action="descargarActaWord"]').off('click.actaWord');
             this.$el.find('[data-action="agregarVisita"]').off('click.agregarVisita');
-            this.$el.find('[data-action="editarActaArchivo"]').off('click.editarActaArchivo');
+            this.$el.find('[data-action="descargarActaArchivo"]').off('click.descargarActaArchivo');
             this.$el.find('[data-action="verActa"]').off('click.verActa');
             this.$el.find('[data-action="consultarActa"]').off('click.consultarActa');
             this.$el.find('[data-action="aprobarVisitaActa"]').off('click.aprobarVisitaActa');
@@ -945,14 +949,14 @@ define('custom:views/case/fields/acta-visita-action', [
                 self.actionConsultarActa($(e.currentTarget).data('acta-id'));
             });
 
-            this.$el.find('[data-action="editarActaArchivo"]').on('click.editarActaArchivo', function (e) {
+            this.$el.find('[data-action="descargarActaArchivo"]').on('click.descargarActaArchivo', function (e) {
                 e.preventDefault();
                 e.stopPropagation();
 
                 const actaId = $(e.currentTarget).data('acta-id');
 
                 if (actaId) {
-                    self.actionVerActa(actaId);
+                    self.actionDescargarActaArchivo(actaId);
                 }
             });
 
@@ -1009,6 +1013,16 @@ define('custom:views/case/fields/acta-visita-action', [
                     self.scheduleLoadActaState();
                 },
             });
+        },
+
+        actionDescargarActaArchivo: function (actaId) {
+            const url = this.getBasePath()
+                + '?entryPoint=FormatoActaVisitaCaso'
+                + '&id=' + encodeURIComponent(this.model.id)
+                + '&actaId=' + encodeURIComponent(actaId)
+                + '&format=pdf';
+
+            window.location.assign(url);
         },
 
         actionConsultarActa: function (actaId) {

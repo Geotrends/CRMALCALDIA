@@ -246,6 +246,12 @@
   font-size: 13px;
 }
 
+.detail[data-scope="Case"] .panel[data-name="actaVisita"] .case-visita-archivo-fecha {
+  margin: -6px 0 10px;
+  color: #475569;
+  font-size: 12px;
+}
+
 .detail[data-scope="Case"] .panel[data-name="actaVisita"] .case-visita-archivo-estado {
   display: inline-block;
   padding: 2px 8px;
