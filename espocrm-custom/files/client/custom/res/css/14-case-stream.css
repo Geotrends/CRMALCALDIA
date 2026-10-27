@@ -441,10 +441,11 @@ table.table.audited-summary-table > tbody > tr > td:nth-child(3) {
   text-align: center;
 }
 
-/* Historia en el panel lateral (gestión, intervención, acta): el menú de acciones va a la derecha del título. */
+/* Historia en el panel lateral (gestión, intervención, acta, programación): el menú de acciones va a la derecha del título. */
 .detail[data-scope="GestionTecnica"] .side .panel[data-name="gestionStream"] > .panel-heading,
 .detail[data-scope="IntervencionTecnica"] .side .panel[data-name="gestionStream"] > .panel-heading ,
-.detail[data-scope="ActaVisita"] .side .panel[data-name="actaStream"] > .panel-heading {
+.detail[data-scope="ActaVisita"] .side .panel[data-name="actaStream"] > .panel-heading,
+.detail[data-scope="ProgramacionVisita"] .side .panel[data-name="programacionStream"] > .panel-heading {
   align-items: center;
   display: flex;
   justify-content: space-between;
@@ -452,13 +453,15 @@ table.table.audited-summary-table > tbody > tr > td:nth-child(3) {
 
 .detail[data-scope="GestionTecnica"] .side .panel[data-name="gestionStream"] > .panel-heading .panel-title,
 .detail[data-scope="IntervencionTecnica"] .side .panel[data-name="gestionStream"] > .panel-heading .panel-title ,
-.detail[data-scope="ActaVisita"] .side .panel[data-name="actaStream"] > .panel-heading .panel-title {
+.detail[data-scope="ActaVisita"] .side .panel[data-name="actaStream"] > .panel-heading .panel-title,
+.detail[data-scope="ProgramacionVisita"] .side .panel[data-name="programacionStream"] > .panel-heading .panel-title {
   flex: 1 1 auto;
 }
 
 .detail[data-scope="GestionTecnica"] .side .panel[data-name="gestionStream"] > .panel-heading .panel-actions-container,
 .detail[data-scope="IntervencionTecnica"] .side .panel[data-name="gestionStream"] > .panel-heading .panel-actions-container ,
-.detail[data-scope="ActaVisita"] .side .panel[data-name="actaStream"] > .panel-heading .panel-actions-container {
+.detail[data-scope="ActaVisita"] .side .panel[data-name="actaStream"] > .panel-heading .panel-actions-container,
+.detail[data-scope="ProgramacionVisita"] .side .panel[data-name="programacionStream"] > .panel-heading .panel-actions-container {
   flex: 0 0 auto;
   float: none;
   order: 2;

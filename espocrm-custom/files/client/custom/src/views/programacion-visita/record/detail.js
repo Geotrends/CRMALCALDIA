@@ -1,10 +1,30 @@
-define('custom:views/programacion-visita/record/detail', ['views/record/detail'], function (Dep) {
+define('custom:views/programacion-visita/record/detail', [
+    'custom:views/gestion-tecnica/record/detail',
+    'custom:helpers/programacion-visita-campos',
+], function (Dep, ProgramacionVisitaCampos) {
 
-    // Sin panel lateral (responsable asignado y equipos): el asignado lo pone el servidor.
+    // El panel lateral solo lleva la Historia (clientDefs: defaultSidePanelDisabled).
+    // Las fechas y horas se cambian con "Reprogramar", no con Editar.
     return Dep.extend({
 
-        sideDisabled: true,
+        setup: function () {
+            Dep.prototype.setup.call(this);
 
-        isWide: true,
+            ProgramacionVisitaCampos.bloquearReprogramables(this);
+
+            if (this.getAcl().checkModel(this.model, 'edit') && this.model.get('estado') !== 'Cancelada') {
+                this.addButton({name: 'reprogramar', label: 'Reprogramar', style: 'default'});
+            }
+        },
+
+        actionReprogramar: function () {
+            this.createView('reprogramar', 'custom:views/programacion-visita/modals/reprogramar', {
+                model: this.model,
+            }, view => {
+                view.render();
+
+                this.listenToOnce(view, 'reprogramada', () => this.model.fetch());
+            });
+        },
     });
 });

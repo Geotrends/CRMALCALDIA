@@ -2,6 +2,7 @@
     "fields": {
         "name": {
             "type": "varchar",
+            "audited": true,
             "required": false,
             "maxLength": 200,
             "trim": true,
@@ -9,50 +10,60 @@
         },
         "intervencionTecnica": {
             "type": "link",
+            "audited": true,
             "required": true,
             "readOnlyAfterCreate": true,
             "isCustom": true
         },
         "fechaObjetivo": {
             "type": "date",
+            "audited": true,
             "isCustom": true
         },
         "fechaProgramada": {
             "type": "date",
+            "audited": true,
             "isCustom": true
         },
         "horaInicio": {
             "type": "varchar",
+            "audited": true,
             "view": "custom:views/fields/hora-reloj",
             "maxLength": 5,
             "isCustom": true
         },
         "horaFin": {
             "type": "varchar",
+            "audited": true,
             "view": "custom:views/fields/hora-reloj",
             "maxLength": 5,
             "isCustom": true
         },
         "tipoProgramacion": {
             "type": "enum",
+            "audited": true,
             "options": [
                 "Programación inicial",
                 "Reprogramación"
             ],
             "default": "Programación inicial",
+            "readOnly": true,
             "isCustom": true
         },
         "responsable": {
             "type": "link",
+            "audited": true,
             "isCustom": true
         },
         "motivoReprogramacion": {
             "type": "text",
+            "audited": true,
             "rows": 3,
             "isCustom": true
         },
         "estado": {
             "type": "enum",
+            "audited": true,
             "options": [
                 "Programada",
                 "Confirmada",

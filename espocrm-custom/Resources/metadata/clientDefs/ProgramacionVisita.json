@@ -8,6 +8,17 @@
         "editSmall": "custom:views/programacion-visita/record/edit-small",
         "list": "views/record/list"
     },
+    "defaultSidePanelDisabled": true,
+    "sidePanels": {
+        "detail": [
+            {
+                "name": "programacionStream",
+                "label": "Historia",
+                "view": "views/stream/panel",
+                "notRefreshable": true
+            }
+        ]
+    },
     "dynamicLogic": {
         "fields": {
             "tipoProgramacion": {

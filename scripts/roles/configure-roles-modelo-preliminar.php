@@ -275,6 +275,10 @@ foreach ($roleConfigs as $roleName => $scopePermissions) {
         $data['IntervencionTecnica']['stream'] = 'all';
     }
 
+    if (isset($data['ProgramacionVisita']) && ($data['ProgramacionVisita']['read'] ?? 'no') !== 'no') {
+        $data['ProgramacionVisita']['stream'] = 'all';
+    }
+
     // Línea base que sí tienen los demás roles operativos (excluidos a
     // propósito de configure-{comunicacion-caso,task,meeting}-permissions.php
     // mientras no tenían ACL propio).

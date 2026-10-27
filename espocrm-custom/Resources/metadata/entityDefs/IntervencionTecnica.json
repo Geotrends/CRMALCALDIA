@@ -135,6 +135,7 @@
         },
         "programacionesVisita": {
             "type": "hasMany",
+            "audited": true,
             "entity": "ProgramacionVisita",
             "foreign": "intervencionTecnica"
         },
