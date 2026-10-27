@@ -46,10 +46,10 @@ $globalTabList = [
     ],
     'GestionTecnica',
     'IntervencionTecnica',
+    'RecomendacionTecnica',
     'ProgramacionVisita',
     'ActaVisita',
     'EvaluacionResultado',
-    'RecomendacionTecnica',
     'Compromiso',
     'VerificacionCumplimiento',
     [
