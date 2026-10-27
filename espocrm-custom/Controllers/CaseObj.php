@@ -38,6 +38,7 @@ use Espo\Custom\Tools\Party\PartyRegistryService;
 use Espo\Custom\Tools\User\AlcaldiaUserProfile;
 use Espo\Entities\User;
 use Espo\Modules\Crm\Controllers\CaseObj as BaseCaseObj;
+use Espo\ORM\Entity;
 use Espo\ORM\EntityManager;
 
 class CaseObj extends BaseCaseObj
@@ -654,9 +655,18 @@ class CaseObj extends BaseCaseObj
     private function doCerrarSinProceso(Request $request): array
     {
         $id = $this->parseCaseIdFromRequest($request->getParsedBody());
-        $case = $this->getCaseOrFail($id);
 
-        $user = $this->getUser();
+        return $this->cerrarSinProceso($this->getCaseOrFail($id), $this->getUser());
+    }
+
+    /**
+     * También la usa guardarDefinicionTramite con el caso aún sin guardar: la definición
+     * y el cierre quedan en un solo guardado (una sola entrada en la historia).
+     *
+     * @return array<string, mixed>
+     */
+    private function cerrarSinProceso(Entity $case, User $user): array
+    {
         $profile = $this->injectableFactory->create(AlcaldiaUserProfile::class);
 
         if (!$user->isAdmin() && !$profile->isInspeccion($user) && !$profile->isInspectorAmbiental($user)
@@ -916,7 +926,17 @@ class CaseObj extends BaseCaseObj
     public function postActionRemitirPorCompetencia(Request $request): array
     {
         $case = $this->getCaseOrFail($this->parseCaseIdFromRequest($request->getParsedBody()));
-        $user = $this->getUser();
+
+        return $this->remitirPorCompetencia($case, $this->getUser());
+    }
+
+    /**
+     * Como cerrarSinProceso, también se ejecuta desde guardarDefinicionTramite en el mismo guardado.
+     *
+     * @return array<string, mixed>
+     */
+    private function remitirPorCompetencia(Entity $case, User $user): array
+    {
         $profile = $this->injectableFactory->create(AlcaldiaUserProfile::class);
 
         if (!$user->isAdmin() && !$profile->isInspeccion($user) && !$profile->isInspectorAmbiental($user)
@@ -1011,7 +1031,19 @@ class CaseObj extends BaseCaseObj
         $acta->set('cEntidadRemision', $esRemision ? $entidad : null);
         $acta->set('fechaAprobacion', date('Y-m-d'));
         $acta->set('cRevisadoPor', (string) ($user->get('name') ?: $user->get('userName')));
-        $this->entityManager->saveEntity($acta);
+        // El caso se guarda abajo con la definición: que el acta no lo guarde por su lado
+        // (SetEnProcesoOnActaVisita), o la historia tendría una entrada de más.
+        $this->entityManager->saveEntity($acta, ['skipCaseStatusUpdate' => true]);
+
+        // Con "ejecutar", la acción de la definición va en el mismo guardado del caso.
+        if (!empty($data['ejecutar']) && $decision === 'Cierre de atención') {
+            return $this->cerrarSinProceso($case, $user);
+        }
+
+        if (!empty($data['ejecutar']) && $esRemision) {
+            return $this->remitirPorCompetencia($case, $user);
+        }
+
         $this->entityManager->saveEntity($case, ['skipAsignadorLimit' => true]);
 
         if ($decision === 'Apertura de actuación') {

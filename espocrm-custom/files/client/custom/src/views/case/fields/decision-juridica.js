@@ -22,14 +22,16 @@ define('custom:views/case/fields/decision-juridica', [
         'Cierre de atención': {
             label: 'Guardar y cerrar la atención',
             icon: 'fa-box-archive',
-            endpoint: 'Case/action/cerrarSinProceso',
+            endpoint: null,
+            ejecutar: true,
             confirm: '¿Confirma el cierre de la atención sin abrir proceso? El caso quedará pendiente de la respuesta final al peticionario (la proyecta Inspección) y se finaliza con «Finalizar caso».',
             success: 'Atención cerrada: pendiente de la respuesta final al peticionario.',
         },
         'Remisión por competencia': {
             label: 'Guardar y remitir por competencia',
             icon: 'fa-share-from-square',
-            endpoint: 'Case/action/remitirPorCompetencia',
+            endpoint: null,
+            ejecutar: true,
             confirm: '¿Confirma la remisión por competencia? Se registrará la remisión, se avisará a quien prepara el oficio (plazo de 5 días hábiles) y el caso se finaliza con «Finalizar caso» cuando se envíe el oficio y se informe al peticionario.',
             success: 'Caso remitido por competencia. Remisión registrada para el oficio.',
         },
@@ -384,18 +386,21 @@ define('custom:views/case/fields/decision-juridica', [
             const ejecutar = function () {
                 Espo.Ui.notify(self.translate('pleaseWait', 'messages'));
 
+                // Cierre y remisión se ejecutan en la misma petición ("ejecutar"): un solo
+                // guardado del caso y una sola entrada en la historia.
                 Espo.Ajax.postRequest('Case/action/guardarDefinicionTramite', {
                     id: self.model.id, decision: decision, motivo: motivo, entidadRemision: entidadRemision,
-                }).then(function () {
+                    ejecutar: !!accion.ejecutar,
+                }).then(function (response) {
                     if (accion.endpoint) {
                         return Espo.Ajax.postRequest(accion.endpoint, {id: self.model.id});
                     }
 
-                    return null;
+                    return response;
                 }).then(function (response) {
                     Espo.Ui.notify(false);
 
-                    if (!accion.endpoint) {
+                    if (!accion.endpoint && !accion.ejecutar) {
                         // Apertura de actuación: se decide el régimen y si se abre un expediente
                         // nuevo o se incorpora a uno existente en el bloque «Apertura de expediente».
                         Espo.Ui.success('Definición guardada. Complete la apertura en «Apertura de expediente».');
