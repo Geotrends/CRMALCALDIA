@@ -12,6 +12,18 @@
         "joinUrl": {
             "readOnly": false,
             "customizationReadOnlyDisabled": true
+        },
+        "programacionVisita": {
+            "type": "link",
+            "readOnly": true,
+            "isCustom": true
+        }
+    },
+    "links": {
+        "programacionVisita": {
+            "type": "belongsTo",
+            "entity": "ProgramacionVisita",
+            "foreign": "reunion"
         }
     }
 }

@@ -16,6 +16,10 @@
             [
                 {"name": "horaInicio"},
                 {"name": "horaFin"}
+            ],
+            [
+                {"name": "reunion"},
+                false
             ]
         ],
         "style": "default",

@@ -73,6 +73,11 @@
             "default": "Programada",
             "isCustom": true
         },
+        "reunion": {
+            "type": "link",
+            "readOnly": true,
+            "isCustom": true
+        },
         "assignedUser": {
             "type": "link",
             "readOnlyAfterCreate": true,
@@ -100,6 +105,11 @@
         "responsable": {
             "type": "belongsTo",
             "entity": "User"
+        },
+        "reunion": {
+            "type": "hasOne",
+            "entity": "Meeting",
+            "foreign": "programacionVisita"
         },
         "assignedUser": {
             "type": "belongsTo",
