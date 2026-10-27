@@ -4,6 +4,8 @@
         "intervencionTecnica": "Intervención técnica",
         "fechaObjetivo": "Fecha objetivo",
         "fechaProgramada": "Fecha programada",
+        "horaInicio": "Hora inicio",
+        "horaFin": "Hora fin",
         "tipoProgramacion": "Tipo de programación",
         "responsable": "Responsable",
         "motivoReprogramacion": "Motivo de reprogramación",

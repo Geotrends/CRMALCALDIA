@@ -12,6 +12,10 @@
             [
                 {"name": "fechaObjetivo"},
                 {"name": "fechaProgramada"}
+            ],
+            [
+                {"name": "horaInicio"},
+                {"name": "horaFin"}
             ]
         ],
         "style": "default",

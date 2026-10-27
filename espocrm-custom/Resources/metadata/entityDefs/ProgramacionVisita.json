@@ -21,6 +21,18 @@
             "type": "date",
             "isCustom": true
         },
+        "horaInicio": {
+            "type": "varchar",
+            "view": "custom:views/fields/hora-reloj",
+            "maxLength": 5,
+            "isCustom": true
+        },
+        "horaFin": {
+            "type": "varchar",
+            "view": "custom:views/fields/hora-reloj",
+            "maxLength": 5,
+            "isCustom": true
+        },
         "tipoProgramacion": {
             "type": "enum",
             "options": [
