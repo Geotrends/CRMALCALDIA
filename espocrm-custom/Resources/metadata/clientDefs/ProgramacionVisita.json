@@ -6,5 +6,32 @@
         "detail": "views/record/detail",
         "edit": "views/record/edit",
         "list": "views/record/list"
+    },
+    "dynamicLogic": {
+        "fields": {
+            "tipoProgramacion": {
+                "visible": {
+                    "conditionGroup": [
+                        {"type": "isNotEmpty", "attribute": "id"}
+                    ]
+                }
+            },
+            "motivoReprogramacion": {
+                "visible": {
+                    "conditionGroup": [
+                        {"type": "isNotEmpty", "attribute": "id"}
+                    ]
+                }
+            }
+        },
+        "panels": {
+            "reprogramacion": {
+                "visible": {
+                    "conditionGroup": [
+                        {"type": "isNotEmpty", "attribute": "id"}
+                    ]
+                }
+            }
+        }
     }
 }

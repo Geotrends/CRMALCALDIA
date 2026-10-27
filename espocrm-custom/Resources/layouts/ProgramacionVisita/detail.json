@@ -6,8 +6,8 @@
                 {"name": "estado"}
             ],
             [
-                {"name": "tipoProgramacion"},
-                {"name": "responsable"}
+                {"name": "responsable"},
+                {"name": "tipoProgramacion"}
             ],
             [
                 {"name": "fechaObjetivo"},
@@ -22,6 +22,7 @@
             [{"name": "motivoReprogramacion", "fullWidth": true}]
         ],
         "style": "default",
+        "name": "reprogramacion",
         "label": "Reprogramación"
     }
 ]
