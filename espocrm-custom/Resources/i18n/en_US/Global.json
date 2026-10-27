@@ -12,6 +12,7 @@
     "Calendar": "Calendario",
     "GestionTecnica": "Gestión técnica",
     "IntervencionTecnica": "Intervención técnica",
+    "ProgramacionVisita": "Programación de visita",
     "Destino": "Destino"
   },
   "scopeNamesPlural": {
@@ -26,6 +27,7 @@
     "Task": "Tareas",
     "GestionTecnica": "Gestiones técnicas",
     "IntervencionTecnica": "Intervenciones técnicas",
+    "ProgramacionVisita": "Programaciones de visita",
     "Destino": "Destinos"
   },
   "labels": {

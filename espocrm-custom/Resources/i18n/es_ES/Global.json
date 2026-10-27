@@ -14,6 +14,7 @@
     "RelacionCasos": "Relación de casos",
     "GestionTecnica": "Gestión técnica",
     "IntervencionTecnica": "Intervención técnica",
+    "ProgramacionVisita": "Programación de visita",
     "Destino": "Destino"
   },
   "scopeNamesPlural": {
@@ -30,6 +31,7 @@
     "RelacionCasos": "Relaciones de casos",
     "GestionTecnica": "Gestiones técnicas",
     "IntervencionTecnica": "Intervenciones técnicas",
+    "ProgramacionVisita": "Programaciones de visita",
     "Destino": "Destinos"
   },
   "labels": {
