@@ -286,6 +286,7 @@ define('custom:views/case/fields/acta-visita-action', [
                             ? self.getDateTime().toDisplayDate(acta.fechaVisita)
                             : 'Sin fecha',
                         canDescargar: ActaVisitaCaseStatus.hasActaVisitContent(acta),
+                        actasFirmadas: self.buildActasFirmadas(acta),
                         estado: estado,
                         estadoLabel: estadoLabel,
                         isAprobada: isAprobada,
@@ -316,6 +317,19 @@ define('custom:views/case/fields/acta-visita-action', [
                         ),
                     };
                 });
+        },
+
+        buildActasFirmadas: function (acta) {
+            const ids = acta.formatoManoAdjuntoIds;
+            const list = Array.isArray(ids) ? ids : String(ids || '').split(',').filter(Boolean);
+            const names = acta.formatoManoAdjuntoNames || {};
+
+            return list.map(function (id) {
+                return {
+                    url: '?entryPoint=download&id=' + encodeURIComponent(id),
+                    label: list.length > 1 ? 'Descargar acta firmada: ' + (names[id] || id) : 'Descargar acta firmada',
+                };
+            });
         },
 
         shouldShowActaPanel: function () {

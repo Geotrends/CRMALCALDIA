@@ -353,6 +353,7 @@ define('custom:helpers/acta-visita-case-status', [
         'cFormatoActaVisitaPdfId',
         'cFormatoActaVisitaPdfName',
         'formatoManoAdjuntoIds',
+        'formatoManoAdjuntoNames',
         'cDecisionTramite',
         'observacionesRevision',
         'cEntidadRemision',

@@ -56,8 +56,13 @@
             data-acta-id="{{actaId}}"
             {{#unless canDescargar}}disabled title="El acta aún no tiene datos de la visita."{{/unless}}
         >
-            <span class="fas fa-download"></span> Descargar acta
+            <span class="fas fa-download"></span> Descargar acta generada
         </button>
+        {{#each actasFirmadas}}
+        <a class="btn btn-default btn-sm case-acta-visita-btn" href="{{url}}" download>
+            <span class="fas fa-file-signature"></span> {{label}}
+        </a>
+        {{/each}}
     </div>
     {{#if hasRevision}}
     <div class="case-visita-decision-summary" data-acta-id="{{actaId}}">
