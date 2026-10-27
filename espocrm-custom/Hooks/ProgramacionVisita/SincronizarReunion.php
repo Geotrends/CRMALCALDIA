@@ -8,6 +8,7 @@ use Espo\Core\Hook\Hook\AfterRemove;
 use Espo\Core\Hook\Hook\AfterSave;
 use Espo\Core\Utils\Config;
 use Espo\Custom\Hooks\Meeting\ProtegerReunionProgramada;
+use Espo\Custom\Tools\User\AlcaldiaUserProfile;
 use Espo\ORM\Entity;
 use Espo\ORM\EntityManager;
 use Espo\ORM\Repository\Option\RemoveOptions;
@@ -15,8 +16,8 @@ use Espo\ORM\Repository\Option\SaveOptions;
 
 /**
  * Cada programación con fecha programada tiene una reunión en el calendario: asignada al
- * responsable de la programación, con el de la intervención técnica y el inspector responsable
- * de la solicitud como asistentes, y recordatorio en la app un día antes. Al reprogramar se
+ * responsable de la programación, con el de la intervención técnica y el Director Técnico como
+ * asistentes, y recordatorio en la app un día antes. Al reprogramar se
  * mueve la misma reunión; si la programación se cancela, la reunión queda "No realizada".
  */
 class SincronizarReunion implements AfterSave, AfterRemove
@@ -37,7 +38,8 @@ class SincronizarReunion implements AfterSave, AfterRemove
 
     public function __construct(
         private EntityManager $entityManager,
-        private Config $config
+        private Config $config,
+        private AlcaldiaUserProfile $profile
     ) {}
 
     public function afterSave(Entity $entity, SaveOptions $options): void
@@ -191,13 +193,9 @@ class SincronizarReunion implements AfterSave, AfterRemove
 
         if ($intervencion) {
             $ids[] = $intervencion->get('responsableId');
-
-            $caso = $this->findCaso($intervencion);
-
-            if ($caso) {
-                $ids[] = $caso->get('cInspectorResponsableId') ?: $caso->get('assignedUserId');
-            }
         }
+
+        $ids = array_merge($ids, $this->profile->findActiveAsignadorUserIds());
 
         return array_values(array_unique(array_filter($ids)));
     }
