@@ -9,7 +9,10 @@
     "User": "Usuario",
     "Team": "Equipo",
     "Task": "Tarea",
-    "Calendar": "Calendario"
+    "Calendar": "Calendario",
+    "GestionTecnica": "Gestión técnica",
+    "IntervencionTecnica": "Intervención técnica",
+    "Destino": "Destino"
   },
   "scopeNamesPlural": {
     "ActaVisita": "Actas de visita",
@@ -20,7 +23,10 @@
     "Template": "Plantillas PDF",
     "User": "Usuarios",
     "Team": "Equipos",
-    "Task": "Tareas"
+    "Task": "Tareas",
+    "GestionTecnica": "Gestiones técnicas",
+    "IntervencionTecnica": "Intervenciones técnicas",
+    "Destino": "Destinos"
   },
   "labels": {
     "Home": "Inicio",

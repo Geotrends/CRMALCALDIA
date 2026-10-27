@@ -11,7 +11,10 @@
     "Task": "Tarea",
     "Calendar": "Calendario",
     "Expediente": "Expediente",
-    "RelacionCasos": "Relación de casos"
+    "RelacionCasos": "Relación de casos",
+    "GestionTecnica": "Gestión técnica",
+    "IntervencionTecnica": "Intervención técnica",
+    "Destino": "Destino"
   },
   "scopeNamesPlural": {
     "ActaVisita": "Actas de visita",
@@ -24,7 +27,10 @@
     "Team": "Equipos",
     "Task": "Tareas",
     "Expediente": "Expedientes",
-    "RelacionCasos": "Relaciones de casos"
+    "RelacionCasos": "Relaciones de casos",
+    "GestionTecnica": "Gestiones técnicas",
+    "IntervencionTecnica": "Intervenciones técnicas",
+    "Destino": "Destinos"
   },
   "labels": {
     "Home": "Inicio",
