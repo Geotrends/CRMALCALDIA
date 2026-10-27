@@ -39,16 +39,6 @@
     {{/if}}
     <p class="text-muted small case-visita-archivo-help">{{archivoHelp}}</p>
     <div class="btn-group-vertical w-100 case-visita-archivo-actions">
-        {{#if canConsultar}}
-        <button
-            type="button"
-            class="btn btn-default btn-sm case-acta-visita-btn"
-            data-action="consultarActa"
-            data-acta-id="{{actaId}}"
-        >
-            <span class="fas fa-file-lines"></span> {{../buttonLabelConsultarActa}}
-        </button>
-        {{/if}}
         <button
             type="button"
             class="btn btn-primary btn-sm case-acta-visita-btn"
@@ -100,17 +90,6 @@
     {{/if}}
 </div>
 {{/each}}
-{{#if wordDownloadEnabled}}
-<div class="case-acta-word-section">
-    <button
-        type="button"
-        class="btn btn-default btn-sm case-acta-visita-btn"
-        data-action="descargarActaWord"
-    >
-        <span class="fas fa-file-word"></span> {{buttonLabelWord}}
-    </button>
-</div>
-{{/if}}
 {{#if showAgregarVisitaArchivo}}
 <div class="case-agregar-visita-section">
     <p class="text-muted small case-agregar-visita-help">{{agregarVisitaHelp}}</p>

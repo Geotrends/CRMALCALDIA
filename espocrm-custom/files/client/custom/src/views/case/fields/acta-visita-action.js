@@ -385,8 +385,6 @@ define('custom:views/case/fields/acta-visita-action', [
                 visitaCheckHelp: this.translateCaseLabel('visitaRealizadaCheckHelp'),
                 helpText: this.resolveHelpText(user),
                 buttonLabelDigital: this.resolveButtonLabelDigital(),
-                buttonLabelWord: this.translateCaseLabel('descargarActaVisitaWord'),
-                wordDownloadEnabled: this.canUseTools,
                 showVisitaAprobacion: this.showVisitaAprobacion,
                 visitaAprobada: this.visitaAprobada,
                 visitaAprobadaDisabled: this.visitaAprobada && !this.canRevertVisitaAprobada(user),
@@ -404,7 +402,6 @@ define('custom:views/case/fields/acta-visita-action', [
                 showCurrentVisitaSection: this.resolveShowCurrentVisitaSection(),
                 visitaLabel: this.translateCaseLabel('visitaNumeroLabel'),
                 visitaAprobadaArchivoHelp: this.translateCaseLabel('visitaAprobadaArchivoHelp'),
-                buttonLabelConsultarActa: this.translateCaseLabel('consultarActaVisita'),
             };
         },
 
@@ -861,11 +858,9 @@ define('custom:views/case/fields/acta-visita-action', [
             const self = this;
 
             this.$el.find('[data-action="llenarActa"]').off('click.acta');
-            this.$el.find('[data-action="descargarActaWord"]').off('click.actaWord');
             this.$el.find('[data-action="agregarVisita"]').off('click.agregarVisita');
             this.$el.find('[data-action="descargarActaArchivo"]').off('click.descargarActaArchivo');
             this.$el.find('[data-action="verActa"]').off('click.verActa');
-            this.$el.find('[data-action="consultarActa"]').off('click.consultarActa');
             this.$el.find('[data-action="aprobarVisitaActa"]').off('click.aprobarVisitaActa');
             this.$el.find('[data-action="editarRevisionActa"], [data-action="guardarRevisionActa"], [data-action="cancelarRevisionActa"]').off('.revisionActa');
 
@@ -904,12 +899,6 @@ define('custom:views/case/fields/acta-visita-action', [
                 }
 
                 self.openActaModal();
-            });
-
-            this.$el.find('[data-action="descargarActaWord"]').on('click.actaWord', function (e) {
-                e.preventDefault();
-                e.stopPropagation();
-                self.actionDescargarActaWord();
             });
 
             this.$el.find('[data-action="agregarVisita"]').on('click.agregarVisita', function (e) {
@@ -955,12 +944,6 @@ define('custom:views/case/fields/acta-visita-action', [
                 if (actaId) {
                     self.actionVerActa(actaId);
                 }
-            });
-
-            this.$el.find('[data-action="consultarActa"]').on('click.consultarActa', function (e) {
-                e.preventDefault();
-                e.stopPropagation();
-                self.actionConsultarActa($(e.currentTarget).data('acta-id'));
             });
 
             this.$el.find('[data-action="descargarActaArchivo"]').on('click.descargarActaArchivo', function (e) {
@@ -1037,15 +1020,6 @@ define('custom:views/case/fields/acta-visita-action', [
                 + '&format=pdf';
 
             window.location.assign(url);
-        },
-
-        actionConsultarActa: function (actaId) {
-            if (!actaId || !this.canConsultarVisita(this.getUser())) {
-                Espo.Ui.warning('No tiene permiso para consultar esta visita.');
-                return;
-            }
-
-            ActaVisitaModal.openDetailById(this, actaId);
         },
 
         actionPrepararNuevaVisita: function (options) {
@@ -1219,16 +1193,6 @@ define('custom:views/case/fields/acta-visita-action', [
             }
 
             this.openFormatoUrl('manual');
-        },
-
-        actionDescargarActaWord: function () {
-            if (!PatrulleroActa.canPrintManualActa(this.getUser(), this.model)) {
-                Espo.Ui.warning(this.translateCaseLabel('actaVisitaManualUnavailable'));
-
-                return;
-            }
-
-            this.openFormatoUrl('manual', null, 'docx');
         },
 
         openFormatoUrl: function (modo, actaId, format) {

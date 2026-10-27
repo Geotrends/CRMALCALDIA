@@ -229,10 +229,6 @@
   background: #fff;
 }
 
-.detail[data-scope="Case"] .panel[data-name="actaVisita"] .case-acta-word-section {
-  margin: 12px 0;
-}
-
 .detail[data-scope="Case"] .panel[data-name="actaVisita"] .case-agregar-visita-section .case-agregar-visita-help {
   margin-bottom: 10px;
 }
