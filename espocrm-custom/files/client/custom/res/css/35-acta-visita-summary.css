@@ -15,3 +15,19 @@
 .alcaldia-acta-collapsible > .panel-heading .alcaldia-acta-summary + .alcaldia-acta-collapsible__chevron {
   margin-left: 12px !important;
 }
+
+/* Formato diligenciado a mano: "Descargar acta en blanco" (solo al crear) y el botón
+   de adjuntar con texto; el tema limita ese botón a un ícono de 50px. */
+.acta-formato-en-blanco {
+  margin-bottom: 10px;
+}
+
+.cell[data-name="formatoManoAdjunto"] .attach-file-label {
+  overflow: visible !important;
+  width: auto !important;
+}
+
+.cell[data-name="formatoManoAdjunto"] .attach-file-label > .btn {
+  letter-spacing: normal !important;
+  text-transform: none !important;
+}

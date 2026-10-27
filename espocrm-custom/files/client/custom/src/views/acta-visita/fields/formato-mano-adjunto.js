@@ -21,6 +21,17 @@ define('custom:views/acta-visita/fields/formato-mano-adjunto', [
             return data;
         },
 
+        labelAttachButton: function () {
+            const $button = this.$el.find('.attach-file-label > .btn').first();
+
+            if (!$button.length || $button.find('.acta-adjuntar-texto').length) {
+                return;
+            }
+
+            $button.removeClass('btn-icon').addClass('btn-sm')
+                .append(' <span class="acta-adjuntar-texto">Adjuntar acta diligenciada</span>');
+        },
+
         // Solo al crear el acta: el formato vacío para diligenciar a mano en campo.
         addFormatoEnBlanco: function () {
             if (!this.isEditMode() || !this.model.isNew() || this.$el.find('.acta-formato-en-blanco').length) {
@@ -39,6 +50,7 @@ define('custom:views/acta-visita/fields/formato-mano-adjunto', [
             Dep.prototype.afterRender.call(this);
 
             if (!this.isDetailMode()) {
+                this.labelAttachButton();
                 this.addFormatoEnBlanco();
 
                 return;
