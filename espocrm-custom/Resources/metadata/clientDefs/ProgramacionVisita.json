@@ -3,7 +3,7 @@
     "iconClass": "fas fa-calendar-alt",
     "color": "#0369a1",
     "recordViews": {
-        "detail": "views/record/detail",
+        "detail": "custom:views/programacion-visita/record/detail",
         "edit": "custom:views/programacion-visita/record/edit",
         "editSmall": "custom:views/programacion-visita/record/edit-small",
         "list": "views/record/list"

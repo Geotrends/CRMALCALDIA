@@ -1,15 +1,10 @@
 define('custom:views/programacion-visita/record/edit-small', ['views/record/edit-small'], function (Dep) {
 
-    // Al crear no se muestra el panel lateral (responsable y equipos).
+    // Sin panel lateral (responsable asignado y equipos): el asignado lo pone el servidor.
     return Dep.extend({
 
-        setup: function () {
-            Dep.prototype.setup.call(this);
+        sideDisabled: true,
 
-            if (this.model.isNew()) {
-                this.sideDisabled = true;
-                this.isWide = true;
-            }
-        },
+        isWide: true,
     });
 });
