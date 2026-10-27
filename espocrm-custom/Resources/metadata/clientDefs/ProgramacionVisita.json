@@ -12,6 +12,17 @@
     "sidePanels": {
         "detail": [
             {
+                "name": "fechasRegistro",
+                "view": "views/record/panels/side",
+                "isForm": true,
+                "options": {
+                    "fieldList": [
+                        {"name": "createdAt"},
+                        {"name": "modifiedAt"}
+                    ]
+                }
+            },
+            {
                 "name": "programacionStream",
                 "label": "Historia",
                 "view": "views/stream/panel",
