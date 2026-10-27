@@ -6,7 +6,7 @@
         "detail": "custom:views/programacion-visita/record/detail",
         "edit": "custom:views/programacion-visita/record/edit",
         "editSmall": "custom:views/programacion-visita/record/edit-small",
-        "list": "views/record/list"
+        "list": "custom:views/programacion-visita/record/list"
     },
     "defaultSidePanelDisabled": true,
     "sidePanels": {

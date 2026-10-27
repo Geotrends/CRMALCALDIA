@@ -8,9 +8,8 @@ use Espo\ORM\Entity;
 use Espo\ORM\Repository\Option\SaveOptions;
 
 /**
- * Al crear, la programación siempre es "Programación inicial". Después, el tipo, el motivo y las
- * fechas u horas ya diligenciadas solo cambian con la acción Reprogramar (opción OPCION).
- * Completar una fecha u hora que estaba vacía sí se permite al editar.
+ * Al crear, la programación siempre es "Programación inicial". Después solo se modifica con la
+ * acción Reprogramar (opción OPCION); cualquier otra edición se rechaza.
  */
 class ProtegerReprogramacion implements BeforeSave
 {
@@ -18,9 +17,17 @@ class ProtegerReprogramacion implements BeforeSave
 
     public static int $order = 6;
 
-    private const CAMPOS_FECHA = ['fechaObjetivo', 'fechaProgramada', 'horaInicio', 'horaFin'];
-
-    private const CAMPOS_REPROGRAMACION = ['tipoProgramacion', 'motivoReprogramacion'];
+    private const CAMPOS = [
+        'name',
+        'fechaObjetivo',
+        'fechaProgramada',
+        'horaInicio',
+        'horaFin',
+        'tipoProgramacion',
+        'responsableId',
+        'motivoReprogramacion',
+        'estado',
+    ];
 
     public function beforeSave(Entity $entity, SaveOptions $options): void
     {
@@ -35,18 +42,9 @@ class ProtegerReprogramacion implements BeforeSave
             return;
         }
 
-        foreach (self::CAMPOS_REPROGRAMACION as $campo) {
+        foreach (self::CAMPOS as $campo) {
             if ($entity->isAttributeChanged($campo)) {
-                throw new BadRequest('El tipo y el motivo solo cambian con la opción Reprogramar.');
-            }
-        }
-
-        foreach (self::CAMPOS_FECHA as $campo) {
-            if (
-                $entity->isAttributeChanged($campo)
-                && (string) $entity->getFetched($campo) !== ''
-            ) {
-                throw new BadRequest('Para cambiar fechas u horas ya programadas use la opción Reprogramar.');
+                throw new BadRequest('La programación de visita solo se modifica con la opción Reprogramar.');
             }
         }
     }

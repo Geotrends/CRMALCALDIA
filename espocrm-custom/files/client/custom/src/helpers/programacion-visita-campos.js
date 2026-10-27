@@ -1,8 +1,11 @@
 define('custom:helpers/programacion-visita-campos', [], function () {
 
-    // Fechas y horas ya diligenciadas solo cambian con "Reprogramar" (hook ProtegerReprogramacion);
-    // al editar quedan de solo lectura. El motivo tampoco se edita fuera de Reprogramar.
-    const CAMPOS_FECHA = ['fechaObjetivo', 'fechaProgramada', 'horaInicio', 'horaFin'];
+    // Una programación ya creada solo se modifica con "Reprogramar" (hook ProtegerReprogramacion);
+    // si se abre el formulario de edición, todo queda de solo lectura.
+    const CAMPOS = [
+        'name', 'estado', 'responsable', 'fechaObjetivo', 'fechaProgramada',
+        'horaInicio', 'horaFin', 'motivoReprogramacion',
+    ];
 
     return {
         bloquearReprogramables: function (view) {
@@ -10,13 +13,7 @@ define('custom:helpers/programacion-visita-campos', [], function () {
                 return;
             }
 
-            CAMPOS_FECHA.forEach(campo => {
-                if (view.model.get(campo)) {
-                    view.setFieldReadOnly(campo);
-                }
-            });
-
-            view.setFieldReadOnly('motivoReprogramacion');
+            CAMPOS.forEach(campo => view.setFieldReadOnly(campo));
         },
     };
 });

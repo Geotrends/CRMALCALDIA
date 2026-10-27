@@ -1,19 +1,18 @@
-define('custom:views/programacion-visita/record/detail', [
-    'custom:views/gestion-tecnica/record/detail',
-    'custom:helpers/programacion-visita-campos',
-], function (Dep, ProgramacionVisitaCampos) {
+define('custom:views/programacion-visita/record/detail', ['custom:views/gestion-tecnica/record/detail'], function (Dep) {
 
-    // El panel lateral solo lleva la Historia (clientDefs: defaultSidePanelDisabled).
-    // Las fechas y horas se cambian con "Reprogramar", no con Editar.
+    // La programación solo se modifica con "Reprogramar" (hook ProtegerReprogramacion):
+    // sin botón Editar ni edición en línea.
     return Dep.extend({
+
+        inlineEditDisabled: true,
 
         setup: function () {
             Dep.prototype.setup.call(this);
 
-            ProgramacionVisitaCampos.bloquearReprogramables(this);
+            this.removeButton('edit');
 
             if (this.getAcl().checkModel(this.model, 'edit') && this.model.get('estado') !== 'Cancelada') {
-                this.addButton({name: 'reprogramar', label: 'Reprogramar', style: 'default'});
+                this.addButton({name: 'reprogramar', label: 'Reprogramar', style: 'primary'});
             }
         },
 
