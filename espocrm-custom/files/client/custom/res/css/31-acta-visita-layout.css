@@ -41,4 +41,4 @@
 .alcaldia-acta-modal-layout .alcaldia-acta-collapsed > .panel-heading { border-bottom-color:transparent !important; }
 
 /* Formato vacío para diligenciar a mano (solo al crear el acta). */
-.acta-formato-en-blanco { margin-top:10px; }
+.acta-formato-en-blanco { margin-bottom:10px; }

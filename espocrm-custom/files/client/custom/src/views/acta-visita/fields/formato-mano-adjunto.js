@@ -27,7 +27,7 @@ define('custom:views/acta-visita/fields/formato-mano-adjunto', [
                 return;
             }
 
-            this.$el.append(
+            this.$el.prepend(
                 '<a class="btn btn-default btn-sm acta-formato-en-blanco" ' +
                     'href="?entryPoint=FormatoActaVisita&blank=1&format=pdf" download>' +
                     '<span class="fas fa-file-pdf"></span> Descargar acta en blanco' +
