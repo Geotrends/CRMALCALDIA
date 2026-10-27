@@ -218,6 +218,12 @@ define('custom:views/calendar/calendar', [
                 fcEvent.caseEventType = event.caseEventType;
             }
 
+            // La reunión de una programación de visita solo se mueve con "Reprogramar".
+            if (event.programacionVisitaId) {
+                fcEvent.programacionVisitaId = event.programacionVisitaId;
+                fcEvent.editable = false;
+            }
+
             return fcEvent;
         },
 
@@ -302,7 +308,7 @@ define('custom:views/calendar/calendar', [
                     return false;
                 }
 
-                if (draggedEvent.extendedProps.isMoreLink) {
+                if (draggedEvent.extendedProps.isMoreLink || draggedEvent.extendedProps.programacionVisitaId) {
                     return false;
                 }
 
@@ -341,7 +347,7 @@ define('custom:views/calendar/calendar', [
             panel = await modal.showDetail(this, {
                 entityType: scope,
                 id: recordId,
-                removeDisabled: scope === 'Case',
+                removeDisabled: scope === 'Case' || !!props.programacionVisitaId,
                 beforeSave: () => {
                     if (this.options.onSave) {
                         this.options.onSave();

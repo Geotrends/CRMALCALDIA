@@ -7,6 +7,7 @@ use DateTimeZone;
 use Espo\Core\Hook\Hook\AfterRemove;
 use Espo\Core\Hook\Hook\AfterSave;
 use Espo\Core\Utils\Config;
+use Espo\Custom\Hooks\Meeting\ProtegerReunionProgramada;
 use Espo\ORM\Entity;
 use Espo\ORM\EntityManager;
 use Espo\ORM\Repository\Option\RemoveOptions;
@@ -66,7 +67,7 @@ class SincronizarReunion implements AfterSave, AfterRemove
         ]);
         $reunion->set($this->horario($entity));
 
-        $this->entityManager->saveEntity($reunion);
+        $this->entityManager->saveEntity($reunion, [ProtegerReunionProgramada::OPCION => true]);
         $this->asegurarRecordatorios($reunion);
     }
 
@@ -75,7 +76,7 @@ class SincronizarReunion implements AfterSave, AfterRemove
         $reunion = $this->findReunion($entity);
 
         if ($reunion) {
-            $this->entityManager->removeEntity($reunion);
+            $this->entityManager->removeEntity($reunion, [ProtegerReunionProgramada::OPCION => true]);
         }
     }
 

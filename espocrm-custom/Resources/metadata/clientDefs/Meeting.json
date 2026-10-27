@@ -48,5 +48,11 @@
                 "notRefreshable": true
             }
         ]
+    },
+    "recordViews": {
+        "detail": "custom:views/meeting/record/detail"
+    },
+    "modalViews": {
+        "detail": "custom:views/meeting/modals/detail"
     }
 }
