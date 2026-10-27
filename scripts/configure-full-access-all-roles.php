@@ -22,6 +22,7 @@ $em = $app->getContainer()->getByClass(EntityManager::class);
 /** @var Config $config */
 $config = $app->getContainer()->getByClass(Config::class);
 
+// Mismo orden que configure-global-tablist.php (este paso corre después y es el que queda).
 $globalTabList = [
     [
         'type' => 'divider',
@@ -44,9 +45,9 @@ $globalTabList = [
         'id' => 'alcaldia-gestion-tecnica',
     ],
     'GestionTecnica',
-    'ActaVisita',
     'IntervencionTecnica',
     'ProgramacionVisita',
+    'ActaVisita',
     'EvaluacionResultado',
     'RecomendacionTecnica',
     'Compromiso',
