@@ -8,7 +8,7 @@ use Espo\ORM\EntityManager;
 use Espo\ORM\Repository\Option\SaveOptions;
 
 /**
- * Nombre automático al crear: Visita_<N>_<nombre de la intervención técnica>, donde N es el
+ * Nombre automático al crear: V<N>_<nombre de la intervención técnica>, donde N es el
  * consecutivo de programaciones de esa intervención (contando las eliminadas, para no repetir).
  */
 class AsignarNombre implements BeforeSave
@@ -47,6 +47,6 @@ class AsignarNombre implements BeforeSave
 
         $nombreIntervencion = trim((string) ($intervencion?->get('name') ?? ''));
 
-        $entity->set('name', 'Visita_' . $numero . ($nombreIntervencion !== '' ? '_' . $nombreIntervencion : ''));
+        $entity->set('name', 'V' . $numero . ($nombreIntervencion !== '' ? '_' . $nombreIntervencion : ''));
     }
 }
