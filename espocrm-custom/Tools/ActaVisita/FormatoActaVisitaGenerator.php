@@ -115,6 +115,20 @@ class FormatoActaVisitaGenerator
     }
 
     /**
+     * Formato IV-F-094 sin ningún dato, para diligenciar a mano.
+     *
+     * @return array{path: string, name: string, type: string}
+     */
+    public function generateBlank(string $format): array
+    {
+        if (!$this->acl->checkScope('ActaVisita', Acl\Table::ACTION_CREATE)) {
+            throw new Forbidden();
+        }
+
+        return $this->runGenerator($format, ['modo' => 'manual', 'modoDiligenciamiento' => 'manual'], 'en_blanco');
+    }
+
+    /**
      * Genera el acta desde el caso (panel lateral del Case).
      *
      * @return array{path: string, name: string, type: string}

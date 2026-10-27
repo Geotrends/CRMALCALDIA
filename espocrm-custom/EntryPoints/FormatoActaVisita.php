@@ -20,11 +20,14 @@ class FormatoActaVisita implements EntryPoint
         $id = $request->getQueryParam('id');
         $format = strtolower(trim((string) ($request->getQueryParam('format') ?? 'pdf')));
 
-        if (!$id) {
+        if ($request->getQueryParam('blank') === '1') {
+            $file = $this->generator->generateBlank($format);
+        } elseif (!$id) {
             throw new BadRequest('No id.');
+        } else {
+            $file = $this->generator->generate($id, $format);
         }
 
-        $file = $this->generator->generate($id, $format);
         $stream = Utils::streamFor(fopen($file['path'], 'rb'));
 
         $response

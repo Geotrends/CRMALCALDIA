@@ -21,10 +21,26 @@ define('custom:views/acta-visita/fields/formato-mano-adjunto', [
             return data;
         },
 
+        // Solo al crear el acta: el formato vacío para diligenciar a mano en campo.
+        addFormatoEnBlanco: function () {
+            if (!this.isEditMode() || !this.model.isNew() || this.$el.find('.acta-formato-en-blanco').length) {
+                return;
+            }
+
+            this.$el.append(
+                '<a class="btn btn-default btn-sm acta-formato-en-blanco" ' +
+                    'href="?entryPoint=FormatoActaVisita&blank=1&format=pdf" download>' +
+                    '<span class="fas fa-file-pdf"></span> Descargar acta en blanco' +
+                '</a>'
+            );
+        },
+
         afterRender: function () {
             Dep.prototype.afterRender.call(this);
 
             if (!this.isDetailMode()) {
+                this.addFormatoEnBlanco();
+
                 return;
             }
 
