@@ -170,6 +170,120 @@ def apply_modo(values, data, layout):
     return values
 
 
+# Coordenadas de la plantilla ActaVisita2 (página 1) para insertar las fotos dentro de
+# "REGISTRO FOTOGRÁFICO" y desplazar lo que sigue, como crecería la sección en el Word.
+FOTOS_HEADER_BOTTOM = 112
+FOTOS_FOOTER_TOP = 733
+FOTOS_CONTENT_TOP = 125
+FOTOS_CONTENT_BOTTOM = 728
+FOTOS_REGISTRO_TITULO = (621, 641)
+FOTOS_CONCLUSION = (681, 733)
+FOTOS_X = (57, 555)
+FOTOS_MAX_HEIGHT = 300
+FOTOS_CAPTION = 12
+FOTOS_GAP = 10
+PAGINA_RECT = fitz.Rect(428, 85, 556, 106)
+
+
+def foto_size(path):
+    try:
+        pix = fitz.Pixmap(path)
+        width, height = pix.width, pix.height
+        pix = None
+    except Exception:
+        return None
+
+    if not width or not height:
+        return None
+
+    max_width = FOTOS_X[1] - FOTOS_X[0]
+    scale = min(max_width / width, FOTOS_MAX_HEIGHT / height)
+    return width * scale, height * scale
+
+
+def paginate_with_fotos(doc, fotos, fonts):
+    """Reconstruye el PDF con las fotos dentro de la sección de registro fotográfico."""
+    fotos = [foto for foto in fotos if os.path.isfile(str(foto.get("path") or ""))]
+    if not fotos or not len(doc):
+        return doc
+
+    width, height = doc[0].rect.width, doc[0].rect.height
+    out = fitz.open()
+
+    def show(page, top, bottom, y=None):
+        y = top if y is None else y
+        page.show_pdf_page(fitz.Rect(0, y, width, y + bottom - top), doc, 0, clip=fitz.Rect(0, top, width, bottom))
+        return y + bottom - top
+
+    def new_page():
+        page = out.new_page(width=width, height=height)
+        for name, buffer in fonts.items():
+            page.insert_font(fontname=name, fontbuffer=buffer)
+        show(page, 0, FOTOS_HEADER_BOTTOM)
+        show(page, FOTOS_FOOTER_TOP, height)
+        return page
+
+    items = []
+    for foto in fotos:
+        size = foto_size(foto["path"])
+        items.append((foto, size, (size[1] if size else 0) + FOTOS_CAPTION))
+
+    titulo_alto = FOTOS_REGISTRO_TITULO[1] - FOTOS_REGISTRO_TITULO[0]
+    page = out.new_page(width=width, height=height)
+    for name, buffer in fonts.items():
+        page.insert_font(fontname=name, fontbuffer=buffer)
+    show(page, FOTOS_FOOTER_TOP, height)
+
+    # El título viaja con la primera foto si esta no cabe en la página 1.
+    if FOTOS_REGISTRO_TITULO[1] + items[0][2] <= FOTOS_CONTENT_BOTTOM:
+        y = show(page, 0, FOTOS_REGISTRO_TITULO[1])
+    else:
+        show(page, 0, FOTOS_REGISTRO_TITULO[0])
+        page = new_page()
+        y = show(page, *FOTOS_REGISTRO_TITULO, y=FOTOS_CONTENT_TOP)
+
+    caption_font = fitz.Font(fontbuffer=fonts["FotoR"])
+    total = len(items)
+    for index, (foto, size, needed) in enumerate(items):
+        if y + needed > FOTOS_CONTENT_BOTTOM:
+            page = new_page()
+            y = FOTOS_CONTENT_TOP
+
+        caption = f"Foto {index + 1} de {total}: {foto.get('name') or ''}"
+        if size:
+            x0 = FOTOS_X[0] + ((FOTOS_X[1] - FOTOS_X[0]) - size[0]) / 2
+            try:
+                page.insert_image(fitz.Rect(x0, y, x0 + size[0], y + size[1]), filename=foto["path"])
+            except Exception:
+                caption += " (no se pudo incluir la imagen)"
+            y += size[1]
+        else:
+            caption += " (no se pudo incluir la imagen)"
+
+        caption_width = caption_font.text_length(caption, fontsize=8)
+        caption_x = FOTOS_X[0] + max(0, ((FOTOS_X[1] - FOTOS_X[0]) - caption_width) / 2)
+        page.insert_text((caption_x, y + 9), caption, fontname="FotoR", fontsize=8)
+        y += FOTOS_CAPTION + FOTOS_GAP
+
+    conclusion_alto = FOTOS_CONCLUSION[1] - FOTOS_CONCLUSION[0]
+    if y + conclusion_alto > FOTOS_FOOTER_TOP:
+        page = new_page()
+        y = FOTOS_CONTENT_TOP
+    show(page, *FOTOS_CONCLUSION, y=y)
+
+    if len(doc) > 1:
+        out.insert_pdf(doc, from_page=1, to_page=len(doc) - 1)
+
+    total_pages = len(out)
+    for number, out_page in enumerate(out, start=1):
+        out_page.insert_font(fontname="FotoB", fontbuffer=fonts["FotoB"])
+        out_page.draw_rect(PAGINA_RECT, color=(1, 1, 1), fill=(1, 1, 1))
+        out_page.insert_text((430, 99), f"Página {number} de {total_pages}", fontname="FotoB", fontsize=11)
+
+    doc.close()
+    return out
+
+
 def fill_pdf(template_path, output_path, data):
     layout = load_layout()
     doc = fitz.open(template_path)
@@ -206,6 +320,12 @@ def fill_pdf(template_path, output_path, data):
             overlay.put_mark(page, marks["zonaUrbano"], layout)
         elif zona == "Rural" and "zonaRural" in marks:
             overlay.put_mark(page, marks["zonaRural"], layout)
+
+    if str(data.get("modo") or "").strip().lower() != "manual" and data.get("fotos"):
+        # Fuentes embebidas con nombre propio: las base14 compartidas con las páginas
+        # del formato pierden las tildes en las páginas nuevas.
+        fonts = {"FotoB": fitz.Font("hebo").buffer, "FotoR": fitz.Font("helv").buffer}
+        doc = paginate_with_fotos(doc, data.get("fotos"), fonts)
 
     titulo = str(data.get("tituloDocumento") or "").strip()
     if titulo:

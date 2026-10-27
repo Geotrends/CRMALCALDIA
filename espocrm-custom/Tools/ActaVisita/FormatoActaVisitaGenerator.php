@@ -10,7 +10,9 @@ use Espo\Core\Acl;
 use Espo\Core\Exceptions\BadRequest;
 use Espo\Core\Exceptions\Error;
 use Espo\Core\Exceptions\Forbidden;
+use Espo\Core\FileStorage\Manager as FileStorageManager;
 use Espo\Core\Utils\Config;
+use Espo\Entities\Attachment;
 use Espo\Entities\Role;
 use Espo\Entities\User;
 use Espo\ORM\Entity;
@@ -28,7 +30,8 @@ class FormatoActaVisitaGenerator
         private Config $config,
         private User $user,
         private Acl $acl,
-        private AlcaldiaUserProfile $profile
+        private AlcaldiaUserProfile $profile,
+        private FileStorageManager $fileStorageManager
     ) {}
 
     /**
@@ -586,9 +589,12 @@ class FormatoActaVisitaGenerator
      */
     private function buildPayload(Entity $acta): array
     {
+        $fotos = $this->buildFotos($acta);
         $registroFotografico = '';
 
-        if ($acta->get('registroFotograficoIds')) {
+        // Las fotos se insertan bajo "REGISTRO FOTOGRÁFICO"; el texto queda solo
+        // si hay adjuntos que no se pueden incluir (no son imágenes locales).
+        if ($fotos === [] && $acta->get('registroFotograficoIds')) {
             $registroFotografico = 'Ver registro fotográfico adjunto en el CRM.';
         }
 
@@ -626,6 +632,7 @@ class FormatoActaVisitaGenerator
             'descripcionHecho' => '',
             'analisisSituacion' => trim((string) $acta->get('analisisSituacion')),
             'registroFotografico' => $registroFotografico,
+            'fotos' => $fotos,
             'conclusion' => trim((string) $acta->get('conclusion')),
             'procedimiento' => '',
             'requerimientos' => trim((string) $acta->get('requerimientos')),
@@ -641,6 +648,37 @@ class FormatoActaVisitaGenerator
             'acompananteCedulaFirma' => trim((string) $acta->get('establecimientoCedula')),
             'acompananteCargo' => trim((string) $acta->get('establecimientoCargo')),
         ];
+    }
+
+    /**
+     * Fotos del registro fotográfico que el generador anexa al PDF.
+     *
+     * @return list<array{path: string, name: string}>
+     */
+    private function buildFotos(Entity $acta): array
+    {
+        $fotos = [];
+
+        foreach ($acta->getLinkMultipleIdList('registroFotografico') ?? [] as $id) {
+            /** @var ?Attachment $attachment */
+            $attachment = $this->entityManager->getEntityById(Attachment::ENTITY_TYPE, $id);
+
+            if (
+                !$attachment
+                || !str_starts_with((string) $attachment->getType(), 'image/')
+                || !$this->fileStorageManager->isLocal($attachment)
+            ) {
+                continue;
+            }
+
+            $path = realpath($this->fileStorageManager->getLocalFilePath($attachment));
+
+            if ($path && is_readable($path)) {
+                $fotos[] = ['path' => $path, 'name' => (string) $attachment->getName()];
+            }
+        }
+
+        return $fotos;
     }
 
     private function formatDate(mixed $value): string
