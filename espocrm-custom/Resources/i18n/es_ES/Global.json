@@ -2,7 +2,7 @@
   "scopeNames": {
     "ActaVisita": "Acta de visita",
     "Account": "Persona jurídica",
-    "Case": "Caso",
+    "Case": "Solicitud",
     "Contact": "Persona natural",
     "Document": "Documento",
     "Template": "Plantilla PDF",
@@ -24,7 +24,7 @@
   "scopeNamesPlural": {
     "ActaVisita": "Actas de visita",
     "Account": "Personas jurídicas",
-    "Case": "Casos",
+    "Case": "Solicitudes",
     "Contact": "Personas naturales",
     "Document": "Documentos",
     "Template": "Plantillas PDF",
@@ -48,7 +48,7 @@
     "accounts": "Personas jurídicas",
     "Contacts": "Personas naturales",
     "Accounts": "Personas jurídicas",
-    "Cases": "Casos",
+    "Cases": "Solicitud",
     "Users": "Usuarios",
     "Documents": "Documentos",
     "Templates": "Plantillas PDF",
