@@ -16,6 +16,7 @@
         },
         "estado": {
             "type": "enum",
+            "view": "custom:views/fields/estado-cierre",
             "options": [
                 "Solicitada",
                 "Asignada",

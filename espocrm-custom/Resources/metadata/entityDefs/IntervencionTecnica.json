@@ -53,6 +53,7 @@
         "estado": {
             "audited": true,
             "type": "enum",
+            "view": "custom:views/fields/estado-cierre",
             "options": [
                 "Pendiente",
                 "Programada",
