@@ -128,6 +128,7 @@ $roleConfigs = [
         'GestionTecnica' => ['create' => 'no', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
         'IntervencionTecnica' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
         'ProgramacionVisita' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
+        'EvaluacionResultado' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
         'Document' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
     ],
 
