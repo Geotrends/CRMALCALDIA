@@ -310,7 +310,24 @@ foreach ($roleConfigs as $roleName => $scopePermissions) {
     $data['Meeting'] = $ownBaseline;
     $data['Calendar'] = true;
 
+    // Sin acceso a Expediente, el expediente del compromiso (lo toma de la solicitud) se ve pero no
+    // se elige: el selector pediría la lista de expedientes y Espo la negaría.
+    $fieldData = $role->get('fieldData');
+
+    if ($fieldData instanceof stdClass) {
+        $fieldData = json_decode(json_encode($fieldData), true);
+    }
+
+    if (!is_array($fieldData)) {
+        $fieldData = [];
+    }
+
+    if (($data['Compromiso']['create'] ?? 'no') === 'yes' && ($data['Expediente']['read'] ?? 'no') === 'no') {
+        $fieldData['Compromiso']['expediente'] = ['read' => 'yes', 'edit' => 'no'];
+    }
+
     $role->set('data', $data);
+    $role->set('fieldData', $fieldData);
     $role->set('tabList', null);
     $role->set('assignmentPermission', 'all');
     $role->set('userPermission', 'no');
