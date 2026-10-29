@@ -1,5 +1,6 @@
 {
     "controller": "controllers/record",
+    "acl": "custom:acl/programacion-visita",
     "iconClass": "fas fa-calendar-alt",
     "color": "#0369a1",
     "recordViews": {
