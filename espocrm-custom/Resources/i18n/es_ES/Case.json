@@ -1,5 +1,8 @@
 {
   "fields": {
+    "cDecisionTramite": "Definición de trámite",
+    "cMotivoDecision": "Motivación de la revisión",
+    "cEntidadRemision": "Entidad competente",
     "expediente": "Expediente (vinculado)",
     "cSoportesExpediente": "Soportes del proceso (carga temporal)",
     "autosInicio": "Autos de inicio",
