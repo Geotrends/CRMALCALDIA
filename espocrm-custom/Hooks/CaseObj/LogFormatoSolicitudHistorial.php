@@ -45,8 +45,7 @@ class LogFormatoSolicitudHistorial implements AfterSave
             'parentType' => 'Case',
             'parentId' => $case->getId(),
             'post' => "Se generó el formato IV-F-007 (solicitud).\n\n"
-                . '[Descargar formato IV-F-007](' . $url . ")\n\n"
-                . 'El documento se genera de nuevo con la información actual del caso.',
+                . '[Descargar formato IV-F-007](' . $url . ')',
         ]);
 
         $this->entityManager->saveEntity($note);
