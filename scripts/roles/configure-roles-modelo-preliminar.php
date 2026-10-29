@@ -219,6 +219,11 @@ $roleConfigs = [
         'PermisoCaninoManejoEspecial' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
         'ActuacionMaltratoAnimal' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
         'AlertaProceso' => $readOnlyAll,
+        // Recibe visitas delegadas por el profesional asignado: mismo alcance que el Técnico Operativo.
+        'GestionTecnica' => $readOnlyAll,
+        'IntervencionTecnica' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
+        'ProgramacionVisita' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
+        'ActaVisita' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
     ],
 ];
 
