@@ -1,5 +1,6 @@
 {
     "controller": "controllers/record",
+    "acl": "custom:acl/intervencion-tecnica",
     "iconClass": "fas fa-tasks",
     "color": "#0e7490",
     "recordViews": {
