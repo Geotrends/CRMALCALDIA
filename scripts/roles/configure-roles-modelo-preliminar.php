@@ -250,6 +250,10 @@ foreach ($roleConfigs as $roleName => $scopePermissions) {
         $data[$scope] = $perms;
     }
 
+    // Ve a los demás usuarios para delegar (p. ej. programar una visita a un técnico); sin
+    // esto Espo deja User en "own" y los selectores de usuario solo lo muestran a él mismo.
+    $data['User'] = $readOnlyAll;
+
     // Quien queda asignado a un caso puede elegir o crear su Destino (decisión 2026-10-26).
     // El Receptor no: la sección de destino no se muestra en la recepción (CRM-005).
     if ($roleName !== 'Auxiliar Administrativo · Receptor') {
