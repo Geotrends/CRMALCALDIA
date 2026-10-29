@@ -14,7 +14,11 @@
         "assignedUser": "Responsable asignado",
         "teams": "Equipos",
         "createdAt": "Creado",
-        "modifiedAt": "Modificado"
+        "modifiedAt": "Modificado",
+        "actasVisita": "Actas de visita"
+    },
+    "links": {
+        "actasVisita": "Actas de visita"
     },
     "labels": {
         "Create ProgramacionVisita": "Crear programación de visita",

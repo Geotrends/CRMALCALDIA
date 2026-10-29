@@ -26,6 +26,13 @@
             "type": "link",
             "isCustom": true
         },
+        "programacionVisita": {
+            "audited": true,
+            "type": "link",
+            "readOnlyAfterCreate": true,
+            "isCustom": true,
+            "view": "custom:views/acta-visita/fields/programacion-visita"
+        },
         "autorizacionDatos": {
             "audited": true,
             "type": "bool",
@@ -270,6 +277,11 @@
         "intervencionTecnica": {
             "type": "belongsTo",
             "entity": "IntervencionTecnica",
+            "foreign": "actasVisita"
+        },
+        "programacionVisita": {
+            "type": "belongsTo",
+            "entity": "ProgramacionVisita",
             "foreign": "actasVisita"
         },
         "assignedUser": {

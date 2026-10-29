@@ -35,6 +35,7 @@
         "cDecisionTramite": "Definición de trámite",
         "cEntidadRemision": "Entidad competente",
         "vistoBueno": "Visto bueno",
+        "programacionVisita": "Programación de visita",
         "cRevisadoPor": "Revisado por",
         "cFormatoActaVisitaPdf": "Acta de visita (PDF)",
         "assignedUser": "Funcionario que realizó la visita",
@@ -84,6 +85,7 @@
         }
     },
     "links": {
-        "case": "Caso"
+        "case": "Caso",
+        "programacionVisita": "Programación de visita"
     }
 }

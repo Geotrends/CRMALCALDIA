@@ -102,6 +102,11 @@
             "entity": "IntervencionTecnica",
             "foreign": "programacionesVisita"
         },
+        "actasVisita": {
+            "type": "hasMany",
+            "entity": "ActaVisita",
+            "foreign": "programacionVisita"
+        },
         "responsable": {
             "type": "belongsTo",
             "entity": "User"
