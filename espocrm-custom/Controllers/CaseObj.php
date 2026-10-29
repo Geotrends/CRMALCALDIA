@@ -25,6 +25,7 @@ use Espo\Custom\Tools\CaseObj\CaseCierreService;
 use Espo\Custom\Tools\CaseObj\CaseCompetenciaService;
 use Espo\Custom\Tools\CaseObj\CaseDestinoService;
 use Espo\Custom\Tools\CaseObj\CaseProcesoService;
+use Espo\Custom\Tools\CaseObj\CaseRegistrosTramiteOrdinario;
 use Espo\Custom\Tools\CaseObj\CaseCreateDefaultsService;
 use Espo\Custom\Tools\CaseObj\CaseCronogramaService;
 use Espo\Custom\Tools\CaseObj\CaseGestionTecnicaHelper;
@@ -1011,6 +1012,8 @@ class CaseObj extends BaseCaseObj
         if (!$acta || !CaseActaVisitaHelper::hasActaFirmadaAdjunta($acta)) {
             throw new BadRequest('Debe adjuntar el acta de visita diligenciada y firmada antes de definir el trámite.');
         }
+
+        $this->injectableFactory->create(CaseRegistrosTramiteOrdinario::class)->exigir($case, 'definir el trámite');
 
         $esRemision = $decision === 'Remisión por competencia';
 

@@ -182,7 +182,12 @@ class CaseArchivoService
             }
 
             $c->set('status', CaseCierreService::STATUS_FINALIZADO);
-            $this->entityManager->saveEntity($c, ['skipAsignadorLimit' => true, 'skipPartyValidation' => true]);
+            // Llegaron al expediente por la definición de trámite, que ya exigió los registros del trámite ordinario.
+            $this->entityManager->saveEntity($c, [
+                'skipAsignadorLimit' => true,
+                'skipPartyValidation' => true,
+                CaseRegistrosTramiteOrdinario::SKIP_OPTION => true,
+            ]);
             $this->proceso->nota($c, 'Caso finalizado por el archivo del expediente ' . $expediente->get('numero')
                 . '. Se pueden seguir registrando comunicaciones, como la respuesta al peticionario.');
             $casos++;
