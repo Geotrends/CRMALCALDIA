@@ -35,8 +35,8 @@ define('custom:views/fields/estado-cierre', ['views/fields/enum'], function (Dep
             }
 
             this.confirm({
-                message: 'Al guardar ' + this.cierre.nombre + ' como «' + this.cierre.estado + '» quedará cerrada: ' +
-                    'nadie podrá volver a editarla, ni siquiera un administrador. ¿Continuar?',
+                message: 'Al guardar ' + this.cierre.nombre + ' como «' + this.cierre.estado + '» quedará cerrada ' +
+                    'y no se podrá volver a editar. ¿Continuar?',
                 confirmText: 'Sí, cerrar',
                 cancelCallback: () => {
                     this.model.set(this.name, this.valorAnterior, {ui: true});
