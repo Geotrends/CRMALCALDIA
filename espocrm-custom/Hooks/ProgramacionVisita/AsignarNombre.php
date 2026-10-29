@@ -3,20 +3,22 @@
 namespace Espo\Custom\Hooks\ProgramacionVisita;
 
 use Espo\Core\Hook\Hook\BeforeSave;
+use Espo\Custom\Tools\CaseObj\CaseVisitasService;
 use Espo\ORM\Entity;
 use Espo\ORM\EntityManager;
 use Espo\ORM\Repository\Option\SaveOptions;
 
 /**
- * Nombre automático al crear: V<N>_<nombre de la intervención técnica>, donde N es el
- * consecutivo de programaciones de esa intervención (contando las eliminadas, para no repetir).
+ * Nombre automático al crear: V<N> - <número de radicado>, donde N es el consecutivo de
+ * programaciones de la solicitud (contando las eliminadas, para no repetir).
  */
 class AsignarNombre implements BeforeSave
 {
     public static int $order = 7;
 
     public function __construct(
-        private EntityManager $entityManager
+        private EntityManager $entityManager,
+        private CaseVisitasService $visitas
     ) {}
 
     public function beforeSave(Entity $entity, SaveOptions $options): void
@@ -26,27 +28,18 @@ class AsignarNombre implements BeforeSave
         }
 
         $intervencionId = $entity->get('intervencionTecnicaId');
+        $intervencion = $intervencionId ? $this->entityManager->getEntityById('IntervencionTecnica', $intervencionId) : null;
+        $gestionId = $intervencion?->get('gestionTecnicaId');
+        $gestion = $gestionId ? $this->entityManager->getEntityById('GestionTecnica', $gestionId) : null;
+        $case = $gestion?->get('caseId') ? $this->entityManager->getEntityById('Case', $gestion->get('caseId')) : null;
 
-        if (!$intervencionId) {
+        if (!$case) {
             return;
         }
 
-        $intervencion = $this->entityManager->getEntityById('IntervencionTecnica', $intervencionId);
-
-        $numero = $this->entityManager
-            ->getRDBRepository('ProgramacionVisita')
-            ->clone(
-                $this->entityManager->getQueryBuilder()
-                    ->select()
-                    ->from('ProgramacionVisita')
-                    ->withDeleted()
-                    ->where(['intervencionTecnicaId' => $intervencionId])
-                    ->build()
-            )
-            ->count() + 1;
-
-        $nombreIntervencion = trim((string) ($intervencion?->get('name') ?? ''));
-
-        $entity->set('name', 'V' . $numero . ($nombreIntervencion !== '' ? '_' . $nombreIntervencion : ''));
+        $entity->set('name', CaseVisitasService::nombre(
+            $this->visitas->siguienteNumero($case->getId()),
+            (string) $case->get('cNumeroRadicado')
+        ));
     }
 }

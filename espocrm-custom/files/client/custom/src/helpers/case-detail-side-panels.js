@@ -1951,9 +1951,12 @@ define('custom:helpers/case-detail-side-panels', [
 
         let $insertAfter = null;
 
-        // Para Patrullaje, la preparación de la visita es la acción principal
-        // y se muestra antes de la línea de tiempo.
-        if (PatrulleroActa.isPatrulleroUser(recordView.getUser())) {
+        // Para Patrullaje y para el responsable asignado (sea cual sea su rol), la visita es
+        // la acción principal y se muestra antes de la línea de tiempo.
+        if (
+            PatrulleroActa.isPatrulleroUser(recordView.getUser())
+            || recordView.model.get('assignedUserId') === recordView.getUser().id
+        ) {
             const $actaVisita = findIn(recordView.$el, ACTA_VISITA_PANEL);
             const $formatoGenerado = findIn(recordView.$el, FORMATO_GENERADO_PANEL);
 

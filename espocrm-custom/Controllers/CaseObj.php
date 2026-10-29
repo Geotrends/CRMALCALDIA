@@ -31,6 +31,7 @@ use Espo\Custom\Tools\CaseObj\CaseCronogramaService;
 use Espo\Custom\Tools\CaseObj\CaseGestionTecnicaHelper;
 use Espo\Custom\Tools\CaseObj\CaseTimelineService;
 use Espo\Custom\Tools\CaseObj\CaseVisitaAprobadaNotifier;
+use Espo\Custom\Tools\CaseObj\CaseVisitasService;
 use Espo\Custom\Tools\CaseObj\VisitaComplementariaService;
 use Espo\Custom\Tools\CaseObj\VisitaHistorialLogger;
 use Espo\Custom\Tools\CaseObj\RadicadoCatalog;
@@ -711,6 +712,34 @@ class CaseObj extends BaseCaseObj
         }
 
         return ['success' => true, 'status' => CaseCierreService::STATUS_PENDIENTE_RESPUESTA, 'alreadyClosed' => false];
+    }
+
+    /**
+     * GET Case/action/visitas?id=  Programaciones de visita de la solicitud y qué puede hacer el usuario.
+     *
+     * @return array<string, mixed>
+     */
+    public function getActionVisitas(Request $request): array
+    {
+        $case = $this->getCaseOrFail(trim((string) $request->getQueryParam('id')));
+
+        if (!$this->acl->checkEntityRead($case)) {
+            throw new Forbidden();
+        }
+
+        return $this->injectableFactory->create(CaseVisitasService::class)->estado($case, $this->getUser());
+    }
+
+    /**
+     * POST Case/action/prepararProgramacionVisita  body: { id }  Valores del formulario «Programar visita».
+     *
+     * @return array<string, mixed>
+     */
+    public function postActionPrepararProgramacionVisita(Request $request): array
+    {
+        $case = $this->getCaseOrFail($this->parseCaseIdFromRequest($request->getParsedBody()));
+
+        return $this->injectableFactory->create(CaseVisitasService::class)->prepararProgramacion($case, $this->getUser());
     }
 
     /**
@@ -1473,12 +1502,11 @@ class CaseObj extends BaseCaseObj
             return;
         }
 
-        if ($profile->isPatrullero($user)) {
-            $assignedId = trim((string) $case->get('assignedUserId'));
+        // El responsable asignado, sea cual sea su rol, pide la nueva visita para programarla.
+        $assignedId = trim((string) $case->get('assignedUserId'));
 
-            if ($assignedId !== '' && $assignedId === $user->getId()) {
-                return;
-            }
+        if ($assignedId !== '' && $assignedId === $user->getId()) {
+            return;
         }
 
         throw new Forbidden();

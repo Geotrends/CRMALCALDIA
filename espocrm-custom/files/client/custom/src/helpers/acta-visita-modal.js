@@ -39,6 +39,7 @@ define('custom:helpers/acta-visita-modal', [
         const attributes = ActaFromCase.buildDefaultsFromCase(caseModel, user, visitNumber);
 
         attributes.modoDiligenciamiento = options.modoDiligenciamiento || 'Digital';
+        Object.assign(attributes, options.attributes || {});
 
         return helper.showCreate(host, {
             entityType: 'ActaVisita',
@@ -151,8 +152,52 @@ define('custom:helpers/acta-visita-modal', [
         });
     };
 
+    // Acta de una visita programada: además de los datos de la solicitud, toma de la programación
+    // la fecha y el funcionario. El servidor ya validó que el usuario puede adjuntarla.
+    const openFromProgramacion = function (hostView, caseModel, user, programacion, options) {
+        const host = resolveHostView(hostView);
+
+        if (!host || typeof host.createView !== 'function') {
+            Espo.Ui.error('No se pudo abrir el formulario del acta.');
+
+            return;
+        }
+
+        const attributes = {
+            programacionVisitaId: programacion.id,
+            programacionVisitaName: programacion.name,
+        };
+
+        if (programacion.fechaProgramada) {
+            attributes.fechaVisita = programacion.fechaProgramada;
+        }
+
+        if (programacion.responsableId) {
+            attributes.assignedUserId = programacion.responsableId;
+            attributes.assignedUserName = programacion.responsableName;
+            attributes.funcionarioNombre = programacion.responsableName;
+        }
+
+        openCreate(host, caseModel, user, {
+            visitNumber: options.visitNumber,
+            attributes: attributes,
+            afterSave: function () {
+                caseModel.fetch();
+                ActaVisitaCaseStatus.invalidateCache(caseModel.id);
+                $(window).trigger('crm:visita-historial-changed');
+
+                if (typeof options.onAfterSave === 'function') {
+                    options.onAfterSave();
+                }
+            },
+        }).catch(function () {
+            // Modal cerrado o cancelado — comportamiento esperado.
+        });
+    };
+
     return {
         open: open,
+        openFromProgramacion: openFromProgramacion,
         openDetailById: function (hostView, actaId) {
             const host = resolveHostView(hostView);
 

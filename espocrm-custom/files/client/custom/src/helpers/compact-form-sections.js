@@ -13,7 +13,8 @@ define('custom:helpers/compact-form-sections', [], function () {
             if (!model.get('cCompetenciaConfirmada')) return 'Pendiente: revisar competencia';
             return model.get('cCompetencia') === 'Ninguna' ? 'Remitido por competencia' : 'Pendiente de asignar';
         }},
-        actaVisita: {open: false, fields: []},
+        // Para el responsable asignado, las visitas son la acción principal: arranca abierto.
+        actaVisita: {open: false, openFn: view => view.model.get('assignedUserId') === view.getUser().id, fields: [], summary: 'Programación de visitas y actas'},
         decisionJuridica: {open: false, fields: []},
         actuoArchivo: {open: false, fields: []},
         formatoGenerado: {open: false, fields: [], summary: 'Documentos disponibles'},
@@ -70,7 +71,7 @@ define('custom:helpers/compact-form-sections', [], function () {
                 $panel.toggleClass('crm-form-section--collapsed', !open);
                 $heading.attr('aria-expanded', open ? 'true' : 'false');
             };
-            state(rule.open); update();
+            state(rule.openFn ? rule.openFn(view) : rule.open); update();
             $heading.on('click.crmCompactSections', () => state($panel.hasClass('crm-form-section--collapsed')));
             $heading.on('keydown.crmCompactSections', event => {
                 if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); state($panel.hasClass('crm-form-section--collapsed')); }

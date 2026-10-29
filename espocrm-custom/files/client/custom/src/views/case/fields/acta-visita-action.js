@@ -5,7 +5,10 @@ define('custom:views/case/fields/acta-visita-action', [
     'custom:helpers/acta-visita-case-status',
     'custom:helpers/acta-visita-modal',
     'custom:helpers/safe-ui-promise',
-], function (Dep, PatrulleroActa, RadicacionFields, ActaVisitaCaseStatus, ActaVisitaModal, SafeUiPromise) {
+    'helpers/record-modal',
+], function (Dep, PatrulleroActa, RadicacionFields, ActaVisitaCaseStatus, ActaVisitaModal, SafeUiPromise, RecordModal) {
+
+    const RecordModalHelper = RecordModal.default || RecordModal;
 
     return Dep.extend({
 
@@ -21,13 +24,13 @@ define('custom:views/case/fields/acta-visita-action', [
             this.showVisitaAprobacion = false;
             this.requiresVisitaCheck = false;
             this.showVisitaCheck = false;
-            this.showAgregarVisita = false;
             this.solicitudNuevaVisitaActiva = false;
             this.awaitingNewVisita = false;
             this.hasDiligenciadaActa = false;
             this.actaCount = 0;
             this.nextVisitNumber = 2;
             this.workflow = null;
+            this.visitas = null;
             this.stateReady = false;
             this._actaStateLoading = false;
             this._visitaMarcadaLocal = false;
@@ -45,15 +48,6 @@ define('custom:views/case/fields/acta-visita-action', [
             return this.getLanguage().translate(key, 'labels', 'Case')
                 || this.getLanguage().translate(key, 'labels', 'ActaVisita')
                 || key;
-        },
-
-        isOperadorVisitaCampo: function (user) {
-            if (!user || (user.isAdmin && user.isAdmin())) {
-                return false;
-            }
-
-            return RadicacionFields.isInspeccionUser(user)
-                || PatrulleroActa.isPatrulleroUser(user);
         },
 
         resolveRequiresVisitaCheck: function (user) {
@@ -104,92 +98,10 @@ define('custom:views/case/fields/acta-visita-action', [
             return false;
         },
 
-        resolveShowAgregarVisita: function () {
-            if (this.actaCount < 1 || this.awaitingNewVisita) {
-                return false;
-            }
-
-            const user = this.getUser();
-
-            // Inspección y Patrullaje (asignado) pueden registrar otra visita.
-            if (!PatrulleroActa.canAgregarNuevaVisita(user, this.model)) {
-                return false;
-            }
-
-            return ActaVisitaCaseStatus.canRequestNewVisita(this.model, this.workflow);
-        },
-
-        resolveShowAgregarVisitaArchivo: function () {
-            // Visible aunque el archivo aún no tenga tarjetas (no depender solo del layout).
-            return !!this.showAgregarVisita;
-        },
-
-        canEnableAgregarVisita: function () {
-            return this.showAgregarVisita;
-        },
-
-        resolveAgregarVisitaHelp: function () {
-            return this.translateCaseLabel('agregarVisitaHelp');
-        },
-
         isVisitaHabilitada: function () {
             return this.visitaConfirmada
                 || (this.actaIsEditMode && !this.awaitingNewVisita)
                 || this._visitaMarcadaLocal;
-        },
-
-        canEnableActaActions: function () {
-            if (!this.canUseTools) {
-                return false;
-            }
-
-            if (this.awaitingNewVisita) {
-                return this.requiresVisitaCheck ? this.isVisitaHabilitada() : true;
-            }
-
-            if (!this.requiresVisitaCheck) {
-                return true;
-            }
-
-            return this.isVisitaHabilitada();
-        },
-
-        resolveHelpText: function (user) {
-            if (this.buildVisitasArchivoCards().length > 0 && !this.actaIsEditMode) {
-                if (this.awaitingNewVisita) {
-                    return this.translateCaseLabel('agregarVisitaEnCursoHelp');
-                }
-
-                return this.translateCaseLabel('actaVisitaPanelHelp');
-            }
-
-            if (this.awaitingNewVisita) {
-                return this.translateCaseLabel('agregarVisitaEnCursoHelp');
-            }
-
-            if (this.actaIsEditMode) {
-                return RadicacionFields.isInspeccionUser(user)
-                    ? this.translateCaseLabel('actaVisitaInspeccionHelp')
-                    : this.translateCaseLabel('actaVisitaEditHelp');
-            }
-
-            if (this.requiresVisitaCheck && !this.canEnableActaActions()) {
-                return this.translateCaseLabel('visitaRealizadaCheckHelp');
-            }
-
-            if (this.canEnableActaActions()) {
-                return this.translateCaseLabel('actaVisitaManualHelp');
-            }
-
-            return this.translateCaseLabel('actaVisitaPanelHelp');
-        },
-
-        resolveButtonLabelDigital: function () {
-            if (this.actaIsEditMode) {
-                return this.translateCaseLabel('editarActaVisita');
-            }
-
-            return this.translateCaseLabel('llenarActaVisitaDigital');
         },
 
         resolveVisitaAprobadaHelp: function (user) {
@@ -332,30 +244,39 @@ define('custom:views/case/fields/acta-visita-action', [
             });
         },
 
-        shouldShowActaPanel: function () {
-            return this.canUseTools || this.hasDiligenciadaActa || this.actaCount > 0;
+        // Visitas programadas de la solicitud: de cada una salen el acta en blanco y el acta adjunta.
+        buildProgramacionCards: function () {
+            const visitas = this.visitas || {};
+            const lang = this.getLanguage();
+
+            return (visitas.programaciones || []).map(p => {
+                const cancelada = p.estado === 'Cancelada';
+                const hora = [p.horaInicio, p.horaFin].filter(Boolean).join(' a ');
+                const actaPendiente = !!p.actaId && p.actaEstado === 'Pendiente';
+
+                return {
+                    id: p.id,
+                    name: p.name,
+                    estadoLabel: lang.translateOption(p.estado, 'estado', 'ProgramacionVisita') || p.estado,
+                    cuando: (p.fechaProgramada ? this.getDateTime().toDisplayDate(p.fechaProgramada) : 'Sin fecha')
+                        + (hora ? ' · ' + hora : ''),
+                    responsableName: p.responsableName || 'Sin responsable',
+                    actaId: p.actaId,
+                    actaName: p.actaName,
+                    actaEstadoLabel: p.actaEstado ? (lang.translateOption(p.actaEstado, 'estado', 'ActaVisita') || p.actaEstado) : '',
+                    isCurrent: !cancelada && (!p.actaId || actaPendiente),
+                    canDescargarBlanco: (!!visitas.puedeGestionar || p.esResponsable) && !cancelada && !p.actaId,
+                    canAdjuntar: p.puedeAdjuntar && !p.actaId,
+                    canCompletar: p.puedeAdjuntar && actaPendiente,
+                };
+            });
         },
 
-        resolveShowCurrentActaActions: function () {
-            if (!this.stateReady || !this.canUseTools) {
-                return false;
-            }
-
-            if (this.awaitingNewVisita) {
-                return true;
-            }
-
-            const acta = this.workflow && this.workflow.acta;
-
-            if (!acta) {
-                return true;
-            }
-
-            if (ActaVisitaCaseStatus.isActaDiligenciada(acta)) {
-                return this.buildVisitasArchivoCards().length === 0;
-            }
-
-            return true;
+        shouldShowActaPanel: function () {
+            return this.canUseTools
+                || this.hasDiligenciadaActa
+                || this.actaCount > 0
+                || this.buildProgramacionCards().length > 0;
         },
 
         resolveShowCurrentVisitaSection: function () {
@@ -363,39 +284,33 @@ define('custom:views/case/fields/acta-visita-action', [
                 return false;
             }
 
-            return this.showVisitaCheck
-                || this.showVisitaAprobacion
-                || this.resolveShowCurrentActaActions();
+            return this.showVisitaCheck || this.showVisitaAprobacion;
         },
 
         data: function () {
             const user = this.getUser();
-            const actionsEnabled = this.canEnableActaActions();
             const showPanel = this.stateReady && this.shouldShowActaPanel();
+            const visitas = this.visitas || {};
+            const programaciones = this.buildProgramacionCards();
 
             return {
                 showPanel: showPanel,
+                showProgramaciones: this.canUseTools || programaciones.length > 0,
+                puedeProgramar: !!visitas.puedeProgramar,
+                motivoNoProgramar: visitas.motivoNoProgramar || '',
+                programaciones: programaciones,
                 showVisitaCheck: this.showVisitaCheck,
-                showActaButtons: this.resolveShowCurrentActaActions(),
-                actionsEnabled: actionsEnabled,
                 visitaHabilitada: this.isVisitaHabilitada(),
                 visitaCheckDisabled: (this.visitaConfirmada && !this.awaitingNewVisita)
                     || (this.actaIsEditMode && !this.awaitingNewVisita),
                 visitaCheckLabel: this.translateCaseLabel('visitaRealizadaCheck'),
                 visitaCheckHelp: this.translateCaseLabel('visitaRealizadaCheckHelp'),
-                helpText: this.resolveHelpText(user),
-                buttonLabelDigital: this.resolveButtonLabelDigital(),
                 showVisitaAprobacion: this.showVisitaAprobacion,
                 visitaAprobada: this.visitaAprobada,
                 visitaAprobadaDisabled: this.visitaAprobada && !this.canRevertVisitaAprobada(user),
                 visitaAprobadaLabel: this.translateCaseLabel('visitaAprobadaCheck'),
                 visitaAprobarButtonLabel: this.translateCaseLabel('aprobarVisitaButton'),
                 visitaAprobadaHelp: this.resolveVisitaAprobadaHelp(user),
-                showAgregarVisita: this.showAgregarVisita,
-                showAgregarVisitaArchivo: this.resolveShowAgregarVisitaArchivo(),
-                agregarVisitaEnabled: this.canEnableAgregarVisita(),
-                buttonLabelAgregarVisita: this.translateCaseLabel('agregarVisita'),
-                agregarVisitaHelp: this.resolveAgregarVisitaHelp(),
                 visitasArchivo: this.buildVisitasArchivoCards(),
                 showVisitasArchivo: this.buildVisitasArchivoCards().length > 0,
                 visitasArchivoTitle: this.translateCaseLabel('visitasArchivoTitle'),
@@ -458,11 +373,18 @@ define('custom:views/case/fields/acta-visita-action', [
 
             RadicacionFields.onProfileReady(function () {
                 try {
-                    ActaVisitaCaseStatus.fetchActaWorkflowForCase(self.model.id, user, self.model)
-                        .then(function (workflow) {
-                            const canUse = self.isOperadorVisitaCampo(user)
-                                && PatrulleroActa.canUseActaVisitaTools(user, self.model);
-                            self.applyActaState(workflow, canUse);
+                    const visitas = Espo.Ajax.getRequest('Case/action/visitas', {id: self.model.id})
+                        .catch(function () {
+                            return null;
+                        });
+
+                    Promise.all([
+                        ActaVisitaCaseStatus.fetchActaWorkflowForCase(self.model.id, user, self.model),
+                        visitas,
+                    ])
+                        .then(function (result) {
+                            self.visitas = result[1];
+                            self.applyActaState(result[0], !!(result[1] && result[1].puedeGestionar));
                         })
                         .catch(function () {
                             self.applyActaState(null, false);
@@ -512,14 +434,13 @@ define('custom:views/case/fields/acta-visita-action', [
             this.requiresVisitaCheck = this.resolveRequiresVisitaCheck(this.getUser());
             this.showVisitaCheck = this.requiresVisitaCheck;
             this.showVisitaAprobacion = this.resolveShowVisitaAprobacion(this.getUser());
-            this.showAgregarVisita = this.resolveShowAgregarVisita();
 
             const archivo = this.buildVisitasArchivoCards();
             const archivoKey = archivo.map(function (card) {
                 return card.actaId + ':' + card.estado + ':' + (card.canApproveThis ? '1' : '0');
             }).join('|')
                 + '|ap:' + (this.showVisitaAprobacion ? '1' : '0')
-                + '|ag:' + (this.showAgregarVisita ? '1' : '0')
+                + '|pv:' + JSON.stringify(this.visitas)
                 + '|st:' + String(this.model.get('status') || '');
 
             if (this._archivoKey !== archivoKey) {
@@ -529,6 +450,7 @@ define('custom:views/case/fields/acta-visita-action', [
 
             this.stateReady = true;
             this.updatePanelVisibility(this.shouldShowActaPanel());
+            this.abrirSiTieneVisitaDelegada();
 
             if (this.isRendered && this.isRendered()) {
                 this._forceActaReRender = true;
@@ -549,10 +471,6 @@ define('custom:views/case/fields/acta-visita-action', [
             const data = this.data();
             const hadPanel = this.$el.data('actaPanelVisible') === true;
             const showPanel = !!data.showPanel;
-            const escapeHtml = function (value) {
-                return $('<span>').text(value || '').html();
-            };
-
             if (this._forceActaReRender) {
                 this._forceActaReRender = false;
                 SafeUiPromise.safeReRender(this);
@@ -579,8 +497,6 @@ define('custom:views/case/fields/acta-visita-action', [
                 .prop('disabled', !!data.visitaCheckDisabled);
 
             this.$el.find('.case-visita-visita-check-help').text(data.visitaCheckHelp || '');
-            this.$el.find('.case-acta-visita-help').text(data.helpText || '');
-            this.$el.find('.case-agregar-visita-help').text(data.agregarVisitaHelp || '');
             this.$el.find('.case-visita-realizada-check').toggle(!!data.showVisitaCheck);
             this.$el.find('.case-visita-aprobada-check-current').toggle(!!data.showVisitaAprobacion);
             this.$el.find('.case-visita-aprobada-check-current .case-visita-aprobada-help')
@@ -588,28 +504,28 @@ define('custom:views/case/fields/acta-visita-action', [
             this.$el.find('.case-visita-aprobada-check-current .case-visita-aprobada-checkbox')
                 .prop('checked', !!data.visitaAprobada)
                 .prop('disabled', !!data.visitaAprobadaDisabled);
-            this.$el.find('.case-acta-visita-actions').toggle(!!data.showActaButtons);
-            this.$el.find('.case-acta-visita-help').toggle(!!data.showActaButtons);
-
-            const $llenar = this.$el.find('[data-action="llenarActa"]');
-
-            $llenar
-                .prop('disabled', !data.actionsEnabled)
-                .html('<span class="fas fa-laptop"></span> ' + escapeHtml(data.buttonLabelDigital));
-
-            this.$el.find('.case-agregar-visita-section').toggle(!!data.showAgregarVisitaArchivo);
-
-            if (data.showAgregarVisitaArchivo) {
-                const $agregar = this.$el.find('[data-action="agregarVisita"]');
-
-                $agregar
-                    .prop('disabled', !data.agregarVisitaEnabled)
-                    .html('<span class="fas fa-plus"></span> ' + escapeHtml(data.buttonLabelAgregarVisita));
-                this.$el.find('.case-agregar-visita-help')
-                    .text(data.agregarVisitaHelp || '');
-            }
 
             this.bindUi();
+        },
+
+        // Quien recibió una visita delegada encuentra el panel abierto (una vez; luego puede plegarlo).
+        abrirSiTieneVisitaDelegada: function () {
+            const delegada = ((this.visitas || {}).programaciones || [])
+                .some(p => p.esResponsable && p.puedeAdjuntar && (!p.actaId || p.actaEstado === 'Pendiente'));
+
+            if (!delegada || this._delegadaAbierta) {
+                return;
+            }
+
+            const $panel = this.$el.closest('.panel[data-name="actaVisita"]');
+
+            if (!$panel.length) {
+                return;
+            }
+
+            this._delegadaAbierta = true;
+            $panel.removeClass('crm-form-section--collapsed');
+            $panel.children('.panel-heading').attr('aria-expanded', 'true');
         },
 
         updatePanelVisibility: function (show) {
@@ -816,7 +732,6 @@ define('custom:views/case/fields/acta-visita-action', [
 
                 self.model.set('status', newStatus);
                 self.visitaAprobada = false;
-                self.showAgregarVisita = self.resolveShowAgregarVisita();
 
                 if ($checkbox) {
                     $checkbox.prop('checked', false).prop('disabled', false);
@@ -857,8 +772,7 @@ define('custom:views/case/fields/acta-visita-action', [
 
             const self = this;
 
-            this.$el.find('[data-action="llenarActa"]').off('click.acta');
-            this.$el.find('[data-action="agregarVisita"]').off('click.agregarVisita');
+            this.$el.find('[data-action="programarVisita"], [data-action="descargarActaBlanco"], [data-action="adjuntarActa"], [data-action="completarActa"]').off('.programacion');
             this.$el.find('[data-action="descargarActaArchivo"]').off('click.descargarActaArchivo');
             this.$el.find('[data-action="verActa"]').off('click.verActa');
             this.$el.find('[data-action="aprobarVisitaActa"]').off('click.aprobarVisitaActa');
@@ -882,29 +796,32 @@ define('custom:views/case/fields/acta-visita-action', [
                 self.actionGuardarRevisionActa($(e.currentTarget));
             });
 
-            this.$el.find('[data-action="llenarActa"]').on('click.acta', function (e) {
+            this.$el.find('[data-action="programarVisita"]').on('click.programacion', function (e) {
                 e.preventDefault();
                 e.stopPropagation();
-
-                if (!self.canEnableActaActions()) {
-                    Espo.Ui.warning(self.translateCaseLabel('visitaRealizadaCheckHelp'));
-
-                    return;
-                }
-
-                if (self.awaitingNewVisita) {
-                    self.openActaModalForNewVisita();
-
-                    return;
-                }
-
-                self.openActaModal();
+                self.actionProgramarVisita();
             });
 
-            this.$el.find('[data-action="agregarVisita"]').on('click.agregarVisita', function (e) {
+            this.$el.find('[data-action="descargarActaBlanco"]').on('click.programacion', function (e) {
                 e.preventDefault();
                 e.stopPropagation();
-                self.actionAgregarVisita();
+                self.actionDescargarActaBlanco($(e.currentTarget).data('id'));
+            });
+
+            this.$el.find('[data-action="adjuntarActa"]').on('click.programacion', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                self.actionAdjuntarActa($(e.currentTarget).data('id'));
+            });
+
+            this.$el.find('[data-action="completarActa"]').on('click.programacion', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                ActaVisitaModal.openEditById(self, self.model, $(e.currentTarget).data('acta-id'), self.getUser(), {
+                    onAfterSave: function () {
+                        self.scheduleLoadActaState();
+                    },
+                });
             });
 
             this.$el.find('[data-action="aprobarVisitaActa"]').on('click.aprobarVisitaActa', function (e) {
@@ -1056,179 +973,84 @@ define('custom:views/case/fields/acta-visita-action', [
             });
         },
 
-        openAgregarVisitaModal: function () {
-            const self = this;
+        // «Programar visita». Después de la primera acta, otra visita pide antes su motivo
+        // (queda en el historial y avisa al Director Técnico) y reabre la gestión técnica.
+        actionProgramarVisita: function () {
+            if (!this.visitas || !this.visitas.puedeProgramar) {
+                return;
+            }
+
+            if (!this.visitas.requiereMotivo) {
+                this.openProgramacionModal();
+
+                return;
+            }
 
             this.createView('dialog', 'custom:views/modals/necesita-otra-visita', {
-                title: this.translateCaseLabel('agregarVisita'),
-            }, function (view) {
+                title: 'Programar otra visita',
+            }, view => {
                 view.render();
 
                 if (typeof view.show === 'function') {
                     view.show();
                 }
 
-                view.once('submit', function (motivo) {
-                    self.actionAgregarVisitaConMotivo(motivo);
+                view.once('submit', motivo => {
+                    Espo.Ui.notify(this.translate('pleaseWait', 'messages'));
+
+                    Espo.Ajax.postRequest('Case/action/registrarSolicitudNuevaVisita', {
+                        id: this.model.id,
+                        motivo: motivo,
+                    })
+                        .then(() => this.actionPrepararNuevaVisita())
+                        .then(() => this.openProgramacionModal())
+                        .catch(() => Espo.Ui.notify(false));
                 });
             });
         },
 
-        actionAgregarVisitaConMotivo: function (motivo) {
-            const self = this;
-
-            if (!this.model.id || !this.showAgregarVisita) {
-                return;
-            }
-
+        // El formulario llega lleno (nombre V<N> - radicado, intervención técnica y responsable);
+        // el usuario confirma fecha, hora y, si delega la visita, el responsable.
+        openProgramacionModal: function () {
             Espo.Ui.notify(this.translate('pleaseWait', 'messages'));
 
-            Espo.Ajax.postRequest('Case/action/registrarSolicitudNuevaVisita', {
-                id: this.model.id,
-                motivo: motivo,
-            }).then(function (response) {
-                self.nextVisitNumber = (response && response.visitNumber) || self.nextVisitNumber;
-                self.solicitudNuevaVisitaActiva = true;
+            Espo.Ajax.postRequest('Case/action/prepararProgramacionVisita', {id: this.model.id})
+                .then(attributes => {
+                    Espo.Ui.notify(false);
 
-                return self.actionPrepararNuevaVisita();
-            }).then(function (workflow) {
-                Espo.Ui.notify(false);
-
-                ActaVisitaModal.open(self, self.model, self.getUser(), {
-                    modoDiligenciamiento: 'Digital',
-                    forceCreate: true,
-                    visitNumber: self.nextVisitNumber,
-                    workflow: workflow || self.workflow,
-                    onAfterSave: function () {
-                        ActaVisitaCaseStatus.invalidateCache(self.model.id);
-                        self.scheduleLoadActaState();
-                        self.model.fetch();
-                    },
-                });
-            }).catch(function (xhr) {
-                Espo.Ui.notify(false);
-
-                let message = self.translateCaseLabel('agregarVisitaError');
-
-                if (xhr) {
-                    const payload = xhr.responseJSON || xhr;
-
-                    if (payload && payload.message) {
-                        message = payload.message;
-                    }
-                }
-
-                Espo.Ui.error(message);
-            });
+                    return new RecordModalHelper().showCreate(this, {
+                        entityType: 'ProgramacionVisita',
+                        attributes: attributes,
+                        layoutName: 'programarDesdeSolicitud',
+                        fullFormDisabled: true,
+                        afterSave: () => {
+                            this.model.fetch();
+                            this.scheduleLoadActaState();
+                        },
+                    });
+                })
+                .catch(() => Espo.Ui.notify(false));
         },
 
-        actionAgregarVisita: function () {
-            if (!this.model.id || !this.canEnableAgregarVisita()) {
-                Espo.Ui.warning(this.resolveAgregarVisitaHelp());
-
-                return;
-            }
-
-            const self = this;
-
-            Espo.Ui.notify(this.translate('pleaseWait', 'messages'));
-
-            this.actionPrepararNuevaVisita().then(function (workflow) {
-                Espo.Ui.notify(false);
-
-                ActaVisitaModal.open(self, self.model, self.getUser(), {
-                    modoDiligenciamiento: 'Digital',
-                    forceCreate: true,
-                    visitNumber: self.nextVisitNumber,
-                    workflow: workflow || self.workflow,
-                    onAfterSave: function () {
-                        ActaVisitaCaseStatus.invalidateCache(self.model.id);
-                        self.scheduleLoadActaState();
-                        self.model.fetch();
-                    },
-                });
-            }).catch(function (xhr) {
-                Espo.Ui.notify(false);
-                const payload = (xhr && (xhr.responseJSON || xhr)) || {};
-
-                Espo.Ui.error(payload.message || self.translateCaseLabel('agregarVisitaError'));
-            });
-        },
-
-        openActaModalForNewVisita: function () {
-            const self = this;
-
-            ActaVisitaModal.open(this, this.model, this.getUser(), {
-                modoDiligenciamiento: 'Digital',
-                forceCreate: true,
-                visitNumber: this.nextVisitNumber,
-                workflow: this.workflow,
-                onAfterSave: function () {
-                    ActaVisitaCaseStatus.invalidateCache(self.model.id);
-                    self.scheduleLoadActaState();
-                    self.model.fetch();
-                },
-            });
-        },
-
-        openActaModal: function () {
-            const self = this;
-
-            ActaVisitaModal.open(this, this.model, this.getUser(), {
-                modoDiligenciamiento: 'Digital',
-                workflow: this.workflow,
-                onAfterSave: function () {
-                    ActaVisitaCaseStatus.invalidateCache(self.model.id);
-                    self.scheduleLoadActaState();
-                    self.model.fetch();
-                },
-            });
-        },
-
-        actionImprimirActaManual: function () {
-            if (!PatrulleroActa.canPrintManualActa(this.getUser(), this.model)) {
-                Espo.Ui.warning(this.translateCaseLabel('actaVisitaManualUnavailable'));
-
-                return;
-            }
-
-            this.openFormatoUrl('manual');
-        },
-
-        openFormatoUrl: function (modo, actaId, format) {
-            if (!this.model.id) {
-                Espo.Ui.error(this.translate('Error'));
-
-                return;
-            }
-
-            format = String(format || 'pdf').toLowerCase();
-
-            let url = this.getBasePath()
+        actionDescargarActaBlanco: function (programacionId) {
+            window.location.assign(this.getBasePath()
                 + '?entryPoint=FormatoActaVisitaCaso'
                 + '&id=' + encodeURIComponent(this.model.id)
-                + '&modo=' + encodeURIComponent(modo)
-                + '&format=' + encodeURIComponent(format)
-                + '&inline=' + (format === 'pdf' ? '1' : '0');
+                + '&programacionId=' + encodeURIComponent(programacionId)
+                + '&format=pdf');
+        },
 
-            if (actaId) {
-                url += '&actaId=' + encodeURIComponent(actaId);
-            }
+        actionAdjuntarActa: function (programacionId) {
+            const programacion = ((this.visitas || {}).programaciones || []).find(p => p.id === programacionId);
 
-            Espo.Ui.notify(this.translate('pleaseWait', 'messages'));
-
-            const printWindow = window.open(url, '_blank');
-
-            if (!printWindow) {
-                Espo.Ui.error(this.translateCaseLabel('actaVisitaPrintBlocked'));
-                Espo.Ui.notify(false);
-
+            if (!programacion) {
                 return;
             }
 
-            window.setTimeout(function () {
-                Espo.Ui.notify(false);
-            }, 2000);
+            ActaVisitaModal.openFromProgramacion(this, this.model, this.getUser(), programacion, {
+                visitNumber: this.actaCount + 1,
+                onAfterSave: () => this.scheduleLoadActaState(),
+            });
         },
     });
 });

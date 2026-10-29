@@ -129,6 +129,49 @@ class FormatoActaVisitaGenerator
     }
 
     /**
+     * Acta en blanco de una visita programada: datos de la solicitud, con la fecha, la hora y el
+     * funcionario de la programación. Siempre en blanco, aunque la solicitud ya tenga otras actas.
+     *
+     * @return array{path: string, name: string, type: string}
+     */
+    public function generateForProgramacion(string $caseId, string $programacionId, string $format): array
+    {
+        $case = $this->entityManager->getEntityById('Case', $caseId);
+        $programacion = $this->entityManager->getEntityById('ProgramacionVisita', $programacionId);
+
+        if (
+            !$case || !$programacion
+            || !$this->acl->checkEntityRead($case)
+            || !$this->acl->checkEntityRead($programacion)
+        ) {
+            throw new Forbidden();
+        }
+
+        $intervencion = $this->entityManager->getEntityById('IntervencionTecnica', (string) $programacion->get('intervencionTecnicaId'));
+        $gestion = $intervencion
+            ? $this->entityManager->getEntityById('GestionTecnica', (string) $intervencion->get('gestionTecnicaId'))
+            : null;
+
+        if (!$gestion || $gestion->get('caseId') !== $case->getId()) {
+            throw new Forbidden();
+        }
+
+        $payload = $this->buildPayloadManualFromCase($case);
+        $fecha = \DateTime::createFromFormat('!Y-m-d', (string) $programacion->get('fechaProgramada'));
+
+        if ($fecha) {
+            $payload['fechaVisita'] = $fecha->format(AlcaldiaDateTimeHelper::PHP_DOCUMENT_DATE);
+            $payload['fechaHora'] = trim($payload['fechaVisita'] . ' ' . (string) $programacion->get('horaInicio'));
+        }
+
+        if ($programacion->get('responsableName')) {
+            $payload['funcionarioNombre'] = trim((string) $programacion->get('responsableName'));
+        }
+
+        return $this->runGenerator($format, $payload, $caseId);
+    }
+
+    /**
      * Genera el acta desde el caso (panel lateral del Case).
      *
      * @return array{path: string, name: string, type: string}

@@ -1,0 +1,22 @@
+[
+    {
+        "rows": [
+            [
+                {"name": "name", "readOnly": true},
+                {"name": "intervencionTecnica", "readOnly": true}
+            ],
+            [
+                {"name": "responsable"},
+                {"name": "estado"}
+            ],
+            [
+                {"name": "fechaProgramada"},
+                {"name": "fechaObjetivo"}
+            ],
+            [
+                {"name": "horaInicio"},
+                {"name": "horaFin"}
+            ]
+        ]
+    }
+]

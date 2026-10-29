@@ -474,3 +474,22 @@ table.table.audited-summary-table > tbody > tr > td:nth-child(3) {
   float: none;
   order: 2;
 }
+
+.detail[data-scope="Case"] .panel[data-name="actaVisita"] .case-programaciones {
+  margin: 0 0 18px;
+}
+
+.detail[data-scope="Case"] .panel[data-name="actaVisita"] .case-programar-visita-btn {
+  width: 100%;
+  margin: 0 0 12px;
+}
+
+.detail[data-scope="Case"] .panel[data-name="actaVisita"] .case-programar-visita-help {
+  margin: 0 0 12px;
+}
+
+.detail[data-scope="Case"] .panel[data-name="actaVisita"] .case-programacion-acta {
+  margin: -4px 0 0;
+  color: #334155;
+  font-size: 12px;
+}

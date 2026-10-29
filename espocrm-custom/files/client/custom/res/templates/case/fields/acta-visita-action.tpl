@@ -1,4 +1,50 @@
 {{#if showPanel}}
+{{#if showProgramaciones}}
+<div class="case-programaciones">
+    <p class="case-visitas-archivo-title">Visitas programadas</p>
+    {{#if puedeProgramar}}
+    <button type="button" class="btn btn-primary btn-sm case-acta-visita-btn case-programar-visita-btn" data-action="programarVisita">
+        <span class="fas fa-calendar-plus"></span> Programar visita
+    </button>
+    {{/if}}
+    {{#if motivoNoProgramar}}
+    <p class="text-muted small case-programar-visita-help">{{motivoNoProgramar}}</p>
+    {{/if}}
+    {{#each programaciones}}
+    <div class="case-visita-archivo-card case-programacion-card{{#if isCurrent}} is-current{{/if}}" data-id="{{id}}">
+        <p class="case-visita-archivo-heading">
+            <strong><a href="#ProgramacionVisita/view/{{id}}">{{name}}</a></strong>
+            <span class="case-visita-archivo-estado">{{estadoLabel}}</span>
+        </p>
+        <p class="case-visita-archivo-fecha">{{cuando}} · {{responsableName}}</p>
+        {{#if actaId}}
+        <p class="case-programacion-acta"><span class="fas fa-file-lines"></span> <a href="#ActaVisita/view/{{actaId}}">{{actaName}}</a> · {{actaEstadoLabel}}</p>
+        {{/if}}
+        {{#if canDescargarBlanco}}
+        <div class="case-visita-archivo-actions">
+            <button type="button" class="btn btn-default btn-sm case-acta-visita-btn" data-action="descargarActaBlanco" data-id="{{id}}">
+                <span class="fas fa-download"></span> Descargar acta de visita (en blanco)
+            </button>
+            {{#if canAdjuntar}}
+            <button type="button" class="btn btn-primary btn-sm case-acta-visita-btn" data-action="adjuntarActa" data-id="{{id}}">
+                <span class="fas fa-upload"></span> Adjuntar acta de visita
+            </button>
+            {{/if}}
+        </div>
+        {{/if}}
+        {{#if canCompletar}}
+        <div class="case-visita-archivo-actions">
+            <button type="button" class="btn btn-primary btn-sm case-acta-visita-btn" data-action="completarActa" data-acta-id="{{actaId}}">
+                <span class="fas fa-pen"></span> Completar acta de visita
+            </button>
+        </div>
+        {{/if}}
+    </div>
+    {{else}}
+    <p class="text-muted small">Aún no hay visitas programadas.</p>
+    {{/each}}
+</div>
+{{/if}}
 {{#if showVisitasArchivo}}
 <p class="case-visitas-archivo-title">{{visitasArchivoTitle}}</p>
 {{/if}}
@@ -90,19 +136,6 @@
     {{/if}}
 </div>
 {{/each}}
-{{#if showAgregarVisitaArchivo}}
-<div class="case-agregar-visita-section">
-    <p class="text-muted small case-agregar-visita-help">{{agregarVisitaHelp}}</p>
-    <button
-        type="button"
-        class="btn btn-default btn-sm case-acta-visita-btn"
-        data-action="agregarVisita"
-        {{#unless agregarVisitaEnabled}}disabled{{/unless}}
-    >
-        <span class="fas fa-plus"></span> {{buttonLabelAgregarVisita}}
-    </button>
-</div>
-{{/if}}
 {{#if showCurrentVisitaSection}}
 {{#if showVisitaCheck}}
 <div class="case-visita-realizada-check form-group">
@@ -143,19 +176,6 @@
         <span class="fas fa-check"></span> {{visitaAprobarButtonLabel}}
     </button>
     {{/if}}
-</div>
-{{/if}}
-{{#if showActaButtons}}
-<p class="text-muted small case-acta-visita-help">{{helpText}}</p>
-<div class="btn-group-vertical w-100 case-acta-visita-actions">
-    <button
-        type="button"
-        class="btn btn-primary btn-sm case-acta-visita-btn case-acta-cargar-btn"
-        data-action="llenarActa"
-        {{#unless actionsEnabled}}disabled{{/unless}}
-    >
-        <span class="fas fa-upload"></span> {{buttonLabelDigital}}
-    </button>
 </div>
 {{/if}}
 {{/if}}
