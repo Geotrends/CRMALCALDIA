@@ -1,5 +1,6 @@
 {
     "controller": "controllers/record",
+    "acl": "custom:acl/gestion-tecnica",
     "iconClass": "fas fa-flask",
     "color": "#0e7490",
     "recordViews": {
