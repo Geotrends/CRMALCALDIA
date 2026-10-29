@@ -1,5 +1,8 @@
 {
     "primaryFilterClassNameMap": {
         "patrulleros": "Espo\\Custom\\Classes\\Select\\User\\PrimaryFilters\\Patrulleros"
+    },
+    "accessControlFilterClassNameMap": {
+        "mandatory": "Espo\\Custom\\Classes\\Select\\User\\AccessControlFilters\\Mandatory"
     }
 }
