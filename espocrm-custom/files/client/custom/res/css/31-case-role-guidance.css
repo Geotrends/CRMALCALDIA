@@ -18,3 +18,38 @@
 @media (max-width: 767px) {
   .crm-case-role-guidance { margin-bottom: 14px; padding: 12px 14px; }
 }
+
+.crm-case-role-guidance__pasos {
+  counter-reset: paso;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+}
+
+.crm-case-role-guidance__pasos li {
+  color: #4b7a5d;
+  counter-increment: paso;
+  font-size: 12px;
+}
+
+.crm-case-role-guidance__pasos li::before {
+  content: counter(paso) ". ";
+  font-weight: 700;
+}
+
+.crm-case-role-guidance__pasos li.is-done {
+  color: #15803d;
+  text-decoration: line-through;
+}
+
+.crm-case-role-guidance__pasos li.is-done::before {
+  content: "\2713  ";
+}
+
+.crm-case-role-guidance__pasos li.is-current {
+  color: #14532d;
+  font-weight: 700;
+}
