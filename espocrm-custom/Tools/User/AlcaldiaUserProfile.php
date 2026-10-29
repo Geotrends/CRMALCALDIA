@@ -436,6 +436,16 @@ class AlcaldiaUserProfile
     }
 
     /**
+     * Solo tiene roles de radicación (sin otro rol que le dé más alcance).
+     */
+    public function esSoloRadicador(User $user): bool
+    {
+        $roles = $user->isAdmin() || $user->isPortal() ? [] : $this->getAssignedRoleNames($user);
+
+        return $roles !== [] && array_diff($roles, self::NAMES_RADICACION) === [];
+    }
+
+    /**
      * @return string[]
      */
     public function findActiveReceptorUserIds(): array

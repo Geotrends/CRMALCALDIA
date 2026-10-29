@@ -108,6 +108,17 @@ define('custom:views/case/record/edit', [
             window.location.hash = url;
         },
 
+        // Radicada la solicitud, el radicador ya no la ve: vuelve a la lista en vez de abrir el detalle.
+        exitAfterSave: function () {
+            if (!this._radicarMode || this.model.get('status') === 'Pendiente de radicacion') {
+                return false;
+            }
+
+            this.getRouter().navigate('#' + (this.scope || 'Case'), {trigger: true});
+
+            return true;
+        },
+
         actionSave: function () {
             if (
                 !this._asignarMode
