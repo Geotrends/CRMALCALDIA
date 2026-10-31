@@ -222,15 +222,21 @@ define('custom:views/case/fields/decision-juridica', [
             const user = this.getUser();
             // Con expediente (en preparación o abierto) la revisión ya se resolvió: la
             // apertura sigue en el bloque «Apertura de expediente».
-            const canDecidir = this.stateReady && this.canDecidir(user) && !this.hasAutoInicio && this.hasActaFirmada
+            const revisable = this.stateReady && this.canDecidir(user) && !this.hasAutoInicio
                 && !this.model.get('expedienteId')
                 && this.model.get('cDecisionTramite') !== 'Apertura de actuación';
+            const canDecidir = revisable && this.hasActaFirmada;
             const status = String(this.model.get('status') || '').trim();
+            // Con el acta registrada pero sin el acta firmada, quien revisa ve la sección con el aviso
+            // (el servidor exige el acta firmada para registrar la revisión).
+            const showSinFirma = revisable && !this.hasActaFirmada && !!this.currentActa
+                && (status === STATUS_VISITA_REALIZADA || status === STATUS_REVISION || status === STATUS_LEGACY_APPROVED);
             const showRevisar = canDecidir && status === STATUS_VISITA_REALIZADA;
             const showDecisiones = canDecidir && (status === STATUS_REVISION || status === STATUS_LEGACY_APPROVED);
 
             return {
-                showPanel: showRevisar || showDecisiones,
+                showPanel: showRevisar || showDecisiones || showSinFirma,
+                showSinFirma: showSinFirma,
                 showRevisar: showRevisar,
                 showDecisiones: showDecisiones,
                 helpText: this.translateCaseLabel('decisionJuridicaHelp'),

@@ -7,6 +7,12 @@
             <p>{{helpText}}</p>
         </div>
     </div>
+    {{#if showSinFirma}}
+    <p class="text-warning case-decision-juridica__sin-firma">
+        <span class="fas fa-triangle-exclamation" aria-hidden="true"></span>
+        Falta adjuntar el acta de visita diligenciada y firmada. Quien hizo la visita debe adjuntarla en el panel Visitas; cuando esté, aquí podrá registrar la revisión.
+    </p>
+    {{else}}
     <div class="row case-decision-juridica-form">
         <div class="col-sm-6 form-group">
             <label for="case-decision-tramite">Definición de trámite</label>
@@ -27,11 +33,14 @@
             <textarea id="case-motivo-decision" class="form-control" rows="3" data-name="motivoDecision" placeholder="Registre los hallazgos y la razón de la definición."></textarea>
         </div>
     </div>
+    {{/if}}
+    {{#unless showSinFirma}}
     <div class="case-decision-juridica-actions">
         <button type="button" class="btn btn-primary btn-sm case-decision-juridica-btn" data-action="ejecutarDefinicion">
             <span class="fas fa-circle-check js-ejecutar-icon" aria-hidden="true"></span>
             <span class="js-ejecutar-label">Seleccione la definición de trámite</span>
         </button>
     </div>
+    {{/unless}}
 </section>
 {{/if}}

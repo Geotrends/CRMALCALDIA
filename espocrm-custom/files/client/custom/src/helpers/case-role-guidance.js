@@ -35,7 +35,7 @@ define('custom:helpers/case-role-guidance', [
 
         return estadoVisita(view)
             && programaciones.length > 0
-            && !programaciones.some(p => !p.actaId || p.actaEstado === 'Pendiente')
+            && !programaciones.some(p => !p.actaId || p.actaEstado === 'Pendiente' || p.actaFirmada === false)
             && view.model.get('cDecisionTramite') !== 'Visita complementaria';
     };
 
@@ -71,10 +71,12 @@ define('custom:helpers/case-role-guidance', [
             const programaciones = ((visitas || {}).programaciones || []).filter(p => p.estado !== 'Cancelada');
             const pendiente = programaciones.find(p => !p.actaId || p.actaEstado === 'Pendiente');
             const hayActa = programaciones.length > 0 && !pendiente;
+            // El servidor exige el acta firmada para registrar la revisión técnico-jurídica.
+            const sinFirma = hayActa && programaciones.some(p => p.actaFirmada === false);
 
             const complementaria = model.get('cDecisionTramite') === 'Visita complementaria';
 
-            if (hayActa && !complementaria) {
+            if (hayActa && !complementaria && !sinFirma) {
                 etapa.actor = 'Inspector Ambiental';
                 etapa.accion = 'Hacer la revisión técnico-jurídica del acta y definir el trámite';
                 etapa.mio = puedeRevisar(view);
@@ -82,7 +84,9 @@ define('custom:helpers/case-role-guidance', [
                 const quien = pendiente && pendiente.responsableName ? pendiente.responsableName : responsable;
 
                 etapa.actor = quien;
-                etapa.accion = !programaciones.length || (hayActa && complementaria)
+                etapa.accion = sinFirma && !complementaria
+                    ? 'Adjuntar el acta de visita firmada'
+                    : !programaciones.length || (hayActa && complementaria)
                     ? (complementaria ? 'Programar la visita complementaria' : 'Programar la visita')
                     : 'Realizar la visita y adjuntar el acta';
                 etapa.mio = !admin && (pendiente ? !!pendiente.esResponsable : esResponsable);
@@ -242,16 +246,6 @@ define('custom:helpers/case-role-guidance', [
 
         if (delegada) {
             return delegada;
-        }
-
-        if (enRevision(view) && puedeRevisar(view)) {
-            return {
-                role: 'inspeccion',
-                eyebrow: 'Siguientes pasos · Revisión técnico-jurídica',
-                icon: 'fas fa-scale-balanced',
-                title: 'Haga la revisión técnico-jurídica del acta',
-                text: 'En el panel «Revisión técnico-jurídica» revise los hallazgos del acta y defina el trámite: visita complementaria, cierre de la atención, remisión por competencia o apertura de actuación.',
-            };
         }
 
         if (RadicacionFields.isRadicacionUser(user)) {

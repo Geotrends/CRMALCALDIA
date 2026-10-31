@@ -228,6 +228,7 @@ class CaseVisitasService
                 'actaName' => $acta?->get('name'),
                 'actaEstado' => $acta?->get('estado'),
                 'actaModificada' => $acta?->get('modifiedAt'),
+                'actaFirmada' => $acta ? CaseActaVisitaHelper::hasActaFirmadaAdjunta($acta) : false,
             ];
         }
 
