@@ -55,12 +55,17 @@ define('custom:views/case/fields/decision-juridica', [
             this.hasAutoInicio = false;
             this.hasActaFirmada = false;
             this._loading = false;
+            this.once('remove', () => {
+                this._removed = true;
+                window.clearTimeout(this._timer);
+            });
 
             if (!this.model.id) {
                 return;
             }
 
-            this.listenTo(this.model, 'change:status sync', function () {
+            this.listenTo(this.model, 'change:status change:expedienteId change:cDecisionTramite sync visitas:updated', function () {
+                this._stateRevision = (this._stateRevision || 0) + 1;
                 this.scheduleLoadState();
             });
         },
@@ -121,7 +126,12 @@ define('custom:views/case/fields/decision-juridica', [
             const self = this;
             const user = this.getUser();
 
-            if (!this.model.id || this._loading) {
+            if (!this.model.id || this._removed) {
+                return;
+            }
+
+            if (this._loading) {
+                this._reload = true;
                 return;
             }
 
@@ -133,6 +143,7 @@ define('custom:views/case/fields/decision-juridica', [
                     self.profileRoles = [];
                 }).finally(function () {
                     self._loading = false;
+                    self._reload = false;
                     self.loadState();
                 });
 
@@ -149,6 +160,7 @@ define('custom:views/case/fields/decision-juridica', [
             }
 
             this._loading = true;
+            const revision = this._stateRevision || 0;
 
             const autoInicioRequest = SilentAjax.getRequest('AutoInicio', {
                 where: [
@@ -170,6 +182,9 @@ define('custom:views/case/fields/decision-juridica', [
             });
 
             Promise.all([autoInicioRequest, actaRequest]).then(function (responses) {
+                if (self._removed || revision !== (self._stateRevision || 0)) {
+                    return;
+                }
                 const list = (responses[0] && responses[0].list) || [];
                 const actas = (responses[1] && responses[1].list) || [];
 
@@ -179,12 +194,19 @@ define('custom:views/case/fields/decision-juridica', [
                 self.stateReady = true;
                 self.refreshViewState();
             }).catch(function () {
+                if (self._removed || revision !== (self._stateRevision || 0)) {
+                    return;
+                }
                 self.hasAutoInicio = false;
                 self.hasActaFirmada = false;
                 self.stateReady = true;
                 self.refreshViewState();
             }).finally(function () {
                 self._loading = false;
+                if (!self._removed && (self._reload || revision !== (self._stateRevision || 0))) {
+                    self._reload = false;
+                    self.scheduleLoadState();
+                }
             });
         },
 
@@ -196,16 +218,22 @@ define('custom:views/case/fields/decision-juridica', [
             const data = this.data();
             const hadPanel = this.$el.data('decisionPanelVisible') === true;
             const showPanel = !!data.showPanel;
+            const stateKey = JSON.stringify([data, this.currentActa]);
 
-            if (!hadPanel && showPanel) {
+            if (showPanel && (!hadPanel || this._renderedStateKey !== stateKey)) {
                 // Primera vez que corresponde mostrarlo: el template se
                 // renderizó con showPanel=false (nada de HTML dentro del
                 // {{#if}}), así que hay que re-renderizar de verdad, no
                 // solo alternar visibilidad de elementos que no existen.
                 this.$el.data('decisionPanelVisible', true);
-                SafeUiPromise.safeReRender(this);
-                this.updatePanelVisibility(true);
-                this.bindUi();
+                this._renderedStateKey = stateKey;
+                // La firma puede llegar mientras el panel ya era visible con un aviso.
+                // Reconstruir el template y enlazar los controles después de ese render.
+                Promise.resolve(SafeUiPromise.safeReRender(this)).then(() => {
+                    if (!this._removed) {
+                        this.updatePanelVisibility(!!this.data().showPanel);
+                    }
+                });
 
                 return;
             }
@@ -213,9 +241,7 @@ define('custom:views/case/fields/decision-juridica', [
             this.$el.data('decisionPanelVisible', showPanel);
             this.updatePanelVisibility(showPanel);
 
-            if (showPanel) {
-                this.bindUi();
-            }
+            // Si nada cambió, conservar los valores que está escribiendo el inspector.
         },
 
         data: function () {

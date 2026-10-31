@@ -505,6 +505,10 @@ define('custom:helpers/case-detail-side-panels', [
         }
 
         cierreCache[key].then(function (estado) {
+            if ($block.data('cierreKey') !== key) {
+                return;
+            }
+            model.trigger('cierre:updated', estado);
             if (!estado || !estado.aplica) {
                 $block.remove();
 

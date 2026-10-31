@@ -3,6 +3,9 @@ define('custom:helpers/case-role-guidance', [
 ], function (RadicacionFields) {
 
     const ESTADOS_VISITA = ['Asignado', 'En gestión técnica', 'Revisión de hallazgos'];
+    const ESTADOS_CIERRE = ['Pendiente de respuesta final', 'Remitido por competencia'];
+    const faltaEvaluacion = view => ((view._crmCierreGuia || {}).requisitos || [])
+        .some(r => r.key === 'evaluacionResultado' && !r.ok);
 
     const escapeHtml = function (value) {
         return $('<span>').text(value || '').html();
@@ -30,14 +33,23 @@ define('custom:helpers/case-role-guidance', [
                 || (view._crmRoles || []).includes('Inspector Ambiental'));
     };
 
+    const getAvanceVisitas = function (view) {
+        const programaciones = ((view._crmVisitasGuia || {}).programaciones || []).filter(p => p.estado !== 'Cancelada');
+        const pendiente = programaciones.find(p => !p.actaId || p.actaEstado === 'Pendiente' || p.actaFirmada === false);
+        // El servidor ordena las programaciones por creación. Una decisión de una visita
+        // anterior no debe volver a pedir programación después de registrar la siguiente.
+        const ultima = programaciones[programaciones.length - 1];
+        const complementaria = !!(ultima && ultima.actaId && ultima.actaRevisada
+            && ultima.actaDecisionTramite === 'Visita complementaria');
+
+        return {programaciones, pendiente, complementaria};
+    };
+
     // Con el acta registrada y sin otra visita pendiente, el siguiente paso es la revisión técnico-jurídica.
     const enRevision = function (view) {
-        const programaciones = ((view._crmVisitasGuia || {}).programaciones || []).filter(p => p.estado !== 'Cancelada');
+        const {programaciones, pendiente, complementaria} = getAvanceVisitas(view);
 
-        return estadoVisita(view)
-            && programaciones.length > 0
-            && !programaciones.some(p => !p.actaId || p.actaEstado === 'Pendiente' || p.actaFirmada === false)
-            && view.model.get('cDecisionTramite') !== 'Visita complementaria';
+        return estadoVisita(view) && programaciones.length > 0 && !pendiente && !complementaria;
     };
 
     const getEtapa = function (view) {
@@ -69,13 +81,10 @@ define('custom:helpers/case-role-guidance', [
 
                 return etapa;
             }
-            const programaciones = ((visitas || {}).programaciones || []).filter(p => p.estado !== 'Cancelada');
-            const pendiente = programaciones.find(p => !p.actaId || p.actaEstado === 'Pendiente');
+            const {programaciones, pendiente, complementaria} = getAvanceVisitas(view);
             const hayActa = programaciones.length > 0 && !pendiente;
             // El servidor exige el acta firmada para registrar la revisión técnico-jurídica.
-            const sinFirma = hayActa && programaciones.some(p => p.actaFirmada === false);
-
-            const complementaria = model.get('cDecisionTramite') === 'Visita complementaria';
+            const sinFirma = pendiente && pendiente.actaId && pendiente.actaEstado !== 'Pendiente' && pendiente.actaFirmada === false;
 
             if (hayActa && !complementaria && !sinFirma) {
                 etapa.actor = 'Inspector Ambiental';
@@ -89,10 +98,21 @@ define('custom:helpers/case-role-guidance', [
                     ? 'Adjuntar el acta de visita firmada'
                     : !programaciones.length || (hayActa && complementaria)
                     ? (complementaria ? 'Programar la visita complementaria' : 'Programar la visita')
-                    : 'Realizar la visita y adjuntar el acta';
+                    : 'Adjuntar acta de visita';
                 etapa.mio = !admin && (pendiente ? !!pendiente.esResponsable : esResponsable);
             }
-        } else if (['Pendiente de respuesta final', 'Remitido por competencia'].includes(status)) {
+        } else if (ESTADOS_CIERRE.includes(status)) {
+            if (!view._crmCierreGuia) {
+                etapa.actor = responsable;
+                etapa.accion = view._crmCierreError ? 'Consultar los requisitos del cierre' : 'Consultando los requisitos del cierre…';
+                return etapa;
+            }
+            if (faltaEvaluacion(view)) {
+                etapa.actor = 'Director Técnico o ' + (model.get('assignedUserName') || 'profesional asignado');
+                etapa.accion = 'Evaluación de resultado';
+                etapa.mio = !admin && (esResponsable || RadicacionFields.isAsignadorUser(user));
+                return etapa;
+            }
             etapa.actor = responsable;
             etapa.accion = 'Completar el cierre de la solicitud';
             etapa.mio = esResponsable;
@@ -105,7 +125,7 @@ define('custom:helpers/case-role-guidance', [
     };
 
     // Siguientes pasos del responsable asignado (cualquier rol), según lo que la solicitud ya
-    // tiene registrado: programación, acta y evaluación de resultado; luego decide el Director Técnico.
+    // tiene registrado: programación, acta firmada y revisión técnico-jurídica.
     const getPasosResponsable = function (view) {
         const visitas = view._crmVisitasGuia;
 
@@ -113,20 +133,21 @@ define('custom:helpers/case-role-guidance', [
             return null;
         }
 
-        const programaciones = (visitas.programaciones || []).filter(p => p.estado !== 'Cancelada');
-        const pendiente = programaciones.find(p => !p.actaId || p.actaEstado === 'Pendiente');
-        const complementaria = view.model.get('cDecisionTramite') === 'Visita complementaria' && !pendiente;
+        const {programaciones, pendiente, complementaria} = getAvanceVisitas(view);
         const pasos = [
             {label: 'Programar la visita', ok: programaciones.length > 0 && !complementaria},
             {label: 'Adjuntar el acta de visita', ok: programaciones.length > 0 && !pendiente && !complementaria},
             {label: 'Revisión técnico-jurídica (Inspector Ambiental)', ok: false},
         ];
+
         const actual = pasos.findIndex(p => !p.ok);
         const textos = [
             [complementaria ? 'Programe la visita complementaria' : 'Programe la visita', 'En el panel Visitas seleccione «Programar visita». El formulario ya trae el nombre, la intervención técnica y el responsable: confirme la fecha y la hora, o asigne la visita a otra persona.'],
-            pendiente && pendiente.actaId
+            pendiente && pendiente.actaId && pendiente.actaEstado === 'Pendiente'
                 ? ['Complete el acta de visita', 'En el panel Visitas, en ' + pendiente.name + ', seleccione «Completar acta de visita» y registre los hallazgos.']
-                : ['Realice la visita y adjunte el acta', 'En el panel Visitas, en ' + (pendiente ? pendiente.name : 'la visita programada') + ', descargue el acta en blanco para llevarla a campo y, después de la visita, seleccione «Adjuntar acta de visita». El formulario trae los datos de la solicitud y de la visita.'],
+                : pendiente && pendiente.actaId && pendiente.actaFirmada === false
+                ? ['Adjunte el acta de visita firmada', 'Abra el acta de la visita ' + pendiente.name + ' y adjunte el documento firmado para continuar con la revisión técnico-jurídica.']
+                : ['Adjunte el acta de visita', 'En el panel Visitas, en ' + (pendiente ? pendiente.name : 'la visita programada') + ', descargue el acta en blanco para llevarla a campo y, después de la visita, seleccione «Adjuntar acta de visita». El formulario trae los datos de la solicitud y de la visita.'],
             ['Espere la revisión técnico-jurídica', 'El Inspector Ambiental revisa los hallazgos del acta y define si hace falta otra visita o si con esta se cierra. Si pide otra visita, prográmela desde el panel Visitas.'],
         ];
 
@@ -166,10 +187,11 @@ define('custom:helpers/case-role-guidance', [
         }
 
         view._crmVisitasGuiaCargando = true;
+        const revision = view._crmVisitasGuiaRevision || 0;
 
         Espo.Ajax.getRequest('Case/action/visitas', {id: view.model.id})
             .then(visitas => {
-                if (view._crmGuidanceRemoved) {
+                if (view._crmGuidanceRemoved || revision !== (view._crmVisitasGuiaRevision || 0)) {
                     return;
                 }
                 view._crmVisitasGuia = visitas;
@@ -177,6 +199,9 @@ define('custom:helpers/case-role-guidance', [
                 render(view);
             })
             .catch(() => {
+                if (revision !== (view._crmVisitasGuiaRevision || 0)) {
+                    return;
+                }
                 view._crmVisitasGuiaError = true;
                 if (!view._crmGuidanceRemoved) {
                     render(view);
@@ -184,7 +209,34 @@ define('custom:helpers/case-role-guidance', [
             })
             .finally(() => {
                 view._crmVisitasGuiaCargando = false;
+                // Un guardado durante esta consulta invalida su respuesta y necesita datos nuevos.
+                if (!view._crmGuidanceRemoved && !view._crmVisitasGuia
+                    && revision !== (view._crmVisitasGuiaRevision || 0)) {
+                    cargarVisitas(view);
+                }
             });
+    };
+
+    const cargarCierre = function (view) {
+        if (view._crmCierreLoading || view._crmCierreError || view._crmGuidanceRemoved) {
+            return;
+        }
+        view._crmCierreLoading = true;
+        const revision = view._crmCierreRevision || 0;
+        Espo.Ajax.getRequest('Case/action/cierreEstado', {id: view.model.id}).then(estado => {
+            if (view._crmGuidanceRemoved || revision !== (view._crmCierreRevision || 0)) return;
+            view._crmCierreGuia = estado;
+            render(view);
+        }).catch(() => {
+            if (view._crmGuidanceRemoved || revision !== (view._crmCierreRevision || 0)) return;
+            view._crmCierreError = true;
+            render(view);
+        }).finally(() => {
+            view._crmCierreLoading = false;
+            if (!view._crmGuidanceRemoved && !view._crmCierreGuia && revision !== (view._crmCierreRevision || 0)) {
+                cargarCierre(view);
+            }
+        });
     };
 
     const getGuidanceRol = function (view) {
@@ -195,6 +247,16 @@ define('custom:helpers/case-role-guidance', [
         const user = view.getUser();
         const isRadicado = RadicacionFields.isCaseRadicado(view.model);
         const isAssigned = Boolean(view.model.get('assignedUserId'));
+
+        if (ESTADOS_CIERRE.includes(view.model.get('status')) && faltaEvaluacion(view)) {
+            return {
+                role: 'responsable',
+                eyebrow: 'Siguiente paso · Evaluación de resultado',
+                icon: 'fas fa-clipboard-check',
+                title: 'Registre la evaluación de resultado',
+                text: 'El Director Técnico o el profesional asignado debe registrar la evaluación en «Evaluaciones de resultado» y vincularla a esta solicitud. Después, continúe con los requisitos del cierre.',
+            };
+        }
 
         if (RadicacionFields.isAdminUser(user)) {
             return {
@@ -362,6 +424,9 @@ define('custom:helpers/case-role-guidance', [
         if (!view.model.isNew() && estadoVisita(view) && !view._crmVisitasGuia) {
             cargarVisitas(view);
         }
+        if (!view.model.isNew() && ESTADOS_CIERRE.includes(view.model.get('status')) && !view._crmCierreGuia) {
+            cargarCierre(view);
+        }
 
         const guidance = getGuidance(view);
 
@@ -407,7 +472,13 @@ define('custom:helpers/case-role-guidance', [
             Promise.all([
                 Espo.Ajax.getRequest('Case/action/visitas', {id: view.model.id}),
                 Espo.Ajax.getRequest('Case/' + view.model.id, {select: 'status,cDecisionTramite,expedienteId,assignedUserId,assignedUserName,cCompetenciaConfirmada'}),
-            ]).then(([visitas, caso]) => {
+                ESTADOS_CIERRE.includes(view.model.get('status'))
+                    ? Espo.Ajax.getRequest('Case/action/cierreEstado', {id: view.model.id}) : Promise.resolve(null),
+            ]).then(([visitas, caso, cierre]) => {
+                if (view._crmGuidanceRemoved) return;
+                if (cierre && JSON.stringify(cierre) !== JSON.stringify(view._crmCierreGuia)) {
+                    view.model.trigger('cierre:updated', cierre);
+                }
                 const firma = JSON.stringify([caso.status, visitas.programaciones]);
                 const cambio = caso.status !== view.model.get('status')
                     || (caso.assignedUserId || null) !== (view.model.get('assignedUserId') || null)
@@ -441,8 +512,27 @@ define('custom:helpers/case-role-guidance', [
         }).catch(() => {});
         RadicacionFields.onProfileReady(() => schedule(view));
         view.listenTo(view.model, 'change:status change:cNumeroRadicado change:cExpediente change:assignedUserId change:assignedUserName change:cDecisionTramite change:cCompetenciaConfirmada change:expedienteId', () => render(view));
+        // El panel Visitas comparte la respuesta que acaba de cargar, incluso cuando el
+        // guardado no cambia el estado ni ningún atributo de la solicitud.
+        view.listenTo(view.model, 'visitas:updated', visitas => {
+            view._crmVisitasGuiaRevision = (view._crmVisitasGuiaRevision || 0) + 1;
+            view._crmVisitasGuia = visitas;
+            view._crmVisitasGuiaError = false;
+            view._crmVisitasFirma = JSON.stringify([view.model.get('status'), visitas.programaciones]);
+            render(view);
+        });
+        view.listenTo(view.model, 'cierre:updated', estado => {
+            view._crmCierreRevision = (view._crmCierreRevision || 0) + 1;
+            view._crmCierreGuia = estado;
+            view._crmCierreError = false;
+            render(view);
+        });
         // Programar la visita o adjuntar el acta recarga la solicitud: los pasos se recalculan.
         view.listenTo(view.model, 'sync', () => {
+            view._crmCierreRevision = (view._crmCierreRevision || 0) + 1;
+            view._crmCierreGuia = null;
+            view._crmCierreError = false;
+            view._crmVisitasGuiaRevision = (view._crmVisitasGuiaRevision || 0) + 1;
             view._crmVisitasGuia = null;
             view._crmVisitasGuiaError = false;
             render(view);

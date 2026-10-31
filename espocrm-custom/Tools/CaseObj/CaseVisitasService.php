@@ -229,6 +229,10 @@ class CaseVisitasService
                 'actaEstado' => $acta?->get('estado'),
                 'actaModificada' => $acta?->get('modifiedAt'),
                 'actaFirmada' => $acta ? CaseActaVisitaHelper::hasActaFirmadaAdjunta($acta) : false,
+                // La decisión del caso conserva la última revisión, que puede corresponder
+                // a una visita anterior. El banner debe seguir la decisión de cada acta.
+                'actaDecisionTramite' => $acta?->get('cDecisionTramite'),
+                'actaRevisada' => $acta && ($acta->get('fechaAprobacion') || $acta->get('cRevisadoPor')),
             ];
         }
 

@@ -40,6 +40,7 @@ define('custom:views/case/fields/acta-visita-action', [
             }
 
             this.listenTo(this.model, 'change:status change:assignedUserId change:cNumeroRadicado change:cExpediente sync', function () {
+                ActaVisitaCaseStatus.invalidateCache(this.model.id);
                 this.scheduleLoadActaState();
             });
         },
@@ -316,6 +317,39 @@ define('custom:views/case/fields/acta-visita-action', [
             }
         },
 
+        reRender: function () {
+            if (this._actaRenderPromise) {
+                this._actaRenderAgain = true;
+                return this._actaRenderPromise;
+            }
+            // El formulario de decisión pertenece a otra vista y se inserta en esta
+            // tarjeta. Separarlo antes de reemplazar el HTML conserva su DOM y eventos.
+            const $decision = this.$el.find('.case-visita-decision').detach();
+
+            this._actaRenderPromise = Promise.resolve(Dep.prototype.reRender.call(this)).then(() => {
+                if (!$decision.length) {
+                    return;
+                }
+
+                const $card = this.$el.find('.case-visita-archivo-card.is-current').first();
+                if ($card.length) {
+                    $card.append($decision);
+                } else {
+                    // Durante una nueva visita puede no haber tarjeta diligenciada aún.
+                    // Mantener el formulario montado permite actualizarlo en el próximo render.
+                    this.$el.append($decision);
+                }
+            }).finally(() => {
+                this._actaRenderPromise = null;
+                if (this._actaRenderAgain) {
+                    this._actaRenderAgain = false;
+                    return this.reRender();
+                }
+            });
+
+            return this._actaRenderPromise;
+        },
+
         setReadOnly: function () {
             this.readOnly = false;
 
@@ -350,7 +384,12 @@ define('custom:views/case/fields/acta-visita-action', [
             const user = this.getUser();
             const self = this;
 
-            if (!this.model.id || this._actaStateLoading) {
+            if (!this.model.id) {
+                return;
+            }
+
+            if (this._actaStateLoading) {
+                this._actaStateReload = true;
                 return;
             }
 
@@ -370,7 +409,13 @@ define('custom:views/case/fields/acta-visita-action', [
                         visitas,
                     ])
                         .then(function (result) {
+                            if (self._actaStateReload) {
+                                return;
+                            }
                             self.visitas = result[1];
+                            if (self.visitas) {
+                                self.model.trigger('visitas:updated', self.visitas);
+                            }
                             self.applyActaState(result[0], !!(result[1] && result[1].puedeGestionar));
                         })
                         .catch(function () {
@@ -378,6 +423,10 @@ define('custom:views/case/fields/acta-visita-action', [
                         })
                         .finally(function () {
                             self._actaStateLoading = false;
+                            if (self._actaStateReload) {
+                                self._actaStateReload = false;
+                                self.scheduleLoadActaState();
+                            }
                         });
                 } catch (error) {
                     self._actaStateLoading = false;

@@ -56,8 +56,20 @@
 
 .crm-case-role-guidance__etapa {
   border-top: 1px solid #a7f3d0;
+  display: grid;
+  gap: 10px 20px;
+  grid-template-columns: minmax(120px, 1fr) minmax(180px, 2fr) minmax(140px, 1fr);
+  margin-bottom: 0;
   margin-top: 8px !important;
-  padding-top: 6px;
+  padding-top: 10px;
+}
+
+.crm-case-role-guidance__content { flex: 1; min-width: 0; }
+.crm-case-role-guidance__etapa dt { font-size: 11px; font-weight: 600; }
+.crm-case-role-guidance__etapa dd { font-size: 12px; font-weight: 700; margin: 3px 0 0; overflow-wrap: anywhere; }
+
+@media (max-width: 991px) {
+  .crm-case-role-guidance__etapa { grid-template-columns: 1fr; }
 }
 
 .crm-case-role-guidance--seguimiento {
