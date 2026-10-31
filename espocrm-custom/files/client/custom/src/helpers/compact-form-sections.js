@@ -6,6 +6,7 @@ define('custom:helpers/compact-form-sections', [], function () {
         detalleQueja: {open: false, fields: ['description']},
         perjudicante: {open: false, fields: ['cNombrePerjudicante', 'cApellidoPerjudicante', 'cDocumentoPerjudicante']},
         clasificacionSeguimiento: {open: false, fields: ['cRecursoTema', 'cFechaVencimiento']},
+        destinoRelacion: {open: false, fields: [], summary: 'Destino y casos relacionados'},
         radicacionCaso: {open: false, fields: ['cNumeroRadicado']},
         gestionPosteriorRadicacion: {open: false, fields: ['assignedUserName'], summaryFn: function (model) {
             if (model.get('assignedUserName')) return model.get('assignedUserName');
