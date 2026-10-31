@@ -32,18 +32,7 @@
   text-transform: none !important;
 }
 
-/* Consulta del acta (detalle y vista previa): sin columna lateral vacía, los bloques usan todo el ancho. */
+/* Consulta del acta (detalle y vista previa): sin columna lateral vacía, los bloques usan todo el ancho, uno debajo del otro. */
 .detail[data-scope="ActaVisita"] .record-grid > .left { float: none; max-width: none; width: 100% !important; }
 .detail[data-scope="ActaVisita"] .record-grid > .side:not(:has(.panel)) { display: none; }
-.detail[data-scope="ActaVisita"] .record-grid > .left > .middle {
-  align-items: start;
-  display: grid;
-  gap: 0 16px;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-.detail[data-scope="ActaVisita"] .record-grid > .left > .middle > .panel:last-child,
-.detail[data-scope="ActaVisita"] .record-grid > .left > .middle > .panel:only-child { grid-column: 1 / -1; }
-@media (max-width: 767px) {
-  .detail[data-scope="ActaVisita"] .record-grid > .left > .middle { grid-template-columns: minmax(0, 1fr); }
-}
 .detail[data-scope="ActaVisita"] .record-grid:not(:has(> .side .panel)) { grid-template-columns: minmax(0, 1fr) !important; }
