@@ -89,7 +89,8 @@ define('custom:views/case/fields/acta-visita-action', [
 
             return RadicacionFields.isInspeccionUser(user)
                 || RadicacionFields.isAsignadorUser(user)
-                || RadicacionFields.isJuridicaUser(user);
+                || RadicacionFields.isJuridicaUser(user)
+                || RadicacionFields.isInspectorAmbientalUser(user);
         },
 
         resolveShowVisitaAprobacion: function (user) {

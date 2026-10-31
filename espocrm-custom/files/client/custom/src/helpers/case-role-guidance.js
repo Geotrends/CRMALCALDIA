@@ -26,6 +26,7 @@ define('custom:helpers/case-role-guidance', [
             && (RadicacionFields.isInspeccionUser(user)
                 || RadicacionFields.isAsignadorUser(user)
                 || RadicacionFields.isJuridicaUser(user)
+                || RadicacionFields.isInspectorAmbientalUser(user)
                 || (view._crmRoles || []).includes('Inspector Ambiental'));
     };
 

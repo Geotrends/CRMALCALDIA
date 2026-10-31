@@ -428,6 +428,20 @@ define('custom:helpers/radicacion-fields', [], function () {
         return resolveHomeProfile(user) === 'juridica';
     };
 
+    // Inspector Ambiental: rol del modelo BPMN que no tiene bandera propia en el perfil, solo el nombre.
+    const isInspectorAmbientalUser = function (user) {
+        if (!user || isAdminUser(user)) {
+            return false;
+        }
+
+        const profile = serverProfile && profileUserId === getCurrentUserId(user)
+            ? serverProfile
+            : null;
+
+        return (profile && profile.roles || []).indexOf('Inspector Ambiental') !== -1
+            || getAssignedRoleNames(user).indexOf('Inspector Ambiental') !== -1;
+    };
+
     const canEditRadicadoCase = function (user) {
         if (!user) {
             return false;
@@ -528,6 +542,7 @@ define('custom:helpers/radicacion-fields', [], function () {
         isPatrulleroUser: isPatrulleroUser,
         isAsignadorUser: isAsignadorUser,
         isJuridicaUser: isJuridicaUser,
+        isInspectorAmbientalUser: isInspectorAmbientalUser,
         canAssignCase: canAssignCase,
         canEditRadicadoCase: canEditRadicadoCase,
         isCaseRadicado: isCaseRadicado,
