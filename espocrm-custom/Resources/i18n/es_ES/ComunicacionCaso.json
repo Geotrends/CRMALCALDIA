@@ -15,7 +15,9 @@
     },
     "labels": {
         "ComunicacionCaso": "Comunicación",
-        "ComunicacionesCaso": "Comunicaciones"
+        "ComunicacionesCaso": "Comunicaciones",
+        "Create ComunicacionCaso": "Registrar comunicación",
+        "Edit ComunicacionCaso": "Editar comunicación"
     },
     "options": {
         "tipo": {
