@@ -206,20 +206,16 @@ define('custom:helpers/acta-visita-modal', [
                 return;
             }
 
-            const helper = new RecordModalHelper();
-
-            // showDetail abre el resumen y deriva a otra pantalla para el
-            // formulario. showEdit con el layout detail conserva el sidecar
-            // pero carga todos los campos y adjuntos de una vez.
-            helper.showEdit(host, {
+            // Modal de consulta estándar: solo lectura, sin editar, eliminar ni formulario completo.
+            host.createView('actaDetalle', 'views/modals/detail', {
                 entityType: 'ActaVisita',
                 id: actaId,
                 layoutName: 'detail',
-                fullFormDisabled: true,
-                readOnly: true,
+                editDisabled: true,
                 removeDisabled: true,
-            }).catch(function () {
-                // Cierre normal del panel de consulta.
+                fullFormDisabled: true,
+            }).then(function (view) {
+                view.render();
             });
         },
         openEditById: function (hostView, caseModel, actaId, user, options) {

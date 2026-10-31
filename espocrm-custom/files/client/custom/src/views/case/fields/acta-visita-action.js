@@ -197,8 +197,6 @@ define('custom:views/case/fields/acta-visita-action', [
                         fechaVisita: acta.fechaVisita
                             ? self.getDateTime().toDisplayDate(acta.fechaVisita)
                             : 'Sin fecha',
-                        canDescargar: ActaVisitaCaseStatus.hasActaVisitContent(acta),
-                        actasFirmadas: self.buildActasFirmadas(acta),
                         estado: estado,
                         estadoLabel: estadoLabel,
                         isAprobada: isAprobada,
@@ -220,28 +218,8 @@ define('custom:views/case/fields/acta-visita-action', [
                         entidadRemision: String(acta.cEntidadRemision || '').trim(),
                         fechaRevision: String(acta.fechaAprobacion || '').trim(),
                         revisadoPor: String(acta.cRevisadoPor || '').trim(),
-                        archivoHelp: self.translateCaseLabel(
-                            !tieneActaFirmada
-                                ? 'actaFirmadaRequeridaHelp'
-                                : isCurrent && !(tieneRevision && !formularioDecisionVisible)
-                                ? 'visitaEnCursoHelp'
-                                : 'actaVisitaEditHelp'
-                        ),
                     };
                 });
-        },
-
-        buildActasFirmadas: function (acta) {
-            const ids = acta.formatoManoAdjuntoIds;
-            const list = Array.isArray(ids) ? ids : String(ids || '').split(',').filter(Boolean);
-            const names = acta.formatoManoAdjuntoNames || {};
-
-            return list.map(function (id) {
-                return {
-                    url: '?entryPoint=download&id=' + encodeURIComponent(id),
-                    label: list.length > 1 ? 'Descargar acta firmada: ' + (names[id] || id) : 'Descargar acta firmada',
-                };
-            });
         },
 
         // Visitas programadas de la solicitud: de cada una salen el acta en blanco y el acta adjunta.
@@ -249,7 +227,8 @@ define('custom:views/case/fields/acta-visita-action', [
             const visitas = this.visitas || {};
             const lang = this.getLanguage();
 
-            return (visitas.programaciones || []).map(p => {
+            // Con el acta diligenciada la visita pasa a «Visitas registradas».
+            return (visitas.programaciones || []).filter(p => !p.actaId || p.actaEstado === 'Pendiente').map(p => {
                 const cancelada = p.estado === 'Cancelada';
                 const hora = [p.horaInicio, p.horaFin].filter(Boolean).join(' a ');
                 const actaPendiente = !!p.actaId && p.actaEstado === 'Pendiente';
@@ -773,7 +752,7 @@ define('custom:views/case/fields/acta-visita-action', [
             const self = this;
 
             this.$el.find('[data-action="programarVisita"], [data-action="descargarActaBlanco"], [data-action="adjuntarActa"], [data-action="completarActa"]').off('.programacion');
-            this.$el.find('[data-action="descargarActaArchivo"]').off('click.descargarActaArchivo');
+            this.$el.find('[data-action="verDetallesVisita"]').off('click.verDetallesVisita');
             this.$el.find('[data-action="verActa"]').off('click.verActa');
             this.$el.find('[data-action="aprobarVisitaActa"]').off('click.aprobarVisitaActa');
             this.$el.find('[data-action="editarRevisionActa"], [data-action="guardarRevisionActa"], [data-action="cancelarRevisionActa"]').off('.revisionActa');
@@ -863,14 +842,14 @@ define('custom:views/case/fields/acta-visita-action', [
                 }
             });
 
-            this.$el.find('[data-action="descargarActaArchivo"]').on('click.descargarActaArchivo', function (e) {
+            this.$el.find('[data-action="verDetallesVisita"]').on('click.verDetallesVisita', function (e) {
                 e.preventDefault();
                 e.stopPropagation();
 
                 const actaId = $(e.currentTarget).data('acta-id');
 
                 if (actaId) {
-                    self.actionDescargarActaArchivo(actaId);
+                    ActaVisitaModal.openDetailById(self, actaId);
                 }
             });
 
@@ -927,16 +906,6 @@ define('custom:views/case/fields/acta-visita-action', [
                     self.scheduleLoadActaState();
                 },
             });
-        },
-
-        actionDescargarActaArchivo: function (actaId) {
-            const url = this.getBasePath()
-                + '?entryPoint=FormatoActaVisitaCaso'
-                + '&id=' + encodeURIComponent(this.model.id)
-                + '&actaId=' + encodeURIComponent(actaId)
-                + '&format=pdf';
-
-            window.location.assign(url);
         },
 
         actionPrepararNuevaVisita: function (options) {
