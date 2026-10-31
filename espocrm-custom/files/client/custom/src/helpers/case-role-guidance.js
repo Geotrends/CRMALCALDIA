@@ -273,7 +273,7 @@ define('custom:helpers/case-role-guidance', [
                 eyebrow: 'Siguiente paso · Evaluación de resultado',
                 icon: 'fas fa-clipboard-check',
                 title: 'Registre la evaluación de resultado',
-                text: 'La evaluación se crea sola al terminar las visitas: el Director Técnico o el profesional asignado la completa desde el panel «Evaluación de resultado» (o la añade allí si falta). Después, continúe con los requisitos del cierre.',
+                text: 'La evaluación se crea sola al terminar las visitas: el Director Técnico o el profesional asignado la completa desde el panel «Evaluación de resultado» (o la añade allí si falta) y no cuenta como lista hasta que su estado sea «Cerrada». Después, continúe con los requisitos del cierre.',
             };
         }
 

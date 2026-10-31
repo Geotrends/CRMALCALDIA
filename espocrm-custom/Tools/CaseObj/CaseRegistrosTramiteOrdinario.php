@@ -10,7 +10,8 @@ use Espo\ORM\EntityManager;
  * Una solicitud de trámite ordinario (competencia Total o Parcial; con competencia Ninguna se
  * remite completa sin gestión técnica) debe tener gestión técnica, intervención técnica,
  * programación de visita y acta de visita antes de definir el trámite.
- * La evaluación de resultado corresponde a una etapa posterior y se exige para el cierre.
+ * La evaluación de resultado corresponde a una etapa posterior: se exige para el cierre y solo
+ * cuenta cuando está en estado «Cerrada», no apenas se crea.
  */
 class CaseRegistrosTramiteOrdinario
 {
@@ -47,7 +48,7 @@ class CaseRegistrosTramiteOrdinario
         ];
 
         if ($incluirEvaluacion) {
-            $registros['evaluacionResultado'] = ['Evaluación de resultado', $this->ids('EvaluacionResultado', ['caseId' => $case->getId()]) !== []];
+            $registros['evaluacionResultado'] = ['Evaluación de resultado', $this->ids('EvaluacionResultado', ['caseId' => $case->getId(), 'estado' => 'Cerrada']) !== []];
         }
 
         $requisitos = [];
