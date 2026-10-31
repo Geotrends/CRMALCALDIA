@@ -13,9 +13,15 @@ define('custom:helpers/case-detail-side-panels', [
 
     const FIELD_PANELS = [
         'actaVisita',
-        'evaluacionResultado',
         'decisionJuridica',
         'formatoGenerado',
+    ];
+
+    // Encabezan la columna lateral para todos los usuarios, en este orden.
+    const FIRST_PANELS = [
+        'comunicacionesCasoPanel',
+        'evaluacionResultado',
+        'caseTimeline',
     ];
 
     const BOTTOM_PANELS = [
@@ -34,7 +40,6 @@ define('custom:helpers/case-detail-side-panels', [
     const CONTAINER_CLASS = 'alcaldia-case-detail-side-fields';
     const ASIGNACION_PANEL = 'gestionPosteriorRadicacion';
     const ACTA_VISITA_PANEL = 'actaVisita';
-    const EVALUACION_PANEL = 'evaluacionResultado';
     const DECISION_PANEL = 'decisionJuridica';
     const FORMATO_GENERADO_PANEL = 'formatoGenerado';
 
@@ -1973,14 +1978,6 @@ define('custom:helpers/case-detail-side-panels', [
                     .removeClass('hidden');
                 $side.prepend($actaVisita);
                 $insertAfter = $actaVisita;
-
-                // La evaluación de resultado es el paso que sigue a las visitas.
-                const $evaluacion = findIn(recordView.$el, EVALUACION_PANEL);
-
-                if ($evaluacion.length) {
-                    $actaVisita.after($evaluacion);
-                    $insertAfter = $evaluacion;
-                }
             }
 
             // El panel «Formato generado» se retiró del detalle para todos los perfiles.
@@ -2062,6 +2059,14 @@ define('custom:helpers/case-detail-side-panels', [
             }
 
             $insertAfter = $panel;
+        });
+
+        FIRST_PANELS.slice().reverse().forEach(function (name) {
+            const $panel = findIn(recordView.$el, name);
+
+            if ($panel.length) {
+                $side.prepend($panel);
+            }
         });
 
         removeLeftHistoryDuplicates(recordView);
