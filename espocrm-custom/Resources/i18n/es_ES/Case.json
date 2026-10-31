@@ -331,7 +331,16 @@
       "Seleccione una opción": "Seleccione una opción"
     },
     "cZonaAlcaldiaPeticionario": {
-      "Seleccione una opción": "Seleccione una opción"
+      "Seleccione una opción": "Seleccione una opción",
+      "1": "01 · Las Vegas",
+      "2": "02 · El Portal, San Marcos, Pontevedra, Jardines, Villagrande, Bosques de Zúñiga",
+      "3": "03 · La Sebastiana, Las Flores, Uribe Ángel, Alto de Misael, Las Orquídeas",
+      "4": "04 · El Esmeraldal, Loma del Atravesado, Zúñiga",
+      "5": "05 · Loma de las Brujas, La Pradera, El Chocho, La Inmaculada",
+      "6": "06 · El Chinguí, El Salado, La Mina, San Rafael, San José",
+      "7": "07 · Las Antillas, El Trianón, Loma del Barro, La Paz, El Dorado",
+      "8": "08 · Las Casitas, La Primavera, Milán Vallejuelos, Alcalá",
+      "9": "09 · Los Naranjos, Mesa, Centro, Obrero, Bucarest, La Magnolia"
     },
     "cUltimaActuacion": {
       "Seleccione una opción": "Seleccione una opción"

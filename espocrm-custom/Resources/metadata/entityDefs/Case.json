@@ -1250,11 +1250,7 @@
                 "6",
                 "7",
                 "8",
-                "9",
-                "10",
-                "11",
-                "12",
-                "13"
+                "9"
             ],
             "style": {
                 "1": null,
@@ -1265,11 +1261,7 @@
                 "6": null,
                 "7": null,
                 "8": null,
-                "9": null,
-                "10": null,
-                "11": null,
-                "12": null,
-                "13": null
+                "9": null
             },
             "isCustom": true,
             "suppressValidationList": [
