@@ -227,6 +227,7 @@ class CaseVisitasService
                 'actaId' => $acta?->getId(),
                 'actaName' => $acta?->get('name'),
                 'actaEstado' => $acta?->get('estado'),
+                'actaModificada' => $acta?->get('modifiedAt'),
             ];
         }
 

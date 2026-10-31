@@ -168,6 +168,7 @@ define('custom:helpers/case-role-guidance', [
                     return;
                 }
                 view._crmVisitasGuia = visitas;
+                view._crmVisitasFirma = JSON.stringify([view.model.get('status'), visitas.programaciones]);
                 render(view);
             })
             .catch(() => {
@@ -398,8 +399,47 @@ define('custom:helpers/case-role-guidance', [
         [0, 180, 700, 1600].forEach(delay => window.setTimeout(() => render(view), delay));
     };
 
+    // Sin recargar la página: si otra persona programa, adjunta o revisa algo, la solicitud se
+    // actualiza sola (y con ella el banner y la revisión técnico-jurídica).
+    const vigilarCambios = function (view) {
+        const revisar = function () {
+            if (document.hidden || !view.model.id || view._crmVigilando || view.mode === 'edit') {
+                return;
+            }
+
+            view._crmVigilando = true;
+
+            Promise.all([
+                Espo.Ajax.getRequest('Case/action/visitas', {id: view.model.id}),
+                Espo.Ajax.getRequest('Case/' + view.model.id, {select: 'status,cDecisionTramite,expedienteId,assignedUserId,assignedUserName,cCompetenciaConfirmada'}),
+            ]).then(([visitas, caso]) => {
+                const firma = JSON.stringify([caso.status, visitas.programaciones]);
+                const cambio = caso.status !== view.model.get('status')
+                    || (caso.assignedUserId || null) !== (view.model.get('assignedUserId') || null)
+                    || (caso.assignedUserName || null) !== (view.model.get('assignedUserName') || null)
+                    || caso.cCompetenciaConfirmada !== view.model.get('cCompetenciaConfirmada')
+                    || (caso.cDecisionTramite || null) !== (view.model.get('cDecisionTramite') || null)
+                    || (view._crmVisitasFirma && view._crmVisitasFirma !== firma);
+
+                if (cambio) {
+                    view.model.fetch();
+                }
+            }).catch(() => {}).finally(() => {
+                view._crmVigilando = false;
+            });
+        };
+        const timer = window.setInterval(revisar, 20000);
+
+        document.addEventListener('visibilitychange', revisar);
+        view.once('remove', () => {
+            window.clearInterval(timer);
+            document.removeEventListener('visibilitychange', revisar);
+        });
+    };
+
     const setup = function (view) {
         view.once('remove', () => { view._crmGuidanceRemoved = true; });
+        vigilarCambios(view);
         RadicacionFields.ensureProfile(view.getUser()).then(profile => {
             view._crmRoles = (profile && profile.roles) || [];
             render(view);
