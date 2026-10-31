@@ -1956,6 +1956,7 @@ define('custom:helpers/case-detail-side-panels', [
         if (
             PatrulleroActa.isPatrulleroUser(recordView.getUser())
             || recordView.model.get('assignedUserId') === recordView.getUser().id
+            || findIn(recordView.$el, ACTA_VISITA_PANEL).attr('data-crm-primero') === '1'
         ) {
             const $actaVisita = findIn(recordView.$el, ACTA_VISITA_PANEL);
             const $formatoGenerado = findIn(recordView.$el, FORMATO_GENERADO_PANEL);

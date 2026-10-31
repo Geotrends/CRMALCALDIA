@@ -503,6 +503,8 @@ define('custom:views/case/fields/acta-visita-action', [
             }
 
             this._delegadaAbierta = true;
+            // distribute() (case-detail-side-panels) respeta esta marca al ordenar la columna lateral.
+            $panel.attr('data-crm-primero', '1').closest('.side').prepend($panel);
             $panel.removeClass('crm-form-section--collapsed');
             $panel.children('.panel-heading').attr('aria-expanded', 'true');
         },
