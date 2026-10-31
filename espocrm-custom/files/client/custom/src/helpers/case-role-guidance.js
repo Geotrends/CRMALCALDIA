@@ -8,8 +8,63 @@ define('custom:helpers/case-role-guidance', [
         return $('<span>').text(value || '').html();
     };
 
+    const estadoVisita = function (view) {
+        return ESTADOS_VISITA.includes(view.model.get('status'));
+    };
+
     const enVisita = function (view) {
-        return !RadicacionFields.isAdminUser(view.getUser()) && ESTADOS_VISITA.includes(view.model.get('status'));
+        return !RadicacionFields.isAdminUser(view.getUser()) && estadoVisita(view);
+    };
+
+    // Paso del proceso en que va la solicitud y quién debe dar el siguiente: se muestra en todos los
+    // banners, para cualquier usuario. «mio» indica que la acción le corresponde a quien mira.
+    const getEtapa = function (view) {
+        const model = view.model;
+        const user = view.getUser();
+        const status = model.get('status') || '';
+        const responsable = model.get('assignedUserName') || 'el responsable asignado';
+        const esResponsable = model.get('assignedUserId') === user.id;
+        const admin = RadicacionFields.isAdminUser(user);
+        const etapa = {estado: status, actor: '', accion: '', mio: false};
+
+        if (status === 'Pendiente de radicacion') {
+            etapa.actor = 'Auxiliar Administrativo · Radicador';
+            etapa.accion = 'Radicar la solicitud';
+            etapa.mio = !admin && RadicacionFields.isRadicacionUser(user);
+        } else if (status === 'Radicado') {
+            etapa.actor = 'Director Técnico';
+            etapa.accion = model.get('cCompetenciaConfirmada')
+                ? 'Asignar la solicitud a un responsable'
+                : 'Revisar la competencia y asignar la solicitud';
+            etapa.mio = !admin && RadicacionFields.isAsignadorUser(user);
+        } else if (estadoVisita(view)) {
+            const visitas = view._crmVisitasGuia;
+            const programaciones = ((visitas || {}).programaciones || []).filter(p => p.estado !== 'Cancelada');
+            const pendiente = programaciones.find(p => !p.actaId || p.actaEstado === 'Pendiente');
+            const hayActa = programaciones.length > 0 && !pendiente;
+
+            if (hayActa && visitas.tieneEvaluacion) {
+                etapa.actor = 'Director Técnico';
+                etapa.accion = 'Definir el trámite a partir de los hallazgos';
+                etapa.mio = !admin && RadicacionFields.isAsignadorUser(user);
+            } else {
+                const quien = pendiente && pendiente.responsableName ? pendiente.responsableName : responsable;
+
+                etapa.actor = quien;
+                etapa.accion = !programaciones.length
+                    ? 'Programar la visita'
+                    : pendiente ? 'Realizar la visita y adjuntar el acta' : 'Registrar la evaluación de resultado';
+                etapa.mio = esResponsable || !!(pendiente && pendiente.esResponsable);
+            }
+        } else if (['Pendiente de respuesta final', 'Remitido por competencia'].includes(status)) {
+            etapa.actor = responsable;
+            etapa.accion = 'Completar el cierre de la solicitud';
+            etapa.mio = esResponsable;
+        } else if (['Finalizado', 'Proceso cerrado'].includes(status)) {
+            etapa.accion = 'Ninguna: la solicitud está cerrada';
+        }
+
+        return etapa;
     };
 
     // Siguientes pasos del responsable asignado (cualquier rol), según lo que la solicitud ya
@@ -87,7 +142,7 @@ define('custom:helpers/case-role-guidance', [
             });
     };
 
-    const getGuidance = function (view) {
+    const getGuidanceRol = function (view) {
         if (!view || !view.model || view.model.isNew()) {
             return null;
         }
@@ -196,6 +251,49 @@ define('custom:helpers/case-role-guidance', [
         return null;
     };
 
+    // Banner de seguimiento para quien no tiene una acción propia en esta etapa.
+    const getSeguimiento = function (view, etapa) {
+        if (!etapa.estado) {
+            return null;
+        }
+
+        return {
+            role: 'seguimiento',
+            eyebrow: 'Seguimiento · ' + etapa.estado,
+            icon: 'fas fa-route',
+            title: etapa.actor ? 'Siguiente acción: ' + etapa.accion : etapa.accion,
+            text: etapa.actor
+                ? 'Le corresponde a ' + etapa.actor + '. Usted puede consultar la solicitud y su historia.'
+                : 'Puede consultar la solicitud y su historia.',
+        };
+    };
+
+    const getGuidance = function (view) {
+        if (!view || !view.model || view.model.isNew()) {
+            return null;
+        }
+
+        const etapa = getEtapa(view);
+        const guidance = getGuidanceRol(view) || getSeguimiento(view, etapa);
+
+        if (guidance) {
+            guidance.etapa = etapa;
+        }
+
+        return guidance;
+    };
+
+    const etapaHtml = function (etapa) {
+        if (!etapa || !etapa.estado) {
+            return '';
+        }
+
+        return '<p class="crm-case-role-guidance__etapa"><b>Etapa:</b> ' + escapeHtml(etapa.estado)
+            + (etapa.actor ? ' · <b>Siguiente acción:</b> ' + escapeHtml(etapa.accion) + ' · <b>A cargo de:</b> '
+                + escapeHtml(etapa.actor) + (etapa.mio ? ' (usted)' : '') : '')
+            + '</p>';
+    };
+
     const render = function (view) {
         if (!view || !view.$el) {
             return;
@@ -203,7 +301,7 @@ define('custom:helpers/case-role-guidance', [
 
         view.$el.filter('.crm-case-role-guidance').add(view.$el.find('.crm-case-role-guidance')).remove();
 
-        if (!view.model.isNew() && enVisita(view) && !view._crmVisitasGuia) {
+        if (!view.model.isNew() && estadoVisita(view) && !view._crmVisitasGuia) {
             cargarVisitas(view);
         }
 
@@ -224,6 +322,7 @@ define('custom:helpers/case-role-guidance', [
             + '<span class="crm-case-role-guidance__icon ' + (guidance.icon || 'fas fa-circle-check') + '" aria-hidden="true"></span>'
             + '<div><span class="crm-case-role-guidance__eyebrow">' + guidance.eyebrow + '</span>'
             + '<strong>' + guidance.title + '</strong><p>' + escapeHtml(guidance.text) + '</p>'
+            + etapaHtml(guidance.etapa)
             + (guidance.pasos
                 ? '<ol class="crm-case-role-guidance__pasos">' + guidance.pasos.map(p => '<li class="'
                     + (p.ok ? 'is-done' : (p.actual ? 'is-current' : '')) + '">' + escapeHtml(p.label) + '</li>').join('') + '</ol>'
