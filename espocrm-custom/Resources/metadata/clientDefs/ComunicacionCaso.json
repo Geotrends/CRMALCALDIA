@@ -3,7 +3,8 @@
     "iconClass": "fas fa-comments",
     "color": "#0ea5e9",
     "recordViews": {
-        "edit": "views/record/edit",
+        "edit": "custom:views/record-sin-panel-lateral/edit",
+        "editSmall": "custom:views/record-sin-panel-lateral/edit-small",
         "detail": "views/record/detail",
         "list": "views/record/list"
     },
