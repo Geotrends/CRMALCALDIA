@@ -198,7 +198,7 @@ define('custom:helpers/acta-visita-modal', [
     return {
         open: open,
         openFromProgramacion: openFromProgramacion,
-        openDetailById: function (hostView, actaId) {
+        openDetailById: function (hostView, actaId, caseId) {
             const host = resolveHostView(hostView);
 
             if (!host || !actaId) {
@@ -207,9 +207,10 @@ define('custom:helpers/acta-visita-modal', [
             }
 
             // Modal de consulta estándar: solo lectura, sin editar, eliminar ni formulario completo.
-            host.createView('actaDetalle', 'views/modals/detail', {
+            host.createView('actaDetalle', 'custom:views/modals/acta-visita-detalle', {
                 entityType: 'ActaVisita',
                 id: actaId,
+                caseId: caseId,
                 layoutName: 'detail',
                 editDisabled: true,
                 removeDisabled: true,

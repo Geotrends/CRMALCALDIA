@@ -851,7 +851,7 @@ define('custom:views/case/fields/acta-visita-action', [
                 const actaId = $(e.currentTarget).data('acta-id');
 
                 if (actaId) {
-                    ActaVisitaModal.openDetailById(self, actaId);
+                    ActaVisitaModal.openDetailById(self, actaId, self.model.id);
                 }
             });
 
