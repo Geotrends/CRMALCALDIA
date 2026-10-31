@@ -146,6 +146,7 @@ $roleConfigs = [
         ],
         'GestionTecnica' => $readOnlyAll,
         'ActaVisita' => $readOnlyAll,
+        'VisitaHistorial' => $readOnlyAll,
         'ComunicacionCaso' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
         'Document' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
         'RemisionAutoridad' => ['create' => 'yes', 'read' => 'all', 'edit' => 'all', 'delete' => 'no', 'stream' => 'no'],
