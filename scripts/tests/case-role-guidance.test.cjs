@@ -266,6 +266,21 @@ test('el panel comparte los datos nuevos y repite la consulta si se guarda mient
     current.view.emit('remove');
 });
 
+test('revisada el acta, el siguiente paso es la evaluación de resultado', () => {
+    const revisada = [{actaId: 'acta', actaEstado: 'Diligenciada', actaFirmada: true, actaRevisada: true}];
+    const attributes = {status: 'Revisión de hallazgos', assignedUserId: 'owner', assignedUserName: 'Ana Pérez'};
+    const abierta = banner('tecnico', attributes, revisada, {userId: 'owner', visitas: {evaluaciones: [{abierta: true}]}});
+    const faltante = banner('tecnico', attributes, revisada, {visitas: {puedeRegistrarEvaluacion: true, evaluaciones: []}});
+    const sinPaso = banner('tecnico', attributes, revisada);
+
+    assert.ok(abierta.includes('<dt>Siguiente acción</dt><dd>Completar la evaluación de resultado'));
+    assert.ok(abierta.includes('<dt>A cargo de</dt><dd>Director Técnico o Ana Pérez'));
+    assert.ok(faltante.includes('<dt>Siguiente acción</dt><dd>Registrar la evaluación de resultado'));
+    assert.ok(abierta.includes('Complete la evaluación de resultado'));
+    assert.ok(!sinPaso.includes('Complete la evaluación de resultado'));
+    assert.ok(sinPaso.includes('<dt>Siguiente acción</dt><dd>Hacer la revisión técnico-jurídica'));
+});
+
 test('un acta sin firma no da por completo el paso de adjuntar el acta', () => {
     const html = banner('tecnico', {status: 'En gestión técnica', assignedUserId: 'viewer'}, [{name: 'V1', esResponsable: true, actaId: 'acta', actaEstado: 'Diligenciada', actaFirmada: false}]);
     assert.ok(html.includes('<strong>Adjunte el acta de visita firmada</strong>'));

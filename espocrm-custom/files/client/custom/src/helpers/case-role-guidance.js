@@ -86,7 +86,16 @@ define('custom:helpers/case-role-guidance', [
             // El servidor exige el acta firmada para registrar la revisión técnico-jurídica.
             const sinFirma = pendiente && pendiente.actaId && pendiente.actaEstado !== 'Pendiente' && pendiente.actaFirmada === false;
 
-            if (hayActa && !complementaria && !sinFirma) {
+            const ultima = programaciones[programaciones.length - 1];
+            const evaluaciones = visitas.evaluaciones || [];
+
+            // Revisada el acta y definido el trámite, el siguiente paso es la evaluación de resultado.
+            if (hayActa && !complementaria && ultima.actaRevisada && status === 'Revisión de hallazgos'
+                && (visitas.puedeRegistrarEvaluacion || evaluaciones.some(e => e.abierta))) {
+                etapa.actor = 'Director Técnico o ' + responsable;
+                etapa.accion = evaluaciones.some(e => e.abierta) ? 'Completar la evaluación de resultado' : 'Registrar la evaluación de resultado';
+                etapa.mio = !admin && (esResponsable || RadicacionFields.isAsignadorUser(user));
+            } else if (hayActa && !complementaria && !sinFirma) {
                 etapa.actor = 'Inspector Ambiental';
                 etapa.accion = 'Hacer la revisión técnico-jurídica del acta y definir el trámite';
                 etapa.mio = puedeRevisar(view);
@@ -134,11 +143,20 @@ define('custom:helpers/case-role-guidance', [
         }
 
         const {programaciones, pendiente, complementaria} = getAvanceVisitas(view);
+        const ultima = programaciones[programaciones.length - 1];
+        // Revisada el acta y definido el trámite, sigue la evaluación de resultado.
+        const revisada = !!(ultima && ultima.actaRevisada) && !pendiente && !complementaria
+            && view.model.get('status') === 'Revisión de hallazgos'
+            && (visitas.puedeRegistrarEvaluacion || (visitas.evaluaciones || []).some(e => e.abierta));
         const pasos = [
             {label: 'Programar la visita', ok: programaciones.length > 0 && !complementaria},
             {label: 'Adjuntar el acta de visita', ok: programaciones.length > 0 && !pendiente && !complementaria},
-            {label: 'Revisión técnico-jurídica (Inspector Ambiental)', ok: false},
+            {label: 'Revisión técnico-jurídica (Inspector Ambiental)', ok: revisada},
         ];
+
+        if (revisada) {
+            pasos.push({label: 'Evaluación de resultado', ok: false});
+        }
 
         const actual = pasos.findIndex(p => !p.ok);
         const textos = [
@@ -149,6 +167,7 @@ define('custom:helpers/case-role-guidance', [
                 ? ['Adjunte el acta de visita firmada', 'Abra el acta de la visita ' + pendiente.name + ' y adjunte el documento firmado para continuar con la revisión técnico-jurídica.']
                 : ['Adjunte el acta de visita', 'En el panel Visitas, en ' + (pendiente ? pendiente.name : 'la visita programada') + ', descargue el acta en blanco para llevarla a campo y, después de la visita, seleccione «Adjuntar acta de visita». El formulario trae los datos de la solicitud y de la visita.'],
             ['Espere la revisión técnico-jurídica', 'El Inspector Ambiental revisa los hallazgos del acta y define si hace falta otra visita o si con esta se cierra. Si pide otra visita, prográmela desde el panel Visitas.'],
+            ['Complete la evaluación de resultado', 'En el panel «Evaluación de resultado» registre el resultado técnico de las visitas.'],
         ];
 
         return {
@@ -254,7 +273,7 @@ define('custom:helpers/case-role-guidance', [
                 eyebrow: 'Siguiente paso · Evaluación de resultado',
                 icon: 'fas fa-clipboard-check',
                 title: 'Registre la evaluación de resultado',
-                text: 'El Director Técnico o el profesional asignado debe registrar la evaluación en «Evaluaciones de resultado» y vincularla a esta solicitud. Después, continúe con los requisitos del cierre.',
+                text: 'La evaluación se crea sola al terminar las visitas: el Director Técnico o el profesional asignado la completa desde el panel «Evaluación de resultado» (o la añade allí si falta). Después, continúe con los requisitos del cierre.',
             };
         }
 
