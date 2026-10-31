@@ -33,7 +33,8 @@ class CaseVisitasService
     public function __construct(
         private EntityManager $entityManager,
         private Acl $acl,
-        private AlcaldiaUserProfile $profile
+        private AlcaldiaUserProfile $profile,
+        private CaseEvaluacionResultadoService $evaluaciones
     ) {}
 
     /**
@@ -92,11 +93,53 @@ class CaseVisitasService
                 : null,
             'requiereMotivo' => $this->requiereMotivo($case),
             'programaciones' => $programaciones,
+            ...$this->estadoEvaluacion($case, $user),
             'tieneEvaluacion' => $this->entityManager
                 ->getRDBRepository('EvaluacionResultado')
                 ->where(['caseId' => $case->getId()])
                 ->count() > 0,
         ];
+    }
+
+    /**
+     * Evaluaciones de resultado de la solicitud y si el usuario puede añadir una.
+     *
+     * @return array<string, mixed>
+     */
+    public function estadoEvaluacion(Entity $case, User $user): array
+    {
+        return [
+            'puedeVerEvaluaciones' => $this->acl->checkScope('EvaluacionResultado', Acl\Table::ACTION_READ),
+            'evaluaciones' => $this->evaluaciones->lista($case->getId(), $this->acl),
+            'puedeRegistrarEvaluacion' => $this->puedeRegistrarEvaluacion($case, $user),
+        ];
+    }
+
+    /**
+     * El responsable asignado (o Inspección) añade la evaluación de resultado cuando terminaron
+     * las visitas y no hay otra en trámite.
+     */
+    public function puedeRegistrarEvaluacion(Entity $case, User $user): bool
+    {
+        return $this->puedeGestionar($case, $user)
+            && $this->acl->checkScope('EvaluacionResultado', Acl\Table::ACTION_CREATE)
+            && $this->evaluaciones->aplica($case)
+            && !$this->evaluaciones->abierta($case->getId());
+    }
+
+    /**
+     * Valores con que se abre el formulario de la evaluación de resultado.
+     *
+     * @return array<string, mixed>
+     * @throws Forbidden
+     */
+    public function prepararEvaluacion(Entity $case, User $user): array
+    {
+        if (!$this->puedeRegistrarEvaluacion($case, $user)) {
+            throw new Forbidden('No puede registrar la evaluación de resultado en esta solicitud.');
+        }
+
+        return $this->evaluaciones->valoresIniciales($case);
     }
 
     /**

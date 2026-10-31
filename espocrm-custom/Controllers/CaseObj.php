@@ -31,6 +31,7 @@ use Espo\Custom\Tools\CaseObj\CaseCronogramaService;
 use Espo\Custom\Tools\CaseObj\CaseGestionTecnicaHelper;
 use Espo\Custom\Tools\CaseObj\CaseTimelineService;
 use Espo\Custom\Tools\CaseObj\CaseVisitaAprobadaNotifier;
+use Espo\Custom\Tools\CaseObj\CaseEvaluacionResultadoService;
 use Espo\Custom\Tools\CaseObj\CaseVisitasService;
 use Espo\Custom\Tools\CaseObj\VisitaComplementariaService;
 use Espo\Custom\Tools\CaseObj\VisitaHistorialLogger;
@@ -601,6 +602,8 @@ class CaseObj extends BaseCaseObj
                 'skipPatrulleroCaseLimit' => true,
                 'skipCaseExcelAlcaldia' => true,
             ]);
+
+            $this->crearEvaluacionAutomatica($case);
         }
 
         try {
@@ -740,6 +743,46 @@ class CaseObj extends BaseCaseObj
         $case = $this->getCaseOrFail($this->parseCaseIdFromRequest($request->getParsedBody()));
 
         return $this->injectableFactory->create(CaseVisitasService::class)->prepararProgramacion($case, $this->getUser());
+    }
+
+    /**
+     * GET Case/action/evaluacionesResultado?id=  Evaluaciones de resultado de la solicitud y qué puede hacer el usuario.
+     *
+     * @return array<string, mixed>
+     */
+    public function getActionEvaluacionesResultado(Request $request): array
+    {
+        $case = $this->getCaseOrFail(trim((string) $request->getQueryParam('id')));
+
+        if (!$this->acl->checkEntityRead($case)) {
+            throw new Forbidden();
+        }
+
+        return $this->injectableFactory->create(CaseVisitasService::class)->estadoEvaluacion($case, $this->getUser());
+    }
+
+    /**
+     * POST Case/action/prepararEvaluacionResultado  body: { id }  Valores del formulario «Evaluación de resultado».
+     *
+     * @return array<string, mixed>
+     */
+    public function postActionPrepararEvaluacionResultado(Request $request): array
+    {
+        $case = $this->getCaseOrFail($this->parseCaseIdFromRequest($request->getParsedBody()));
+
+        if (!$this->acl->checkEntityRead($case)) {
+            throw new Forbidden();
+        }
+
+        return $this->injectableFactory->create(CaseVisitasService::class)->prepararEvaluacion($case, $this->getUser());
+    }
+
+    /**
+     * La evaluación de resultado nace sola al terminar las visitas.
+     */
+    private function crearEvaluacionAutomatica(Entity $case): void
+    {
+        $this->injectableFactory->create(CaseEvaluacionResultadoService::class)->crearAutomatica($case);
     }
 
     /**
@@ -1056,6 +1099,8 @@ class CaseObj extends BaseCaseObj
             $case->set('cEntidadRemision', $entidad);
         }
 
+        $primeraRevision = !in_array($status, [CaseActaVisitaHelper::STATUS_REVISION_HALLAZGOS, 'Visita aprobada'], true);
+
         $case->set('status', CaseActaVisitaHelper::STATUS_REVISION_HALLAZGOS);
         // La definición pertenece a la visita cuyos hallazgos se revisaron.
         // El caso conserva la última decisión para el flujo general.
@@ -1070,14 +1115,30 @@ class CaseObj extends BaseCaseObj
 
         // Con "ejecutar", la acción de la definición va en el mismo guardado del caso.
         if (!empty($data['ejecutar']) && $decision === 'Cierre de atención') {
-            return $this->cerrarSinProceso($case, $user);
+            $resultado = $this->cerrarSinProceso($case, $user);
+
+            if ($primeraRevision) {
+                $this->crearEvaluacionAutomatica($case);
+            }
+
+            return $resultado;
         }
 
         if (!empty($data['ejecutar']) && $esRemision) {
-            return $this->remitirPorCompetencia($case, $user);
+            $resultado = $this->remitirPorCompetencia($case, $user);
+
+            if ($primeraRevision) {
+                $this->crearEvaluacionAutomatica($case);
+            }
+
+            return $resultado;
         }
 
         $this->entityManager->saveEntity($case, ['skipAsignadorLimit' => true]);
+
+        if ($primeraRevision) {
+            $this->crearEvaluacionAutomatica($case);
+        }
 
         if ($decision === 'Apertura de actuación') {
             try {
