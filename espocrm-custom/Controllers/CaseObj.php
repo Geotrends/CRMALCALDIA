@@ -602,8 +602,6 @@ class CaseObj extends BaseCaseObj
                 'skipPatrulleroCaseLimit' => true,
                 'skipCaseExcelAlcaldia' => true,
             ]);
-
-            $this->crearEvaluacionAutomatica($case);
         }
 
         try {
@@ -1099,7 +1097,10 @@ class CaseObj extends BaseCaseObj
             $case->set('cEntidadRemision', $entidad);
         }
 
-        $primeraRevision = !in_array($status, [CaseActaVisitaHelper::STATUS_REVISION_HALLAZGOS, 'Visita aprobada'], true);
+        // La evaluación sigue a la revisión técnico-jurídica de la visita, salvo que esta pida otra visita.
+        $revisadaAntes = trim((string) $acta->get('cRevisadoPor')) !== '' || $acta->get('fechaAprobacion');
+        $primeraRevision = $decision !== 'Visita complementaria'
+            && (!$revisadaAntes || trim((string) $acta->get('cDecisionTramite')) === 'Visita complementaria');
 
         $case->set('status', CaseActaVisitaHelper::STATUS_REVISION_HALLAZGOS);
         // La definición pertenece a la visita cuyos hallazgos se revisaron.

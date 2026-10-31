@@ -8,16 +8,16 @@ use Espo\ORM\Entity;
 use Espo\ORM\EntityManager;
 
 /**
- * Evaluación de resultado de la solicitud: el paso que sigue a las visitas. Se crea sola, con
- * nombre, caso vinculado, fecha y responsable técnico (el profesional asignado), cuando el caso
- * pasa a «Revisión de hallazgos»; también se puede añadir desde el panel «Visitas».
+ * Evaluación de resultado de la solicitud: el paso que sigue a la revisión técnico-jurídica de la
+ * visita. Se crea sola, con nombre, caso vinculado, fecha y responsable técnico (el profesional
+ * asignado), al registrarse esa revisión; también se puede añadir desde su sección en la solicitud.
  */
 class CaseEvaluacionResultadoService
 {
     /** Evaluaciones aún en trámite: mientras haya una, no se abre otra. */
     private const ESTADOS_ABIERTA = ['En preparación', 'Pendiente de soportes'];
 
-    /** Estados del caso en que ya terminó el tramo de visitas. */
+    /** Estados del caso posteriores a la revisión de hallazgos. */
     private const ESTADOS_POSTERIORES = [
         CaseActaVisitaHelper::STATUS_REVISION_HALLAZGOS,
         CaseActaVisitaHelper::STATUS_VISITA_APROBADA,
@@ -39,12 +39,23 @@ class CaseEvaluacionResultadoService
     }
 
     /**
-     * La evaluación se registra con las visitas terminadas, en una solicitud de trámite ordinario.
+     * El flujo es acta de visita → revisión técnico-jurídica → evaluación de resultado: se registra
+     * en una solicitud de trámite ordinario cuya última acta ya fue revisada sin pedir otra visita.
      */
     public function aplica(Entity $case): bool
     {
         return $this->registros->aplica($case)
-            && in_array(trim((string) $case->get('status')), self::ESTADOS_POSTERIORES, true);
+            && in_array(trim((string) $case->get('status')), self::ESTADOS_POSTERIORES, true)
+            && $this->revisionCompleta($case->getId());
+    }
+
+    private function revisionCompleta(string $caseId): bool
+    {
+        $acta = CaseActaVisitaHelper::findLatestDiligenciadaActaForCase($this->entityManager, $caseId);
+
+        return $acta !== null
+            && ($acta->get('fechaAprobacion') || trim((string) $acta->get('cRevisadoPor')) !== '')
+            && trim((string) $acta->get('cDecisionTramite')) !== 'Visita complementaria';
     }
 
     public function abierta(string $caseId): ?Entity
