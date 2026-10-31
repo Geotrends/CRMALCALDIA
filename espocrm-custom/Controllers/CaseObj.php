@@ -1042,7 +1042,8 @@ class CaseObj extends BaseCaseObj
             throw new BadRequest('Debe adjuntar el acta de visita diligenciada y firmada antes de definir el trámite.');
         }
 
-        $this->injectableFactory->create(CaseRegistrosTramiteOrdinario::class)->exigir($case, 'definir el trámite');
+        $this->injectableFactory->create(CaseRegistrosTramiteOrdinario::class)
+            ->exigir($case, 'definir el trámite', incluirEvaluacion: false);
 
         $esRemision = $decision === 'Remisión por competencia';
 

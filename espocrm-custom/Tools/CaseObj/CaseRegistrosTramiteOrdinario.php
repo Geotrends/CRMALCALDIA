@@ -9,8 +9,8 @@ use Espo\ORM\EntityManager;
 /**
  * Una solicitud de trámite ordinario (competencia Total o Parcial; con competencia Ninguna se
  * remite completa sin gestión técnica) debe tener gestión técnica, intervención técnica,
- * programación de visita, acta de visita y evaluación de resultado antes de definir el trámite
- * o de cerrarse.
+ * programación de visita y acta de visita antes de definir el trámite.
+ * La evaluación de resultado corresponde a una etapa posterior y se exige para el cierre.
  */
 class CaseRegistrosTramiteOrdinario
 {
@@ -29,7 +29,7 @@ class CaseRegistrosTramiteOrdinario
     /**
      * @return array<int, array{key: string, label: string, ok: bool, detalle: null}>
      */
-    public function requisitos(Entity $case): array
+    public function requisitos(Entity $case, bool $incluirEvaluacion = true): array
     {
         if (!$this->aplica($case)) {
             return [];
@@ -44,8 +44,11 @@ class CaseRegistrosTramiteOrdinario
             'intervencionTecnica' => ['Intervención técnica', $intervencionIds !== []],
             'programacionVisita' => ['Programación de visita', $programacionIds !== []],
             'actaVisita' => ['Acta de visita', $this->ids('ActaVisita', ['caseId' => $case->getId()]) !== []],
-            'evaluacionResultado' => ['Evaluación de resultado', $this->ids('EvaluacionResultado', ['caseId' => $case->getId()]) !== []],
         ];
+
+        if ($incluirEvaluacion) {
+            $registros['evaluacionResultado'] = ['Evaluación de resultado', $this->ids('EvaluacionResultado', ['caseId' => $case->getId()]) !== []];
+        }
 
         $requisitos = [];
 
@@ -59,9 +62,9 @@ class CaseRegistrosTramiteOrdinario
     /**
      * @throws BadRequest
      */
-    public function exigir(Entity $case, string $accion): void
+    public function exigir(Entity $case, string $accion, bool $incluirEvaluacion = true): void
     {
-        $faltan = array_column(array_filter($this->requisitos($case), static fn (array $r): bool => !$r['ok']), 'label');
+        $faltan = array_column(array_filter($this->requisitos($case, $incluirEvaluacion), static fn (array $r): bool => !$r['ok']), 'label');
 
         if ($faltan !== []) {
             throw new BadRequest('Para ' . $accion . ', la solicitud de trámite ordinario debe tener: '
