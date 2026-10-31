@@ -12,8 +12,8 @@ use Espo\Entities\User;
 use Espo\ORM\Entity;
 
 /**
- * El radicador solo abre las solicitudes pendientes de radicación, las únicas que le competen;
- * una vez radicada, la solicitud sigue su curso sin él.
+ * Radicación conserva la lectura y el historial según la ACL del rol en cualquier estado.
+ * Solo puede editar las solicitudes que siguen pendientes de radicación.
  */
 class AccessChecker extends DefaultAccessChecker
 {
@@ -28,19 +28,9 @@ class AccessChecker extends DefaultAccessChecker
         parent::__construct($aclManager, $config, $scopeChecker);
     }
 
-    public function checkEntityRead(User $user, Entity $entity, ScopeData $data): bool
-    {
-        return !$this->fueraDeRadicacion($user, $entity) && parent::checkEntityRead($user, $entity, $data);
-    }
-
     public function checkEntityEdit(User $user, Entity $entity, ScopeData $data): bool
     {
         return !$this->fueraDeRadicacion($user, $entity) && parent::checkEntityEdit($user, $entity, $data);
-    }
-
-    public function checkEntityStream(User $user, Entity $entity, ScopeData $data): bool
-    {
-        return !$this->fueraDeRadicacion($user, $entity) && parent::checkEntityStream($user, $entity, $data);
     }
 
     private function fueraDeRadicacion(User $user, Entity $entity): bool
