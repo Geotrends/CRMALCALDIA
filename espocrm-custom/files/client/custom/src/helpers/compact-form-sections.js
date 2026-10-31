@@ -13,8 +13,10 @@ define('custom:helpers/compact-form-sections', [], function () {
             if (!model.get('cCompetenciaConfirmada')) return 'Pendiente: revisar competencia';
             return model.get('cCompetencia') === 'Ninguna' ? 'Remitido por competencia' : 'Pendiente de asignar';
         }},
-        // Para el responsable asignado, las visitas son la acción principal: arranca abierto.
-        actaVisita: {open: false, openFn: view => view.model.get('assignedUserId') === view.getUser().id, fields: [], summary: 'Programación de visitas y actas'},
+        // Las visitas son la acción principal del responsable asignado; durante la gestión técnica
+        // arranca abierto para quien pueda verlas (p. ej. el Inspector Ambiental).
+        actaVisita: {open: false, openFn: view => view.model.get('assignedUserId') === view.getUser().id
+            || ['Asignado', 'En gestión técnica', 'Revisión de hallazgos'].includes(view.model.get('status')), fields: [], summary: 'Programación de visitas y actas'},
         decisionJuridica: {open: false, fields: []},
         actuoArchivo: {open: false, fields: []},
         formatoGenerado: {open: false, fields: [], summary: 'Documentos disponibles'},

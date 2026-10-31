@@ -83,6 +83,9 @@ class CaseVisitasService
 
         return [
             'puedeGestionar' => $this->puedeGestionar($case, $user),
+            // Quien puede leer las visitas ve el panel aunque no las gestione (p. ej. el Inspector Ambiental).
+            'puedeVer' => $this->acl->checkScope('ProgramacionVisita', Acl\Table::ACTION_READ)
+                || $this->acl->checkScope('ActaVisita', Acl\Table::ACTION_READ),
             'puedeProgramar' => $puedeProgramar && !$pendiente,
             'motivoNoProgramar' => $puedeProgramar && $pendiente
                 ? 'La visita ' . $pendiente['name'] . ' aún no tiene el acta diligenciada: adjúntela o complétela (o reprograme esa visita) antes de programar otra.'

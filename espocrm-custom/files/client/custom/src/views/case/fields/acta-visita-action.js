@@ -255,7 +255,14 @@ define('custom:views/case/fields/acta-visita-action', [
             return this.canUseTools
                 || this.hasDiligenciadaActa
                 || this.actaCount > 0
-                || this.buildProgramacionCards().length > 0;
+                || this.buildProgramacionCards().length > 0
+                || this.puedeVerVisitas();
+        },
+
+        // Consulta de solo lectura (p. ej. Inspector Ambiental): el panel se muestra desde que hay responsable.
+        puedeVerVisitas: function () {
+            return !!(this.visitas || {}).puedeVer
+                && !['Pendiente de radicacion', 'Radicado'].includes(String(this.model.get('status') || ''));
         },
 
         resolveShowCurrentVisitaSection: function () {
@@ -274,7 +281,7 @@ define('custom:views/case/fields/acta-visita-action', [
 
             return {
                 showPanel: showPanel,
-                showProgramaciones: this.canUseTools || programaciones.length > 0,
+                showProgramaciones: this.canUseTools || programaciones.length > 0 || this.puedeVerVisitas(),
                 puedeProgramar: !!visitas.puedeProgramar,
                 motivoNoProgramar: visitas.motivoNoProgramar || '',
                 programaciones: programaciones,
