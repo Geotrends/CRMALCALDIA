@@ -19,9 +19,10 @@ define('custom:helpers/case-detail-side-panels', [
 
     // Encabezan la columna lateral para todos los usuarios, en este orden.
     const FIRST_PANELS = [
+        'caseTimeline',
         'comunicacionesCasoPanel',
         'evaluacionResultado',
-        'caseTimeline',
+        'actaVisita',
     ];
 
     const BOTTOM_PANELS = [
