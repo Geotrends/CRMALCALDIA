@@ -1367,6 +1367,18 @@
             ],
             "audited": true
         },
+        "cPanelEvaluacionResultado": {
+            "type": "varchar",
+            "notStorable": true,
+            "readOnly": true,
+            "utility": true,
+            "isCustom": true,
+            "required": false,
+            "suppressValidationList": [
+                "required"
+            ],
+            "audited": true
+        },
         "cPanelActuoArchivo": {
             "type": "varchar",
             "notStorable": true,

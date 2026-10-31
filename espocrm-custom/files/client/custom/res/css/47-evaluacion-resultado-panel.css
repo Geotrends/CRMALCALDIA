@@ -1,0 +1,112 @@
+/* Panel «Evaluación de resultado» de la solicitud: mismas tarjetas y botones que el panel «Visitas». */
+.detail .panel[data-name="evaluacionResultado"] .field[data-name="cPanelEvaluacionResultado"] {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  min-height: 0 !important;
+}
+
+.detail[data-scope="Case"] .panel[data-name="evaluacionResultado"] .field[data-name="cPanelEvaluacionResultado"] > .cell > label.control-label,
+.detail[data-scope="Case"] .panel[data-name="evaluacionResultado"] .field[data-name="cPanelEvaluacionResultado"] > label.control-label {
+  display: none !important;
+}
+
+.detail[data-scope="Case"] .panel[data-name="evaluacionResultado"] > .panel-body {
+  padding: 20px 22px !important;
+}
+
+.detail[data-scope="Case"] .panel[data-name="evaluacionResultado"] > .panel-body > .row {
+  border-bottom: none;
+}
+
+.detail[data-scope="Case"] .panel[data-name="evaluacionResultado"] > .panel-body > .row > .cell {
+  padding: 0;
+  border-right: none;
+  flex: 1 1 100%;
+}
+
+.detail[data-scope="Case"] .panel[data-name="evaluacionResultado"] .case-evaluacion-help {
+  margin: 0 0 12px;
+}
+
+.detail[data-scope="Case"] .panel[data-name="evaluacionResultado"] .case-acta-visita-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  white-space: normal;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  text-align: left;
+  padding: 10px 14px;
+  height: auto;
+  min-height: 40px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.detail[data-scope="Case"] .panel[data-name="evaluacionResultado"] .case-acta-visita-btn .fas {
+  flex-shrink: 0;
+}
+
+.detail[data-scope="Case"] .panel[data-name="evaluacionResultado"] .case-acta-visita-btn.btn-primary .fas {
+  color: #134a38 !important;
+  -webkit-text-fill-color: #134a38 !important;
+  opacity: 1 !important;
+}
+
+.detail[data-scope="Case"] .panel[data-name="evaluacionResultado"] .case-visita-archivo-card {
+  box-sizing: border-box;
+  max-width: 100%;
+  overflow: hidden;
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  border: 1px solid #dbe3ee;
+  border-radius: var(--crm-radius-md, 10px);
+  background: #f8fafc;
+}
+
+.detail[data-scope="Case"] .panel[data-name="evaluacionResultado"] .case-visita-archivo-card.is-current {
+  border-color: #0f766e;
+  background: #f0fdfa;
+  box-shadow: 0 0 0 1px rgba(15, 118, 110, 0.12);
+}
+
+.detail[data-scope="Case"] .panel[data-name="evaluacionResultado"] .case-visita-archivo-heading {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 10px;
+  font-size: 13px;
+}
+
+.detail[data-scope="Case"] .panel[data-name="evaluacionResultado"] .case-visita-archivo-fecha {
+  margin: -6px 0 10px;
+  color: #475569;
+  font-size: 12px;
+}
+
+.detail[data-scope="Case"] .panel[data-name="evaluacionResultado"] .case-visita-archivo-estado {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  background: #e2e8f0;
+  color: #475569;
+}
+
+.detail[data-scope="Case"] .panel[data-name="evaluacionResultado"] .case-visita-archivo-actions {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  max-width: 100%;
+  gap: 8px;
+}

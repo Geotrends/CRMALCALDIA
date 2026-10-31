@@ -18,6 +18,8 @@ define('custom:helpers/compact-form-sections', [], function () {
         // arranca abierto para quien pueda verlas (p. ej. el Inspector Ambiental).
         actaVisita: {open: false, openFn: view => view.model.get('assignedUserId') === view.getUser().id
             || ['Asignado', 'En gestión técnica', 'Revisión de hallazgos'].includes(view.model.get('status')), fields: [], summary: 'Programación de visitas y actas'},
+        // Abierta cuando ya terminaron las visitas y toca registrar el resultado.
+        evaluacionResultado: {open: false, openFn: view => view.model.get('status') === 'Revisión de hallazgos', fields: [], summary: 'Resultado técnico de las visitas'},
         decisionJuridica: {open: false, fields: []},
         actuoArchivo: {open: false, fields: []},
         formatoGenerado: {open: false, fields: [], summary: 'Documentos disponibles'},
