@@ -530,6 +530,8 @@ html.crm-modern-ui body .detail[data-scope="Case"] .btn.btn-primary.case-acta-ca
 .detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-firma__archivo.is-listo { background: var(--crm-success-soft); border-color: #16a34a; border-style: solid; color: #166534; }
 .detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-firma__archivo input[type="file"] { display: none !important; }
 .detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-firma__archivo-texto { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-firma__nota { margin: 0; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-firma__fecha { max-width: 200px; }
 
 /* Proceso del expediente (ruta jurídica N2) */
 .detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso { border: 1px solid var(--crm-primary-soft) !important; }

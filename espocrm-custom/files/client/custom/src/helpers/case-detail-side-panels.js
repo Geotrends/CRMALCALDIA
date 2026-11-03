@@ -1079,13 +1079,31 @@ define('custom:helpers/case-detail-side-panels', [
             + (reprogramar ? 'Reprogramar y generar citación' : 'Programar y generar citación') + '</button></div>';
     };
 
+    // Tarjeta de entrega de la citación: descargar, adjuntar la copia firmada y fecha de entrega.
     const htmlSoporteCitacion = function (texto, citacionId) {
-        return '<p class="alcaldia-apertura__ayuda">' + escapeHtml(texto) + '</p>'
-            + (citacionId ? '<div class="alcaldia-apertura__descargas"><a class="btn btn-default btn-sm" href="' + descargaUrl(citacionId) + '" download>'
-                + '<span class="fas fa-file-word"></span> Descargar citación (Word)</a></div>' : '')
-            + '<label>Citación firmada y escaneada <span class="text-danger">*</span></label><input type="file" class="form-control js-proceso-soporte" accept=".pdf,image/*">'
-            + '<label>Fecha de entrega</label><input type="date" class="form-control js-proceso-fecha-entrega">'
-            + '<button type="button" class="btn btn-primary btn-sm js-proceso-soporte-citacion"><span class="fas fa-file-circle-check"></span> Cargar citación firmada</button>';
+        const hoy = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+
+        return '<div class="alcaldia-firma">'
+            + '<div class="alcaldia-firma__titulo"><span class="fas fa-envelope-circle-check"></span> Entrega de la citación</div>'
+            + '<p class="alcaldia-firma__nota">' + escapeHtml(texto) + '</p>'
+            + '<div class="alcaldia-firma__paso"><span class="alcaldia-firma__num">1</span><div class="alcaldia-firma__cuerpo">'
+            + '<b>Descargue la citación</b>'
+            + (citacionId
+                ? '<a class="btn btn-default btn-sm" href="' + descargaUrl(citacionId) + '" download><span class="fas fa-file-word"></span> Descargar citación (Word)</a>'
+                : '<span class="alcaldia-firma__nota">La citación aún no está disponible.</span>')
+            + '</div></div>'
+            + '<div class="alcaldia-firma__paso"><span class="alcaldia-firma__num">2</span><div class="alcaldia-firma__cuerpo">'
+            + '<b>Adjunte la citación firmada y escaneada <span class="text-danger">*</span></b>'
+            + '<label class="alcaldia-firma__archivo"><input type="file" class="js-proceso-soporte" accept=".pdf,image/*">'
+            + '<span class="fas fa-file-arrow-up"></span><span class="alcaldia-firma__archivo-texto js-proceso-soporte-nombre">Seleccionar PDF o imagen…</span></label>'
+            + '</div></div>'
+            + '<div class="alcaldia-firma__paso"><span class="alcaldia-firma__num">3</span><div class="alcaldia-firma__cuerpo">'
+            + '<b>Fecha de entrega</b><small>Día en que se entregó la citación al citado.</small>'
+            + '<input type="date" class="form-control alcaldia-firma__fecha js-proceso-fecha-entrega" value="' + hoy + '">'
+            + '<div class="alcaldia-apertura__acciones"><button type="button" class="btn btn-primary btn-sm js-proceso-soporte-citacion">'
+            + '<span class="fas fa-file-circle-check"></span> Cargar citación firmada</button></div>'
+            + '</div></div>'
+            + '</div>';
     };
 
     const htmlAudiencia = function (estado) {
@@ -1759,8 +1777,15 @@ define('custom:helpers/case-detail-side-panels', [
             }).catch(function () { Espo.Ui.notify(false); });
         });
 
+        $block.find('.js-proceso-soporte').on('change', function () {
+            const archivo = this.files && this.files[0];
+
+            $(this).closest('.alcaldia-firma__archivo').toggleClass('is-listo', !!archivo)
+                .find('.js-proceso-soporte-nombre').text(archivo ? archivo.name : 'Seleccionar PDF o imagen…');
+        });
+
         $block.find('.js-proceso-soporte-citacion').on('click', function () {
-            const $scope = $(this).parent();
+            const $scope = $(this).closest('.alcaldia-firma');
 
             if (!archivoDe($scope, '.js-proceso-soporte')) { Espo.Ui.error('Cargue la citación firmada y escaneada.'); return; }
 
