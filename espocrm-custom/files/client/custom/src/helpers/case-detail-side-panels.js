@@ -1209,17 +1209,35 @@ define('custom:helpers/case-detail-side-panels', [
             + '</div>';
     };
 
+    // Tarjeta de soportes de la audiencia realizada: acta firmada y audio (o constancia de que no fue posible grabar).
     const htmlSoportesAudiencia = function (estado) {
         const a = estado.audiencias[estado.audiencias.length - 1] || {};
+        const listo = function (texto) {
+            return '<div class="alcaldia-firma__listo"><span class="fas fa-circle-check"></span> ' + texto + '</div>';
+        };
+        const archivo = function (clase, accept, vacio, icono) {
+            return '<label class="alcaldia-firma__archivo"><input type="file" class="' + clase + '" accept="' + accept + '" data-vacio="' + vacio + '">'
+                + '<span class="fas ' + icono + '"></span><span class="alcaldia-firma__archivo-texto js-proceso-archivo-nombre">' + vacio + '</span></label>';
+        };
 
-        return '<p class="alcaldia-apertura__ayuda">Audiencia N.º ' + a.numero + ' realizada. Para cerrarla cargue el acta firmada (PDF) y el audio; si no fue posible grabar, registre la constancia.</p>'
-            + (a.actaId ? '<p class="alcaldia-apertura__texto">✓ Acta firmada cargada</p>'
-                : '<label>Acta de audiencia firmada (PDF)</label><input type="file" class="form-control js-proceso-acta" accept=".pdf,application/pdf">')
-            + (a.audio ? '<p class="alcaldia-apertura__texto">✓ ' + (a.audio.id ? 'Audio cargado' : 'Constancia de excepción registrada') + '</p>'
-                : '<label>Audio de la audiencia</label><input type="file" class="form-control js-proceso-audio" accept="audio/*,video/*">'
-                    + '<label class="alcaldia-proceso__check"><input type="checkbox" class="js-proceso-sin-audio"> No fue posible grabar</label>'
+        return '<div class="alcaldia-firma">'
+            + '<div class="alcaldia-firma__titulo"><span class="fas fa-gavel"></span> Soportes de la audiencia N.º ' + a.numero + '</div>'
+            + '<p class="alcaldia-firma__nota">La audiencia se realizó. Para cerrarla cargue el acta firmada y el audio; si no fue posible grabar, registre la constancia.</p>'
+            + '<div class="alcaldia-firma__paso"><span class="alcaldia-firma__num">1</span><div class="alcaldia-firma__cuerpo">'
+            + '<b>Acta de audiencia firmada (PDF)</b>'
+            + (a.actaId ? listo('Acta firmada cargada') : archivo('js-proceso-acta', '.pdf,application/pdf', 'Seleccionar PDF…', 'fa-file-pdf'))
+            + '</div></div>'
+            + '<div class="alcaldia-firma__paso"><span class="alcaldia-firma__num">2</span><div class="alcaldia-firma__cuerpo">'
+            + '<b>Audio de la audiencia</b>'
+            + (a.audio
+                ? listo(a.audio.id ? 'Audio cargado' : 'Constancia de excepción registrada')
+                : archivo('js-proceso-audio', 'audio/*,video/*', 'Seleccionar audio o video…', 'fa-file-audio')
+                    + '<label class="alcaldia-firma__interruptor"><input type="checkbox" class="js-proceso-sin-audio"> <span>No fue posible grabar</span></label>'
                     + '<textarea class="form-control js-proceso-excepcion hidden" rows="2" placeholder="Motivo, responsable, fecha y hora"></textarea>')
-            + '<button type="button" class="btn btn-primary btn-sm js-proceso-soportes"><span class="fas fa-upload"></span> Cargar</button>';
+            + '</div></div>'
+            + '<div class="alcaldia-apertura__acciones"><button type="button" class="btn btn-primary btn-sm js-proceso-soportes">'
+            + '<span class="fas fa-upload"></span> Cargar soportes</button></div>'
+            + '</div>';
     };
 
     const htmlCumplirPaso = function (estado) {
@@ -1923,8 +1941,16 @@ define('custom:helpers/case-detail-side-panels', [
             });
         });
 
+        $block.find('.alcaldia-firma__archivo input.js-proceso-acta, .alcaldia-firma__archivo input.js-proceso-audio').on('change', function () {
+            const archivo = this.files && this.files[0];
+
+            $(this).closest('.alcaldia-firma__archivo').toggleClass('is-listo', !!archivo)
+                .find('.js-proceso-archivo-nombre').text(archivo ? archivo.name : ($(this).data('vacio') || ''));
+        });
+
         $block.find('.js-proceso-sin-audio').on('change', function () {
             $block.find('.js-proceso-excepcion').toggleClass('hidden', !this.checked);
+            $block.find('.js-proceso-audio').closest('.alcaldia-firma__archivo').toggleClass('is-deshabilitado', this.checked);
         });
 
         $block.find('.js-proceso-soportes').on('click', function () {
