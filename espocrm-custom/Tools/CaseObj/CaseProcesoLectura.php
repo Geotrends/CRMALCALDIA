@@ -61,6 +61,8 @@ class CaseProcesoLectura
      */
     public function fase(string $paso, ?Entity $ultima, ?Entity $expediente = null): string
     {
+        $paso = ExpedientePasosCatalog::canonico($paso);
+
         if ($paso === ExpedientePasosCatalog::PASO_DECISION) {
             return 'decision';
         }
@@ -122,7 +124,7 @@ class CaseProcesoLectura
      */
     public function resumen(Entity $expediente): ?string
     {
-        $paso = $this->pasoActual($expediente);
+        $paso = ExpedientePasosCatalog::canonico($this->pasoActual($expediente));
         $audiencias = $this->audiencias($expediente);
         $ultima = $audiencias !== [] ? end($audiencias) : null;
 
@@ -246,6 +248,7 @@ class CaseProcesoLectura
     public function resumenDecision(Entity $expediente, string $paso): string
     {
         $d = $this->datosDecision($expediente);
+        $paso = ExpedientePasosCatalog::canonico($paso);
 
         if ($paso === ExpedientePasosCatalog::PASO_DECISION) {
             if (!empty($d['ajustePorRecurso'])) {

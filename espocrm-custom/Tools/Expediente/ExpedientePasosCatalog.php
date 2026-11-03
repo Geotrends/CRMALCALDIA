@@ -87,6 +87,16 @@ class ExpedientePasosCatalog
         'Auto de Archivo' => 0,
     ];
 
+    /**
+     * Pasos de otras rutas que cumplen el mismo papel que un paso guiado y se gestionan con sus mismas acciones
+     * (audiencia, decisión y cumplimiento de Maltrato Animal reutilizan lo del Proceso Verbal Abreviado).
+     */
+    private const ALIAS_PASOS = [
+        'Audiencia de maltrato animal' => self::PASO_AUDIENCIA,
+        'Decisión de fondo' => self::PASO_DECISION,
+        'Cumplimiento y seguimiento' => self::PASO_CUMPLIMIENTO,
+    ];
+
     /** @var array<string, int> */
     private const PASOS_SANCIONATORIO = [
         'Elaboración de acto de decisión' => 10,
@@ -135,8 +145,34 @@ class ExpedientePasosCatalog
     }
 
     /** Pasos que se cumplen con las acciones guiadas del caso, no con «avanzar paso». */
+    /** Nombre del paso guiado equivalente (el mismo si no es un alias). */
+    public static function canonico(string $paso): string
+    {
+        return self::ALIAS_PASOS[$paso] ?? $paso;
+    }
+
+    /** Nombre que tiene en la ruta un paso guiado (p. ej. «Audiencia pública» → «Audiencia de maltrato animal»). */
+    public function nombreEnRuta(?string $tipoTramite, string $paso): string
+    {
+        $pasos = $this->getPasos($tipoTramite);
+
+        if (in_array($paso, $pasos, true)) {
+            return $paso;
+        }
+
+        foreach (self::ALIAS_PASOS as $propio => $canonico) {
+            if ($canonico === $paso && in_array($propio, $pasos, true)) {
+                return $propio;
+            }
+        }
+
+        return $paso;
+    }
+
     public static function isPasoGuiado(string $paso): bool
     {
+        $paso = self::canonico($paso);
+
         return in_array($paso, [self::PASO_CITACION, self::PASO_AUDIENCIA, self::PASO_DECISION, self::PASO_NOTIFICACION, self::PASO_CUMPLIMIENTO, self::PASO_ARCHIVO], true);
     }
 
@@ -175,7 +211,7 @@ class ExpedientePasosCatalog
     {
         $pasos = $this->getPasos($tipoTramite);
 
-        return $pasos !== [] && end($pasos) === $paso;
+        return $pasos !== [] && end($pasos) === $this->nombreEnRuta($tipoTramite, $paso);
     }
 
     public function getPrimerPaso(?string $tipoTramite): ?string
@@ -192,6 +228,8 @@ class ExpedientePasosCatalog
         if ($pasos === []) {
             return null;
         }
+
+        $estadoActual = $this->nombreEnRuta($tipoTramite, $estadoActual);
 
         if ($estadoActual === self::ESTADO_ABIERTO || !in_array($estadoActual, $pasos, true)) {
             return $pasos[0];

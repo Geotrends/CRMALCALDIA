@@ -125,8 +125,8 @@ class CaseProcesoService
             'responsables' => $this->responsablesPrueba(),
             'audienciaYaFue' => $this->audienciaYaFue($ultima),
             'decision' => $this->decisionEstado($case, $expediente, $actual),
-            'cumplimiento' => $actual === ExpedientePasosCatalog::PASO_CUMPLIMIENTO ? $this->cumplimiento->estado($expediente) : null,
-            'archivo' => $actual === ExpedientePasosCatalog::PASO_ARCHIVO ? [
+            'cumplimiento' => ExpedientePasosCatalog::canonico($actual) === ExpedientePasosCatalog::PASO_CUMPLIMIENTO ? $this->cumplimiento->estado($expediente) : null,
+            'archivo' => ExpedientePasosCatalog::canonico($actual) === ExpedientePasosCatalog::PASO_ARCHIVO ? [
                 'pendientes' => $this->archivo->pendientes($expediente),
                 'causal' => CaseArchivoService::CAUSAL,
                 'datos' => (array) ($this->lectura->datosDecision($expediente)['archivo'] ?? []),
@@ -319,7 +319,7 @@ class CaseProcesoService
         $this->nota($case, ($anterior ? 'Reprogramó' : 'Programó') . ' la audiencia N.º ' . $numero . ' para el ' . $cuando . ' en ' . $lugar
             . ' y registró la citación (' . $medio . ').' . ($soporteId === '' ? ' Falta el soporte de entrega.' : ''));
 
-        if ($soporteId !== '' && (string) $expediente->get('estado') !== ExpedientePasosCatalog::PASO_AUDIENCIA) {
+        if ($soporteId !== '' && ExpedientePasosCatalog::canonico((string) $expediente->get('estado')) !== ExpedientePasosCatalog::PASO_AUDIENCIA) {
             $this->avanzar($expediente, $user, ExpedientePasosCatalog::PASO_AUDIENCIA, 'Citación entregada');
         }
 
@@ -689,6 +689,8 @@ class CaseProcesoService
      */
     private function decisionEstado(Entity $case, Entity $expediente, string $paso): ?array
     {
+        $paso = ExpedientePasosCatalog::canonico($paso);
+
         if (!in_array($paso, [ExpedientePasosCatalog::PASO_DECISION, ExpedientePasosCatalog::PASO_NOTIFICACION], true)) {
             $d = $this->lectura->datosDecision($expediente);
 
@@ -735,6 +737,11 @@ class CaseProcesoService
         $ahora = (new \DateTimeImmutable('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s');
         $historial = $this->lectura->historial($expediente);
         $actual = $this->lectura->pasoActual($expediente);
+        // Los pasos guiados se piden por su nombre general; cada ruta puede llamarlos distinto.
+        $catalog = new ExpedientePasosCatalog();
+        $tipoTramite = (string) $expediente->get('tipoTramite');
+        $siguiente = $catalog->nombreEnRuta($tipoTramite, $siguiente);
+        $omitidos = array_map(fn (string $p): string => $catalog->nombreEnRuta($tipoTramite, $p), $omitidos);
 
         $historial[$actual] = array_merge($historial[$actual] ?? [], [
             'fin' => $ahora,
@@ -849,6 +856,7 @@ class CaseProcesoService
      */
     public function retornar(Entity $expediente, User $user, string $paso, string $motivo): void
     {
+        $paso = (new ExpedientePasosCatalog())->nombreEnRuta((string) $expediente->get('tipoTramite'), $paso);
         $ahora = (new \DateTimeImmutable('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s');
         $historial = $this->lectura->historial($expediente);
         $actual = $this->lectura->pasoActual($expediente);
