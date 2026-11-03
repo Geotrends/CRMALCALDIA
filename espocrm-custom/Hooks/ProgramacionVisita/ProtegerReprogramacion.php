@@ -34,6 +34,8 @@ class ProtegerReprogramacion implements BeforeSave
         if ($entity->isNew()) {
             $entity->set('tipoProgramacion', 'Programación inicial');
             $entity->set('motivoReprogramacion', null);
+            // Por ahora la fecha objetivo es la misma fecha programada (pendiente de confirmar su uso).
+            $entity->set('fechaObjetivo', $entity->get('fechaProgramada'));
 
             return;
         }
