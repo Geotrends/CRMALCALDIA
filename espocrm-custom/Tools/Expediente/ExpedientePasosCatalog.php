@@ -37,6 +37,7 @@ class ExpedientePasosCatalog
 
     /** Paso de Maltrato Animal que se cumple clasificando la conducta (selección múltiple + detalle). */
     public const PASO_CLASIFICACION_MALTRATO = 'Clasificación jurídica: maltrato leve o posible delito';
+    public const PASO_REMISION_FISCALIA = 'Remisión a Fiscalía / GELMA (si aplica)';
     public const CLASIFICACIONES_MALTRATO = ['Maltrato leve', 'Posible delito', 'Otro'];
 
     /** Paso de la línea de tiempo del caso entre la definición del trámite y la ruta. */

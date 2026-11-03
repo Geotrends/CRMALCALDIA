@@ -207,7 +207,7 @@ class CaseProcesoService
             'soportePrueba' => $this->soportePrueba($case, $user, $expediente, $ultima, $texto('documentoId'), $texto('observacion')),
             'realizada' => $this->realizada($case, $user, $expediente, $ultima, $data),
             'soportes' => $this->soportes($case, $user, $expediente, $ultima, $data),
-            'cumplirPaso' => $this->cumplirPaso($case, $user, $expediente, $paso, $this->observacionPaso($paso, $texto('observacion'), $data['clasificacion'] ?? [])),
+            'cumplirPaso' => $this->cumplirPaso($case, $user, $expediente, $paso, $this->observacionPaso($paso, $texto('observacion'), $this->clasificacionElegida($paso, $data['clasificacion'] ?? [])), $this->clasificacionElegida($paso, $data['clasificacion'] ?? [])),
             'decisionGuardar' => $this->decision->guardar($case, $user, $expediente, $data),
             'decisionFirmar' => $this->decision->firmar($case, $user, $expediente, $texto('documentoId')),
             'formatoNotificacion' => $this->decision->formatoNotificacion($case, $user, $expediente, $data),
@@ -657,15 +657,14 @@ class CaseProcesoService
      * @return array<string, mixed>
      */
     /**
-     * La clasificación jurídica de Maltrato Animal es una sola opción (maltrato leve, posible delito u otro) y
-     * se acompaña de un detalle; el resto de pasos se cumple con la descripción escrita.
+     * Clasificación elegida en el paso de Maltrato Animal (una sola: maltrato leve, posible delito u otro); null en los demás pasos.
      *
      * @param mixed $clasificacion
      */
-    private function observacionPaso(string $paso, string $observacion, mixed $clasificacion): string
+    private function clasificacionElegida(string $paso, mixed $clasificacion): ?string
     {
         if ($paso !== ExpedientePasosCatalog::PASO_CLASIFICACION_MALTRATO) {
-            return $observacion;
+            return null;
         }
 
         $elegidas = array_values(array_unique(array_filter(
@@ -677,14 +676,24 @@ class CaseProcesoService
             throw new BadRequest('Seleccione una sola clasificación: maltrato leve, posible delito u otro.');
         }
 
-        if (in_array('Otro', $elegidas, true) && $observacion === '') {
+        return $elegidas[0];
+    }
+
+    /** La clasificación se acompaña de un detalle («Otro» lo exige); el resto de pasos se cumple con la descripción escrita. */
+    private function observacionPaso(string $paso, string $observacion, ?string $clasificacion): string
+    {
+        if ($clasificacion === null) {
+            return $observacion;
+        }
+
+        if ($clasificacion === 'Otro' && $observacion === '') {
             throw new BadRequest('Describa la clasificación «Otro».');
         }
 
-        return 'Clasificación jurídica: ' . $elegidas[0] . '.' . ($observacion !== '' ? ' ' . $observacion : '');
+        return 'Clasificación jurídica: ' . $clasificacion . '.' . ($observacion !== '' ? ' ' . $observacion : '');
     }
 
-    private function cumplirPaso(Entity $case, User $user, Entity $expediente, string $paso, string $observacion): array
+    private function cumplirPaso(Entity $case, User $user, Entity $expediente, string $paso, string $observacion, ?string $clasificacion = null): array
     {
         if ($observacion === '') {
             throw new BadRequest('Describa cómo se cumplió el paso.');
@@ -698,8 +707,16 @@ class CaseProcesoService
         }
 
         $siguiente = $catalog->getSiguientePaso($tipoTramite, $paso);
+        $omitidos = [];
 
-        $this->avanzar($expediente, $user, (string) $siguiente, $observacion);
+        // La remisión a Fiscalía / GELMA solo se habilita si la conducta es un posible delito; si no, se omite.
+        if ($clasificacion !== null && $clasificacion !== 'Posible delito' && $siguiente === ExpedientePasosCatalog::PASO_REMISION_FISCALIA) {
+            $omitidos = [$siguiente];
+            $siguiente = $catalog->getSiguientePaso($tipoTramite, $siguiente);
+        }
+
+        $this->avanzar($expediente, $user, (string) $siguiente, $observacion, $omitidos,
+            $omitidos !== [] ? 'No aplica: la clasificación es «' . $clasificacion . '», no un posible delito' : null);
         $this->nota($case, 'Registró como cumplido el paso «' . $paso . '» del expediente: ' . $observacion);
         $this->avisar($case, $user, $expediente, 'Paso del expediente cumplido',
             'registró como cumplido el paso «' . $paso . '» del expediente ' . $expediente->get('numero'),
