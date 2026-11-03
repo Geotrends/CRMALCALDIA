@@ -198,7 +198,8 @@ define('custom:helpers/acta-visita-modal', [
     return {
         open: open,
         openFromProgramacion: openFromProgramacion,
-        openDetailById: function (hostView, actaId, caseId) {
+        // editOptions (opcional): {caseModel, user, estado, onAfterSave}; con ellos la consulta ofrece «Editar».
+        openDetailById: function (hostView, actaId, caseId, editOptions) {
             const host = resolveHostView(hostView);
 
             if (!host || !actaId) {
@@ -206,11 +207,23 @@ define('custom:helpers/acta-visita-modal', [
                 return;
             }
 
-            // Modal de consulta estándar: solo lectura, sin editar, eliminar ni formulario completo.
+            const self = this;
+            const puedeEditar = !!(editOptions
+                && editOptions.caseModel
+                && editOptions.user
+                && editOptions.estado !== 'Aprobada'
+                && PatrulleroActa.canOpenActaVisitaModal(editOptions.user, editOptions.caseModel));
+
+            // Modal de consulta estándar: sin eliminar ni formulario completo; «Editar» abre el formulario del acta.
             host.createView('actaDetalle', 'custom:views/modals/acta-visita-detalle', {
                 entityType: 'ActaVisita',
                 id: actaId,
                 caseId: caseId,
+                onEditar: puedeEditar ? function () {
+                    self.openEditById(hostView, editOptions.caseModel, actaId, editOptions.user, {
+                        onAfterSave: editOptions.onAfterSave,
+                    });
+                } : null,
                 layoutName: 'detail',
                 editDisabled: true,
                 removeDisabled: true,

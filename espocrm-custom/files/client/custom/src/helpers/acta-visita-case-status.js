@@ -81,10 +81,7 @@ define('custom:helpers/acta-visita-case-status', [
             return acta[field];
         };
 
-        if (CONTENT_FIELDS.some((field) => hasText(get(field)))) {
-            return true;
-        }
-
+        // Diligenciada exige el acta escaneada; el contenido digital solo no basta.
         return hasText(get('formatoManoAdjuntoIds'));
     };
 

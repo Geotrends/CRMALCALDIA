@@ -171,7 +171,7 @@ define('custom:views/case/fields/acta-visita-action', [
                     let estado = String(acta.estado || '').trim() || 'Pendiente';
                     const tieneActaFirmada = String(acta.formatoManoAdjuntoIds || '').trim() !== '';
 
-                    if (estado === 'Pendiente' && ActaVisitaCaseStatus.hasActaVisitContent(acta)) {
+                    if (estado === 'Pendiente' && tieneActaFirmada) {
                         estado = 'Diligenciada';
                     }
 
@@ -185,7 +185,6 @@ define('custom:views/case/fields/acta-visita-action', [
                         && (
                             estado === 'Diligenciada'
                             || ActaVisitaCaseStatus.isActaDiligenciada(acta)
-                            || ActaVisitaCaseStatus.hasActaVisitContent(acta)
                         );
 
                     const isCurrent = !!(latestPendienteId && acta.id === latestPendienteId);
@@ -911,7 +910,16 @@ define('custom:views/case/fields/acta-visita-action', [
                 const actaId = $(e.currentTarget).data('acta-id');
 
                 if (actaId) {
-                    ActaVisitaModal.openDetailById(self, actaId, self.model.id);
+                    const acta = ((self.workflow || {}).actasHistorial || []).find(a => a.id === actaId);
+
+                    ActaVisitaModal.openDetailById(self, actaId, self.model.id, {
+                        caseModel: self.model,
+                        user: self.getUser(),
+                        estado: acta ? String(acta.estado || '').trim() : '',
+                        onAfterSave: function () {
+                            self.scheduleLoadActaState();
+                        },
+                    });
                 }
             });
 

@@ -1,10 +1,24 @@
 define('custom:views/modals/acta-visita-detalle', ['views/modals/detail'], function (Dep) {
 
-    // Consulta de solo lectura de un acta de visita, con la descarga del formato generado por el sistema.
+    // Consulta de un acta de visita, con la descarga del formato generado por el sistema.
+    // Si quien la consulta puede diligenciarla (options.onEditar), también ofrece «Editar».
     return Dep.extend({
 
         setup: function () {
             Dep.prototype.setup.call(this);
+
+            if (typeof this.options.onEditar === 'function') {
+                this.addButton({
+                    name: 'editarActa',
+                    label: 'Editar',
+                    style: 'default',
+                    position: 'right',
+                    onClick: () => {
+                        this.close();
+                        this.options.onEditar();
+                    },
+                }, true);
+            }
 
             this.addButton({
                 name: 'descargarActa',
