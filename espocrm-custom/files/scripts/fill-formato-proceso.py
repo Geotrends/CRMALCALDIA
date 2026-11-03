@@ -10,6 +10,7 @@ Tipos:
 - resolucion: plantilla IV-F-117 «Modelo de resolución» (decisión de fondo).
 - archivo: plantilla «Auto de Archivo» de la Inspección (ActuoArchivo.docx).
 - decision: proyecto de decisión (no hay formato institucional: borrador POR VALIDAR).
+- reporte-rnmc: reporte de una medida correctiva al RNMC (no hay formato institucional: borrador POR VALIDAR).
 
 Reutiliza las utilidades de fill-formato-auto-inicio.py. Los datos que falten
 dejan su espacio subrayado para diligenciarlo a mano.
@@ -283,6 +284,32 @@ th {{ width: 32%; background: #f2f2f2; }}
     )
 
 
+def build_rnmc_html(p):
+    esc = fa.xml_escape
+    filas = "".join("<tr><th>{}</th><td>{}</td></tr>".format(esc(k), esc(v) or "&nbsp;") for k, v in p.get("datos", []))
+
+    return """<!doctype html><html><head><meta charset="utf-8"><style>
+body {{ font-family: Arial, sans-serif; font-size: 11pt; line-height: 1.35; }}
+h1 {{ font-size: 13pt; text-align: center; margin: 0; }}
+h3 {{ font-size: 11pt; margin: 14px 0 4px; }}
+.sub {{ text-align: center; margin: 2px 0 14px; }}
+.borrador {{ border: 1px solid #b45309; color: #b45309; padding: 6px; font-size: 9pt; margin-bottom: 12px; }}
+table {{ border-collapse: collapse; width: 100%; }}
+th, td {{ border: 1px solid #999; padding: 4px 6px; text-align: left; vertical-align: top; font-size: 10pt; }}
+th {{ width: 32%; background: #f2f2f2; }}
+</style></head><body>
+<p class="borrador">REPORTE AL RNMC · POR VALIDAR · No hay formato institucional registrado. Revise los datos, regístrelos en el aplicativo del RNMC (o envíelos por oficio) y cargue la constancia.</p>
+<h1>INSPECCIÓN DE POLICÍA PARA ASUNTOS AMBIENTALES · ENVIGADO</h1>
+<p class="sub"><b>REPORTE DE MEDIDA CORRECTIVA AL REGISTRO NACIONAL DE MEDIDAS CORRECTIVAS (RNMC)</b><br>Ley 1801 de 2016, art. 172 par. 2<br>{fecha}</p>
+<table>{filas}</table>
+<h3>Observaciones</h3><p>{observaciones}</p>
+<p style="margin-top:48px">______________________________________<br><b>{funcionario}</b><br>{cargo}</p>
+</body></html>""".format(
+        fecha=esc(p.get("fecha")), filas=filas, observaciones=esc(p.get("observaciones") or BLANK),
+        funcionario=esc(p.get("funcionario") or "NOMBRE"), cargo=esc(p.get("cargo") or "INSPECTOR DE POLICÍA PARA ASUNTOS AMBIENTALES"),
+    )
+
+
 def main():
     if len(sys.argv) not in (3, 4):
         print("uso: fill-formato-proceso.py <salida.docx> <tipo> [plantilla.docx]", file=sys.stderr)
@@ -328,6 +355,14 @@ def main():
             handle.write(build_decision_html(payload))
         fa.soffice_convert(source, "docx:MS Word 2007 XML", work_dir, profile)
         shutil.move(os.path.join(work_dir, "Decision.docx"), output)
+        return 0
+
+    if tipo == "reporte-rnmc":
+        source = os.path.join(work_dir, "ReporteRNMC.html")
+        with open(source, "w", encoding="utf-8") as handle:
+            handle.write(build_rnmc_html(payload))
+        fa.soffice_convert(source, "docx:MS Word 2007 XML", work_dir, profile)
+        shutil.move(os.path.join(work_dir, "ReporteRNMC.docx"), output)
         return 0
 
     print("tipo no válido", file=sys.stderr)

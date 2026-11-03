@@ -1,0 +1,6 @@
+{
+    "accessControlFilterClassNameMap": {
+        "onlyTeam": "Espo\\Custom\\Classes\\Select\\ActaVisita\\AccessControlFilters\\OnlyTeam",
+        "onlyOwn": "Espo\\Custom\\Classes\\Select\\ActaVisita\\AccessControlFilters\\OnlyOwn"
+    }
+}

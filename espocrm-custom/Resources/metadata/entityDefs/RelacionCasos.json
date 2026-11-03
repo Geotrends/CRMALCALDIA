@@ -30,6 +30,12 @@
             "default": "Activa",
             "isCustom": true
         },
+        "destino": {
+            "type": "link",
+            "required": false,
+            "audited": true,
+            "isCustom": true
+        },
         "observaciones": {
             "type": "text",
             "rows": 4,
@@ -37,12 +43,12 @@
         },
         "casos": {
             "type": "linkMultiple",
+            "view": "custom:views/relacion-casos/fields/casos",
             "isCustom": true
         },
         "assignedUser": {
             "type": "link",
-            "readOnlyAfterCreate": true,
-            "view": "views/fields/assigned-user"
+            "view": "custom:views/relacion-casos/fields/assigned-user"
         },
         "teams": {
             "type": "linkMultiple",
@@ -58,11 +64,17 @@
         }
     },
     "links": {
+        "destino": {
+            "type": "belongsTo",
+            "entity": "Destino",
+            "foreign": "relacionesCasos"
+        },
         "casos": {
             "type": "hasMany",
             "entity": "Case",
             "relationName": "caseRelacionCasos",
-            "foreign": "relacionesCasos"
+            "foreign": "relacionesCasos",
+            "audited": true
         },
         "assignedUser": {
             "type": "belongsTo",

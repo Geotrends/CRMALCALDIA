@@ -205,6 +205,12 @@ class AlcaldiaUserProfile
         return $user->isAdmin() || $this->hasAnyRole($user, self::NAMES_ASIGNADOR);
     }
 
+    /** Rol de asignación (Director Técnico) por sus roles, sin contar el tipo administrador. */
+    public function isDirectorTecnico(User $user): bool
+    {
+        return $this->hasAnyRole($user, self::NAMES_ASIGNADOR);
+    }
+
     public function isJuridica(User $user): bool
     {
         return !$user->isAdmin() && $this->hasAnyRole($user, self::NAMES_JURIDICA);
@@ -427,6 +433,16 @@ class AlcaldiaUserProfile
     public function isRadicadorRole(User $user): bool
     {
         return !$user->isAdmin() && $this->hasAnyRole($user, self::NAMES_RADICACION);
+    }
+
+    /**
+     * Solo tiene roles de radicación (sin otro rol que le dé más alcance).
+     */
+    public function esSoloRadicador(User $user): bool
+    {
+        $roles = $user->isAdmin() || $user->isPortal() ? [] : $this->getAssignedRoleNames($user);
+
+        return $roles !== [] && array_diff($roles, self::NAMES_RADICACION) === [];
     }
 
     /**

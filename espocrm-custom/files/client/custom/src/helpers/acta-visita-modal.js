@@ -39,6 +39,7 @@ define('custom:helpers/acta-visita-modal', [
         const attributes = ActaFromCase.buildDefaultsFromCase(caseModel, user, visitNumber);
 
         attributes.modoDiligenciamiento = options.modoDiligenciamiento || 'Digital';
+        Object.assign(attributes, options.attributes || {});
 
         return helper.showCreate(host, {
             entityType: 'ActaVisita',
@@ -151,9 +152,54 @@ define('custom:helpers/acta-visita-modal', [
         });
     };
 
+    // Acta de una visita programada: además de los datos de la solicitud, toma de la programación
+    // la fecha y el funcionario. El servidor ya validó que el usuario puede adjuntarla.
+    const openFromProgramacion = function (hostView, caseModel, user, programacion, options) {
+        const host = resolveHostView(hostView);
+
+        if (!host || typeof host.createView !== 'function') {
+            Espo.Ui.error('No se pudo abrir el formulario del acta.');
+
+            return;
+        }
+
+        const attributes = {
+            programacionVisitaId: programacion.id,
+            programacionVisitaName: programacion.name,
+        };
+
+        if (programacion.fechaProgramada) {
+            attributes.fechaVisita = programacion.fechaProgramada;
+        }
+
+        if (programacion.responsableId) {
+            attributes.assignedUserId = programacion.responsableId;
+            attributes.assignedUserName = programacion.responsableName;
+            attributes.funcionarioNombre = programacion.responsableName;
+        }
+
+        openCreate(host, caseModel, user, {
+            visitNumber: options.visitNumber,
+            attributes: attributes,
+            afterSave: function () {
+                caseModel.fetch();
+                ActaVisitaCaseStatus.invalidateCache(caseModel.id);
+                $(window).trigger('crm:visita-historial-changed');
+
+                if (typeof options.onAfterSave === 'function') {
+                    options.onAfterSave();
+                }
+            },
+        }).catch(function () {
+            // Modal cerrado o cancelado — comportamiento esperado.
+        });
+    };
+
     return {
         open: open,
-        openDetailById: function (hostView, actaId) {
+        openFromProgramacion: openFromProgramacion,
+        // editOptions (opcional): {caseModel, user, estado, onAfterSave}; con ellos la consulta ofrece «Editar».
+        openDetailById: function (hostView, actaId, caseId, editOptions) {
             const host = resolveHostView(hostView);
 
             if (!host || !actaId) {
@@ -161,20 +207,29 @@ define('custom:helpers/acta-visita-modal', [
                 return;
             }
 
-            const helper = new RecordModalHelper();
+            const self = this;
+            const puedeEditar = !!(editOptions
+                && editOptions.caseModel
+                && editOptions.user
+                && editOptions.estado !== 'Aprobada'
+                && PatrulleroActa.canOpenActaVisitaModal(editOptions.user, editOptions.caseModel));
 
-            // showDetail abre el resumen y deriva a otra pantalla para el
-            // formulario. showEdit con el layout detail conserva el sidecar
-            // pero carga todos los campos y adjuntos de una vez.
-            helper.showEdit(host, {
+            // Modal de consulta estándar: sin eliminar ni formulario completo; «Editar» abre el formulario del acta.
+            host.createView('actaDetalle', 'custom:views/modals/acta-visita-detalle', {
                 entityType: 'ActaVisita',
                 id: actaId,
+                caseId: caseId,
+                onEditar: puedeEditar ? function () {
+                    self.openEditById(hostView, editOptions.caseModel, actaId, editOptions.user, {
+                        onAfterSave: editOptions.onAfterSave,
+                    });
+                } : null,
                 layoutName: 'detail',
-                fullFormDisabled: true,
-                readOnly: true,
+                editDisabled: true,
                 removeDisabled: true,
-            }).catch(function () {
-                // Cierre normal del panel de consulta.
+                fullFormDisabled: true,
+            }).then(function (view) {
+                view.render();
             });
         },
         openEditById: function (hostView, caseModel, actaId, user, options) {

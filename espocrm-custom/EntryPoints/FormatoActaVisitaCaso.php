@@ -27,8 +27,12 @@ class FormatoActaVisitaCaso implements EntryPoint
             throw new BadRequest('No id.');
         }
 
+        $programacionId = trim((string) ($request->getQueryParam('programacionId') ?? ''));
+
         if ($actaId !== '') {
             $file = $this->generator->generate($actaId, $format, false);
+        } elseif ($programacionId !== '') {
+            $file = $this->generator->generateForProgramacion($id, $programacionId, $format);
         } else {
             $file = $this->generator->generateForCase($id, $format, false, $modo);
         }

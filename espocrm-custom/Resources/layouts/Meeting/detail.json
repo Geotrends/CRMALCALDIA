@@ -8,7 +8,7 @@
             ],
             [
                 {"name": "status"},
-                false
+                {"name": "programacionVisita"}
             ],
             [
                 {"name": "dateStart"},

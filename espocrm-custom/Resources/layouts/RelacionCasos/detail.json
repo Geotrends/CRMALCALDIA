@@ -8,6 +8,10 @@
             [
                 {"name": "estado"},
                 {"name": "assignedUser"}
+            ],
+            [
+                {"name": "destino"},
+                false
             ]
         ],
         "style": "default",

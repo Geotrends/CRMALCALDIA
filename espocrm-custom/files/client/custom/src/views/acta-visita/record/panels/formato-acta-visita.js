@@ -31,7 +31,7 @@ define('custom:views/acta-visita/record/panels/formato-acta-visita', [
                 e.stopPropagation();
 
                 if (!this.isDownloadEnabled()) {
-                    Espo.Ui.warning(this.translate('formatoActaVisitaPending', 'ActaVisita'));
+                    Espo.Ui.warning(this.translate('formatoActaVisitaPending', 'labels', 'ActaVisita'));
 
                     return;
                 }
@@ -59,9 +59,9 @@ define('custom:views/acta-visita/record/panels/formato-acta-visita', [
         data: function () {
             return {
                 visible: this.isVisible(),
-                helpText: this.translate('formatoActaVisitaHelp', 'ActaVisita'),
+                helpText: this.translate('formatoActaVisitaHelp', 'labels', 'ActaVisita'),
                 hasAutoPdf: !!this.model.get('cFormatoActaVisitaPdfId'),
-                pdfLabel: this.translate('downloadFormatoActaPdf', 'ActaVisita'),
+                pdfLabel: this.translate('downloadFormatoActaPdf', 'labels', 'ActaVisita'),
             };
         },
 
@@ -82,7 +82,7 @@ define('custom:views/acta-visita/record/panels/formato-acta-visita', [
             const format = (data && data.format) || 'pdf';
 
             if (!this.isDownloadEnabled()) {
-                Espo.Ui.warning(this.translate('formatoActaVisitaPending', 'ActaVisita'));
+                Espo.Ui.warning(this.translate('formatoActaVisitaPending', 'labels', 'ActaVisita'));
 
                 return;
             }

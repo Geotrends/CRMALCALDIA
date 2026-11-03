@@ -2,28 +2,26 @@
 
 namespace Espo\Custom\Hooks\CaseObj;
 
+use Espo\Core\Exceptions\BadRequest;
 use Espo\Core\Hook\Hook\BeforeSave;
 use Espo\Custom\Tools\CaseObj\CaseRadicadoHelper;
-use Espo\Custom\Tools\User\AlcaldiaUserProfile;
-use Espo\Entities\Team;
 use Espo\Entities\User;
 use Espo\ORM\Entity;
 use Espo\ORM\EntityManager;
 use Espo\ORM\Repository\Option\SaveOptions;
 
 /**
- * Asignación asigna patrullero en caso radicado → estado Asignado.
+ * Asignación (C-D01) asigna un caso radicado a cualquier usuario válido → estado Asignado.
+ * Usuario válido: activo, de tipo regular o administrador y, si es regular, con al menos un rol.
  */
 class SetAsignadoOnPatrulleroAssignment implements BeforeSave
 {
     public static int $order = 99;
 
     private const STATUS_ASIGNADO = 'Asignado';
-    private const TEAM_PATRULLEROS = 'Patrulleros';
 
     public function __construct(
-        private EntityManager $entityManager,
-        private AlcaldiaUserProfile $profile
+        private EntityManager $entityManager
     ) {}
 
     public function beforeSave(Entity $entity, SaveOptions $options): void
@@ -38,38 +36,29 @@ class SetAsignadoOnPatrulleroAssignment implements BeforeSave
 
         $assignedUserId = $entity->get('assignedUserId');
 
-        if (!$assignedUserId || !$this->isPatrulleroUserId($assignedUserId)) {
+        if (!$assignedUserId) {
             return;
+        }
+
+        if (!$this->isValidAssignee($assignedUserId)) {
+            throw new BadRequest('El usuario seleccionado no puede recibir casos: debe estar activo y tener un rol asignado.');
         }
 
         $entity->set('status', self::STATUS_ASIGNADO);
     }
 
-    private function isPatrulleroUserId(string $userId): bool
+    private function isValidAssignee(string $userId): bool
     {
-        $assignedUser = $this->entityManager->getEntityById(User::ENTITY_TYPE, $userId);
+        $user = $this->entityManager->getEntityById(User::ENTITY_TYPE, $userId);
 
-        if (!$assignedUser) {
+        if (!$user instanceof User || !$user->isActive()) {
             return false;
         }
 
-        return $this->profile->isPatrullero($assignedUser)
-            || $this->isInPatrullerosTeam($assignedUser);
-    }
-
-    private function isInPatrullerosTeam(User $user): bool
-    {
-        $team = $this->entityManager
-            ->getRDBRepositoryByClass(Team::class)
-            ->where(['name' => self::TEAM_PATRULLEROS])
-            ->findOne();
-
-        if (!$team) {
-            return false;
+        if ($user->isAdmin()) {
+            return true;
         }
 
-        $teams = $user->getLinkMultipleIdList('teams') ?? [];
-
-        return in_array($team->getId(), $teams, true);
+        return $user->isRegular() && ($user->getLinkMultipleIdList('roles') ?? []) !== [];
     }
 }

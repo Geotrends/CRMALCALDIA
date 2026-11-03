@@ -584,9 +584,6 @@
             "required": false,
             "maxLength": 100,
             "isCustom": true,
-            "suppressValidationList": [
-                "required"
-            ],
             "audited": true
         },
         "cTipoPersonaPerjudicante": {
@@ -1250,11 +1247,7 @@
                 "6",
                 "7",
                 "8",
-                "9",
-                "10",
-                "11",
-                "12",
-                "13"
+                "9"
             ],
             "style": {
                 "1": null,
@@ -1265,11 +1258,7 @@
                 "6": null,
                 "7": null,
                 "8": null,
-                "9": null,
-                "10": null,
-                "11": null,
-                "12": null,
-                "13": null
+                "9": null
             },
             "isCustom": true,
             "suppressValidationList": [
@@ -1364,6 +1353,18 @@
             "audited": true
         },
         "cPanelActaVisita": {
+            "type": "varchar",
+            "notStorable": true,
+            "readOnly": true,
+            "utility": true,
+            "isCustom": true,
+            "required": false,
+            "suppressValidationList": [
+                "required"
+            ],
+            "audited": true
+        },
+        "cPanelEvaluacionResultado": {
             "type": "varchar",
             "notStorable": true,
             "readOnly": true,
@@ -1598,6 +1599,7 @@
         },
         "actasVisita": {
             "type": "hasMany",
+            "audited": true,
             "entity": "ActaVisita",
             "foreign": "case"
         },
@@ -1614,7 +1616,8 @@
         "gestionesTecnicas": {
             "type": "hasMany",
             "entity": "GestionTecnica",
-            "foreign": "case"
+            "foreign": "case",
+            "audited": true
         },
         "decisionesRuta": {
             "type": "hasMany",
@@ -1700,7 +1703,8 @@
             "type": "hasMany",
             "entity": "RelacionCasos",
             "relationName": "caseRelacionCasos",
-            "foreign": "casos"
+            "foreign": "casos",
+            "audited": true
         },
         "expediente": {
             "type": "belongsTo",

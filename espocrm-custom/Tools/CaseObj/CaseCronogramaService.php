@@ -287,7 +287,7 @@ class CaseCronogramaService
             }
 
             // Las audiencias (y sus reprogramaciones) se listan dentro del paso de audiencia.
-            if ($paso === ExpedientePasosCatalog::PASO_AUDIENCIA) {
+            if (ExpedientePasosCatalog::canonico($paso) === ExpedientePasosCatalog::PASO_AUDIENCIA) {
                 foreach ($lectura->hitosAudiencia($expediente) as $hito) {
                     $entries[] = $this->audienciaEntry($hito, $lectura);
                 }

@@ -1,0 +1,17 @@
+[
+    {
+        "rows": [
+            [
+                {"name": "name"},
+                {"name": "tipo"}
+            ],
+            [
+                {"name": "direccion"},
+                {"name": "barrio"}
+            ],
+            [
+                {"name": "descripcion", "fullWidth": true}
+            ]
+        ]
+    }
+]

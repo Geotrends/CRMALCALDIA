@@ -59,7 +59,7 @@ class CaseProcesoService
         $this->lectura = new CaseProcesoLectura($entityManager);
         $this->formatos = new ProcesoFormatoGenerator($entityManager);
         $this->decision = new CaseDecisionService($entityManager, $metadata, $this->formatos, $this);
-        $this->cumplimiento = new CaseCumplimientoService($entityManager, $metadata, $this);
+        $this->cumplimiento = new CaseCumplimientoService($entityManager, $metadata, $this, $this->formatos);
         $this->archivo = new CaseArchivoService($entityManager, $this->formatos, $this, $this->cumplimiento);
     }
 
@@ -116,7 +116,7 @@ class CaseProcesoService
             'fase' => $this->lectura->fase($actual, $ultima, $expediente),
             'pasos' => $pasos,
             'audiencias' => array_map(fn (Entity $a): array => $this->audienciaData($a), $audiencias),
-            'defaults' => $this->defaultsCitacion($case),
+            'defaults' => $this->defaultsCitacion($case, $ultima),
             'medios' => self::MEDIOS_CITACION,
             'lugares' => self::LUGARES,
             'lugarInspeccion' => self::LUGAR_INSPECCION,
@@ -125,8 +125,8 @@ class CaseProcesoService
             'responsables' => $this->responsablesPrueba(),
             'audienciaYaFue' => $this->audienciaYaFue($ultima),
             'decision' => $this->decisionEstado($case, $expediente, $actual),
-            'cumplimiento' => $actual === ExpedientePasosCatalog::PASO_CUMPLIMIENTO ? $this->cumplimiento->estado($expediente) : null,
-            'archivo' => $actual === ExpedientePasosCatalog::PASO_ARCHIVO ? [
+            'cumplimiento' => ExpedientePasosCatalog::canonico($actual) === ExpedientePasosCatalog::PASO_CUMPLIMIENTO ? $this->cumplimiento->estado($expediente) : null,
+            'archivo' => ExpedientePasosCatalog::canonico($actual) === ExpedientePasosCatalog::PASO_ARCHIVO ? [
                 'pendientes' => $this->archivo->pendientes($expediente),
                 'causal' => CaseArchivoService::CAUSAL,
                 'datos' => (array) ($this->lectura->datosDecision($expediente)['archivo'] ?? []),
@@ -165,7 +165,7 @@ class CaseProcesoService
         }
         $esperadas = [
             'citar' => ['citar', 'citacionPrevia'],
-            'soporteCitacion' => ['soporteCitacion'],
+            'soporteCitacion' => ['soporteCitacion', 'suspender'],
             'audiencia' => ['realizada', 'inasistencia', 'suspender', 'soporteCitacion'],
             'justificacion' => ['resolverJustificacion'],
             'soportePrueba' => ['soportePrueba'],
@@ -207,7 +207,7 @@ class CaseProcesoService
             'soportePrueba' => $this->soportePrueba($case, $user, $expediente, $ultima, $texto('documentoId'), $texto('observacion')),
             'realizada' => $this->realizada($case, $user, $expediente, $ultima, $data),
             'soportes' => $this->soportes($case, $user, $expediente, $ultima, $data),
-            'cumplirPaso' => $this->cumplirPaso($case, $user, $expediente, $paso, $texto('observacion')),
+            'cumplirPaso' => $this->cumplirPaso($case, $user, $expediente, $paso, $this->observacionPaso($paso, $texto('observacion'), $this->clasificacionElegida($paso, $data['clasificacion'] ?? [])), $this->clasificacionElegida($paso, $data['clasificacion'] ?? [])),
             'decisionGuardar' => $this->decision->guardar($case, $user, $expediente, $data),
             'decisionFirmar' => $this->decision->firmar($case, $user, $expediente, $texto('documentoId')),
             'formatoNotificacion' => $this->decision->formatoNotificacion($case, $user, $expediente, $data),
@@ -249,11 +249,15 @@ class CaseProcesoService
         }
 
         [$lugarTipo, $lugar] = $this->lugarAudiencia($data);
-        $numero = $anterior ? (int) $anterior->get('numero') + 1 : 1;
+
+        // La audiencia que dejó el Auto de Inicio se completa con la citación; no se crea otra.
+        $delAuto = $anterior && CaseProcesoLectura::esAudienciaDelAuto($anterior) ? $anterior : null;
+        $anterior = $delAuto ? null : $anterior;
+        $numero = $delAuto ? (int) $delAuto->get('numero') : ($anterior ? (int) $anterior->get('numero') + 1 : 1);
         $inspectorId = $this->inspectorId($case, $user);
         $maltrato = (string) $expediente->get('tipoTramite') === ExpedientePasosCatalog::RUTA_MALTRATO;
 
-        $audiencia = $this->entityManager->getNewEntity('Audiencia');
+        $audiencia = $delAuto ?? $this->entityManager->getNewEntity('Audiencia');
         $audiencia->set([
             'name' => 'Audiencia N.º ' . $numero . ' · Exp. ' . $expediente->get('numero'),
             'numero' => $numero,
@@ -315,7 +319,7 @@ class CaseProcesoService
         $this->nota($case, ($anterior ? 'Reprogramó' : 'Programó') . ' la audiencia N.º ' . $numero . ' para el ' . $cuando . ' en ' . $lugar
             . ' y registró la citación (' . $medio . ').' . ($soporteId === '' ? ' Falta el soporte de entrega.' : ''));
 
-        if ($soporteId !== '' && (string) $expediente->get('estado') !== ExpedientePasosCatalog::PASO_AUDIENCIA) {
+        if ($soporteId !== '' && ExpedientePasosCatalog::canonico((string) $expediente->get('estado')) !== ExpedientePasosCatalog::PASO_AUDIENCIA) {
             $this->avanzar($expediente, $user, ExpedientePasosCatalog::PASO_AUDIENCIA, 'Citación entregada');
         }
 
@@ -652,7 +656,44 @@ class CaseProcesoService
      *
      * @return array<string, mixed>
      */
-    private function cumplirPaso(Entity $case, User $user, Entity $expediente, string $paso, string $observacion): array
+    /**
+     * Clasificación elegida en el paso de Maltrato Animal (una sola: maltrato leve, posible delito u otro); null en los demás pasos.
+     *
+     * @param mixed $clasificacion
+     */
+    private function clasificacionElegida(string $paso, mixed $clasificacion): ?string
+    {
+        if ($paso !== ExpedientePasosCatalog::PASO_CLASIFICACION_MALTRATO) {
+            return null;
+        }
+
+        $elegidas = array_values(array_unique(array_filter(
+            array_map(static fn ($v): string => trim((string) $v), (array) $clasificacion),
+            static fn (string $v): bool => in_array($v, ExpedientePasosCatalog::CLASIFICACIONES_MALTRATO, true)
+        )));
+
+        if (count($elegidas) !== 1) {
+            throw new BadRequest('Seleccione una sola clasificación: maltrato leve, posible delito u otro.');
+        }
+
+        return $elegidas[0];
+    }
+
+    /** La clasificación se acompaña de un detalle («Otro» lo exige); el resto de pasos se cumple con la descripción escrita. */
+    private function observacionPaso(string $paso, string $observacion, ?string $clasificacion): string
+    {
+        if ($clasificacion === null) {
+            return $observacion;
+        }
+
+        if ($clasificacion === 'Otro' && $observacion === '') {
+            throw new BadRequest('Describa la clasificación «Otro».');
+        }
+
+        return 'Clasificación jurídica: ' . $clasificacion . '.' . ($observacion !== '' ? ' ' . $observacion : '');
+    }
+
+    private function cumplirPaso(Entity $case, User $user, Entity $expediente, string $paso, string $observacion, ?string $clasificacion = null): array
     {
         if ($observacion === '') {
             throw new BadRequest('Describa cómo se cumplió el paso.');
@@ -666,8 +707,16 @@ class CaseProcesoService
         }
 
         $siguiente = $catalog->getSiguientePaso($tipoTramite, $paso);
+        $omitidos = [];
 
-        $this->avanzar($expediente, $user, (string) $siguiente, $observacion);
+        // La remisión a Fiscalía / GELMA solo se habilita si la conducta es un posible delito; si no, se omite.
+        if ($clasificacion !== null && $clasificacion !== 'Posible delito' && $siguiente === ExpedientePasosCatalog::PASO_REMISION_FISCALIA) {
+            $omitidos = [$siguiente];
+            $siguiente = $catalog->getSiguientePaso($tipoTramite, $siguiente);
+        }
+
+        $this->avanzar($expediente, $user, (string) $siguiente, $observacion, $omitidos,
+            $omitidos !== [] ? 'No aplica: la clasificación es «' . $clasificacion . '», no un posible delito' : null);
         $this->nota($case, 'Registró como cumplido el paso «' . $paso . '» del expediente: ' . $observacion);
         $this->avisar($case, $user, $expediente, 'Paso del expediente cumplido',
             'registró como cumplido el paso «' . $paso . '» del expediente ' . $expediente->get('numero'),
@@ -685,6 +734,8 @@ class CaseProcesoService
      */
     private function decisionEstado(Entity $case, Entity $expediente, string $paso): ?array
     {
+        $paso = ExpedientePasosCatalog::canonico($paso);
+
         if (!in_array($paso, [ExpedientePasosCatalog::PASO_DECISION, ExpedientePasosCatalog::PASO_NOTIFICACION], true)) {
             $d = $this->lectura->datosDecision($expediente);
 
@@ -731,6 +782,11 @@ class CaseProcesoService
         $ahora = (new \DateTimeImmutable('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s');
         $historial = $this->lectura->historial($expediente);
         $actual = $this->lectura->pasoActual($expediente);
+        // Los pasos guiados se piden por su nombre general; cada ruta puede llamarlos distinto.
+        $catalog = new ExpedientePasosCatalog();
+        $tipoTramite = (string) $expediente->get('tipoTramite');
+        $siguiente = $catalog->nombreEnRuta($tipoTramite, $siguiente);
+        $omitidos = array_map(fn (string $p): string => $catalog->nombreEnRuta($tipoTramite, $p), $omitidos);
 
         $historial[$actual] = array_merge($historial[$actual] ?? [], [
             'fin' => $ahora,
@@ -796,7 +852,7 @@ class CaseProcesoService
         }
 
         $local = new \DateTimeImmutable($fecha . ' ' . $hora, new \DateTimeZone('America/Bogota'));
-        $numero = $anterior ? (int) $anterior->get('numero') + 1 : 1;
+        $numero = $anterior ? (int) $anterior->get('numero') + (CaseProcesoLectura::esAudienciaDelAuto($anterior) ? 0 : 1) : 1;
         [$lugarTipo, $lugar] = $this->lugarAudiencia($data);
 
         return ['success' => true, 'formatoId' => $this->generarCitacion($case, $expediente, $case, $local, $numero, 'cSoportesExpediente', true, $lugarTipo === self::LUGARES[0] ? null : $lugar)];
@@ -845,6 +901,7 @@ class CaseProcesoService
      */
     public function retornar(Entity $expediente, User $user, string $paso, string $motivo): void
     {
+        $paso = (new ExpedientePasosCatalog())->nombreEnRuta((string) $expediente->get('tipoTramite'), $paso);
         $ahora = (new \DateTimeImmutable('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s');
         $historial = $this->lectura->historial($expediente);
         $actual = $this->lectura->pasoActual($expediente);
@@ -971,22 +1028,35 @@ class CaseProcesoService
         return $v('cDireccionPerjudicante') . ($v('cBarrioPerjudicante') !== '' ? ', barrio ' . $v('cBarrioPerjudicante') : '') . ', Envigado';
     }
 
-    private function defaultsCitacion(Entity $case): array
+    /**
+     * Fecha y hora que propone el formulario de citación: las de la audiencia original que dejó el
+     * Auto de Inicio (tentativas; se pueden ajustar aquí y se actualiza esa misma audiencia).
+     */
+    private function defaultsCitacion(Entity $case, ?Entity $ultima): array
     {
-        $auto = $this->entityManager->getRDBRepository('AutoInicio')
-            ->where(['caseId' => $case->getId()])
-            ->order('createdAt', 'DESC')
-            ->findOne();
+        $zona = new \DateTimeZone('America/Bogota');
+        $fecha = '';
+        $hora = '';
+        $delAuto = $ultima && CaseProcesoLectura::esAudienciaDelAuto($ultima);
 
-        $fecha = (string) ($auto?->get('fechaAudiencia') ?? '');
-        $hora = substr((string) ($auto?->get('horaAudiencia') ?? ''), 0, 5);
+        if ($delAuto && $ultima->get('fechaInicio')) {
+            $local = (new \DateTimeImmutable((string) $ultima->get('fechaInicio'), new \DateTimeZone('UTC')))->setTimezone($zona);
+            $fecha = $local->format('Y-m-d');
+            $hora = $local->format('H:i');
+        } else {
+            $auto = $this->entityManager->getRDBRepository('AutoInicio')
+                ->where(['caseId' => $case->getId()])
+                ->order('createdAt', 'DESC')
+                ->findOne();
 
-        // Si la fecha del Auto ya pasó, no se propone: se elige una nueva.
-        if ($fecha !== '' && $fecha . ' ' . ($hora ?: '23:59') < (new \DateTimeImmutable('now', new \DateTimeZone('America/Bogota')))->format('Y-m-d H:i')) {
-            return ['fecha' => '', 'hora' => ''];
+            $fecha = (string) ($auto?->get('fechaAudiencia') ?? '');
+            $hora = substr((string) ($auto?->get('horaAudiencia') ?? ''), 0, 5);
         }
 
-        return ['fecha' => $fecha, 'hora' => $hora];
+        // Se propone igual; si ya pasó, el formulario avisa y pide elegir una nueva (citar exige fecha futura).
+        $pasada = $fecha !== '' && $fecha . ' ' . ($hora ?: '23:59') < (new \DateTimeImmutable('now', $zona))->format('Y-m-d H:i');
+
+        return ['fecha' => $fecha, 'hora' => $hora, 'delAuto' => $delAuto, 'pasada' => $pasada];
     }
 
     /**

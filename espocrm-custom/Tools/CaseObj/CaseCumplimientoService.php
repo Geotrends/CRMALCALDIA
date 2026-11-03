@@ -34,13 +34,16 @@ class CaseCumplimientoService
     public const PREFIJO_VALORACION = 'Valoración jurídica: ';
 
     private CaseProcesoLectura $lectura;
+    private ProcesoFormatoGenerator $formatos;
 
     public function __construct(
         private EntityManager $entityManager,
         private Metadata $metadata,
-        private CaseProcesoService $proceso
+        private CaseProcesoService $proceso,
+        ?ProcesoFormatoGenerator $formatos = null
     ) {
         $this->lectura = new CaseProcesoLectura($entityManager);
+        $this->formatos = $formatos ?? new ProcesoFormatoGenerator($entityManager);
     }
 
     /* ─────────────────────────── consulta ─────────────────────────── */
@@ -194,6 +197,7 @@ class CaseCumplimientoService
         }
 
         return match ($tipo) {
+            'rnmcGenerar' => $this->generarReporteRnmc($case, $user, $expediente, $medida),
             'rnmc' => $this->reporteRnmc($case, $user, $medida, $fecha('fecha') ?? date('Y-m-d'), $t('medio'), $t('identificador'), $t('documentoId')),
             'tesoreria' => $this->remitirTesoreria($case, $user, $expediente, $medida, $t('valor'), $fecha('fecha') ?? date('Y-m-d'), $t('documentoId')),
             'tesoreriaResultado' => $this->resultadoTesoreria($case, $user, $medida, $t('resultado'), $t('observacion'), $t('documentoId')),
@@ -212,6 +216,40 @@ class CaseCumplimientoService
 
         return $tipo === 'verificacion' && $orden && (string) $orden->get('estado') === 'En seguimiento'
             && $orden->get('assignedUserId') === $user->getId();
+    }
+
+    /**
+     * Word con los datos de la medida para reportarla al RNMC (no hay formato institucional: borrador por validar).
+     *
+     * @return array<string, mixed>
+     */
+    private function generarReporteRnmc(Entity $case, User $user, Entity $expediente, Entity $medida): array
+    {
+        $citado = trim((string) $case->get('cNombrePerjudicante') . ' ' . (string) $case->get('cApellidoPerjudicante'));
+        $documento = trim((string) $case->get('cDocumentoPerjudicante'));
+        $criterio = trim((string) $medida->get('criterioCumplimiento'));
+        $dias = ['', 'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+        $hoy = new \DateTimeImmutable('now', new \DateTimeZone('America/Bogota'));
+
+        $formatoId = $this->formatos->generar('reporte-rnmc', [
+            'fecha' => 'Envigado, ' . $hoy->format('j') . ' de ' . $dias[(int) $hoy->format('n')] . ' de ' . $hoy->format('Y'),
+            'datos' => [
+                ['Expediente', (string) $expediente->get('numero')],
+                ['Radicado', (string) $case->get('cNumeroRadicado')],
+                ['Ruta jurídica', (string) $expediente->get('tipoTramite')],
+                ['Presunto infractor', $citado],
+                ['Documento', $documento],
+                ['Medida correctiva', (string) $medida->get('tipoMedida')],
+                ['Condiciones o criterio de cumplimiento', $criterio],
+                ['Estado de la medida', (string) $medida->get('estado')],
+            ],
+            'observaciones' => '',
+            'funcionario' => trim((string) $user->get('name')),
+        ], $case, 'cSoportesExpediente', 'Reporte-RNMC-' . $expediente->get('numero') . '.docx');
+
+        $this->proceso->nota($case, 'Generó el reporte al RNMC de la medida «' . $medida->get('tipoMedida') . '».');
+
+        return ['success' => true, 'formatoId' => $formatoId];
     }
 
     private function reporteRnmc(Entity $case, User $user, Entity $medida, string $fecha, string $medio, string $identificador, string $documentoId): array

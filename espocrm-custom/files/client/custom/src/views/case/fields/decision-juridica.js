@@ -22,14 +22,16 @@ define('custom:views/case/fields/decision-juridica', [
         'Cierre de atención': {
             label: 'Guardar y cerrar la atención',
             icon: 'fa-box-archive',
-            endpoint: 'Case/action/cerrarSinProceso',
+            endpoint: null,
+            ejecutar: true,
             confirm: '¿Confirma el cierre de la atención sin abrir proceso? El caso quedará pendiente de la respuesta final al peticionario (la proyecta Inspección) y se finaliza con «Finalizar caso».',
             success: 'Atención cerrada: pendiente de la respuesta final al peticionario.',
         },
         'Remisión por competencia': {
             label: 'Guardar y remitir por competencia',
             icon: 'fa-share-from-square',
-            endpoint: 'Case/action/remitirPorCompetencia',
+            endpoint: null,
+            ejecutar: true,
             confirm: '¿Confirma la remisión por competencia? Se registrará la remisión, se avisará a quien prepara el oficio (plazo de 5 días hábiles) y el caso se finaliza con «Finalizar caso» cuando se envíe el oficio y se informe al peticionario.',
             success: 'Caso remitido por competencia. Remisión registrada para el oficio.',
         },
@@ -53,12 +55,17 @@ define('custom:views/case/fields/decision-juridica', [
             this.hasAutoInicio = false;
             this.hasActaFirmada = false;
             this._loading = false;
+            this.once('remove', () => {
+                this._removed = true;
+                window.clearTimeout(this._timer);
+            });
 
             if (!this.model.id) {
                 return;
             }
 
-            this.listenTo(this.model, 'change:status sync', function () {
+            this.listenTo(this.model, 'change:status change:expedienteId change:cDecisionTramite sync visitas:updated', function () {
+                this._stateRevision = (this._stateRevision || 0) + 1;
                 this.scheduleLoadState();
             });
         },
@@ -119,7 +126,12 @@ define('custom:views/case/fields/decision-juridica', [
             const self = this;
             const user = this.getUser();
 
-            if (!this.model.id || this._loading) {
+            if (!this.model.id || this._removed) {
+                return;
+            }
+
+            if (this._loading) {
+                this._reload = true;
                 return;
             }
 
@@ -131,6 +143,7 @@ define('custom:views/case/fields/decision-juridica', [
                     self.profileRoles = [];
                 }).finally(function () {
                     self._loading = false;
+                    self._reload = false;
                     self.loadState();
                 });
 
@@ -147,6 +160,7 @@ define('custom:views/case/fields/decision-juridica', [
             }
 
             this._loading = true;
+            const revision = this._stateRevision || 0;
 
             const autoInicioRequest = SilentAjax.getRequest('AutoInicio', {
                 where: [
@@ -167,22 +181,35 @@ define('custom:views/case/fields/decision-juridica', [
                 maxSize: 1,
             });
 
-            Promise.all([autoInicioRequest, actaRequest]).then(function (responses) {
+            const nuevaVisitaRequest = SilentAjax.getRequest('Case/action/enProcesoOtraVisita', {id: this.model.id});
+
+            Promise.all([autoInicioRequest, actaRequest, nuevaVisitaRequest]).then(function (responses) {
+                if (self._removed || revision !== (self._stateRevision || 0)) {
+                    return;
+                }
                 const list = (responses[0] && responses[0].list) || [];
                 const actas = (responses[1] && responses[1].list) || [];
 
                 self.hasAutoInicio = list.length > 0;
                 self.hasActaFirmada = !!(actas[0] && String(actas[0].formatoManoAdjuntoIds || '').trim());
                 self.currentActa = actas[0] || null;
+                self.visitaComplementariaPreparada = !!(responses[2] && responses[2].enProcesoOtraVisita);
                 self.stateReady = true;
                 self.refreshViewState();
             }).catch(function () {
+                if (self._removed || revision !== (self._stateRevision || 0)) {
+                    return;
+                }
                 self.hasAutoInicio = false;
                 self.hasActaFirmada = false;
                 self.stateReady = true;
                 self.refreshViewState();
             }).finally(function () {
                 self._loading = false;
+                if (!self._removed && (self._reload || revision !== (self._stateRevision || 0))) {
+                    self._reload = false;
+                    self.scheduleLoadState();
+                }
             });
         },
 
@@ -194,16 +221,22 @@ define('custom:views/case/fields/decision-juridica', [
             const data = this.data();
             const hadPanel = this.$el.data('decisionPanelVisible') === true;
             const showPanel = !!data.showPanel;
+            const stateKey = JSON.stringify([data, this.currentActa]);
 
-            if (!hadPanel && showPanel) {
+            if (showPanel && (!hadPanel || this._renderedStateKey !== stateKey)) {
                 // Primera vez que corresponde mostrarlo: el template se
                 // renderizó con showPanel=false (nada de HTML dentro del
                 // {{#if}}), así que hay que re-renderizar de verdad, no
                 // solo alternar visibilidad de elementos que no existen.
                 this.$el.data('decisionPanelVisible', true);
-                SafeUiPromise.safeReRender(this);
-                this.updatePanelVisibility(true);
-                this.bindUi();
+                this._renderedStateKey = stateKey;
+                // La firma puede llegar mientras el panel ya era visible con un aviso.
+                // Reconstruir el template y enlazar los controles después de ese render.
+                Promise.resolve(SafeUiPromise.safeReRender(this)).then(() => {
+                    if (!this._removed) {
+                        this.updatePanelVisibility(!!this.data().showPanel);
+                    }
+                });
 
                 return;
             }
@@ -211,26 +244,35 @@ define('custom:views/case/fields/decision-juridica', [
             this.$el.data('decisionPanelVisible', showPanel);
             this.updatePanelVisibility(showPanel);
 
-            if (showPanel) {
-                this.bindUi();
-            }
+            // Si nada cambió, conservar los valores que está escribiendo el inspector.
         },
 
         data: function () {
             const user = this.getUser();
             // Con expediente (en preparación o abierto) la revisión ya se resolvió: la
             // apertura sigue en el bloque «Apertura de expediente».
-            const canDecidir = this.stateReady && this.canDecidir(user) && !this.hasAutoInicio && this.hasActaFirmada
+            const revisable = this.stateReady && this.canDecidir(user) && !this.hasAutoInicio
                 && !this.model.get('expedienteId')
                 && this.model.get('cDecisionTramite') !== 'Apertura de actuación';
+            const canDecidir = revisable && this.hasActaFirmada;
             const status = String(this.model.get('status') || '').trim();
+            // Con el acta registrada pero sin el acta firmada, quien revisa ve la sección con el aviso
+            // (el servidor exige el acta firmada para registrar la revisión).
+            const showSinFirma = revisable && !this.hasActaFirmada && !!this.currentActa
+                && (status === STATUS_VISITA_REALIZADA || status === STATUS_REVISION || status === STATUS_LEGACY_APPROVED);
             const showRevisar = canDecidir && status === STATUS_VISITA_REALIZADA;
             const showDecisiones = canDecidir && (status === STATUS_REVISION || status === STATUS_LEGACY_APPROVED);
+            const acta = this.currentActa || {};
+            const showComplementariaSolicitada = canDecidir && this.visitaComplementariaPreparada
+                && acta.cDecisionTramite === 'Visita complementaria'
+                && !!(acta.cRevisadoPor || acta.fechaAprobacion);
 
             return {
-                showPanel: showRevisar || showDecisiones,
+                showPanel: showRevisar || showDecisiones || showSinFirma,
+                showSinFirma: showSinFirma,
                 showRevisar: showRevisar,
                 showDecisiones: showDecisiones,
+                showComplementariaSolicitada: !!showComplementariaSolicitada,
                 helpText: this.translateCaseLabel('decisionJuridicaHelp'),
                 decisionTramite: this.model.get('cDecisionTramite') || '',
                 motivoDecision: this.model.get('cMotivoDecision') || '',
@@ -357,6 +399,10 @@ define('custom:views/case/fields/decision-juridica', [
          * hallazgos registrada) y ejecuta la acción correspondiente.
          */
         actionEjecutarDefinicion: function () {
+            if (this.data().showComplementariaSolicitada) {
+                Espo.Ui.success('La visita complementaria ya está solicitada. El responsable asignado debe programarla desde Visitas.');
+                return;
+            }
             const self = this;
             const decision = String(this.$el.find('[data-name="decisionTramite"]').val() || '').trim();
             const motivo = String(this.$el.find('[data-name="motivoDecision"]').val() || '').trim();
@@ -384,18 +430,21 @@ define('custom:views/case/fields/decision-juridica', [
             const ejecutar = function () {
                 Espo.Ui.notify(self.translate('pleaseWait', 'messages'));
 
+                // Cierre y remisión se ejecutan en la misma petición ("ejecutar"): un solo
+                // guardado del caso y una sola entrada en la historia.
                 Espo.Ajax.postRequest('Case/action/guardarDefinicionTramite', {
                     id: self.model.id, decision: decision, motivo: motivo, entidadRemision: entidadRemision,
-                }).then(function () {
+                    ejecutar: !!accion.ejecutar,
+                }).then(function (response) {
                     if (accion.endpoint) {
                         return Espo.Ajax.postRequest(accion.endpoint, {id: self.model.id});
                     }
 
-                    return null;
+                    return response;
                 }).then(function (response) {
                     Espo.Ui.notify(false);
 
-                    if (!accion.endpoint) {
+                    if (!accion.endpoint && !accion.ejecutar) {
                         // Apertura de actuación: se decide el régimen y si se abre un expediente
                         // nuevo o se incorpora a uno existente en el bloque «Apertura de expediente».
                         Espo.Ui.success('Definición guardada. Complete la apertura en «Apertura de expediente».');

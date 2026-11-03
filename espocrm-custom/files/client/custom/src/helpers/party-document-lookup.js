@@ -25,7 +25,7 @@ define('custom:helpers/party-document-lookup', [
         'cTelefonoPeticionario',
         'cBarrioPeticionario',
         'cCorreoPeticionario',
-        'cCanalDeReportePeticionario',
+        // cCanalDeReportePeticionario no: es dato de cada solicitud, no del peticionario.
         'cMunicipioPeticionario',
         'cZonaAlcaldiaPeticionario',
     ];

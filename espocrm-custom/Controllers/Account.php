@@ -78,8 +78,12 @@ class Account extends BaseAccount
             throw new BadRequest('accountId requerido.');
         }
 
-        if (!$this->entityManager->getEntityById('Account', $accountId)) {
+        $party = $this->entityManager->getEntityById('Account', $accountId);
+        if (!$party) {
             throw new BadRequest('Persona jurídica no encontrada.');
+        }
+        if (!$this->acl->checkEntityRead($party)) {
+            throw new Forbidden();
         }
 
         $service = new PartyCasosService($this->entityManager);
@@ -108,8 +112,12 @@ class Account extends BaseAccount
             throw new BadRequest('accountId requerido.');
         }
 
-        if (!$this->entityManager->getEntityById('Account', $accountId)) {
+        $party = $this->entityManager->getEntityById('Account', $accountId);
+        if (!$party) {
             throw new BadRequest('Persona jurídica no encontrada.');
+        }
+        if (!$this->acl->checkEntityRead($party)) {
+            throw new Forbidden();
         }
 
         $service = new PartyExpedienteService(

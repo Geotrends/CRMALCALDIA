@@ -15,3 +15,36 @@
 .alcaldia-acta-collapsible > .panel-heading .alcaldia-acta-summary + .alcaldia-acta-collapsible__chevron {
   margin-left: 12px !important;
 }
+
+/* Formato diligenciado a mano: "Descargar acta en blanco" (solo al crear) y el botón
+   de adjuntar con texto; el tema limita ese botón a un ícono de 50px. */
+.acta-formato-en-blanco {
+  margin-bottom: 10px;
+}
+
+.cell[data-name="formatoManoAdjunto"] .attach-file-label {
+  overflow: visible !important;
+  width: auto !important;
+}
+
+.cell[data-name="formatoManoAdjunto"] .attach-file-label > .btn {
+  letter-spacing: normal !important;
+  text-transform: none !important;
+}
+
+/* Consulta del acta (detalle y vista previa): sin columna lateral vacía, los bloques usan todo el ancho, uno debajo del otro. */
+.detail[data-scope="ActaVisita"] .record-grid > .left { float: none; max-width: none; width: 100% !important; }
+.detail[data-scope="ActaVisita"] .record-grid > .side:not(:has(.panel)) { display: none; }
+.detail[data-scope="ActaVisita"] .record-grid:not(:has(> .side .panel)) { grid-template-columns: minmax(0, 1fr) !important; }
+
+/* Casilla de autorización de datos señalada cuando se intenta diligenciar sin marcarla */
+.cell.alcaldia-acta-autorizacion-pendiente {
+    animation: alcaldia-acta-autorizacion-pulso 1s ease-in-out 3;
+    border-radius: 6px;
+    outline: 2px solid var(--brand-danger, #c0392b);
+    outline-offset: 4px;
+}
+
+@keyframes alcaldia-acta-autorizacion-pulso {
+    50% { background-color: rgba(192, 57, 43, 0.12); }
+}

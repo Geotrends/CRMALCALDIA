@@ -4,6 +4,9 @@
         "intervencionTecnica": "Intervención técnica",
         "fechaObjetivo": "Fecha objetivo",
         "fechaProgramada": "Fecha programada",
+        "horaInicio": "Hora inicio",
+        "horaFin": "Hora fin",
+        "reunion": "Reunión en el calendario",
         "tipoProgramacion": "Tipo de programación",
         "responsable": "Responsable",
         "motivoReprogramacion": "Motivo de reprogramación",
@@ -11,12 +14,16 @@
         "assignedUser": "Responsable asignado",
         "teams": "Equipos",
         "createdAt": "Creado",
-        "modifiedAt": "Modificado"
+        "modifiedAt": "Modificado",
+        "actasVisita": "Actas de visita"
+    },
+    "links": {
+        "actasVisita": "Actas de visita"
     },
     "labels": {
         "Create ProgramacionVisita": "Crear programación de visita",
         "ProgramacionVisita": "Programación de visita",
-        "ProgramacionVisitas": "Programaciones de visita"
+        "ProgramacionVisitas": "Programación de visitas"
     },
     "options": {
         "tipoProgramacion": {

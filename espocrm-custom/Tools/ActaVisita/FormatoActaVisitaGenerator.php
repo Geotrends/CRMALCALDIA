@@ -10,7 +10,9 @@ use Espo\Core\Acl;
 use Espo\Core\Exceptions\BadRequest;
 use Espo\Core\Exceptions\Error;
 use Espo\Core\Exceptions\Forbidden;
+use Espo\Core\FileStorage\Manager as FileStorageManager;
 use Espo\Core\Utils\Config;
+use Espo\Entities\Attachment;
 use Espo\Entities\Role;
 use Espo\Entities\User;
 use Espo\ORM\Entity;
@@ -28,7 +30,8 @@ class FormatoActaVisitaGenerator
         private Config $config,
         private User $user,
         private Acl $acl,
-        private AlcaldiaUserProfile $profile
+        private AlcaldiaUserProfile $profile,
+        private FileStorageManager $fileStorageManager
     ) {}
 
     /**
@@ -55,13 +58,8 @@ class FormatoActaVisitaGenerator
             throw new Forbidden('El formato de acta de visita aún no está habilitado.');
         }
 
-        $slug = preg_replace(
-            '/[^\w\-]+/u',
-            '_',
-            trim((string) $acta->get('numeroRadicado')) ?: $actaId
-        ) ?: 'acta';
-
         $case = $this->resolveCaseForActa($acta);
+        $slug = $case ? $case->getId() : $actaId;
 
         return $this->runGenerator(
             $format,
@@ -117,6 +115,63 @@ class FormatoActaVisitaGenerator
     }
 
     /**
+     * Formato IV-F-094 sin ningún dato, para diligenciar a mano.
+     *
+     * @return array{path: string, name: string, type: string}
+     */
+    public function generateBlank(string $format): array
+    {
+        if (!$this->acl->checkScope('ActaVisita', Acl\Table::ACTION_CREATE)) {
+            throw new Forbidden();
+        }
+
+        return $this->runGenerator($format, ['modo' => 'manual', 'modoDiligenciamiento' => 'manual'], 'en_blanco');
+    }
+
+    /**
+     * Acta en blanco de una visita programada: datos de la solicitud, con la fecha, la hora y el
+     * funcionario de la programación. Siempre en blanco, aunque la solicitud ya tenga otras actas.
+     *
+     * @return array{path: string, name: string, type: string}
+     */
+    public function generateForProgramacion(string $caseId, string $programacionId, string $format): array
+    {
+        $case = $this->entityManager->getEntityById('Case', $caseId);
+        $programacion = $this->entityManager->getEntityById('ProgramacionVisita', $programacionId);
+
+        if (
+            !$case || !$programacion
+            || !$this->acl->checkEntityRead($case)
+            || !$this->acl->checkEntityRead($programacion)
+        ) {
+            throw new Forbidden();
+        }
+
+        $intervencion = $this->entityManager->getEntityById('IntervencionTecnica', (string) $programacion->get('intervencionTecnicaId'));
+        $gestion = $intervencion
+            ? $this->entityManager->getEntityById('GestionTecnica', (string) $intervencion->get('gestionTecnicaId'))
+            : null;
+
+        if (!$gestion || $gestion->get('caseId') !== $case->getId()) {
+            throw new Forbidden();
+        }
+
+        $payload = $this->buildPayloadManualFromCase($case);
+        $fecha = \DateTime::createFromFormat('!Y-m-d', (string) $programacion->get('fechaProgramada'));
+
+        if ($fecha) {
+            $payload['fechaVisita'] = $fecha->format(AlcaldiaDateTimeHelper::PHP_DOCUMENT_DATE);
+            $payload['fechaHora'] = trim($payload['fechaVisita'] . ' ' . (string) $programacion->get('horaInicio'));
+        }
+
+        if ($programacion->get('responsableName')) {
+            $payload['funcionarioNombre'] = trim((string) $programacion->get('responsableName'));
+        }
+
+        return $this->runGenerator($format, $payload, $caseId);
+    }
+
+    /**
      * Genera el acta desde el caso (panel lateral del Case).
      *
      * @return array{path: string, name: string, type: string}
@@ -141,6 +196,12 @@ class FormatoActaVisitaGenerator
         $modo = strtolower($modo) === 'manual' ? 'manual' : 'digital';
         $acta = $this->resolveActaForCase($caseId);
 
+        // El formato en blanco (manual) solo aplica mientras el acta no tenga contenido;
+        // después se imprime con lo diligenciado.
+        if ($modo === 'manual' && $acta && $this->actaHasContenidoVisita($acta)) {
+            $modo = 'digital';
+        }
+
         if (!$internal && $modo === 'digital' && !$this->isFormatoActaHabilitadoForCase($case, $acta)) {
             $hasActaData = $acta && $this->actaHasFormatoData($acta);
 
@@ -158,17 +219,7 @@ class FormatoActaVisitaGenerator
             $payload['modoDiligenciamiento'] = 'digital';
         }
 
-        $slug = preg_replace(
-            '/[^\w\-]+/u',
-            '_',
-            trim((string) $case->get('cNumeroRadicado')) ?: $caseId
-        ) ?: 'caso';
-
-        if ($modo === 'manual') {
-            $slug .= '-manual';
-        }
-
-        return $this->runGenerator($format, $payload, $slug);
+        return $this->runGenerator($format, $payload, $caseId);
     }
 
     public function isFormatoActaHabilitado(?Entity $acta): bool
@@ -254,7 +305,10 @@ class FormatoActaVisitaGenerator
         }
 
         $outputFormat = $format === 'pdf' ? 'pdf' : 'docx';
-        $outputPath = $workDir . '/ActaVisita-' . $slug . '.' . $outputFormat;
+        $baseName = 'IV-F-094_' . (preg_replace('/[^\w\-]+/u', '_', $slug) ?: 'acta');
+        $outputPath = $workDir . '/' . $baseName . '.' . $outputFormat;
+        // Título del PDF: el visor del navegador lo usa como nombre al guardar.
+        $payload['tituloDocumento'] = $baseName;
 
         $env = [
             'HOME' => $workDir,
@@ -376,6 +430,30 @@ class FormatoActaVisitaGenerator
         }
 
         return false;
+    }
+
+    private function actaHasContenidoVisita(Entity $acta): bool
+    {
+        $fields = [
+            'objetoVisita',
+            'situacionEncontrada',
+            'analisisSituacion',
+            'conclusion',
+            'requerimientos',
+            'funcionarioCedula',
+            'funcionarioCargo',
+            'establecimientoNombre',
+            'establecimientoCedula',
+            'establecimientoCargo',
+        ];
+
+        foreach ($fields as $field) {
+            if (trim((string) $acta->get($field)) !== '') {
+                return true;
+            }
+        }
+
+        return (bool) $acta->get('registroFotograficoIds');
     }
 
     private function isCasePostRadicado(Entity $case): bool
@@ -568,20 +646,24 @@ class FormatoActaVisitaGenerator
      */
     private function buildPayload(Entity $acta): array
     {
+        $fotos = $this->buildFotos($acta);
         $registroFotografico = '';
 
-        if ($acta->get('registroFotograficoIds')) {
+        // Las fotos se insertan bajo "REGISTRO FOTOGRÁFICO"; el texto queda solo
+        // si hay adjuntos que no se pueden incluir (no son imágenes locales).
+        if ($fotos === [] && $acta->get('registroFotograficoIds')) {
             $registroFotografico = 'Ver registro fotográfico adjunto en el CRM.';
         }
 
+        $manual = strcasecmp(trim((string) $acta->get('modoDiligenciamiento')), 'Manual') === 0
+            && !$this->actaHasContenidoVisita($acta);
+
         return [
             'fecha' => $this->formatDate($acta->get('fecha')),
-            'fechaVisita' => $this->formatDateTime($acta->get('fechaVisita')),
-            'fechaHora' => $this->formatDateTime($acta->get('fechaVisita')),
-            'modoDiligenciamiento' => trim((string) $acta->get('modoDiligenciamiento')) ?: 'Digital',
-            'modo' => strtolower(trim((string) $acta->get('modoDiligenciamiento')) ?: 'digital') === 'manual'
-                ? 'manual'
-                : 'digital',
+            'fechaVisita' => $this->formatDate($acta->get('fechaVisita')),
+            'fechaHora' => $this->formatDate($acta->get('fechaVisita')),
+            'modoDiligenciamiento' => $manual ? 'Manual' : 'Digital',
+            'modo' => $manual ? 'manual' : 'digital',
             'posibleAfectante' => trim((string) $acta->get('posibleAfectante')),
             'acompanante' => trim((string) $acta->get('posibleAfectante')),
             'acompananteCedula' => '',
@@ -607,6 +689,7 @@ class FormatoActaVisitaGenerator
             'descripcionHecho' => '',
             'analisisSituacion' => trim((string) $acta->get('analisisSituacion')),
             'registroFotografico' => $registroFotografico,
+            'fotos' => $fotos,
             'conclusion' => trim((string) $acta->get('conclusion')),
             'procedimiento' => '',
             'requerimientos' => trim((string) $acta->get('requerimientos')),
@@ -624,24 +707,51 @@ class FormatoActaVisitaGenerator
         ];
     }
 
+    /**
+     * Fotos del registro fotográfico que el generador anexa al PDF.
+     *
+     * @return list<array{path: string, name: string}>
+     */
+    private function buildFotos(Entity $acta): array
+    {
+        $fotos = [];
+
+        foreach ($acta->getLinkMultipleIdList('registroFotografico') ?? [] as $id) {
+            /** @var ?Attachment $attachment */
+            $attachment = $this->entityManager->getEntityById(Attachment::ENTITY_TYPE, $id);
+
+            if (
+                !$attachment
+                || !str_starts_with((string) $attachment->getType(), 'image/')
+                || !$this->fileStorageManager->isLocal($attachment)
+            ) {
+                continue;
+            }
+
+            $path = realpath($this->fileStorageManager->getLocalFilePath($attachment));
+
+            if ($path && is_readable($path)) {
+                $fotos[] = ['path' => $path, 'name' => (string) $attachment->getName()];
+            }
+        }
+
+        return $fotos;
+    }
+
     private function formatDate(mixed $value): string
     {
         if (!$value) {
             return '';
         }
 
-        $formatted = AlcaldiaDateTimeHelper::formatDocumentDate($value);
+        // Una fecha sin hora no se convierte de zona horaria (la corría al día anterior).
+        $date = \DateTimeImmutable::createFromFormat('!Y-m-d', (string) $value);
 
-        return $formatted !== '' ? $formatted : (string) $value;
-    }
-
-    private function formatDateTime(mixed $value): string
-    {
-        if (!$value) {
-            return '';
+        if ($date) {
+            return $date->format(AlcaldiaDateTimeHelper::PHP_DOCUMENT_DATE);
         }
 
-        $formatted = AlcaldiaDateTimeHelper::formatDocumentDateTime($value);
+        $formatted = AlcaldiaDateTimeHelper::formatDocumentDate($value);
 
         return $formatted !== '' ? $formatted : (string) $value;
     }

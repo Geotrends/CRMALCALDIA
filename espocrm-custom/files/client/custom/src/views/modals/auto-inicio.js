@@ -17,6 +17,8 @@ define('custom:views/modals/auto-inicio', [
                     AutoInicioFromCase.ensureNameBeforeSave(view.model, this.getUser());
                 });
 
+                AutoInicioFromCase.syncCargoResponsable(view);
+
                 this.listenToOnce(view, 'after:render', () => {
                     AutoInicioFromCase.lockAutoFields(view);
                 });

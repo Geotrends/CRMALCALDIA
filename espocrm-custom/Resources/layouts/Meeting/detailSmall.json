@@ -26,6 +26,9 @@
                 {"name": "assignedUser"}
             ],
             [
+                {"name": "programacionVisita"}
+            ],
+            [
                 {"name": "description", "fullWidth": true}
             ]
         ]

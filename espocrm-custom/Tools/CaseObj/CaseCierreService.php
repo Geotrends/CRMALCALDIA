@@ -38,7 +38,8 @@ class CaseCierreService
 
     public function __construct(
         private EntityManager $entityManager,
-        private AlcaldiaUserProfile $profile
+        private AlcaldiaUserProfile $profile,
+        private CaseRegistrosTramiteOrdinario $registrosTramite
     ) {}
 
     public function aplica(Entity $case): bool
@@ -82,6 +83,8 @@ class CaseCierreService
             'ok' => $this->hasRespuestaFinal($case),
             'detalle' => null,
         ];
+
+        $requisitos = array_merge($this->registrosTramite->requisitos($case), $requisitos);
 
         $completo = !in_array(false, array_column($requisitos, 'ok'), true);
 

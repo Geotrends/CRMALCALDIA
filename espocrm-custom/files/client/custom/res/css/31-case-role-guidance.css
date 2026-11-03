@@ -18,3 +18,67 @@
 @media (max-width: 767px) {
   .crm-case-role-guidance { margin-bottom: 14px; padding: 12px 14px; }
 }
+
+.crm-case-role-guidance__pasos {
+  counter-reset: paso;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+}
+
+.crm-case-role-guidance__pasos li {
+  color: #4b7a5d;
+  counter-increment: paso;
+  font-size: 12px;
+}
+
+.crm-case-role-guidance__pasos li::before {
+  content: counter(paso) ". ";
+  font-weight: 700;
+}
+
+.crm-case-role-guidance__pasos li.is-done {
+  color: #15803d;
+  text-decoration: line-through;
+}
+
+.crm-case-role-guidance__pasos li.is-done::before {
+  content: "\2713  ";
+}
+
+.crm-case-role-guidance__pasos li.is-current {
+  color: #14532d;
+  font-weight: 700;
+}
+
+.crm-case-role-guidance__etapa {
+  border-top: 1px solid #a7f3d0;
+  display: grid;
+  gap: 10px 20px;
+  grid-template-columns: minmax(120px, 1fr) minmax(180px, 2fr) minmax(140px, 1fr);
+  margin-bottom: 0;
+  margin-top: 8px !important;
+  padding-top: 10px;
+}
+
+.crm-case-role-guidance__content { flex: 1; min-width: 0; }
+.crm-case-role-guidance__etapa dt { font-size: 11px; font-weight: 600; }
+.crm-case-role-guidance__etapa dd { font-size: 12px; font-weight: 700; margin: 3px 0 0; overflow-wrap: anywhere; }
+
+@media (max-width: 991px) {
+  .crm-case-role-guidance__etapa { grid-template-columns: 1fr; }
+}
+
+.crm-case-role-guidance--seguimiento {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+.crm-case-role-guidance--seguimiento .crm-case-role-guidance__icon,
+.crm-case-role-guidance--seguimiento .crm-case-role-guidance__eyebrow { color: #1d4ed8; }
+.crm-case-role-guidance--seguimiento strong { color: #1e3a8a; }
+.crm-case-role-guidance--seguimiento p { color: #1e40af; }
+.crm-case-role-guidance--seguimiento .crm-case-role-guidance__etapa { border-top-color: #bfdbfe; }

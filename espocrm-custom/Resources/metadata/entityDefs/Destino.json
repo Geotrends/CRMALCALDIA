@@ -105,6 +105,11 @@
             "entity": "Case",
             "foreign": "destino"
         },
+        "relacionesCasos": {
+            "type": "hasMany",
+            "entity": "RelacionCasos",
+            "foreign": "destino"
+        },
         "assignedUser": {
             "type": "belongsTo",
             "entity": "User"

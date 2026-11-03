@@ -3,6 +3,7 @@
 namespace Espo\Custom\Classes\RecordHooks\CaseObj;
 
 use Espo\Core\Record\Hook\SaveHook;
+use Espo\Core\Exceptions\BadRequest;
 use Espo\Custom\Tools\App\AlcaldiaDateTimeHelper;
 use Espo\Custom\Tools\CaseObj\CaseRadicadoHelper;
 use Espo\Custom\Tools\CaseObj\PeticionPlazoHelper;
@@ -13,8 +14,17 @@ use Espo\ORM\Entity;
  */
 class EarlyBeforeCreate implements SaveHook
 {
+    private const CANAL_OPCIONES = ['Telefono', 'Correo', 'Personal'];
+
     public function process(Entity $entity): void
     {
+        // Dato de ingreso obligatorio (el resto del formulario de creación es opcional).
+        $canal = trim((string) $entity->get('cCanalDeReportePeticionario'));
+
+        if (!in_array($canal, self::CANAL_OPCIONES, true)) {
+            throw new BadRequest('Seleccione el canal de reporte del peticionario.');
+        }
+
         $entity->set('assignedUserId', null);
         $entity->set('assignedUserName', null);
         $entity->setLinkMultipleIdList('teams', []);

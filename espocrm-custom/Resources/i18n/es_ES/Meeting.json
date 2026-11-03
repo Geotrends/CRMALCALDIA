@@ -1,6 +1,7 @@
 {
     "fields": {
         "name": "Nombre de la reunión",
+        "programacionVisita": "Programación de visita",
         "status": "Estado",
         "dateStart": "Fecha de inicio",
         "dateEnd": "Fecha de finalización",

@@ -109,6 +109,9 @@ $roleConfigs = [
     // verificación. No decide sanción/fallo.
     'Profesional Universitario' => [
         'Case' => $readOnlyAllStream,
+        // Consulta de peticionarios y perjudicantes para seleccionar destinatarios.
+        'Contact' => $readOnlyAll,
+        'Account' => $readOnlyAll,
         'ActaVisita' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
         'GestionTecnica' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
         'DecisionRutaJuridica' => $readOnlyAll,
@@ -128,6 +131,9 @@ $roleConfigs = [
         'GestionTecnica' => ['create' => 'no', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
         'IntervencionTecnica' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
         'ProgramacionVisita' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
+        'EvaluacionResultado' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
+        'RecomendacionTecnica' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
+        'Compromiso' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
         'Document' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
     ],
 
@@ -135,6 +141,9 @@ $roleConfigs = [
     // decide/falla, resuelve reposición y ordena cierre cuando corresponde.
     'Inspector Ambiental' => [
         'Case' => ['create' => 'no', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'all'],
+        // ComunicacionCaso usa Contact/Account en el vínculo del destinatario.
+        'Contact' => $readOnlyAll,
+        'Account' => $readOnlyAll,
         'DecisionRutaJuridica' => ['create' => 'yes', 'read' => 'all', 'edit' => 'all', 'delete' => 'no', 'stream' => 'no'],
         'AutoInicio' => ['create' => 'yes', 'read' => 'all', 'edit' => 'all', 'delete' => 'no', 'stream' => 'no'],
         'Expediente' => [
@@ -142,6 +151,8 @@ $roleConfigs = [
             'timeline' => 'yes', 'avanzarPaso' => 'yes',
         ],
         'GestionTecnica' => $readOnlyAll,
+        'ActaVisita' => $readOnlyAll,
+        'VisitaHistorial' => $readOnlyAll,
         'ComunicacionCaso' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
         'Document' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
         'RemisionAutoridad' => ['create' => 'yes', 'read' => 'all', 'edit' => 'all', 'delete' => 'no', 'stream' => 'no'],
@@ -219,6 +230,11 @@ $roleConfigs = [
         'PermisoCaninoManejoEspecial' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
         'ActuacionMaltratoAnimal' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
         'AlertaProceso' => $readOnlyAll,
+        // Recibe visitas delegadas por el profesional asignado: mismo alcance que el Técnico Operativo.
+        'GestionTecnica' => $readOnlyAll,
+        'IntervencionTecnica' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
+        'ProgramacionVisita' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
+        'ActaVisita' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
     ],
 ];
 
@@ -250,6 +266,45 @@ foreach ($roleConfigs as $roleName => $scopePermissions) {
         $data[$scope] = $perms;
     }
 
+    // Ve a los demás usuarios para delegar (p. ej. programar una visita a un técnico); sin
+    // esto Espo deja User en "own" y los selectores de usuario solo lo muestran a él mismo.
+    $data['User'] = $readOnlyAll;
+
+    // Quien queda asignado a un caso puede elegir o crear su Destino (decisión 2026-10-26).
+    // El Receptor no: la sección de destino no se muestra en la recepción (CRM-005).
+    if ($roleName !== 'Auxiliar Administrativo · Receptor') {
+        $data['Destino'] = ['create' => 'yes', 'read' => 'all', 'edit' => 'no', 'delete' => 'no', 'stream' => 'no'];
+
+        // Y ve las relaciones de su caso con otros casos (solo lectura; se gestionan en RelacionCasos
+        // con los permisos que ya tenga el rol) y su historial en el Flujo del caso.
+        if (!isset($data['RelacionCasos']) || ($data['RelacionCasos']['read'] ?? 'no') === 'no') {
+            $data['RelacionCasos'] = ['create' => 'no', 'read' => 'all', 'edit' => 'no', 'delete' => 'no', 'stream' => 'all'];
+        }
+    }
+
+    // Quien puede leer una gestión técnica ve su historial (y su vinculación en el Flujo del caso).
+    if (isset($data['GestionTecnica']) && ($data['GestionTecnica']['read'] ?? 'no') !== 'no') {
+        $data['GestionTecnica']['stream'] = 'all';
+    }
+
+    if (isset($data['ActaVisita']) && ($data['ActaVisita']['read'] ?? 'no') !== 'no') {
+        $data['ActaVisita']['stream'] = 'all';
+    }
+
+    if (isset($data['IntervencionTecnica']) && ($data['IntervencionTecnica']['read'] ?? 'no') !== 'no') {
+        $data['IntervencionTecnica']['stream'] = 'all';
+    }
+
+    if (isset($data['ProgramacionVisita']) && ($data['ProgramacionVisita']['read'] ?? 'no') !== 'no') {
+        $data['ProgramacionVisita']['stream'] = 'all';
+    }
+
+    foreach (['EvaluacionResultado', 'RecomendacionTecnica', 'Compromiso', 'VerificacionCumplimiento'] as $seguimiento) {
+        if (isset($data[$seguimiento]) && ($data[$seguimiento]['read'] ?? 'no') !== 'no') {
+            $data[$seguimiento]['stream'] = 'all';
+        }
+    }
+
     // Línea base que sí tienen los demás roles operativos (excluidos a
     // propósito de configure-{comunicacion-caso,task,meeting}-permissions.php
     // mientras no tenían ACL propio).
@@ -263,7 +318,24 @@ foreach ($roleConfigs as $roleName => $scopePermissions) {
     $data['Meeting'] = $ownBaseline;
     $data['Calendar'] = true;
 
+    // Sin acceso a Expediente, el expediente del compromiso (lo toma de la solicitud) se ve pero no
+    // se elige: el selector pediría la lista de expedientes y Espo la negaría.
+    $fieldData = $role->get('fieldData');
+
+    if ($fieldData instanceof stdClass) {
+        $fieldData = json_decode(json_encode($fieldData), true);
+    }
+
+    if (!is_array($fieldData)) {
+        $fieldData = [];
+    }
+
+    if (($data['Compromiso']['create'] ?? 'no') === 'yes' && ($data['Expediente']['read'] ?? 'no') === 'no') {
+        $fieldData['Compromiso']['expediente'] = ['read' => 'yes', 'edit' => 'no'];
+    }
+
     $role->set('data', $data);
+    $role->set('fieldData', $fieldData);
     $role->set('tabList', null);
     $role->set('assignmentPermission', 'all');
     $role->set('userPermission', 'no');

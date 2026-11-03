@@ -4,7 +4,8 @@ define('custom:helpers/case-detail-side-panels', [
     'custom:helpers/patrullero-acta',
     'custom:helpers/silent-ajax',
     'custom:helpers/auto-inicio-modal',
-], function (RadicacionFields, AsignadorAssignmentUi, PatrulleroActa, SilentAjax, AutoInicioModal) {
+    'custom:helpers/compact-form-sections',
+], function (RadicacionFields, AsignadorAssignmentUi, PatrulleroActa, SilentAjax, AutoInicioModal, CompactFormSections) {
 
     const TOP_PANELS = [
         'caseTimeline',
@@ -15,6 +16,14 @@ define('custom:helpers/case-detail-side-panels', [
         'actaVisita',
         'decisionJuridica',
         'formatoGenerado',
+    ];
+
+    // Encabezan la columna lateral para todos los usuarios, en este orden.
+    const FIRST_PANELS = [
+        'caseTimeline',
+        'comunicacionesCasoPanel',
+        'evaluacionResultado',
+        'actaVisita',
     ];
 
     const BOTTOM_PANELS = [
@@ -505,6 +514,10 @@ define('custom:helpers/case-detail-side-panels', [
         }
 
         cierreCache[key].then(function (estado) {
+            if ($block.data('cierreKey') !== key) {
+                return;
+            }
+            model.trigger('cierre:updated', estado);
             if (!estado || !estado.aplica) {
                 $block.remove();
 
@@ -565,6 +578,16 @@ define('custom:helpers/case-detail-side-panels', [
     };
 
     /* ───────────── Apertura de expediente (tramo G) ───────────── */
+
+    // Con expediente, el bloque que toca trabajar (apertura mientras no está abierto, proceso después) arranca desplegado;
+    // lo que la persona pliegue o despliegue se respeta mientras el bloque siga en la misma etapa.
+    const desplegarPorDefecto = function ($block, clave, abrir) {
+        if ($block.data('crmDefaultoKey') === clave) {
+            return;
+        }
+
+        $block.data('crmDefaultoKey', clave).data('crmCompactOpen', abrir);
+    };
 
     // Con apertura, sus bloques van encima de la línea de tiempo (apertura y luego el proceso).
     const ubicarBloquesExpediente = function ($side) {
@@ -642,6 +665,50 @@ define('custom:helpers/case-detail-side-panels', [
             + '<button type="button" class="btn btn-primary btn-sm js-apertura-decidir"><span class="fas fa-gavel"></span> Confirmar apertura</button>';
     };
 
+    const formatoHora12 = function (hora) {
+        const m = String(hora || '').match(/^(\d{1,2}):(\d{2})/);
+
+        if (!m) {
+            return '';
+        }
+
+        const h = parseInt(m[1], 10);
+
+        return ((h % 12) || 12) + ':' + m[2] + ' ' + (h < 12 ? 'a. m.' : 'p. m.');
+    };
+
+    // Tarjeta con los datos generales del Auto de Inicio ya creado; `acciones` trae los botones (si aplican).
+    const htmlAutoTarjeta = function (auto, acciones) {
+        const etiquetas = {Pendiente: 'Borrador', 'Para firma': 'Para firma', Devuelto: 'Devuelto', Firmado: 'Firmado', Diligenciada: 'Diligenciado'};
+        const motivo = String(auto.motivoApertura || '').trim();
+        // Vale la audiencia vigente del expediente (la última programada); la del auto es solo la fecha tentativa.
+        const vigente = auto.audiencia;
+        const fechaAud = vigente ? vigente.fecha : auto.fechaAudiencia;
+        const horaAud = vigente ? vigente.hora : auto.horaAudiencia;
+        const audiencia = fechaAud
+            ? escapeHtml(String(fechaAud).slice(0, 10)) + (horaAud ? ' · ' + escapeHtml(formatoHora12(horaAud)) : '')
+                + (vigente && vigente.estado && vigente.estado !== 'Programada' ? '<small>N.º ' + vigente.numero + ' · ' + escapeHtml(vigente.estado) + '</small>' : '')
+            : 'Sin definir';
+        const fila = function (titulo, valor, clase) {
+            return '<div' + (clase ? ' class="' + clase + '"' : '') + '><dt>' + titulo + '</dt><dd>' + valor + '</dd></div>';
+        };
+
+        return '<div class="alcaldia-auto-tarjeta">'
+            + '<div class="alcaldia-auto-tarjeta__cabecera"><span><span class="fas fa-file-signature"></span> <b>Auto de Inicio creado</b></span>'
+            + '<span class="alcaldia-auto-tarjeta__estado is-' + escapeHtml(String(auto.estado || '').replace(/\s+/g, '-').toLowerCase()) + '">'
+            + escapeHtml(etiquetas[auto.estado] || auto.estado || '') + '</span></div>'
+            + '<dl class="alcaldia-auto-tarjeta__datos">'
+            + fila('Fecha del auto', escapeHtml(auto.fechaAuto ? String(auto.fechaAuto).slice(0, 10) : 'Sin definir'))
+            + fila('Responsable', escapeHtml(auto.responsable || 'Sin asignar') + (auto.responsableCargo ? '<small>' + escapeHtml(auto.responsableCargo) + '</small>' : ''))
+            + fila('Audiencia', audiencia, 'alcaldia-auto-tarjeta__audiencia')
+            + (motivo ? fila('Motivo', escapeHtml(motivo.length > 140 ? motivo.slice(0, 140) + '…' : motivo)) : '')
+            + '</dl>'
+            + (acciones ? '<div class="alcaldia-apertura__acciones">' + acciones + '</div>' : '')
+            + (auto.id ? '<a class="alcaldia-auto-tarjeta__historia" href="#AutoInicio/view/' + escapeHtml(auto.id) + '">'
+                + '<span class="fas fa-clock-rotate-left"></span> Ver historia del Auto y sus citaciones</a>' : '')
+            + '</div>';
+    };
+
     const htmlAperturaPreparar = function (estado) {
         const auto = estado.auto;
         const devuelto = estado.fase === 'devuelto';
@@ -653,41 +720,61 @@ define('custom:helpers/case-detail-side-panels', [
         }
 
         if (!estado.puede.preparar) {
-            return html + '<p class="alcaldia-apertura__texto">Apoyo Jurídico prepara el Auto de Inicio.</p>';
+            return html + (auto ? htmlAutoTarjeta(auto, '') : '')
+                + '<p class="alcaldia-apertura__texto">Apoyo Jurídico prepara el Auto de Inicio.</p>';
         }
 
-        return html
-            + '<p class="alcaldia-apertura__ayuda">Complete el Auto de Inicio (motivo, norma aplicable y, si ya se conoce, fecha y hora de la audiencia). Al enviarlo a firma se genera el formato prellenado para el Inspector.</p>'
-            + '<div class="alcaldia-apertura__acciones">'
-            + '<button type="button" class="btn btn-default btn-sm js-apertura-preparar"><span class="fas fa-pen"></span> ' + (auto ? 'Editar' : 'Preparar') + ' Auto de Inicio</button>'
-            + '<button type="button" class="btn btn-primary btn-sm js-apertura-enviar"' + (auto && estado.expediente.numeroOficial ? '' : ' disabled')
-            + (estado.expediente.numeroOficial ? '' : ' title="Registre primero el N.º de expediente"') + '><span class="fas fa-paper-plane"></span> Enviar a firma</button>'
-            + '</div>';
+        if (!auto) {
+            return html
+                + '<div class="alcaldia-auto-tarjeta is-vacia">'
+                + '<p class="alcaldia-auto-tarjeta__vacio"><span class="far fa-circle"></span> Aún no se ha creado el Auto de Inicio.</p>'
+                + '<p class="alcaldia-apertura__ayuda">Complete el motivo, la norma aplicable y, si ya se conoce, la fecha y hora de la audiencia. Al enviarlo a firma se genera el formato prellenado para el Inspector.</p>'
+                + '<div class="alcaldia-apertura__acciones"><button type="button" class="btn btn-primary btn-sm js-apertura-preparar">'
+                + '<span class="fas fa-plus"></span> Crear Auto de Inicio</button></div></div>';
+        }
+
+        const sinNumero = !estado.expediente.numeroOficial;
+
+        return html + htmlAutoTarjeta(auto,
+            '<button type="button" class="btn btn-default btn-sm js-apertura-preparar"><span class="fas fa-pen"></span> Editar</button>'
+            + '<button type="button" class="btn btn-primary btn-sm js-apertura-enviar"' + (sinNumero ? ' disabled title="Registre primero el N.º de expediente"' : '')
+            + '><span class="fas fa-paper-plane"></span> Enviar a firma</button>');
     };
 
     const htmlAperturaFirma = function (estado) {
         const auto = estado.auto;
-        const descargas = auto.formatoDocxId
-            ? '<div class="alcaldia-apertura__descargas"><a class="btn btn-default btn-sm" href="' + descargaUrl(auto.formatoDocxId) + '" download>'
-                + '<span class="fas fa-file-word"></span> Descargar formato prellenado (Word)</a></div>'
-            : '';
-        const cabecera = '<p class="alcaldia-apertura__texto">Auto de Inicio del expediente <b>' + escapeHtml(estado.expediente.numero) + '</b> listo para firma.</p>';
+        const cabecera = '<p class="alcaldia-apertura__texto">Auto de Inicio del expediente <b>' + escapeHtml(estado.expediente.numero) + '</b> listo para firma.</p>'
+            + htmlAutoTarjeta(auto, '');
+        const descarga = auto.formatoDocxId
+            ? '<a class="btn btn-default btn-sm" href="' + descargaUrl(auto.formatoDocxId) + '" download>'
+                + '<span class="fas fa-file-word"></span> Descargar formato prellenado (Word)</a>'
+            : '<span class="alcaldia-firma__nota">El formato prellenado aún no está disponible.</span>';
 
         if (!estado.puede.firmar) {
-            return cabecera + descargas + '<p class="alcaldia-apertura__texto">Pendiente de la firma del Inspector.</p>';
+            return cabecera + '<div class="alcaldia-firma"><div class="alcaldia-firma__paso"><span class="alcaldia-firma__num">1</span>'
+                + '<div class="alcaldia-firma__cuerpo"><b>Formato del Auto de Inicio</b>' + descarga + '</div></div>'
+                + '<p class="alcaldia-firma__nota">Pendiente de la firma del Inspector.</p></div>';
         }
 
-        return cabecera + descargas
-            + '<p class="alcaldia-apertura__ayuda">Descargue el formato en Word, revíselo, fírmelo y cargue el PDF firmado.</p>'
-            + '<label>Auto de Inicio firmado (PDF) <span class="text-danger">*</span></label>'
-            + '<input type="file" class="form-control js-apertura-pdf" accept="application/pdf,.pdf">'
+        return cabecera
+            + '<div class="alcaldia-firma">'
+            + '<div class="alcaldia-firma__titulo"><span class="fas fa-signature"></span> Firma del Auto de Inicio</div>'
+            + '<div class="alcaldia-firma__paso"><span class="alcaldia-firma__num">1</span><div class="alcaldia-firma__cuerpo">'
+            + '<b>Descargue, revise y firme el formato</b><small>Se genera prellenado con los datos del Auto.</small>' + descarga + '</div></div>'
+            + '<div class="alcaldia-firma__paso"><span class="alcaldia-firma__num">2</span><div class="alcaldia-firma__cuerpo">'
+            + '<b>Adjunte el Auto de Inicio firmado (PDF) <span class="text-danger">*</span></b>'
+            + '<label class="alcaldia-firma__archivo"><input type="file" class="js-apertura-pdf" accept="application/pdf,.pdf">'
+            + '<span class="fas fa-file-pdf"></span><span class="alcaldia-firma__archivo-texto js-apertura-pdf-nombre">Seleccionar archivo PDF…</span></label></div></div>'
+            + '<div class="alcaldia-firma__paso"><span class="alcaldia-firma__num">3</span><div class="alcaldia-firma__cuerpo">'
+            + '<b>Apruebe o devuelva el Auto</b>'
             + '<div class="alcaldia-apertura__acciones">'
-            + '<button type="button" class="btn btn-primary btn-sm js-apertura-firmar"><span class="fas fa-signature"></span> Aprobar y abrir expediente</button>'
+            + '<button type="button" class="btn btn-primary btn-sm js-apertura-firmar"><span class="fas fa-check"></span> Aprobar y abrir expediente</button>'
             + '<button type="button" class="btn btn-default btn-sm js-apertura-devolver-toggle"><span class="fas fa-rotate-left"></span> Devolver a Jurídica</button>'
             + '</div>'
             + '<div class="alcaldia-apertura__devolver hidden"><label>Qué debe corregirse <span class="text-danger">*</span></label>'
             + '<textarea class="form-control js-apertura-observaciones" rows="2"></textarea>'
-            + '<button type="button" class="btn btn-default btn-sm js-apertura-devolver">Confirmar devolución</button></div>';
+            + '<button type="button" class="btn btn-default btn-sm js-apertura-devolver">Confirmar devolución</button></div>'
+            + '</div></div></div>';
     };
 
     const htmlAperturaAbierto = function (estado) {
@@ -696,6 +783,7 @@ define('custom:helpers/case-detail-side-panels', [
         return '<p class="alcaldia-apertura__texto">Expediente <a href="#Expediente/view/' + escapeHtml(estado.expediente.id) + '"><b>'
             + escapeHtml(estado.expediente.numero) + '</b></a> · ' + escapeHtml(estado.expediente.estado)
             + (estado.expediente.fechaAperturaFormal ? ' · abierto el ' + escapeHtml(String(estado.expediente.fechaAperturaFormal).slice(0, 10)) : '') + '</p>'
+            + (auto.id ? htmlAutoTarjeta(auto, '') : '')
             + (auto.actoFirmadoId ? '<p><a href="' + descargaUrl(auto.actoFirmadoId) + '" target="_blank"><span class="fas fa-file-signature"></span> Auto de Inicio firmado</a></p>' : '');
     };
 
@@ -758,6 +846,13 @@ define('custom:helpers/case-detail-side-panels', [
 
         $block.find('.js-apertura-enviar').on('click', function () {
             aperturaAccion(recordView, {accion: 'enviarAFirma'}, 'Auto de Inicio enviado a firma. Se generó el formato prellenado.');
+        });
+
+        $block.find('.js-apertura-pdf').on('change', function () {
+            const archivo = this.files && this.files[0];
+
+            $block.find('.js-apertura-pdf-nombre').text(archivo ? archivo.name : 'Seleccionar archivo PDF…');
+            $block.find('.alcaldia-firma__archivo').toggleClass('is-listo', !!archivo);
         });
 
         $block.find('.js-apertura-devolver-toggle').on('click', function () {
@@ -852,6 +947,8 @@ define('custom:helpers/case-detail-side-panels', [
                 + '<div class="panel-body">' + (estado.expediente ? htmlAperturaNumero(estado) : '') + cuerpo + '</div>');
 
             bindApertura(recordView, $block);
+            desplegarPorDefecto($block, 'apertura|' + estado.fase, estado.fase !== 'abierto');
+            CompactFormSections.makeCollapsible($block);
             ubicarBloquesExpediente($side);
         });
 
@@ -974,7 +1071,10 @@ define('custom:helpers/case-detail-side-panels', [
 
         return '<p class="alcaldia-apertura__ayuda">' + (reprogramar
             ? 'Fije la nueva fecha de la audiencia. Se genera su citación en Word.'
-            : 'Programe la audiencia: se genera la citación en Word con los datos del caso. Luego se carga la citación firmada y escaneada, y con eso se cumple el paso.') + '</p>'
+            : (d.delAuto
+                ? 'La audiencia ya está creada desde el Auto de Inicio: la fecha y la hora vienen de ella. Si las cambia aquí, se actualiza esa misma audiencia y su cita en el calendario. Falta el lugar y el medio de citación; luego se genera la citación en Word y se carga firmada y escaneada.'
+                : 'Programe la audiencia: se genera la citación en Word con los datos del caso. Luego se carga la citación firmada y escaneada, y con eso se cumple el paso.')) + '</p>'
+            + (!reprogramar && d.pasada ? '<div class="alcaldia-apertura__devuelto">La fecha del Auto de Inicio (' + escapeHtml(d.fecha) + ') ya pasó: elija una nueva fecha y hora.</div>' : '')
             + '<div class="alcaldia-proceso__fila"><div><label>Fecha de la audiencia <span class="text-danger">*</span></label>'
             + '<input type="date" class="form-control js-proceso-fecha" value="' + escapeHtml(reprogramar ? '' : d.fecha || '') + '"></div>'
             + '<div><label>Hora <span class="text-danger">*</span></label><input type="time" class="form-control js-proceso-hora" value="' + escapeHtml(reprogramar ? '' : d.hora || '') + '"></div></div>'
@@ -990,92 +1090,210 @@ define('custom:helpers/case-detail-side-panels', [
             + (reprogramar ? 'Reprogramar y generar citación' : 'Programar y generar citación') + '</button></div>';
     };
 
+    // Tarjeta de entrega de la citación: descargar, adjuntar la copia firmada y fecha de entrega.
     const htmlSoporteCitacion = function (texto, citacionId) {
-        return '<p class="alcaldia-apertura__ayuda">' + escapeHtml(texto) + '</p>'
-            + (citacionId ? '<div class="alcaldia-apertura__descargas"><a class="btn btn-default btn-sm" href="' + descargaUrl(citacionId) + '" download>'
-                + '<span class="fas fa-file-word"></span> Descargar citación (Word)</a></div>' : '')
-            + '<label>Citación firmada y escaneada <span class="text-danger">*</span></label><input type="file" class="form-control js-proceso-soporte" accept=".pdf,image/*">'
-            + '<label>Fecha de entrega</label><input type="date" class="form-control js-proceso-fecha-entrega">'
-            + '<button type="button" class="btn btn-primary btn-sm js-proceso-soporte-citacion"><span class="fas fa-file-circle-check"></span> Cargar citación firmada</button>';
+        const hoy = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+
+        return '<div class="alcaldia-firma">'
+            + '<div class="alcaldia-firma__titulo"><span class="fas fa-envelope-circle-check"></span> Entrega de la citación</div>'
+            + '<p class="alcaldia-firma__nota">' + escapeHtml(texto) + '</p>'
+            + '<div class="alcaldia-firma__paso"><span class="alcaldia-firma__num">1</span><div class="alcaldia-firma__cuerpo">'
+            + '<b>Descargue la citación</b>'
+            + (citacionId
+                ? '<a class="btn btn-default btn-sm" href="' + descargaUrl(citacionId) + '" download><span class="fas fa-file-word"></span> Descargar citación (Word)</a>'
+                : '<span class="alcaldia-firma__nota">La citación aún no está disponible.</span>')
+            + '</div></div>'
+            + '<div class="alcaldia-firma__paso"><span class="alcaldia-firma__num">2</span><div class="alcaldia-firma__cuerpo">'
+            + '<b>Adjunte la citación firmada y escaneada <span class="text-danger">*</span></b>'
+            + '<label class="alcaldia-firma__archivo"><input type="file" class="js-proceso-soporte" accept=".pdf,image/*">'
+            + '<span class="fas fa-file-arrow-up"></span><span class="alcaldia-firma__archivo-texto js-proceso-soporte-nombre">Seleccionar PDF o imagen…</span></label>'
+            + '</div></div>'
+            + '<div class="alcaldia-firma__paso"><span class="alcaldia-firma__num">3</span><div class="alcaldia-firma__cuerpo">'
+            + '<b>Fecha de entrega</b><small>Día en que se entregó la citación al citado.</small>'
+            + '<input type="date" class="form-control alcaldia-firma__fecha js-proceso-fecha-entrega" value="' + hoy + '">'
+            + '<div class="alcaldia-apertura__acciones"><button type="button" class="btn btn-primary btn-sm js-proceso-soporte-citacion">'
+            + '<span class="fas fa-file-circle-check"></span> Cargar citación firmada</button></div>'
+            + '</div></div>'
+            + '<div class="alcaldia-firma__alterna">'
+            + '<a href="javascript:" class="js-proceso-no-entrega-toggle"><span class="fas fa-triangle-exclamation"></span> No se pudo entregar la citación</a>'
+            + '<div class="alcaldia-firma__alterna-form hidden"><small>Se aplaza la audiencia y se registra la causa; luego se reprograma con una nueva citación.</small>'
+            + '<textarea class="form-control js-proceso-no-entrega-motivo" rows="2" placeholder="Qué impidió la entrega (p. ej. no se encontró al citado)"></textarea>'
+            + '<button type="button" class="btn btn-default btn-sm js-proceso-no-entrega"><span class="fas fa-calendar-xmark"></span> Aplazar la audiencia</button></div></div>'
+            + '</div>';
     };
 
+    // Tarjeta del resultado de la audiencia: qué ocurrió y el detalle según la opción elegida.
     const htmlAudiencia = function (estado) {
         const ultima = estado.audiencias[estado.audiencias.length - 1] || {};
-        const opcion = function (valor, titulo, detalle) {
-            return '<label class="alcaldia-apertura__opcion"><input type="radio" name="alcaldia-proceso-resultado" value="' + valor + '">'
-                + '<span><b>' + titulo + '</b><small>' + detalle + '</small></span></label>';
+        const opcion = function (valor, icono, titulo, detalle) {
+            return '<label class="alcaldia-firma__opcion"><input type="radio" name="alcaldia-proceso-resultado" value="' + valor + '">'
+                + '<span class="fas ' + icono + '"></span><span><b>' + titulo + '</b><small>' + detalle + '</small></span></label>';
         };
 
         return (ultima.citacion && !ultima.citacion.soporteId
-            ? '<details class="alcaldia-proceso__pendiente"><summary>Falta la citación firmada y escaneada</summary>'
-                + htmlSoporteCitacion('Cárguela cuando la tenga.', ultima.citacion.documentoId) + '</details>' : '')
+            ? htmlSoporteCitacion('Falta la citación firmada y escaneada. Puede cargarla aunque la audiencia sea hoy; si no se pudo entregar, aplace la audiencia.', ultima.citacion.documentoId) : '')
+            + '<div class="alcaldia-firma">'
+            + '<div class="alcaldia-firma__titulo"><span class="fas fa-gavel"></span> Resultado de la audiencia N.º ' + ultima.numero + '</div>'
             + (estado.audienciaYaFue
-                ? '<p class="alcaldia-apertura__texto">Registre qué pasó en la audiencia N.º ' + ultima.numero + ' (' + escapeHtml(ultima.fechaTexto) + '):</p>'
-                : '<p class="alcaldia-apertura__ayuda">Audiencia N.º ' + ultima.numero + ' programada para el <b>' + escapeHtml(ultima.fechaTexto)
+                ? '<p class="alcaldia-firma__nota">Programada para el <b>' + escapeHtml(ultima.fechaTexto) + '</b>. Registre qué pasó.</p>'
+                : '<p class="alcaldia-firma__nota">Programada para el <b>' + escapeHtml(ultima.fechaTexto)
                     + '</b>. El resultado se registra desde ese día; antes solo puede aplazarse.</p>')
-            + '<div class="alcaldia-apertura__opciones">'
+            + '<div class="alcaldia-firma__paso"><span class="alcaldia-firma__num">1</span><div class="alcaldia-firma__cuerpo">'
+            + '<b>' + (estado.audienciaYaFue ? '¿Qué ocurrió?' : 'Aplazamiento') + '</b>'
+            + '<div class="alcaldia-firma__opciones">'
             + (estado.audienciaYaFue
-                ? opcion('realizada', 'Se realizó', 'Argumentos, hechos relevantes y pruebas. Luego se cargan el acta firmada y el audio.')
-                    + opcion('inasistencia', 'No compareció el presunto infractor', 'Primera inasistencia: 3 días hábiles para justificar (Decreto 768/2025).')
-                    + opcion('prueba', 'Se suspende: prueba o actuación externa', 'Inspección ocular, visita técnica, informe, ampliación o aclaración.')
+                ? opcion('realizada', 'fa-circle-check', 'Se realizó', 'Argumentos, hechos relevantes y pruebas. Luego se cargan el acta firmada y el audio.')
+                    + opcion('inasistencia', 'fa-user-slash', 'No compareció el presunto infractor', 'Primera inasistencia: 3 días hábiles para justificar (Decreto 768/2025).')
+                    + opcion('prueba', 'fa-microscope', 'Se suspende: prueba o actuación externa', 'Inspección ocular, visita técnica, informe, ampliación o aclaración.')
                 : '')
-            + opcion('otra', estado.audienciaYaFue ? 'Se suspende por otra causa' : 'Aplazar la audiencia', 'Se registra la causa y luego se reprograma.')
-            + '</div>'
+            + opcion('otra', 'fa-calendar-xmark', estado.audienciaYaFue ? 'Se suspende por otra causa' : 'Aplazar la audiencia', 'Se registra la causa y luego se reprograma.')
+            + '</div></div></div>'
+            + '<div class="alcaldia-firma__paso"><span class="alcaldia-firma__num">2</span><div class="alcaldia-firma__cuerpo">'
+            + '<b>Detalle</b><small class="js-proceso-resultado-aviso">Elija una opción para completar el detalle.</small>'
             + '<div class="alcaldia-proceso__form hidden" data-opcion="realizada">'
             + '<label>Asistentes</label><textarea class="form-control js-proceso-participantes" rows="2"></textarea>'
             + '<label>Resultado de la diligencia <span class="text-danger">*</span></label>'
             + '<textarea class="form-control js-proceso-resultado" rows="3" placeholder="Argumentos, hechos jurídicamente relevantes y pruebas practicadas"></textarea>'
-            + '<label class="alcaldia-proceso__check"><input type="checkbox" class="js-proceso-conciliacion"> Hubo conciliación o compromiso</label>'
+            + '<label class="alcaldia-firma__interruptor"><input type="checkbox" class="js-proceso-conciliacion"> <span>Hubo conciliación o compromiso</span></label>'
             + '<div class="js-proceso-compromiso-box hidden"><label>Compromiso <span class="text-danger">*</span></label><textarea class="form-control js-proceso-compromiso" rows="2"></textarea>'
-            + '<label>Fecha límite del compromiso</label><input type="date" class="form-control js-proceso-compromiso-fecha"></div></div>'
+            + '<label>Fecha límite del compromiso</label><input type="date" class="form-control js-proceso-compromiso-fecha alcaldia-firma__fecha"></div></div>'
             + '<div class="alcaldia-proceso__form hidden" data-opcion="inasistencia"><label>Observación</label><textarea class="form-control js-proceso-observacion-inasistencia" rows="2"></textarea></div>'
             + '<div class="alcaldia-proceso__form hidden" data-opcion="prueba">'
             + '<label>Prueba o actuación <span class="text-danger">*</span></label><select class="form-control js-proceso-tipo-prueba"><option value="">Seleccione…</option>' + opciones(estado.tiposPrueba) + '</select>'
             + '<label>Qué se debe verificar <span class="text-danger">*</span></label><textarea class="form-control js-proceso-causa-prueba" rows="2"></textarea>'
             + '<label>Responsable <span class="text-danger">*</span></label><select class="form-control js-proceso-responsable"><option value="">Seleccione…</option>' + opciones(estado.responsables) + '</select>'
-            + '<label>Plazo <span class="text-danger">*</span></label><input type="date" class="form-control js-proceso-plazo"></div>'
+            + '<label>Plazo <span class="text-danger">*</span></label><input type="date" class="form-control js-proceso-plazo alcaldia-firma__fecha"></div>'
             + '<div class="alcaldia-proceso__form hidden" data-opcion="otra"><label>Causa <span class="text-danger">*</span></label><textarea class="form-control js-proceso-causa-otra" rows="2"></textarea></div>'
-            + '<button type="button" class="btn btn-primary btn-sm js-proceso-resultado-audiencia hidden"><span class="fas fa-check"></span> Registrar</button>';
+            + '<div class="alcaldia-apertura__acciones"><button type="button" class="btn btn-primary btn-sm js-proceso-resultado-audiencia hidden"><span class="fas fa-check"></span> Registrar</button></div>'
+            + '</div></div>'
+            + '</div>';
     };
 
+    // Tarjeta de justificación de la inasistencia: decisión, documento y observación.
     const htmlJustificacion = function (estado) {
         const s = (estado.audiencias[estado.audiencias.length - 1].suspensiones || []).slice(-1)[0] || {};
+        const decision = function (valor, icono, detalle) {
+            return '<label class="alcaldia-firma__opcion"><input type="radio" name="alcaldia-justificacion-decision" value="' + valor + '">'
+                + '<span class="fas ' + icono + '"></span><span><b>' + valor + '</b><small>' + detalle + '</small></span></label>';
+        };
 
-        return '<p class="alcaldia-apertura__ayuda">Primera inasistencia: el presunto infractor puede justificar hasta el <b>'
-            + fechaDMA(s.fechaLimiteJustificacion) + '</b>. Registre la decisión y luego reprograme la audiencia.</p>'
-            + '<label>Justificación <span class="text-danger">*</span></label><select class="form-control js-proceso-decision"><option value="">Seleccione…</option>'
-            + opciones(['Aceptada', 'Rechazada', 'No presentada']) + '</select>'
-            + '<label>Documento de justificación</label><input type="file" class="form-control js-proceso-documento" accept=".pdf,image/*">'
-            + '<label>Observación</label><textarea class="form-control js-proceso-observacion" rows="2"></textarea>'
-            + '<button type="button" class="btn btn-primary btn-sm js-proceso-justificacion"><span class="fas fa-scale-balanced"></span> Registrar decisión</button>';
+        return '<div class="alcaldia-firma">'
+            + '<div class="alcaldia-firma__titulo"><span class="fas fa-scale-balanced"></span> Justificación de la inasistencia</div>'
+            + '<p class="alcaldia-firma__nota">Primera inasistencia: el presunto infractor puede justificar hasta el <b>' + fechaDMA(s.fechaLimiteJustificacion)
+            + '</b>. Registre la decisión y luego reprograme la audiencia.</p>'
+            + '<div class="alcaldia-firma__paso"><span class="alcaldia-firma__num">1</span><div class="alcaldia-firma__cuerpo">'
+            + '<b>Decisión sobre la justificación <span class="text-danger">*</span></b>'
+            + '<div class="alcaldia-firma__opciones">'
+            + decision('Aceptada', 'fa-circle-check', 'Se acepta la excusa presentada.')
+            + decision('Rechazada', 'fa-circle-xmark', 'La excusa no es suficiente.')
+            + decision('No presentada', 'fa-circle-minus', 'Venció el plazo sin justificación.')
+            + '</div></div></div>'
+            + '<div class="alcaldia-firma__paso"><span class="alcaldia-firma__num">2</span><div class="alcaldia-firma__cuerpo">'
+            + '<b>Documento de justificación</b><small>Opcional: adjunte el escrito o los soportes recibidos.</small>'
+            + '<label class="alcaldia-firma__archivo"><input type="file" class="js-proceso-documento" accept=".pdf,image/*">'
+            + '<span class="fas fa-file-arrow-up"></span><span class="alcaldia-firma__archivo-texto js-proceso-documento-nombre">Seleccionar PDF o imagen…</span></label>'
+            + '</div></div>'
+            + '<div class="alcaldia-firma__paso"><span class="alcaldia-firma__num">3</span><div class="alcaldia-firma__cuerpo">'
+            + '<b>Observación</b>'
+            + '<textarea class="form-control js-proceso-observacion" rows="2" placeholder="Motivo de la decisión o datos relevantes"></textarea>'
+            + '<div class="alcaldia-apertura__acciones"><button type="button" class="btn btn-primary btn-sm js-proceso-justificacion">'
+            + '<span class="fas fa-check"></span> Registrar decisión</button></div>'
+            + '</div></div>'
+            + '</div>';
     };
 
+    // Tarjeta del soporte de la prueba ordenada al suspender la audiencia.
     const htmlSoportePrueba = function (estado) {
         const s = (estado.audiencias[estado.audiencias.length - 1].suspensiones || []).slice(-1)[0] || {};
+        const dato = function (titulo, valor) {
+            return '<div><dt>' + titulo + '</dt><dd>' + escapeHtml(valor || '—') + '</dd></div>';
+        };
 
-        return '<p class="alcaldia-apertura__ayuda">Audiencia suspendida: ' + escapeHtml(s.tipoPrueba) + ' a cargo de <b>' + escapeHtml(s.responsable)
-            + '</b>, plazo ' + fechaDMA(s.fechaLimiteActuacion) + '. Cargue el soporte para dejarla lista para reanudar.</p>'
-            + '<label>Soporte de la prueba <span class="text-danger">*</span></label><input type="file" class="form-control js-proceso-documento" accept=".pdf,.doc,.docx,image/*">'
-            + '<label>Observación</label><textarea class="form-control js-proceso-observacion" rows="2"></textarea>'
-            + '<button type="button" class="btn btn-primary btn-sm js-proceso-soporte-prueba"><span class="fas fa-paperclip"></span> Cargar soporte</button>';
+        return '<div class="alcaldia-firma">'
+            + '<div class="alcaldia-firma__titulo"><span class="fas fa-microscope"></span> Soporte de la prueba</div>'
+            + '<p class="alcaldia-firma__nota">Audiencia suspendida por una prueba o actuación externa. Cargue el soporte para dejarla lista para reanudar.</p>'
+            + '<dl class="alcaldia-auto-tarjeta__datos">'
+            + dato('Prueba', s.tipoPrueba) + dato('Responsable', s.responsable) + dato('Plazo', fechaDMA(s.fechaLimiteActuacion))
+            + '</dl>'
+            + '<div class="alcaldia-firma__paso"><span class="alcaldia-firma__num">1</span><div class="alcaldia-firma__cuerpo">'
+            + '<b>Soporte de la prueba <span class="text-danger">*</span></b><small>Informe, acta u otro documento que la respalde.</small>'
+            + '<label class="alcaldia-firma__archivo"><input type="file" class="js-proceso-documento" accept=".pdf,.doc,.docx,image/*" data-vacio="Seleccionar PDF, Word o imagen…">'
+            + '<span class="fas fa-file-arrow-up"></span><span class="alcaldia-firma__archivo-texto js-proceso-documento-nombre">Seleccionar PDF, Word o imagen…</span></label>'
+            + '</div></div>'
+            + '<div class="alcaldia-firma__paso"><span class="alcaldia-firma__num">2</span><div class="alcaldia-firma__cuerpo">'
+            + '<b>Observación</b>'
+            + '<textarea class="form-control js-proceso-observacion" rows="2" placeholder="Resultado de la prueba o datos relevantes"></textarea>'
+            + '<div class="alcaldia-apertura__acciones"><button type="button" class="btn btn-primary btn-sm js-proceso-soporte-prueba">'
+            + '<span class="fas fa-paperclip"></span> Cargar soporte</button></div>'
+            + '</div></div>'
+            + '</div>';
     };
 
+    // Tarjeta de soportes de la audiencia realizada: acta firmada y audio (o constancia de que no fue posible grabar).
     const htmlSoportesAudiencia = function (estado) {
         const a = estado.audiencias[estado.audiencias.length - 1] || {};
+        const listo = function (texto) {
+            return '<div class="alcaldia-firma__listo"><span class="fas fa-circle-check"></span> ' + texto + '</div>';
+        };
+        const archivo = function (clase, accept, vacio, icono) {
+            return '<label class="alcaldia-firma__archivo"><input type="file" class="' + clase + '" accept="' + accept + '" data-vacio="' + vacio + '">'
+                + '<span class="fas ' + icono + '"></span><span class="alcaldia-firma__archivo-texto js-proceso-archivo-nombre">' + vacio + '</span></label>';
+        };
 
-        return '<p class="alcaldia-apertura__ayuda">Audiencia N.º ' + a.numero + ' realizada. Para cerrarla cargue el acta firmada (PDF) y el audio; si no fue posible grabar, registre la constancia.</p>'
-            + (a.actaId ? '<p class="alcaldia-apertura__texto">✓ Acta firmada cargada</p>'
-                : '<label>Acta de audiencia firmada (PDF)</label><input type="file" class="form-control js-proceso-acta" accept=".pdf,application/pdf">')
-            + (a.audio ? '<p class="alcaldia-apertura__texto">✓ ' + (a.audio.id ? 'Audio cargado' : 'Constancia de excepción registrada') + '</p>'
-                : '<label>Audio de la audiencia</label><input type="file" class="form-control js-proceso-audio" accept="audio/*,video/*">'
-                    + '<label class="alcaldia-proceso__check"><input type="checkbox" class="js-proceso-sin-audio"> No fue posible grabar</label>'
+        return '<div class="alcaldia-firma">'
+            + '<div class="alcaldia-firma__titulo"><span class="fas fa-gavel"></span> Soportes de la audiencia N.º ' + a.numero + '</div>'
+            + '<p class="alcaldia-firma__nota">La audiencia se realizó. Para cerrarla cargue el acta firmada y el audio; si no fue posible grabar, registre la constancia.</p>'
+            + '<div class="alcaldia-firma__paso"><span class="alcaldia-firma__num">1</span><div class="alcaldia-firma__cuerpo">'
+            + '<b>Acta de audiencia firmada (PDF)</b>'
+            + (a.actaId ? listo('Acta firmada cargada') : archivo('js-proceso-acta', '.pdf,application/pdf', 'Seleccionar PDF…', 'fa-file-pdf'))
+            + '</div></div>'
+            + '<div class="alcaldia-firma__paso"><span class="alcaldia-firma__num">2</span><div class="alcaldia-firma__cuerpo">'
+            + '<b>Audio de la audiencia</b>'
+            + (a.audio
+                ? listo(a.audio.id ? 'Audio cargado' : 'Constancia de excepción registrada')
+                : archivo('js-proceso-audio', 'audio/*,video/*', 'Seleccionar audio o video…', 'fa-file-audio')
+                    + '<label class="alcaldia-firma__interruptor"><input type="checkbox" class="js-proceso-sin-audio"> <span>No fue posible grabar</span></label>'
                     + '<textarea class="form-control js-proceso-excepcion hidden" rows="2" placeholder="Motivo, responsable, fecha y hora"></textarea>')
-            + '<button type="button" class="btn btn-primary btn-sm js-proceso-soportes"><span class="fas fa-upload"></span> Cargar</button>';
+            + '</div></div>'
+            + '<div class="alcaldia-apertura__acciones"><button type="button" class="btn btn-primary btn-sm js-proceso-soportes">'
+            + '<span class="fas fa-upload"></span> Cargar soportes</button></div>'
+            + '</div>';
+    };
+
+    const CLASIFICACION_MALTRATO = 'Clasificación jurídica: maltrato leve o posible delito';
+
+    // Clasificación jurídica de Maltrato Animal: selección múltiple (maltrato leve, posible delito u otro) y detalle.
+    const htmlClasificacionMaltrato = function () {
+        const opcion = function (valor, icono, detalle) {
+            return '<label class="alcaldia-firma__opcion"><input type="radio" name="alcaldia-clasificacion" class="js-clasificacion" value="' + valor + '">'
+                + '<span class="fas ' + icono + '"></span><span><b>' + valor + '</b><small>' + detalle + '</small></span></label>';
+        };
+
+        return '<div class="alcaldia-firma">'
+            + '<div class="alcaldia-firma__titulo"><span class="fas fa-scale-balanced"></span> Clasificación jurídica</div>'
+            + '<p class="alcaldia-firma__nota">Elija una opción. El expediente pasa al paso siguiente.</p>'
+            + '<div class="alcaldia-firma__paso"><span class="alcaldia-firma__num">1</span><div class="alcaldia-firma__cuerpo">'
+            + '<b>Clasificación <span class="text-danger">*</span></b>'
+            + '<div class="alcaldia-firma__opciones">'
+            + opcion('Maltrato leve', 'fa-paw', 'Se tramita por el proceso verbal de maltrato animal.')
+            + opcion('Posible delito', 'fa-gavel', 'Puede requerir remisión a Fiscalía / GELMA.')
+            + opcion('Otro', 'fa-ellipsis', 'Otra clasificación: descríbala en el detalle.')
+            + '</div></div></div>'
+            + '<div class="alcaldia-firma__paso"><span class="alcaldia-firma__num">2</span><div class="alcaldia-firma__cuerpo">'
+            + '<b>Detalle</b><small>Obligatorio si marca «Otro».</small>'
+            + '<textarea class="form-control js-proceso-observacion" rows="3" placeholder="Fundamento de la clasificación"></textarea>'
+            + '<div class="alcaldia-apertura__acciones"><button type="button" class="btn btn-primary btn-sm js-proceso-clasificar">'
+            + '<span class="fas fa-check"></span> Registrar clasificación</button></div>'
+            + '</div></div></div>';
     };
 
     const htmlCumplirPaso = function (estado) {
         if (estado.esPasoFinal) {
             return '<p class="alcaldia-apertura__ayuda">El Auto de Archivo se registra en el tramo de cierre del expediente.</p>';
+        }
+
+        if (estado.pasoActual === CLASIFICACION_MALTRATO) {
+            return htmlClasificacionMaltrato();
         }
 
         return '<p class="alcaldia-apertura__ayuda">Registre cómo se cumplió «' + escapeHtml(estado.pasoActual) + '». El expediente pasa al paso siguiente.</p>'
@@ -1132,9 +1350,12 @@ define('custom:helpers/case-detail-side-panels', [
         const conductas = (dec.conductas || []).map(function (c) {
             const visible = c.enAuto || elegidas.indexOf(c.id) !== -1;
 
-            return '<div class="alcaldia-proceso__conducta' + (visible ? '' : ' hidden') + '" data-conducta="' + escapeHtml(c.id) + '">'
+            return '<div class="alcaldia-proceso__conducta' + (visible ? '' : ' hidden') + '" data-conducta="' + escapeHtml(c.id) + '" data-titulo="' + escapeHtml(c.articulo + ' — ' + c.titulo) + '">'
+                + '<div class="alcaldia-proceso__conducta-fila">'
                 + '<label class="alcaldia-proceso__check"><input type="checkbox" class="js-conducta"' + (elegidas.indexOf(c.id) !== -1 ? ' checked' : '') + '> '
                 + '<span><b>' + escapeHtml(c.articulo) + '</b> — ' + escapeHtml(c.titulo) + (c.enAuto ? ' <small>(del Auto de Inicio)</small>' : '') + '</span></label>'
+                + (c.enAuto ? '' : '<button type="button" class="btn btn-link btn-xs js-conducta-quitar" title="Quitar esta conducta"><span class="fas fa-xmark"></span> Quitar</button>')
+                + '</div>'
                 + '<div class="alcaldia-proceso__reglas' + (elegidas.indexOf(c.id) !== -1 ? '' : ' hidden') + '">'
                 + (c.reglasEspeciales || []).map(function (t) { return '<small class="alcaldia-proceso__especial">' + escapeHtml(t) + '</small>'; }).join('')
                 + c.reglas.map(function (r) { return htmlRegla(c, r, previa); }).join('') + '</div></div>';
@@ -1143,33 +1364,81 @@ define('custom:helpers/case-detail-side-panels', [
             return '<option value="' + escapeHtml(c.id) + '">' + escapeHtml(c.articulo + ' — ' + c.titulo) + '</option>';
         }).join('');
         const orden = d.orden || {};
-        const descargas = d.borradorId
-            ? '<div class="alcaldia-apertura__descargas"><a class="btn btn-default btn-sm" href="' + descargaUrl(d.borradorId) + '" download>'
-                + '<span class="fas fa-file-word"></span> Descargar resolución IV-F-117 (Word)</a></div>'
-                + '<label>Decisión firmada (PDF) <span class="text-danger">*</span></label>'
-                + '<input type="file" class="form-control js-proceso-documento" accept="application/pdf,.pdf">'
-                + '<button type="button" class="btn btn-primary btn-sm js-decision-firmar"><span class="fas fa-signature"></span> Cargar decisión firmada</button>'
-                + '<p class="alcaldia-apertura__ayuda">Si hay que corregir algo, ajuste el formulario y vuelva a generar el proyecto.</p>'
+
+        const paso = function (n, titulo, cuerpo) {
+            return '<div class="alcaldia-firma__paso"><span class="alcaldia-firma__num">' + n + '</span><div class="alcaldia-firma__cuerpo"><b>' + titulo + '</b>' + cuerpo + '</div></div>';
+        };
+        const firma = d.borradorId
+            ? '<div class="alcaldia-firma">'
+                + '<div class="alcaldia-firma__titulo"><span class="fas fa-signature"></span> Firma de la decisión</div>'
+                + paso(1, 'Descargue, revise y firme la resolución', '<a class="btn btn-default btn-sm" href="' + descargaUrl(d.borradorId) + '" download>'
+                    + '<span class="fas fa-file-word"></span> Descargar resolución IV-F-117 (Word)</a>'
+                    + '<small>Si hay que corregir algo, use «Editar decisión» y vuelva a generar el proyecto.</small>')
+                + paso(2, 'Adjunte la decisión firmada (PDF) <span class="text-danger">*</span>',
+                    '<label class="alcaldia-firma__archivo"><input type="file" class="js-proceso-documento" accept="application/pdf,.pdf" data-vacio="Seleccionar PDF…">'
+                    + '<span class="fas fa-file-pdf"></span><span class="alcaldia-firma__archivo-texto js-proceso-documento-nombre">Seleccionar PDF…</span></label>'
+                    + '<div class="alcaldia-apertura__acciones"><button type="button" class="btn btn-primary btn-sm js-decision-firmar">'
+                    + '<span class="fas fa-signature"></span> Cargar decisión firmada</button></div>')
+                + '</div>'
             : '';
 
-        return (d.ajustePorRecurso ? '<p class="alcaldia-apertura__devuelto">El recurso <b>modificó la decisión</b>: ajústela, genere el proyecto y cargue la versión firmada. Queda en firme sin nuevos recursos.</p>' : '')
-            + '<p class="alcaldia-apertura__ayuda">Marque las conductas probadas. El CRM muestra solo las medidas que la matriz asocia a cada una: las prescritas se incorporan, las condicionales exigen la prueba de la condición y las de otra autoridad se derivan.</p>'
-            + '<label>Conductas probadas</label>' + conductas
-            + (otras ? '<select class="form-control input-sm js-conducta-agregar"><option value="">+ Agregar otra conducta del catálogo…</option>' + otras + '</select>' : '')
-            + '<label class="alcaldia-proceso__check"><input type="checkbox" class="js-sin-medida"' + (d.sinMedida ? ' checked' : '') + '> No se probó ninguna conducta (abstenerse de imponer medida)</label>'
-            + '<label class="alcaldia-proceso__check"><input type="checkbox" class="js-orden"' + (d.orden ? ' checked' : '') + '> La decisión contiene una orden de Policía</label>'
-            + '<div class="alcaldia-proceso__form js-orden-box' + (d.orden ? '' : ' hidden') + '">'
-            + '<textarea class="form-control js-orden-texto" rows="2" placeholder="Texto exacto de la orden">' + escapeHtml(orden.texto || '') + '</textarea>'
-            + '<div class="alcaldia-proceso__fila"><div><label>Destinatario</label><input type="text" class="form-control js-orden-destinatario" value="' + escapeHtml(orden.destinatario || dec.citado || '') + '"></div>'
-            + '<div><label>Plazo</label><input type="date" class="form-control js-orden-plazo" value="' + escapeHtml(orden.fechaLimite || '') + '"></div></div>'
-            + '<input type="text" class="form-control js-orden-criterio" placeholder="Criterio de cumplimiento" value="' + escapeHtml(orden.criterio || '') + '">'
-            + '<label class="alcaldia-proceso__check"><input type="checkbox" class="js-orden-verificar"' + (orden.requiereVerificacion ? ' checked' : '') + '> Requiere verificación posterior</label></div>'
-            + '<label>Hechos probados <span class="text-danger">*</span></label><textarea class="form-control js-decision-hechos" rows="3">' + escapeHtml(d.hechos || '') + '</textarea>'
-            + '<label>Tesis que plantea la Inspección</label><textarea class="form-control js-decision-tesis" rows="2" placeholder="Opcional: si queda vacío, se deja el espacio en la resolución">' + escapeHtml(d.tesis || '') + '</textarea>'
-            + '<label>Motivación / conclusiones <span class="text-danger">*</span></label><textarea class="form-control js-decision-motivacion" rows="3" placeholder="Valoración de pruebas, fundamento y razones de cada medida">' + escapeHtml(d.motivacion || '') + '</textarea>'
-            + '<button type="button" class="btn btn-' + (d.borradorId ? 'default' : 'primary') + ' btn-sm js-decision-guardar"><span class="fas fa-file-word"></span> '
-            + (d.borradorId ? 'Corregir y regenerar resolución' : 'Generar resolución (IV-F-117)') + '</button>'
-            + descargas;
+        const formulario = '<div class="alcaldia-firma">'
+            + '<div class="alcaldia-firma__titulo"><span class="fas fa-scale-balanced"></span> Decisión de fondo</div>'
+            + '<p class="alcaldia-firma__nota">Marque las conductas probadas. El CRM muestra solo las medidas que la matriz asocia a cada una: las prescritas se incorporan, las condicionales exigen la prueba de la condición y las de otra autoridad se derivan.</p>'
+            + paso(1, 'Conductas probadas', conductas
+                + (otras ? '<select class="form-control input-sm js-conducta-agregar"><option value="">+ Agregar otra conducta del catálogo…</option>' + otras + '</select>' : '')
+                + '<label class="alcaldia-firma__interruptor"><input type="checkbox" class="js-sin-medida"' + (d.sinMedida ? ' checked' : '') + '> <span>No se probó ninguna conducta (abstenerse de imponer medida)</span></label>')
+            + paso(2, 'Orden de Policía',
+                '<label class="alcaldia-firma__interruptor"><input type="checkbox" class="js-orden"' + (d.orden ? ' checked' : '') + '> <span>La decisión contiene una orden de Policía</span></label>'
+                + '<div class="alcaldia-proceso__form js-orden-box' + (d.orden ? '' : ' hidden') + '">'
+                + '<textarea class="form-control js-orden-texto" rows="2" placeholder="Texto exacto de la orden">' + escapeHtml(orden.texto || '') + '</textarea>'
+                + '<div class="alcaldia-proceso__fila"><div><label>Destinatario</label><input type="text" class="form-control js-orden-destinatario" value="' + escapeHtml(orden.destinatario || dec.citado || '') + '"></div>'
+                + '<div><label>Plazo</label><input type="date" class="form-control js-orden-plazo" value="' + escapeHtml(orden.fechaLimite || '') + '"></div></div>'
+                + '<input type="text" class="form-control js-orden-criterio" placeholder="Criterio de cumplimiento" value="' + escapeHtml(orden.criterio || '') + '">'
+                + '<label class="alcaldia-firma__interruptor"><input type="checkbox" class="js-orden-verificar"' + (orden.requiereVerificacion ? ' checked' : '') + '> <span>Requiere verificación posterior</span></label></div>')
+            + paso(3, 'Hechos y motivación',
+                '<label>Hechos probados <span class="text-danger">*</span></label><textarea class="form-control js-decision-hechos" rows="3">' + escapeHtml(d.hechos || '') + '</textarea>'
+                + '<label>Tesis que plantea la Inspección</label><textarea class="form-control js-decision-tesis" rows="2" placeholder="Opcional: si queda vacío, se deja el espacio en la resolución">' + escapeHtml(d.tesis || '') + '</textarea>'
+                + '<label>Motivación / conclusiones <span class="text-danger">*</span></label><textarea class="form-control js-decision-motivacion" rows="3" placeholder="Valoración de pruebas, fundamento y razones de cada medida">' + escapeHtml(d.motivacion || '') + '</textarea>'
+                + '<div class="alcaldia-apertura__acciones"><button type="button" class="btn btn-' + (d.borradorId ? 'default' : 'primary') + ' btn-sm js-decision-guardar"><span class="fas fa-file-word"></span> '
+                + (d.borradorId ? 'Corregir y regenerar resolución' : 'Generar resolución (IV-F-117)') + '</button>'
+                + (d.borradorId ? '<button type="button" class="btn btn-default btn-sm js-decision-cancelar-edicion"><span class="fas fa-xmark"></span> Cancelar edición</button>' : '')
+                + '</div>')
+            + '</div>';
+        const titulos = {};
+
+        (dec.conductas || []).forEach(function (c) { titulos[c.id] = c.articulo + ' — ' + c.titulo; });
+
+        const incluidas = (d.medidas || []).filter(function (m) { return m.estado === 'INCLUIDA'; });
+        const lista = function (items, vacio) {
+            return items.length ? '<ul class="alcaldia-decision-resumen__lista">' + items.map(function (t) { return '<li>' + escapeHtml(t) + '</li>'; }).join('') + '</ul>' : escapeHtml(vacio);
+        };
+        const fila = function (titulo, valor) { return '<div><dt>' + titulo + '</dt><dd>' + valor + '</dd></div>'; };
+        const hechos = String(d.hechos || '').trim();
+        const resumen = d.borradorId
+            ? '<div class="alcaldia-firma alcaldia-decision-resumen js-decision-resumen">'
+                + '<div class="alcaldia-firma__titulo"><span class="fas fa-file-circle-check"></span> Decisión de fondo generada</div>'
+                + '<dl class="alcaldia-decision-resumen__datos">'
+                + fila('Conductas probadas', lista((d.conductas || []).map(function (c) { return titulos[c.id] || c.id; }), d.sinMedida ? 'Ninguna: se abstiene de imponer medida' : '—'))
+                + fila('Medidas incluidas', lista(incluidas.map(function (m) { return m.nombre; }), 'Ninguna'))
+                + fila('Orden de Policía', d.orden
+                    ? escapeHtml(orden.texto || '—') + '<small>' + escapeHtml(orden.destinatario || '') + (orden.fechaLimite ? ' · plazo ' + escapeHtml(fechaDMA(orden.fechaLimite)) : '') + '</small>'
+                    : 'No contiene orden')
+                + (hechos ? fila('Hechos probados', escapeHtml(hechos.length > 180 ? hechos.slice(0, 180) + '…' : hechos)) : '')
+                + '</dl>'
+                + '<div class="alcaldia-apertura__acciones"><button type="button" class="btn btn-default btn-sm js-decision-editar"><span class="fas fa-pen"></span> Editar decisión</button></div>'
+                + '</div>'
+            : '';
+        const aviso = d.ajustePorRecurso ? '<p class="alcaldia-apertura__devuelto">El recurso <b>modificó la decisión</b>: ajústela, genere el proyecto y cargue la versión firmada. Queda en firme sin nuevos recursos.</p>' : '';
+
+        if (!d.borradorId) {
+            return aviso + formulario;
+        }
+
+        // Ya generada: se muestra el resumen; el formulario se abre solo al editar y, mientras tanto, la firma queda bloqueada.
+        return aviso + resumen
+            + '<div class="js-decision-formulario hidden">' + formulario + '</div>'
+            + firma.replace('<div class="alcaldia-firma">', '<div class="alcaldia-firma js-decision-firma">');
     };
 
     const htmlNotificar = function (estado) {
@@ -1260,6 +1529,20 @@ define('custom:helpers/case-detail-side-panels', [
             if (this.checked) { $block.find('.js-sin-medida').prop('checked', false); }
         });
 
+        // Una conducta agregada del catálogo por error se quita: se desmarca, se oculta y vuelve a la lista.
+        $block.find('.js-conducta-quitar').on('click', function () {
+            const $c = $(this).closest('.alcaldia-proceso__conducta');
+            const id = String($c.data('conducta'));
+            const $lista = $block.find('.js-conducta-agregar');
+
+            $c.find('.js-conducta').prop('checked', false).trigger('change');
+            $c.addClass('hidden');
+
+            if ($lista.length && !$lista.find('option[value="' + id + '"]').length) {
+                $lista.append($('<option>').val(id).text(String($c.data('titulo'))));
+            }
+        });
+
         $block.find('.js-conducta-agregar').on('change', function () {
             const $c = $block.find('.alcaldia-proceso__conducta[data-conducta="' + this.value + '"]');
 
@@ -1275,6 +1558,17 @@ define('custom:helpers/case-detail-side-panels', [
         $block.find('.js-orden').on('change', function () {
             $block.find('.js-orden-box').toggleClass('hidden', !this.checked);
         });
+
+        // Editar abre el formulario y bloquea la firma hasta terminar (guardar regenera la resolución; cancelar la deja como estaba).
+        const editarDecision = function (editando) {
+            $block.find('.js-decision-resumen').toggleClass('hidden', editando);
+            $block.find('.js-decision-formulario').toggleClass('hidden', !editando);
+            $block.find('.js-decision-firma').toggleClass('is-deshabilitado', editando)
+                .find('input, button').prop('disabled', editando);
+        };
+
+        $block.find('.js-decision-editar').on('click', function () { editarDecision(true); });
+        $block.find('.js-decision-cancelar-edicion').on('click', function () { editarDecision(false); });
 
         $block.find('.js-decision-guardar').on('click', function () {
             const conductas = [];
@@ -1372,6 +1666,16 @@ define('custom:helpers/case-detail-side-panels', [
             });
         });
 
+        // Editar abre el formulario y bloquea la firma hasta terminar (regenerar rehace el Auto; cancelar lo deja como estaba).
+        const editarArchivo = function (editando) {
+            $block.find('.js-archivo-resumen').toggleClass('hidden', editando);
+            $block.find('.js-archivo-formulario').toggleClass('hidden', !editando);
+            $block.find('.js-archivo-firma').toggleClass('is-deshabilitado', editando).find('input, button').prop('disabled', editando);
+        };
+
+        $block.find('.js-archivo-editar').on('click', function () { editarArchivo(true); });
+        $block.find('.js-archivo-cancelar-edicion').on('click', function () { editarArchivo(false); });
+
         $block.find('.js-archivo-generar').on('click', function () {
             procesoAccion(recordView, {
                 accion: 'archivoGenerar', causal: val('.js-archivo-causal'), observacion: val('.js-archivo-observacion'),
@@ -1401,94 +1705,156 @@ define('custom:helpers/case-detail-side-panels', [
 
     /* ── Cumplimiento de la orden o medida ── */
 
+    // Piezas de las tarjetas de cumplimiento: cada medida u orden es una tarjeta con su estado y su siguiente paso.
+    const cCampo = function (etiqueta, control, ayuda) {
+        return '<div class="alcaldia-cumpl__campo"><label>' + etiqueta + '</label>' + control + (ayuda ? '<small>' + ayuda + '</small>' : '') + '</div>';
+    };
+
+    const cFila = function () {
+        return '<div class="alcaldia-cumpl__fila">' + Array.prototype.slice.call(arguments).join('') + '</div>';
+    };
+
+    const cArchivo = function (clase, vacio) {
+        return '<label class="alcaldia-firma__archivo"><input type="file" class="' + clase + '" accept=".pdf,image/*" data-vacio="' + vacio + '">'
+            + '<span class="fas fa-file-arrow-up"></span><span class="alcaldia-firma__archivo-texto js-c-archivo-nombre">' + vacio + '</span></label>';
+    };
+
+    const cAccion = function (titulo, cuerpo, boton) {
+        return '<div class="alcaldia-cumpl__accion"><div class="alcaldia-cumpl__accion-titulo">' + titulo + '</div>' + cuerpo
+            + '<div class="alcaldia-apertura__acciones">' + boton + '</div></div>';
+    };
+
+    const cBoton = function (tipo, icono, texto, claseBtn) {
+        return '<button type="button" class="btn btn-' + (claseBtn || 'primary') + ' btn-sm js-c-accion" data-tipo="' + tipo + '"><span class="fas ' + icono + '"></span> ' + texto + '</button>';
+    };
+
+    const cClaseEstado = function (estado) {
+        const t = String(estado || '').toLowerCase();
+
+        if (/incumpl|no cumpl/.test(t)) { return 'is-mal'; }
+        if (/cumplid|ejecutad|complet|cerrad|archivad|pagad|asisti|verificad/.test(t)) { return 'is-ok'; }
+
+        return 'is-pendiente';
+    };
+
+    const cTarjeta = function (icono, titulo, estado, detalle, cuerpo, atributos) {
+        return '<div class="alcaldia-proceso__regla alcaldia-cumpl ' + cClaseEstado(estado) + '" ' + atributos + '>'
+            + '<div class="alcaldia-cumpl__cabecera"><span class="alcaldia-cumpl__icono fas ' + icono + '"></span>'
+            + '<span class="alcaldia-cumpl__titulo">' + titulo + (detalle ? '<small>' + detalle + '</small>' : '') + '</span>'
+            + '<span class="alcaldia-cumpl__estado">' + escapeHtml(estado) + '</span></div>'
+            + '<div class="alcaldia-cumpl__cuerpo">' + cuerpo + '</div></div>';
+    };
+
+    const cListo = function (texto) {
+        return '<div class="alcaldia-firma__listo"><span class="fas fa-circle-check"></span> ' + texto + '</div>';
+    };
+
     const htmlValoracion = function (cu, clave) {
-        return '<small class="alcaldia-proceso__incumple">Incumplida: haga la valoración jurídica (el CRM no impone una medida nueva).</small>'
-            + '<select class="form-control input-sm js-c-valoracion">' + opciones(cu.valoraciones || []) + '</select>'
-            + '<textarea class="form-control input-sm js-c-motivacion" rows="2" placeholder="Motivación"></textarea>'
-            + '<button type="button" class="btn btn-primary btn-xs js-c-accion" data-tipo="' + clave + '"><span class="fas fa-scale-balanced"></span> Registrar valoración</button>';
+        return cAccion('Valoración jurídica',
+            '<div class="alcaldia-cumpl__aviso"><span class="fas fa-triangle-exclamation"></span> Incumplida: haga la valoración jurídica (el CRM no impone una medida nueva).</div>'
+            + cCampo('Valoración', '<select class="form-control input-sm js-c-valoracion">' + opciones(cu.valoraciones || []) + '</select>')
+            + cCampo('Motivación <span class="text-danger">*</span>', '<textarea class="form-control input-sm js-c-motivacion" rows="2" placeholder="Por qué se concluye así"></textarea>'),
+            cBoton(clave, 'fa-scale-balanced', 'Registrar valoración'));
     };
 
     const htmlMedidaCumplimiento = function (cu, m) {
         const fase = m.fase;
-        const archivo = '<input type="file" class="form-control input-sm js-c-archivo" accept=".pdf,image/*">';
-        let form = '';
+        let icono = 'fa-clipboard-check';
+        let accion = '';
 
         if (fase === 'tesoreria') {
-            form = '<div class="alcaldia-proceso__fila"><div><label>Valor de la multa</label><input type="text" class="form-control input-sm js-c-valor" placeholder="$"></div>'
-                + '<div><label>Fecha de remisión</label><input type="date" class="form-control input-sm js-c-fecha" value="' + hoyISO() + '"></div></div>'
-                + '<label>Oficio de remisión</label>' + archivo
-                + '<button type="button" class="btn btn-primary btn-xs js-c-accion" data-tipo="tesoreria"><span class="fas fa-share"></span> Remitir a Tesorería</button>';
+            icono = 'fa-money-bill-wave';
+            accion = cAccion('Siguiente paso: remitir a Tesorería',
+                cFila(cCampo('Valor de la multa <span class="text-danger">*</span>', '<input type="text" class="form-control input-sm js-c-valor" placeholder="$">'),
+                    cCampo('Fecha de remisión', '<input type="date" class="form-control input-sm js-c-fecha" value="' + hoyISO() + '">'))
+                + cCampo('Oficio de remisión', cArchivo('js-c-archivo', 'Seleccionar PDF o imagen…')),
+                cBoton('tesoreria', 'fa-share', 'Remitir a Tesorería'));
         } else if (fase === 'tesoreriaResultado') {
-            form = '<small>Remitida a Tesorería · ' + escapeHtml((m.obligacion || {}).estado) + ' · control el ' + fechaDMA((m.obligacion || {}).fechaAlertaControl) + '</small>'
-                + '<select class="form-control input-sm js-c-resultado">' + opciones(cu.resultadosTesoreria || []) + '</select>'
-                + '<input type="text" class="form-control input-sm js-c-observacion" placeholder="Observación (recibo, acuerdo…)">'
-                + '<label>Soporte</label>' + archivo
-                + '<button type="button" class="btn btn-primary btn-xs js-c-accion" data-tipo="tesoreriaResultado"><span class="fas fa-check"></span> Registrar resultado de Tesorería</button>';
+            icono = 'fa-money-bill-wave';
+            accion = cAccion('Siguiente paso: resultado de Tesorería',
+                '<div class="alcaldia-cumpl__dato"><span class="fas fa-building-columns"></span> Remitida a Tesorería · ' + escapeHtml((m.obligacion || {}).estado)
+                + ' · control el ' + fechaDMA((m.obligacion || {}).fechaAlertaControl) + '</div>'
+                + cFila(cCampo('Resultado', '<select class="form-control input-sm js-c-resultado">' + opciones(cu.resultadosTesoreria || []) + '</select>'),
+                    cCampo('Observación', '<input type="text" class="form-control input-sm js-c-observacion" placeholder="Recibo, acuerdo…">'))
+                + cCampo('Soporte', cArchivo('js-c-archivo', 'Seleccionar PDF o imagen…')),
+                cBoton('tesoreriaResultado', 'fa-check', 'Registrar resultado de Tesorería'));
         } else if (fase === 'programarPedagogica') {
-            form = '<div class="alcaldia-proceso__fila"><div><label>Programa o entidad</label><input type="text" class="form-control input-sm js-c-dependencia"></div>'
-                + '<div><label>Fecha</label><input type="date" class="form-control input-sm js-c-fecha"></div></div>'
-                + '<button type="button" class="btn btn-primary btn-xs js-c-accion" data-tipo="programarPedagogica"><span class="fas fa-calendar"></span> Programar actividad</button>';
+            icono = 'fa-chalkboard-user';
+            accion = cAccion('Siguiente paso: programar la actividad',
+                cFila(cCampo('Programa o entidad', '<input type="text" class="form-control input-sm js-c-dependencia">'),
+                    cCampo('Fecha', '<input type="date" class="form-control input-sm js-c-fecha">')),
+                cBoton('programarPedagogica', 'fa-calendar', 'Programar actividad'));
         } else if (fase === 'asistencia') {
-            form = '<small>Programada: ' + escapeHtml((m.ejecucion || {}).dependencia) + ' · ' + fechaDMA((m.ejecucion || {}).fechaProgramada) + '</small>'
-                + '<label class="alcaldia-proceso__check"><input type="checkbox" class="js-c-asistio" checked> Asistió / cumplió la actividad</label>'
-                + '<input type="text" class="form-control input-sm js-c-observacion" placeholder="Observación">'
-                + '<label>Constancia</label>' + archivo
-                + '<button type="button" class="btn btn-primary btn-xs js-c-accion" data-tipo="asistencia"><span class="fas fa-check"></span> Registrar asistencia</button>';
+            icono = 'fa-chalkboard-user';
+            accion = cAccion('Siguiente paso: registrar la asistencia',
+                '<div class="alcaldia-cumpl__dato"><span class="fas fa-calendar-day"></span> Programada: ' + escapeHtml((m.ejecucion || {}).dependencia) + ' · ' + fechaDMA((m.ejecucion || {}).fechaProgramada) + '</div>'
+                + '<label class="alcaldia-firma__interruptor"><input type="checkbox" class="js-c-asistio" checked> <span>Asistió / cumplió la actividad</span></label>'
+                + cCampo('Observación', '<input type="text" class="form-control input-sm js-c-observacion">')
+                + cCampo('Constancia', cArchivo('js-c-archivo', 'Seleccionar PDF o imagen…')),
+                cBoton('asistencia', 'fa-check', 'Registrar asistencia'));
         } else if (fase === 'ejecucion') {
-            form = '<div class="alcaldia-proceso__fila"><div><label>Fecha de ejecución</label><input type="date" class="form-control input-sm js-c-fecha" value="' + hoyISO() + '"></div>'
-                + '<div><label>Quién la ejecutó / apoyo</label><input type="text" class="form-control input-sm js-c-dependencia"></div></div>'
-                + '<textarea class="form-control input-sm js-c-resultado-texto" rows="2" placeholder="Cómo se ejecutó"></textarea>'
-                + '<label>Acta o soporte</label>' + archivo
-                + '<button type="button" class="btn btn-primary btn-xs js-c-accion" data-tipo="ejecucion"><span class="fas fa-check"></span> Registrar ejecución</button>';
+            icono = 'fa-box-open';
+            accion = cAccion('Siguiente paso: registrar la ejecución',
+                cFila(cCampo('Fecha de ejecución', '<input type="date" class="form-control input-sm js-c-fecha" value="' + hoyISO() + '">'),
+                    cCampo('Quién la ejecutó / apoyo', '<input type="text" class="form-control input-sm js-c-dependencia">'))
+                + cCampo('Cómo se ejecutó', '<textarea class="form-control input-sm js-c-resultado-texto" rows="2"></textarea>')
+                + cCampo('Acta o soporte', cArchivo('js-c-archivo', 'Seleccionar PDF o imagen…')),
+                cBoton('ejecucion', 'fa-check', 'Registrar ejecución'));
         } else if (fase === 'valoracion') {
-            form = htmlValoracion(cu, 'valorarMedida');
+            icono = 'fa-scale-balanced';
+            accion = htmlValoracion(cu, 'valorarMedida');
         } else {
-            form = '<small class="alcaldia-proceso__ok"><span class="fas fa-circle-check"></span> ' + escapeHtml(m.estado) + (m.resultado ? ' · ' + escapeHtml(m.resultado) : '') + '</small>';
+            accion = cListo(escapeHtml(m.estado) + (m.resultado ? ' · ' + escapeHtml(m.resultado) : ''));
         }
 
         const rnmc = m.rnmc
-            ? '<small class="alcaldia-proceso__ok"><span class="fas fa-circle-check"></span> RNMC: ' + escapeHtml(m.rnmc.medio) + ' · ' + fechaDMA(m.rnmc.fecha)
-                + (m.rnmc.identificador ? ' · ' + escapeHtml(m.rnmc.identificador) : '') + ' ' + enlace(m.rnmc.constanciaId, 'constancia', 'fa-paperclip') + '</small>'
-            : '<details class="alcaldia-proceso__pendiente"><summary>Falta el reporte al RNMC (art. 172 par. 2)</summary>'
-                + '<div class="alcaldia-proceso__fila"><div><input type="date" class="form-control input-sm js-c-rnmc-fecha" value="' + hoyISO() + '"></div>'
-                + '<div><select class="form-control input-sm js-c-rnmc-medio">' + opciones(['Aplicativo RNMC', 'Oficio a Policía Nacional', 'Correo electrónico']) + '</select></div></div>'
-                + '<input type="text" class="form-control input-sm js-c-rnmc-id" placeholder="Identificador del registro (opcional)">'
-                + '<input type="file" class="form-control input-sm js-c-rnmc-archivo" accept=".pdf,image/*">'
-                + '<button type="button" class="btn btn-default btn-xs js-c-accion" data-tipo="rnmc"><span class="fas fa-upload"></span> Registrar reporte RNMC</button></details>';
+            ? cListo('Reporte al RNMC: ' + escapeHtml(m.rnmc.medio) + ' · ' + fechaDMA(m.rnmc.fecha)
+                + (m.rnmc.identificador ? ' · ' + escapeHtml(m.rnmc.identificador) : '') + ' ' + enlace(m.rnmc.constanciaId, 'constancia', 'fa-paperclip'))
+            : '<details class="alcaldia-cumpl__rnmc"><summary><span class="fas fa-triangle-exclamation"></span> Falta el reporte al RNMC (art. 172 par. 2)</summary>'
+                + '<div class="alcaldia-cumpl__accion"><div class="alcaldia-cumpl__accion-titulo">1 · Genere el reporte</div>'
+                + '<small class="alcaldia-cumpl__ayuda">Word con los datos de la medida para registrarlos en el aplicativo del RNMC o enviarlos por oficio.</small>'
+                + '<div class="alcaldia-apertura__acciones">' + cBoton('rnmcGenerar', 'fa-file-word', 'Generar reporte RNMC (Word)', 'default') + '</div></div>'
+                + '<div class="alcaldia-cumpl__accion-titulo">2 · Registre el envío</div>'
+                + cFila(cCampo('Fecha', '<input type="date" class="form-control input-sm js-c-rnmc-fecha" value="' + hoyISO() + '">'),
+                    cCampo('Medio', '<select class="form-control input-sm js-c-rnmc-medio">' + opciones(['Aplicativo RNMC', 'Oficio a Policía Nacional', 'Correo electrónico']) + '</select>'))
+                + cCampo('Identificador del registro', '<input type="text" class="form-control input-sm js-c-rnmc-id" placeholder="Opcional">')
+                + cCampo('Constancia', cArchivo('js-c-rnmc-archivo', 'Seleccionar PDF o imagen…'))
+                + '<div class="alcaldia-apertura__acciones">' + cBoton('rnmc', 'fa-upload', 'Registrar reporte RNMC', 'default') + '</div></details>';
 
-        return '<div class="alcaldia-proceso__regla" data-medida="' + escapeHtml(m.id) + '">'
-            + '<b>' + escapeHtml(m.nombre) + '</b> <span class="alcaldia-apertura__fase">' + escapeHtml(m.estado) + '</span>'
-            + (m.condiciones ? '<small>' + escapeHtml(m.condiciones) + '</small>' : '') + form + rnmc + '</div>';
+        return cTarjeta(icono, escapeHtml(m.nombre), m.estado, m.condiciones ? escapeHtml(m.condiciones) : '', accion + rnmc, 'data-medida="' + escapeHtml(m.id) + '"');
     };
 
     const htmlOrdenCumplimiento = function (estado, cu, o) {
-        let form = '';
+        let accion = '';
 
         if (o.fase === 'programarVerificacion') {
-            form = '<div class="alcaldia-proceso__fila"><div><label>Responsable</label><select class="form-control input-sm js-c-responsable"><option value="">Seleccione…</option>' + opciones(estado.responsables || []) + '</select></div>'
-                + '<div><label>Plazo</label><input type="date" class="form-control input-sm js-c-plazo" value="' + escapeHtml(o.fechaLimite || '') + '"></div></div>'
-                + '<select class="form-control input-sm js-c-metodo">' + opciones(cu.metodos || []) + '</select>'
-                + '<button type="button" class="btn btn-primary btn-xs js-c-accion" data-tipo="programarVerificacion"><span class="fas fa-user-check"></span> Programar verificación</button>';
+            accion = cAccion('Siguiente paso: programar la verificación',
+                cFila(cCampo('Responsable', '<select class="form-control input-sm js-c-responsable"><option value="">Seleccione…</option>' + opciones(estado.responsables || []) + '</select>'),
+                    cCampo('Plazo', '<input type="date" class="form-control input-sm js-c-plazo" value="' + escapeHtml(o.fechaLimite || '') + '">'))
+                + cCampo('Método', '<select class="form-control input-sm js-c-metodo">' + opciones(cu.metodos || []) + '</select>'),
+                cBoton('programarVerificacion', 'fa-user-check', 'Programar verificación'));
         } else if (o.fase === 'verificacion') {
-            form = '<small>Verificación a cargo de ' + escapeHtml(o.responsable) + (o.metodo ? ' · ' + escapeHtml(o.metodo) : '') + (o.fechaLimite ? ' · plazo ' + fechaDMA(o.fechaLimite) : '') + '</small>'
-                + '<div class="alcaldia-proceso__fila"><div><select class="form-control input-sm js-c-resultado">' + opciones(cu.resultadosVerificacion || []) + '</select></div>'
-                + '<div><input type="date" class="form-control input-sm js-c-fecha" value="' + hoyISO() + '"></div></div>'
-                + '<textarea class="form-control input-sm js-c-observacion" rows="2" placeholder="Lo encontrado (obligatorio si no se cumplió)"></textarea>'
-                + '<label>Evidencia</label><input type="file" class="form-control input-sm js-c-archivo" accept=".pdf,image/*">'
-                + '<button type="button" class="btn btn-primary btn-xs js-c-accion" data-tipo="verificacion"><span class="fas fa-check"></span> Registrar verificación</button>';
+            accion = cAccion('Siguiente paso: registrar la verificación',
+                '<div class="alcaldia-cumpl__dato"><span class="fas fa-user-check"></span> A cargo de ' + escapeHtml(o.responsable) + (o.metodo ? ' · ' + escapeHtml(o.metodo) : '')
+                + (o.fechaLimite ? ' · plazo ' + fechaDMA(o.fechaLimite) : '') + '</div>'
+                + cFila(cCampo('Resultado', '<select class="form-control input-sm js-c-resultado">' + opciones(cu.resultadosVerificacion || []) + '</select>'),
+                    cCampo('Fecha', '<input type="date" class="form-control input-sm js-c-fecha" value="' + hoyISO() + '">'))
+                + cCampo('Lo encontrado', '<textarea class="form-control input-sm js-c-observacion" rows="2" placeholder="Obligatorio si no se cumplió"></textarea>')
+                + cCampo('Evidencia', cArchivo('js-c-archivo', 'Seleccionar PDF o imagen…')),
+                cBoton('verificacion', 'fa-check', 'Registrar verificación'));
         } else if (o.fase === 'cumplirOrden') {
-            form = '<input type="text" class="form-control input-sm js-c-observacion" placeholder="Cómo se cumplió">'
-                + '<label>Soporte</label><input type="file" class="form-control input-sm js-c-archivo" accept=".pdf,image/*">'
-                + '<button type="button" class="btn btn-primary btn-xs js-c-accion" data-tipo="cumplirOrden"><span class="fas fa-check"></span> Registrar cumplimiento</button>';
+            accion = cAccion('Siguiente paso: registrar el cumplimiento',
+                cCampo('Cómo se cumplió', '<input type="text" class="form-control input-sm js-c-observacion">')
+                + cCampo('Soporte', cArchivo('js-c-archivo', 'Seleccionar PDF o imagen…')),
+                cBoton('cumplirOrden', 'fa-check', 'Registrar cumplimiento'));
         } else if (o.fase === 'valoracion') {
-            form = (o.verificacion ? '<small>Verificación: ' + escapeHtml(o.verificacion.resultado) + ' · ' + escapeHtml(o.verificacion.observacion) + '</small>' : '') + htmlValoracion(cu, 'valorarOrden');
+            accion = (o.verificacion ? '<div class="alcaldia-cumpl__dato"><span class="fas fa-clipboard-check"></span> Verificación: ' + escapeHtml(o.verificacion.resultado) + ' · ' + escapeHtml(o.verificacion.observacion) + '</div>' : '')
+                + htmlValoracion(cu, 'valorarOrden');
         } else {
-            form = '<small class="alcaldia-proceso__ok"><span class="fas fa-circle-check"></span> ' + escapeHtml(o.estado)
-                + (o.verificacion ? ' · verificada el ' + fechaDMA(o.verificacion.fecha) + ' ' + enlace(o.verificacion.soporteId, 'evidencia', 'fa-paperclip') : '') + '</small>';
+            accion = cListo(escapeHtml(o.estado) + (o.verificacion ? ' · verificada el ' + fechaDMA(o.verificacion.fecha) + ' ' + enlace(o.verificacion.soporteId, 'evidencia', 'fa-paperclip') : ''));
         }
 
-        return '<div class="alcaldia-proceso__regla" data-orden="' + escapeHtml(o.id) + '"><b>Orden de Policía</b> <span class="alcaldia-apertura__fase">' + escapeHtml(o.estado) + '</span>'
-            + '<small>' + escapeHtml(o.texto) + ' · ' + escapeHtml(o.destinatario) + '</small>' + form + '</div>';
+        return cTarjeta('fa-shield-halved', 'Orden de Policía', o.estado, escapeHtml(o.texto) + ' · ' + escapeHtml(o.destinatario), accion, 'data-orden="' + escapeHtml(o.id) + '"');
     };
 
     const htmlCumplimiento = function (estado) {
@@ -1502,22 +1868,42 @@ define('custom:helpers/case-detail-side-panels', [
                 : '<p class="alcaldia-apertura__ayuda">Lo gestionan Apoyo Jurídico, el Inspector Ambiental y Aux. Administrativo · Inspección.</p>';
         }
 
-        return '<p class="alcaldia-apertura__ayuda">Registre la ejecución de cada medida según su tipo, el reporte al RNMC y la verificación de la orden de Policía. Plazo de referencia: 5 días desde la firmeza (art. 223 num. 5).</p>'
+        return '<div class="alcaldia-cumpl__intro"><span class="fas fa-list-check"></span> <span>Registre la ejecución de cada medida según su tipo, el reporte al RNMC y la verificación de la orden de Policía. '
+            + 'Plazo de referencia: 5 días desde la firmeza (art. 223 num. 5).</span></div>'
             + (cu.medidas || []).map(function (m) { return htmlMedidaCumplimiento(cu, m); }).join('')
             + (cu.orden ? htmlOrdenCumplimiento(estado, cu, cu.orden) : '')
             + (pend.length
-                ? '<p class="alcaldia-apertura__texto"><b>Pendiente para cerrar:</b></p><ul class="alcaldia-proceso__pendientes">'
-                    + pend.map(function (t) { return '<li>' + escapeHtml(t) + '</li>'; }).join('') + '</ul>'
-                : '<button type="button" class="btn btn-primary btn-sm js-c-accion" data-tipo="cerrar"><span class="fas fa-flag-checkered"></span> Cerrar cumplimiento y pasar al Auto de Archivo</button>');
+                ? '<div class="alcaldia-cumpl__pendientes"><b><span class="fas fa-hourglass-half"></span> Pendiente para cerrar</b><ul>'
+                    + pend.map(function (t) { return '<li>' + escapeHtml(t) + '</li>'; }).join('') + '</ul></div>'
+                : '<div class="alcaldia-apertura__acciones">' + cBoton('cerrar', 'fa-flag-checkered', 'Cerrar cumplimiento y pasar al Auto de Archivo') + '</div>');
     };
 
     const bindCumplimiento = function (recordView, $block) {
+        $block.find('.alcaldia-cumpl .alcaldia-firma__archivo input').on('change', function () {
+            const archivo = this.files && this.files[0];
+
+            $(this).closest('.alcaldia-firma__archivo').toggleClass('is-listo', !!archivo)
+                .find('.js-c-archivo-nombre').text(archivo ? archivo.name : ($(this).data('vacio') || ''));
+        });
+
         $block.find('.js-c-accion').on('click', function () {
             const tipo = $(this).data('tipo');
             const $card = $(this).closest('.alcaldia-proceso__regla');
             const v = function (sel) { return String($card.find(sel).val() || '').trim(); };
             const datos = {accion: 'cumplimiento', tipo: tipo, medidaId: $card.data('medida') || ''};
             let archivoSel = '.js-c-archivo';
+
+            if (tipo === 'rnmcGenerar') {
+                Espo.Ui.notify('Generando el reporte…');
+                Espo.Ajax.postRequest('Case/action/procesoAccion', Object.assign({id: recordView.model.id}, datos)).then(function (r) {
+                    Espo.Ui.notify(false);
+                    Espo.Ui.success('Reporte generado. Se descarga en Word.');
+
+                    if (r && r.formatoId) { window.location.assign(descargaUrl(r.formatoId)); }
+                }).catch(function () { Espo.Ui.notify(false); });
+
+                return;
+            }
 
             if (tipo === 'rnmc') {
                 Object.assign(datos, {fecha: v('.js-c-rnmc-fecha'), medio: v('.js-c-rnmc-medio'), identificador: v('.js-c-rnmc-id')});
@@ -1552,29 +1938,68 @@ define('custom:helpers/case-detail-side-panels', [
 
     /* ── Auto de Archivo (cierre del expediente) ── */
 
+    // Auto de Archivo: pendientes para poder archivar, datos del auto y, ya generado, su firma.
     const htmlArchivo = function (estado) {
         const ar = estado.archivo || {};
         const d = ar.datos || {};
 
         if ((ar.pendientes || []).length) {
-            return '<p class="alcaldia-apertura__devuelto"><b>Aún no se puede archivar.</b> Quedan pendientes:</p>'
-                + '<ul class="alcaldia-proceso__pendientes">' + ar.pendientes.map(function (t) { return '<li>' + escapeHtml(t) + '</li>'; }).join('') + '</ul>'
-                + '<p class="alcaldia-apertura__ayuda">Resuélvalos en su paso o en su registro y vuelva a este paso.</p>';
+            return '<div class="alcaldia-firma">'
+                + '<div class="alcaldia-firma__titulo"><span class="fas fa-box-archive"></span> Auto de Archivo</div>'
+                + '<div class="alcaldia-cumpl__pendientes"><b><span class="fas fa-hourglass-half"></span> Aún no se puede archivar. Quedan pendientes</b><ul>'
+                + ar.pendientes.map(function (t) { return '<li>' + escapeHtml(t) + '</li>'; }).join('') + '</ul></div>'
+                + '<p class="alcaldia-firma__nota">Resuélvalos en su paso o en su registro y vuelva a este paso.</p></div>';
         }
 
-        return '<p class="alcaldia-apertura__ayuda">No hay recursos, órdenes ni medidas pendientes. Genere el Auto de Archivo, fírmelo y cárguelo: el expediente queda archivado y sus casos, finalizados.</p>'
-            + '<label>Causal de archivo</label><input type="text" class="form-control js-archivo-causal" value="' + escapeHtml(d.causal || ar.causal || '') + '">'
-            + '<label>Observación (opcional)</label><textarea class="form-control js-archivo-observacion" rows="2">' + escapeHtml(d.observacion || '') + '</textarea>'
-            + '<label class="alcaldia-proceso__check"><input type="checkbox" class="js-archivo-notificar"' + (d.requiereNotificacion ? ' checked' : '') + '> Requiere notificación o comunicación</label>'
-            + '<button type="button" class="btn btn-' + (d.formatoId ? 'default' : 'primary') + ' btn-sm js-archivo-generar"><span class="fas fa-file-word"></span> '
+        const generar = '<div class="alcaldia-firma">'
+            + '<div class="alcaldia-firma__titulo"><span class="fas fa-box-archive"></span> Auto de Archivo</div>'
+            + '<p class="alcaldia-firma__nota">No hay recursos, órdenes ni medidas pendientes. Genere el Auto de Archivo, fírmelo y cárguelo: el expediente queda archivado y sus casos, finalizados.</p>'
+            + '<div class="alcaldia-firma__paso"><span class="alcaldia-firma__num">1</span><div class="alcaldia-firma__cuerpo">'
+            + '<b>Causal de archivo</b>'
+            + '<input type="text" class="form-control js-archivo-causal" placeholder="Por qué se archiva el expediente" value="' + escapeHtml(d.causal || ar.causal || '') + '">'
+            + '</div></div>'
+            + '<div class="alcaldia-firma__paso"><span class="alcaldia-firma__num">2</span><div class="alcaldia-firma__cuerpo">'
+            + '<b>Observación</b><small>Opcional.</small>'
+            + '<textarea class="form-control js-archivo-observacion" rows="2">' + escapeHtml(d.observacion || '') + '</textarea>'
+            + '<label class="alcaldia-firma__interruptor"><input type="checkbox" class="js-archivo-notificar"' + (d.requiereNotificacion ? ' checked' : '') + '> <span>Requiere notificación o comunicación</span></label>'
+            + '<div class="alcaldia-apertura__acciones"><button type="button" class="btn btn-' + (d.formatoId ? 'default' : 'primary') + ' btn-sm js-archivo-generar"><span class="fas fa-file-word"></span> '
             + (d.formatoId ? 'Regenerar Auto de Archivo' : 'Generar Auto de Archivo (Word)') + '</button>'
-            + (d.formatoId
-                ? '<div class="alcaldia-apertura__descargas"><a class="btn btn-default btn-sm" href="' + descargaUrl(d.formatoId) + '" download>'
-                    + '<span class="fas fa-file-word"></span> Descargar Auto de Archivo (Word)</a></div>'
-                    + '<label>Auto de Archivo firmado (PDF) <span class="text-danger">*</span></label>'
-                    + '<input type="file" class="form-control js-proceso-documento" accept="application/pdf,.pdf">'
-                    + '<button type="button" class="btn btn-primary btn-sm js-archivo-firmar"><span class="fas fa-box-archive"></span> Cargar firmado y archivar</button>'
-                : '');
+            + (d.formatoId ? '<button type="button" class="btn btn-default btn-sm js-archivo-cancelar-edicion"><span class="fas fa-xmark"></span> Cancelar edición</button>' : '')
+            + '</div>'
+            + '</div></div>'
+            + '</div>';
+
+        if (!d.formatoId) {
+            return generar;
+        }
+
+        // Ya generado: lo único que falta es la firma. El formulario solo se abre con «Editar» y, mientras, la firma queda bloqueada.
+        const observacion = String(d.observacion || '').trim();
+        const resumen = '<div class="alcaldia-firma alcaldia-decision-resumen js-archivo-resumen">'
+            + '<div class="alcaldia-firma__titulo"><span class="fas fa-file-circle-check"></span> Auto de Archivo generado</div>'
+            + '<dl class="alcaldia-decision-resumen__datos">'
+            + '<div><dt>Causal de archivo</dt><dd>' + escapeHtml(d.causal || ar.causal || '—') + '</dd></div>'
+            + (observacion ? '<div><dt>Observación</dt><dd>' + escapeHtml(observacion) + '</dd></div>' : '')
+            + '<div><dt>Notificación o comunicación</dt><dd>' + (d.requiereNotificacion ? 'Requerida' : 'No requerida') + '</dd></div>'
+            + '</dl>'
+            + '<div class="alcaldia-firma__listo"><span class="fas fa-circle-info"></span> Solo falta la firma del Auto de Archivo.</div>'
+            + '<div class="alcaldia-apertura__acciones"><button type="button" class="btn btn-default btn-sm js-archivo-editar"><span class="fas fa-pen"></span> Editar Auto de Archivo</button></div>'
+            + '</div>';
+
+        return resumen + '<div class="js-archivo-formulario hidden">' + generar + '</div>'
+            + '<div class="alcaldia-firma js-archivo-firma">'
+            + '<div class="alcaldia-firma__titulo"><span class="fas fa-signature"></span> Firma del Auto de Archivo</div>'
+            + '<div class="alcaldia-firma__paso"><span class="alcaldia-firma__num">1</span><div class="alcaldia-firma__cuerpo">'
+            + '<b>Descargue, revise y firme el Auto</b>'
+            + '<a class="btn btn-default btn-sm" href="' + descargaUrl(d.formatoId) + '" download><span class="fas fa-file-word"></span> Descargar Auto de Archivo (Word)</a>'
+            + '<small>Si cambia la causal o la observación, regenere el Auto antes de firmarlo.</small></div></div>'
+            + '<div class="alcaldia-firma__paso"><span class="alcaldia-firma__num">2</span><div class="alcaldia-firma__cuerpo">'
+            + '<b>Adjunte el Auto de Archivo firmado (PDF) <span class="text-danger">*</span></b>'
+            + '<label class="alcaldia-firma__archivo"><input type="file" class="js-proceso-documento" accept="application/pdf,.pdf" data-vacio="Seleccionar PDF…">'
+            + '<span class="fas fa-file-pdf"></span><span class="alcaldia-firma__archivo-texto js-proceso-documento-nombre">Seleccionar PDF…</span></label>'
+            + '<div class="alcaldia-apertura__acciones"><button type="button" class="btn btn-primary btn-sm js-archivo-firmar"><span class="fas fa-box-archive"></span> Cargar firmado y archivar</button></div>'
+            + '</div></div>'
+            + '</div>';
     };
 
     const htmlArchivado = function (estado) {
@@ -1670,8 +2095,32 @@ define('custom:helpers/case-detail-side-panels', [
             }).catch(function () { Espo.Ui.notify(false); });
         });
 
+        $block.find('.js-proceso-soporte').on('change', function () {
+            const archivo = this.files && this.files[0];
+
+            $(this).closest('.alcaldia-firma__archivo').toggleClass('is-listo', !!archivo)
+                .find('.js-proceso-soporte-nombre').text(archivo ? archivo.name : 'Seleccionar PDF o imagen…');
+        });
+
+        $block.find('.js-proceso-no-entrega-toggle').on('click', function () {
+            $(this).closest('.alcaldia-firma__alterna').find('.alcaldia-firma__alterna-form').toggleClass('hidden');
+        });
+
+        $block.find('.js-proceso-no-entrega').on('click', function () {
+            const motivo = String($(this).closest('.alcaldia-firma__alterna').find('.js-proceso-no-entrega-motivo').val() || '').trim();
+
+            if (!motivo) { Espo.Ui.error('Indique qué impidió la entrega de la citación.'); return; }
+
+            Espo.Ui.confirm('¿Confirma que la citación no se pudo entregar? La audiencia quedará suspendida y deberá reprogramarse.', {
+                title: 'Aplazar la audiencia', confirmText: 'Sí, aplazar', cancelText: 'Cancelar', confirmStyle: 'primary',
+            }, function () {
+                procesoAccion(recordView, {accion: 'suspender', tipo: 'otra', causa: 'No se pudo entregar la citación: ' + motivo},
+                    'Audiencia aplazada. Reprográmela con una nueva citación.');
+            });
+        });
+
         $block.find('.js-proceso-soporte-citacion').on('click', function () {
-            const $scope = $(this).parent();
+            const $scope = $(this).closest('.alcaldia-firma');
 
             if (!archivoDe($scope, '.js-proceso-soporte')) { Espo.Ui.error('Cargue la citación firmada y escaneada.'); return; }
 
@@ -1686,6 +2135,7 @@ define('custom:helpers/case-detail-side-panels', [
             $block.find('.alcaldia-proceso__form').addClass('hidden');
             $block.find('.alcaldia-proceso__form[data-opcion="' + this.value + '"]').removeClass('hidden');
             $block.find('.js-proceso-resultado-audiencia').removeClass('hidden');
+            $block.find('.js-proceso-resultado-aviso').addClass('hidden');
         });
 
         $block.find('.js-proceso-conciliacion').on('change', function () {
@@ -1723,11 +2173,20 @@ define('custom:helpers/case-detail-side-panels', [
             }
         });
 
+        $block.find('.alcaldia-firma__archivo input.js-proceso-documento').on('change', function () {
+            const archivo = this.files && this.files[0];
+
+            $(this).closest('.alcaldia-firma__archivo').toggleClass('is-listo', !!archivo)
+                .find('.js-proceso-documento-nombre').text(archivo ? archivo.name : ($(this).data('vacio') || 'Seleccionar PDF o imagen…'));
+        });
+
         $block.find('.js-proceso-justificacion').on('click', function () {
-            if (!val('.js-proceso-decision')) { Espo.Ui.error('Indique la decisión sobre la justificación.'); return; }
+            const decision = String($block.find('input[name="alcaldia-justificacion-decision"]:checked').val() || '');
+
+            if (!decision) { Espo.Ui.error('Indique la decisión sobre la justificación.'); return; }
 
             conArchivos(['.js-proceso-documento'], function (ids) {
-                procesoAccion(recordView, {accion: 'resolverJustificacion', decision: val('.js-proceso-decision'), observacion: val('.js-proceso-observacion'), documentoId: ids[0]},
+                procesoAccion(recordView, {accion: 'resolverJustificacion', decision: decision, observacion: val('.js-proceso-observacion'), documentoId: ids[0]},
                     'Justificación resuelta. Reprograme la audiencia.');
             });
         });
@@ -1741,8 +2200,16 @@ define('custom:helpers/case-detail-side-panels', [
             });
         });
 
+        $block.find('.alcaldia-firma__archivo input.js-proceso-acta, .alcaldia-firma__archivo input.js-proceso-audio').on('change', function () {
+            const archivo = this.files && this.files[0];
+
+            $(this).closest('.alcaldia-firma__archivo').toggleClass('is-listo', !!archivo)
+                .find('.js-proceso-archivo-nombre').text(archivo ? archivo.name : ($(this).data('vacio') || ''));
+        });
+
         $block.find('.js-proceso-sin-audio').on('change', function () {
             $block.find('.js-proceso-excepcion').toggleClass('hidden', !this.checked);
+            $block.find('.js-proceso-audio').closest('.alcaldia-firma__archivo').toggleClass('is-deshabilitado', this.checked);
         });
 
         $block.find('.js-proceso-soportes').on('click', function () {
@@ -1756,6 +2223,16 @@ define('custom:helpers/case-detail-side-panels', [
             conArchivos(['.js-proceso-acta', '.js-proceso-audio'], function (ids) {
                 procesoAccion(recordView, {accion: 'soportes', actaId: ids[0], audioId: ids[1], excepcionAudio: excepcion}, 'Soportes de la audiencia cargados.');
             });
+        });
+
+        $block.find('.js-proceso-clasificar').on('click', function () {
+            const elegida = String($block.find('input[name="alcaldia-clasificacion"]:checked').val() || '');
+
+            if (!elegida) { Espo.Ui.error('Seleccione la clasificación: maltrato leve, posible delito u otro.'); return; }
+            if (elegida === 'Otro' && !val('.js-proceso-observacion')) { Espo.Ui.error('Describa la clasificación «Otro».'); return; }
+
+            procesoAccion(recordView, {accion: 'cumplirPaso', clasificacion: [elegida], observacion: val('.js-proceso-observacion')},
+                'Clasificación registrada.');
         });
 
         $block.find('.js-proceso-cumplir').on('click', function () {
@@ -1812,6 +2289,8 @@ define('custom:helpers/case-detail-side-panels', [
 
             $block.data('procesoKey', key);
             pintarProceso($block, recordView, estado, true);
+            desplegarPorDefecto($block, 'proceso', true);
+            CompactFormSections.makeCollapsible($block);
             ubicarBloquesExpediente($side);
         });
     };
@@ -1951,9 +2430,13 @@ define('custom:helpers/case-detail-side-panels', [
 
         let $insertAfter = null;
 
-        // Para Patrullaje, la preparación de la visita es la acción principal
-        // y se muestra antes de la línea de tiempo.
-        if (PatrulleroActa.isPatrulleroUser(recordView.getUser())) {
+        // Para Patrullaje y para el responsable asignado (sea cual sea su rol), la visita es
+        // la acción principal y se muestra antes de la línea de tiempo.
+        if (
+            PatrulleroActa.isPatrulleroUser(recordView.getUser())
+            || recordView.model.get('assignedUserId') === recordView.getUser().id
+            || findIn(recordView.$el, ACTA_VISITA_PANEL).attr('data-crm-primero') === '1'
+        ) {
             const $actaVisita = findIn(recordView.$el, ACTA_VISITA_PANEL);
             const $formatoGenerado = findIn(recordView.$el, FORMATO_GENERADO_PANEL);
 
@@ -2044,6 +2527,14 @@ define('custom:helpers/case-detail-side-panels', [
             }
 
             $insertAfter = $panel;
+        });
+
+        FIRST_PANELS.slice().reverse().forEach(function (name) {
+            const $panel = findIn(recordView.$el, name);
+
+            if ($panel.length) {
+                $side.prepend($panel);
+            }
         });
 
         removeLeftHistoryDuplicates(recordView);

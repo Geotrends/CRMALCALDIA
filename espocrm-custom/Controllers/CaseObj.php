@@ -23,12 +23,16 @@ use Espo\Custom\Tools\CaseObj\CaseActaVisitaHelper;
 use Espo\Custom\Tools\CaseObj\CaseAperturaService;
 use Espo\Custom\Tools\CaseObj\CaseCierreService;
 use Espo\Custom\Tools\CaseObj\CaseCompetenciaService;
+use Espo\Custom\Tools\CaseObj\CaseDestinoService;
 use Espo\Custom\Tools\CaseObj\CaseProcesoService;
+use Espo\Custom\Tools\CaseObj\CaseRegistrosTramiteOrdinario;
 use Espo\Custom\Tools\CaseObj\CaseCreateDefaultsService;
 use Espo\Custom\Tools\CaseObj\CaseCronogramaService;
 use Espo\Custom\Tools\CaseObj\CaseGestionTecnicaHelper;
 use Espo\Custom\Tools\CaseObj\CaseTimelineService;
 use Espo\Custom\Tools\CaseObj\CaseVisitaAprobadaNotifier;
+use Espo\Custom\Tools\CaseObj\CaseEvaluacionResultadoService;
+use Espo\Custom\Tools\CaseObj\CaseVisitasService;
 use Espo\Custom\Tools\CaseObj\VisitaComplementariaService;
 use Espo\Custom\Tools\CaseObj\VisitaHistorialLogger;
 use Espo\Custom\Tools\CaseObj\RadicadoCatalog;
@@ -37,6 +41,7 @@ use Espo\Custom\Tools\Party\PartyRegistryService;
 use Espo\Custom\Tools\User\AlcaldiaUserProfile;
 use Espo\Entities\User;
 use Espo\Modules\Crm\Controllers\CaseObj as BaseCaseObj;
+use Espo\ORM\Entity;
 use Espo\ORM\EntityManager;
 
 class CaseObj extends BaseCaseObj
@@ -653,9 +658,18 @@ class CaseObj extends BaseCaseObj
     private function doCerrarSinProceso(Request $request): array
     {
         $id = $this->parseCaseIdFromRequest($request->getParsedBody());
-        $case = $this->getCaseOrFail($id);
 
-        $user = $this->getUser();
+        return $this->cerrarSinProceso($this->getCaseOrFail($id), $this->getUser());
+    }
+
+    /**
+     * También la usa guardarDefinicionTramite con el caso aún sin guardar: la definición
+     * y el cierre quedan en un solo guardado (una sola entrada en la historia).
+     *
+     * @return array<string, mixed>
+     */
+    private function cerrarSinProceso(Entity $case, User $user): array
+    {
         $profile = $this->injectableFactory->create(AlcaldiaUserProfile::class);
 
         if (!$user->isAdmin() && !$profile->isInspeccion($user) && !$profile->isInspectorAmbiental($user)
@@ -702,6 +716,74 @@ class CaseObj extends BaseCaseObj
     }
 
     /**
+     * GET Case/action/visitas?id=  Programaciones de visita de la solicitud y qué puede hacer el usuario.
+     *
+     * @return array<string, mixed>
+     */
+    public function getActionVisitas(Request $request): array
+    {
+        $case = $this->getCaseOrFail(trim((string) $request->getQueryParam('id')));
+
+        if (!$this->acl->checkEntityRead($case)) {
+            throw new Forbidden();
+        }
+
+        return $this->injectableFactory->create(CaseVisitasService::class)->estado($case, $this->getUser());
+    }
+
+    /**
+     * POST Case/action/prepararProgramacionVisita  body: { id }  Valores del formulario «Programar visita».
+     *
+     * @return array<string, mixed>
+     */
+    public function postActionPrepararProgramacionVisita(Request $request): array
+    {
+        $case = $this->getCaseOrFail($this->parseCaseIdFromRequest($request->getParsedBody()));
+
+        return $this->injectableFactory->create(CaseVisitasService::class)->prepararProgramacion($case, $this->getUser());
+    }
+
+    /**
+     * GET Case/action/evaluacionesResultado?id=  Evaluaciones de resultado de la solicitud y qué puede hacer el usuario.
+     *
+     * @return array<string, mixed>
+     */
+    public function getActionEvaluacionesResultado(Request $request): array
+    {
+        $case = $this->getCaseOrFail(trim((string) $request->getQueryParam('id')));
+
+        if (!$this->acl->checkEntityRead($case)) {
+            throw new Forbidden();
+        }
+
+        return $this->injectableFactory->create(CaseVisitasService::class)->estadoEvaluacion($case, $this->getUser());
+    }
+
+    /**
+     * POST Case/action/prepararEvaluacionResultado  body: { id }  Valores del formulario «Evaluación de resultado».
+     *
+     * @return array<string, mixed>
+     */
+    public function postActionPrepararEvaluacionResultado(Request $request): array
+    {
+        $case = $this->getCaseOrFail($this->parseCaseIdFromRequest($request->getParsedBody()));
+
+        if (!$this->acl->checkEntityRead($case)) {
+            throw new Forbidden();
+        }
+
+        return $this->injectableFactory->create(CaseVisitasService::class)->prepararEvaluacion($case, $this->getUser());
+    }
+
+    /**
+     * La evaluación de resultado nace sola al terminar las visitas.
+     */
+    private function crearEvaluacionAutomatica(Entity $case): void
+    {
+        $this->injectableFactory->create(CaseEvaluacionResultadoService::class)->crearAutomatica($case);
+    }
+
+    /**
      * GET Case/action/aperturaEstado?id=  Fase de la apertura (G1–G4) y candidatos.
      *
      * @return array<string, mixed>
@@ -714,7 +796,11 @@ class CaseObj extends BaseCaseObj
             throw new Forbidden();
         }
 
-        return $this->injectableFactory->create(CaseAperturaService::class)->estado($case, $this->getUser());
+        $estado = $this->injectableFactory->create(CaseAperturaService::class)->estado($case, $this->getUser());
+        $estado['seguimiento'] = $this->injectableFactory->create(\Espo\Custom\Tools\CaseObj\CaseExpedienteGuidance::class)
+            ->estado($case, $this->getUser(), $estado);
+
+        return $estado;
     }
 
     /**
@@ -883,6 +969,30 @@ class CaseObj extends BaseCaseObj
     }
 
     /**
+     * POST Case/action/cambiarDestino  body: { "id": "caseId", "destinoId": "destinoId" | null }
+     *
+     * Cambia o quita el destino del caso. Solo el Director Técnico o la persona asignada,
+     * aunque su rol no tenga edición sobre Casos.
+     *
+     * @return array<string, mixed>
+     */
+    public function postActionCambiarDestino(Request $request): array
+    {
+        $body = $request->getParsedBody();
+        $case = $this->getCaseOrFail($this->parseCaseIdFromRequest($body));
+
+        if (!$this->acl->checkEntityRead($case)) {
+            throw new Forbidden();
+        }
+
+        $destinoId = trim((string) ($body->destinoId ?? ''));
+
+        return $this->injectableFactory
+            ->create(CaseDestinoService::class)
+            ->cambiar($this->getUser(), $case, $destinoId !== '' ? $destinoId : null);
+    }
+
+    /**
      * POST Case/action/remitirPorCompetencia body: {id: caseId}.
      *
      * Remisión decidida en la revisión de hallazgos: además del estado, registra la
@@ -891,7 +1001,17 @@ class CaseObj extends BaseCaseObj
     public function postActionRemitirPorCompetencia(Request $request): array
     {
         $case = $this->getCaseOrFail($this->parseCaseIdFromRequest($request->getParsedBody()));
-        $user = $this->getUser();
+
+        return $this->remitirPorCompetencia($case, $this->getUser());
+    }
+
+    /**
+     * Como cerrarSinProceso, también se ejecuta desde guardarDefinicionTramite en el mismo guardado.
+     *
+     * @return array<string, mixed>
+     */
+    private function remitirPorCompetencia(Entity $case, User $user): array
+    {
         $profile = $this->injectableFactory->create(AlcaldiaUserProfile::class);
 
         if (!$user->isAdmin() && !$profile->isInspeccion($user) && !$profile->isInspectorAmbiental($user)
@@ -967,6 +1087,9 @@ class CaseObj extends BaseCaseObj
             throw new BadRequest('Debe adjuntar el acta de visita diligenciada y firmada antes de definir el trámite.');
         }
 
+        $this->injectableFactory->create(CaseRegistrosTramiteOrdinario::class)
+            ->exigir($case, 'definir el trámite', incluirEvaluacion: false);
+
         $esRemision = $decision === 'Remisión por competencia';
 
         $case->set('cDecisionTramite', $decision);
@@ -978,6 +1101,11 @@ class CaseObj extends BaseCaseObj
             $case->set('cEntidadRemision', $entidad);
         }
 
+        // La evaluación sigue a la revisión técnico-jurídica de la visita, salvo que esta pida otra visita.
+        $revisadaAntes = trim((string) $acta->get('cRevisadoPor')) !== '' || $acta->get('fechaAprobacion');
+        $primeraRevision = $decision !== 'Visita complementaria'
+            && (!$revisadaAntes || trim((string) $acta->get('cDecisionTramite')) === 'Visita complementaria');
+
         $case->set('status', CaseActaVisitaHelper::STATUS_REVISION_HALLAZGOS);
         // La definición pertenece a la visita cuyos hallazgos se revisaron.
         // El caso conserva la última decisión para el flujo general.
@@ -986,8 +1114,36 @@ class CaseObj extends BaseCaseObj
         $acta->set('cEntidadRemision', $esRemision ? $entidad : null);
         $acta->set('fechaAprobacion', date('Y-m-d'));
         $acta->set('cRevisadoPor', (string) ($user->get('name') ?: $user->get('userName')));
-        $this->entityManager->saveEntity($acta);
+        // El caso se guarda abajo con la definición: que el acta no lo guarde por su lado
+        // (SetEnProcesoOnActaVisita), o la historia tendría una entrada de más.
+        $this->entityManager->saveEntity($acta, ['skipCaseStatusUpdate' => true]);
+
+        // Con "ejecutar", la acción de la definición va en el mismo guardado del caso.
+        if (!empty($data['ejecutar']) && $decision === 'Cierre de atención') {
+            $resultado = $this->cerrarSinProceso($case, $user);
+
+            if ($primeraRevision) {
+                $this->crearEvaluacionAutomatica($case);
+            }
+
+            return $resultado;
+        }
+
+        if (!empty($data['ejecutar']) && $esRemision) {
+            $resultado = $this->remitirPorCompetencia($case, $user);
+
+            if ($primeraRevision) {
+                $this->crearEvaluacionAutomatica($case);
+            }
+
+            return $resultado;
+        }
+
         $this->entityManager->saveEntity($case, ['skipAsignadorLimit' => true]);
+
+        if ($primeraRevision) {
+            $this->crearEvaluacionAutomatica($case);
+        }
 
         if ($decision === 'Apertura de actuación') {
             try {
@@ -1395,109 +1551,6 @@ class CaseObj extends BaseCaseObj
         return $case;
     }
 
-    /**
-     * POST Case/action/relacionarConCaso  body: { "id": "caseId", "otroCasoId": "otroCaseId" }
-     *
-     * Marca dos casos ya radicados como relacionados (mismo hecho, misma
-     * fuente, posible duplicado, etc.), creando o reutilizando el registro
-     * RelacionCasos que los agrupa. No fusiona los casos ni crea ningún
-     * efecto jurídico: es una agrupación operativa (ver 90_MODELO_CRM).
-     *
-     * @return array<string, mixed>
-     */
-    public function postActionRelacionarConCaso(Request $request): array
-    {
-        try {
-            return $this->doRelacionarConCaso($request);
-        } catch (BadRequest | Forbidden | NotFound $e) {
-            throw $e;
-        } catch (\Throwable $e) {
-            throw new Error('No se pudo relacionar el caso: ' . $e->getMessage(), 0, $e);
-        }
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function doRelacionarConCaso(Request $request): array
-    {
-        $body = $request->getParsedBody();
-        $id = $this->parseCaseIdFromRequest($body);
-
-        $otroCasoId = '';
-
-        if (is_object($body)) {
-            $otroCasoId = trim((string) ($body->otroCasoId ?? ''));
-        } elseif (is_array($body)) {
-            $otroCasoId = trim((string) ($body['otroCasoId'] ?? ''));
-        }
-
-        if ($otroCasoId === '') {
-            throw new BadRequest('Debe indicar el otro caso a relacionar.');
-        }
-
-        if ($otroCasoId === $id) {
-            throw new BadRequest('Un caso no se puede relacionar consigo mismo.');
-        }
-
-        $case = $this->getCaseOrFail($id);
-        $otroCaso = $this->getCaseOrFail($otroCasoId);
-
-        if (!$this->acl->checkEntityRead($case) || !$this->acl->checkEntityRead($otroCaso)) {
-            throw new Forbidden();
-        }
-
-        $existente = $this->findRelacionCasosConAmbos($case, $otroCaso);
-
-        if ($existente) {
-            return [
-                'success' => true,
-                'relacionId' => $existente->getId(),
-                'alreadyRelated' => true,
-            ];
-        }
-
-        $labelCase = trim((string) ($case->get('cNumeroRadicado') ?: $case->get('name') ?: $case->getId()));
-        $labelOtro = trim((string) ($otroCaso->get('cNumeroRadicado') ?: $otroCaso->get('name') ?: $otroCaso->getId()));
-
-        $relacion = $this->entityManager->getRDBRepository('RelacionCasos')->getNew();
-        $relacion->set([
-            'name' => 'Relación ' . $labelCase . ' / ' . $labelOtro,
-            'estado' => 'Activa',
-        ]);
-
-        $this->entityManager->saveEntity($relacion);
-
-        $this->entityManager->getRelation($relacion, 'casos')->relate($case);
-        $this->entityManager->getRelation($relacion, 'casos')->relate($otroCaso);
-
-        return [
-            'success' => true,
-            'relacionId' => $relacion->getId(),
-            'alreadyRelated' => false,
-        ];
-    }
-
-    private function findRelacionCasosConAmbos(
-        \Espo\ORM\Entity $case,
-        \Espo\ORM\Entity $otroCaso
-    ): ?\Espo\ORM\Entity {
-        $relacionesDeCase = $this->entityManager->getRelation($case, 'relacionesCasos')->find();
-
-        foreach ($relacionesDeCase as $relacion) {
-            $idsDeRelacion = array_map(
-                static fn (\Espo\ORM\Entity $c): string => $c->getId(),
-                iterator_to_array($this->entityManager->getRelation($relacion, 'casos')->select(['id'])->find())
-            );
-
-            if (in_array($otroCaso->getId(), $idsDeRelacion, true)) {
-                return $relacion;
-            }
-        }
-
-        return null;
-    }
-
     private function assertCanPrepararNuevaVisita(
         User $user,
         \Espo\ORM\Entity $case,
@@ -1516,12 +1569,11 @@ class CaseObj extends BaseCaseObj
             return;
         }
 
-        if ($profile->isPatrullero($user)) {
-            $assignedId = trim((string) $case->get('assignedUserId'));
+        // El responsable asignado, sea cual sea su rol, pide la nueva visita para programarla.
+        $assignedId = trim((string) $case->get('assignedUserId'));
 
-            if ($assignedId !== '' && $assignedId === $user->getId()) {
-                return;
-            }
+        if ($assignedId !== '' && $assignedId === $user->getId()) {
+            return;
         }
 
         throw new Forbidden();

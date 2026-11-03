@@ -1,5 +1,8 @@
 {
   "fields": {
+    "cDecisionTramite": "Definición de trámite",
+    "cMotivoDecision": "Motivación de la revisión",
+    "cEntidadRemision": "Entidad competente",
     "expediente": "Expediente (vinculado)",
     "cSoportesExpediente": "Soportes del proceso (carga temporal)",
     "autosInicio": "Autos de inicio",
@@ -40,6 +43,7 @@
     "cModalidadPeticion": "Régimen de respuesta y término aplicable",
     "cFundamentoPlazoEspecial": "Fundamento normativo del término especial",
     "cPanelActaVisita": "Acta de visita",
+    "cPanelEvaluacionResultado": "Evaluación de resultado",
     "cPanelActuoArchivo": "Auto de archivo",
     "cTipoPersonaPeticionario": "Tipo de peticionario",
     "cTipoPersonaPerjudicante": "Tipo de perjudicante",
@@ -155,12 +159,10 @@
     "Acta de visita": "Acta de visita",
     "llenarActaVisita": "Cargar acta de visita",
     "llenarActaVisitaDigital": "CARGAR ACTAS DE VISITA",
-    "descargarActaVisitaWord": "Descargar Documento para visita",
-    "actaVisitaManualHelp": "Descargue el documento para la visita. Luego cargue el acta diligenciada y firmada en el registro de cada visita.",
+    "actaVisitaManualHelp": "Cargue el acta diligenciada y firmada en el registro de cada visita.",
     "actaVisitaManualUnavailable": "Disponible para Inspección y el patrullero asignado al caso.",
     "actaVisitaPrintBlocked": "Permita ventanas emergentes para imprimir el acta.",
     "editarActaVisita": "Editar acta",
-    "consultarActaVisita": "Consultar acta y anexos",
     "radicarCaso": "Radicar",
     "asignarCaso": "Asignar",
     "editarAsignacion": "Editar asignación",
@@ -330,7 +332,16 @@
       "Seleccione una opción": "Seleccione una opción"
     },
     "cZonaAlcaldiaPeticionario": {
-      "Seleccione una opción": "Seleccione una opción"
+      "Seleccione una opción": "Seleccione una opción",
+      "1": "01 · Las Vegas",
+      "2": "02 · El Portal, San Marcos, Pontevedra, Jardines, Villagrande, Bosques de Zúñiga",
+      "3": "03 · La Sebastiana, Las Flores, Uribe Ángel, Alto de Misael, Las Orquídeas",
+      "4": "04 · El Esmeraldal, Loma del Atravesado, Zúñiga",
+      "5": "05 · Loma de las Brujas, La Pradera, El Chocho, La Inmaculada",
+      "6": "06 · El Chinguí, El Salado, La Mina, San Rafael, San José",
+      "7": "07 · Las Antillas, El Trianón, Loma del Barro, La Paz, El Dorado",
+      "8": "08 · Las Casitas, La Primavera, Milán Vallejuelos, Alcalá",
+      "9": "09 · Los Naranjos, Mesa, Centro, Obrero, Bucarest, La Magnolia"
     },
     "cUltimaActuacion": {
       "Seleccione una opción": "Seleccione una opción"

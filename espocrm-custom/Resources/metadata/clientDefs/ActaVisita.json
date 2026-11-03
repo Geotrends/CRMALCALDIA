@@ -15,6 +15,12 @@
                 "label": "Formato acta de visita",
                 "view": "custom:views/acta-visita/record/panels/formato-acta-visita",
                 "notRefreshable": true
+            },
+            {
+                "name": "actaStream",
+                "label": "Historia",
+                "view": "views/stream/panel",
+                "notRefreshable": true
             }
         ]
     },

@@ -1,4 +1,7 @@
 {
+    "accessControlFilterClassNameMap": {
+        "mandatory": "Espo\\Custom\\Classes\\Select\\Account\\AccessControlFilters\\Mandatory"
+    },
     "primaryFilterClassNameMap": {
         "conCasosAsociados": "Espo\\Custom\\Classes\\Select\\Account\\PrimaryFilters\\ConCasosAsociados"
     },

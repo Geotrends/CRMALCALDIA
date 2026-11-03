@@ -9,7 +9,15 @@
     "User": "Usuario",
     "Team": "Equipo",
     "Task": "Tarea",
-    "Calendar": "Calendario"
+    "Calendar": "Calendario",
+    "GestionTecnica": "Gestión técnica",
+    "IntervencionTecnica": "Intervención técnica",
+    "ProgramacionVisita": "Programación de visita",
+    "EvaluacionResultado": "Evaluación de resultado",
+    "RecomendacionTecnica": "Recomendación técnica",
+    "Compromiso": "Compromiso",
+    "VerificacionCumplimiento": "Verificación de cumplimiento",
+    "Destino": "Destino"
   },
   "scopeNamesPlural": {
     "ActaVisita": "Actas de visita",
@@ -20,7 +28,15 @@
     "Template": "Plantillas PDF",
     "User": "Usuarios",
     "Team": "Equipos",
-    "Task": "Tareas"
+    "Task": "Tareas",
+    "GestionTecnica": "Gestiones técnicas",
+    "IntervencionTecnica": "Intervenciones técnicas",
+    "ProgramacionVisita": "Programación de visitas",
+    "EvaluacionResultado": "Evaluaciones de resultado",
+    "RecomendacionTecnica": "Recomendaciones técnicas",
+    "Compromiso": "Compromisos",
+    "VerificacionCumplimiento": "Verificaciones de cumplimiento",
+    "Destino": "Destinos"
   },
   "labels": {
     "Home": "Inicio",

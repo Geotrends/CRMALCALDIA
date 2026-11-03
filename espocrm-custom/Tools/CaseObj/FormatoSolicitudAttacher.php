@@ -54,11 +54,10 @@ class FormatoSolicitudAttacher
             $case->set(self::FIELD . 'Id', $attachment->getId());
             $case->set(self::FIELD . 'Name', $attachment->getName());
 
-            $this->entityManager->saveEntity($case, [
-                'skipFormatoSolicitud' => true,
-                // El Case aún puede tener assignedUserId dirty en afterSave anidado.
-                'skipLogAsignacionHistorial' => true,
-            ]);
+            // Se llama desde afterSave: el Case aún tiene dirty los atributos del guardado
+            // en curso; sin skipHooks los hooks (Stream incluido) los registran otra vez y el
+            // historial queda duplicado. Aquí solo se persiste el vínculo al PDF.
+            $this->entityManager->saveEntity($case, ['skipHooks' => true]);
 
             @unlink($file['path']);
             $workDir = dirname($file['path']);

@@ -6,6 +6,7 @@
         "barrio": "Barrio",
         "descripcion": "Descripción",
         "casos": "Casos reportados",
+        "relacionesCasos": "Relaciones de casos",
         "assignedUser": "Responsable",
         "teams": "Equipos",
         "createdAt": "Creado",
@@ -27,6 +28,7 @@
         }
     },
     "links": {
-        "casos": "Casos reportados"
+        "casos": "Casos reportados",
+        "relacionesCasos": "Relaciones de casos"
     }
 }

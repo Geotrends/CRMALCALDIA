@@ -1,7 +1,9 @@
 define('custom:views/acta-visita/fields/formato-mano-adjunto', [
-    'views/fields/base',
+    'views/fields/attachment-multiple',
 ], function (Dep) {
 
+    // En detalle lista las descargas; en edición es el campo de adjuntos estándar. El layout
+    // "detail" también se usa al crear/editar, por eso este campo debe saber adjuntar archivos.
     return Dep.extend({
         detailTemplate: 'custom:acta-visita/fields/formato-mano-adjunto',
 
@@ -12,11 +14,48 @@ define('custom:views/acta-visita/fields/formato-mano-adjunto', [
         },
 
         data: function () {
-            return {files: this.files};
+            const data = Dep.prototype.data.call(this);
+
+            data.files = this.files;
+
+            return data;
+        },
+
+        labelAttachButton: function () {
+            const $button = this.$el.find('.attach-file-label > .btn').first();
+
+            if (!$button.length || $button.find('.acta-adjuntar-texto').length) {
+                return;
+            }
+
+            $button.removeClass('btn-icon').addClass('btn-sm')
+                .append(' <span class="acta-adjuntar-texto">Adjuntar acta diligenciada</span>');
+        },
+
+        // Solo al crear el acta: el formato vacío para diligenciar a mano en campo.
+        addFormatoEnBlanco: function () {
+            if (!this.isEditMode() || !this.model.isNew() || this.$el.find('.acta-formato-en-blanco').length) {
+                return;
+            }
+
+            this.$el.prepend(
+                '<a class="btn btn-default btn-sm acta-formato-en-blanco" ' +
+                    'href="?entryPoint=FormatoActaVisita&blank=1&format=pdf" download>' +
+                    '<span class="fas fa-file-pdf"></span> Descargar acta en blanco' +
+                '</a>'
+            );
         },
 
         afterRender: function () {
             Dep.prototype.afterRender.call(this);
+
+            if (!this.isDetailMode()) {
+                this.labelAttachButton();
+                this.addFormatoEnBlanco();
+
+                return;
+            }
+
             const ids = this.model.get(this.name + 'Ids') || [];
             const list = Array.isArray(ids) ? ids : String(ids || '').split(',').filter(Boolean);
             const self = this;

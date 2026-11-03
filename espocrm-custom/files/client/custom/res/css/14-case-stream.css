@@ -229,10 +229,6 @@
   background: #fff;
 }
 
-.detail[data-scope="Case"] .panel[data-name="actaVisita"] .case-acta-word-section {
-  margin: 12px 0;
-}
-
 .detail[data-scope="Case"] .panel[data-name="actaVisita"] .case-agregar-visita-section .case-agregar-visita-help {
   margin-bottom: 10px;
 }
@@ -244,6 +240,12 @@
   gap: 8px;
   margin: 0 0 10px;
   font-size: 13px;
+}
+
+.detail[data-scope="Case"] .panel[data-name="actaVisita"] .case-visita-archivo-fecha {
+  margin: -6px 0 10px;
+  color: #475569;
+  font-size: 12px;
 }
 
 .detail[data-scope="Case"] .panel[data-name="actaVisita"] .case-visita-archivo-estado {
@@ -397,4 +399,97 @@
 .detail[data-scope="Case"] .panel[data-name="actuoArchivoPanel"] .case-actuo-archivo-btn--print .fas,
 .detail[data-scope="Case"] .panel[data-panel-name="actuoArchivoPanel"] .case-actuo-archivo-btn--print .fas {
   color: #1a5c47 !important;
+}
+
+/* Historia: tabla de campos actualizados (nombre del campo · antes → después).
+   El padding global de .table dejaba la primera columna sin ancho y el nombre del campo ilegible. */
+table.table.audited-summary-table {
+  table-layout: auto !important;
+  width: 100%;
+}
+
+table.table.audited-summary-table > tbody > tr > td {
+  padding: 6px 8px !important;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+  word-break: break-word;
+  vertical-align: top !important;
+  border-top: 0 !important;
+}
+
+table.table.audited-summary-table > tbody > tr > td:first-child {
+  width: 34% !important;
+  min-width: 110px;
+  padding-left: 0 !important;
+  font-weight: 600;
+}
+
+table.table.audited-summary-table > tbody > tr > td.cell-was,
+table.table.audited-summary-table > tbody > tr > td.cell-became {
+  width: auto !important;
+}
+
+table.table.audited-summary-table > tbody > tr > td:nth-child(3) {
+  width: 24px !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  text-align: center;
+}
+
+/* Historia en el panel lateral (gestión, intervención, acta, programación): el menú de acciones va a la derecha del título. */
+.detail[data-scope="GestionTecnica"] .side .panel[data-name="gestionStream"] > .panel-heading,
+.detail[data-scope="IntervencionTecnica"] .side .panel[data-name="gestionStream"] > .panel-heading ,
+.detail[data-scope="ActaVisita"] .side .panel[data-name="actaStream"] > .panel-heading,
+.detail[data-scope="ProgramacionVisita"] .side .panel[data-name="programacionStream"] > .panel-heading,
+.detail[data-scope="EvaluacionResultado"] .side .panel[data-name="seguimientoStream"] > .panel-heading,
+.detail[data-scope="RecomendacionTecnica"] .side .panel[data-name="seguimientoStream"] > .panel-heading,
+.detail[data-scope="Compromiso"] .side .panel[data-name="seguimientoStream"] > .panel-heading,
+.detail[data-scope="VerificacionCumplimiento"] .side .panel[data-name="seguimientoStream"] > .panel-heading {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+
+.detail[data-scope="GestionTecnica"] .side .panel[data-name="gestionStream"] > .panel-heading .panel-title,
+.detail[data-scope="IntervencionTecnica"] .side .panel[data-name="gestionStream"] > .panel-heading .panel-title ,
+.detail[data-scope="ActaVisita"] .side .panel[data-name="actaStream"] > .panel-heading .panel-title,
+.detail[data-scope="ProgramacionVisita"] .side .panel[data-name="programacionStream"] > .panel-heading .panel-title,
+.detail[data-scope="EvaluacionResultado"] .side .panel[data-name="seguimientoStream"] > .panel-heading .panel-title,
+.detail[data-scope="RecomendacionTecnica"] .side .panel[data-name="seguimientoStream"] > .panel-heading .panel-title,
+.detail[data-scope="Compromiso"] .side .panel[data-name="seguimientoStream"] > .panel-heading .panel-title,
+.detail[data-scope="VerificacionCumplimiento"] .side .panel[data-name="seguimientoStream"] > .panel-heading .panel-title {
+  flex: 1 1 auto;
+}
+
+.detail[data-scope="GestionTecnica"] .side .panel[data-name="gestionStream"] > .panel-heading .panel-actions-container,
+.detail[data-scope="IntervencionTecnica"] .side .panel[data-name="gestionStream"] > .panel-heading .panel-actions-container ,
+.detail[data-scope="ActaVisita"] .side .panel[data-name="actaStream"] > .panel-heading .panel-actions-container,
+.detail[data-scope="ProgramacionVisita"] .side .panel[data-name="programacionStream"] > .panel-heading .panel-actions-container,
+.detail[data-scope="EvaluacionResultado"] .side .panel[data-name="seguimientoStream"] > .panel-heading .panel-actions-container,
+.detail[data-scope="RecomendacionTecnica"] .side .panel[data-name="seguimientoStream"] > .panel-heading .panel-actions-container,
+.detail[data-scope="Compromiso"] .side .panel[data-name="seguimientoStream"] > .panel-heading .panel-actions-container,
+.detail[data-scope="VerificacionCumplimiento"] .side .panel[data-name="seguimientoStream"] > .panel-heading .panel-actions-container {
+  flex: 0 0 auto;
+  float: none;
+  order: 2;
+}
+
+.detail[data-scope="Case"] .panel[data-name="actaVisita"] .case-programaciones {
+  margin: 0 0 18px;
+}
+
+.detail[data-scope="Case"] .panel[data-name="actaVisita"] .case-programar-visita-btn {
+  width: 100%;
+  margin: 0 0 12px;
+}
+
+.detail[data-scope="Case"] .panel[data-name="actaVisita"] .case-programar-visita-help {
+  margin: 0 0 12px;
+}
+
+.detail[data-scope="Case"] .panel[data-name="actaVisita"] .case-programacion-acta {
+  margin: -4px 0 0;
+  color: #334155;
+  font-size: 12px;
 }

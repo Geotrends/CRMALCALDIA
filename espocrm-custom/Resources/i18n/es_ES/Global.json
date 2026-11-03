@@ -2,7 +2,7 @@
   "scopeNames": {
     "ActaVisita": "Acta de visita",
     "Account": "Persona jurídica",
-    "Case": "Caso",
+    "Case": "Solicitud",
     "Contact": "Persona natural",
     "Document": "Documento",
     "Template": "Plantilla PDF",
@@ -11,12 +11,20 @@
     "Task": "Tarea",
     "Calendar": "Calendario",
     "Expediente": "Expediente",
-    "RelacionCasos": "Relación de casos"
+    "RelacionCasos": "Relación de casos",
+    "GestionTecnica": "Gestión técnica",
+    "IntervencionTecnica": "Intervención técnica",
+    "ProgramacionVisita": "Programación de visita",
+    "EvaluacionResultado": "Evaluación de resultado",
+    "RecomendacionTecnica": "Recomendación técnica",
+    "Compromiso": "Compromiso",
+    "VerificacionCumplimiento": "Verificación de cumplimiento",
+    "Destino": "Destino"
   },
   "scopeNamesPlural": {
     "ActaVisita": "Actas de visita",
     "Account": "Personas jurídicas",
-    "Case": "Casos",
+    "Case": "Solicitudes",
     "Contact": "Personas naturales",
     "Document": "Documentos",
     "Template": "Plantillas PDF",
@@ -24,7 +32,15 @@
     "Team": "Equipos",
     "Task": "Tareas",
     "Expediente": "Expedientes",
-    "RelacionCasos": "Relaciones de casos"
+    "RelacionCasos": "Relaciones de casos",
+    "GestionTecnica": "Gestiones técnicas",
+    "IntervencionTecnica": "Intervenciones técnicas",
+    "ProgramacionVisita": "Programación de visitas",
+    "EvaluacionResultado": "Evaluaciones de resultado",
+    "RecomendacionTecnica": "Recomendaciones técnicas",
+    "Compromiso": "Compromisos",
+    "VerificacionCumplimiento": "Verificaciones de cumplimiento",
+    "Destino": "Destinos"
   },
   "labels": {
     "Home": "Inicio",
@@ -32,7 +48,7 @@
     "accounts": "Personas jurídicas",
     "Contacts": "Personas naturales",
     "Accounts": "Personas jurídicas",
-    "Cases": "Casos",
+    "Cases": "Solicitud",
     "Users": "Usuarios",
     "Documents": "Documentos",
     "Templates": "Plantillas PDF",
