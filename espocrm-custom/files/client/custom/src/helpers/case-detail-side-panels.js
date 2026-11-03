@@ -1359,7 +1359,9 @@ define('custom:helpers/case-detail-side-panels', [
                 + '<label>Tesis que plantea la Inspección</label><textarea class="form-control js-decision-tesis" rows="2" placeholder="Opcional: si queda vacío, se deja el espacio en la resolución">' + escapeHtml(d.tesis || '') + '</textarea>'
                 + '<label>Motivación / conclusiones <span class="text-danger">*</span></label><textarea class="form-control js-decision-motivacion" rows="3" placeholder="Valoración de pruebas, fundamento y razones de cada medida">' + escapeHtml(d.motivacion || '') + '</textarea>'
                 + '<div class="alcaldia-apertura__acciones"><button type="button" class="btn btn-' + (d.borradorId ? 'default' : 'primary') + ' btn-sm js-decision-guardar"><span class="fas fa-file-word"></span> '
-                + (d.borradorId ? 'Corregir y regenerar resolución' : 'Generar resolución (IV-F-117)') + '</button></div>')
+                + (d.borradorId ? 'Corregir y regenerar resolución' : 'Generar resolución (IV-F-117)') + '</button>'
+                + (d.borradorId ? '<button type="button" class="btn btn-default btn-sm js-decision-cancelar-edicion"><span class="fas fa-xmark"></span> Cancelar edición</button>' : '')
+                + '</div>')
             + '</div>';
         const titulos = {};
 
@@ -1393,8 +1395,7 @@ define('custom:helpers/case-detail-side-panels', [
 
         // Ya generada: se muestra el resumen; el formulario se abre solo al editar y, mientras tanto, la firma queda bloqueada.
         return aviso + resumen
-            + '<div class="js-decision-formulario hidden">' + formulario
-            + '<div class="alcaldia-apertura__acciones"><button type="button" class="btn btn-default btn-sm js-decision-cancelar-edicion"><span class="fas fa-xmark"></span> Cancelar edición</button></div></div>'
+            + '<div class="js-decision-formulario hidden">' + formulario + '</div>'
             + firma.replace('<div class="alcaldia-firma">', '<div class="alcaldia-firma js-decision-firma">');
     };
 
