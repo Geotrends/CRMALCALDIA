@@ -10,5 +10,15 @@
     },
     "modalViews": {
         "edit": "custom:views/modals/auto-inicio"
+    },
+    "sidePanels": {
+        "detail": [
+            {
+                "name": "autoInicioStream",
+                "label": "Historia",
+                "view": "views/stream/panel",
+                "notRefreshable": true
+            }
+        ]
     }
 }

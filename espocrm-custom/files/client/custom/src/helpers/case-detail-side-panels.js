@@ -694,6 +694,8 @@ define('custom:helpers/case-detail-side-panels', [
             + (motivo ? fila('Motivo', escapeHtml(motivo.length > 140 ? motivo.slice(0, 140) + '…' : motivo)) : '')
             + '</dl>'
             + (acciones ? '<div class="alcaldia-apertura__acciones">' + acciones + '</div>' : '')
+            + (auto.id ? '<a class="alcaldia-auto-tarjeta__historia" href="#AutoInicio/view/' + escapeHtml(auto.id) + '">'
+                + '<span class="fas fa-clock-rotate-left"></span> Ver historia del Auto y sus citaciones</a>' : '')
             + '</div>';
     };
 
