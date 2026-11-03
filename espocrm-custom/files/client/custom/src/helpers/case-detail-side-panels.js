@@ -1635,6 +1635,16 @@ define('custom:helpers/case-detail-side-panels', [
             });
         });
 
+        // Editar abre el formulario y bloquea la firma hasta terminar (regenerar rehace el Auto; cancelar lo deja como estaba).
+        const editarArchivo = function (editando) {
+            $block.find('.js-archivo-resumen').toggleClass('hidden', editando);
+            $block.find('.js-archivo-formulario').toggleClass('hidden', !editando);
+            $block.find('.js-archivo-firma').toggleClass('is-deshabilitado', editando).find('input, button').prop('disabled', editando);
+        };
+
+        $block.find('.js-archivo-editar').on('click', function () { editarArchivo(true); });
+        $block.find('.js-archivo-cancelar-edicion').on('click', function () { editarArchivo(false); });
+
         $block.find('.js-archivo-generar').on('click', function () {
             procesoAccion(recordView, {
                 accion: 'archivoGenerar', causal: val('.js-archivo-causal'), observacion: val('.js-archivo-observacion'),
@@ -1922,7 +1932,9 @@ define('custom:helpers/case-detail-side-panels', [
             + '<textarea class="form-control js-archivo-observacion" rows="2">' + escapeHtml(d.observacion || '') + '</textarea>'
             + '<label class="alcaldia-firma__interruptor"><input type="checkbox" class="js-archivo-notificar"' + (d.requiereNotificacion ? ' checked' : '') + '> <span>Requiere notificación o comunicación</span></label>'
             + '<div class="alcaldia-apertura__acciones"><button type="button" class="btn btn-' + (d.formatoId ? 'default' : 'primary') + ' btn-sm js-archivo-generar"><span class="fas fa-file-word"></span> '
-            + (d.formatoId ? 'Regenerar Auto de Archivo' : 'Generar Auto de Archivo (Word)') + '</button></div>'
+            + (d.formatoId ? 'Regenerar Auto de Archivo' : 'Generar Auto de Archivo (Word)') + '</button>'
+            + (d.formatoId ? '<button type="button" class="btn btn-default btn-sm js-archivo-cancelar-edicion"><span class="fas fa-xmark"></span> Cancelar edición</button>' : '')
+            + '</div>'
             + '</div></div>'
             + '</div>';
 
@@ -1930,8 +1942,21 @@ define('custom:helpers/case-detail-side-panels', [
             return generar;
         }
 
-        return generar
-            + '<div class="alcaldia-firma">'
+        // Ya generado: lo único que falta es la firma. El formulario solo se abre con «Editar» y, mientras, la firma queda bloqueada.
+        const observacion = String(d.observacion || '').trim();
+        const resumen = '<div class="alcaldia-firma alcaldia-decision-resumen js-archivo-resumen">'
+            + '<div class="alcaldia-firma__titulo"><span class="fas fa-file-circle-check"></span> Auto de Archivo generado</div>'
+            + '<dl class="alcaldia-decision-resumen__datos">'
+            + '<div><dt>Causal de archivo</dt><dd>' + escapeHtml(d.causal || ar.causal || '—') + '</dd></div>'
+            + (observacion ? '<div><dt>Observación</dt><dd>' + escapeHtml(observacion) + '</dd></div>' : '')
+            + '<div><dt>Notificación o comunicación</dt><dd>' + (d.requiereNotificacion ? 'Requerida' : 'No requerida') + '</dd></div>'
+            + '</dl>'
+            + '<div class="alcaldia-firma__listo"><span class="fas fa-circle-info"></span> Solo falta la firma del Auto de Archivo.</div>'
+            + '<div class="alcaldia-apertura__acciones"><button type="button" class="btn btn-default btn-sm js-archivo-editar"><span class="fas fa-pen"></span> Editar Auto de Archivo</button></div>'
+            + '</div>';
+
+        return resumen + '<div class="js-archivo-formulario hidden">' + generar + '</div>'
+            + '<div class="alcaldia-firma js-archivo-firma">'
             + '<div class="alcaldia-firma__titulo"><span class="fas fa-signature"></span> Firma del Auto de Archivo</div>'
             + '<div class="alcaldia-firma__paso"><span class="alcaldia-firma__num">1</span><div class="alcaldia-firma__cuerpo">'
             + '<b>Descargue, revise y firme el Auto</b>'
