@@ -35,6 +35,10 @@ class ExpedientePasosCatalog
     public const PASO_CUMPLIMIENTO = 'Cumplimiento de la orden o medida';
     public const PASO_ARCHIVO = 'Auto de Archivo';
 
+    /** Paso de Maltrato Animal que se cumple clasificando la conducta (selección múltiple + detalle). */
+    public const PASO_CLASIFICACION_MALTRATO = 'Clasificación jurídica: maltrato leve o posible delito';
+    public const CLASIFICACIONES_MALTRATO = ['Maltrato leve', 'Posible delito', 'Otro'];
+
     /** Paso de la línea de tiempo del caso entre la definición del trámite y la ruta. */
     public const PASO_APERTURA = 'Apertura de expediente';
 

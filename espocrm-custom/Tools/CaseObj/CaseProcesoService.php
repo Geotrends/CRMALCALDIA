@@ -207,7 +207,7 @@ class CaseProcesoService
             'soportePrueba' => $this->soportePrueba($case, $user, $expediente, $ultima, $texto('documentoId'), $texto('observacion')),
             'realizada' => $this->realizada($case, $user, $expediente, $ultima, $data),
             'soportes' => $this->soportes($case, $user, $expediente, $ultima, $data),
-            'cumplirPaso' => $this->cumplirPaso($case, $user, $expediente, $paso, $texto('observacion')),
+            'cumplirPaso' => $this->cumplirPaso($case, $user, $expediente, $paso, $this->observacionPaso($paso, $texto('observacion'), $data['clasificacion'] ?? [])),
             'decisionGuardar' => $this->decision->guardar($case, $user, $expediente, $data),
             'decisionFirmar' => $this->decision->firmar($case, $user, $expediente, $texto('documentoId')),
             'formatoNotificacion' => $this->decision->formatoNotificacion($case, $user, $expediente, $data),
@@ -656,6 +656,34 @@ class CaseProcesoService
      *
      * @return array<string, mixed>
      */
+    /**
+     * La clasificación jurídica de Maltrato Animal se elige (maltrato leve, posible delito u otro, una o varias) y
+     * se acompaña de un detalle; el resto de pasos se cumple con la descripción escrita.
+     *
+     * @param mixed $clasificacion
+     */
+    private function observacionPaso(string $paso, string $observacion, mixed $clasificacion): string
+    {
+        if ($paso !== ExpedientePasosCatalog::PASO_CLASIFICACION_MALTRATO) {
+            return $observacion;
+        }
+
+        $elegidas = array_values(array_unique(array_filter(
+            array_map(static fn ($v): string => trim((string) $v), (array) $clasificacion),
+            static fn (string $v): bool => in_array($v, ExpedientePasosCatalog::CLASIFICACIONES_MALTRATO, true)
+        )));
+
+        if ($elegidas === []) {
+            throw new BadRequest('Seleccione la clasificación: maltrato leve, posible delito u otro.');
+        }
+
+        if (in_array('Otro', $elegidas, true) && $observacion === '') {
+            throw new BadRequest('Describa la clasificación «Otro».');
+        }
+
+        return 'Clasificación jurídica: ' . implode(', ', $elegidas) . '.' . ($observacion !== '' ? ' ' . $observacion : '');
+    }
+
     private function cumplirPaso(Entity $case, User $user, Entity $expediente, string $paso, string $observacion): array
     {
         if ($observacion === '') {

@@ -1260,9 +1260,40 @@ define('custom:helpers/case-detail-side-panels', [
             + '</div>';
     };
 
+    const CLASIFICACION_MALTRATO = 'Clasificación jurídica: maltrato leve o posible delito';
+
+    // Clasificación jurídica de Maltrato Animal: selección múltiple (maltrato leve, posible delito u otro) y detalle.
+    const htmlClasificacionMaltrato = function () {
+        const opcion = function (valor, icono, detalle) {
+            return '<label class="alcaldia-firma__opcion"><input type="checkbox" class="js-clasificacion" value="' + valor + '">'
+                + '<span class="fas ' + icono + '"></span><span><b>' + valor + '</b><small>' + detalle + '</small></span></label>';
+        };
+
+        return '<div class="alcaldia-firma">'
+            + '<div class="alcaldia-firma__titulo"><span class="fas fa-scale-balanced"></span> Clasificación jurídica</div>'
+            + '<p class="alcaldia-firma__nota">Marque una o varias. El expediente pasa al paso siguiente.</p>'
+            + '<div class="alcaldia-firma__paso"><span class="alcaldia-firma__num">1</span><div class="alcaldia-firma__cuerpo">'
+            + '<b>Clasificación <span class="text-danger">*</span></b>'
+            + '<div class="alcaldia-firma__opciones">'
+            + opcion('Maltrato leve', 'fa-paw', 'Se tramita por el proceso verbal de maltrato animal.')
+            + opcion('Posible delito', 'fa-gavel', 'Puede requerir remisión a Fiscalía / GELMA.')
+            + opcion('Otro', 'fa-ellipsis', 'Otra clasificación: descríbala en el detalle.')
+            + '</div></div></div>'
+            + '<div class="alcaldia-firma__paso"><span class="alcaldia-firma__num">2</span><div class="alcaldia-firma__cuerpo">'
+            + '<b>Detalle</b><small>Obligatorio si marca «Otro».</small>'
+            + '<textarea class="form-control js-proceso-observacion" rows="3" placeholder="Fundamento de la clasificación"></textarea>'
+            + '<div class="alcaldia-apertura__acciones"><button type="button" class="btn btn-primary btn-sm js-proceso-clasificar">'
+            + '<span class="fas fa-check"></span> Registrar clasificación</button></div>'
+            + '</div></div></div>';
+    };
+
     const htmlCumplirPaso = function (estado) {
         if (estado.esPasoFinal) {
             return '<p class="alcaldia-apertura__ayuda">El Auto de Archivo se registra en el tramo de cierre del expediente.</p>';
+        }
+
+        if (estado.pasoActual === CLASIFICACION_MALTRATO) {
+            return htmlClasificacionMaltrato();
         }
 
         return '<p class="alcaldia-apertura__ayuda">Registre cómo se cumplió «' + escapeHtml(estado.pasoActual) + '». El expediente pasa al paso siguiente.</p>'
@@ -2192,6 +2223,16 @@ define('custom:helpers/case-detail-side-panels', [
             conArchivos(['.js-proceso-acta', '.js-proceso-audio'], function (ids) {
                 procesoAccion(recordView, {accion: 'soportes', actaId: ids[0], audioId: ids[1], excepcionAudio: excepcion}, 'Soportes de la audiencia cargados.');
             });
+        });
+
+        $block.find('.js-proceso-clasificar').on('click', function () {
+            const elegidas = $block.find('.js-clasificacion:checked').map(function () { return this.value; }).get();
+
+            if (!elegidas.length) { Espo.Ui.error('Seleccione la clasificación: maltrato leve, posible delito u otro.'); return; }
+            if (elegidas.indexOf('Otro') !== -1 && !val('.js-proceso-observacion')) { Espo.Ui.error('Describa la clasificación «Otro».'); return; }
+
+            procesoAccion(recordView, {accion: 'cumplirPaso', clasificacion: elegidas, observacion: val('.js-proceso-observacion')},
+                'Clasificación registrada.');
         });
 
         $block.find('.js-proceso-cumplir').on('click', function () {

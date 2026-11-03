@@ -553,7 +553,7 @@ html.crm-modern-ui body .detail[data-scope="Case"] .btn.btn-primary.case-acta-ca
 .detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-firma__opcion { align-items: center; background: var(--crm-surface); border: 1px solid var(--crm-border); border-radius: 8px; cursor: pointer; display: flex; font-weight: 400 !important; gap: 10px; margin: 0 !important; padding: 8px 10px; }
 .detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-firma__opcion:hover { border-color: var(--crm-primary); }
 .detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-firma__opcion:has(input:checked) { background: var(--crm-primary-light); border-color: var(--crm-primary); }
-.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-firma__opcion input[type="radio"] { height: 16px !important; margin: 0 !important; min-width: 0 !important; width: 16px !important; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-firma__opcion input[type="radio"], .detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-firma__opcion input[type="checkbox"] { height: 16px !important; margin: 0 !important; min-width: 0 !important; width: 16px !important; }
 .detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-firma__opcion > span:nth-child(2) { color: var(--crm-text-secondary); }
 .detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-firma__opcion > span:last-child { display: flex; flex-direction: column; }
 .detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-firma__opcion small { color: var(--crm-text-secondary); font-size: 12px; }
