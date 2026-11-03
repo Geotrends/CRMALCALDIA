@@ -532,6 +532,8 @@ html.crm-modern-ui body .detail[data-scope="Case"] .btn.btn-primary.case-acta-ca
 .detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-firma__archivo-texto { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-firma__nota { margin: 0; }
 .detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-firma__fecha { max-width: 200px; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso__conducta-fila { align-items: flex-start; display: flex; gap: 8px; justify-content: space-between; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso__conducta-fila .js-conducta-quitar { color: var(--crm-danger, #b91c1c); flex: 0 0 auto; margin: 0 !important; padding: 0 4px; }
 .detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-firma__listo { align-items: center; background: var(--crm-success-soft); border-radius: 8px; color: #166534; display: flex; font-weight: 600; gap: 8px; padding: 8px 12px; }
 .detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-firma__archivo.is-deshabilitado { opacity: 0.45; pointer-events: none; }
 .detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-firma__interruptor { align-items: center; color: var(--crm-text-secondary); cursor: pointer; display: flex; font-weight: 400 !important; gap: 8px; margin: 2px 0 0 !important; }

@@ -1308,9 +1308,12 @@ define('custom:helpers/case-detail-side-panels', [
         const conductas = (dec.conductas || []).map(function (c) {
             const visible = c.enAuto || elegidas.indexOf(c.id) !== -1;
 
-            return '<div class="alcaldia-proceso__conducta' + (visible ? '' : ' hidden') + '" data-conducta="' + escapeHtml(c.id) + '">'
+            return '<div class="alcaldia-proceso__conducta' + (visible ? '' : ' hidden') + '" data-conducta="' + escapeHtml(c.id) + '" data-titulo="' + escapeHtml(c.articulo + ' — ' + c.titulo) + '">'
+                + '<div class="alcaldia-proceso__conducta-fila">'
                 + '<label class="alcaldia-proceso__check"><input type="checkbox" class="js-conducta"' + (elegidas.indexOf(c.id) !== -1 ? ' checked' : '') + '> '
                 + '<span><b>' + escapeHtml(c.articulo) + '</b> — ' + escapeHtml(c.titulo) + (c.enAuto ? ' <small>(del Auto de Inicio)</small>' : '') + '</span></label>'
+                + (c.enAuto ? '' : '<button type="button" class="btn btn-link btn-xs js-conducta-quitar" title="Quitar esta conducta"><span class="fas fa-xmark"></span> Quitar</button>')
+                + '</div>'
                 + '<div class="alcaldia-proceso__reglas' + (elegidas.indexOf(c.id) !== -1 ? '' : ' hidden') + '">'
                 + (c.reglasEspeciales || []).map(function (t) { return '<small class="alcaldia-proceso__especial">' + escapeHtml(t) + '</small>'; }).join('')
                 + c.reglas.map(function (r) { return htmlRegla(c, r, previa); }).join('') + '</div></div>';
@@ -1448,6 +1451,20 @@ define('custom:helpers/case-detail-side-panels', [
         $block.find('.js-conducta').on('change', function () {
             $(this).closest('.alcaldia-proceso__conducta').find('.alcaldia-proceso__reglas').toggleClass('hidden', !this.checked);
             if (this.checked) { $block.find('.js-sin-medida').prop('checked', false); }
+        });
+
+        // Una conducta agregada del catálogo por error se quita: se desmarca, se oculta y vuelve a la lista.
+        $block.find('.js-conducta-quitar').on('click', function () {
+            const $c = $(this).closest('.alcaldia-proceso__conducta');
+            const id = String($c.data('conducta'));
+            const $lista = $block.find('.js-conducta-agregar');
+
+            $c.find('.js-conducta').prop('checked', false).trigger('change');
+            $c.addClass('hidden');
+
+            if ($lista.length && !$lista.find('option[value="' + id + '"]').length) {
+                $lista.append($('<option>').val(id).text(String($c.data('titulo'))));
+            }
         });
 
         $block.find('.js-conducta-agregar').on('change', function () {
