@@ -657,7 +657,7 @@ class CaseProcesoService
      * @return array<string, mixed>
      */
     /**
-     * La clasificación jurídica de Maltrato Animal se elige (maltrato leve, posible delito u otro, una o varias) y
+     * La clasificación jurídica de Maltrato Animal es una sola opción (maltrato leve, posible delito u otro) y
      * se acompaña de un detalle; el resto de pasos se cumple con la descripción escrita.
      *
      * @param mixed $clasificacion
@@ -673,15 +673,15 @@ class CaseProcesoService
             static fn (string $v): bool => in_array($v, ExpedientePasosCatalog::CLASIFICACIONES_MALTRATO, true)
         )));
 
-        if ($elegidas === []) {
-            throw new BadRequest('Seleccione la clasificación: maltrato leve, posible delito u otro.');
+        if (count($elegidas) !== 1) {
+            throw new BadRequest('Seleccione una sola clasificación: maltrato leve, posible delito u otro.');
         }
 
         if (in_array('Otro', $elegidas, true) && $observacion === '') {
             throw new BadRequest('Describa la clasificación «Otro».');
         }
 
-        return 'Clasificación jurídica: ' . implode(', ', $elegidas) . '.' . ($observacion !== '' ? ' ' . $observacion : '');
+        return 'Clasificación jurídica: ' . $elegidas[0] . '.' . ($observacion !== '' ? ' ' . $observacion : '');
     }
 
     private function cumplirPaso(Entity $case, User $user, Entity $expediente, string $paso, string $observacion): array

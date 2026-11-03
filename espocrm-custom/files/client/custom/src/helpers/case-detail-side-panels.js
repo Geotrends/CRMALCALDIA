@@ -1265,13 +1265,13 @@ define('custom:helpers/case-detail-side-panels', [
     // Clasificación jurídica de Maltrato Animal: selección múltiple (maltrato leve, posible delito u otro) y detalle.
     const htmlClasificacionMaltrato = function () {
         const opcion = function (valor, icono, detalle) {
-            return '<label class="alcaldia-firma__opcion"><input type="checkbox" class="js-clasificacion" value="' + valor + '">'
+            return '<label class="alcaldia-firma__opcion"><input type="radio" name="alcaldia-clasificacion" class="js-clasificacion" value="' + valor + '">'
                 + '<span class="fas ' + icono + '"></span><span><b>' + valor + '</b><small>' + detalle + '</small></span></label>';
         };
 
         return '<div class="alcaldia-firma">'
             + '<div class="alcaldia-firma__titulo"><span class="fas fa-scale-balanced"></span> Clasificación jurídica</div>'
-            + '<p class="alcaldia-firma__nota">Marque una o varias. El expediente pasa al paso siguiente.</p>'
+            + '<p class="alcaldia-firma__nota">Elija una opción. El expediente pasa al paso siguiente.</p>'
             + '<div class="alcaldia-firma__paso"><span class="alcaldia-firma__num">1</span><div class="alcaldia-firma__cuerpo">'
             + '<b>Clasificación <span class="text-danger">*</span></b>'
             + '<div class="alcaldia-firma__opciones">'
@@ -2226,12 +2226,12 @@ define('custom:helpers/case-detail-side-panels', [
         });
 
         $block.find('.js-proceso-clasificar').on('click', function () {
-            const elegidas = $block.find('.js-clasificacion:checked').map(function () { return this.value; }).get();
+            const elegida = String($block.find('input[name="alcaldia-clasificacion"]:checked').val() || '');
 
-            if (!elegidas.length) { Espo.Ui.error('Seleccione la clasificación: maltrato leve, posible delito u otro.'); return; }
-            if (elegidas.indexOf('Otro') !== -1 && !val('.js-proceso-observacion')) { Espo.Ui.error('Describa la clasificación «Otro».'); return; }
+            if (!elegida) { Espo.Ui.error('Seleccione la clasificación: maltrato leve, posible delito u otro.'); return; }
+            if (elegida === 'Otro' && !val('.js-proceso-observacion')) { Espo.Ui.error('Describa la clasificación «Otro».'); return; }
 
-            procesoAccion(recordView, {accion: 'cumplirPaso', clasificacion: elegidas, observacion: val('.js-proceso-observacion')},
+            procesoAccion(recordView, {accion: 'cumplirPaso', clasificacion: [elegida], observacion: val('.js-proceso-observacion')},
                 'Clasificación registrada.');
         });
 
