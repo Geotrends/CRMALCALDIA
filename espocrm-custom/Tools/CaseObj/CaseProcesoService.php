@@ -116,7 +116,7 @@ class CaseProcesoService
             'fase' => $this->lectura->fase($actual, $ultima, $expediente),
             'pasos' => $pasos,
             'audiencias' => array_map(fn (Entity $a): array => $this->audienciaData($a), $audiencias),
-            'defaults' => $this->defaultsCitacion($case),
+            'defaults' => $this->defaultsCitacion($case, $ultima),
             'medios' => self::MEDIOS_CITACION,
             'lugares' => self::LUGARES,
             'lugarInspeccion' => self::LUGAR_INSPECCION,
@@ -800,7 +800,7 @@ class CaseProcesoService
         }
 
         $local = new \DateTimeImmutable($fecha . ' ' . $hora, new \DateTimeZone('America/Bogota'));
-        $numero = $anterior ? (int) $anterior->get('numero') + 1 : 1;
+        $numero = $anterior ? (int) $anterior->get('numero') + (CaseProcesoLectura::esAudienciaDelAuto($anterior) ? 0 : 1) : 1;
         [$lugarTipo, $lugar] = $this->lugarAudiencia($data);
 
         return ['success' => true, 'formatoId' => $this->generarCitacion($case, $expediente, $case, $local, $numero, 'cSoportesExpediente', true, $lugarTipo === self::LUGARES[0] ? null : $lugar)];
@@ -975,22 +975,37 @@ class CaseProcesoService
         return $v('cDireccionPerjudicante') . ($v('cBarrioPerjudicante') !== '' ? ', barrio ' . $v('cBarrioPerjudicante') : '') . ', Envigado';
     }
 
-    private function defaultsCitacion(Entity $case): array
+    /**
+     * Fecha y hora que propone el formulario de citación: las de la audiencia original que dejó el
+     * Auto de Inicio (tentativas; se pueden ajustar aquí y se actualiza esa misma audiencia).
+     */
+    private function defaultsCitacion(Entity $case, ?Entity $ultima): array
     {
-        $auto = $this->entityManager->getRDBRepository('AutoInicio')
-            ->where(['caseId' => $case->getId()])
-            ->order('createdAt', 'DESC')
-            ->findOne();
+        $zona = new \DateTimeZone('America/Bogota');
+        $fecha = '';
+        $hora = '';
+        $delAuto = $ultima && CaseProcesoLectura::esAudienciaDelAuto($ultima);
 
-        $fecha = (string) ($auto?->get('fechaAudiencia') ?? '');
-        $hora = substr((string) ($auto?->get('horaAudiencia') ?? ''), 0, 5);
+        if ($delAuto && $ultima->get('fechaInicio')) {
+            $local = (new \DateTimeImmutable((string) $ultima->get('fechaInicio'), new \DateTimeZone('UTC')))->setTimezone($zona);
+            $fecha = $local->format('Y-m-d');
+            $hora = $local->format('H:i');
+        } else {
+            $auto = $this->entityManager->getRDBRepository('AutoInicio')
+                ->where(['caseId' => $case->getId()])
+                ->order('createdAt', 'DESC')
+                ->findOne();
 
-        // Si la fecha del Auto ya pasó, no se propone: se elige una nueva.
-        if ($fecha !== '' && $fecha . ' ' . ($hora ?: '23:59') < (new \DateTimeImmutable('now', new \DateTimeZone('America/Bogota')))->format('Y-m-d H:i')) {
-            return ['fecha' => '', 'hora' => ''];
+            $fecha = (string) ($auto?->get('fechaAudiencia') ?? '');
+            $hora = substr((string) ($auto?->get('horaAudiencia') ?? ''), 0, 5);
         }
 
-        return ['fecha' => $fecha, 'hora' => $hora];
+        // Si la fecha ya pasó, no se propone: se elige una nueva.
+        if ($fecha !== '' && $fecha . ' ' . ($hora ?: '23:59') < (new \DateTimeImmutable('now', $zona))->format('Y-m-d H:i')) {
+            return ['fecha' => '', 'hora' => '', 'delAuto' => $delAuto];
+        }
+
+        return ['fecha' => $fecha, 'hora' => $hora, 'delAuto' => $delAuto];
     }
 
     /**
