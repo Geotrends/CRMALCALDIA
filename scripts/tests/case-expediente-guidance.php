@@ -104,6 +104,11 @@ namespace {
     $em->respuestaFinal = true;
     verify($service->estado($case, $inspector, $apertura)['actor'] === 'Sin acciones pendientes', 'registrada la respuesta final se completa el seguimiento');
     $em->entities['AutoInicio']['auto'] = new Entity(['assignedUserName' => 'Jurídica', 'assignedUserId' => 'juridica', 'inspectorId' => 'inspector', 'inspectorName' => 'Inspector Ambiental']);
+    $sinAuto = $service->estado($case, $inspector, ['aplica' => true, 'fase' => 'preparar']);
+    verify($sinAuto['accion'] === 'Elaborar el Auto de Inicio', 'sin auto, la alerta es elaborarlo');
+    $conAuto = $service->estado($case, $inspector, ['aplica' => true, 'fase' => 'preparar', 'auto' => ['id' => 'auto']]);
+    verify($conAuto['accion'] === 'Enviar a firma el Auto de Inicio', 'con auto creado, la alerta es enviarlo a firma');
+    verify(str_contains($conAuto['detalle'] ?? '', 'N.º de expediente'), 'sin N.º de expediente se avisa antes de enviar a firma');
     foreach (['preparar', 'devuelto', 'firma', 'decidir'] as $fase) {
         verify($service->estado($case, $inspector, ['aplica' => true, 'fase' => $fase, 'auto' => ['id' => 'auto']])['accion'] !== '', 'seguimiento de apertura: ' . $fase);
     }

@@ -56,9 +56,18 @@ class CaseExpedienteGuidance
             if ($fase === 'firma') {
                 return $paso('Auto de Inicio pendiente de firma', 'Revisar y cargar el Auto de Inicio firmado', 'Inspector Ambiental', $inspector, $auto, 'inspector');
             }
-            return $paso($fase === 'devuelto' ? 'Auto de Inicio devuelto' : 'Expediente en preparación',
-                $fase === 'devuelto' ? 'Corregir el Auto de Inicio y enviarlo nuevamente a firma' : 'Elaborar el Auto de Inicio y enviarlo a firma',
-                'Apoyo Jurídico', $juridica, $auto);
+            if ($fase === 'devuelto') {
+                return $paso('Auto de Inicio devuelto', 'Corregir el Auto de Inicio y enviarlo nuevamente a firma', 'Apoyo Jurídico', $juridica, $auto);
+            }
+            // Dos alertas seguidas: primero elaborar el Auto; ya creado, enviarlo a firma.
+            if (!$auto) {
+                return $paso('Expediente en preparación', 'Elaborar el Auto de Inicio', 'Apoyo Jurídico', $juridica);
+            }
+            $alerta = $paso('Auto de Inicio elaborado', 'Enviar a firma el Auto de Inicio', 'Apoyo Jurídico', $juridica, $auto);
+            if (!trim((string) $expediente->get('numeroOficial'))) {
+                $alerta['detalle'] = 'Antes de enviarlo, registre el N.º de expediente en «Apertura de expediente».';
+            }
+            return $alerta;
         }
 
         if ($this->lectura->archivado($expediente)) {
