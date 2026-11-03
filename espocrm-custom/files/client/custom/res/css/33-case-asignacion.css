@@ -516,6 +516,20 @@ html.crm-modern-ui body .detail[data-scope="Case"] .btn.btn-primary.case-acta-ca
 .detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-auto-tarjeta__datos > div:nth-child(4) { flex: 0 0 100%; }
 .detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-auto-tarjeta__audiencia dd { white-space: nowrap; }
 
+/* Tarjeta de firma del Auto de Inicio: descargar, adjuntar firmado y aprobar o devolver. */
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-firma { background: var(--crm-surface); border: 1px solid var(--crm-border); border-radius: 8px; display: flex; flex-direction: column; gap: 12px; padding: 12px; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-firma__titulo { color: var(--crm-text); font-weight: 600; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-firma__paso { display: flex; gap: 10px; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-firma__num { align-items: center; background: var(--crm-primary-light); border-radius: 50%; color: var(--crm-primary); display: inline-flex; flex: 0 0 22px; font-size: 12px; font-weight: 700; height: 22px; justify-content: center; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-firma__cuerpo { display: flex; flex: 1 1 auto; flex-direction: column; gap: 6px; min-width: 0; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-firma__cuerpo > small, .detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-firma__nota { color: var(--crm-text-secondary); font-size: 12px; margin: 0; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-firma__cuerpo > .btn { align-self: flex-start; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-firma__archivo { align-items: center; background: var(--crm-bg-elevated); border: 1px dashed var(--crm-border); border-radius: 8px; color: var(--crm-text-secondary); cursor: pointer; display: flex; font-weight: 400 !important; gap: 8px; margin: 0 !important; padding: 10px 12px; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-firma__archivo:hover { border-color: var(--crm-primary); color: var(--crm-primary); }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-firma__archivo.is-listo { background: var(--crm-success-soft); border-color: #16a34a; border-style: solid; color: #166534; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-firma__archivo input[type="file"] { display: none !important; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-firma__archivo-texto { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
 /* Proceso del expediente (ruta jurídica N2) */
 .detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso { border: 1px solid var(--crm-primary-soft) !important; }
 .detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso > .panel-heading { align-items: center; display: flex; gap: 8px; justify-content: space-between; }

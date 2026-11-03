@@ -726,28 +726,38 @@ define('custom:helpers/case-detail-side-panels', [
 
     const htmlAperturaFirma = function (estado) {
         const auto = estado.auto;
-        const descargas = auto.formatoDocxId
-            ? '<div class="alcaldia-apertura__descargas"><a class="btn btn-default btn-sm" href="' + descargaUrl(auto.formatoDocxId) + '" download>'
-                + '<span class="fas fa-file-word"></span> Descargar formato prellenado (Word)</a></div>'
-            : '';
         const cabecera = '<p class="alcaldia-apertura__texto">Auto de Inicio del expediente <b>' + escapeHtml(estado.expediente.numero) + '</b> listo para firma.</p>'
             + htmlAutoTarjeta(auto, '');
+        const descarga = auto.formatoDocxId
+            ? '<a class="btn btn-default btn-sm" href="' + descargaUrl(auto.formatoDocxId) + '" download>'
+                + '<span class="fas fa-file-word"></span> Descargar formato prellenado (Word)</a>'
+            : '<span class="alcaldia-firma__nota">El formato prellenado aún no está disponible.</span>';
 
         if (!estado.puede.firmar) {
-            return cabecera + descargas + '<p class="alcaldia-apertura__texto">Pendiente de la firma del Inspector.</p>';
+            return cabecera + '<div class="alcaldia-firma"><div class="alcaldia-firma__paso"><span class="alcaldia-firma__num">1</span>'
+                + '<div class="alcaldia-firma__cuerpo"><b>Formato del Auto de Inicio</b>' + descarga + '</div></div>'
+                + '<p class="alcaldia-firma__nota">Pendiente de la firma del Inspector.</p></div>';
         }
 
-        return cabecera + descargas
-            + '<p class="alcaldia-apertura__ayuda">Descargue el formato en Word, revíselo, fírmelo y cargue el PDF firmado.</p>'
-            + '<label>Auto de Inicio firmado (PDF) <span class="text-danger">*</span></label>'
-            + '<input type="file" class="form-control js-apertura-pdf" accept="application/pdf,.pdf">'
+        return cabecera
+            + '<div class="alcaldia-firma">'
+            + '<div class="alcaldia-firma__titulo"><span class="fas fa-signature"></span> Firma del Auto de Inicio</div>'
+            + '<div class="alcaldia-firma__paso"><span class="alcaldia-firma__num">1</span><div class="alcaldia-firma__cuerpo">'
+            + '<b>Descargue, revise y firme el formato</b><small>Se genera prellenado con los datos del Auto.</small>' + descarga + '</div></div>'
+            + '<div class="alcaldia-firma__paso"><span class="alcaldia-firma__num">2</span><div class="alcaldia-firma__cuerpo">'
+            + '<b>Adjunte el Auto de Inicio firmado (PDF) <span class="text-danger">*</span></b>'
+            + '<label class="alcaldia-firma__archivo"><input type="file" class="js-apertura-pdf" accept="application/pdf,.pdf">'
+            + '<span class="fas fa-file-pdf"></span><span class="alcaldia-firma__archivo-texto js-apertura-pdf-nombre">Seleccionar archivo PDF…</span></label></div></div>'
+            + '<div class="alcaldia-firma__paso"><span class="alcaldia-firma__num">3</span><div class="alcaldia-firma__cuerpo">'
+            + '<b>Apruebe o devuelva el Auto</b>'
             + '<div class="alcaldia-apertura__acciones">'
-            + '<button type="button" class="btn btn-primary btn-sm js-apertura-firmar"><span class="fas fa-signature"></span> Aprobar y abrir expediente</button>'
+            + '<button type="button" class="btn btn-primary btn-sm js-apertura-firmar"><span class="fas fa-check"></span> Aprobar y abrir expediente</button>'
             + '<button type="button" class="btn btn-default btn-sm js-apertura-devolver-toggle"><span class="fas fa-rotate-left"></span> Devolver a Jurídica</button>'
             + '</div>'
             + '<div class="alcaldia-apertura__devolver hidden"><label>Qué debe corregirse <span class="text-danger">*</span></label>'
             + '<textarea class="form-control js-apertura-observaciones" rows="2"></textarea>'
-            + '<button type="button" class="btn btn-default btn-sm js-apertura-devolver">Confirmar devolución</button></div>';
+            + '<button type="button" class="btn btn-default btn-sm js-apertura-devolver">Confirmar devolución</button></div>'
+            + '</div></div></div>';
     };
 
     const htmlAperturaAbierto = function (estado) {
@@ -819,6 +829,13 @@ define('custom:helpers/case-detail-side-panels', [
 
         $block.find('.js-apertura-enviar').on('click', function () {
             aperturaAccion(recordView, {accion: 'enviarAFirma'}, 'Auto de Inicio enviado a firma. Se generó el formato prellenado.');
+        });
+
+        $block.find('.js-apertura-pdf').on('change', function () {
+            const archivo = this.files && this.files[0];
+
+            $block.find('.js-apertura-pdf-nombre').text(archivo ? archivo.name : 'Seleccionar archivo PDF…');
+            $block.find('.alcaldia-firma__archivo').toggleClass('is-listo', !!archivo);
         });
 
         $block.find('.js-apertura-devolver-toggle').on('click', function () {
