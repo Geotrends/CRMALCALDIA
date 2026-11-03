@@ -16,7 +16,7 @@ use Espo\ORM\EntityManager;
 class ExpedienteDocumentosService
 {
     /** Registros ligados a cada caso (campo caseId). */
-    private const DEL_CASO = ['ActaVisita', 'AutoInicio', 'ComunicacionCaso', 'RemisionAutoridad', 'Compromiso', 'RecomendacionTecnica', 'IntervencionTecnica'];
+    private const DEL_CASO = ['ActaVisita', 'AutoInicio', 'ComunicacionCaso', 'RemisionAutoridad', 'Compromiso', 'RecomendacionTecnica', 'IntervencionTecnica', 'ActuoArchivo'];
 
     /** Registros ligados al expediente (campo expedienteId). */
     private const DEL_EXPEDIENTE = ['Audiencia', 'NotificacionActo', 'Recurso', 'MovimientoExpediente', 'MedidaCorrectiva', 'OrdenPolicia', 'Compromiso'];
@@ -44,6 +44,7 @@ class ExpedienteDocumentosService
         'Recurso.decisionSegundaInstanciaDocumento' => ['Decisión de segunda instancia', 'Notificación y recursos'],
         'MovimientoExpediente.documentoEntregaRecibo' => ['Oficio / constancia de remisión del expediente', 'Notificación y recursos'],
         'RecomendacionTecnica.documentoOrigen' => ['Recomendación técnica', 'Gestión técnica'],
+        'ActuoArchivo.cFormatoActuoArchivoPdf' => ['Auto de archivo (formato)', 'Archivo'],
     ];
 
     /** Documentos generados que comparten el campo del proyecto (por el nombre del archivo). */
@@ -117,6 +118,73 @@ class ExpedienteDocumentosService
             }
         }
 
+        return $this->construir($registros);
+    }
+
+    /**
+     * Documentos de una solicitud, desde su creación hasta su cierre, aunque no llegue a ser expediente: sus
+     * propios registros (solicitud, visitas, comunicaciones…) y, si tiene expediente, los del proceso.
+     *
+     * @return array<string, mixed>
+     */
+    public function listarCaso(Entity $caso): array
+    {
+        /** @var array<string, array{entity: Entity, caso: ?Entity}> $registros */
+        $registros = [];
+        $agregar = function (Entity $e, ?Entity $c) use (&$registros): void {
+            $registros[$e->getEntityType() . ':' . $e->getId()] = ['entity' => $e, 'caso' => $c];
+        };
+
+        $agregar($caso, $caso);
+
+        foreach (self::DEL_CASO as $tipo) {
+            if (!$this->tieneCampo($tipo, 'caseId')) {
+                continue;
+            }
+
+            foreach ($this->entityManager->getRDBRepository($tipo)->where(['caseId' => $caso->getId()])->find() as $e) {
+                $agregar($e, $caso);
+            }
+        }
+
+        foreach ($this->entityManager->getRDBRepository('Note')->where(['parentType' => 'Case', 'parentId' => $caso->getId()])->find() as $n) {
+            $agregar($n, $caso);
+        }
+
+        $expedienteId = trim((string) $caso->get('expedienteId'));
+        $expediente = $expedienteId !== '' ? $this->entityManager->getEntityById('Expediente', $expedienteId) : null;
+
+        if ($expediente) {
+            $agregar($expediente, $caso);
+
+            foreach (self::DEL_EXPEDIENTE as $tipo) {
+                if (!$this->tieneCampo($tipo, 'expedienteId')) {
+                    continue;
+                }
+
+                foreach ($this->entityManager->getRDBRepository($tipo)->where(['expedienteId' => $expediente->getId()])->find() as $e) {
+                    $agregar($e, $caso);
+
+                    if ($tipo === 'Audiencia') {
+                        foreach (['SuspensionAudiencia', 'GrabacionAudiencia'] as $hijo) {
+                            foreach ($this->entityManager->getRDBRepository($hijo)->where(['audienciaId' => $e->getId()])->find() as $h) {
+                                $agregar($h, $caso);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return $this->construir($registros);
+    }
+
+    /**
+     * @param array<string, array{entity: Entity, caso: ?Entity}> $registros
+     * @return array<string, mixed>
+     */
+    private function construir(array $registros): array
+    {
         $documentos = [];
         $vistos = [];
 

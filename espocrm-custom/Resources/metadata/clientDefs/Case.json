@@ -74,6 +74,12 @@
                 "notRefreshable": false
             },
             {
+                "name": "caseDocumentos",
+                "label": "Documentos de la solicitud",
+                "view": "custom:views/case/record/panels/documentos",
+                "notRefreshable": true
+            },
+            {
                 "name": "actaVisitaPanel",
                 "disabled": true
             },

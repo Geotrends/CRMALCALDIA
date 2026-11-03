@@ -343,6 +343,22 @@ class CaseObj extends BaseCaseObj
     }
 
     /**
+     * GET Case/action/documentos?id=  Documentos de la solicitud (y de su expediente, si lo tiene) para consulta.
+     *
+     * @return array<string, mixed>
+     */
+    public function getActionDocumentos(Request $request): array
+    {
+        $case = $this->getCaseOrFail(trim((string) $request->getQueryParam('id')));
+
+        if (!$this->acl->checkEntityRead($case)) {
+            throw new Forbidden();
+        }
+
+        return $this->injectableFactory->create(\Espo\Custom\Tools\Expediente\ExpedienteDocumentosService::class)->listarCaso($case);
+    }
+
+    /**
      * GET Case/action/enProcesoOtraVisita  query: { "id": "caseId" }
      *
      * Expone si el caso está en gestión técnica con una ronda de visita

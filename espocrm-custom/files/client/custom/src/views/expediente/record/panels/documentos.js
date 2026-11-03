@@ -44,6 +44,15 @@ define('custom:views/expediente/record/panels/documentos', [
 
         templateContent: '<div class="alcaldia-docs"><p class="text-muted small">Cargando documentos…</p></div>',
 
+        endpoint: 'Expediente/action/documentos',
+
+        textoVacio: 'Aún no hay documentos en los casos ni en el proceso de este expediente.',
+
+        // Dónde se coloca el panel (a todo el ancho). El expediente lo coloca bajo su información general.
+        ubicar: function () {
+            ExpedienteAncho.ubicar(this, 4);
+        },
+
         setup: function () {
             this.datos = null;
             this.filtro = {etapa: '', caso: '', texto: ''};
@@ -51,7 +60,7 @@ define('custom:views/expediente/record/panels/documentos', [
         },
 
         afterRender: function () {
-            ExpedienteAncho.ubicar(this, 4);
+            this.ubicar();
 
             if (this.datos) {
                 this.pintar();
@@ -61,7 +70,7 @@ define('custom:views/expediente/record/panels/documentos', [
         },
 
         cargar: function () {
-            SilentAjax.getRequest('Expediente/action/documentos', {id: this.model.id}).then((r) => {
+            SilentAjax.getRequest(this.endpoint, {id: this.model.id}).then((r) => {
                 this.datos = r || {documentos: []};
 
                 if (this.isRendered()) {
@@ -87,7 +96,7 @@ define('custom:views/expediente/record/panels/documentos', [
             const $c = this.$el.find('.alcaldia-docs');
 
             if (!(d.documentos || []).length) {
-                $c.html('<p class="text-muted small">Aún no hay documentos en los casos ni en el proceso de este expediente.</p>');
+                $c.html('<p class="text-muted small">' + esc(this.textoVacio) + '</p>');
 
                 return;
             }
