@@ -1149,16 +1149,37 @@ define('custom:helpers/case-detail-side-panels', [
             + '<button type="button" class="btn btn-primary btn-sm js-proceso-resultado-audiencia hidden"><span class="fas fa-check"></span> Registrar</button>';
     };
 
+    // Tarjeta de justificación de la inasistencia: decisión, documento y observación.
     const htmlJustificacion = function (estado) {
         const s = (estado.audiencias[estado.audiencias.length - 1].suspensiones || []).slice(-1)[0] || {};
+        const decision = function (valor, icono, detalle) {
+            return '<label class="alcaldia-firma__opcion"><input type="radio" name="alcaldia-justificacion-decision" value="' + valor + '">'
+                + '<span class="fas ' + icono + '"></span><span><b>' + valor + '</b><small>' + detalle + '</small></span></label>';
+        };
 
-        return '<p class="alcaldia-apertura__ayuda">Primera inasistencia: el presunto infractor puede justificar hasta el <b>'
-            + fechaDMA(s.fechaLimiteJustificacion) + '</b>. Registre la decisión y luego reprograme la audiencia.</p>'
-            + '<label>Justificación <span class="text-danger">*</span></label><select class="form-control js-proceso-decision"><option value="">Seleccione…</option>'
-            + opciones(['Aceptada', 'Rechazada', 'No presentada']) + '</select>'
-            + '<label>Documento de justificación</label><input type="file" class="form-control js-proceso-documento" accept=".pdf,image/*">'
-            + '<label>Observación</label><textarea class="form-control js-proceso-observacion" rows="2"></textarea>'
-            + '<button type="button" class="btn btn-primary btn-sm js-proceso-justificacion"><span class="fas fa-scale-balanced"></span> Registrar decisión</button>';
+        return '<div class="alcaldia-firma">'
+            + '<div class="alcaldia-firma__titulo"><span class="fas fa-scale-balanced"></span> Justificación de la inasistencia</div>'
+            + '<p class="alcaldia-firma__nota">Primera inasistencia: el presunto infractor puede justificar hasta el <b>' + fechaDMA(s.fechaLimiteJustificacion)
+            + '</b>. Registre la decisión y luego reprograme la audiencia.</p>'
+            + '<div class="alcaldia-firma__paso"><span class="alcaldia-firma__num">1</span><div class="alcaldia-firma__cuerpo">'
+            + '<b>Decisión sobre la justificación <span class="text-danger">*</span></b>'
+            + '<div class="alcaldia-firma__opciones">'
+            + decision('Aceptada', 'fa-circle-check', 'Se acepta la excusa presentada.')
+            + decision('Rechazada', 'fa-circle-xmark', 'La excusa no es suficiente.')
+            + decision('No presentada', 'fa-circle-minus', 'Venció el plazo sin justificación.')
+            + '</div></div></div>'
+            + '<div class="alcaldia-firma__paso"><span class="alcaldia-firma__num">2</span><div class="alcaldia-firma__cuerpo">'
+            + '<b>Documento de justificación</b><small>Opcional: adjunte el escrito o los soportes recibidos.</small>'
+            + '<label class="alcaldia-firma__archivo"><input type="file" class="js-proceso-documento" accept=".pdf,image/*">'
+            + '<span class="fas fa-file-arrow-up"></span><span class="alcaldia-firma__archivo-texto js-proceso-documento-nombre">Seleccionar PDF o imagen…</span></label>'
+            + '</div></div>'
+            + '<div class="alcaldia-firma__paso"><span class="alcaldia-firma__num">3</span><div class="alcaldia-firma__cuerpo">'
+            + '<b>Observación</b>'
+            + '<textarea class="form-control js-proceso-observacion" rows="2" placeholder="Motivo de la decisión o datos relevantes"></textarea>'
+            + '<div class="alcaldia-apertura__acciones"><button type="button" class="btn btn-primary btn-sm js-proceso-justificacion">'
+            + '<span class="fas fa-check"></span> Registrar decisión</button></div>'
+            + '</div></div>'
+            + '</div>';
     };
 
     const htmlSoportePrueba = function (estado) {
@@ -1858,11 +1879,20 @@ define('custom:helpers/case-detail-side-panels', [
             }
         });
 
+        $block.find('.alcaldia-firma__archivo input.js-proceso-documento').on('change', function () {
+            const archivo = this.files && this.files[0];
+
+            $(this).closest('.alcaldia-firma__archivo').toggleClass('is-listo', !!archivo)
+                .find('.js-proceso-documento-nombre').text(archivo ? archivo.name : 'Seleccionar PDF o imagen…');
+        });
+
         $block.find('.js-proceso-justificacion').on('click', function () {
-            if (!val('.js-proceso-decision')) { Espo.Ui.error('Indique la decisión sobre la justificación.'); return; }
+            const decision = String($block.find('input[name="alcaldia-justificacion-decision"]:checked').val() || '');
+
+            if (!decision) { Espo.Ui.error('Indique la decisión sobre la justificación.'); return; }
 
             conArchivos(['.js-proceso-documento'], function (ids) {
-                procesoAccion(recordView, {accion: 'resolverJustificacion', decision: val('.js-proceso-decision'), observacion: val('.js-proceso-observacion'), documentoId: ids[0]},
+                procesoAccion(recordView, {accion: 'resolverJustificacion', decision: decision, observacion: val('.js-proceso-observacion'), documentoId: ids[0]},
                     'Justificación resuelta. Reprograme la audiencia.');
             });
         });
