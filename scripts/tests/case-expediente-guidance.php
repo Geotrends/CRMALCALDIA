@@ -109,6 +109,9 @@ namespace {
     $conAuto = $service->estado($case, $inspector, ['aplica' => true, 'fase' => 'preparar', 'auto' => ['id' => 'auto']]);
     verify($conAuto['accion'] === 'Enviar a firma el Auto de Inicio', 'con auto creado, la alerta es enviarlo a firma');
     verify(str_contains($conAuto['detalle'] ?? '', 'N.º de expediente'), 'sin N.º de expediente se avisa antes de enviar a firma');
+    $firma = $service->estado($case, new User(['id' => 'juridica', 'rol' => 'juridica']), ['aplica' => true, 'fase' => 'firma', 'auto' => ['id' => 'auto']]);
+    verify($firma['actor'] === 'Inspector Ambiental' && $firma['mio'] === false, 'enviado a firma, el siguiente paso es del Inspector y no de Jurídica');
+    verify($service->estado($case, $inspector, ['aplica' => true, 'fase' => 'firma', 'auto' => ['id' => 'auto']])['mio'] === true, 'el Inspector ve el paso de firma como suyo');
     foreach (['preparar', 'devuelto', 'firma', 'decidir'] as $fase) {
         verify($service->estado($case, $inspector, ['aplica' => true, 'fase' => $fase, 'auto' => ['id' => 'auto']])['accion'] !== '', 'seguimiento de apertura: ' . $fase);
     }

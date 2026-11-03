@@ -54,7 +54,13 @@ class CaseExpedienteGuidance
             $autoId = $apertura['auto']['id'] ?? null;
             $auto = $autoId ? $this->entityManager->getEntityById('AutoInicio', $autoId) : null;
             if ($fase === 'firma') {
-                return $paso('Auto de Inicio pendiente de firma', 'Revisar y cargar el Auto de Inicio firmado', 'Inspector Ambiental', $inspector, $auto, 'inspector');
+                // Quien firma es el Inspector Ambiental: el responsable del Auto solo se nombra si realmente puede firmar
+                // (por defecto es quien lo elaboró, p. ej. Apoyo Jurídico, y a esa persona ya no le toca).
+                $responsableId = $auto?->get('inspectorId');
+                $responsable = $responsableId ? $this->entityManager->getEntityById('User', $responsableId) : null;
+                $firma = $responsable && $this->profile->canFirmarAutoInicio($responsable) ? $auto : null;
+
+                return $paso('Auto de Inicio pendiente de firma', 'Cargar el Auto de Inicio firmado', 'Inspector Ambiental', $inspector, $firma, 'inspector');
             }
             if ($fase === 'devuelto') {
                 return $paso('Auto de Inicio devuelto', 'Corregir el Auto de Inicio y enviarlo nuevamente a firma', 'Apoyo Jurídico', $juridica, $auto);
