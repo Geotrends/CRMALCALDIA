@@ -622,3 +622,8 @@ a.btn-primary:hover {
     justify-content: center !important;
   }
 }
+
+/* Barra de botones repetida al final de los formularios de creación */
+.edit > .crm-bottom-buttons {
+    margin-top: 16px;
+}

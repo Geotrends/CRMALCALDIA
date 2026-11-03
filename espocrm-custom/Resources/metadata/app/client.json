@@ -34,6 +34,7 @@
         "client/custom/src/loader/case-list-radicado-fix.js",
         "client/custom/src/loader/notification-views.js",
         "client/custom/src/loader/ui-toasts.js",
-        "client/custom/src/loader/theme-navbar.js"
+        "client/custom/src/loader/theme-navbar.js",
+        "client/custom/src/loader/create-bottom-buttons.js"
     ]
 }
