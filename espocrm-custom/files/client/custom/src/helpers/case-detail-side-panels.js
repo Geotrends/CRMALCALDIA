@@ -579,6 +579,16 @@ define('custom:helpers/case-detail-side-panels', [
 
     /* ───────────── Apertura de expediente (tramo G) ───────────── */
 
+    // Con expediente, el bloque que toca trabajar (apertura mientras no está abierto, proceso después) arranca desplegado;
+    // lo que la persona pliegue o despliegue se respeta mientras el bloque siga en la misma etapa.
+    const desplegarPorDefecto = function ($block, clave, abrir) {
+        if ($block.data('crmDefaultoKey') === clave) {
+            return;
+        }
+
+        $block.data('crmDefaultoKey', clave).data('crmCompactOpen', abrir);
+    };
+
     // Con apertura, sus bloques van encima de la línea de tiempo (apertura y luego el proceso).
     const ubicarBloquesExpediente = function ($side) {
         const $timeline = $side.children('.panel-caseTimeline').first();
@@ -937,6 +947,7 @@ define('custom:helpers/case-detail-side-panels', [
                 + '<div class="panel-body">' + (estado.expediente ? htmlAperturaNumero(estado) : '') + cuerpo + '</div>');
 
             bindApertura(recordView, $block);
+            desplegarPorDefecto($block, 'apertura|' + estado.fase, estado.fase !== 'abierto');
             CompactFormSections.makeCollapsible($block);
             ubicarBloquesExpediente($side);
         });
@@ -2188,6 +2199,7 @@ define('custom:helpers/case-detail-side-panels', [
 
             $block.data('procesoKey', key);
             pintarProceso($block, recordView, estado, true);
+            desplegarPorDefecto($block, 'proceso', true);
             CompactFormSections.makeCollapsible($block);
             ubicarBloquesExpediente($side);
         });
