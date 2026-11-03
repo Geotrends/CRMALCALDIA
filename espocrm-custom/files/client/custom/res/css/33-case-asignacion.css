@@ -532,6 +532,11 @@ html.crm-modern-ui body .detail[data-scope="Case"] .btn.btn-primary.case-acta-ca
 .detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-firma__archivo-texto { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-firma__nota { margin: 0; }
 .detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-firma__fecha { max-width: 200px; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-firma__alterna { border-top: 1px dashed var(--crm-border); display: flex; flex-direction: column; gap: 6px; padding-top: 10px; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-firma__alterna > a { color: #92400e; font-size: 12px; font-weight: 600; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-firma__alterna-form { display: flex; flex-direction: column; gap: 6px; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-firma__alterna-form > .btn { align-self: flex-start; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-firma .hidden { display: none !important; }
 
 /* Proceso del expediente (ruta jurídica N2) */
 .detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso { border: 1px solid var(--crm-primary-soft) !important; }

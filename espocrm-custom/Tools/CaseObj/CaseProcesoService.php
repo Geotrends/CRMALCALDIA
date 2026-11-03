@@ -165,7 +165,7 @@ class CaseProcesoService
         }
         $esperadas = [
             'citar' => ['citar', 'citacionPrevia'],
-            'soporteCitacion' => ['soporteCitacion'],
+            'soporteCitacion' => ['soporteCitacion', 'suspender'],
             'audiencia' => ['realizada', 'inasistencia', 'suspender', 'soporteCitacion'],
             'justificacion' => ['resolverJustificacion'],
             'soportePrueba' => ['soportePrueba'],

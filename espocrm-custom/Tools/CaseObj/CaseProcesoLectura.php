@@ -78,6 +78,10 @@ class CaseProcesoLectura
         }
 
         if ($paso === ExpedientePasosCatalog::PASO_CITACION) {
+            if ($ultima && (string) $ultima->get('estado') === self::AUD_SUSPENDIDA) {
+                return 'reprogramar';
+            }
+
             return !$ultima || self::esAudienciaDelAuto($ultima) ? 'citar' : 'soporteCitacion';
         }
 

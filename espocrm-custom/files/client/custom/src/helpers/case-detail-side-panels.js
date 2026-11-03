@@ -1103,6 +1103,11 @@ define('custom:helpers/case-detail-side-panels', [
             + '<div class="alcaldia-apertura__acciones"><button type="button" class="btn btn-primary btn-sm js-proceso-soporte-citacion">'
             + '<span class="fas fa-file-circle-check"></span> Cargar citación firmada</button></div>'
             + '</div></div>'
+            + '<div class="alcaldia-firma__alterna">'
+            + '<a href="javascript:" class="js-proceso-no-entrega-toggle"><span class="fas fa-triangle-exclamation"></span> No se pudo entregar la citación</a>'
+            + '<div class="alcaldia-firma__alterna-form hidden"><small>Se aplaza la audiencia y se registra la causa; luego se reprograma con una nueva citación.</small>'
+            + '<textarea class="form-control js-proceso-no-entrega-motivo" rows="2" placeholder="Qué impidió la entrega (p. ej. no se encontró al citado)"></textarea>'
+            + '<button type="button" class="btn btn-default btn-sm js-proceso-no-entrega"><span class="fas fa-calendar-xmark"></span> Aplazar la audiencia</button></div></div>'
             + '</div>';
     };
 
@@ -1114,8 +1119,7 @@ define('custom:helpers/case-detail-side-panels', [
         };
 
         return (ultima.citacion && !ultima.citacion.soporteId
-            ? '<details class="alcaldia-proceso__pendiente"><summary>Falta la citación firmada y escaneada</summary>'
-                + htmlSoporteCitacion('Cárguela cuando la tenga.', ultima.citacion.documentoId) + '</details>' : '')
+            ? htmlSoporteCitacion('Falta la citación firmada y escaneada. Puede cargarla aunque la audiencia sea hoy; si no se pudo entregar, aplace la audiencia.', ultima.citacion.documentoId) : '')
             + (estado.audienciaYaFue
                 ? '<p class="alcaldia-apertura__texto">Registre qué pasó en la audiencia N.º ' + ultima.numero + ' (' + escapeHtml(ultima.fechaTexto) + '):</p>'
                 : '<p class="alcaldia-apertura__ayuda">Audiencia N.º ' + ultima.numero + ' programada para el <b>' + escapeHtml(ultima.fechaTexto)
@@ -1782,6 +1786,23 @@ define('custom:helpers/case-detail-side-panels', [
 
             $(this).closest('.alcaldia-firma__archivo').toggleClass('is-listo', !!archivo)
                 .find('.js-proceso-soporte-nombre').text(archivo ? archivo.name : 'Seleccionar PDF o imagen…');
+        });
+
+        $block.find('.js-proceso-no-entrega-toggle').on('click', function () {
+            $(this).closest('.alcaldia-firma__alterna').find('.alcaldia-firma__alterna-form').toggleClass('hidden');
+        });
+
+        $block.find('.js-proceso-no-entrega').on('click', function () {
+            const motivo = String($(this).closest('.alcaldia-firma__alterna').find('.js-proceso-no-entrega-motivo').val() || '').trim();
+
+            if (!motivo) { Espo.Ui.error('Indique qué impidió la entrega de la citación.'); return; }
+
+            Espo.Ui.confirm('¿Confirma que la citación no se pudo entregar? La audiencia quedará suspendida y deberá reprogramarse.', {
+                title: 'Aplazar la audiencia', confirmText: 'Sí, aplazar', cancelText: 'Cancelar', confirmStyle: 'primary',
+            }, function () {
+                procesoAccion(recordView, {accion: 'suspender', tipo: 'otra', causa: 'No se pudo entregar la citación: ' + motivo},
+                    'Audiencia aplazada. Reprográmela con una nueva citación.');
+            });
         });
 
         $block.find('.js-proceso-soporte-citacion').on('click', function () {
