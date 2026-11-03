@@ -532,6 +532,16 @@ html.crm-modern-ui body .detail[data-scope="Case"] .btn.btn-primary.case-acta-ca
 .detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-firma__archivo-texto { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-firma__nota { margin: 0; }
 .detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-firma__fecha { max-width: 200px; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-firma.is-deshabilitado { opacity: 0.5; pointer-events: none; position: relative; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-firma.is-deshabilitado::after { color: var(--crm-text-secondary); content: "Termine la edición de la decisión para firmar"; font-size: 12px; font-weight: 600; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-decision-resumen { border-left: 4px solid var(--crm-primary); }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-decision-resumen__datos { display: flex; flex-direction: column; gap: 8px; margin: 0; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-decision-resumen__datos dt { color: var(--crm-text-secondary); font-size: 11px; font-weight: 600; text-transform: uppercase; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-decision-resumen__datos dd { color: var(--crm-text); margin: 0; overflow-wrap: anywhere; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-decision-resumen__datos small { color: var(--crm-text-secondary); display: block; font-size: 12px; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-decision-resumen__lista { margin: 0; padding-left: 18px; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso__fila { align-items: flex-end; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso__fila .form-control { box-sizing: border-box; height: 34px; }
 .detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso__conducta-fila { align-items: flex-start; display: flex; gap: 8px; justify-content: space-between; }
 .detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-proceso__conducta-fila .js-conducta-quitar { color: var(--crm-danger, #b91c1c); flex: 0 0 auto; margin: 0 !important; padding: 0 4px; }
 .detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-firma__listo { align-items: center; background: var(--crm-success-soft); border-radius: 8px; color: #166534; display: flex; font-weight: 600; gap: 8px; padding: 8px 12px; }

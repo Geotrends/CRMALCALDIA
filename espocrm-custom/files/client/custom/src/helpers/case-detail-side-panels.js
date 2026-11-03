@@ -1331,7 +1331,7 @@ define('custom:helpers/case-detail-side-panels', [
                 + '<div class="alcaldia-firma__titulo"><span class="fas fa-signature"></span> Firma de la decisión</div>'
                 + paso(1, 'Descargue, revise y firme la resolución', '<a class="btn btn-default btn-sm" href="' + descargaUrl(d.borradorId) + '" download>'
                     + '<span class="fas fa-file-word"></span> Descargar resolución IV-F-117 (Word)</a>'
-                    + '<small>Si hay que corregir algo, ajuste el formulario de arriba y vuelva a generar el proyecto.</small>')
+                    + '<small>Si hay que corregir algo, use «Editar decisión» y vuelva a generar el proyecto.</small>')
                 + paso(2, 'Adjunte la decisión firmada (PDF) <span class="text-danger">*</span>',
                     '<label class="alcaldia-firma__archivo"><input type="file" class="js-proceso-documento" accept="application/pdf,.pdf" data-vacio="Seleccionar PDF…">'
                     + '<span class="fas fa-file-pdf"></span><span class="alcaldia-firma__archivo-texto js-proceso-documento-nombre">Seleccionar PDF…</span></label>'
@@ -1340,8 +1340,7 @@ define('custom:helpers/case-detail-side-panels', [
                 + '</div>'
             : '';
 
-        return (d.ajustePorRecurso ? '<p class="alcaldia-apertura__devuelto">El recurso <b>modificó la decisión</b>: ajústela, genere el proyecto y cargue la versión firmada. Queda en firme sin nuevos recursos.</p>' : '')
-            + '<div class="alcaldia-firma">'
+        const formulario = '<div class="alcaldia-firma">'
             + '<div class="alcaldia-firma__titulo"><span class="fas fa-scale-balanced"></span> Decisión de fondo</div>'
             + '<p class="alcaldia-firma__nota">Marque las conductas probadas. El CRM muestra solo las medidas que la matriz asocia a cada una: las prescritas se incorporan, las condicionales exigen la prueba de la condición y las de otra autoridad se derivan.</p>'
             + paso(1, 'Conductas probadas', conductas
@@ -1361,8 +1360,42 @@ define('custom:helpers/case-detail-side-panels', [
                 + '<label>Motivación / conclusiones <span class="text-danger">*</span></label><textarea class="form-control js-decision-motivacion" rows="3" placeholder="Valoración de pruebas, fundamento y razones de cada medida">' + escapeHtml(d.motivacion || '') + '</textarea>'
                 + '<div class="alcaldia-apertura__acciones"><button type="button" class="btn btn-' + (d.borradorId ? 'default' : 'primary') + ' btn-sm js-decision-guardar"><span class="fas fa-file-word"></span> '
                 + (d.borradorId ? 'Corregir y regenerar resolución' : 'Generar resolución (IV-F-117)') + '</button></div>')
-            + '</div>'
-            + firma;
+            + '</div>';
+        const titulos = {};
+
+        (dec.conductas || []).forEach(function (c) { titulos[c.id] = c.articulo + ' — ' + c.titulo; });
+
+        const incluidas = (d.medidas || []).filter(function (m) { return m.estado === 'INCLUIDA'; });
+        const lista = function (items, vacio) {
+            return items.length ? '<ul class="alcaldia-decision-resumen__lista">' + items.map(function (t) { return '<li>' + escapeHtml(t) + '</li>'; }).join('') + '</ul>' : escapeHtml(vacio);
+        };
+        const fila = function (titulo, valor) { return '<div><dt>' + titulo + '</dt><dd>' + valor + '</dd></div>'; };
+        const hechos = String(d.hechos || '').trim();
+        const resumen = d.borradorId
+            ? '<div class="alcaldia-firma alcaldia-decision-resumen js-decision-resumen">'
+                + '<div class="alcaldia-firma__titulo"><span class="fas fa-file-circle-check"></span> Decisión de fondo generada</div>'
+                + '<dl class="alcaldia-decision-resumen__datos">'
+                + fila('Conductas probadas', lista((d.conductas || []).map(function (c) { return titulos[c.id] || c.id; }), d.sinMedida ? 'Ninguna: se abstiene de imponer medida' : '—'))
+                + fila('Medidas incluidas', lista(incluidas.map(function (m) { return m.nombre; }), 'Ninguna'))
+                + fila('Orden de Policía', d.orden
+                    ? escapeHtml(orden.texto || '—') + '<small>' + escapeHtml(orden.destinatario || '') + (orden.fechaLimite ? ' · plazo ' + escapeHtml(fechaDMA(orden.fechaLimite)) : '') + '</small>'
+                    : 'No contiene orden')
+                + (hechos ? fila('Hechos probados', escapeHtml(hechos.length > 180 ? hechos.slice(0, 180) + '…' : hechos)) : '')
+                + '</dl>'
+                + '<div class="alcaldia-apertura__acciones"><button type="button" class="btn btn-default btn-sm js-decision-editar"><span class="fas fa-pen"></span> Editar decisión</button></div>'
+                + '</div>'
+            : '';
+        const aviso = d.ajustePorRecurso ? '<p class="alcaldia-apertura__devuelto">El recurso <b>modificó la decisión</b>: ajústela, genere el proyecto y cargue la versión firmada. Queda en firme sin nuevos recursos.</p>' : '';
+
+        if (!d.borradorId) {
+            return aviso + formulario;
+        }
+
+        // Ya generada: se muestra el resumen; el formulario se abre solo al editar y, mientras tanto, la firma queda bloqueada.
+        return aviso + resumen
+            + '<div class="js-decision-formulario hidden">' + formulario
+            + '<div class="alcaldia-apertura__acciones"><button type="button" class="btn btn-default btn-sm js-decision-cancelar-edicion"><span class="fas fa-xmark"></span> Cancelar edición</button></div></div>'
+            + firma.replace('<div class="alcaldia-firma">', '<div class="alcaldia-firma js-decision-firma">');
     };
 
     const htmlNotificar = function (estado) {
@@ -1482,6 +1515,17 @@ define('custom:helpers/case-detail-side-panels', [
         $block.find('.js-orden').on('change', function () {
             $block.find('.js-orden-box').toggleClass('hidden', !this.checked);
         });
+
+        // Editar abre el formulario y bloquea la firma hasta terminar (guardar regenera la resolución; cancelar la deja como estaba).
+        const editarDecision = function (editando) {
+            $block.find('.js-decision-resumen').toggleClass('hidden', editando);
+            $block.find('.js-decision-formulario').toggleClass('hidden', !editando);
+            $block.find('.js-decision-firma').toggleClass('is-deshabilitado', editando)
+                .find('input, button').prop('disabled', editando);
+        };
+
+        $block.find('.js-decision-editar').on('click', function () { editarDecision(true); });
+        $block.find('.js-decision-cancelar-edicion').on('click', function () { editarDecision(false); });
 
         $block.find('.js-decision-guardar').on('click', function () {
             const conductas = [];
