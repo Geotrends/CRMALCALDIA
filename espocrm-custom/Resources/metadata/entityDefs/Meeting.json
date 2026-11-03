@@ -17,12 +17,22 @@
             "type": "link",
             "readOnly": true,
             "isCustom": true
+        },
+        "audiencia": {
+            "type": "link",
+            "readOnly": true,
+            "isCustom": true
         }
     },
     "links": {
         "programacionVisita": {
             "type": "belongsTo",
             "entity": "ProgramacionVisita",
+            "foreign": "reunion"
+        },
+        "audiencia": {
+            "type": "belongsTo",
+            "entity": "Audiencia",
             "foreign": "reunion"
         }
     }

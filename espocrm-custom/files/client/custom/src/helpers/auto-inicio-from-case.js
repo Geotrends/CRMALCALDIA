@@ -98,7 +98,37 @@ define('custom:helpers/auto-inicio-from-case', [], function () {
         });
     };
 
+    // El cargo acompaña al responsable: cada vez que se elige uno, toma el cargo de ese usuario.
+    // Si el usuario no tiene cargo, se conserva el que había (el servidor aplica la misma regla al guardar).
+    const syncCargoResponsable = function (recordView) {
+        const model = recordView.model;
+        const actualizar = function () {
+            const userId = model.get('inspectorId');
+
+            if (!userId) {
+                return;
+            }
+
+            Espo.Ajax.getRequest('AutoInicio/action/cargoResponsable', {userId: userId})
+                .then((response) => {
+                    if (response && response.cargo && model.get('inspectorId') === userId) {
+                        model.set('inspectorCargo', response.cargo);
+                    }
+                })
+                .catch(() => {
+                    // Sin respuesta: el servidor completa el cargo al guardar.
+                });
+        };
+
+        recordView.listenTo(model, 'change:inspectorId', actualizar);
+
+        if (model.isNew()) {
+            actualizar();
+        }
+    };
+
     return {
+        syncCargoResponsable: syncCargoResponsable,
         AUTO_READONLY_FIELDS: AUTO_READONLY_FIELDS,
         buildDefaultsFromCase: buildDefaultsFromCase,
         buildName: buildName,

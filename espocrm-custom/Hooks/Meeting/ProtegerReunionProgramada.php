@@ -10,9 +10,9 @@ use Espo\ORM\Repository\Option\RemoveOptions;
 use Espo\ORM\Repository\Option\SaveOptions;
 
 /**
- * La reunión de una programación de visita solo cambia de fecha, nombre o asignado (y solo se
- * elimina) desde la programación: con "Reprogramar" o al eliminarla (opción OPCION, que pone el
- * hook ProgramacionVisita\SincronizarReunion). Estado, descripción y respuesta de asistentes
+ * La reunión de una programación de visita o de una audiencia solo cambia de fecha, nombre o asignado (y solo se
+ * elimina) desde su origen: con "Reprogramar" o al eliminarlo (opción OPCION, que ponen los hooks
+ * ProgramacionVisita\SincronizarReunion y Audiencia\SincronizarReunion). Estado, descripción y respuesta de asistentes
  * siguen libres.
  */
 class ProtegerReunionProgramada implements BeforeSave, BeforeRemove
@@ -30,25 +30,37 @@ class ProtegerReunionProgramada implements BeforeSave, BeforeRemove
         'isAllDay',
         'assignedUserId',
         'programacionVisitaId',
+        'audienciaId',
     ];
 
     public function beforeSave(Entity $entity, SaveOptions $options): void
     {
-        if ($entity->isNew() || $options->get(self::OPCION) || !$entity->getFetched('programacionVisitaId')) {
+        if ($entity->isNew() || $options->get(self::OPCION) || !$this->esProgramada($entity, true)) {
             return;
         }
 
         foreach (self::CAMPOS as $campo) {
             if ($entity->isAttributeChanged($campo)) {
-                throw new BadRequest('Esta reunión es de una programación de visita: cámbiela con "Reprogramar".');
+                throw new BadRequest('Esta reunión es de una programación de visita o de una audiencia: cámbiela desde su origen ("Reprogramar").');
             }
         }
     }
 
     public function beforeRemove(Entity $entity, RemoveOptions $options): void
     {
-        if ($entity->get('programacionVisitaId') && !$options->get(self::OPCION)) {
-            throw new BadRequest('Esta reunión es de una programación de visita: no se puede eliminar aquí.');
+        if ($this->esProgramada($entity, false) && !$options->get(self::OPCION)) {
+            throw new BadRequest('Esta reunión es de una programación de visita o de una audiencia: no se puede eliminar aquí.');
         }
+    }
+
+    private function esProgramada(Entity $entity, bool $fetched): bool
+    {
+        foreach (['programacionVisitaId', 'audienciaId'] as $campo) {
+            if ($fetched ? $entity->getFetched($campo) : $entity->get($campo)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

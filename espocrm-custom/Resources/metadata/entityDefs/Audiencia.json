@@ -134,6 +134,16 @@
         "modifiedAt": {
             "type": "datetime",
             "readOnly": true
+        },
+        "autoInicio": {
+            "type": "link",
+            "readOnly": true,
+            "isCustom": true
+        },
+        "reunion": {
+            "type": "link",
+            "readOnly": true,
+            "isCustom": true
         }
     },
     "links": {
@@ -178,6 +188,15 @@
         "modifiedBy": {
             "type": "belongsTo",
             "entity": "User"
+        },
+        "autoInicio": {
+            "type": "belongsTo",
+            "entity": "AutoInicio"
+        },
+        "reunion": {
+            "type": "hasOne",
+            "entity": "Meeting",
+            "foreign": "audiencia"
         }
     },
     "entityClassName": "Espo\\Custom\\Entities\\Audiencia",

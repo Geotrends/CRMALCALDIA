@@ -23,6 +23,17 @@ class CaseProcesoLectura
     ) {}
 
     /**
+     * Audiencia creada por el Auto de Inicio que aún espera su citación: el paso de citación la
+     * completa (no se crea otra).
+     */
+    public static function esAudienciaDelAuto(Entity $audiencia): bool
+    {
+        return trim((string) $audiencia->get('autoInicioId')) !== ''
+            && (string) $audiencia->get('estado') === self::AUD_PROGRAMADA
+            && trim((string) $audiencia->get('citacionDocumentoId')) === '';
+    }
+
+    /**
      * Expediente del caso con la ruta ya abierta (Auto de Inicio firmado).
      */
     public function expedienteEnCurso(Entity $case): ?Entity
@@ -67,14 +78,14 @@ class CaseProcesoLectura
         }
 
         if ($paso === ExpedientePasosCatalog::PASO_CITACION) {
-            return !$ultima ? 'citar' : 'soporteCitacion';
+            return !$ultima || self::esAudienciaDelAuto($ultima) ? 'citar' : 'soporteCitacion';
         }
 
         if ($paso !== ExpedientePasosCatalog::PASO_AUDIENCIA) {
             return 'cumplirPaso';
         }
 
-        if (!$ultima) {
+        if (!$ultima || self::esAudienciaDelAuto($ultima)) {
             return 'citar';
         }
 

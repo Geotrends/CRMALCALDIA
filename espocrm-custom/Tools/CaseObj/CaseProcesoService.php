@@ -249,11 +249,15 @@ class CaseProcesoService
         }
 
         [$lugarTipo, $lugar] = $this->lugarAudiencia($data);
-        $numero = $anterior ? (int) $anterior->get('numero') + 1 : 1;
+
+        // La audiencia que dejó el Auto de Inicio se completa con la citación; no se crea otra.
+        $delAuto = $anterior && CaseProcesoLectura::esAudienciaDelAuto($anterior) ? $anterior : null;
+        $anterior = $delAuto ? null : $anterior;
+        $numero = $delAuto ? (int) $delAuto->get('numero') : ($anterior ? (int) $anterior->get('numero') + 1 : 1);
         $inspectorId = $this->inspectorId($case, $user);
         $maltrato = (string) $expediente->get('tipoTramite') === ExpedientePasosCatalog::RUTA_MALTRATO;
 
-        $audiencia = $this->entityManager->getNewEntity('Audiencia');
+        $audiencia = $delAuto ?? $this->entityManager->getNewEntity('Audiencia');
         $audiencia->set([
             'name' => 'Audiencia N.º ' . $numero . ' · Exp. ' . $expediente->get('numero'),
             'numero' => $numero,
