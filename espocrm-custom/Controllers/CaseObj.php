@@ -827,6 +827,7 @@ class CaseObj extends BaseCaseObj
             'firmar' => $service->firmar($case, $user, $txt('attachmentId')),
             'devolver' => $service->devolver($case, $user, $txt('observaciones')),
             'numerar' => $service->numerar($case, $user, $txt('numero')),
+            'guardarPerjudicante' => $service->guardarPerjudicante($case, $user, is_object($body) ? get_object_vars($body) : (array) $body),
             default => throw new BadRequest('Acción no válida.'),
         };
     }

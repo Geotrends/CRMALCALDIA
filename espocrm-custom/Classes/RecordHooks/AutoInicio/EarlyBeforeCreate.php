@@ -2,7 +2,9 @@
 
 namespace Espo\Custom\Classes\RecordHooks\AutoInicio;
 
+use Espo\Core\Exceptions\BadRequest;
 use Espo\Core\Record\Hook\SaveHook;
+use Espo\Custom\Tools\CaseObj\CasePerjudicanteService;
 use Espo\Entities\User;
 use Espo\ORM\Entity;
 use Espo\ORM\EntityManager;
@@ -42,6 +44,14 @@ class EarlyBeforeCreate implements SaveHook
 
         if (!$case) {
             return;
+        }
+
+        // Regla de negocio: sin datos del perjudicante no hay Auto de Inicio. Si no se conocían al crear la solicitud,
+        // se registran después y entonces se abre el Auto.
+        $faltantes = CasePerjudicanteService::faltantes($case);
+
+        if ($faltantes !== []) {
+            throw new BadRequest('No se puede crear el Auto de Inicio sin los datos del perjudicante: registre ' . implode(' y ', $faltantes) . ' en la solicitud.');
         }
 
         $radicado = trim((string) $case->get('cNumeroRadicado'));

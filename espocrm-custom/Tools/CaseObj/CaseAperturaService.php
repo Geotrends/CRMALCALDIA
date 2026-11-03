@@ -359,10 +359,28 @@ class CaseAperturaService
     /**
      * @return array<string, mixed>
      */
+    private function perjudicantes(): CasePerjudicanteService
+    {
+        return new CasePerjudicanteService($this->entityManager, $this->profile);
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
+     */
+    public function guardarPerjudicante(Entity $case, User $user, array $data): array
+    {
+        return $this->perjudicantes()->guardar($case, $user, $data);
+    }
+
     public function enviarAFirma(Entity $case, User $user): array
     {
         if (!$this->profile->canManageAutoInicio($user)) {
             throw new Forbidden('El Auto de Inicio lo prepara Apoyo Jurídico.');
+        }
+
+        if (CasePerjudicanteService::faltantes($case) !== []) {
+            throw new BadRequest('Sin los datos del perjudicante no se puede enviar el Auto de Inicio a firma: registre ' . implode(' y ', CasePerjudicanteService::faltantes($case)) . '.');
         }
 
         $auto = $this->findAutoInicio($case);
@@ -578,6 +596,7 @@ class CaseAperturaService
                 'actoFirmadoName' => $auto->get('actoFirmadoName'),
                 'fechaFirma' => $auto->get('fechaFirma'),
             ] : null,
+            'perjudicante' => $this->perjudicantes()->estado($case, $user),
             'candidatos' => !$expediente ? $this->candidatos($case) : [],
             'rutas' => ExpedientePasosCatalog::rutasApertura(),
             'rutaSugerida' => $this->sugerirRuta($case),
