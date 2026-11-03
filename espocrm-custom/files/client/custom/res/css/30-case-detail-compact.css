@@ -155,3 +155,10 @@
 
 /* En la visualización (detalle) las tarjetas van sobre blanco; el fondo gris suave queda para el formulario. */
 .detail[data-scope="Case"] .panel .crm-grupo { background: var(--crm-surface); }
+
+/* Detalle: sin tarjetas; los campos se ven como los del resto de la solicitud y solo queda el título con su línea divisoria. */
+.detail[data-scope="Case"] .panel .crm-grupo { background: transparent; border: 0; border-radius: 0; padding: 0 16px; }
+.detail[data-scope="Case"] .panel .crm-grupo--inicio { border-radius: 0; margin-top: 12px !important; padding-top: 44px; }
+.detail[data-scope="Case"] .panel .crm-grupo--inicio:first-child, .detail[data-scope="Case"] .panel .panel-body > .crm-grupo--inicio:first-of-type { margin-top: 0 !important; }
+.detail[data-scope="Case"] .panel .crm-grupo--fin { border-radius: 0; padding-bottom: 0; }
+.detail[data-scope="Case"] .panel .crm-grupo--inicio::before { left: 15px; right: 15px; }
