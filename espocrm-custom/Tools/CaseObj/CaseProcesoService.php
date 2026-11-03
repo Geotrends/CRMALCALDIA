@@ -59,7 +59,7 @@ class CaseProcesoService
         $this->lectura = new CaseProcesoLectura($entityManager);
         $this->formatos = new ProcesoFormatoGenerator($entityManager);
         $this->decision = new CaseDecisionService($entityManager, $metadata, $this->formatos, $this);
-        $this->cumplimiento = new CaseCumplimientoService($entityManager, $metadata, $this);
+        $this->cumplimiento = new CaseCumplimientoService($entityManager, $metadata, $this, $this->formatos);
         $this->archivo = new CaseArchivoService($entityManager, $this->formatos, $this, $this->cumplimiento);
     }
 

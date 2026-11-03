@@ -1759,6 +1759,10 @@ define('custom:helpers/case-detail-side-panels', [
             ? cListo('Reporte al RNMC: ' + escapeHtml(m.rnmc.medio) + ' · ' + fechaDMA(m.rnmc.fecha)
                 + (m.rnmc.identificador ? ' · ' + escapeHtml(m.rnmc.identificador) : '') + ' ' + enlace(m.rnmc.constanciaId, 'constancia', 'fa-paperclip'))
             : '<details class="alcaldia-cumpl__rnmc"><summary><span class="fas fa-triangle-exclamation"></span> Falta el reporte al RNMC (art. 172 par. 2)</summary>'
+                + '<div class="alcaldia-cumpl__accion"><div class="alcaldia-cumpl__accion-titulo">1 · Genere el reporte</div>'
+                + '<small class="alcaldia-cumpl__ayuda">Word con los datos de la medida para registrarlos en el aplicativo del RNMC o enviarlos por oficio.</small>'
+                + '<div class="alcaldia-apertura__acciones">' + cBoton('rnmcGenerar', 'fa-file-word', 'Generar reporte RNMC (Word)', 'default') + '</div></div>'
+                + '<div class="alcaldia-cumpl__accion-titulo">2 · Registre el envío</div>'
                 + cFila(cCampo('Fecha', '<input type="date" class="form-control input-sm js-c-rnmc-fecha" value="' + hoyISO() + '">'),
                     cCampo('Medio', '<select class="form-control input-sm js-c-rnmc-medio">' + opciones(['Aplicativo RNMC', 'Oficio a Policía Nacional', 'Correo electrónico']) + '</select>'))
                 + cCampo('Identificador del registro', '<input type="text" class="form-control input-sm js-c-rnmc-id" placeholder="Opcional">')
@@ -1836,6 +1840,18 @@ define('custom:helpers/case-detail-side-panels', [
             const v = function (sel) { return String($card.find(sel).val() || '').trim(); };
             const datos = {accion: 'cumplimiento', tipo: tipo, medidaId: $card.data('medida') || ''};
             let archivoSel = '.js-c-archivo';
+
+            if (tipo === 'rnmcGenerar') {
+                Espo.Ui.notify('Generando el reporte…');
+                Espo.Ajax.postRequest('Case/action/procesoAccion', Object.assign({id: recordView.model.id}, datos)).then(function (r) {
+                    Espo.Ui.notify(false);
+                    Espo.Ui.success('Reporte generado. Se descarga en Word.');
+
+                    if (r && r.formatoId) { window.location.assign(descargaUrl(r.formatoId)); }
+                }).catch(function () { Espo.Ui.notify(false); });
+
+                return;
+            }
 
             if (tipo === 'rnmc') {
                 Object.assign(datos, {fecha: v('.js-c-rnmc-fecha'), medio: v('.js-c-rnmc-medio'), identificador: v('.js-c-rnmc-id')});

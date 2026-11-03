@@ -591,6 +591,7 @@ html.crm-modern-ui body .detail[data-scope="Case"] .btn.btn-primary.case-acta-ca
 .detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-cumpl__rnmc { border-top: 1px dashed var(--crm-border); display: flex; flex-direction: column; gap: 10px; padding-top: 10px; }
 .detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-cumpl__rnmc > summary { color: #92400e; cursor: pointer; font-size: 12px; font-weight: 600; }
 .detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-cumpl__rnmc[open] > summary { margin-bottom: 10px; }
+.detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-cumpl__ayuda { color: var(--crm-text-secondary); font-size: 12px; }
 .detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-cumpl__pendientes { background: var(--crm-warning-soft); border-radius: 8px; color: #92400e; padding: 10px 12px; }
 .detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-cumpl__pendientes ul { margin: 6px 0 0; padding-left: 18px; }
 .detail:is([data-scope="Case"], [data-scope="Expediente"]) .alcaldia-cumpl .alcaldia-firma__listo { margin: 0; }
