@@ -1653,94 +1653,152 @@ define('custom:helpers/case-detail-side-panels', [
 
     /* ── Cumplimiento de la orden o medida ── */
 
+    // Piezas de las tarjetas de cumplimiento: cada medida u orden es una tarjeta con su estado y su siguiente paso.
+    const cCampo = function (etiqueta, control, ayuda) {
+        return '<div class="alcaldia-cumpl__campo"><label>' + etiqueta + '</label>' + control + (ayuda ? '<small>' + ayuda + '</small>' : '') + '</div>';
+    };
+
+    const cFila = function () {
+        return '<div class="alcaldia-cumpl__fila">' + Array.prototype.slice.call(arguments).join('') + '</div>';
+    };
+
+    const cArchivo = function (clase, vacio) {
+        return '<label class="alcaldia-firma__archivo"><input type="file" class="' + clase + '" accept=".pdf,image/*" data-vacio="' + vacio + '">'
+            + '<span class="fas fa-file-arrow-up"></span><span class="alcaldia-firma__archivo-texto js-c-archivo-nombre">' + vacio + '</span></label>';
+    };
+
+    const cAccion = function (titulo, cuerpo, boton) {
+        return '<div class="alcaldia-cumpl__accion"><div class="alcaldia-cumpl__accion-titulo">' + titulo + '</div>' + cuerpo
+            + '<div class="alcaldia-apertura__acciones">' + boton + '</div></div>';
+    };
+
+    const cBoton = function (tipo, icono, texto, claseBtn) {
+        return '<button type="button" class="btn btn-' + (claseBtn || 'primary') + ' btn-sm js-c-accion" data-tipo="' + tipo + '"><span class="fas ' + icono + '"></span> ' + texto + '</button>';
+    };
+
+    const cClaseEstado = function (estado) {
+        const t = String(estado || '').toLowerCase();
+
+        if (/incumpl|no cumpl/.test(t)) { return 'is-mal'; }
+        if (/cumplid|ejecutad|complet|cerrad|archivad|pagad|asisti|verificad/.test(t)) { return 'is-ok'; }
+
+        return 'is-pendiente';
+    };
+
+    const cTarjeta = function (icono, titulo, estado, detalle, cuerpo, atributos) {
+        return '<div class="alcaldia-proceso__regla alcaldia-cumpl ' + cClaseEstado(estado) + '" ' + atributos + '>'
+            + '<div class="alcaldia-cumpl__cabecera"><span class="alcaldia-cumpl__icono fas ' + icono + '"></span>'
+            + '<span class="alcaldia-cumpl__titulo">' + titulo + (detalle ? '<small>' + detalle + '</small>' : '') + '</span>'
+            + '<span class="alcaldia-cumpl__estado">' + escapeHtml(estado) + '</span></div>'
+            + '<div class="alcaldia-cumpl__cuerpo">' + cuerpo + '</div></div>';
+    };
+
+    const cListo = function (texto) {
+        return '<div class="alcaldia-firma__listo"><span class="fas fa-circle-check"></span> ' + texto + '</div>';
+    };
+
     const htmlValoracion = function (cu, clave) {
-        return '<small class="alcaldia-proceso__incumple">Incumplida: haga la valoración jurídica (el CRM no impone una medida nueva).</small>'
-            + '<select class="form-control input-sm js-c-valoracion">' + opciones(cu.valoraciones || []) + '</select>'
-            + '<textarea class="form-control input-sm js-c-motivacion" rows="2" placeholder="Motivación"></textarea>'
-            + '<button type="button" class="btn btn-primary btn-xs js-c-accion" data-tipo="' + clave + '"><span class="fas fa-scale-balanced"></span> Registrar valoración</button>';
+        return cAccion('Valoración jurídica',
+            '<div class="alcaldia-cumpl__aviso"><span class="fas fa-triangle-exclamation"></span> Incumplida: haga la valoración jurídica (el CRM no impone una medida nueva).</div>'
+            + cCampo('Valoración', '<select class="form-control input-sm js-c-valoracion">' + opciones(cu.valoraciones || []) + '</select>')
+            + cCampo('Motivación <span class="text-danger">*</span>', '<textarea class="form-control input-sm js-c-motivacion" rows="2" placeholder="Por qué se concluye así"></textarea>'),
+            cBoton(clave, 'fa-scale-balanced', 'Registrar valoración'));
     };
 
     const htmlMedidaCumplimiento = function (cu, m) {
         const fase = m.fase;
-        const archivo = '<input type="file" class="form-control input-sm js-c-archivo" accept=".pdf,image/*">';
-        let form = '';
+        let icono = 'fa-clipboard-check';
+        let accion = '';
 
         if (fase === 'tesoreria') {
-            form = '<div class="alcaldia-proceso__fila"><div><label>Valor de la multa</label><input type="text" class="form-control input-sm js-c-valor" placeholder="$"></div>'
-                + '<div><label>Fecha de remisión</label><input type="date" class="form-control input-sm js-c-fecha" value="' + hoyISO() + '"></div></div>'
-                + '<label>Oficio de remisión</label>' + archivo
-                + '<button type="button" class="btn btn-primary btn-xs js-c-accion" data-tipo="tesoreria"><span class="fas fa-share"></span> Remitir a Tesorería</button>';
+            icono = 'fa-money-bill-wave';
+            accion = cAccion('Siguiente paso: remitir a Tesorería',
+                cFila(cCampo('Valor de la multa <span class="text-danger">*</span>', '<input type="text" class="form-control input-sm js-c-valor" placeholder="$">'),
+                    cCampo('Fecha de remisión', '<input type="date" class="form-control input-sm js-c-fecha" value="' + hoyISO() + '">'))
+                + cCampo('Oficio de remisión', cArchivo('js-c-archivo', 'Seleccionar PDF o imagen…')),
+                cBoton('tesoreria', 'fa-share', 'Remitir a Tesorería'));
         } else if (fase === 'tesoreriaResultado') {
-            form = '<small>Remitida a Tesorería · ' + escapeHtml((m.obligacion || {}).estado) + ' · control el ' + fechaDMA((m.obligacion || {}).fechaAlertaControl) + '</small>'
-                + '<select class="form-control input-sm js-c-resultado">' + opciones(cu.resultadosTesoreria || []) + '</select>'
-                + '<input type="text" class="form-control input-sm js-c-observacion" placeholder="Observación (recibo, acuerdo…)">'
-                + '<label>Soporte</label>' + archivo
-                + '<button type="button" class="btn btn-primary btn-xs js-c-accion" data-tipo="tesoreriaResultado"><span class="fas fa-check"></span> Registrar resultado de Tesorería</button>';
+            icono = 'fa-money-bill-wave';
+            accion = cAccion('Siguiente paso: resultado de Tesorería',
+                '<div class="alcaldia-cumpl__dato"><span class="fas fa-building-columns"></span> Remitida a Tesorería · ' + escapeHtml((m.obligacion || {}).estado)
+                + ' · control el ' + fechaDMA((m.obligacion || {}).fechaAlertaControl) + '</div>'
+                + cFila(cCampo('Resultado', '<select class="form-control input-sm js-c-resultado">' + opciones(cu.resultadosTesoreria || []) + '</select>'),
+                    cCampo('Observación', '<input type="text" class="form-control input-sm js-c-observacion" placeholder="Recibo, acuerdo…">'))
+                + cCampo('Soporte', cArchivo('js-c-archivo', 'Seleccionar PDF o imagen…')),
+                cBoton('tesoreriaResultado', 'fa-check', 'Registrar resultado de Tesorería'));
         } else if (fase === 'programarPedagogica') {
-            form = '<div class="alcaldia-proceso__fila"><div><label>Programa o entidad</label><input type="text" class="form-control input-sm js-c-dependencia"></div>'
-                + '<div><label>Fecha</label><input type="date" class="form-control input-sm js-c-fecha"></div></div>'
-                + '<button type="button" class="btn btn-primary btn-xs js-c-accion" data-tipo="programarPedagogica"><span class="fas fa-calendar"></span> Programar actividad</button>';
+            icono = 'fa-chalkboard-user';
+            accion = cAccion('Siguiente paso: programar la actividad',
+                cFila(cCampo('Programa o entidad', '<input type="text" class="form-control input-sm js-c-dependencia">'),
+                    cCampo('Fecha', '<input type="date" class="form-control input-sm js-c-fecha">')),
+                cBoton('programarPedagogica', 'fa-calendar', 'Programar actividad'));
         } else if (fase === 'asistencia') {
-            form = '<small>Programada: ' + escapeHtml((m.ejecucion || {}).dependencia) + ' · ' + fechaDMA((m.ejecucion || {}).fechaProgramada) + '</small>'
-                + '<label class="alcaldia-proceso__check"><input type="checkbox" class="js-c-asistio" checked> Asistió / cumplió la actividad</label>'
-                + '<input type="text" class="form-control input-sm js-c-observacion" placeholder="Observación">'
-                + '<label>Constancia</label>' + archivo
-                + '<button type="button" class="btn btn-primary btn-xs js-c-accion" data-tipo="asistencia"><span class="fas fa-check"></span> Registrar asistencia</button>';
+            icono = 'fa-chalkboard-user';
+            accion = cAccion('Siguiente paso: registrar la asistencia',
+                '<div class="alcaldia-cumpl__dato"><span class="fas fa-calendar-day"></span> Programada: ' + escapeHtml((m.ejecucion || {}).dependencia) + ' · ' + fechaDMA((m.ejecucion || {}).fechaProgramada) + '</div>'
+                + '<label class="alcaldia-firma__interruptor"><input type="checkbox" class="js-c-asistio" checked> <span>Asistió / cumplió la actividad</span></label>'
+                + cCampo('Observación', '<input type="text" class="form-control input-sm js-c-observacion">')
+                + cCampo('Constancia', cArchivo('js-c-archivo', 'Seleccionar PDF o imagen…')),
+                cBoton('asistencia', 'fa-check', 'Registrar asistencia'));
         } else if (fase === 'ejecucion') {
-            form = '<div class="alcaldia-proceso__fila"><div><label>Fecha de ejecución</label><input type="date" class="form-control input-sm js-c-fecha" value="' + hoyISO() + '"></div>'
-                + '<div><label>Quién la ejecutó / apoyo</label><input type="text" class="form-control input-sm js-c-dependencia"></div></div>'
-                + '<textarea class="form-control input-sm js-c-resultado-texto" rows="2" placeholder="Cómo se ejecutó"></textarea>'
-                + '<label>Acta o soporte</label>' + archivo
-                + '<button type="button" class="btn btn-primary btn-xs js-c-accion" data-tipo="ejecucion"><span class="fas fa-check"></span> Registrar ejecución</button>';
+            icono = 'fa-box-open';
+            accion = cAccion('Siguiente paso: registrar la ejecución',
+                cFila(cCampo('Fecha de ejecución', '<input type="date" class="form-control input-sm js-c-fecha" value="' + hoyISO() + '">'),
+                    cCampo('Quién la ejecutó / apoyo', '<input type="text" class="form-control input-sm js-c-dependencia">'))
+                + cCampo('Cómo se ejecutó', '<textarea class="form-control input-sm js-c-resultado-texto" rows="2"></textarea>')
+                + cCampo('Acta o soporte', cArchivo('js-c-archivo', 'Seleccionar PDF o imagen…')),
+                cBoton('ejecucion', 'fa-check', 'Registrar ejecución'));
         } else if (fase === 'valoracion') {
-            form = htmlValoracion(cu, 'valorarMedida');
+            icono = 'fa-scale-balanced';
+            accion = htmlValoracion(cu, 'valorarMedida');
         } else {
-            form = '<small class="alcaldia-proceso__ok"><span class="fas fa-circle-check"></span> ' + escapeHtml(m.estado) + (m.resultado ? ' · ' + escapeHtml(m.resultado) : '') + '</small>';
+            accion = cListo(escapeHtml(m.estado) + (m.resultado ? ' · ' + escapeHtml(m.resultado) : ''));
         }
 
         const rnmc = m.rnmc
-            ? '<small class="alcaldia-proceso__ok"><span class="fas fa-circle-check"></span> RNMC: ' + escapeHtml(m.rnmc.medio) + ' · ' + fechaDMA(m.rnmc.fecha)
-                + (m.rnmc.identificador ? ' · ' + escapeHtml(m.rnmc.identificador) : '') + ' ' + enlace(m.rnmc.constanciaId, 'constancia', 'fa-paperclip') + '</small>'
-            : '<details class="alcaldia-proceso__pendiente"><summary>Falta el reporte al RNMC (art. 172 par. 2)</summary>'
-                + '<div class="alcaldia-proceso__fila"><div><input type="date" class="form-control input-sm js-c-rnmc-fecha" value="' + hoyISO() + '"></div>'
-                + '<div><select class="form-control input-sm js-c-rnmc-medio">' + opciones(['Aplicativo RNMC', 'Oficio a Policía Nacional', 'Correo electrónico']) + '</select></div></div>'
-                + '<input type="text" class="form-control input-sm js-c-rnmc-id" placeholder="Identificador del registro (opcional)">'
-                + '<input type="file" class="form-control input-sm js-c-rnmc-archivo" accept=".pdf,image/*">'
-                + '<button type="button" class="btn btn-default btn-xs js-c-accion" data-tipo="rnmc"><span class="fas fa-upload"></span> Registrar reporte RNMC</button></details>';
+            ? cListo('Reporte al RNMC: ' + escapeHtml(m.rnmc.medio) + ' · ' + fechaDMA(m.rnmc.fecha)
+                + (m.rnmc.identificador ? ' · ' + escapeHtml(m.rnmc.identificador) : '') + ' ' + enlace(m.rnmc.constanciaId, 'constancia', 'fa-paperclip'))
+            : '<details class="alcaldia-cumpl__rnmc"><summary><span class="fas fa-triangle-exclamation"></span> Falta el reporte al RNMC (art. 172 par. 2)</summary>'
+                + cFila(cCampo('Fecha', '<input type="date" class="form-control input-sm js-c-rnmc-fecha" value="' + hoyISO() + '">'),
+                    cCampo('Medio', '<select class="form-control input-sm js-c-rnmc-medio">' + opciones(['Aplicativo RNMC', 'Oficio a Policía Nacional', 'Correo electrónico']) + '</select>'))
+                + cCampo('Identificador del registro', '<input type="text" class="form-control input-sm js-c-rnmc-id" placeholder="Opcional">')
+                + cCampo('Constancia', cArchivo('js-c-rnmc-archivo', 'Seleccionar PDF o imagen…'))
+                + '<div class="alcaldia-apertura__acciones">' + cBoton('rnmc', 'fa-upload', 'Registrar reporte RNMC', 'default') + '</div></details>';
 
-        return '<div class="alcaldia-proceso__regla" data-medida="' + escapeHtml(m.id) + '">'
-            + '<b>' + escapeHtml(m.nombre) + '</b> <span class="alcaldia-apertura__fase">' + escapeHtml(m.estado) + '</span>'
-            + (m.condiciones ? '<small>' + escapeHtml(m.condiciones) + '</small>' : '') + form + rnmc + '</div>';
+        return cTarjeta(icono, escapeHtml(m.nombre), m.estado, m.condiciones ? escapeHtml(m.condiciones) : '', accion + rnmc, 'data-medida="' + escapeHtml(m.id) + '"');
     };
 
     const htmlOrdenCumplimiento = function (estado, cu, o) {
-        let form = '';
+        let accion = '';
 
         if (o.fase === 'programarVerificacion') {
-            form = '<div class="alcaldia-proceso__fila"><div><label>Responsable</label><select class="form-control input-sm js-c-responsable"><option value="">Seleccione…</option>' + opciones(estado.responsables || []) + '</select></div>'
-                + '<div><label>Plazo</label><input type="date" class="form-control input-sm js-c-plazo" value="' + escapeHtml(o.fechaLimite || '') + '"></div></div>'
-                + '<select class="form-control input-sm js-c-metodo">' + opciones(cu.metodos || []) + '</select>'
-                + '<button type="button" class="btn btn-primary btn-xs js-c-accion" data-tipo="programarVerificacion"><span class="fas fa-user-check"></span> Programar verificación</button>';
+            accion = cAccion('Siguiente paso: programar la verificación',
+                cFila(cCampo('Responsable', '<select class="form-control input-sm js-c-responsable"><option value="">Seleccione…</option>' + opciones(estado.responsables || []) + '</select>'),
+                    cCampo('Plazo', '<input type="date" class="form-control input-sm js-c-plazo" value="' + escapeHtml(o.fechaLimite || '') + '">'))
+                + cCampo('Método', '<select class="form-control input-sm js-c-metodo">' + opciones(cu.metodos || []) + '</select>'),
+                cBoton('programarVerificacion', 'fa-user-check', 'Programar verificación'));
         } else if (o.fase === 'verificacion') {
-            form = '<small>Verificación a cargo de ' + escapeHtml(o.responsable) + (o.metodo ? ' · ' + escapeHtml(o.metodo) : '') + (o.fechaLimite ? ' · plazo ' + fechaDMA(o.fechaLimite) : '') + '</small>'
-                + '<div class="alcaldia-proceso__fila"><div><select class="form-control input-sm js-c-resultado">' + opciones(cu.resultadosVerificacion || []) + '</select></div>'
-                + '<div><input type="date" class="form-control input-sm js-c-fecha" value="' + hoyISO() + '"></div></div>'
-                + '<textarea class="form-control input-sm js-c-observacion" rows="2" placeholder="Lo encontrado (obligatorio si no se cumplió)"></textarea>'
-                + '<label>Evidencia</label><input type="file" class="form-control input-sm js-c-archivo" accept=".pdf,image/*">'
-                + '<button type="button" class="btn btn-primary btn-xs js-c-accion" data-tipo="verificacion"><span class="fas fa-check"></span> Registrar verificación</button>';
+            accion = cAccion('Siguiente paso: registrar la verificación',
+                '<div class="alcaldia-cumpl__dato"><span class="fas fa-user-check"></span> A cargo de ' + escapeHtml(o.responsable) + (o.metodo ? ' · ' + escapeHtml(o.metodo) : '')
+                + (o.fechaLimite ? ' · plazo ' + fechaDMA(o.fechaLimite) : '') + '</div>'
+                + cFila(cCampo('Resultado', '<select class="form-control input-sm js-c-resultado">' + opciones(cu.resultadosVerificacion || []) + '</select>'),
+                    cCampo('Fecha', '<input type="date" class="form-control input-sm js-c-fecha" value="' + hoyISO() + '">'))
+                + cCampo('Lo encontrado', '<textarea class="form-control input-sm js-c-observacion" rows="2" placeholder="Obligatorio si no se cumplió"></textarea>')
+                + cCampo('Evidencia', cArchivo('js-c-archivo', 'Seleccionar PDF o imagen…')),
+                cBoton('verificacion', 'fa-check', 'Registrar verificación'));
         } else if (o.fase === 'cumplirOrden') {
-            form = '<input type="text" class="form-control input-sm js-c-observacion" placeholder="Cómo se cumplió">'
-                + '<label>Soporte</label><input type="file" class="form-control input-sm js-c-archivo" accept=".pdf,image/*">'
-                + '<button type="button" class="btn btn-primary btn-xs js-c-accion" data-tipo="cumplirOrden"><span class="fas fa-check"></span> Registrar cumplimiento</button>';
+            accion = cAccion('Siguiente paso: registrar el cumplimiento',
+                cCampo('Cómo se cumplió', '<input type="text" class="form-control input-sm js-c-observacion">')
+                + cCampo('Soporte', cArchivo('js-c-archivo', 'Seleccionar PDF o imagen…')),
+                cBoton('cumplirOrden', 'fa-check', 'Registrar cumplimiento'));
         } else if (o.fase === 'valoracion') {
-            form = (o.verificacion ? '<small>Verificación: ' + escapeHtml(o.verificacion.resultado) + ' · ' + escapeHtml(o.verificacion.observacion) + '</small>' : '') + htmlValoracion(cu, 'valorarOrden');
+            accion = (o.verificacion ? '<div class="alcaldia-cumpl__dato"><span class="fas fa-clipboard-check"></span> Verificación: ' + escapeHtml(o.verificacion.resultado) + ' · ' + escapeHtml(o.verificacion.observacion) + '</div>' : '')
+                + htmlValoracion(cu, 'valorarOrden');
         } else {
-            form = '<small class="alcaldia-proceso__ok"><span class="fas fa-circle-check"></span> ' + escapeHtml(o.estado)
-                + (o.verificacion ? ' · verificada el ' + fechaDMA(o.verificacion.fecha) + ' ' + enlace(o.verificacion.soporteId, 'evidencia', 'fa-paperclip') : '') + '</small>';
+            accion = cListo(escapeHtml(o.estado) + (o.verificacion ? ' · verificada el ' + fechaDMA(o.verificacion.fecha) + ' ' + enlace(o.verificacion.soporteId, 'evidencia', 'fa-paperclip') : ''));
         }
 
-        return '<div class="alcaldia-proceso__regla" data-orden="' + escapeHtml(o.id) + '"><b>Orden de Policía</b> <span class="alcaldia-apertura__fase">' + escapeHtml(o.estado) + '</span>'
-            + '<small>' + escapeHtml(o.texto) + ' · ' + escapeHtml(o.destinatario) + '</small>' + form + '</div>';
+        return cTarjeta('fa-shield-halved', 'Orden de Policía', o.estado, escapeHtml(o.texto) + ' · ' + escapeHtml(o.destinatario), accion, 'data-orden="' + escapeHtml(o.id) + '"');
     };
 
     const htmlCumplimiento = function (estado) {
@@ -1754,16 +1812,24 @@ define('custom:helpers/case-detail-side-panels', [
                 : '<p class="alcaldia-apertura__ayuda">Lo gestionan Apoyo Jurídico, el Inspector Ambiental y Aux. Administrativo · Inspección.</p>';
         }
 
-        return '<p class="alcaldia-apertura__ayuda">Registre la ejecución de cada medida según su tipo, el reporte al RNMC y la verificación de la orden de Policía. Plazo de referencia: 5 días desde la firmeza (art. 223 num. 5).</p>'
+        return '<div class="alcaldia-cumpl__intro"><span class="fas fa-list-check"></span> <span>Registre la ejecución de cada medida según su tipo, el reporte al RNMC y la verificación de la orden de Policía. '
+            + 'Plazo de referencia: 5 días desde la firmeza (art. 223 num. 5).</span></div>'
             + (cu.medidas || []).map(function (m) { return htmlMedidaCumplimiento(cu, m); }).join('')
             + (cu.orden ? htmlOrdenCumplimiento(estado, cu, cu.orden) : '')
             + (pend.length
-                ? '<p class="alcaldia-apertura__texto"><b>Pendiente para cerrar:</b></p><ul class="alcaldia-proceso__pendientes">'
-                    + pend.map(function (t) { return '<li>' + escapeHtml(t) + '</li>'; }).join('') + '</ul>'
-                : '<button type="button" class="btn btn-primary btn-sm js-c-accion" data-tipo="cerrar"><span class="fas fa-flag-checkered"></span> Cerrar cumplimiento y pasar al Auto de Archivo</button>');
+                ? '<div class="alcaldia-cumpl__pendientes"><b><span class="fas fa-hourglass-half"></span> Pendiente para cerrar</b><ul>'
+                    + pend.map(function (t) { return '<li>' + escapeHtml(t) + '</li>'; }).join('') + '</ul></div>'
+                : '<div class="alcaldia-apertura__acciones">' + cBoton('cerrar', 'fa-flag-checkered', 'Cerrar cumplimiento y pasar al Auto de Archivo') + '</div>');
     };
 
     const bindCumplimiento = function (recordView, $block) {
+        $block.find('.alcaldia-cumpl .alcaldia-firma__archivo input').on('change', function () {
+            const archivo = this.files && this.files[0];
+
+            $(this).closest('.alcaldia-firma__archivo').toggleClass('is-listo', !!archivo)
+                .find('.js-c-archivo-nombre').text(archivo ? archivo.name : ($(this).data('vacio') || ''));
+        });
+
         $block.find('.js-c-accion').on('click', function () {
             const tipo = $(this).data('tipo');
             const $card = $(this).closest('.alcaldia-proceso__regla');
