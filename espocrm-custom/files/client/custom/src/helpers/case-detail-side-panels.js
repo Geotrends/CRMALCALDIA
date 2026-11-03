@@ -1063,6 +1063,7 @@ define('custom:helpers/case-detail-side-panels', [
             : (d.delAuto
                 ? 'La audiencia ya está creada desde el Auto de Inicio: la fecha y la hora vienen de ella. Si las cambia aquí, se actualiza esa misma audiencia y su cita en el calendario. Falta el lugar y el medio de citación; luego se genera la citación en Word y se carga firmada y escaneada.'
                 : 'Programe la audiencia: se genera la citación en Word con los datos del caso. Luego se carga la citación firmada y escaneada, y con eso se cumple el paso.')) + '</p>'
+            + (!reprogramar && d.pasada ? '<div class="alcaldia-apertura__devuelto">La fecha del Auto de Inicio (' + escapeHtml(d.fecha) + ') ya pasó: elija una nueva fecha y hora.</div>' : '')
             + '<div class="alcaldia-proceso__fila"><div><label>Fecha de la audiencia <span class="text-danger">*</span></label>'
             + '<input type="date" class="form-control js-proceso-fecha" value="' + escapeHtml(reprogramar ? '' : d.fecha || '') + '"></div>'
             + '<div><label>Hora <span class="text-danger">*</span></label><input type="time" class="form-control js-proceso-hora" value="' + escapeHtml(reprogramar ? '' : d.hora || '') + '"></div></div>'

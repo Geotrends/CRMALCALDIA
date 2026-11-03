@@ -1000,12 +1000,10 @@ class CaseProcesoService
             $hora = substr((string) ($auto?->get('horaAudiencia') ?? ''), 0, 5);
         }
 
-        // Si la fecha ya pasó, no se propone: se elige una nueva.
-        if ($fecha !== '' && $fecha . ' ' . ($hora ?: '23:59') < (new \DateTimeImmutable('now', $zona))->format('Y-m-d H:i')) {
-            return ['fecha' => '', 'hora' => '', 'delAuto' => $delAuto];
-        }
+        // Se propone igual; si ya pasó, el formulario avisa y pide elegir una nueva (citar exige fecha futura).
+        $pasada = $fecha !== '' && $fecha . ' ' . ($hora ?: '23:59') < (new \DateTimeImmutable('now', $zona))->format('Y-m-d H:i');
 
-        return ['fecha' => $fecha, 'hora' => $hora, 'delAuto' => $delAuto];
+        return ['fecha' => $fecha, 'hora' => $hora, 'delAuto' => $delAuto, 'pasada' => $pasada];
     }
 
     /**
