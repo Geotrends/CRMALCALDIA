@@ -142,3 +142,14 @@
   .detail[data-scope="Case"] .left .middle > .panel:not(.panel-caseTimeline):not(.panel-caseCronograma) > .panel-body > .row > .cell,
   .detail[data-scope="Case"] .left .bottom > .panel > .panel-body > .row > .cell { padding: 11px 14px; }
 }
+
+/* Peticionario y perjudicante: identificación, contacto y dirección como tarjetas separadas. */
+[data-scope="Case"] .panel .crm-grupo { background: var(--crm-surface); border-left: 1px solid var(--crm-border); border-right: 1px solid var(--crm-border); margin: 0 0 0 0 !important; padding: 4px 14px; position: relative; }
+[data-scope="Case"] .panel .crm-grupo--inicio { border-top: 1px solid var(--crm-border); border-top-left-radius: var(--crm-radius-lg, 10px); border-top-right-radius: var(--crm-radius-lg, 10px); margin-top: 18px !important; padding-top: 34px; }
+[data-scope="Case"] .panel .crm-grupo--inicio:first-child, [data-scope="Case"] .panel .panel-body > .crm-grupo--inicio:first-of-type { margin-top: 0 !important; }
+[data-scope="Case"] .panel .crm-grupo--inicio::before { align-items: center; background: var(--crm-bg-elevated); border-bottom: 1px solid var(--crm-border); border-top-left-radius: var(--crm-radius-lg, 10px); border-top-right-radius: var(--crm-radius-lg, 10px); color: var(--crm-primary); content: attr(data-grupo); font-size: 11px; font-weight: 700; left: 0; letter-spacing: .06em; padding: 7px 14px; position: absolute; right: 0; text-transform: uppercase; top: 0; }
+[data-scope="Case"] .panel .crm-grupo--fin { border-bottom: 1px solid var(--crm-border); border-bottom-left-radius: var(--crm-radius-lg, 10px); border-bottom-right-radius: var(--crm-radius-lg, 10px); padding-bottom: 8px; }
+[data-scope="Case"] .panel .crm-grupo--identificacion.crm-grupo--inicio::before { border-left: 4px solid var(--crm-primary); }
+[data-scope="Case"] .panel .crm-grupo--contacto.crm-grupo--inicio::before { border-left: 4px solid #0d9488; }
+[data-scope="Case"] .panel .crm-grupo--direccion.crm-grupo--inicio::before { border-left: 4px solid #d97706; }
+[data-scope="Case"] .panel .crm-grupo:not(:has(.cell:not([style*="display: none"]))) { display: none; }

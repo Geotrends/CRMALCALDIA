@@ -90,12 +90,63 @@ define('custom:helpers/compact-form-sections', [], function () {
         );
     };
 
+    // Peticionario y perjudicante: sus campos se agrupan visualmente en tarjetas (identificación, contacto, dirección).
+    const GRUPOS_PARTES = {
+        peticionario: {
+            identificacion: ['cTipoPersonaPeticionario', 'cTipoDocumentoPeticionario', 'cDocumentoPeticionario', 'cNombrePeticionario', 'cApellidoPeticionario'],
+            contacto: ['cTelefonoPeticionario', 'cCorreoPeticionario', 'cCanalDeReportePeticionario'],
+        },
+        perjudicante: {
+            identificacion: ['cTipoPersonaPerjudicante', 'cTipoDocumentoPerjudicante', 'cDocumentoPerjudicante', 'cNombrePerjudicante', 'cApellidoPerjudicante'],
+            contacto: ['cTelefonoPerjudicante', 'cCorreoPerjudicante'],
+        },
+    };
+    const TITULOS_GRUPO = {identificacion: 'Identificación', contacto: 'Contacto', direccion: 'Dirección'};
+
+    // Solo marca las filas con clases (no cambia la estructura), así sobrevive a que Espo vuelva a pintar los campos.
+    const agruparPartes = function (view) {
+        Object.keys(GRUPOS_PARTES).forEach(function (panel) {
+            const $panel = findPanel(view, panel);
+
+            if (!$panel.length) return;
+
+            const grupos = GRUPOS_PARTES[panel];
+            let anterior = null;
+            const $filas = $panel.find('.panel-body .row').filter(function () {
+                return $(this).children('.cell').length > 0;
+            });
+
+            $filas.removeClass('crm-grupo crm-grupo--identificacion crm-grupo--contacto crm-grupo--direccion crm-grupo--inicio crm-grupo--fin').removeAttr('data-grupo');
+
+            $filas.each(function () {
+                const $fila = $(this);
+                const campos = $fila.children('.cell').map(function () { return this.getAttribute('data-name'); }).get();
+                const grupo = Object.keys(grupos).find(function (g) { return campos.some(function (c) { return grupos[g].indexOf(c) !== -1; }); }) || 'direccion';
+
+                $fila.addClass('crm-grupo crm-grupo--' + grupo);
+
+                if (grupo !== anterior) {
+                    $fila.addClass('crm-grupo--inicio').attr('data-grupo', TITULOS_GRUPO[grupo]);
+
+                    if (anterior !== null) {
+                        $fila.prev('.crm-grupo').addClass('crm-grupo--fin');
+                    }
+                }
+
+                anterior = grupo;
+            });
+
+            $filas.last().addClass('crm-grupo--fin');
+        });
+    };
+
     const enhance = function (view) {
         if (view.model && view.model.isNew()) {
             view.$el.addClass('crm-case-create-mode');
         }
 
         addCreateSteps(view);
+        agruparPartes(view);
 
         Object.keys(config).forEach(function (name) {
             const rule = config[name];
