@@ -177,6 +177,9 @@ define('custom:helpers/alcaldia-notification-message', [
             message = userLink(userId, userName)
                 + ' creó una solicitud de queja: '
                 + caseLink(href, linkLabel);
+        } else if (data.isAccionRequerida) {
+            message = 'Se requiere tu acción en la solicitud ' + caseLink(href, linkLabel) + '.'
+                + (data.indicacion ? ' ' + escapeHtml(data.indicacion) : '');
         } else if (data.isProcesoAviso) {
             message = userLink(userId, userName) + ' ' + escapeHtml(data.textoAviso || '') + ' (caso ' + caseLink(href, linkLabel) + ').'
                 + (data.indicacion ? ' ' + escapeHtml(data.indicacion) : '');
