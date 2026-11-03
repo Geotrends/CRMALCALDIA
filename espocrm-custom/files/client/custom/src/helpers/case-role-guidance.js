@@ -168,7 +168,7 @@ define('custom:helpers/case-role-guidance', [
 
         const actual = pasos.findIndex(p => !p.ok);
         const textos = [
-            [complementaria ? 'Programe la visita complementaria' : 'Programe la visita', 'En el panel Visitas seleccione «Programar visita». El formulario ya trae el nombre, la intervención técnica y el responsable: confirme la fecha y la hora, o asigne la visita a otra persona.'],
+            [complementaria ? 'Programe la visita complementaria' : 'Programe la visita', 'En el panel Visitas seleccione «Programar visita». Confirme la fecha y la hora, o asigne la visita a otra persona.'],
             pendiente && pendiente.actaId && pendiente.actaEstado === 'Pendiente'
                 ? ['Complete el acta de visita', 'En el panel Visitas, en ' + pendiente.name + ', seleccione «Completar acta de visita» y registre los hallazgos.']
                 : pendiente && pendiente.actaId && pendiente.actaFirmada === false
