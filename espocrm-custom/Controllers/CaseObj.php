@@ -796,7 +796,11 @@ class CaseObj extends BaseCaseObj
             throw new Forbidden();
         }
 
-        return $this->injectableFactory->create(CaseAperturaService::class)->estado($case, $this->getUser());
+        $estado = $this->injectableFactory->create(CaseAperturaService::class)->estado($case, $this->getUser());
+        $estado['seguimiento'] = $this->injectableFactory->create(\Espo\Custom\Tools\CaseObj\CaseExpedienteGuidance::class)
+            ->estado($case, $this->getUser(), $estado);
+
+        return $estado;
     }
 
     /**

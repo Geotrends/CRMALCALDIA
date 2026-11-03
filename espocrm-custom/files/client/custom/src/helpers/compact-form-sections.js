@@ -84,5 +84,30 @@ define('custom:helpers/compact-form-sections', [], function () {
             view.listenTo(view.model, 'change', update);
         });
     };
-    return {schedule: view => [0, 180, 600, 1400, 2500, 3800].forEach(delay => window.setTimeout(() => enhance(view), delay))};
+    // Los bloques cargados por AJAX reemplazan su encabezado al actualizarse.
+    // Conservar la elección en el panel y enlazar el nuevo encabezado en cada render.
+    const makeCollapsible = function ($panel) {
+        const $heading = $panel.children('.panel-heading').first();
+        if (!$heading.length || $heading.data('crmCompactBound')) return;
+        $panel.addClass('crm-form-section');
+        $heading.data('crmCompactBound', true).attr({role: 'button', tabindex: '0'})
+            .append('<span class="crm-form-section__chevron" aria-hidden="true"></span>');
+        const state = function (open) {
+            $panel.data('crmCompactOpen', open).toggleClass('crm-form-section--collapsed', !open);
+            $heading.attr('aria-expanded', open ? 'true' : 'false');
+        };
+        state($panel.data('crmCompactOpen') === true);
+        const toggle = function (event) {
+            if ($(event.target).closest('a, button, input, select, textarea').length) return;
+            if (event.type === 'keydown' && event.key !== 'Enter' && event.key !== ' ') return;
+            event.preventDefault();
+            state($panel.hasClass('crm-form-section--collapsed'));
+        };
+        $heading.on('click.crmCompactSections keydown.crmCompactSections', toggle);
+    };
+
+    return {
+        schedule: view => [0, 180, 600, 1400, 2500, 3800].forEach(delay => window.setTimeout(() => enhance(view), delay)),
+        makeCollapsible: makeCollapsible,
+    };
 });

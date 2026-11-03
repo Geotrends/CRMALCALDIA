@@ -181,7 +181,9 @@ define('custom:views/case/fields/decision-juridica', [
                 maxSize: 1,
             });
 
-            Promise.all([autoInicioRequest, actaRequest]).then(function (responses) {
+            const nuevaVisitaRequest = SilentAjax.getRequest('Case/action/enProcesoOtraVisita', {id: this.model.id});
+
+            Promise.all([autoInicioRequest, actaRequest, nuevaVisitaRequest]).then(function (responses) {
                 if (self._removed || revision !== (self._stateRevision || 0)) {
                     return;
                 }
@@ -191,6 +193,7 @@ define('custom:views/case/fields/decision-juridica', [
                 self.hasAutoInicio = list.length > 0;
                 self.hasActaFirmada = !!(actas[0] && String(actas[0].formatoManoAdjuntoIds || '').trim());
                 self.currentActa = actas[0] || null;
+                self.visitaComplementariaPreparada = !!(responses[2] && responses[2].enProcesoOtraVisita);
                 self.stateReady = true;
                 self.refreshViewState();
             }).catch(function () {
@@ -259,12 +262,17 @@ define('custom:views/case/fields/decision-juridica', [
                 && (status === STATUS_VISITA_REALIZADA || status === STATUS_REVISION || status === STATUS_LEGACY_APPROVED);
             const showRevisar = canDecidir && status === STATUS_VISITA_REALIZADA;
             const showDecisiones = canDecidir && (status === STATUS_REVISION || status === STATUS_LEGACY_APPROVED);
+            const acta = this.currentActa || {};
+            const showComplementariaSolicitada = canDecidir && this.visitaComplementariaPreparada
+                && acta.cDecisionTramite === 'Visita complementaria'
+                && !!(acta.cRevisadoPor || acta.fechaAprobacion);
 
             return {
                 showPanel: showRevisar || showDecisiones || showSinFirma,
                 showSinFirma: showSinFirma,
                 showRevisar: showRevisar,
                 showDecisiones: showDecisiones,
+                showComplementariaSolicitada: !!showComplementariaSolicitada,
                 helpText: this.translateCaseLabel('decisionJuridicaHelp'),
                 decisionTramite: this.model.get('cDecisionTramite') || '',
                 motivoDecision: this.model.get('cMotivoDecision') || '',
@@ -391,6 +399,10 @@ define('custom:views/case/fields/decision-juridica', [
          * hallazgos registrada) y ejecuta la acción correspondiente.
          */
         actionEjecutarDefinicion: function () {
+            if (this.data().showComplementariaSolicitada) {
+                Espo.Ui.success('La visita complementaria ya está solicitada. El responsable asignado debe programarla desde Visitas.');
+                return;
+            }
             const self = this;
             const decision = String(this.$el.find('[data-name="decisionTramite"]').val() || '').trim();
             const motivo = String(this.$el.find('[data-name="motivoDecision"]').val() || '').trim();

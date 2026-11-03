@@ -4,6 +4,7 @@ define('custom:helpers/case-role-guidance', [
 
     const ESTADOS_VISITA = ['Asignado', 'En gestión técnica', 'Revisión de hallazgos'];
     const ESTADOS_CIERRE = ['Pendiente de respuesta final', 'Remitido por competencia'];
+    const tieneExpediente = view => !!view.model.get('expedienteId') || view.model.get('cDecisionTramite') === 'Apertura de actuación';
     const faltaEvaluacion = view => ((view._crmCierreGuia || {}).requisitos || [])
         .some(r => r.key === 'evaluacionResultado' && !r.ok);
 
@@ -53,6 +54,13 @@ define('custom:helpers/case-role-guidance', [
     };
 
     const getEtapa = function (view) {
+        if (tieneExpediente(view)) {
+            return view._crmExpedienteGuia || {
+                estado: 'Seguimiento del expediente', actor: 'Por confirmar', mio: false,
+                accion: view._crmExpedienteError || view._crmExpedienteLoaded
+                    ? 'Consultar el proceso del expediente' : 'Consultando la actuación pendiente del expediente…',
+            };
+        }
         const model = view.model;
         const user = view.getUser();
         const status = model.get('status') || '';
@@ -236,6 +244,27 @@ define('custom:helpers/case-role-guidance', [
             });
     };
 
+    const cargarExpediente = function (view) {
+        if (view._crmExpedienteLoading || view._crmExpedienteError || view._crmGuidanceRemoved) return;
+        view._crmExpedienteLoading = true;
+        const revision = view._crmExpedienteRevision || 0;
+        Espo.Ajax.getRequest('Case/action/aperturaEstado', {id: view.model.id}).then(estado => {
+            if (view._crmGuidanceRemoved || revision !== (view._crmExpedienteRevision || 0)) return;
+            view._crmExpedienteGuia = estado.seguimiento;
+            view._crmExpedienteLoaded = true;
+            render(view);
+        }).catch(() => {
+            if (view._crmGuidanceRemoved || revision !== (view._crmExpedienteRevision || 0)) return;
+            view._crmExpedienteError = true;
+            render(view);
+        }).finally(() => {
+            view._crmExpedienteLoading = false;
+            if (!view._crmGuidanceRemoved && !view._crmExpedienteLoaded && revision !== (view._crmExpedienteRevision || 0)) {
+                cargarExpediente(view);
+            }
+        });
+    };
+
     const cargarCierre = function (view) {
         if (view._crmCierreLoading || view._crmCierreError || view._crmGuidanceRemoved) {
             return;
@@ -410,6 +439,17 @@ define('custom:helpers/case-role-guidance', [
         }
 
         const etapa = getEtapa(view);
+        if (tieneExpediente(view)) {
+            return {
+                role: etapa.mio ? 'responsable' : 'seguimiento',
+                eyebrow: 'Seguimiento · Expediente', icon: 'fas fa-folder-open',
+                title: etapa.accion,
+                text: etapa.detalle || (etapa.mio
+                    ? 'Esta actuación le corresponde. Continúe desde el panel del expediente o de Comunicaciones, según la acción indicada.'
+                    : 'Le corresponde a ' + etapa.actor + '. Puede consultar el expediente y su historia.'),
+                etapa: etapa,
+            };
+        }
         // La etapa manda: un rol que consulta su historial no debe recibir instrucciones
         // para radicar, asignar o visitar cuando el siguiente paso le toca a otra persona.
         const guidance = (etapa.mio ? getGuidanceRol(view) : null) || getSeguimiento(view, etapa);
@@ -440,7 +480,10 @@ define('custom:helpers/case-role-guidance', [
 
         view.$el.filter('.crm-case-role-guidance').add(view.$el.find('.crm-case-role-guidance')).remove();
 
-        if (!view.model.isNew() && estadoVisita(view) && !view._crmVisitasGuia) {
+        if (!view.model.isNew() && tieneExpediente(view) && !view._crmExpedienteLoaded) {
+            cargarExpediente(view);
+        }
+        if (!view.model.isNew() && !tieneExpediente(view) && estadoVisita(view) && !view._crmVisitasGuia) {
             cargarVisitas(view);
         }
         if (!view.model.isNew() && ESTADOS_CIERRE.includes(view.model.get('status')) && !view._crmCierreGuia) {
@@ -493,8 +536,13 @@ define('custom:helpers/case-role-guidance', [
                 Espo.Ajax.getRequest('Case/' + view.model.id, {select: 'status,cDecisionTramite,expedienteId,assignedUserId,assignedUserName,cCompetenciaConfirmada'}),
                 ESTADOS_CIERRE.includes(view.model.get('status'))
                     ? Espo.Ajax.getRequest('Case/action/cierreEstado', {id: view.model.id}) : Promise.resolve(null),
-            ]).then(([visitas, caso, cierre]) => {
+                tieneExpediente(view)
+                    ? Espo.Ajax.getRequest('Case/action/aperturaEstado', {id: view.model.id}) : Promise.resolve(null),
+            ]).then(([visitas, caso, cierre, apertura]) => {
                 if (view._crmGuidanceRemoved) return;
+                if (apertura && JSON.stringify(apertura.seguimiento) !== JSON.stringify(view._crmExpedienteGuia)) {
+                    view.model.trigger('expediente:updated', apertura.seguimiento);
+                }
                 if (cierre && JSON.stringify(cierre) !== JSON.stringify(view._crmCierreGuia)) {
                     view.model.trigger('cierre:updated', cierre);
                 }
@@ -546,8 +594,19 @@ define('custom:helpers/case-role-guidance', [
             view._crmCierreError = false;
             render(view);
         });
+        view.listenTo(view.model, 'expediente:updated', seguimiento => {
+            view._crmExpedienteRevision = (view._crmExpedienteRevision || 0) + 1;
+            view._crmExpedienteGuia = seguimiento;
+            view._crmExpedienteLoaded = true;
+            view._crmExpedienteError = false;
+            render(view);
+        });
         // Programar la visita o adjuntar el acta recarga la solicitud: los pasos se recalculan.
         view.listenTo(view.model, 'sync', () => {
+            view._crmExpedienteRevision = (view._crmExpedienteRevision || 0) + 1;
+            view._crmExpedienteLoaded = false;
+            view._crmExpedienteGuia = null;
+            view._crmExpedienteError = false;
             view._crmCierreRevision = (view._crmCierreRevision || 0) + 1;
             view._crmCierreGuia = null;
             view._crmCierreError = false;

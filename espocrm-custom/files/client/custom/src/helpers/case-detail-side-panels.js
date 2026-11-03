@@ -4,7 +4,8 @@ define('custom:helpers/case-detail-side-panels', [
     'custom:helpers/patrullero-acta',
     'custom:helpers/silent-ajax',
     'custom:helpers/auto-inicio-modal',
-], function (RadicacionFields, AsignadorAssignmentUi, PatrulleroActa, SilentAjax, AutoInicioModal) {
+    'custom:helpers/compact-form-sections',
+], function (RadicacionFields, AsignadorAssignmentUi, PatrulleroActa, SilentAjax, AutoInicioModal, CompactFormSections) {
 
     const TOP_PANELS = [
         'caseTimeline',
@@ -864,6 +865,7 @@ define('custom:helpers/case-detail-side-panels', [
                 + '<div class="panel-body">' + (estado.expediente ? htmlAperturaNumero(estado) : '') + cuerpo + '</div>');
 
             bindApertura(recordView, $block);
+            CompactFormSections.makeCollapsible($block);
             ubicarBloquesExpediente($side);
         });
 
@@ -1824,6 +1826,7 @@ define('custom:helpers/case-detail-side-panels', [
 
             $block.data('procesoKey', key);
             pintarProceso($block, recordView, estado, true);
+            CompactFormSections.makeCollapsible($block);
             ubicarBloquesExpediente($side);
         });
     };

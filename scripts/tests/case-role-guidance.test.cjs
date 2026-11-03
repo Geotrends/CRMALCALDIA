@@ -45,6 +45,8 @@ function liveBanner(role, attributes, programaciones = [], options = {}) {
         _crmRoles: role === 'inspeccion' ? ['Inspector Ambiental'] : [],
         _crmVisitasGuia: options.uncached ? null : Object.assign({programaciones}, options.visitas),
         _crmCierreGuia: options.cierre || {requisitos: []},
+        _crmExpedienteLoaded: !!options.expediente,
+        _crmExpedienteGuia: options.expediente,
         model,
         listenTo(target, events, callback) { events.split(' ').forEach(event => target.on(event, callback)); },
     });
@@ -53,6 +55,29 @@ function liveBanner(role, attributes, programaciones = [], options = {}) {
 }
 
 function banner(...args) { return liveBanner(...args).html; }
+
+test('el expediente prevalece sobre el responsable y el estado ordinarios de la solicitud', () => {
+    const html = banner('tecnico', {status: 'En gestión técnica', assignedUserId: 'viewer', expedienteId: 'exp'}, [], {
+        expediente: {estado: 'Audiencia suspendida · Prueba pendiente', accion: 'Adjuntar el informe especializado', actor: 'Responsable de la prueba', mio: false},
+    });
+    assert.ok(html.includes('Adjuntar el informe especializado'));
+    assert.ok(html.includes('<dt>A cargo de</dt><dd>Responsable de la prueba</dd>'));
+    assert.ok(!html.includes('Programe la visita'));
+});
+
+test('una solicitud finalizada mantiene la respuesta final pendiente después del archivo', async () => {
+    const current = liveBanner('inspeccion', {status: 'Finalizado', expedienteId: 'exp'}, [], {
+        expediente: {estado: 'Expediente archivado · Respuesta final pendiente de registrar', accion: 'Registrar la respuesta final al peticionario en Comunicaciones', actor: 'Inspección', mio: true},
+    });
+    current.setup();
+    await flush();
+    assert.ok(current.html.includes('Registrar la respuesta final al peticionario'));
+    assert.ok(current.html.includes('Inspección (usted)'));
+    current.model.emit('expediente:updated', {estado: 'Expediente archivado · Solicitud finalizada', accion: 'Ninguna: expediente archivado y respuesta final registrada', actor: 'Sin acciones pendientes', mio: false});
+    assert.ok(current.html.includes('respuesta final registrada'));
+    assert.ok(!current.html.includes('Respuesta final pendiente'));
+    current.view.emit('remove');
+});
 
 test('todos los roles ven la misma etapa, acción y encargado en los nueve estados', () => {
     const cases = [

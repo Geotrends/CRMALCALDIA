@@ -22,7 +22,8 @@ function definition(file, dependencies) {
 function decisionView(getRequest = () => Promise.resolve({list: []})) {
     let renders = 0;
     const methods = definition('views/case/fields/decision-juridica.js', [
-        {extend: value => value, prototype: {setup() {}}}, {}, {getRequest}, {},
+        {extend: value => value, prototype: {setup() {}}}, {}, {getRequest: (endpoint, data) => endpoint === 'Case/action/enProcesoOtraVisita'
+            ? Promise.resolve({enProcesoOtraVisita: false}) : getRequest(endpoint, data)}, {},
         {safeReRender() { renders++; return Promise.resolve(); }},
     ]);
     const model = Object.assign(new EventEmitter(), {id: 'case', get: key => ({status: 'En gestión técnica'})[key]});
@@ -86,6 +87,28 @@ test('una respuesta tardía no cambia una vista que ya fue cerrada', async () =>
     await flush();
     assert.equal(current.view.currentActa, undefined);
     assert.equal(current.renders, 0);
+});
+
+test('una visita complementaria ya solicitada muestra confirmación en lugar de repetir la acción', () => {
+    const current = decisionView();
+    Object.assign(current.view, {
+        stateReady: true, hasActaFirmada: true, visitaComplementariaPreparada: true,
+        currentActa: {id: 'acta-1', cDecisionTramite: 'Visita complementaria', cRevisadoPor: 'Inspector Ambiental'},
+    });
+    assert.equal(current.view.data().showComplementariaSolicitada, true);
+    // Cuando llega el acta siguiente, su revisión sí vuelve a estar disponible.
+    current.view.currentActa = {id: 'acta-2', cDecisionTramite: ''};
+    assert.equal(current.view.data().showComplementariaSolicitada, false);
+    assert.equal(current.view.data().showRevisar, true);
+});
+
+test('guardar la revisión sin preparar todavía la visita permite completar la solicitud', () => {
+    const current = decisionView();
+    Object.assign(current.view, {
+        stateReady: true, hasActaFirmada: true, visitaComplementariaPreparada: false,
+        currentActa: {id: 'acta', cDecisionTramite: 'Visita complementaria', cRevisadoPor: 'Inspector Ambiental'},
+    });
+    assert.equal(current.view.data().showComplementariaSolicitada, false);
 });
 
 test('actualizar la tarjeta conserva el formulario insertado y serializa renders simultáneos', async () => {

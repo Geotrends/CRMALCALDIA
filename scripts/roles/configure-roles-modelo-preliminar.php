@@ -109,6 +109,9 @@ $roleConfigs = [
     // verificación. No decide sanción/fallo.
     'Profesional Universitario' => [
         'Case' => $readOnlyAllStream,
+        // Consulta de peticionarios y perjudicantes para seleccionar destinatarios.
+        'Contact' => $readOnlyAll,
+        'Account' => $readOnlyAll,
         'ActaVisita' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
         'GestionTecnica' => ['create' => 'yes', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'no'],
         'DecisionRutaJuridica' => $readOnlyAll,
@@ -138,6 +141,9 @@ $roleConfigs = [
     // decide/falla, resuelve reposición y ordena cierre cuando corresponde.
     'Inspector Ambiental' => [
         'Case' => ['create' => 'no', 'read' => 'all', 'edit' => 'own', 'delete' => 'no', 'stream' => 'all'],
+        // ComunicacionCaso usa Contact/Account en el vínculo del destinatario.
+        'Contact' => $readOnlyAll,
+        'Account' => $readOnlyAll,
         'DecisionRutaJuridica' => ['create' => 'yes', 'read' => 'all', 'edit' => 'all', 'delete' => 'no', 'stream' => 'no'],
         'AutoInicio' => ['create' => 'yes', 'read' => 'all', 'edit' => 'all', 'delete' => 'no', 'stream' => 'no'],
         'Expediente' => [

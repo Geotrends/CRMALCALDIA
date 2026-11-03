@@ -191,6 +191,9 @@ define('custom:views/case/fields/acta-visita-action', [
                     const isCurrent = !!(latestPendienteId && acta.id === latestPendienteId);
                     const tieneRevision = String(acta.cDecisionTramite || '').trim() !== ''
                         && (String(acta.cRevisadoPor || '').trim() !== '' || String(acta.fechaAprobacion || '').trim() !== '');
+                    const complementariaSolicitada = tieneRevision
+                        && acta.cDecisionTramite === 'Visita complementaria'
+                        && !!self.workflow.enProcesoOtraVisita;
 
                     return {
                         actaId: acta.id,
@@ -212,8 +215,8 @@ define('custom:views/case/fields/acta-visita-action', [
                         // Solo hay revisión si alguien la registró (quién o cuándo): el valor
                         // de la decisión por sí solo pudo quedar por defecto al crear el acta.
                         // En la visita en curso quien decide ya tiene el formulario editable.
-                        hasRevision: tieneRevision && !(canConsultar && isCurrent && formularioDecisionVisible),
-                        canEditRevision: tieneRevision && canConsultar && !(isCurrent && formularioDecisionVisible),
+                        hasRevision: tieneRevision && !(canConsultar && isCurrent && formularioDecisionVisible && !complementariaSolicitada),
+                        canEditRevision: tieneRevision && canConsultar && !(isCurrent && formularioDecisionVisible && !complementariaSolicitada),
                         esRemision: String(acta.cDecisionTramite || '').trim() === 'Remisión por competencia',
                         decisionTramite: String(acta.cDecisionTramite || '').trim(),
                         motivacionRevision: String(acta.observacionesRevision || '').trim(),

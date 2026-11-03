@@ -7,6 +7,13 @@
             <p>{{helpText}}</p>
         </div>
     </div>
+    {{#if showComplementariaSolicitada}}
+    <p class="case-decision-juridica__solicitada">
+        <span class="fas fa-circle-check" aria-hidden="true"></span>
+        La revisión se guardó y la visita complementaria ya está solicitada.
+        El responsable asignado debe programarla desde el panel Visitas.
+    </p>
+    {{else}}
     {{#if showSinFirma}}
     <p class="text-warning case-decision-juridica__sin-firma">
         <span class="fas fa-triangle-exclamation" aria-hidden="true"></span>
@@ -42,5 +49,6 @@
         </button>
     </div>
     {{/unless}}
+    {{/if}}
 </section>
 {{/if}}

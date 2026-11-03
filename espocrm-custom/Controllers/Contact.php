@@ -78,8 +78,12 @@ class Contact extends BaseContact
             throw new BadRequest('contactId requerido.');
         }
 
-        if (!$this->entityManager->getEntityById('Contact', $contactId)) {
+        $party = $this->entityManager->getEntityById('Contact', $contactId);
+        if (!$party) {
             throw new BadRequest('Persona natural no encontrada.');
+        }
+        if (!$this->acl->checkEntityRead($party)) {
+            throw new Forbidden();
         }
 
         $service = new PartyCasosService($this->entityManager);
@@ -108,8 +112,12 @@ class Contact extends BaseContact
             throw new BadRequest('contactId requerido.');
         }
 
-        if (!$this->entityManager->getEntityById('Contact', $contactId)) {
+        $party = $this->entityManager->getEntityById('Contact', $contactId);
+        if (!$party) {
             throw new BadRequest('Persona natural no encontrada.');
+        }
+        if (!$this->acl->checkEntityRead($party)) {
+            throw new Forbidden();
         }
 
         $service = new PartyExpedienteService(
