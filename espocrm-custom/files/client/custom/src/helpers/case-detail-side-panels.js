@@ -1897,29 +1897,53 @@ define('custom:helpers/case-detail-side-panels', [
 
     /* ── Auto de Archivo (cierre del expediente) ── */
 
+    // Auto de Archivo: pendientes para poder archivar, datos del auto y, ya generado, su firma.
     const htmlArchivo = function (estado) {
         const ar = estado.archivo || {};
         const d = ar.datos || {};
 
         if ((ar.pendientes || []).length) {
-            return '<p class="alcaldia-apertura__devuelto"><b>Aún no se puede archivar.</b> Quedan pendientes:</p>'
-                + '<ul class="alcaldia-proceso__pendientes">' + ar.pendientes.map(function (t) { return '<li>' + escapeHtml(t) + '</li>'; }).join('') + '</ul>'
-                + '<p class="alcaldia-apertura__ayuda">Resuélvalos en su paso o en su registro y vuelva a este paso.</p>';
+            return '<div class="alcaldia-firma">'
+                + '<div class="alcaldia-firma__titulo"><span class="fas fa-box-archive"></span> Auto de Archivo</div>'
+                + '<div class="alcaldia-cumpl__pendientes"><b><span class="fas fa-hourglass-half"></span> Aún no se puede archivar. Quedan pendientes</b><ul>'
+                + ar.pendientes.map(function (t) { return '<li>' + escapeHtml(t) + '</li>'; }).join('') + '</ul></div>'
+                + '<p class="alcaldia-firma__nota">Resuélvalos en su paso o en su registro y vuelva a este paso.</p></div>';
         }
 
-        return '<p class="alcaldia-apertura__ayuda">No hay recursos, órdenes ni medidas pendientes. Genere el Auto de Archivo, fírmelo y cárguelo: el expediente queda archivado y sus casos, finalizados.</p>'
-            + '<label>Causal de archivo</label><input type="text" class="form-control js-archivo-causal" value="' + escapeHtml(d.causal || ar.causal || '') + '">'
-            + '<label>Observación (opcional)</label><textarea class="form-control js-archivo-observacion" rows="2">' + escapeHtml(d.observacion || '') + '</textarea>'
-            + '<label class="alcaldia-proceso__check"><input type="checkbox" class="js-archivo-notificar"' + (d.requiereNotificacion ? ' checked' : '') + '> Requiere notificación o comunicación</label>'
-            + '<button type="button" class="btn btn-' + (d.formatoId ? 'default' : 'primary') + ' btn-sm js-archivo-generar"><span class="fas fa-file-word"></span> '
-            + (d.formatoId ? 'Regenerar Auto de Archivo' : 'Generar Auto de Archivo (Word)') + '</button>'
-            + (d.formatoId
-                ? '<div class="alcaldia-apertura__descargas"><a class="btn btn-default btn-sm" href="' + descargaUrl(d.formatoId) + '" download>'
-                    + '<span class="fas fa-file-word"></span> Descargar Auto de Archivo (Word)</a></div>'
-                    + '<label>Auto de Archivo firmado (PDF) <span class="text-danger">*</span></label>'
-                    + '<input type="file" class="form-control js-proceso-documento" accept="application/pdf,.pdf">'
-                    + '<button type="button" class="btn btn-primary btn-sm js-archivo-firmar"><span class="fas fa-box-archive"></span> Cargar firmado y archivar</button>'
-                : '');
+        const generar = '<div class="alcaldia-firma">'
+            + '<div class="alcaldia-firma__titulo"><span class="fas fa-box-archive"></span> Auto de Archivo</div>'
+            + '<p class="alcaldia-firma__nota">No hay recursos, órdenes ni medidas pendientes. Genere el Auto de Archivo, fírmelo y cárguelo: el expediente queda archivado y sus casos, finalizados.</p>'
+            + '<div class="alcaldia-firma__paso"><span class="alcaldia-firma__num">1</span><div class="alcaldia-firma__cuerpo">'
+            + '<b>Causal de archivo</b>'
+            + '<input type="text" class="form-control js-archivo-causal" placeholder="Por qué se archiva el expediente" value="' + escapeHtml(d.causal || ar.causal || '') + '">'
+            + '</div></div>'
+            + '<div class="alcaldia-firma__paso"><span class="alcaldia-firma__num">2</span><div class="alcaldia-firma__cuerpo">'
+            + '<b>Observación</b><small>Opcional.</small>'
+            + '<textarea class="form-control js-archivo-observacion" rows="2">' + escapeHtml(d.observacion || '') + '</textarea>'
+            + '<label class="alcaldia-firma__interruptor"><input type="checkbox" class="js-archivo-notificar"' + (d.requiereNotificacion ? ' checked' : '') + '> <span>Requiere notificación o comunicación</span></label>'
+            + '<div class="alcaldia-apertura__acciones"><button type="button" class="btn btn-' + (d.formatoId ? 'default' : 'primary') + ' btn-sm js-archivo-generar"><span class="fas fa-file-word"></span> '
+            + (d.formatoId ? 'Regenerar Auto de Archivo' : 'Generar Auto de Archivo (Word)') + '</button></div>'
+            + '</div></div>'
+            + '</div>';
+
+        if (!d.formatoId) {
+            return generar;
+        }
+
+        return generar
+            + '<div class="alcaldia-firma">'
+            + '<div class="alcaldia-firma__titulo"><span class="fas fa-signature"></span> Firma del Auto de Archivo</div>'
+            + '<div class="alcaldia-firma__paso"><span class="alcaldia-firma__num">1</span><div class="alcaldia-firma__cuerpo">'
+            + '<b>Descargue, revise y firme el Auto</b>'
+            + '<a class="btn btn-default btn-sm" href="' + descargaUrl(d.formatoId) + '" download><span class="fas fa-file-word"></span> Descargar Auto de Archivo (Word)</a>'
+            + '<small>Si cambia la causal o la observación, regenere el Auto antes de firmarlo.</small></div></div>'
+            + '<div class="alcaldia-firma__paso"><span class="alcaldia-firma__num">2</span><div class="alcaldia-firma__cuerpo">'
+            + '<b>Adjunte el Auto de Archivo firmado (PDF) <span class="text-danger">*</span></b>'
+            + '<label class="alcaldia-firma__archivo"><input type="file" class="js-proceso-documento" accept="application/pdf,.pdf" data-vacio="Seleccionar PDF…">'
+            + '<span class="fas fa-file-pdf"></span><span class="alcaldia-firma__archivo-texto js-proceso-documento-nombre">Seleccionar PDF…</span></label>'
+            + '<div class="alcaldia-apertura__acciones"><button type="button" class="btn btn-primary btn-sm js-archivo-firmar"><span class="fas fa-box-archive"></span> Cargar firmado y archivar</button></div>'
+            + '</div></div>'
+            + '</div>';
     };
 
     const htmlArchivado = function (estado) {

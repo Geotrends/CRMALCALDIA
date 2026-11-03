@@ -28,6 +28,44 @@ define('custom:helpers/compact-form-sections', [], function () {
         caseStream: {open: false, fields: [], summary: 'Comentarios y actuaciones'},
         comunicacionesCasoPanel: {open: false, fields: [], summary: 'Citaciones, respuestas y oficios'},
     };
+    // Paso del flujo en el que está la solicitud: es el único panel que se abre por defecto al cargar el detalle
+    // (la persona puede abrir varios después). Con expediente, la apertura o el proceso deciden por su cuenta.
+    const pasoActual = function (model) {
+        if (model.get('expedienteId') || model.get('cDecisionTramite') === 'Apertura de actuación') {
+            return 'expediente';
+        }
+
+        const tramite = String(model.get('cDecisionTramite') || '').trim();
+        const decidido = tramite !== '' && tramite !== 'Seleccione una opción';
+
+        switch (String(model.get('status') || '').trim()) {
+            case 'Pendiente de radicacion': return 'radicacionCaso';
+            case 'Radicado': return 'gestionPosteriorRadicacion';
+            case 'Asignado':
+            case 'Assigned':
+            case 'En gestión técnica': return 'actaVisita';
+            case 'Revisión de hallazgos': return decidido ? 'evaluacionResultado' : 'decisionJuridica';
+            case 'Pendiente de respuesta final': return 'comunicacionesCasoPanel';
+            default: return 'caseTimeline';
+        }
+    };
+
+    ['solicitudInicial', 'radicacionCaso', 'gestionPosteriorRadicacion', 'actaVisita', 'evaluacionResultado',
+        'decisionJuridica', 'comunicacionesCasoPanel', 'caseTimeline'].forEach(function (name) {
+        const original = config[name];
+
+        config[name] = Object.assign({}, original, {
+            openFn: function (view) {
+                // Al crear o editar se conservan los valores propios de cada panel.
+                if (view.mode === 'edit' || view.model.isNew()) {
+                    return original.openFn ? original.openFn(view) : original.open;
+                }
+
+                return pasoActual(view.model) === name;
+            },
+        });
+    });
+
     const findPanel = (view, name) => view.$el.find('.panel[data-name="' + name + '"], .panel[data-panel-name="' + name + '"], .record-panel[data-name="' + name + '"]').first();
 
     const addCreateSteps = function (view) {
