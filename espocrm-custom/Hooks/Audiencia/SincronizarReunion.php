@@ -7,6 +7,7 @@ use DateTimeZone;
 use Espo\Core\Hook\Hook\AfterRemove;
 use Espo\Core\Hook\Hook\AfterSave;
 use Espo\Custom\Hooks\Meeting\ProtegerReunionProgramada;
+use Espo\Custom\Tools\User\AlcaldiaUserProfile;
 use Espo\ORM\Entity;
 use Espo\ORM\EntityManager;
 use Espo\ORM\Repository\Option\RemoveOptions;
@@ -14,8 +15,8 @@ use Espo\ORM\Repository\Option\SaveOptions;
 
 /**
  * Cada audiencia con fecha de inicio tiene una reunión en el calendario: asignada a la autoridad
- * que la preside (con quien tiene asignada la audiencia como asistente) y con recordatorio en la
- * app un día antes. Al reprogramar se mueve la misma reunión; si la audiencia se cancela, se
+ * que la preside, con el asignado y los gestores del proceso como asistentes, y con recordatorio
+ * en la app un día antes. Al reprogramar se mueve la misma reunión; si la audiencia se cancela, se
  * reprograma o se suspende, la reunión queda "No realizada".
  */
 class SincronizarReunion implements AfterSave, AfterRemove
@@ -44,7 +45,8 @@ class SincronizarReunion implements AfterSave, AfterRemove
     ];
 
     public function __construct(
-        private EntityManager $entityManager
+        private EntityManager $entityManager,
+        private AlcaldiaUserProfile $profile
     ) {}
 
     public function afterSave(Entity $entity, SaveOptions $options): void
@@ -75,7 +77,11 @@ class SincronizarReunion implements AfterSave, AfterRemove
             'dateStartDate' => null,
             'dateEndDate' => null,
             'assignedUserId' => $responsable,
-            'usersIds' => array_values(array_unique(array_filter([$responsable, $entity->get('assignedUserId')]))),
+            // Quien preside, el asignado y los gestores del proceso (Jurídica, Inspección, Admin) la ven en su calendario.
+            'usersIds' => array_values(array_unique(array_filter(array_merge(
+                [$responsable, $entity->get('assignedUserId')],
+                $this->profile->findActiveGestoresProcesoUserIds()
+            )))),
             'location' => $entity->get('lugar'),
             'description' => $this->descripcion($entity),
             'audienciaId' => $entity->getId(),
