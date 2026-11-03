@@ -1,8 +1,7 @@
 define('custom:helpers/compact-form-sections', [], function () {
     const config = {
         solicitudInicial: {open: true, fields: ['cFechaCaso', 'cCanalDeReportePeticionario']},
-        peticionario: {open: false, fields: ['cNombrePeticionario', 'cApellidoPeticionario', 'cDocumentoPeticionario']},
-        direccionPeticionario: {open: false, fields: ['cDireccionPeticionario']},
+        peticionario: {open: false, fields: ['cNombrePeticionario', 'cApellidoPeticionario', 'cDocumentoPeticionario', 'cDireccionPeticionario']},
         detalleQueja: {open: false, fields: ['description']},
         perjudicante: {open: false, fields: ['cNombrePerjudicante', 'cApellidoPerjudicante', 'cDocumentoPerjudicante']},
         clasificacionSeguimiento: {open: false, fields: ['cRecursoTema', 'cFechaVencimiento']},

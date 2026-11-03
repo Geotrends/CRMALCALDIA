@@ -22,6 +22,7 @@ define('custom:helpers/persona-tipo-fields', [
     };
 
     const INFRACTOR_DETAIL_FIELDS = [
+        'cTipoDocumentoPerjudicante',
         'cDocumentoPerjudicante',
         'cNombrePerjudicante',
         'cApellidoPerjudicante',
@@ -148,6 +149,7 @@ define('custom:helpers/persona-tipo-fields', [
     const applyPeticionarioFieldLabels = function (recordView) {
         const labels = {
             cTipoPersonaPeticionario: 'Tipo de peticionario',
+            cTipoDocumentoPeticionario: 'Tipo de documento del peticionario',
             cDocumentoPeticionario: 'Documento del peticionario',
             cTelefonoPeticionario: 'Teléfono del peticionario',
             cCorreoPeticionario: 'Correo del peticionario',
@@ -191,6 +193,8 @@ define('custom:helpers/persona-tipo-fields', [
         'cRadicadoSiglas',
         'cTipoPersonaPeticionario',
         'cTipoPersonaPerjudicante',
+        'cTipoDocumentoPeticionario',
+        'cTipoDocumentoPerjudicante',
     ];
 
     const clearOptionalEnumPlaceholders = function (model) {
@@ -284,13 +288,32 @@ define('custom:helpers/persona-tipo-fields', [
         });
     };
 
+    // Persona jurídica → NIT. Si deja de serlo y quedaba NIT, se vuelve a pedir el tipo de documento.
+    const sugerirTipoDocumento = function (recordView, config, campoTipoDocumento) {
+        const model = recordView.model;
+        const actual = String(model.get(campoTipoDocumento) || '').trim();
+
+        if (isJuridica(model.get(config.tipo))) {
+            if (actual !== 'NIT') {
+                model.set(campoTipoDocumento, 'NIT');
+            }
+        } else if (actual === 'NIT') {
+            model.set(campoTipoDocumento, PLACEHOLDER);
+        }
+    };
+
     const setup = function (recordView) {
         recordView.listenTo(recordView.model, 'change:' + PETICIONARIO.tipo, function () {
             applyPartyLabels(recordView, PETICIONARIO, 'peticionario');
+            sugerirTipoDocumento(recordView, PETICIONARIO, 'cTipoDocumentoPeticionario');
         });
 
         recordView.listenTo(recordView.model, 'change:' + PERJUDICANTE.tipo, function () {
             toggleInfractorFields(recordView);
+
+            if (isInfractorKnown(recordView.model.get(PERJUDICANTE.tipo))) {
+                sugerirTipoDocumento(recordView, PERJUDICANTE, 'cTipoDocumentoPerjudicante');
+            }
         });
     };
 

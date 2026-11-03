@@ -47,7 +47,9 @@
     "cPanelActuoArchivo": "Auto de archivo",
     "cTipoPersonaPeticionario": "Tipo de peticionario",
     "cTipoPersonaPerjudicante": "Tipo de perjudicante",
+    "cTipoDocumentoPeticionario": "Tipo de documento del peticionario",
     "cDocumentoPeticionario": "Documento del peticionario",
+    "cTipoDocumentoPerjudicante": "Tipo de documento del perjudicante",
     "cDocumentoPerjudicante": "Documento del perjudicante",
     "cNombrePeticionario": "Nombre(s) del peticionario",
     "cApellidoPeticionario": "Apellido(s) del peticionario",
@@ -301,6 +303,22 @@
       "Remitido por competencia": "Remitido por competencia",
       "Finalizado": "Finalizado",
       "Proceso cerrado": "Proceso cerrado"
+    },
+    "cTipoDocumentoPeticionario": {
+      "Seleccione una opción": "Seleccione una opción",
+      "CC": "Cédula de ciudadanía",
+      "CE": "Cédula de extranjería",
+      "Pasaporte": "Pasaporte",
+      "PPT": "Permiso por protección temporal (PPT)",
+      "NIT": "NIT"
+    },
+    "cTipoDocumentoPerjudicante": {
+      "Seleccione una opción": "Seleccione una opción",
+      "CC": "Cédula de ciudadanía",
+      "CE": "Cédula de extranjería",
+      "Pasaporte": "Pasaporte",
+      "PPT": "Permiso por protección temporal (PPT)",
+      "NIT": "NIT"
     },
     "cTipoPersonaPeticionario": {
       "Seleccione una opción": "Seleccione una opción",

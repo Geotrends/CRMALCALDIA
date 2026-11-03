@@ -21,7 +21,9 @@
                 {
                     "name": "cTipoPersonaPeticionario"
                 },
-                false
+                {
+                    "name": "cTipoDocumentoPeticionario"
+                }
             ],
             [
                 {
@@ -60,7 +62,9 @@
                 {
                     "name": "cTipoPersonaPerjudicante"
                 },
-                false
+                {
+                    "name": "cTipoDocumentoPerjudicante"
+                }
             ],
             [
                 {

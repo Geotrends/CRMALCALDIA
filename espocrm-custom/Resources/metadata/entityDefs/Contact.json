@@ -6,6 +6,8 @@
         "CC",
         "CE",
         "Pasaporte",
+        "PPT",
+        "NIT",
         "Otro"
       ],
       "default": "CC",
