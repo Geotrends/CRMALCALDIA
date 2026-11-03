@@ -570,6 +570,7 @@ class CaseAperturaService
                 'responsableCargo' => (string) $auto->get('inspectorCargo'),
                 'fechaAudiencia' => $auto->get('fechaAudiencia'),
                 'horaAudiencia' => (string) $auto->get('horaAudiencia'),
+                'audiencia' => $expediente ? $this->audienciaVigente($expediente) : null,
                 'observacionesDevolucion' => (string) $auto->get('observacionesDevolucion'),
                 'formatoPdfId' => $auto->get('cFormatoAutoInicioPdfId'),
                 'formatoDocxId' => $auto->get('cFormatoAutoInicioDocxId'),
@@ -586,6 +587,35 @@ class CaseAperturaService
                 'firmar' => $this->profile->canFirmarAutoInicio($user),
                 'numerar' => $this->profile->canDecidirApertura($user) || $this->profile->canGestionarProceso($user),
             ],
+        ];
+    }
+
+    /**
+     * Última audiencia programada del expediente (la vigente: si una se suspende o reprograma y
+     * se fija otra, es la nueva), en hora local. La tarjeta del Auto la muestra en vez de la fecha tentativa.
+     *
+     * @return array{numero: int, fecha: string, hora: string, estado: string}|null
+     */
+    private function audienciaVigente(Entity $expediente): ?array
+    {
+        $audiencia = $this->entityManager->getRDBRepository('Audiencia')
+            ->where(['expedienteId' => $expediente->getId(), 'estado!=' => 'Cancelada'])
+            ->order('numero', 'DESC')
+            ->order('createdAt', 'DESC')
+            ->findOne();
+
+        if (!$audiencia || !$audiencia->get('fechaInicio')) {
+            return null;
+        }
+
+        $local = (new \DateTimeImmutable((string) $audiencia->get('fechaInicio'), new \DateTimeZone('UTC')))
+            ->setTimezone(new \DateTimeZone('America/Bogota'));
+
+        return [
+            'numero' => (int) $audiencia->get('numero'),
+            'fecha' => $local->format('Y-m-d'),
+            'hora' => $local->format('H:i'),
+            'estado' => (string) $audiencia->get('estado'),
         ];
     }
 

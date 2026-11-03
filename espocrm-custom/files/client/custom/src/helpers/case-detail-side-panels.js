@@ -671,8 +671,13 @@ define('custom:helpers/case-detail-side-panels', [
     const htmlAutoTarjeta = function (auto, acciones) {
         const etiquetas = {Pendiente: 'Borrador', 'Para firma': 'Para firma', Devuelto: 'Devuelto', Firmado: 'Firmado', Diligenciada: 'Diligenciado'};
         const motivo = String(auto.motivoApertura || '').trim();
-        const audiencia = auto.fechaAudiencia
-            ? escapeHtml(String(auto.fechaAudiencia).slice(0, 10)) + (auto.horaAudiencia ? ' · ' + escapeHtml(formatoHora12(auto.horaAudiencia)) : '')
+        // Vale la audiencia vigente del expediente (la última programada); la del auto es solo la fecha tentativa.
+        const vigente = auto.audiencia;
+        const fechaAud = vigente ? vigente.fecha : auto.fechaAudiencia;
+        const horaAud = vigente ? vigente.hora : auto.horaAudiencia;
+        const audiencia = fechaAud
+            ? escapeHtml(String(fechaAud).slice(0, 10)) + (horaAud ? ' · ' + escapeHtml(formatoHora12(horaAud)) : '')
+                + (vigente && vigente.estado && vigente.estado !== 'Programada' ? '<small>N.º ' + vigente.numero + ' · ' + escapeHtml(vigente.estado) + '</small>' : '')
             : 'Sin definir';
         const fila = function (titulo, valor, clase) {
             return '<div' + (clase ? ' class="' + clase + '"' : '') + '><dt>' + titulo + '</dt><dd>' + valor + '</dd></div>';
