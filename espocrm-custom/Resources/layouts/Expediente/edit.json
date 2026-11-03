@@ -14,7 +14,7 @@
             ],
             [
                 {"name": "assignedUser"},
-                {"name": "teams"}
+                false
             ]
         ]
     }
