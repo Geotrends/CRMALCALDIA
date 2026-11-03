@@ -303,8 +303,7 @@ class CaseVisitaAprobadaNotifier
     private function collectInspeccionIds(): array
     {
         return array_values(array_unique(array_merge(
-            $this->profile->findActiveUserIdsByRoleName(AlcaldiaUserProfile::ROLE_INSPECCION),
-            $this->profile->findActiveUserIdsByRoleName(AlcaldiaUserProfile::ROLE_INSPECCION_ALT),
+            $this->profile->findActiveInspeccionUserIds(),
             $this->profile->findActiveAdminUserIds(),
         )));
     }
