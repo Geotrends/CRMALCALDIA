@@ -147,7 +147,7 @@
    Contraste suave: fondo apenas distinto del de la página, borde fino y título discreto.
    Ojo: el ::after de .row es el «clearfix» de Bootstrap (contiene las celdas flotantes); no se puede usar para decorar. */
 [data-scope="Case"] .panel .crm-grupo { background: var(--crm-bg-elevated); border-left: 1px solid var(--crm-border); border-right: 1px solid var(--crm-border); margin: 0 !important; padding: 2px 16px; position: relative; }
-[data-scope="Case"] .panel .crm-grupo--inicio { border-top: 1px solid var(--crm-border); border-top-left-radius: var(--crm-radius-lg, 10px); border-top-right-radius: var(--crm-radius-lg, 10px); margin-top: 16px !important; padding-top: 30px; }
+[data-scope="Case"] .panel .crm-grupo--inicio { border-top: 1px solid var(--crm-border); border-top-left-radius: var(--crm-radius-lg, 10px); border-top-right-radius: var(--crm-radius-lg, 10px); margin-top: 16px !important; padding-top: 44px; }
 [data-scope="Case"] .panel .crm-grupo--inicio::before { border-bottom: 1px solid var(--crm-border); color: var(--crm-text-secondary); content: attr(data-grupo); display: block; font-size: 12px; font-weight: 600; left: 16px; letter-spacing: .02em; padding-bottom: 6px; position: absolute; right: 16px; top: 9px; }
 [data-scope="Case"] .panel .crm-grupo--fin { border-bottom: 1px solid var(--crm-border); border-bottom-left-radius: var(--crm-radius-lg, 10px); border-bottom-right-radius: var(--crm-radius-lg, 10px); padding-bottom: 8px; }
 [data-scope="Case"] .panel .crm-grupo .form-control, [data-scope="Case"] .panel .crm-grupo .selectize-input { background-color: var(--crm-surface); }
