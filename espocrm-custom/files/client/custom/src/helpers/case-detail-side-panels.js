@@ -674,8 +674,8 @@ define('custom:helpers/case-detail-side-panels', [
         const audiencia = auto.fechaAudiencia
             ? escapeHtml(String(auto.fechaAudiencia).slice(0, 10)) + (auto.horaAudiencia ? ' · ' + escapeHtml(formatoHora12(auto.horaAudiencia)) : '')
             : 'Sin definir';
-        const fila = function (titulo, valor) {
-            return '<div><dt>' + titulo + '</dt><dd>' + valor + '</dd></div>';
+        const fila = function (titulo, valor, clase) {
+            return '<div' + (clase ? ' class="' + clase + '"' : '') + '><dt>' + titulo + '</dt><dd>' + valor + '</dd></div>';
         };
 
         return '<div class="alcaldia-auto-tarjeta">'
@@ -685,7 +685,7 @@ define('custom:helpers/case-detail-side-panels', [
             + '<dl class="alcaldia-auto-tarjeta__datos">'
             + fila('Fecha del auto', escapeHtml(auto.fechaAuto ? String(auto.fechaAuto).slice(0, 10) : 'Sin definir'))
             + fila('Responsable', escapeHtml(auto.responsable || 'Sin asignar') + (auto.responsableCargo ? '<small>' + escapeHtml(auto.responsableCargo) + '</small>' : ''))
-            + fila('Audiencia', audiencia)
+            + fila('Audiencia', audiencia, 'alcaldia-auto-tarjeta__audiencia')
             + (motivo ? fila('Motivo', escapeHtml(motivo.length > 140 ? motivo.slice(0, 140) + '…' : motivo)) : '')
             + '</dl>'
             + (acciones ? '<div class="alcaldia-apertura__acciones">' + acciones + '</div>' : '')
