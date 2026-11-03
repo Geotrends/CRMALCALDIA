@@ -1182,14 +1182,31 @@ define('custom:helpers/case-detail-side-panels', [
             + '</div>';
     };
 
+    // Tarjeta del soporte de la prueba ordenada al suspender la audiencia.
     const htmlSoportePrueba = function (estado) {
         const s = (estado.audiencias[estado.audiencias.length - 1].suspensiones || []).slice(-1)[0] || {};
+        const dato = function (titulo, valor) {
+            return '<div><dt>' + titulo + '</dt><dd>' + escapeHtml(valor || '—') + '</dd></div>';
+        };
 
-        return '<p class="alcaldia-apertura__ayuda">Audiencia suspendida: ' + escapeHtml(s.tipoPrueba) + ' a cargo de <b>' + escapeHtml(s.responsable)
-            + '</b>, plazo ' + fechaDMA(s.fechaLimiteActuacion) + '. Cargue el soporte para dejarla lista para reanudar.</p>'
-            + '<label>Soporte de la prueba <span class="text-danger">*</span></label><input type="file" class="form-control js-proceso-documento" accept=".pdf,.doc,.docx,image/*">'
-            + '<label>Observación</label><textarea class="form-control js-proceso-observacion" rows="2"></textarea>'
-            + '<button type="button" class="btn btn-primary btn-sm js-proceso-soporte-prueba"><span class="fas fa-paperclip"></span> Cargar soporte</button>';
+        return '<div class="alcaldia-firma">'
+            + '<div class="alcaldia-firma__titulo"><span class="fas fa-microscope"></span> Soporte de la prueba</div>'
+            + '<p class="alcaldia-firma__nota">Audiencia suspendida por una prueba o actuación externa. Cargue el soporte para dejarla lista para reanudar.</p>'
+            + '<dl class="alcaldia-auto-tarjeta__datos">'
+            + dato('Prueba', s.tipoPrueba) + dato('Responsable', s.responsable) + dato('Plazo', fechaDMA(s.fechaLimiteActuacion))
+            + '</dl>'
+            + '<div class="alcaldia-firma__paso"><span class="alcaldia-firma__num">1</span><div class="alcaldia-firma__cuerpo">'
+            + '<b>Soporte de la prueba <span class="text-danger">*</span></b><small>Informe, acta u otro documento que la respalde.</small>'
+            + '<label class="alcaldia-firma__archivo"><input type="file" class="js-proceso-documento" accept=".pdf,.doc,.docx,image/*" data-vacio="Seleccionar PDF, Word o imagen…">'
+            + '<span class="fas fa-file-arrow-up"></span><span class="alcaldia-firma__archivo-texto js-proceso-documento-nombre">Seleccionar PDF, Word o imagen…</span></label>'
+            + '</div></div>'
+            + '<div class="alcaldia-firma__paso"><span class="alcaldia-firma__num">2</span><div class="alcaldia-firma__cuerpo">'
+            + '<b>Observación</b>'
+            + '<textarea class="form-control js-proceso-observacion" rows="2" placeholder="Resultado de la prueba o datos relevantes"></textarea>'
+            + '<div class="alcaldia-apertura__acciones"><button type="button" class="btn btn-primary btn-sm js-proceso-soporte-prueba">'
+            + '<span class="fas fa-paperclip"></span> Cargar soporte</button></div>'
+            + '</div></div>'
+            + '</div>';
     };
 
     const htmlSoportesAudiencia = function (estado) {
@@ -1883,7 +1900,7 @@ define('custom:helpers/case-detail-side-panels', [
             const archivo = this.files && this.files[0];
 
             $(this).closest('.alcaldia-firma__archivo').toggleClass('is-listo', !!archivo)
-                .find('.js-proceso-documento-nombre').text(archivo ? archivo.name : 'Seleccionar PDF o imagen…');
+                .find('.js-proceso-documento-nombre').text(archivo ? archivo.name : ($(this).data('vacio') || 'Seleccionar PDF o imagen…'));
         });
 
         $block.find('.js-proceso-justificacion').on('click', function () {
