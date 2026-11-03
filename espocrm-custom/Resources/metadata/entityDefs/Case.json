@@ -584,9 +584,6 @@
             "required": false,
             "maxLength": 100,
             "isCustom": true,
-            "suppressValidationList": [
-                "required"
-            ],
             "audited": true
         },
         "cTipoPersonaPerjudicante": {
