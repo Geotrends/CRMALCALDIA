@@ -655,6 +655,43 @@ define('custom:helpers/case-detail-side-panels', [
             + '<button type="button" class="btn btn-primary btn-sm js-apertura-decidir"><span class="fas fa-gavel"></span> Confirmar apertura</button>';
     };
 
+    const formatoHora12 = function (hora) {
+        const m = String(hora || '').match(/^(\d{1,2}):(\d{2})/);
+
+        if (!m) {
+            return '';
+        }
+
+        const h = parseInt(m[1], 10);
+
+        return ((h % 12) || 12) + ':' + m[2] + ' ' + (h < 12 ? 'a. m.' : 'p. m.');
+    };
+
+    // Tarjeta con los datos generales del Auto de Inicio ya creado; `acciones` trae los botones (si aplican).
+    const htmlAutoTarjeta = function (auto, acciones) {
+        const etiquetas = {Pendiente: 'Borrador', 'Para firma': 'Para firma', Devuelto: 'Devuelto', Firmado: 'Firmado', Diligenciada: 'Diligenciado'};
+        const motivo = String(auto.motivoApertura || '').trim();
+        const audiencia = auto.fechaAudiencia
+            ? escapeHtml(String(auto.fechaAudiencia).slice(0, 10)) + (auto.horaAudiencia ? ' · ' + escapeHtml(formatoHora12(auto.horaAudiencia)) : '')
+            : 'Sin definir';
+        const fila = function (titulo, valor) {
+            return '<div><dt>' + titulo + '</dt><dd>' + valor + '</dd></div>';
+        };
+
+        return '<div class="alcaldia-auto-tarjeta">'
+            + '<div class="alcaldia-auto-tarjeta__cabecera"><span><span class="fas fa-file-signature"></span> <b>Auto de Inicio creado</b></span>'
+            + '<span class="alcaldia-auto-tarjeta__estado is-' + escapeHtml(String(auto.estado || '').replace(/\s+/g, '-').toLowerCase()) + '">'
+            + escapeHtml(etiquetas[auto.estado] || auto.estado || '') + '</span></div>'
+            + '<dl class="alcaldia-auto-tarjeta__datos">'
+            + fila('Fecha del auto', escapeHtml(auto.fechaAuto ? String(auto.fechaAuto).slice(0, 10) : 'Sin definir'))
+            + fila('Responsable', escapeHtml(auto.responsable || 'Sin asignar') + (auto.responsableCargo ? '<small>' + escapeHtml(auto.responsableCargo) + '</small>' : ''))
+            + fila('Audiencia', audiencia)
+            + (motivo ? fila('Motivo', escapeHtml(motivo.length > 140 ? motivo.slice(0, 140) + '…' : motivo)) : '')
+            + '</dl>'
+            + (acciones ? '<div class="alcaldia-apertura__acciones">' + acciones + '</div>' : '')
+            + '</div>';
+    };
+
     const htmlAperturaPreparar = function (estado) {
         const auto = estado.auto;
         const devuelto = estado.fase === 'devuelto';
@@ -666,16 +703,25 @@ define('custom:helpers/case-detail-side-panels', [
         }
 
         if (!estado.puede.preparar) {
-            return html + '<p class="alcaldia-apertura__texto">Apoyo Jurídico prepara el Auto de Inicio.</p>';
+            return html + (auto ? htmlAutoTarjeta(auto, '') : '')
+                + '<p class="alcaldia-apertura__texto">Apoyo Jurídico prepara el Auto de Inicio.</p>';
         }
 
-        return html
-            + '<p class="alcaldia-apertura__ayuda">Complete el Auto de Inicio (motivo, norma aplicable y, si ya se conoce, fecha y hora de la audiencia). Al enviarlo a firma se genera el formato prellenado para el Inspector.</p>'
-            + '<div class="alcaldia-apertura__acciones">'
-            + '<button type="button" class="btn btn-default btn-sm js-apertura-preparar"><span class="fas fa-pen"></span> ' + (auto ? 'Editar' : 'Preparar') + ' Auto de Inicio</button>'
-            + '<button type="button" class="btn btn-primary btn-sm js-apertura-enviar"' + (auto && estado.expediente.numeroOficial ? '' : ' disabled')
-            + (estado.expediente.numeroOficial ? '' : ' title="Registre primero el N.º de expediente"') + '><span class="fas fa-paper-plane"></span> Enviar a firma</button>'
-            + '</div>';
+        if (!auto) {
+            return html
+                + '<div class="alcaldia-auto-tarjeta is-vacia">'
+                + '<p class="alcaldia-auto-tarjeta__vacio"><span class="far fa-circle"></span> Aún no se ha creado el Auto de Inicio.</p>'
+                + '<p class="alcaldia-apertura__ayuda">Complete el motivo, la norma aplicable y, si ya se conoce, la fecha y hora de la audiencia. Al enviarlo a firma se genera el formato prellenado para el Inspector.</p>'
+                + '<div class="alcaldia-apertura__acciones"><button type="button" class="btn btn-primary btn-sm js-apertura-preparar">'
+                + '<span class="fas fa-plus"></span> Crear Auto de Inicio</button></div></div>';
+        }
+
+        const sinNumero = !estado.expediente.numeroOficial;
+
+        return html + htmlAutoTarjeta(auto,
+            '<button type="button" class="btn btn-default btn-sm js-apertura-preparar"><span class="fas fa-pen"></span> Editar</button>'
+            + '<button type="button" class="btn btn-primary btn-sm js-apertura-enviar"' + (sinNumero ? ' disabled title="Registre primero el N.º de expediente"' : '')
+            + '><span class="fas fa-paper-plane"></span> Enviar a firma</button>');
     };
 
     const htmlAperturaFirma = function (estado) {
@@ -684,7 +730,8 @@ define('custom:helpers/case-detail-side-panels', [
             ? '<div class="alcaldia-apertura__descargas"><a class="btn btn-default btn-sm" href="' + descargaUrl(auto.formatoDocxId) + '" download>'
                 + '<span class="fas fa-file-word"></span> Descargar formato prellenado (Word)</a></div>'
             : '';
-        const cabecera = '<p class="alcaldia-apertura__texto">Auto de Inicio del expediente <b>' + escapeHtml(estado.expediente.numero) + '</b> listo para firma.</p>';
+        const cabecera = '<p class="alcaldia-apertura__texto">Auto de Inicio del expediente <b>' + escapeHtml(estado.expediente.numero) + '</b> listo para firma.</p>'
+            + htmlAutoTarjeta(auto, '');
 
         if (!estado.puede.firmar) {
             return cabecera + descargas + '<p class="alcaldia-apertura__texto">Pendiente de la firma del Inspector.</p>';
@@ -709,6 +756,7 @@ define('custom:helpers/case-detail-side-panels', [
         return '<p class="alcaldia-apertura__texto">Expediente <a href="#Expediente/view/' + escapeHtml(estado.expediente.id) + '"><b>'
             + escapeHtml(estado.expediente.numero) + '</b></a> · ' + escapeHtml(estado.expediente.estado)
             + (estado.expediente.fechaAperturaFormal ? ' · abierto el ' + escapeHtml(String(estado.expediente.fechaAperturaFormal).slice(0, 10)) : '') + '</p>'
+            + (auto.id ? htmlAutoTarjeta(auto, '') : '')
             + (auto.actoFirmadoId ? '<p><a href="' + descargaUrl(auto.actoFirmadoId) + '" target="_blank"><span class="fas fa-file-signature"></span> Auto de Inicio firmado</a></p>' : '');
     };
 
