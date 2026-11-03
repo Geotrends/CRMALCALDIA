@@ -1,9 +1,16 @@
 define('custom:views/acta-visita/record/edit', [
     'views/record/edit',
     'custom:helpers/acta-visita-section-summary',
-], function (Dep, ActaSectionSummary) {
+    'custom:helpers/acta-visita-autorizacion',
+], function (Dep, ActaSectionSummary, ActaAutorizacion) {
 
     return Dep.extend({
+        setup: function () {
+            Dep.prototype.setup.call(this);
+
+            ActaAutorizacion.setup(this);
+        },
+
         afterRender: function () {
             Dep.prototype.afterRender.call(this);
             this.organizeActaLayout();

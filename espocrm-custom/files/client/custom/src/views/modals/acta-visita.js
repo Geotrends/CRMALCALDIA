@@ -2,7 +2,8 @@ define('custom:views/modals/acta-visita', [
     'views/modals/edit',
     'custom:helpers/acta-visita-from-case',
     'custom:helpers/acta-visita-section-summary',
-], function (Dep, ActaFromCase, ActaSectionSummary) {
+    'custom:helpers/acta-visita-autorizacion',
+], function (Dep, ActaFromCase, ActaSectionSummary, ActaAutorizacion) {
 
     return Dep.extend({
 
@@ -10,6 +11,8 @@ define('custom:views/modals/acta-visita', [
 
         createRecordView: function (model, callback) {
             Dep.prototype.createRecordView.call(this, model, (view) => {
+                ActaAutorizacion.setup(view);
+
                 if (callback) {
                     callback(view);
                 }

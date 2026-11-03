@@ -36,3 +36,15 @@
 .detail[data-scope="ActaVisita"] .record-grid > .left { float: none; max-width: none; width: 100% !important; }
 .detail[data-scope="ActaVisita"] .record-grid > .side:not(:has(.panel)) { display: none; }
 .detail[data-scope="ActaVisita"] .record-grid:not(:has(> .side .panel)) { grid-template-columns: minmax(0, 1fr) !important; }
+
+/* Casilla de autorización de datos señalada cuando se intenta diligenciar sin marcarla */
+.cell.alcaldia-acta-autorizacion-pendiente {
+    animation: alcaldia-acta-autorizacion-pulso 1s ease-in-out 3;
+    border-radius: 6px;
+    outline: 2px solid var(--brand-danger, #c0392b);
+    outline-offset: 4px;
+}
+
+@keyframes alcaldia-acta-autorizacion-pulso {
+    50% { background-color: rgba(192, 57, 43, 0.12); }
+}
