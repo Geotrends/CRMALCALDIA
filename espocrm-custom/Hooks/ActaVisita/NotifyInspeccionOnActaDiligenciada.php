@@ -70,8 +70,7 @@ class NotifyInspeccionOnActaDiligenciada implements AfterSave
         $linkLabel = CasePartyNameHelper::getNotificationReferenceLabel($case);
 
         $notifyUserIds = array_values(array_unique(array_merge(
-            $this->profile->findActiveUserIdsByRoleName(AlcaldiaUserProfile::ROLE_INSPECCION),
-            $this->profile->findActiveUserIdsByRoleName(AlcaldiaUserProfile::ROLE_INSPECCION_ALT),
+            $this->profile->findActiveInspeccionUserIds(),
             $this->profile->findActiveAdminUserIds(),
         )));
 

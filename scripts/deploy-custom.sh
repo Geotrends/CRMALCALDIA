@@ -34,6 +34,9 @@ if [ -d "$ROOT/formatos" ]; then
     if [ "$base" = "ActuoArchivo.docx" ]; then
       docker cp "$f" "espocrm:/var/www/html/custom/Espo/Custom/files/templates/ActuoArchivo.docx"
     fi
+    if [ "$base" = "InformeTecnico.docx" ]; then
+      docker cp "$f" "espocrm:/var/www/html/custom/Espo/Custom/files/templates/InformeTecnico.docx"
+    fi
   done
 fi
 

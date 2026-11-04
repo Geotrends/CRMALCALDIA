@@ -6,7 +6,8 @@ define('custom:views/case/fields/acta-visita-action', [
     'custom:helpers/acta-visita-modal',
     'custom:helpers/safe-ui-promise',
     'helpers/record-modal',
-], function (Dep, PatrulleroActa, RadicacionFields, ActaVisitaCaseStatus, ActaVisitaModal, SafeUiPromise, RecordModal) {
+    'custom:helpers/case-related-record-modal',
+], function (Dep, PatrulleroActa, RadicacionFields, ActaVisitaCaseStatus, ActaVisitaModal, SafeUiPromise, RecordModal, CaseRelatedRecordModal) {
 
     const RecordModalHelper = RecordModal.default || RecordModal;
 
@@ -146,13 +147,15 @@ define('custom:views/case/fields/acta-visita-action', [
             const caseCerrado = ['Finalizado', 'Proceso cerrado'].indexOf(status) !== -1;
             // El formulario de revisión técnico-jurídica solo se muestra mientras falta
             // definir el trámite; ejecutada la decisión, la visita actual muestra su resumen.
-            const formularioDecisionVisible = ['En gestión técnica', 'Revisión de hallazgos', 'Visita aprobada'].indexOf(status) !== -1
+            const formularioDecisionVisible = ['En gestión técnica', 'Revisión técnica', 'Revisión jurídica', 'Revisión de hallazgos', 'Visita aprobada'].indexOf(status) !== -1
                 && !this.model.get('expedienteId')
                 && this.model.get('cDecisionTramite') !== 'Apertura de actuación';
 
-            return historial
+            const soportes = this.buildProgramacionCards();
+            const cards = historial
                 .filter(function (acta) {
-                    return ActaVisitaCaseStatus.shouldShowActaInArchivo(acta);
+                    const soporte = soportes.find(p => p.actaId === acta.id);
+                    return soporte ? soporte.realizada : ActaVisitaCaseStatus.shouldShowActaInArchivo(acta);
                 })
                 .slice()
                 .sort(function (a, b) {
@@ -194,15 +197,19 @@ define('custom:views/case/fields/acta-visita-action', [
                         && acta.cDecisionTramite === 'Visita complementaria'
                         && !!self.workflow.enProcesoOtraVisita;
 
+                    const soporte = soportes.find(p => p.actaId === acta.id && p.realizada);
                     return {
+                        ...soporte,
+                        hasSoportes: !!soporte,
                         actaId: acta.id,
+                        fechaOrden: acta.fechaVisita || (soporte && soporte.fechaOrden) || acta.createdAt || '',
                         numeroVisita: numero,
                         nombre: String(acta.name || '').trim() || 'Acta de visita',
                         fechaVisita: acta.fechaVisita
                             ? self.getDateTime().toDisplayDate(acta.fechaVisita)
                             : 'Sin fecha',
                         estado: estado,
-                        estadoLabel: estadoLabel,
+                        estadoLabel: soporte ? soporte.estadoLabel : estadoLabel,
                         isAprobada: isAprobada,
                         canApproveThis: canApproveThis,
                         canConsultar: canConsultar,
@@ -224,6 +231,12 @@ define('custom:views/case/fields/acta-visita-action', [
                         revisadoPor: String(acta.cRevisadoPor || '').trim(),
                     };
                 });
+
+            return cards.concat(soportes.filter(p => p.realizada && !cards.some(c => c.id === p.id || (p.actaId && c.actaId === p.actaId))).map(p => ({
+                ...p, hasSoportes: true, numeroVisita: p.numeroVisita, nombre: p.name,
+                fechaVisita: p.fechaVisita, isCurrent: true,
+            }))).sort((a, b) => String(b.fechaOrden || '').slice(0, 10).localeCompare(String(a.fechaOrden || '').slice(0, 10))
+                || b.numeroVisita - a.numeroVisita);
         },
 
         // Visitas programadas de la solicitud: de cada una salen el acta en blanco y el acta adjunta.
@@ -231,16 +244,21 @@ define('custom:views/case/fields/acta-visita-action', [
             const visitas = this.visitas || {};
             const lang = this.getLanguage();
 
-            // Con el acta diligenciada la visita pasa a «Visitas registradas».
-            return (visitas.programaciones || []).filter(p => !p.actaId || p.actaEstado === 'Pendiente').map(p => {
+            // Adjuntar cualquiera de los soportes acredita la realización, aunque falte el acta.
+            return (visitas.programaciones || []).map((p, index) => {
                 const cancelada = p.estado === 'Cancelada';
                 const hora = [p.horaInicio, p.horaFin].filter(Boolean).join(' a ');
                 const actaPendiente = !!p.actaId && p.actaEstado === 'Pendiente';
+                const realizada = p.estado !== 'Cancelada' && !!(p.informeId || p.actaFirmada || ['Diligenciada', 'Aprobada'].includes(p.actaEstado));
+                const faltaActa = realizada && !p.actaFirmada;
 
                 return {
                     id: p.id,
                     name: p.name,
-                    estadoLabel: lang.translateOption(p.estado, 'estado', 'ProgramacionVisita') || p.estado,
+                    numeroVisita: index + 1, realizada: realizada, faltaActa: faltaActa,
+                    fechaOrden: p.fechaProgramada || '',
+                    fechaVisita: p.fechaProgramada ? this.getDateTime().toDisplayDate(p.fechaProgramada) : 'Sin fecha',
+                    estadoLabel: realizada ? (faltaActa ? 'Realizada · Acta pendiente' : 'Realizada') : (lang.translateOption(p.estado, 'estado', 'ProgramacionVisita') || p.estado),
                     cuando: (p.fechaProgramada ? this.getDateTime().toDisplayDate(p.fechaProgramada) : 'Sin fecha')
                         + (hora ? ' · ' + hora : ''),
                     responsableName: p.responsableName || 'Sin responsable',
@@ -248,9 +266,19 @@ define('custom:views/case/fields/acta-visita-action', [
                     actaName: p.actaName,
                     actaEstadoLabel: p.actaEstado ? (lang.translateOption(p.actaEstado, 'estado', 'ActaVisita') || p.actaEstado) : '',
                     isCurrent: !cancelada && (!p.actaId || actaPendiente),
+                    intervencionId: p.intervencionId,
+                    informeId: p.informeId,
+                    informeName: p.informeName,
+                    informeEstadoLabel: p.informeId
+                        ? (p.correccionSolicitada ? 'Con correcciones pendientes' : 'Adjunto')
+                        : 'No adjunto (opcional)',
+                    correccionSolicitada: !!p.correccionSolicitada,
+                    observacionesRevision: p.observacionesRevision,
+                    canDescargarPlantilla: (!!visitas.puedeGestionar || p.esResponsable) && !cancelada && !!p.intervencionId,
+                    canAdjuntarInforme: !!p.puedeAdjuntarInforme,
                     canDescargarBlanco: (!!visitas.puedeGestionar || p.esResponsable) && !cancelada && !p.actaId,
                     canAdjuntar: p.puedeAdjuntar && !p.actaId,
-                    canCompletar: p.puedeAdjuntar && actaPendiente,
+                    canCompletar: p.puedeAdjuntar && !!p.actaId && (actaPendiente || !p.actaFirmada),
                 };
             });
         },
@@ -281,7 +309,7 @@ define('custom:views/case/fields/acta-visita-action', [
             const user = this.getUser();
             const showPanel = this.stateReady && this.shouldShowActaPanel();
             const visitas = this.visitas || {};
-            const programaciones = this.buildProgramacionCards();
+            const programaciones = this.buildProgramacionCards().filter(p => !p.realizada);
 
             return {
                 showPanel: showPanel,
@@ -581,6 +609,7 @@ define('custom:views/case/fields/acta-visita-action', [
         },
 
         bindUi: function () {
+            CaseRelatedRecordModal.bind(this);
             this.bindButtons();
             this.bindVisitaCheckbox();
             this.bindVisitaAprobadaCheckbox();
@@ -812,7 +841,7 @@ define('custom:views/case/fields/acta-visita-action', [
 
             const self = this;
 
-            this.$el.find('[data-action="programarVisita"], [data-action="descargarActaBlanco"], [data-action="adjuntarActa"], [data-action="completarActa"]').off('.programacion');
+            this.$el.find('[data-action="programarVisita"], [data-action="descargarActaBlanco"], [data-action="adjuntarActa"], [data-action="completarActa"], [data-action="descargarInformePlantilla"], [data-action="adjuntarInforme"]').off('.programacion');
             this.$el.find('[data-action="verDetallesVisita"]').off('click.verDetallesVisita');
             this.$el.find('[data-action="verActa"]').off('click.verActa');
             this.$el.find('[data-action="aprobarVisitaActa"]').off('click.aprobarVisitaActa');
@@ -846,6 +875,18 @@ define('custom:views/case/fields/acta-visita-action', [
                 e.preventDefault();
                 e.stopPropagation();
                 self.actionDescargarActaBlanco($(e.currentTarget).data('id'));
+            });
+
+            this.$el.find('[data-action="descargarInformePlantilla"]').on('click.programacion', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                self.actionDescargarInformePlantilla($(e.currentTarget).data('intervencion-id'));
+            });
+
+            this.$el.find('[data-action="adjuntarInforme"]').on('click.programacion', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                self.actionAdjuntarInforme($(e.currentTarget).data('intervencion-id'));
             });
 
             this.$el.find('[data-action="adjuntarActa"]').on('click.programacion', function (e) {
@@ -1077,6 +1118,24 @@ define('custom:views/case/fields/acta-visita-action', [
                 + '&id=' + encodeURIComponent(this.model.id)
                 + '&programacionId=' + encodeURIComponent(programacionId)
                 + '&format=pdf');
+        },
+
+        actionDescargarInformePlantilla: function (intervencionId) {
+            window.location.assign(this.getBasePath()
+                + '?entryPoint=InformeTecnicoPlantilla&id=' + encodeURIComponent(intervencionId));
+        },
+
+        actionAdjuntarInforme: function (intervencionId) {
+            return new RecordModalHelper().showEdit(this, {
+                entityType: 'IntervencionTecnica',
+                id: intervencionId,
+                layoutName: 'edit',
+                fullFormDisabled: true,
+                afterSave: () => {
+                    this.model.fetch();
+                    this.scheduleLoadActaState();
+                },
+            }).catch(() => {});
         },
 
         actionAdjuntarActa: function (programacionId) {

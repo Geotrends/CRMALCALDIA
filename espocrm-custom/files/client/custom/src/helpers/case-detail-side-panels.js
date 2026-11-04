@@ -14,7 +14,6 @@ define('custom:helpers/case-detail-side-panels', [
 
     const FIELD_PANELS = [
         'actaVisita',
-        'decisionJuridica',
         'formatoGenerado',
     ];
 
@@ -22,6 +21,7 @@ define('custom:helpers/case-detail-side-panels', [
     const FIRST_PANELS = [
         'caseTimeline',
         'comunicacionesCasoPanel',
+        'decisionJuridica',
         'evaluacionResultado',
         'actaVisita',
     ];
@@ -172,9 +172,9 @@ define('custom:helpers/case-detail-side-panels', [
     };
 
     const COMPETENCIA_OPCIONES = [
-        {value: 'Total', label: 'Total', help: 'La Alcaldía es competente; el caso continúa.'},
-        {value: 'Parcial', label: 'Parcial', help: 'Se atiende la parte municipal y se remite la parte ajena.'},
-        {value: 'Ninguna', label: 'Ninguna', help: 'Se remite el caso completo a la autoridad competente.'},
+        {value: 'Total', label: 'Total', help: 'La Secretaría de Medio Ambiente es competente, el caso continúa.'},
+        {value: 'Parcial', label: 'Parcial', help: 'Se atiende la parte de la secretaría y se remite la parte ajena.'},
+        {value: 'Ninguna', label: 'Ninguna', help: 'Se remite la solicitud a la autoridad competente.'},
     ];
 
     const CLASIFICACION_CAMPOS = [
@@ -709,6 +709,109 @@ define('custom:helpers/case-detail-side-panels', [
             + '</div>';
     };
 
+    // Sin datos del perjudicante no hay Auto de Inicio: aviso con lo que falta y acceso a registrarlos (o editarlos después).
+    const htmlPerjudicante = function (estado) {
+        const pj = estado.perjudicante;
+
+        if (!pj) {
+            return '';
+        }
+
+        const boton = function (texto, icono) {
+            return pj.puedeEditar
+                ? '<div class="alcaldia-apertura__acciones"><button type="button" class="btn btn-default btn-sm js-apertura-perjudicante">'
+                    + '<span class="fas ' + icono + '"></span> ' + texto + '</button></div>'
+                : '';
+        };
+
+        if (!pj.completo) {
+            return '<div class="alcaldia-cumpl__aviso"><span class="fas fa-triangle-exclamation"></span><span>Faltan los datos del perjudicante ('
+                + escapeHtml((pj.faltantes || []).join(', ')) + '). Sin ellos no se puede crear el Auto de Inicio.</span></div>'
+                + boton('Registrar datos del perjudicante', 'fa-user-pen');
+        }
+
+        const d = pj.datos || {};
+
+        return '<p class="alcaldia-apertura__ayuda">Perjudicante: <b>' + escapeHtml((d.cNombrePerjudicante + ' ' + (d.cApellidoPerjudicante || '')).trim())
+            + '</b>' + (d.cDocumentoPerjudicante ? ' · ' + escapeHtml((d.cTipoDocumentoPerjudicante || '') + ' ' + d.cDocumentoPerjudicante) : '')
+            + (pj.puedeEditar ? ' · <a href="javascript:" class="js-apertura-perjudicante">Editar</a>' : '') + '</p>';
+    };
+
+    // Formulario breve para registrar o corregir el perjudicante sin salir del expediente.
+    const abrirPerjudicante = function (recordView, estado) {
+        const pj = estado.perjudicante || {};
+        const d = pj.datos || {};
+        const opciones = function (lista, actual) {
+            return lista.map(function (o) {
+                return '<option value="' + escapeHtml(o[0]) + '"' + (o[0] === actual ? ' selected' : '') + '>' + escapeHtml(o[1]) + '</option>';
+            }).join('');
+        };
+        const campo = function (etiqueta, control) {
+            return '<div class="alcaldia-cumpl__campo"><label>' + etiqueta + '</label>' + control + '</div>';
+        };
+        const cuerpo = '<div class="alcaldia-cumpl__cuerpo alcaldia-perjudicante-form">'
+            + '<p class="alcaldia-firma__nota">Datos mínimos para abrir el Auto de Inicio. La dirección se completa desde la solicitud.</p>'
+            + '<div class="alcaldia-cumpl__fila">'
+            + campo('Tipo de persona <span class="text-danger">*</span>', '<select class="form-control input-sm js-pj-tipo">'
+                + opciones([['', 'Seleccione…'], ['Persona natural', 'Persona natural'], ['Persona jurídica', 'Persona jurídica']], d.cTipoPersonaPerjudicante) + '</select>')
+            + campo('Tipo de documento', '<select class="form-control input-sm js-pj-tipo-doc">'
+                + opciones([['', 'Seleccione…'], ['CC', 'Cédula de ciudadanía'], ['CE', 'Cédula de extranjería'], ['Pasaporte', 'Pasaporte'],
+                    ['PPT', 'Permiso por protección temporal (PPT)'], ['NIT', 'NIT']], d.cTipoDocumentoPerjudicante) + '</select>')
+            + '</div>'
+            + campo('Número de documento', '<input type="text" class="form-control input-sm js-pj-documento" maxlength="100" value="' + escapeHtml(d.cDocumentoPerjudicante || '') + '">')
+            + '<div class="alcaldia-cumpl__fila">'
+            + campo('Nombre o razón social <span class="text-danger">*</span>', '<input type="text" class="form-control input-sm js-pj-nombre" value="' + escapeHtml(d.cNombrePerjudicante || '') + '">')
+            + '<div class="js-pj-apellido-caja">' + campo('Apellido(s) <span class="text-danger">*</span>', '<input type="text" class="form-control input-sm js-pj-apellido" value="' + escapeHtml(d.cApellidoPerjudicante || '') + '">') + '</div>'
+            + '</div>'
+            + '<div class="alcaldia-cumpl__fila">'
+            + campo('Teléfono', '<input type="text" class="form-control input-sm js-pj-telefono" value="' + escapeHtml(d.cTelefonoPerjudicante || '') + '">')
+            + campo('Correo electrónico', '<input type="text" class="form-control input-sm js-pj-correo" value="' + escapeHtml(d.cCorreoPerjudicante || '') + '">')
+            + '</div></div>';
+        const dialog = new Espo.Ui.Dialog({
+            header: 'Datos del perjudicante',
+            className: 'dialog-perjudicante',
+            body: cuerpo,
+            backdrop: true,
+            buttonList: [
+                {
+                    name: 'guardar', text: 'Guardar', style: 'primary', position: 'right',
+                    onClick: function () {
+                        const v = function (sel) { return String(dialog.$el.find(sel).val() || '').trim(); };
+                        const tipo = v('.js-pj-tipo');
+
+                        if (!tipo) { Espo.Ui.error('Indique si el perjudicante es persona natural o jurídica.'); return; }
+                        if (!v('.js-pj-nombre')) { Espo.Ui.error('Indique el nombre o la razón social.'); return; }
+                        if (tipo === 'Persona natural' && !v('.js-pj-apellido')) { Espo.Ui.error('Indique el apellido.'); return; }
+
+                        dialog.close();
+                        aperturaAccion(recordView, {
+                            accion: 'guardarPerjudicante', cTipoPersonaPerjudicante: tipo, cTipoDocumentoPerjudicante: v('.js-pj-tipo-doc'),
+                            cDocumentoPerjudicante: v('.js-pj-documento'), cNombrePerjudicante: v('.js-pj-nombre'),
+                            cApellidoPerjudicante: tipo === 'Persona natural' ? v('.js-pj-apellido') : '',
+                            cTelefonoPerjudicante: v('.js-pj-telefono'), cCorreoPerjudicante: v('.js-pj-correo'),
+                        }, 'Datos del perjudicante registrados.');
+                    },
+                },
+                { name: 'cancelar', text: 'Cancelar', position: 'left', onClick: function () { dialog.close(); } },
+            ],
+        });
+
+        dialog.show();
+
+        const alternar = function () {
+            const tipo = String(dialog.$el.find('.js-pj-tipo').val() || '');
+
+            dialog.$el.find('.js-pj-apellido-caja').toggle(tipo !== 'Persona jurídica');
+
+            if (tipo === 'Persona jurídica' && !dialog.$el.find('.js-pj-tipo-doc').val()) {
+                dialog.$el.find('.js-pj-tipo-doc').val('NIT');
+            }
+        };
+
+        dialog.$el.find('.js-pj-tipo').on('change', alternar);
+        alternar();
+    };
+
     const htmlAperturaPreparar = function (estado) {
         const auto = estado.auto;
         const devuelto = estado.fase === 'devuelto';
@@ -720,12 +823,17 @@ define('custom:helpers/case-detail-side-panels', [
         }
 
         if (!estado.puede.preparar) {
-            return html + (auto ? htmlAutoTarjeta(auto, '') : '')
+            return html + (auto ? htmlAutoTarjeta(auto, '') : htmlPerjudicante(estado))
                 + '<p class="alcaldia-apertura__texto">Apoyo Jurídico prepara el Auto de Inicio.</p>';
+        }
+
+        if (!auto && estado.perjudicante && !estado.perjudicante.completo) {
+            return html + htmlPerjudicante(estado);
         }
 
         if (!auto) {
             return html
+                + htmlPerjudicante(estado)
                 + '<div class="alcaldia-auto-tarjeta is-vacia">'
                 + '<p class="alcaldia-auto-tarjeta__vacio"><span class="far fa-circle"></span> Aún no se ha creado el Auto de Inicio.</p>'
                 + '<p class="alcaldia-apertura__ayuda">Complete el motivo, la norma aplicable y, si ya se conoce, la fecha y hora de la audiencia. Al enviarlo a firma se genera el formato prellenado para el Inspector.</p>'
@@ -838,6 +946,10 @@ define('custom:helpers/case-detail-side-panels', [
             });
         });
 
+        $block.find('.js-apertura-perjudicante').on('click', function () {
+            abrirPerjudicante(recordView, $block.data('aperturaEstado') || {});
+        });
+
         $block.find('.js-apertura-preparar').on('click', function () {
             AutoInicioModal.open(recordView, recordView.model, recordView.getUser(), {
                 onAfterSave: function () { recordView.model.fetch(); },
@@ -946,6 +1058,7 @@ define('custom:helpers/case-detail-side-panels', [
                 + '<span class="alcaldia-apertura__fase is-' + escapeHtml(estado.fase) + '">' + escapeHtml(etiquetas[estado.fase] || '') + '</span></div>'
                 + '<div class="panel-body">' + (estado.expediente ? htmlAperturaNumero(estado) : '') + cuerpo + '</div>');
 
+            $block.data('aperturaEstado', estado);
             bindApertura(recordView, $block);
             desplegarPorDefecto($block, 'apertura|' + estado.fase, estado.fase !== 'abierto');
             CompactFormSections.makeCollapsible($block);
@@ -2376,29 +2489,6 @@ define('custom:helpers/case-detail-side-panels', [
         });
     };
 
-    // La definición no es una etapa aislada: nace de la visita vigente.
-    // Por ello se inserta dentro de la tarjeta de la última visita diligenciada.
-    const embedDecisionInCurrentVisit = function (recordView) {
-        const $actaPanel = findIn(recordView.$el, ACTA_VISITA_PANEL);
-        const $decisionPanel = findIn(recordView.$el, DECISION_PANEL);
-        const $card = $actaPanel.find('.case-visita-archivo-card.is-current').first();
-
-        if (!$card.length || !$decisionPanel.length) {
-            return;
-        }
-
-        const $field = $decisionPanel.find('.case-decision-juridica').first().closest('.field');
-
-        if (!$field.length || $field.closest('.case-visita-decision').length) {
-            return;
-        }
-
-        const $host = $('<div class="case-visita-decision"></div>');
-        $host.append($field);
-        $card.append($host);
-        $decisionPanel.hide();
-    };
-
     const distribute = function (recordView) {
         if (!recordView || !recordView.$el || recordView.mode !== 'detail') {
             return;
@@ -2412,7 +2502,6 @@ define('custom:helpers/case-detail-side-panels', [
         }
 
         removeLeftHistoryDuplicates(recordView);
-        embedDecisionInCurrentVisit(recordView);
 
         let $container = $side.find('.' + CONTAINER_CLASS);
 

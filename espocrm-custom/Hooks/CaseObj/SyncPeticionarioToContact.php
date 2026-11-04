@@ -198,7 +198,9 @@ class SyncPeticionarioToContact implements BeforeSave
 
         if ($cedula !== '') {
             $contact->set('cNumeroDeDocumento', DocumentNormalizer::normalize($cedula) ?: $cedula);
-            $contact->set('cTipoDeDocumento', 'CC');
+            // Tipo elegido en la solicitud; si no se indicó, se asume cédula como hasta ahora.
+            $tipoDocumento = trim((string) $case->get('cTipoDocumentoPeticionario'));
+            $contact->set('cTipoDeDocumento', in_array($tipoDocumento, ['CC', 'CE', 'Pasaporte', 'PPT', 'NIT'], true) ? $tipoDocumento : 'CC');
         }
 
         $contact->set('addressStreet', trim((string) $case->get('cDireccionPeticionario')));

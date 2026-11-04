@@ -67,6 +67,14 @@ class CaseExpedienteGuidance
             }
             // Dos alertas seguidas: primero elaborar el Auto; ya creado, enviarlo a firma.
             if (!$auto) {
+                // Sin los datos del perjudicante no hay Auto de Inicio: primero se registran.
+                if (!empty($apertura['perjudicante']) && empty($apertura['perjudicante']['completo'])) {
+                    $alerta = $paso('Expediente en preparación', 'Registrar los datos del perjudicante', 'Apoyo Jurídico', $juridica);
+                    $alerta['detalle'] = 'Sin ellos no se puede crear el Auto de Inicio. Falta: ' . implode(', ', (array) ($apertura['perjudicante']['faltantes'] ?? [])) . '.';
+
+                    return $alerta;
+                }
+
                 return $paso('Expediente en preparación', 'Elaborar el Auto de Inicio', 'Apoyo Jurídico', $juridica);
             }
             $alerta = $paso('Auto de Inicio elaborado', 'Enviar a firma el Auto de Inicio', 'Apoyo Jurídico', $juridica, $auto);
@@ -79,7 +87,7 @@ class CaseExpedienteGuidance
         if ($this->lectura->archivado($expediente)) {
             $respuesta = $this->entityManager->getRDBRepository('ComunicacionCaso')
                 ->where(['caseId' => $case->getId(), 'esRespuestaFinal' => true])->findOne();
-            return $respuesta
+            return $respuesta && in_array((string) $case->get('status'), CaseVencimientoHelper::ESTADOS_FIN, true)
                 ? $paso('Expediente archivado · Solicitud finalizada', 'Ninguna: expediente archivado y respuesta final registrada', 'Sin acciones pendientes', false)
                 : $paso('Expediente archivado · Respuesta final pendiente de registrar', 'Registrar la respuesta final al peticionario en Comunicaciones', 'Inspección', $inspeccion);
         }

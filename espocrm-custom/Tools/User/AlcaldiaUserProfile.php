@@ -342,7 +342,8 @@ class AlcaldiaUserProfile
      */
     public function findActiveInspeccionUserIds(): array
     {
-        return $this->findActiveUserIdsByRoleNames(self::NAMES_INSPECCION);
+        // El Inspector Ambiental también es Inspección a efectos de avisos: sin él no recibía las notificaciones de las solicitudes.
+        return $this->findActiveUserIdsByRoleNames(array_merge(self::NAMES_INSPECCION, [self::ROLE_INSPECTOR_AMBIENTAL]));
     }
 
     /**

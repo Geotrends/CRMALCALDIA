@@ -27,9 +27,6 @@ class CaseVisitasService
 
     private const ESTADO_CANCELADA = 'Cancelada';
 
-    /** @var string[] */
-    private const INTERVENCION_CERRADA = ['Completa documentalmente', 'No realizada', 'Cancelada'];
-
     public function __construct(
         private EntityManager $entityManager,
         private Acl $acl,
@@ -78,6 +75,12 @@ class CaseVisitasService
             $p['puedeAdjuntar'] = $creaActas
                 && ($gestiona || $p['esResponsable'])
                 && $p['estado'] !== self::ESTADO_CANCELADA;
+            // El informe técnico se adjunta (o corrige) mientras la intervención no esté completa.
+            $p['puedeAdjuntarInforme'] = ($gestiona || $p['esResponsable'])
+                && $p['estado'] !== self::ESTADO_CANCELADA
+                && $p['intervencionId'] !== null
+                && !$p['avalTecnico']
+                && $this->acl->checkScope('IntervencionTecnica', Acl\Table::ACTION_EDIT);
         }
 
         unset($p);
@@ -116,12 +119,12 @@ class CaseVisitasService
     }
 
     /**
-     * El responsable asignado (o Inspección) añade la evaluación de resultado cuando terminaron
+     * Cualquier Inspector Ambiental (o un administrador) añade la evaluación de resultado cuando terminaron
      * las visitas y no hay otra en trámite.
      */
     public function puedeRegistrarEvaluacion(Entity $case, User $user): bool
     {
-        return $this->puedeGestionar($case, $user)
+        return ($user->isAdmin() || $this->profile->isInspectorAmbiental($user))
             && $this->acl->checkScope('EvaluacionResultado', Acl\Table::ACTION_CREATE)
             && $this->evaluaciones->aplica($case)
             && !$this->evaluaciones->abierta($case->getId());
@@ -249,6 +252,15 @@ class CaseVisitasService
             $actas[$acta->get('programacionVisitaId')] ??= $acta;
         }
 
+        $intervenciones = [];
+
+        foreach ($this->entityManager
+            ->getRDBRepository('IntervencionTecnica')
+            ->where(['id' => $intervencionIds])
+            ->find() as $intervencion) {
+            $intervenciones[$intervencion->getId()] = $intervencion;
+        }
+
         $lista = [];
 
         foreach ($this->entityManager
@@ -257,8 +269,16 @@ class CaseVisitasService
             ->order('createdAt')
             ->find() as $p) {
             $acta = $actas[$p->getId()] ?? null;
+            $intervencion = $intervenciones[$p->get('intervencionTecnicaId')] ?? null;
 
             $lista[] = [
+                'intervencionId' => $intervencion?->getId(),
+                'intervencionEstado' => $intervencion?->get('estado'),
+                'informeId' => $intervencion?->get('informeTecnicoDocumentoId'),
+                'informeName' => $intervencion?->get('informeTecnicoDocumentoName'),
+                'correccionSolicitada' => (bool) $intervencion?->get('correccionSolicitada'),
+                'observacionesRevision' => $intervencion?->get('observacionesRevision'),
+                'avalTecnico' => (bool) $intervencion?->get('avalTecnico'),
                 'id' => $p->getId(),
                 'name' => $p->get('name'),
                 'estado' => $p->get('estado'),
@@ -339,12 +359,14 @@ class CaseVisitasService
             $this->entityManager->saveEntity($gestion);
         }
 
+        // Una intervención técnica por visita: solo se reutiliza la que aún no tiene visita programada.
         $intervencion = $this->entityManager
             ->getRDBRepository('IntervencionTecnica')
             ->where([
                 'gestionTecnicaId' => $gestion->getId(),
                 'tipo' => 'Visita',
-                'estado!=' => self::INTERVENCION_CERRADA,
+                'estado' => 'Pendiente',
+                'programacionVisitaId' => null,
             ])
             ->order('createdAt', 'DESC')
             ->findOne();
@@ -355,10 +377,9 @@ class CaseVisitasService
 
         $intervencion = $this->entityManager->getNewEntity('IntervencionTecnica');
         $intervencion->set([
-            'name' => 'Visita técnica' . $sufijo,
+            'name' => 'Visita técnica V' . $this->siguienteNumero($case->getId()) . $sufijo,
             'gestionTecnicaId' => $gestion->getId(),
             'tipo' => 'Visita',
-            'estado' => 'Programada',
             'fechaSolicitud' => date('Y-m-d H:i:s'),
             'responsableId' => $responsableId,
         ]);

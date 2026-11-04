@@ -24,6 +24,12 @@ class CaseActaVisitaHelper
     /** Estado posterior a la revisión; el acta nunca se "aprueba". */
     public const STATUS_REVISION_HALLAZGOS = 'Revisión de hallazgos';
 
+    /** El Director Técnico revisa el acta y el informe técnico de la visita. */
+    public const STATUS_REVISION_TECNICA = 'Revisión técnica';
+
+    /** El Apoyo Jurídico decide si se abre actuación. */
+    public const STATUS_REVISION_JURIDICA = 'Revisión jurídica';
+
     /** @deprecated Se conserva únicamente para leer datos históricos. */
     public const STATUS_VISITA_APROBADA = 'Visita aprobada';
 
@@ -57,6 +63,8 @@ class CaseActaVisitaHelper
     /** @var string[] */
     private const VISITA_APROBADA_STATUSES = [
         self::STATUS_REVISION_HALLAZGOS,
+        self::STATUS_REVISION_TECNICA,
+        self::STATUS_REVISION_JURIDICA,
         self::STATUS_VISITA_APROBADA,
         'Finalizado',
         'Proceso cerrado',
@@ -66,6 +74,8 @@ class CaseActaVisitaHelper
     private const VISITA_CONFIRMADA_STATUSES = [
         self::STATUS_EN_GESTION_TECNICA,
         self::STATUS_REVISION_HALLAZGOS,
+        self::STATUS_REVISION_TECNICA,
+        self::STATUS_REVISION_JURIDICA,
         self::STATUS_VISITA_APROBADA,
         'Finalizado',
         'Proceso cerrado',
@@ -341,6 +351,8 @@ class CaseActaVisitaHelper
             'Assigned',
             self::STATUS_EN_GESTION_TECNICA,
             self::STATUS_REVISION_HALLAZGOS,
+        self::STATUS_REVISION_TECNICA,
+        self::STATUS_REVISION_JURIDICA,
             self::STATUS_VISITA_APROBADA,
         ], true);
     }
@@ -377,7 +389,7 @@ class CaseActaVisitaHelper
 
         $status = trim((string) $case->get('status'));
 
-        if (!in_array($status, [self::STATUS_EN_GESTION_TECNICA, self::STATUS_REVISION_HALLAZGOS, self::STATUS_VISITA_APROBADA], true)) {
+        if (!in_array($status, [self::STATUS_EN_GESTION_TECNICA, self::STATUS_REVISION_HALLAZGOS, self::STATUS_REVISION_TECNICA, self::STATUS_REVISION_JURIDICA, self::STATUS_VISITA_APROBADA], true)) {
             return false;
         }
 

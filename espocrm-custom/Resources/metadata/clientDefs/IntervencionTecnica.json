@@ -6,6 +6,8 @@
     "recordViews": {
         "detail": "custom:views/gestion-tecnica/record/detail",
         "edit": "views/record/edit",
+        "editSmall": "custom:views/intervencion-tecnica/record/edit-small",
+        "detailSmall": "custom:views/intervencion-tecnica/record/detail-small",
         "list": "views/record/list"
     },
     "sidePanels": {

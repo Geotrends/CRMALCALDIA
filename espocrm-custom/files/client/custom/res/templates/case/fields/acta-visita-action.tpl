@@ -17,28 +17,63 @@
             <span class="case-visita-archivo-estado">{{estadoLabel}}</span>
         </p>
         <p class="case-visita-archivo-fecha">{{cuando}} · {{responsableName}}</p>
-        {{#if actaId}}
-        <p class="case-programacion-acta"><span class="fas fa-file-lines"></span> <a href="#ActaVisita/view/{{actaId}}">{{actaName}}</a> · {{actaEstadoLabel}}</p>
-        {{/if}}
-        {{#if canDescargarBlanco}}
-        <div class="case-visita-archivo-actions">
-            <button type="button" class="btn btn-default btn-sm case-acta-visita-btn" data-action="descargarActaBlanco" data-id="{{id}}">
-                <span class="fas fa-download"></span> Descargar acta de visita (en blanco)
-            </button>
-            {{#if canAdjuntar}}
-            <button type="button" class="btn btn-primary btn-sm case-acta-visita-btn" data-action="adjuntarActa" data-id="{{id}}">
-                <span class="fas fa-upload"></span> Adjuntar acta de visita
-            </button>
+        <div class="case-programacion-tarjetas">
+            <div class="case-programacion-tarjeta" data-tarjeta="acta">
+                <p class="case-programacion-tarjeta__titulo">
+                    <span class="fas fa-file-lines"></span> Acta de visita
+                    <span class="case-programacion-tarjeta__estado">{{#if actaEstadoLabel}}{{actaEstadoLabel}}{{else}}Pendiente{{/if}}</span>
+                </p>
+                {{#if actaId}}
+                <p class="case-programacion-acta"><a href="#ActaVisita/view/{{actaId}}" data-case-record-type="ActaVisita" data-case-record-id="{{actaId}}">{{actaName}}</a></p>
+                {{/if}}
+                {{#if canDescargarBlanco}}
+                <div class="case-visita-archivo-actions">
+                    <button type="button" class="btn btn-default btn-sm case-acta-visita-btn" data-action="descargarActaBlanco" data-id="{{id}}">
+                        <span class="fas fa-download"></span> Descargar acta en blanco
+                    </button>
+                    {{#if canAdjuntar}}
+                    <button type="button" class="btn btn-primary btn-sm case-acta-visita-btn" data-action="adjuntarActa" data-id="{{id}}">
+                        <span class="fas fa-upload"></span> Adjuntar acta diligenciada
+                    </button>
+                    {{/if}}
+                </div>
+                {{/if}}
+                {{#if canCompletar}}
+                <div class="case-visita-archivo-actions">
+                    <button type="button" class="btn btn-primary btn-sm case-acta-visita-btn" data-action="completarActa" data-acta-id="{{actaId}}">
+                        <span class="fas fa-pen"></span> Completar acta de visita
+                    </button>
+                </div>
+                {{/if}}
+            </div>
+            {{#if intervencionId}}
+            <p class="case-programacion-acta"><a href="#IntervencionTecnica/view/{{intervencionId}}" data-case-record-type="IntervencionTecnica" data-case-record-id="{{intervencionId}}"><span class="fas fa-clipboard-check" aria-hidden="true"></span> Ver intervención técnica</a></p>
+            <div class="case-programacion-tarjeta" data-tarjeta="informe">
+                <p class="case-programacion-tarjeta__titulo">
+                    <span class="fas fa-file-signature"></span> Informe técnico (opcional)
+                    <span class="case-programacion-tarjeta__estado">{{informeEstadoLabel}}</span>
+                </p>
+                {{#if informeId}}
+                <p class="case-programacion-acta"><a href="?entryPoint=download&id={{informeId}}" target="_blank" rel="noopener">{{informeName}}</a></p>
+                {{/if}}
+                {{#if correccionSolicitada}}
+                <p class="case-programacion-correccion"><span class="fas fa-triangle-exclamation"></span> El Director Técnico solicitó correcciones{{#if observacionesRevision}}: {{observacionesRevision}}{{/if}}</p>
+                {{/if}}
+                {{#if canDescargarPlantilla}}
+                <div class="case-visita-archivo-actions">
+                    <button type="button" class="btn btn-default btn-sm case-acta-visita-btn" data-action="descargarInformePlantilla" data-intervencion-id="{{intervencionId}}">
+                        <span class="fas fa-download"></span> Descargar plantilla del informe
+                    </button>
+                    {{#if canAdjuntarInforme}}
+                    <button type="button" class="btn btn-primary btn-sm case-acta-visita-btn" data-action="adjuntarInforme" data-intervencion-id="{{intervencionId}}">
+                        <span class="fas fa-upload"></span> {{#if informeId}}Reemplazar informe{{else}}Adjuntar informe diligenciado y firmado{{/if}}
+                    </button>
+                    {{/if}}
+                </div>
+                {{/if}}
+            </div>
             {{/if}}
         </div>
-        {{/if}}
-        {{#if canCompletar}}
-        <div class="case-visita-archivo-actions">
-            <button type="button" class="btn btn-primary btn-sm case-acta-visita-btn" data-action="completarActa" data-acta-id="{{actaId}}">
-                <span class="fas fa-pen"></span> Completar acta de visita
-            </button>
-        </div>
-        {{/if}}
     </div>
     {{else}}
     <p class="text-muted small">Aún no hay visitas programadas.</p>
@@ -51,10 +86,70 @@
 {{#each visitasArchivo}}
 <div class="case-visita-archivo-card{{#if isCurrent}} is-current{{/if}}" data-acta-id="{{actaId}}">
     <p class="case-visita-archivo-heading">
-        <strong>{{../visitaLabel}} {{numeroVisita}} - <a href="#ActaVisita/view/{{actaId}}" class="case-visita-archivo-link">{{nombre}}</a></strong>
+        <strong>{{../visitaLabel}} {{numeroVisita}} - {{#if actaId}}<a href="#ActaVisita/view/{{actaId}}" data-case-record-type="ActaVisita" data-case-record-id="{{actaId}}" class="case-visita-archivo-link">{{nombre}}</a>{{else}}{{nombre}}{{/if}}</strong>
         <span class="case-visita-archivo-estado">{{estadoLabel}}</span>
     </p>
     <p class="case-visita-archivo-fecha">Fecha de la visita: {{fechaVisita}}</p>
+    {{#if faltaActa}}<p class="text-warning">Falta adjuntar el acta de visita obligatoria.</p>{{/if}}
+    {{#if hasSoportes}}
+        <div class="case-programacion-tarjetas">
+            <div class="case-programacion-tarjeta" data-tarjeta="acta">
+                <p class="case-programacion-tarjeta__titulo">
+                    <span class="fas fa-file-lines"></span> Acta de visita
+                    <span class="case-programacion-tarjeta__estado">{{#if actaEstadoLabel}}{{actaEstadoLabel}}{{else}}Pendiente{{/if}}</span>
+                </p>
+                {{#if actaId}}
+                <p class="case-programacion-acta"><a href="#ActaVisita/view/{{actaId}}" data-case-record-type="ActaVisita" data-case-record-id="{{actaId}}">{{actaName}}</a></p>
+                {{/if}}
+                {{#if canDescargarBlanco}}
+                <div class="case-visita-archivo-actions">
+                    <button type="button" class="btn btn-default btn-sm case-acta-visita-btn" data-action="descargarActaBlanco" data-id="{{id}}">
+                        <span class="fas fa-download"></span> Descargar acta en blanco
+                    </button>
+                    {{#if canAdjuntar}}
+                    <button type="button" class="btn btn-primary btn-sm case-acta-visita-btn" data-action="adjuntarActa" data-id="{{id}}">
+                        <span class="fas fa-upload"></span> Adjuntar acta diligenciada
+                    </button>
+                    {{/if}}
+                </div>
+                {{/if}}
+                {{#if canCompletar}}
+                <div class="case-visita-archivo-actions">
+                    <button type="button" class="btn btn-primary btn-sm case-acta-visita-btn" data-action="completarActa" data-acta-id="{{actaId}}">
+                        <span class="fas fa-pen"></span> Completar acta de visita
+                    </button>
+                </div>
+                {{/if}}
+            </div>
+            {{#if intervencionId}}
+            <p class="case-programacion-acta"><a href="#IntervencionTecnica/view/{{intervencionId}}" data-case-record-type="IntervencionTecnica" data-case-record-id="{{intervencionId}}"><span class="fas fa-clipboard-check" aria-hidden="true"></span> Ver intervención técnica</a></p>
+            <div class="case-programacion-tarjeta" data-tarjeta="informe">
+                <p class="case-programacion-tarjeta__titulo">
+                    <span class="fas fa-file-signature"></span> Informe técnico (opcional)
+                    <span class="case-programacion-tarjeta__estado">{{informeEstadoLabel}}</span>
+                </p>
+                {{#if informeId}}
+                <p class="case-programacion-acta"><a href="?entryPoint=download&id={{informeId}}" target="_blank" rel="noopener">{{informeName}}</a></p>
+                {{/if}}
+                {{#if correccionSolicitada}}
+                <p class="case-programacion-correccion"><span class="fas fa-triangle-exclamation"></span> El Director Técnico solicitó correcciones{{#if observacionesRevision}}: {{observacionesRevision}}{{/if}}</p>
+                {{/if}}
+                {{#if canDescargarPlantilla}}
+                <div class="case-visita-archivo-actions">
+                    <button type="button" class="btn btn-default btn-sm case-acta-visita-btn" data-action="descargarInformePlantilla" data-intervencion-id="{{intervencionId}}">
+                        <span class="fas fa-download"></span> Descargar plantilla del informe
+                    </button>
+                    {{#if canAdjuntarInforme}}
+                    <button type="button" class="btn btn-primary btn-sm case-acta-visita-btn" data-action="adjuntarInforme" data-intervencion-id="{{intervencionId}}">
+                        <span class="fas fa-upload"></span> {{#if informeId}}Reemplazar informe{{else}}Adjuntar informe diligenciado y firmado{{/if}}
+                    </button>
+                    {{/if}}
+                </div>
+                {{/if}}
+            </div>
+            {{/if}}
+        </div>
+    {{/if}}
     {{#if isAprobada}}
     <div class="case-visita-aprobada-check is-readonly">
         <label class="case-visita-aprobada-check-label">
@@ -83,11 +178,13 @@
         </div>
         {{/if}}
     {{/if}}
+    {{#if actaId}}
     <div class="case-visita-archivo-actions">
         <button type="button" class="btn btn-default btn-sm case-acta-visita-btn" data-action="verDetallesVisita" data-acta-id="{{actaId}}">
             <span class="fas fa-eye"></span> Ver detalles
         </button>
     </div>
+    {{/if}}
     {{#if hasRevision}}
     <div class="case-visita-decision-summary" data-acta-id="{{actaId}}">
         <div class="case-visita-decision-summary__head">

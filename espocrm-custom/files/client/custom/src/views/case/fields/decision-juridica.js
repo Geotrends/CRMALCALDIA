@@ -4,11 +4,78 @@ define('custom:views/case/fields/decision-juridica', [
     'custom:helpers/silent-ajax',
     'custom:helpers/auto-inicio-modal',
     'custom:helpers/safe-ui-promise',
-], function (Dep, RadicacionFields, SilentAjax, AutoInicioModal, SafeUiPromise) {
+    'custom:helpers/case-related-record-modal',
+], function (Dep, RadicacionFields, SilentAjax, AutoInicioModal, SafeUiPromise, CaseRelatedRecordModal) {
 
     const STATUS_VISITA_REALIZADA = 'En gestión técnica';
     const STATUS_REVISION = 'Revisión de hallazgos';
     const STATUS_LEGACY_APPROVED = 'Visita aprobada';
+
+    const STATUS_REVISION_TECNICA = 'Revisión técnica';
+    const STATUS_REVISION_JURIDICA = 'Revisión jurídica';
+
+    /** Revisión técnica (Director Técnico): decisiones posibles sobre la visita revisada. */
+    const DECISIONES_TECNICA = [
+        {
+            value: 'enviar_juridica',
+            label: 'Enviar a revisión jurídica',
+            help: 'El acta y el informe técnico están completos. Puede dejar un comentario para el Apoyo Jurídico.',
+            motivo: 'opcional',
+            boton: 'Enviar a revisión jurídica',
+            confirm: '¿Confirma el aval técnico y el envío a revisión jurídica? La intervención técnica quedará «Completa documentalmente».',
+            success: 'Enviado a revisión jurídica.',
+        },
+        {
+            value: 'correcciones',
+            label: 'Solicitar correcciones',
+            help: 'Pida mejorar el informe técnico o cambiar algún campo del acta. El inspector las atenderá y volverá a enviarlo a revisión.',
+            motivo: 'requerido',
+            boton: 'Solicitar correcciones',
+            confirm: '¿Confirma la solicitud de correcciones? La solicitud vuelve a gestión técnica y se avisa al inspector responsable.',
+            success: 'Correcciones solicitadas al inspector.',
+        },
+        {
+            value: 'nueva_visita',
+            label: 'Solicitar una nueva visita',
+            help: 'Fundamente por qué se necesita otra visita. Se avisará al responsable para que la programe.',
+            motivo: 'requerido',
+            boton: 'Solicitar nueva visita',
+            confirm: '¿Confirma que se necesita una nueva visita? Se avisará al responsable con el motivo y un plazo de 5 días hábiles.',
+            success: 'Nueva visita solicitada.',
+        },
+        {
+            value: 'remitir',
+            label: 'Remitir por competencia',
+            help: 'La solicitud corresponde a otra entidad. Indique cuál y por qué.',
+            motivo: 'requerido',
+            entidad: true,
+            boton: 'Remitir por competencia',
+            confirm: '¿Confirma la remisión por competencia? Se registrará la remisión y se avisará a quien prepara el oficio.',
+            success: 'Caso remitido por competencia.',
+        },
+    ];
+
+    /** Revisión jurídica (Apoyo Jurídico): abrir o no abrir actuación. */
+    const DECISIONES_JURIDICA = [
+        {
+            value: 'abrir',
+            label: 'Abrir actuación',
+            help: 'El caso requiere una actuación. Después se elige el régimen y el expediente en «Apertura de expediente».',
+            motivo: 'opcional',
+            boton: 'Decidir la apertura de actuación',
+            confirm: '¿Confirma que se abre actuación? A continuación complete la apertura en «Apertura de expediente».',
+            success: 'Definición guardada. Complete la apertura en «Apertura de expediente».',
+        },
+        {
+            value: 'no_abrir',
+            label: 'No abrir actuación',
+            help: 'Deje sus observaciones. Se cierra la atención y queda pendiente la respuesta final al peticionario.',
+            motivo: 'requerido',
+            boton: 'No abrir actuación y cerrar la atención',
+            confirm: '¿Confirma que no se abre actuación? El caso quedará pendiente de la respuesta final al peticionario.',
+            success: 'Atención cerrada: pendiente de la respuesta final al peticionario.',
+        },
+    ];
 
     /** Definición de trámite → acción que ejecuta el botón único. */
     const ACCIONES = {
@@ -150,6 +217,12 @@ define('custom:views/case/fields/decision-juridica', [
                 return;
             }
 
+            if (this.esEtapaRevision()) {
+                this.cargarRevision();
+
+                return;
+            }
+
             if (!this.isCaseReadyForDecision() || !this.canDecidir(user)) {
                 this.hasAutoInicio = false;
                 this.hasActaFirmada = false;
@@ -213,6 +286,74 @@ define('custom:views/case/fields/decision-juridica', [
             });
         },
 
+        esEtapaRevision: function () {
+            const status = String(this.model.get('status') || '').trim();
+
+            return status === STATUS_REVISION_TECNICA || status === STATUS_REVISION_JURIDICA;
+        },
+
+        cargarRevision: function () {
+            const self = this;
+            const revision = this._stateRevision || 0;
+
+            this._loading = true;
+
+            SilentAjax.getRequest('Case/action/revisionEstado', {id: this.model.id}).then(function (response) {
+                if (self._removed || revision !== (self._stateRevision || 0)) {
+                    return;
+                }
+
+                self.revision = response || null;
+                self.stateReady = true;
+                self.refreshViewState();
+            }).catch(function () {
+                self.revision = null;
+                self.stateReady = true;
+                self.refreshViewState();
+            }).finally(function () {
+                self._loading = false;
+
+                if (!self._removed && (self._reload || revision !== (self._stateRevision || 0))) {
+                    self._reload = false;
+                    self.scheduleLoadState();
+                }
+            });
+        },
+
+        /** Datos de la revisión técnico-jurídica para la plantilla. */
+        datosRevision: function () {
+            const revision = this.revision || {};
+            const etapa = this.esEtapaRevision() ? revision.etapa : null;
+
+            if (!this.stateReady || !etapa) {
+                return {showRevision: false};
+            }
+
+            const tecnica = etapa === 'tecnica';
+            const puedeDecidir = tecnica ? !!revision.puedeDecidirTecnica : !!revision.puedeDecidirJuridica;
+            const intervencion = revision.intervencion || null;
+            const acta = revision.acta || null;
+
+            return {
+                showRevision: true,
+                revisionTitulo: tecnica ? 'Revisión técnica · Director Técnico' : 'Revisión jurídica · Apoyo Jurídico',
+                revisionAyuda: tecnica
+                    ? 'Revise el acta de visita y el informe técnico, y decida cómo continúa la solicitud.'
+                    : 'El Director Técnico avaló la visita. Decida si el caso necesita la apertura de una actuación.',
+                revisionPendiente: !puedeDecidir,
+                revisionQuien: tecnica ? 'el Director Técnico' : 'el Apoyo Jurídico',
+                puedeDecidirRevision: puedeDecidir,
+                verificaFecha: !tecnica,
+                fechaRespuesta: revision.fechaRespuesta || {},
+                intervencion: intervencion,
+                acta: acta,
+                comentarioTecnico: !tecnica && intervencion ? intervencion.observacionesRevision : '',
+                decisiones: (tecnica ? DECISIONES_TECNICA : DECISIONES_JURIDICA).map(function (d) {
+                    return {value: d.value, label: d.label, help: d.help};
+                }),
+            };
+        },
+
         refreshViewState: function () {
             if (!this.isRendered || !this.isRendered()) {
                 return;
@@ -259,16 +400,19 @@ define('custom:views/case/fields/decision-juridica', [
             // Con el acta registrada pero sin el acta firmada, quien revisa ve la sección con el aviso
             // (el servidor exige el acta firmada para registrar la revisión).
             const showSinFirma = revisable && !this.hasActaFirmada && !!this.currentActa
-                && (status === STATUS_VISITA_REALIZADA || status === STATUS_REVISION || status === STATUS_LEGACY_APPROVED);
-            const showRevisar = canDecidir && status === STATUS_VISITA_REALIZADA;
+                && (status === STATUS_REVISION || status === STATUS_LEGACY_APPROVED);
+            // La revisión empieza sola cuando la visita tiene acta e informe técnico (Revisión técnica).
+            const showRevisar = false;
             const showDecisiones = canDecidir && (status === STATUS_REVISION || status === STATUS_LEGACY_APPROVED);
             const acta = this.currentActa || {};
             const showComplementariaSolicitada = canDecidir && this.visitaComplementariaPreparada
                 && acta.cDecisionTramite === 'Visita complementaria'
                 && !!(acta.cRevisadoPor || acta.fechaAprobacion);
 
-            return {
-                showPanel: showRevisar || showDecisiones || showSinFirma,
+            const revision = this.datosRevision();
+
+            return Object.assign({
+                showPanel: showRevisar || showDecisiones || showSinFirma || revision.showRevision,
                 showSinFirma: showSinFirma,
                 showRevisar: showRevisar,
                 showDecisiones: showDecisiones,
@@ -277,7 +421,7 @@ define('custom:views/case/fields/decision-juridica', [
                 decisionTramite: this.model.get('cDecisionTramite') || '',
                 motivoDecision: this.model.get('cMotivoDecision') || '',
                 entidadRemision: this.model.get('cEntidadRemision') || '',
-            };
+            }, revision);
         },
 
         updatePanelVisibility: function (show) {
@@ -336,8 +480,148 @@ define('custom:views/case/fields/decision-juridica', [
             }
         },
 
+        /** Formulario de la revisión técnica o jurídica: opción elegida, motivación y botón único. */
+        bindRevisionUi: function () {
+            const self = this;
+            const tecnica = (this.revision || {}).etapa === 'tecnica';
+            const definiciones = tecnica ? DECISIONES_TECNICA : DECISIONES_JURIDICA;
+            const $root = this.$el.find('.case-revision');
+
+            const sync = function () {
+                const value = String($root.find('input[name="revisionDecision"]:checked').val() || '');
+                const def = definiciones.find(d => d.value === value);
+
+                $root.find('.case-revision__opcion').removeClass('is-selected');
+                $root.find('input[name="revisionDecision"]:checked').closest('.case-revision__opcion').addClass('is-selected');
+                $root.find('.case-revision__entidad').toggleClass('hidden', !(def && def.entidad));
+                $root.find('.js-revision-motivo-label').text(def
+                    ? (def.motivo === 'requerido' ? 'Fundamentación (obligatoria)' : 'Comentario (opcional)')
+                    : 'Motivación');
+
+                const $btn = $root.find('[data-action="ejecutarRevision"]');
+
+                $btn.prop('disabled', !def);
+                $btn.find('.js-revision-btn-label').text(def ? def.boton : 'Seleccione una decisión');
+            };
+
+            $root.find('input[name="revisionDecision"]').off('change.revision').on('change.revision', sync);
+            $root.find('[data-name="fechaCorregir"]').off('change.revision').on('change.revision', function () {
+                $root.find('.case-revision__fecha-corregir').toggleClass('hidden', !this.checked);
+            });
+            sync();
+
+            $root.find('[data-action="ejecutarRevision"]').off('click.revision').on('click.revision', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                self.actionEjecutarRevision(definiciones, tecnica);
+            });
+        },
+
+        actionEjecutarRevision: function (definiciones, tecnica) {
+            const self = this;
+            const $root = this.$el.find('.case-revision');
+            const value = String($root.find('input[name="revisionDecision"]:checked').val() || '');
+            const def = definiciones.find(d => d.value === value);
+            const motivo = String($root.find('[data-name="revisionMotivo"]').val() || '').trim();
+            const entidad = String($root.find('[data-name="revisionEntidad"]').val() || '').trim();
+
+            if (!def) {
+                Espo.Ui.error('Seleccione una decisión.');
+
+                return;
+            }
+
+            if (def.motivo === 'requerido' && !motivo) {
+                $root.find('[data-name="revisionMotivo"]').closest('.form-group').addClass('has-error');
+                $root.find('[data-name="revisionMotivo"]').trigger('focus');
+                Espo.Ui.error('Escriba la fundamentación de la decisión.');
+
+                return;
+            }
+
+            if (def.entidad && !entidad) {
+                $root.find('[data-name="revisionEntidad"]').closest('.form-group').addClass('has-error');
+                Espo.Ui.error('Indique la entidad competente a la que se remitirá el caso.');
+
+                return;
+            }
+
+            let fecha = {};
+
+            if (!tecnica) {
+                const corregir = $root.find('[data-name="fechaCorregir"]').is(':checked');
+                const verificada = $root.find('[data-name="fechaVerificada"]').is(':checked');
+                const actual = String(((self.revision || {}).fechaRespuesta || {}).fecha || '');
+                const corregida = corregir ? String($root.find('[data-name="fechaCorregida"]').val() || '') : '';
+                const motivoFecha = String($root.find('[data-name="fechaMotivo"]').val() || '').trim();
+
+                if (!verificada) {
+                    Espo.Ui.error('Confirme que verificó la fecha límite de respuesta.');
+
+                    return;
+                }
+
+                if ((corregir || !actual) && !corregida) {
+                    Espo.Ui.error('Indique la fecha límite de respuesta correcta.');
+
+                    return;
+                }
+
+                if (corregida && corregida !== actual && !motivoFecha) {
+                    $root.find('[data-name="fechaMotivo"]').closest('.form-group').addClass('has-error');
+                    Espo.Ui.error('Explique por qué se corrige la fecha límite de respuesta.');
+
+                    return;
+                }
+
+                fecha = {fechaRespuestaVerificada: true, fechaRespuestaCorregida: corregida, fechaRespuestaMotivo: motivoFecha};
+            }
+
+            Espo.Ui.confirm(def.confirm, {
+                title: def.boton,
+                confirmText: 'Sí, continuar',
+                cancelText: 'Cancelar',
+                confirmStyle: 'primary',
+            }, function () {
+                Espo.Ui.notify(self.translate('pleaseWait', 'messages'));
+
+                const request = tecnica
+                    ? Espo.Ajax.postRequest('Case/action/revisionTecnica', {
+                        id: self.model.id, decision: def.value, motivo: motivo, entidadRemision: entidad,
+                    })
+                    : Espo.Ajax.postRequest('Case/action/revisionJuridica', {
+                        id: self.model.id, decision: def.value, observaciones: motivo,
+                        fechaRespuestaVerificada: fecha.fechaRespuestaVerificada,
+                        fechaRespuestaCorregida: fecha.fechaRespuestaCorregida,
+                        fechaRespuestaMotivo: fecha.fechaRespuestaMotivo,
+                    });
+
+                request.then(function (response) {
+                    Espo.Ui.notify(false);
+                    Espo.Ui.success(def.success);
+
+                    if (response && response.status) {
+                        self.model.set('status', response.status);
+                    }
+
+                    self.model.fetch();
+                    $(window).trigger('crm:visita-historial-changed');
+                }).catch(function () {
+                    Espo.Ui.notify(false);
+                    self.model.fetch();
+                });
+            });
+        },
+
         bindUi: function () {
+            CaseRelatedRecordModal.bind(this);
             if (!this.$el || !this.$el.length) {
+                return;
+            }
+
+            if (this.datosRevision().showRevision) {
+                this.bindRevisionUi();
+
                 return;
             }
 

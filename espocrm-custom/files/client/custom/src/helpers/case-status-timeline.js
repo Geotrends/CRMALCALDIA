@@ -39,6 +39,8 @@ define('custom:helpers/case-status-timeline', [
         'Pendiente de respuesta final': 'Respuesta final',
         'Remitido por competencia': 'Respuesta final',
         'Visita aprobada': 'Revisión de hallazgos',
+        'Revisión técnica': 'Revisión de hallazgos',
+        'Revisión jurídica': 'Revisión de hallazgos',
         'Rejected': 'Finalizado',
     };
 

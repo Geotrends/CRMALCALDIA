@@ -47,7 +47,9 @@
     "cPanelActuoArchivo": "Auto de archivo",
     "cTipoPersonaPeticionario": "Tipo de peticionario",
     "cTipoPersonaPerjudicante": "Tipo de perjudicante",
+    "cTipoDocumentoPeticionario": "Tipo de documento del peticionario",
     "cDocumentoPeticionario": "Documento del peticionario",
+    "cTipoDocumentoPerjudicante": "Tipo de documento del perjudicante",
     "cDocumentoPerjudicante": "Documento del perjudicante",
     "cNombrePeticionario": "Nombre(s) del peticionario",
     "cApellidoPeticionario": "Apellido(s) del peticionario",
@@ -280,6 +282,8 @@
     "Radicado": "Radicado",
     "Asignado": "Asignado",
     "En gestión técnica": "Gest. técnica",
+    "Revisión técnica": "Rev. técnica",
+    "Revisión jurídica": "Rev. jurídica",
     "Revisión de hallazgos": "Revisión",
     "Remitido por competencia": "Remitido",
     "Finalizado": "Finalizado",
@@ -296,11 +300,29 @@
       "Radicado": "Radicado",
       "Asignado": "Asignado",
       "En gestión técnica": "En gestión técnica",
+      "Revisión técnica": "Revisión técnica",
+      "Revisión jurídica": "Revisión jurídica",
       "Revisión de hallazgos": "Revisión de hallazgos",
       "Pendiente de respuesta final": "Pendiente de respuesta final",
       "Remitido por competencia": "Remitido por competencia",
       "Finalizado": "Finalizado",
       "Proceso cerrado": "Proceso cerrado"
+    },
+    "cTipoDocumentoPeticionario": {
+      "Seleccione una opción": "Seleccione una opción",
+      "CC": "Cédula de ciudadanía",
+      "CE": "Cédula de extranjería",
+      "Pasaporte": "Pasaporte",
+      "PPT": "Permiso por protección temporal (PPT)",
+      "NIT": "NIT"
+    },
+    "cTipoDocumentoPerjudicante": {
+      "Seleccione una opción": "Seleccione una opción",
+      "CC": "Cédula de ciudadanía",
+      "CE": "Cédula de extranjería",
+      "Pasaporte": "Pasaporte",
+      "PPT": "Permiso por protección temporal (PPT)",
+      "NIT": "NIT"
     },
     "cTipoPersonaPeticionario": {
       "Seleccione una opción": "Seleccione una opción",

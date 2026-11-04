@@ -2,7 +2,7 @@
 
 namespace Espo\Custom\Classes\Acl\IntervencionTecnica;
 
-use Espo\Core\Acl\DefaultAccessChecker;
+use Espo\Custom\Classes\Acl\Technical\AccessChecker as DefaultAccessChecker;
 use Espo\Core\Acl\ScopeData;
 use Espo\Entities\User;
 use Espo\ORM\Entity;

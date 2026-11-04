@@ -17,6 +17,8 @@ class CaseEnumNormalizer
     private const ENUM_FIELDS = [
         'cTipoPersonaPeticionario',
         'cTipoPersonaPerjudicante',
+        'cTipoDocumentoPeticionario',
+        'cTipoDocumentoPerjudicante',
         'cCanalDeReportePeticionario',
         'cBarrioPeticionario',
         'cBarrioPerjudicante',

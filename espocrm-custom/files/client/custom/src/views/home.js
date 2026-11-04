@@ -11,6 +11,8 @@ define('custom:views/home', ['views/dashboard'], function (Dep) {
     var SEGUIMIENTO_STATUSES = [
         'Asignado',
         'En gestión técnica',
+        'Revisión técnica',
+        'Revisión jurídica',
         'Revisión de hallazgos',
     ];
 
@@ -132,9 +134,9 @@ define('custom:views/home', ['views/dashboard'], function (Dep) {
             lists.unshift({
                 title: 'Listos para decisión',
                 where: [{
-                    type: 'equals',
+                    type: 'in',
                     attribute: 'status',
-                    value: 'Revisión de hallazgos',
+                    value: ['Revisión técnica', 'Revisión jurídica', 'Revisión de hallazgos'],
                 }],
             });
         }

@@ -33,6 +33,7 @@ class PartyRegistryService
     private const PETICIONARIO_CASE_FIELDS = [
         'cNombrePeticionario',
         'cApellidoPeticionario',
+        'cTipoDocumentoPeticionario',
         'cDocumentoPeticionario',
         'cDireccionPeticionario',
         'cTelefonoPeticionario',
@@ -45,6 +46,7 @@ class PartyRegistryService
     private const PERJUDICANTE_CASE_FIELDS = [
         'cNombrePerjudicante',
         'cApellidoPerjudicante',
+        'cTipoDocumentoPerjudicante',
         'cDocumentoPerjudicante',
         'cDireccionPerjudicante',
         'cTelefonoPerjudicante',

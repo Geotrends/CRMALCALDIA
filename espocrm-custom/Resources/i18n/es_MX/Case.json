@@ -2,6 +2,7 @@
   "fields": {
     "cCanalDeReportePeticionario": "Canal de reporte del peticionario",
     "cTipoPersonaPeticionario": "Tipo de peticionario",
+    "cTipoDocumentoPeticionario": "Tipo de documento del peticionario",
     "cDocumentoPeticionario": "Documento del peticionario",
     "cNombrePeticionario": "Nombre(s) del peticionario",
     "cApellidoPeticionario": "Apellido(s) del peticionario",

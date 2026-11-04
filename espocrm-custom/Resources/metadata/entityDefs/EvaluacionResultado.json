@@ -38,18 +38,6 @@
             "isCustom": true,
             "audited": true
         },
-        "recomiendaNuevaGestion": {
-            "type": "bool",
-            "default": false,
-            "isCustom": true,
-            "audited": true
-        },
-        "recomiendaEscalamiento": {
-            "type": "bool",
-            "default": false,
-            "isCustom": true,
-            "audited": true
-        },
         "responsableTecnico": {
             "type": "link",
             "isCustom": true,
@@ -65,12 +53,7 @@
             "type": "enum",
             "options": [
                 "En preparación",
-                "Pendiente de soportes",
-                "Completa",
-                "Derivada a nueva gestión",
-                "Derivada a remisión",
-                "Derivada a valoración jurídica",
-                "Cerrada"
+                "Completada"
             ],
             "default": "En preparación",
             "isCustom": true,
@@ -132,6 +115,9 @@
     "collection": {
         "orderBy": "fecha",
         "order": "desc",
-        "textFilterFields": ["name", "resultadoTecnico"]
+        "textFilterFields": [
+            "name",
+            "resultadoTecnico"
+        ]
     }
 }

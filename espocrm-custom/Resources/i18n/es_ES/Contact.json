@@ -31,6 +31,14 @@
         "casosAsociados": "Casos"
     },
     "options": {
+        "cTipoDeDocumento": {
+            "CC": "Cédula de ciudadanía",
+            "CE": "Cédula de extranjería",
+            "Pasaporte": "Pasaporte",
+            "PPT": "Permiso por protección temporal (PPT)",
+            "NIT": "NIT",
+            "Otro": "Otro"
+        },
         "cCasoZonaAlcaldia": {
             "1": "01 · Las Vegas",
             "2": "02 · El Portal, San Marcos, Pontevedra, Jardines, Villagrande, Bosques de Zúñiga",

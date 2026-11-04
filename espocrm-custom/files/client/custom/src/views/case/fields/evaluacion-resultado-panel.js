@@ -16,6 +16,7 @@ define('custom:views/case/fields/evaluacion-resultado-panel', [
             Dep.prototype.setup.call(this);
 
             this.estado = null;
+            this.once('remove', () => { this._removed = true; });
 
             if (!this.model.id) {
                 return;
@@ -27,6 +28,7 @@ define('custom:views/case/fields/evaluacion-resultado-panel', [
         data: function () {
             const estado = this.estado || {};
             const lang = this.getLanguage();
+            const respuesta = value => value == null ? 'Sin registrar' : value ? 'Sí' : 'No';
 
             return {
                 showPanel: this.hayQueMostrar(),
@@ -38,8 +40,14 @@ define('custom:views/case/fields/evaluacion-resultado-panel', [
                     estadoLabel: lang.translateOption(e.estado, 'estado', 'EvaluacionResultado') || e.estado,
                     cuando: e.fecha ? this.getDateTime().toDisplayDate(e.fecha) : 'Sin fecha',
                     responsableName: e.responsableTecnicoName || 'Sin responsable técnico',
-                    isCurrent: !!e.abierta,
-                    canCompletar: !!e.abierta && !!e.puedeEditar,
+                    isCurrent: !e.completada,
+                    completada: !!e.completada,
+                    canCompletar: !e.completada && !!e.puedeEditar,
+                    pendienteOtroResponsable: !e.completada && !e.puedeEditar,
+                    resultadoTecnico: e.resultadoTecnico || 'Sin resultado técnico registrado.',
+                    informacionSuficiente: respuesta(e.informacionSuficiente),
+                    situacionResuelta: respuesta(e.situacionResuelta),
+                    observaciones: e.observaciones,
                 })),
             };
         },
@@ -74,7 +82,11 @@ define('custom:views/case/fields/evaluacion-resultado-panel', [
         },
 
         cargar: function () {
-            if (!this.model.id || this._cargando) {
+            if (!this.model.id || this._removed) {
+                return;
+            }
+            if (this._cargando) {
+                this._recargar = true;
                 return;
             }
 
@@ -82,17 +94,23 @@ define('custom:views/case/fields/evaluacion-resultado-panel', [
 
             Espo.Ajax.getRequest('Case/action/evaluacionesResultado', {id: this.model.id})
                 .then(estado => {
+                    if (this._removed || this._recargar) return;
                     this.estado = estado;
                     this.model.trigger('evaluaciones:updated', estado);
 
                     return this.reRender();
                 })
                 .catch(() => {
+                    if (this._removed || this._recargar) return;
                     this.estado = {};
                     this.$el.closest('.panel[data-name="evaluacionResultado"]').hide();
                 })
                 .finally(() => {
                     this._cargando = false;
+                    if (this._recargar && !this._removed) {
+                        this._recargar = false;
+                        this.cargar();
+                    }
                 });
         },
 
@@ -130,7 +148,6 @@ define('custom:views/case/fields/evaluacion-resultado-panel', [
 
         alGuardar: function () {
             this.model.fetch();
-            this.cargar();
         },
     });
 });

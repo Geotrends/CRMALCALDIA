@@ -6,8 +6,6 @@
         "resultadoTecnico": "Resultado técnico",
         "informacionSuficiente": "¿Información técnica/documental suficiente?",
         "situacionResuelta": "¿Situación técnicamente resuelta?",
-        "recomiendaNuevaGestion": "¿Recomienda nueva gestión técnica?",
-        "recomiendaEscalamiento": "¿Recomienda escalamiento a valoración jurídica?",
         "responsableTecnico": "Responsable técnico",
         "observaciones": "Observaciones",
         "estado": "Estado",
@@ -24,12 +22,7 @@
     "options": {
         "estado": {
             "En preparación": "En preparación",
-            "Pendiente de soportes": "Pendiente de soportes",
-            "Completa": "Completa",
-            "Derivada a nueva gestión": "Derivada a nueva gestión",
-            "Derivada a remisión": "Derivada a remisión",
-            "Derivada a valoración jurídica": "Derivada a valoración jurídica",
-            "Cerrada": "Cerrada"
+            "Completada": "Completada"
         }
     },
     "links": {

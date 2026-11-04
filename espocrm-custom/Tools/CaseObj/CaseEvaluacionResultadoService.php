@@ -4,6 +4,7 @@ namespace Espo\Custom\Tools\CaseObj;
 
 use Espo\Core\Acl;
 use Espo\Core\Utils\Log;
+use Espo\Custom\Tools\User\AlcaldiaUserProfile;
 use Espo\ORM\Entity;
 use Espo\ORM\EntityManager;
 
@@ -20,6 +21,8 @@ class CaseEvaluacionResultadoService
     /** Estados del caso posteriores a la revisión de hallazgos. */
     private const ESTADOS_POSTERIORES = [
         CaseActaVisitaHelper::STATUS_REVISION_HALLAZGOS,
+        CaseActaVisitaHelper::STATUS_REVISION_TECNICA,
+        CaseActaVisitaHelper::STATUS_REVISION_JURIDICA,
         CaseActaVisitaHelper::STATUS_VISITA_APROBADA,
         CaseCierreService::STATUS_PENDIENTE_RESPUESTA,
         'Remitido por competencia',
@@ -28,6 +31,7 @@ class CaseEvaluacionResultadoService
     public function __construct(
         private EntityManager $entityManager,
         private CaseRegistrosTramiteOrdinario $registros,
+        private AlcaldiaUserProfile $profile,
         private Log $log
     ) {}
 
@@ -74,17 +78,39 @@ class CaseEvaluacionResultadoService
      */
     public function valoresIniciales(Entity $case): array
     {
+        $inspector = $this->inspectorResponsable($case);
+
         return [
             'name' => self::nombre($this->siguienteNumero($case->getId()), (string) $case->get('cNumeroRadicado')),
             'caseId' => $case->getId(),
             'caseName' => $case->get('name'),
             'fecha' => date('Y-m-d'),
-            'responsableTecnicoId' => $case->get('assignedUserId'),
-            'responsableTecnicoName' => $case->get('assignedUserName'),
-            'assignedUserId' => $case->get('assignedUserId'),
-            'assignedUserName' => $case->get('assignedUserName'),
+            'responsableTecnicoId' => $inspector?->getId(),
+            'responsableTecnicoName' => $inspector?->get('name'),
+            'assignedUserId' => $inspector?->getId(),
+            'assignedUserName' => $inspector?->get('name'),
             'estado' => 'En preparación',
         ];
+    }
+
+    /**
+     * El inspector ambiental que hizo la visita (el de la última acta) o, si no hay, el asignado al
+     * caso: la evaluación la hace cualquier Inspector Ambiental (o un administrador); este solo es el responsable por defecto.
+     */
+    private function inspectorResponsable(Entity $case): ?Entity
+    {
+        $acta = CaseActaVisitaHelper::findLatestDiligenciadaActaForCase($this->entityManager, $case->getId());
+        $ids = array_values(array_filter([$acta?->get('assignedUserId'), $case->get('assignedUserId')]));
+
+        foreach ($ids as $id) {
+            $usuario = $this->entityManager->getEntityById('User', $id);
+
+            if ($usuario && $usuario->get('isActive') && $this->profile->isInspectorAmbiental($usuario)) {
+                return $usuario;
+            }
+        }
+
+        return $ids ? $this->entityManager->getEntityById('User', $ids[0]) : null;
     }
 
     /**
@@ -149,6 +175,11 @@ class CaseEvaluacionResultadoService
                 'responsableTecnicoName' => $e->get('responsableTecnicoName'),
                 'abierta' => in_array($e->get('estado'), self::ESTADOS_ABIERTA, true),
                 'puedeEditar' => $acl->checkEntityEdit($e),
+                'completada' => in_array($e->get('estado'), ['Completa', 'Completada', 'Cerrada'], true),
+                'resultadoTecnico' => $e->get('resultadoTecnico'),
+                'informacionSuficiente' => $e->get('informacionSuficiente'),
+                'situacionResuelta' => $e->get('situacionResuelta'),
+                'observaciones' => $e->get('observaciones'),
             ];
         }
 

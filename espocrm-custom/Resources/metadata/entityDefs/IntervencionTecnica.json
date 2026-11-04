@@ -35,14 +35,22 @@
             "type": "datetime",
             "isCustom": true
         },
+        "programacionVisita": {
+            "audited": true,
+            "type": "link",
+            "readOnly": true,
+            "isCustom": true
+        },
         "fechaProgramada": {
             "audited": true,
             "type": "date",
+            "readOnly": true,
             "isCustom": true
         },
         "fechaEjecucion": {
             "audited": true,
             "type": "date",
+            "readOnly": true,
             "isCustom": true
         },
         "responsable": {
@@ -54,11 +62,13 @@
             "audited": true,
             "type": "enum",
             "view": "custom:views/fields/estado-cierre",
+            "readOnly": true,
             "options": [
                 "Pendiente",
                 "Programada",
                 "En ejecución",
                 "Pendiente de soporte",
+                "En revisión técnica",
                 "Completa documentalmente",
                 "No realizada",
                 "Reprogramada",
@@ -98,7 +108,36 @@
             "isCustom": true
         },
         "informeTecnicoDocumento": {
+            "audited": true,
             "type": "file",
+            "accept": ["application/pdf", ".doc", ".docx"],
+            "isCustom": true
+        },
+        "avalTecnico": {
+            "audited": true,
+            "type": "bool",
+            "readOnly": true,
+            "default": false,
+            "isCustom": true
+        },
+        "avalTecnicoFecha": {
+            "audited": true,
+            "type": "date",
+            "readOnly": true,
+            "isCustom": true
+        },
+        "correccionSolicitada": {
+            "audited": true,
+            "type": "bool",
+            "readOnly": true,
+            "default": false,
+            "isCustom": true
+        },
+        "observacionesRevision": {
+            "audited": true,
+            "type": "text",
+            "rows": 3,
+            "readOnly": true,
             "isCustom": true
         },
         "anexos": {
@@ -133,6 +172,10 @@
         "responsable": {
             "type": "belongsTo",
             "entity": "User"
+        },
+        "programacionVisita": {
+            "type": "belongsTo",
+            "entity": "ProgramacionVisita"
         },
         "programacionesVisita": {
             "type": "hasMany",

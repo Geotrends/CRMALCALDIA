@@ -263,13 +263,29 @@ define('custom:helpers/case-create-form', [
         applyServerDefaults(recordView, cachedDefaults);
     };
 
+    const renderBottomSave = function (recordView) {
+        if (!recordView.model.isNew() || !recordView.$el || recordView.$el.find('.crm-case-create-footer').length) {
+            return;
+        }
+        const $save = recordView.$el.find('.button-container button[data-action="save"]').first();
+        const $grid = recordView.$el.find('.record-grid').first();
+        if (!$save.length || !$grid.length) return;
+
+        // Reutiliza la acción nativa, sus validaciones y el bloqueo durante el guardado.
+        const $footer = $('<div class="button-container crm-case-create-footer"></div>');
+        $footer.append($save.clone(false).removeAttr('id'));
+        $grid.after($footer);
+    };
+
     const schedule = function (recordView) {
+        renderBottomSave(recordView);
         hideDetailOnlyUi(recordView);
         applyCachedDefaults(recordView);
         renderPendingSolicitudValues(recordView);
 
         [100, 400, 1000].forEach(function (delay) {
             window.setTimeout(function () {
+                renderBottomSave(recordView);
                 hideDetailOnlyUi(recordView);
                 applyCachedDefaults(recordView);
                 applyGestionLinkDefaults(recordView);

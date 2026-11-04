@@ -209,6 +209,32 @@
             ],
             "audited": true
         },
+        "cTipoDocumentoPeticionario": {
+            "type": "enum",
+            "options": [
+                "Seleccione una opción",
+                "CC",
+                "CE",
+                "Pasaporte",
+                "PPT",
+                "NIT"
+            ],
+            "style": {
+                "Seleccione una opción": null,
+                "CC": null,
+                "CE": null,
+                "Pasaporte": null,
+                "PPT": null,
+                "NIT": null
+            },
+            "default": "Seleccione una opción",
+            "required": false,
+            "isCustom": true,
+            "suppressValidationList": [
+                "required"
+            ],
+            "audited": true
+        },
         "cNombrePeticionario": {
             "type": "varchar",
             "required": false,
@@ -615,6 +641,32 @@
             "options": [],
             "isCustom": true,
             "view": "custom:views/case/fields/documento-perjudicante",
+            "suppressValidationList": [
+                "required"
+            ],
+            "audited": true
+        },
+        "cTipoDocumentoPerjudicante": {
+            "type": "enum",
+            "options": [
+                "Seleccione una opción",
+                "CC",
+                "CE",
+                "Pasaporte",
+                "PPT",
+                "NIT"
+            ],
+            "style": {
+                "Seleccione una opción": null,
+                "CC": null,
+                "CE": null,
+                "Pasaporte": null,
+                "PPT": null,
+                "NIT": null
+            },
+            "default": "Seleccione una opción",
+            "required": false,
+            "isCustom": true,
             "suppressValidationList": [
                 "required"
             ],
@@ -1047,6 +1099,8 @@
                 "Radicado",
                 "Asignado",
                 "En gestión técnica",
+                "Revisión técnica",
+                "Revisión jurídica",
                 "Revisión de hallazgos",
                 "Pendiente de respuesta final",
                 "Remitido por competencia",
@@ -1059,6 +1113,8 @@
                 "Radicado": "caseRadicado",
                 "Asignado": "caseAsignado",
                 "En gestión técnica": "caseEnGestionTecnica",
+                "Revisión técnica": "caseVisitaAprobada",
+                "Revisión jurídica": "caseVisitaAprobada",
                 "Revisión de hallazgos": "caseVisitaAprobada",
                 "Pendiente de respuesta final": "caseVisitaAprobada",
                 "Remitido por competencia": "caseVisitaAprobada",

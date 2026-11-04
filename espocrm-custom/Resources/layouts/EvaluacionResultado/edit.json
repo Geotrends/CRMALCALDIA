@@ -14,10 +14,6 @@
                 {"name": "situacionResuelta"}
             ],
             [
-                {"name": "recomiendaNuevaGestion"},
-                {"name": "recomiendaEscalamiento"}
-            ],
-            [
                 {"name": "resultadoTecnico", "fullWidth": true}
             ],
             [

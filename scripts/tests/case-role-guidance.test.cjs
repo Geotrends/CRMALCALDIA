@@ -109,25 +109,25 @@ test('radicación consulta un caso histórico sin recibir instrucciones para cor
     assert.ok(!html.includes('ícono de lápiz'));
 });
 
-test('después de definir el trámite la evaluación pendiente corresponde al director o al profesional asignado', () => {
+test('después de definir el trámite la evaluación pendiente corresponde al Inspector Ambiental', () => {
     const cierre = {aplica: true, requisitos: [{key: 'evaluacionResultado', ok: false}, {key: 'respuestaFinal', ok: false}]};
     for (const status of ['Pendiente de respuesta final', 'Remitido por competencia']) {
         for (const role of ['tecnico', 'asignacion', 'inspeccion', 'radicacion']) {
             const html = banner(role, {status, assignedUserId: 'viewer', assignedUserName: 'Profesional Universitario'}, [], {cierre});
             assert.ok(html.includes('<dt>Siguiente acción</dt><dd>Evaluación de resultado</dd>'));
-            assert.ok(html.includes('<dt>A cargo de</dt><dd>Director Técnico o Profesional Universitario'));
+            assert.ok(html.includes('<dt>A cargo de</dt><dd>Inspector Ambiental'));
             assert.ok(!html.includes('<strong>Complete el cierre de la solicitud</strong>'));
         }
     }
 });
 
 test('el banner abierto deja de pedir evaluación cuando se actualiza la lista de cierre', async () => {
-    const current = liveBanner('asignacion', {status: 'Pendiente de respuesta final', assignedUserId: 'other'}, [], {
+    const current = liveBanner('inspeccion', {status: 'Pendiente de respuesta final', assignedUserId: 'other'}, [], {
         cierre: {aplica: true, requisitos: [{key: 'evaluacionResultado', ok: false}]},
     });
     current.setup();
     await flush();
-    assert.ok(current.html.includes('Registre la evaluación de resultado'));
+    assert.ok(current.html.includes('Complete la evaluación de resultado'));
     assert.ok(current.html.includes('(usted)'));
     current.model.emit('cierre:updated', {aplica: true, requisitos: [{key: 'evaluacionResultado', ok: true}]});
     assert.ok(!current.html.includes('<dd>Evaluación de resultado</dd>'));
@@ -181,13 +181,11 @@ test('la decisión de la primera acta no bloquea la revisión del acta complemen
     current.model.emit('visitas:updated', {programaciones: [first, second]});
     assert.ok(current.html.includes('<strong>Adjunte el acta de visita</strong>'));
 
-    const completed = {...second, actaId: 'acta-2', actaEstado: 'Diligenciada', actaFirmada: true, actaDecisionTramite: ''};
+    const completed = {...second, actaId: 'acta-2', actaEstado: 'Diligenciada', actaFirmada: true, actaDecisionTramite: '', intervencionId: 'it-2', informeId: 'informe-2'};
     current.model.emit('visitas:updated', {programaciones: [first, completed]});
-    assert.ok(current.html.includes('Hacer la revisión técnico-jurídica'));
-    assert.ok(current.html.includes('<dt>A cargo de</dt><dd>Inspector Ambiental</dd>'));
+    assert.ok(current.html.includes('Revisión técnica del acta de visita y el informe técnico'));
+    assert.ok(current.html.includes('<dt>A cargo de</dt><dd>Director Técnico</dd>'));
     assert.ok(!current.html.includes('Programe la visita complementaria'));
-    const inspector = banner('inspeccion', attributes, [first, completed]);
-    assert.ok(inspector.includes('<strong>Haga la revisión técnico-jurídica del acta</strong>'));
 
     // A further visit is required only when the newest acta is actually reviewed again.
     const reviewed = {...completed, actaRevisada: true, actaDecisionTramite: 'Visita complementaria'};
@@ -203,7 +201,7 @@ test('el valor predeterminado de decisión en un acta sin revisión no exige otr
         actaId: 'new-acta', actaEstado: 'Diligenciada', actaFirmada: true,
         actaDecisionTramite: 'Visita complementaria', actaRevisada: false,
     }]);
-    assert.ok(html.includes('Hacer la revisión técnico-jurídica'));
+    assert.ok(html.includes('Revisión técnica del acta de visita'));
     assert.ok(!html.includes('Programar la visita complementaria'));
 });
 
@@ -223,9 +221,13 @@ test('el banner abierto avanza de programación a acta y revisión sin cambiar e
     current.model.emit('visitas:updated', {programaciones: [visit]});
     assert.ok(current.html.includes('<strong>Adjunte el acta de visita</strong>'));
     assert.ok(!current.html.includes('<strong>Programe la visita</strong>'));
-    current.model.emit('visitas:updated', {programaciones: [{...visit, actaId: 'acta', actaEstado: 'Diligenciada', actaFirmada: true}]});
-    assert.ok(current.html.includes('<dt>A cargo de</dt><dd>Inspector Ambiental</dd>'));
-    assert.ok(current.html.includes('Hacer la revisión técnico-jurídica'));
+    const conActa = {...visit, actaId: 'acta', actaEstado: 'Diligenciada', actaFirmada: true, intervencionId: 'it'};
+    current.model.emit('visitas:updated', {programaciones: [conActa]});
+    assert.ok(current.html.includes('<dt>A cargo de</dt><dd>Director Técnico</dd>'));
+    assert.ok(!current.html.includes('Adjuntar el informe técnico diligenciado y firmado'));
+    current.model.emit('visitas:updated', {programaciones: [{...conActa, informeId: 'informe'}]});
+    assert.ok(current.html.includes('<dt>A cargo de</dt><dd>Director Técnico</dd>'));
+    assert.ok(current.html.includes('Revisión técnica del acta de visita y el informe técnico'));
     assert.ok(!current.html.includes('<strong>Adjunte el acta de visita</strong>'));
     current.view.emit('remove');
 });
@@ -238,7 +240,7 @@ test('una respuesta anterior no sobrescribe el acta recién cargada por el panel
     current.model.emit('visitas:updated', {programaciones: [{actaId: 'acta', actaEstado: 'Diligenciada', actaFirmada: true}]});
     stale.resolve({programaciones: []});
     await flush();
-    assert.ok(current.html.includes('Hacer la revisión técnico-jurídica'));
+    assert.ok(current.html.includes('Revisión técnica del acta de visita'));
     assert.ok(!current.html.includes('Programe la visita'));
     current.view.emit('remove');
 });
@@ -294,15 +296,15 @@ test('el panel comparte los datos nuevos y repite la consulta si se guarda mient
 test('revisada el acta, el siguiente paso es la evaluación de resultado', () => {
     const revisada = [{actaId: 'acta', actaEstado: 'Diligenciada', actaFirmada: true, actaRevisada: true}];
     const attributes = {status: 'Revisión de hallazgos', assignedUserId: 'owner', assignedUserName: 'Ana Pérez'};
-    const abierta = banner('tecnico', attributes, revisada, {userId: 'owner', visitas: {evaluaciones: [{abierta: true}]}});
+    const abierta = banner('inspeccion', attributes, revisada, {userId: 'owner', visitas: {evaluaciones: [{abierta: true}]}});
     const faltante = banner('tecnico', attributes, revisada, {visitas: {puedeRegistrarEvaluacion: true, evaluaciones: []}});
     const sinPaso = banner('tecnico', attributes, revisada);
 
     assert.ok(abierta.includes('<dt>Siguiente acción</dt><dd>Completar la evaluación de resultado'));
-    assert.ok(abierta.includes('<dt>A cargo de</dt><dd>Director Técnico o Ana Pérez'));
+    assert.ok(abierta.includes('<dt>A cargo de</dt><dd>Inspector Ambiental'));
     assert.ok(faltante.includes('<dt>Siguiente acción</dt><dd>Registrar la evaluación de resultado'));
-    assert.ok(abierta.includes('Complete la evaluación de resultado'));
-    assert.ok(!sinPaso.includes('Complete la evaluación de resultado'));
+    assert.ok(abierta.includes('Inspector Ambiental (usted)'));
+    assert.ok(!sinPaso.includes('<dd>Completar la evaluación de resultado'));
     assert.ok(sinPaso.includes('<dt>Siguiente acción</dt><dd>Hacer la revisión técnico-jurídica'));
 });
 
@@ -317,4 +319,31 @@ test('los nombres dinámicos se muestran como texto y el formulario nuevo no lle
     assert.ok(!html.includes('<img'));
     assert.ok(html.includes('&lt;img'));
     assert.equal(banner('receptor', {status: 'Radicado'}, [], {isNew: true}), '');
+});
+
+test('la revisión técnica es del Director Técnico y la jurídica del Apoyo Jurídico', () => {
+    const tecnica = {status: 'Revisión técnica', assignedUserId: 'otro'};
+    const juridica = {status: 'Revisión jurídica', assignedUserId: 'otro'};
+    const director = banner('asignacion', tecnica, []);
+    const apoyo = banner('juridica', juridica, []);
+
+    assert.ok(director.includes('<strong>Revise el acta de visita y el informe técnico</strong>'));
+    assert.ok(apoyo.includes('<strong>Decida si se abre actuación</strong>'));
+    // Cualquier otro rol ve quién tiene la tarea.
+    assert.ok(banner('tecnico', tecnica, []).includes('<dt>A cargo de</dt><dd>Director Técnico</dd>'));
+    assert.ok(banner('tecnico', juridica, []).includes('<dt>A cargo de</dt><dd>Apoyo Jurídico</dd>'));
+    // El Apoyo Jurídico no actúa en la etapa técnica ni el Director en la jurídica.
+    assert.ok(!banner('juridica', tecnica, []).includes('Revise el acta de visita y el informe técnico'));
+    assert.ok(!banner('asignacion', juridica, []).includes('Decida si se abre actuación'));
+});
+
+test('el informe es opcional, pero las correcciones explícitas siguen pendientes', () => {
+    const visita = {name: 'V1', esResponsable: true, responsableName: 'Ana', actaId: 'acta', actaEstado: 'Diligenciada', actaFirmada: true, intervencionId: 'it'};
+    const sinInforme = banner('tecnico', {status: 'En gestión técnica', assignedUserId: 'viewer'}, [visita]);
+    const correccion = banner('tecnico', {status: 'En gestión técnica', assignedUserId: 'viewer'}, [{...visita, informeId: 'inf', correccionSolicitada: true, observacionesRevision: 'Falta el análisis'}]);
+
+    assert.ok(sinInforme.includes('<dt>A cargo de</dt><dd>Director Técnico</dd>'));
+    assert.ok(!sinInforme.includes('Adjuntar el informe técnico diligenciado y firmado'));
+    assert.ok(correccion.includes('Atender las correcciones del Director Técnico'));
+    assert.ok(correccion.includes('Falta el análisis'));
 });

@@ -1,8 +1,7 @@
 define('custom:helpers/compact-form-sections', [], function () {
     const config = {
         solicitudInicial: {open: true, fields: ['cFechaCaso', 'cCanalDeReportePeticionario']},
-        peticionario: {open: false, fields: ['cNombrePeticionario', 'cApellidoPeticionario', 'cDocumentoPeticionario']},
-        direccionPeticionario: {open: false, fields: ['cDireccionPeticionario']},
+        peticionario: {open: false, fields: ['cNombrePeticionario', 'cApellidoPeticionario', 'cDocumentoPeticionario', 'cDireccionPeticionario']},
         detalleQueja: {open: false, fields: ['description']},
         perjudicante: {open: false, fields: ['cNombrePerjudicante', 'cApellidoPerjudicante', 'cDocumentoPerjudicante']},
         clasificacionSeguimiento: {open: false, fields: ['cRecursoTema', 'cFechaVencimiento']},
@@ -17,7 +16,7 @@ define('custom:helpers/compact-form-sections', [], function () {
         // Las visitas son la acción principal del responsable asignado; durante la gestión técnica
         // arranca abierto para quien pueda verlas (p. ej. el Inspector Ambiental).
         actaVisita: {open: false, openFn: view => view.model.get('assignedUserId') === view.getUser().id
-            || ['Asignado', 'En gestión técnica', 'Revisión de hallazgos'].includes(view.model.get('status')), fields: [], summary: 'Programación de visitas y actas'},
+            || ['Asignado', 'En gestión técnica', 'Revisión técnica', 'Revisión jurídica', 'Revisión de hallazgos'].includes(view.model.get('status')), fields: [], summary: 'Programación de visitas y actas'},
         // Abierta cuando ya terminaron las visitas y toca registrar el resultado.
         evaluacionResultado: {open: false, openFn: view => view.model.get('status') === 'Revisión de hallazgos', fields: [], summary: 'Resultado técnico de las visitas'},
         decisionJuridica: {open: false, fields: []},
@@ -30,13 +29,15 @@ define('custom:helpers/compact-form-sections', [], function () {
     };
     // Paso del flujo en el que está la solicitud: es el único panel que se abre por defecto al cargar el detalle
     // (la persona puede abrir varios después). Con expediente, la apertura o el proceso deciden por su cuenta.
-    const pasoActual = function (model) {
-        if (model.get('expedienteId') || model.get('cDecisionTramite') === 'Apertura de actuación') {
+    // El paso «Evaluación de resultado» es el cierre al que aún le falta la evaluación (lo informa la guía del banner).
+    const falta = view => !!view && ((view._crmCierreGuia || {}).requisitos || [])
+        .some(r => r.key === 'evaluacionResultado' && !r.ok);
+
+    const pasoActual = function (model, view) {
+        if ((model.get('expedienteId') || model.get('cDecisionTramite') === 'Apertura de actuación')
+            && String(model.get('status') || '').trim() !== 'Pendiente de respuesta final') {
             return 'expediente';
         }
-
-        const tramite = String(model.get('cDecisionTramite') || '').trim();
-        const decidido = tramite !== '' && tramite !== 'Seleccione una opción';
 
         switch (String(model.get('status') || '').trim()) {
             case 'Pendiente de radicacion': return 'radicacionCaso';
@@ -44,8 +45,10 @@ define('custom:helpers/compact-form-sections', [], function () {
             case 'Asignado':
             case 'Assigned':
             case 'En gestión técnica': return 'actaVisita';
-            case 'Revisión de hallazgos': return decidido ? 'evaluacionResultado' : 'decisionJuridica';
-            case 'Pendiente de respuesta final': return 'comunicacionesCasoPanel';
+            case 'Revisión técnica':
+            case 'Revisión jurídica': return 'decisionJuridica';
+            case 'Revisión de hallazgos': return 'decisionJuridica';
+            case 'Pendiente de respuesta final': return falta(view) ? 'evaluacionResultado' : 'comunicacionesCasoPanel';
             default: return 'caseTimeline';
         }
     };
@@ -61,7 +64,7 @@ define('custom:helpers/compact-form-sections', [], function () {
                     return original.openFn ? original.openFn(view) : original.open;
                 }
 
-                return pasoActual(view.model) === name;
+                return pasoActual(view.model, view) === name;
             },
         });
     });
@@ -91,12 +94,63 @@ define('custom:helpers/compact-form-sections', [], function () {
         );
     };
 
+    // Peticionario y perjudicante: sus campos se agrupan visualmente en tarjetas (identificación, contacto, dirección).
+    const GRUPOS_PARTES = {
+        peticionario: {
+            identificacion: ['cTipoPersonaPeticionario', 'cTipoDocumentoPeticionario', 'cDocumentoPeticionario', 'cNombrePeticionario', 'cApellidoPeticionario'],
+            contacto: ['cTelefonoPeticionario', 'cCorreoPeticionario', 'cCanalDeReportePeticionario'],
+        },
+        perjudicante: {
+            identificacion: ['cTipoPersonaPerjudicante', 'cTipoDocumentoPerjudicante', 'cDocumentoPerjudicante', 'cNombrePerjudicante', 'cApellidoPerjudicante'],
+            contacto: ['cTelefonoPerjudicante', 'cCorreoPerjudicante'],
+        },
+    };
+    const TITULOS_GRUPO = {identificacion: 'Identificación', contacto: 'Contacto', direccion: 'Dirección'};
+
+    // Solo marca las filas con clases (no cambia la estructura), así sobrevive a que Espo vuelva a pintar los campos.
+    const agruparPartes = function (view) {
+        Object.keys(GRUPOS_PARTES).forEach(function (panel) {
+            const $panel = findPanel(view, panel);
+
+            if (!$panel.length) return;
+
+            const grupos = GRUPOS_PARTES[panel];
+            let anterior = null;
+            const $filas = $panel.find('.panel-body .row').filter(function () {
+                return $(this).children('.cell').length > 0;
+            });
+
+            $filas.removeClass('crm-grupo crm-grupo--identificacion crm-grupo--contacto crm-grupo--direccion crm-grupo--inicio crm-grupo--fin').removeAttr('data-grupo');
+
+            $filas.each(function () {
+                const $fila = $(this);
+                const campos = $fila.children('.cell').map(function () { return this.getAttribute('data-name'); }).get();
+                const grupo = Object.keys(grupos).find(function (g) { return campos.some(function (c) { return grupos[g].indexOf(c) !== -1; }); }) || 'direccion';
+
+                $fila.addClass('crm-grupo crm-grupo--' + grupo);
+
+                if (grupo !== anterior) {
+                    $fila.addClass('crm-grupo--inicio').attr('data-grupo', TITULOS_GRUPO[grupo]);
+
+                    if (anterior !== null) {
+                        $fila.prev('.crm-grupo').addClass('crm-grupo--fin');
+                    }
+                }
+
+                anterior = grupo;
+            });
+
+            $filas.last().addClass('crm-grupo--fin');
+        });
+    };
+
     const enhance = function (view) {
         if (view.model && view.model.isNew()) {
             view.$el.addClass('crm-case-create-mode');
         }
 
         addCreateSteps(view);
+        agruparPartes(view);
 
         Object.keys(config).forEach(function (name) {
             const rule = config[name];
@@ -115,6 +169,15 @@ define('custom:helpers/compact-form-sections', [], function () {
                 $heading.attr('aria-expanded', open ? 'true' : 'false');
             };
             state(rule.openFn ? rule.openFn(view) : rule.open); update();
+            if (name === 'evaluacionResultado' || name === 'comunicacionesCasoPanel') {
+                // La guía del banner informa tarde si falta la evaluación: reajusta el panel que corresponde.
+                view.listenTo(view, 'crm:cierre-guia', () => state(pasoActual(view.model, view) === name));
+            }
+            if (name === 'decisionJuridica') {
+                view.listenTo(view.model, 'change:status', () => {
+                    if (pasoActual(view.model) === name) state(true);
+                });
+            }
             $heading.on('click.crmCompactSections', () => state($panel.hasClass('crm-form-section--collapsed')));
             $heading.on('keydown.crmCompactSections', event => {
                 if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); state($panel.hasClass('crm-form-section--collapsed')); }

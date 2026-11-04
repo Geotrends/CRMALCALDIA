@@ -142,3 +142,23 @@
   .detail[data-scope="Case"] .left .middle > .panel:not(.panel-caseTimeline):not(.panel-caseCronograma) > .panel-body > .row > .cell,
   .detail[data-scope="Case"] .left .bottom > .panel > .panel-body > .row > .cell { padding: 11px 14px; }
 }
+
+/* Peticionario y perjudicante: identificación, contacto y dirección como tarjetas separadas.
+   Contraste suave: fondo apenas distinto del de la página, borde fino y título discreto.
+   Ojo: el ::after de .row es el «clearfix» de Bootstrap (contiene las celdas flotantes); no se puede usar para decorar. */
+[data-scope="Case"] .panel .crm-grupo { background: var(--crm-bg-elevated); border-left: 1px solid var(--crm-border); border-right: 1px solid var(--crm-border); margin: 0 !important; padding: 2px 16px; position: relative; }
+[data-scope="Case"] .panel .crm-grupo--inicio { border-top: 1px solid var(--crm-border); border-top-left-radius: var(--crm-radius-lg, 10px); border-top-right-radius: var(--crm-radius-lg, 10px); margin-top: 16px !important; padding-top: 44px; }
+[data-scope="Case"] .panel .crm-grupo--inicio::before { border-bottom: 1px solid var(--crm-border); color: var(--crm-text-secondary); content: attr(data-grupo); display: block; font-size: 12px; font-weight: 600; left: 16px; letter-spacing: .02em; padding-bottom: 6px; position: absolute; right: 16px; top: 9px; }
+[data-scope="Case"] .panel .crm-grupo--fin { border-bottom: 1px solid var(--crm-border); border-bottom-left-radius: var(--crm-radius-lg, 10px); border-bottom-right-radius: var(--crm-radius-lg, 10px); padding-bottom: 8px; }
+[data-scope="Case"] .panel .crm-grupo .form-control, [data-scope="Case"] .panel .crm-grupo .selectize-input { background-color: var(--crm-surface); }
+[data-scope="Case"] .panel .crm-grupo:not(:has(.cell:not([style*="display: none"]))) { display: none; }
+
+/* En la visualización (detalle) las tarjetas van sobre blanco; el fondo gris suave queda para el formulario. */
+.detail[data-scope="Case"] .panel .crm-grupo { background: var(--crm-surface); }
+
+/* Detalle: sin tarjetas; los campos se ven como los del resto de la solicitud y solo queda el título con su línea divisoria. */
+.detail[data-scope="Case"] .panel .crm-grupo { background: transparent; border: 0; border-radius: 0; padding: 0 16px; }
+.detail[data-scope="Case"] .panel .crm-grupo--inicio { border-radius: 0; margin-top: 12px !important; padding-top: 44px; }
+.detail[data-scope="Case"] .panel .crm-grupo--inicio:first-child, .detail[data-scope="Case"] .panel .panel-body > .crm-grupo--inicio:first-of-type { margin-top: 0 !important; }
+.detail[data-scope="Case"] .panel .crm-grupo--fin { border-radius: 0; padding-bottom: 0; }
+.detail[data-scope="Case"] .panel .crm-grupo--inicio::before { left: 15px; right: 15px; }

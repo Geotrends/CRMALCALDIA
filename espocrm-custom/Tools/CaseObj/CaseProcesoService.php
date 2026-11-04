@@ -54,13 +54,14 @@ class CaseProcesoService
         private EntityManager $entityManager,
         private AlcaldiaUserProfile $profile,
         private AlertaProcesoNotifier $alertaNotifier,
-        Metadata $metadata
+        Metadata $metadata,
+        CaseEvaluacionResultadoService $evaluaciones
     ) {
         $this->lectura = new CaseProcesoLectura($entityManager);
         $this->formatos = new ProcesoFormatoGenerator($entityManager);
         $this->decision = new CaseDecisionService($entityManager, $metadata, $this->formatos, $this);
         $this->cumplimiento = new CaseCumplimientoService($entityManager, $metadata, $this, $this->formatos);
-        $this->archivo = new CaseArchivoService($entityManager, $this->formatos, $this, $this->cumplimiento);
+        $this->archivo = new CaseArchivoService($entityManager, $this->formatos, $this, $this->cumplimiento, $evaluaciones);
     }
 
     /* ─────────────────────────── consulta ─────────────────────────── */
