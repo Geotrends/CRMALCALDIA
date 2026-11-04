@@ -87,7 +87,7 @@ class CaseExpedienteGuidance
         if ($this->lectura->archivado($expediente)) {
             $respuesta = $this->entityManager->getRDBRepository('ComunicacionCaso')
                 ->where(['caseId' => $case->getId(), 'esRespuestaFinal' => true])->findOne();
-            return $respuesta
+            return $respuesta && in_array((string) $case->get('status'), CaseVencimientoHelper::ESTADOS_FIN, true)
                 ? $paso('Expediente archivado · Solicitud finalizada', 'Ninguna: expediente archivado y respuesta final registrada', 'Sin acciones pendientes', false)
                 : $paso('Expediente archivado · Respuesta final pendiente de registrar', 'Registrar la respuesta final al peticionario en Comunicaciones', 'Inspección', $inspeccion);
         }

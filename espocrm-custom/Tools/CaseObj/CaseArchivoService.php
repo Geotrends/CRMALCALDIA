@@ -28,7 +28,8 @@ class CaseArchivoService
         private EntityManager $entityManager,
         private ProcesoFormatoGenerator $formatos,
         private CaseProcesoService $proceso,
-        private CaseCumplimientoService $cumplimiento
+        private CaseCumplimientoService $cumplimiento,
+        private CaseEvaluacionResultadoService $evaluaciones
     ) {
         $this->lectura = new CaseProcesoLectura($entityManager);
     }
@@ -157,39 +158,35 @@ class CaseArchivoService
         ]);
         $this->entityManager->saveEntity($expediente);
 
-        $casos = $this->finalizarCasos($expediente);
+        $casos = $this->pasarARespuestaFinal($expediente);
 
         $this->proceso->nota($case, 'Cargó el Auto de Archivo firmado: expediente ' . $expediente->get('numero') . ' archivado.');
         $this->proceso->avisar($case, $user, $expediente, 'Expediente archivado',
             'archivó el expediente ' . $expediente->get('numero'),
-            ($casos > 1 ? 'Los ' . $casos . ' casos vinculados quedaron finalizados' : 'El caso quedó finalizado') . '; puede registrar la respuesta al peticionario en Comunicaciones.',
+            ($casos > 1 ? 'Los ' . $casos . ' casos vinculados pasaron' : 'El caso pasó') . ' a la evaluación de resultado y luego a la respuesta final al peticionario.',
             'proceso.archivo.' . $expediente->getId());
 
         return ['success' => true, 'casos' => $casos];
     }
 
     /**
-     * Con el expediente archivado, sus casos quedan finalizados. Las comunicaciones
-     * (p. ej. la respuesta al peticionario) se pueden registrar después.
+     * Con el expediente archivado, sus casos siguen el cierre de cualquier solicitud: primero la
+     * evaluación de resultado y luego la respuesta final al peticionario, que los finaliza.
      */
-    public function finalizarCasos(Entity $expediente): int
+    public function pasarARespuestaFinal(Entity $expediente): int
     {
         $casos = 0;
 
         foreach ($this->entityManager->getRDBRepository('Case')->where(['expedienteId' => $expediente->getId()])->find() as $c) {
-            if (in_array((string) $c->get('status'), CaseVencimientoHelper::ESTADOS_FIN, true)) {
+            if (in_array((string) $c->get('status'), CaseVencimientoHelper::ESTADOS_FIN, true)
+                || (string) $c->get('status') === CaseCierreService::STATUS_PENDIENTE_RESPUESTA) {
                 continue;
             }
 
-            $c->set('status', CaseCierreService::STATUS_FINALIZADO);
-            // Llegaron al expediente por la definición de trámite, que ya exigió los registros del trámite ordinario.
-            $this->entityManager->saveEntity($c, [
-                'skipAsignadorLimit' => true,
-                'skipPartyValidation' => true,
-                CaseRegistrosTramiteOrdinario::SKIP_OPTION => true,
-            ]);
-            $this->proceso->nota($c, 'Caso finalizado por el archivo del expediente ' . $expediente->get('numero')
-                . '. Se pueden seguir registrando comunicaciones, como la respuesta al peticionario.');
+            $c->set('status', CaseCierreService::STATUS_PENDIENTE_RESPUESTA);
+            $this->entityManager->saveEntity($c, ['skipAsignadorLimit' => true, 'skipPartyValidation' => true]);
+            $this->evaluaciones->crearAutomatica($c);
+            $this->proceso->nota($c, 'Expediente ' . $expediente->get('numero') . ' archivado: el caso pasa a la evaluación de resultado y luego a la respuesta final al peticionario.');
             $casos++;
         }
 

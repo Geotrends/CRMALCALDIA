@@ -12,10 +12,6 @@
             [
                 {"name": "informacionSuficiente"},
                 {"name": "situacionResuelta"}
-            ],
-            [
-                {"name": "recomiendaNuevaGestion"},
-                {"name": "recomiendaEscalamiento"}
             ]
         ],
         "style": "default",

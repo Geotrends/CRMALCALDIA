@@ -11,11 +11,14 @@ use Espo\ORM\EntityManager;
  * remite completa sin gestión técnica) debe tener gestión técnica, intervención técnica,
  * programación de visita y acta de visita antes de definir el trámite.
  * La evaluación de resultado corresponde a una etapa posterior: se exige para el cierre y solo
- * cuenta cuando está en estado «Cerrada», no apenas se crea.
+ * cuenta cuando está en estado «Completada», no apenas se crea.
  */
 class CaseRegistrosTramiteOrdinario
 {
     /** Opción de guardado para pasar a estado final sin esta validación (archivo de expediente). */
+    /** Estados con que cuenta la evaluación («Cerrada» es el valor anterior a «Completada»). */
+    private const ESTADOS_COMPLETADA = ['Completada', 'Cerrada'];
+
     public const SKIP_OPTION = 'skipRegistrosTramiteOrdinario';
 
     public function __construct(
@@ -48,7 +51,7 @@ class CaseRegistrosTramiteOrdinario
         ];
 
         if ($incluirEvaluacion) {
-            $registros['evaluacionResultado'] = ['Evaluación de resultado', $this->ids('EvaluacionResultado', ['caseId' => $case->getId(), 'estado' => 'Cerrada']) !== []];
+            $registros['evaluacionResultado'] = ['Evaluación de resultado', $this->ids('EvaluacionResultado', ['caseId' => $case->getId(), 'estado' => self::ESTADOS_COMPLETADA]) !== []];
         }
 
         $requisitos = [];

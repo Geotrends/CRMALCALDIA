@@ -1,0 +1,99 @@
+.crm-intervencion-modal .crm-intervencion-adjunto {
+  background: #f7faf9;
+  border: 1px solid #d7e5df;
+  border-radius: 12px;
+  padding: 18px !important;
+  min-height: 170px;
+}
+
+.crm-intervencion-modal .crm-intervencion-adjunto > .control-label {
+  color: #234b40;
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.crm-intervencion-modal .crm-intervencion-adjunto__ayuda {
+  color: #546c64;
+  font-size: 12px;
+  line-height: 1.5;
+  margin: 0 0 14px;
+  min-height: 36px;
+}
+
+.crm-intervencion-modal .crm-intervencion-adjunto .attach-file-label {
+  align-items: center;
+  background: #fff;
+  border: 1px solid #82ac9c;
+  border-radius: 8px;
+  color: #245a47;
+  cursor: pointer;
+  display: inline-flex;
+  gap: 6px;
+  margin: 0;
+  min-height: 40px;
+  padding: 2px 14px 2px 4px;
+  width: auto !important;
+  max-width: 100%;
+  overflow: visible;
+  white-space: nowrap;
+}
+
+.crm-intervencion-modal .crm-intervencion-adjunto .attach-file-label:hover {
+  background: #eaf5ef;
+  border-color: #317657;
+}
+
+.crm-intervencion-modal .crm-intervencion-adjunto .attach-file-label:focus-visible {
+  outline: 3px solid #a9ccbe;
+  outline-offset: 3px;
+}
+
+.crm-intervencion-modal .crm-intervencion-adjunto .attach-file-label > .btn {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  color: inherit !important;
+}
+
+.crm-intervencion-modal .cell[data-name="informeTecnicoDocumento"] .attach-file-label::after {
+  content: 'Adjuntar informe';
+  font-size: 13px;
+  font-weight: 600;
+  position: static;
+  flex-shrink: 0;
+}
+
+.crm-intervencion-modal .cell[data-name="anexos"] .attach-file-label::after {
+  content: 'Añadir anexos';
+  font-size: 13px;
+  font-weight: 600;
+  position: static;
+  flex-shrink: 0;
+}
+
+.crm-intervencion-modal .crm-intervencion-adjunto .attachment-control {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.crm-intervencion-modal .crm-intervencion-adjunto :is(.attachment, .attachments):not(:empty) {
+  background: #fff;
+  border: 1px solid #d7e5df;
+  border-radius: 8px;
+  margin-top: 12px;
+  padding: 10px;
+  overflow-wrap: anywhere;
+}
+
+@media (min-width: 768px) {
+  .crm-intervencion-modal .crm-intervencion-adjunto:first-child { border-right-width: 4px; border-right-color: #fff; }
+  .crm-intervencion-modal .crm-intervencion-adjunto:last-child { border-left-width: 4px; border-left-color: #fff; }
+}
+
+@media (max-width: 767px) {
+  .crm-intervencion-modal .crm-intervencion-adjunto { min-height: 0; margin-bottom: 12px; }
+  .crm-intervencion-modal .crm-intervencion-adjunto__ayuda { min-height: 0; }
+}

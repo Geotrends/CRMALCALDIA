@@ -11,6 +11,9 @@
                 {"name": "responsable"}
             ],
             [
+                {"name": "programacionVisita", "fullWidth": true}
+            ],
+            [
                 {"name": "fechaSolicitud"},
                 {"name": "fechaProgramada"}
             ],

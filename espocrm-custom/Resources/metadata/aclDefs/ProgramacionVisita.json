@@ -1,3 +1,4 @@
 {
-    "ownershipCheckerClassName": "Espo\\Custom\\Classes\\Acl\\ProgramacionVisita\\OwnershipChecker"
+    "ownershipCheckerClassName": "Espo\\Custom\\Classes\\Acl\\ProgramacionVisita\\OwnershipChecker",
+    "accessCheckerClassName": "Espo\\Custom\\Classes\\Acl\\Technical\\AccessChecker"
 }

@@ -5,6 +5,8 @@ define('custom:helpers/acta-visita-case-status', [
 
     const POST_VISITA_STATUSES = [
         'En gestión técnica',
+        'Revisión técnica',
+        'Revisión jurídica',
         'Revisión de hallazgos',
         'Finalizado',
         'Proceso cerrado',
@@ -334,7 +336,7 @@ define('custom:helpers/acta-visita-case-status', [
             return false;
         }
 
-        return ['Asignado', 'Assigned', 'En gestión técnica', 'Revisión de hallazgos'].indexOf(status) !== -1;
+        return ['Asignado', 'Assigned', 'En gestión técnica', 'Revisión técnica', 'Revisión jurídica', 'Revisión de hallazgos'].indexOf(status) !== -1;
     };
 
     const ACTA_SELECT = [

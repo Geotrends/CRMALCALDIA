@@ -2,9 +2,12 @@ define('custom:helpers/case-role-guidance', [
     'custom:helpers/radicacion-fields',
 ], function (RadicacionFields) {
 
-    const ESTADOS_VISITA = ['Asignado', 'En gestión técnica', 'Revisión de hallazgos'];
+    const ESTADOS_VISITA = ['Asignado', 'En gestión técnica', 'Revisión técnica', 'Revisión jurídica', 'Revisión de hallazgos'];
     const ESTADOS_CIERRE = ['Pendiente de respuesta final', 'Remitido por competencia'];
-    const tieneExpediente = view => !!view.model.get('expedienteId') || view.model.get('cDecisionTramite') === 'Apertura de actuación';
+    // Con el expediente archivado el caso sigue el cierre de cualquier solicitud (evaluación de resultado y
+    // respuesta final): ya no se guía por el expediente.
+    const tieneExpediente = view => (!!view.model.get('expedienteId') || view.model.get('cDecisionTramite') === 'Apertura de actuación')
+        && !ESTADOS_CIERRE.includes(view.model.get('status'));
     const faltaEvaluacion = view => ((view._crmCierreGuia || {}).requisitos || [])
         .some(r => r.key === 'evaluacionResultado' && !r.ok);
 
@@ -40,17 +43,25 @@ define('custom:helpers/case-role-guidance', [
         // El servidor ordena las programaciones por creación. Una decisión de una visita
         // anterior no debe volver a pedir programación después de registrar la siguiente.
         const ultima = programaciones[programaciones.length - 1];
-        const complementaria = !!(ultima && ultima.actaId && ultima.actaRevisada
+        // Otra visita: la decisión legada «Visita complementaria» o la nueva visita pedida por el
+        // Director Técnico (la visita anterior ya quedó avalada y el caso volvió a gestión técnica).
+        const status = view.model.get('status');
+        const nuevaVisita = !!(ultima && ultima.avalTecnico && ['Asignado', 'En gestión técnica'].includes(status));
+        const complementaria = nuevaVisita || !!(ultima && ultima.actaId && ultima.actaRevisada
             && ultima.actaDecisionTramite === 'Visita complementaria');
+        // El informe es opcional; solo una solicitud explícita de correcciones bloquea el avance.
+        const pendienteInforme = programaciones.find(p => p.intervencionId && !p.avalTecnico
+            && p.actaId && p.actaEstado !== 'Pendiente' && p.correccionSolicitada);
 
-        return {programaciones, pendiente, complementaria};
+        return {programaciones, pendiente, complementaria, pendienteInforme};
     };
 
     // Con el acta registrada y sin otra visita pendiente, el siguiente paso es la revisión técnico-jurídica.
     const enRevision = function (view) {
         const {programaciones, pendiente, complementaria} = getAvanceVisitas(view);
 
-        return estadoVisita(view) && programaciones.length > 0 && !pendiente && !complementaria;
+        return view.model.get('status') === 'Revisión de hallazgos'
+            && programaciones.length > 0 && !pendiente && !complementaria;
     };
 
     const getEtapa = function (view) {
@@ -79,6 +90,14 @@ define('custom:helpers/case-role-guidance', [
                 ? 'Asignar la solicitud a un responsable'
                 : 'Revisar la competencia y asignar la solicitud';
             etapa.mio = !admin && RadicacionFields.isAsignadorUser(user);
+        } else if (status === 'Revisión técnica') {
+            etapa.actor = 'Director Técnico';
+            etapa.accion = 'Revisar el acta de visita y el informe técnico, y decidir: nueva visita, correcciones, revisión jurídica o remisión por competencia';
+            etapa.mio = !admin && RadicacionFields.isAsignadorUser(user);
+        } else if (status === 'Revisión jurídica') {
+            etapa.actor = 'Apoyo Jurídico';
+            etapa.accion = 'Decidir si se abre actuación o no (dejando sus observaciones)';
+            etapa.mio = !admin && RadicacionFields.isJuridicaUser(user);
         } else if (estadoVisita(view)) {
             const visitas = view._crmVisitasGuia;
             if (!visitas) {
@@ -89,7 +108,7 @@ define('custom:helpers/case-role-guidance', [
 
                 return etapa;
             }
-            const {programaciones, pendiente, complementaria} = getAvanceVisitas(view);
+            const {programaciones, pendiente, complementaria, pendienteInforme} = getAvanceVisitas(view);
             const hayActa = programaciones.length > 0 && !pendiente;
             // El servidor exige el acta firmada para registrar la revisión técnico-jurídica.
             const sinFirma = pendiente && pendiente.actaId && pendiente.actaEstado !== 'Pendiente' && pendiente.actaFirmada === false;
@@ -100,13 +119,23 @@ define('custom:helpers/case-role-guidance', [
             // Revisada el acta y definido el trámite, el siguiente paso es la evaluación de resultado.
             if (hayActa && !complementaria && ultima.actaRevisada && status === 'Revisión de hallazgos'
                 && (visitas.puedeRegistrarEvaluacion || evaluaciones.some(e => e.abierta))) {
-                etapa.actor = 'Director Técnico o ' + responsable;
+                etapa.actor = 'Inspector Ambiental';
                 etapa.accion = evaluaciones.some(e => e.abierta) ? 'Completar la evaluación de resultado' : 'Registrar la evaluación de resultado';
-                etapa.mio = !admin && (esResponsable || RadicacionFields.isAsignadorUser(user));
-            } else if (hayActa && !complementaria && !sinFirma) {
+                etapa.mio = !admin && RadicacionFields.isInspectorAmbientalUser(user);
+            } else if (hayActa && !complementaria && !sinFirma && pendienteInforme) {
+                etapa.actor = pendienteInforme.responsableName || responsable;
+                etapa.accion = pendienteInforme.correccionSolicitada
+                    ? 'Atender las correcciones del Director Técnico (informe técnico o acta) y volver a adjuntar'
+                    : 'Adjuntar el informe técnico diligenciado y firmado';
+                etapa.mio = !admin && (pendienteInforme.esResponsable || esResponsable);
+            } else if (hayActa && !complementaria && !sinFirma && status === 'Revisión de hallazgos') {
                 etapa.actor = 'Inspector Ambiental';
                 etapa.accion = 'Hacer la revisión técnico-jurídica del acta y definir el trámite';
                 etapa.mio = puedeRevisar(view);
+            } else if (hayActa && !complementaria && !sinFirma) {
+                etapa.actor = 'Director Técnico';
+                etapa.accion = 'Revisión técnica del acta de visita y el informe técnico';
+                etapa.mio = !admin && RadicacionFields.isAsignadorUser(user);
             } else {
                 const quien = pendiente && pendiente.responsableName ? pendiente.responsableName : responsable;
 
@@ -125,9 +154,9 @@ define('custom:helpers/case-role-guidance', [
                 return etapa;
             }
             if (faltaEvaluacion(view)) {
-                etapa.actor = 'Director Técnico o ' + (model.get('assignedUserName') || 'profesional asignado');
+                etapa.actor = 'Inspector Ambiental';
                 etapa.accion = 'Evaluación de resultado';
-                etapa.mio = !admin && (esResponsable || RadicacionFields.isAsignadorUser(user));
+                etapa.mio = !admin && RadicacionFields.isInspectorAmbientalUser(user);
                 return etapa;
             }
             etapa.actor = responsable;
@@ -150,16 +179,23 @@ define('custom:helpers/case-role-guidance', [
             return null;
         }
 
-        const {programaciones, pendiente, complementaria} = getAvanceVisitas(view);
+        const {programaciones, pendiente, complementaria, pendienteInforme} = getAvanceVisitas(view);
         const ultima = programaciones[programaciones.length - 1];
-        // Revisada el acta y definido el trámite, sigue la evaluación de resultado.
+        const status = view.model.get('status');
+        const actaOk = programaciones.length > 0 && !pendiente && !complementaria;
+        const informeOk = actaOk && !pendienteInforme;
+        // Avalada la visita por el Director Técnico, la solicitud pasa al Apoyo Jurídico.
+        const tecnicaOk = informeOk && (!!(ultima && ultima.avalTecnico) || status === 'Revisión de hallazgos');
+        // Revisada la visita y definido el trámite, sigue la evaluación de resultado.
         const revisada = !!(ultima && ultima.actaRevisada) && !pendiente && !complementaria
-            && view.model.get('status') === 'Revisión de hallazgos'
+            && status === 'Revisión de hallazgos'
             && (visitas.puedeRegistrarEvaluacion || (visitas.evaluaciones || []).some(e => e.abierta));
         const pasos = [
             {label: 'Programar la visita', ok: programaciones.length > 0 && !complementaria},
-            {label: 'Adjuntar el acta de visita', ok: programaciones.length > 0 && !pendiente && !complementaria},
-            {label: 'Revisión técnico-jurídica (Inspector Ambiental)', ok: revisada},
+            {label: 'Adjuntar el acta de visita', ok: actaOk},
+            {label: 'Informe técnico (opcional)', ok: informeOk},
+            {label: 'Revisión técnica (Director Técnico)', ok: tecnicaOk},
+            {label: 'Revisión jurídica (Apoyo Jurídico)', ok: status === 'Revisión de hallazgos' || revisada},
         ];
 
         if (revisada) {
@@ -167,15 +203,24 @@ define('custom:helpers/case-role-guidance', [
         }
 
         const actual = pasos.findIndex(p => !p.ok);
+
+        if (actual === -1) {
+            return null;
+        }
+
         const textos = [
             [complementaria ? 'Programe la visita complementaria' : 'Programe la visita', 'En el panel Visitas seleccione «Programar visita». Confirme la fecha y la hora, o asigne la visita a otra persona.'],
             pendiente && pendiente.actaId && pendiente.actaEstado === 'Pendiente'
-                ? ['Complete el acta de visita', 'En el panel Visitas, en ' + pendiente.name + ', seleccione «Completar acta de visita» y registre los hallazgos.']
+                ? ['Complete el acta de visita', 'En el panel Visitas, en la tarjeta «Acta de visita» de ' + pendiente.name + ', seleccione «Completar acta de visita» y registre los hallazgos.']
                 : pendiente && pendiente.actaId && pendiente.actaFirmada === false
-                ? ['Adjunte el acta de visita firmada', 'Abra el acta de la visita ' + pendiente.name + ' y adjunte el documento firmado para continuar con la revisión técnico-jurídica.']
-                : ['Adjunte el acta de visita', 'En el panel Visitas, en ' + (pendiente ? pendiente.name : 'la visita programada') + ', descargue el acta en blanco para llevarla a campo y, después de la visita, seleccione «Adjuntar acta de visita». El formulario trae los datos de la solicitud y de la visita.'],
-            ['Espere la revisión técnico-jurídica', 'El Inspector Ambiental revisa los hallazgos del acta y define si hace falta otra visita o si con esta se cierra. Si pide otra visita, prográmela desde el panel Visitas.'],
-            ['Complete la evaluación de resultado', 'En el panel «Evaluación de resultado» registre el resultado técnico de las visitas.'],
+                ? ['Adjunte el acta de visita firmada', 'Abra el acta de la visita ' + pendiente.name + ' y adjunte el documento firmado para continuar con la revisión.']
+                : ['Adjunte el acta de visita', 'En el panel Visitas, en la tarjeta «Acta de visita» de ' + (pendiente ? pendiente.name : 'la visita programada') + ', descargue el acta en blanco para llevarla a campo y, después de la visita, seleccione «Adjuntar acta diligenciada».'],
+            pendienteInforme && pendienteInforme.correccionSolicitada
+                ? ['Atienda las correcciones del Director Técnico', 'En el panel Visitas, tarjeta «Informe técnico» de ' + pendienteInforme.name + ', corrija el informe (o el acta) y vuelva a adjuntarlo. ' + (pendienteInforme.observacionesRevision || '')]
+                : ['Adjunte el informe técnico', 'En el panel Visitas, tarjeta «Informe técnico» de ' + (pendienteInforme ? pendienteInforme.name : 'la visita') + ', descargue la plantilla, diligéncielo y fírmelo, y adjúntelo. Con el acta y el informe, el Director Técnico inicia la revisión.'],
+            ['Espere la revisión técnica', 'El Director Técnico revisa el acta y el informe técnico. Puede pedir correcciones, otra visita, enviar a revisión jurídica o remitir por competencia.'],
+            ['Espere la revisión jurídica', 'El Apoyo Jurídico decide si el caso necesita la apertura de una actuación.'],
+            ['Complete la evaluación de resultado', 'Un Inspector Ambiental registra el resultado técnico en el panel «Evaluación de resultado» y la marca como «Completada».'],
         ];
 
         return {
@@ -274,6 +319,7 @@ define('custom:helpers/case-role-guidance', [
         Espo.Ajax.getRequest('Case/action/cierreEstado', {id: view.model.id}).then(estado => {
             if (view._crmGuidanceRemoved || revision !== (view._crmCierreRevision || 0)) return;
             view._crmCierreGuia = estado;
+            if (typeof view.trigger === 'function') { view.trigger('crm:cierre-guia'); }
             render(view);
         }).catch(() => {
             if (view._crmGuidanceRemoved || revision !== (view._crmCierreRevision || 0)) return;
@@ -297,13 +343,25 @@ define('custom:helpers/case-role-guidance', [
         const isAssigned = Boolean(view.model.get('assignedUserId'));
 
         if (ESTADOS_CIERRE.includes(view.model.get('status')) && faltaEvaluacion(view)) {
-            return {
-                role: 'responsable',
-                eyebrow: 'Siguiente paso · Evaluación de resultado',
-                icon: 'fas fa-clipboard-check',
-                title: 'Registre la evaluación de resultado',
-                text: 'La evaluación se crea sola al terminar las visitas: el Director Técnico o el profesional asignado la completa desde el panel «Evaluación de resultado» (o la añade allí si falta) y no cuenta como lista hasta que su estado sea «Cerrada». Después, continúe con los requisitos del cierre.',
-            };
+            if (RadicacionFields.isInspectorAmbientalUser(user)) {
+                return {
+                    role: 'responsable',
+                    eyebrow: 'Acción requerida · Evaluación de resultado',
+                    icon: 'fas fa-clipboard-check',
+                    title: 'Complete la evaluación de resultado',
+                    text: 'En el panel «Evaluación de resultado» registre el resultado técnico y marque la evaluación como «Completada». Después se registra la respuesta final al peticionario.',
+                };
+            }
+
+            if (!RadicacionFields.isAdminUser(user)) {
+                return {
+                    role: 'seguimiento',
+                    eyebrow: 'Seguimiento · Evaluación de resultado',
+                    icon: 'fas fa-clipboard-check',
+                    title: 'Evaluación de resultado pendiente',
+                    text: 'Le corresponde a un Inspector Ambiental completarla; después se registra la respuesta final. Usted puede consultar la solicitud y su historia.',
+                };
+            }
         }
 
         if (RadicacionFields.isAdminUser(user)) {
@@ -312,6 +370,26 @@ define('custom:helpers/case-role-guidance', [
                 eyebrow: 'Acción requerida · Gestión del caso',
                 title: 'Administre el caso y controle su trazabilidad',
                 text: 'Puede corregir o actualizar cualquier dato del caso. Verifique la información, el término de respuesta y la etapa actual; toda modificación queda registrada en la Historia.',
+            };
+        }
+
+        if (view.model.get('status') === 'Revisión técnica' && RadicacionFields.isAsignadorUser(user)) {
+            return {
+                role: 'asignacion',
+                eyebrow: 'Acción requerida · Revisión técnica',
+                icon: 'fas fa-scale-balanced',
+                title: 'Revise el acta de visita y el informe técnico',
+                text: 'En el panel «Revisión técnico-jurídica» decida: solicitar una nueva visita, pedir correcciones, enviar a revisión jurídica (con un comentario) o remitir por competencia.',
+            };
+        }
+
+        if (view.model.get('status') === 'Revisión jurídica' && RadicacionFields.isJuridicaUser(user)) {
+            return {
+                role: 'juridica',
+                eyebrow: 'Acción requerida · Revisión jurídica',
+                icon: 'fas fa-scale-balanced',
+                title: 'Decida si se abre actuación',
+                text: 'El Director Técnico avaló la visita. En el panel «Revisión técnico-jurídica» elija abrir actuación, o no abrirla y deje sus observaciones.',
             };
         }
 
@@ -591,6 +669,7 @@ define('custom:helpers/case-role-guidance', [
         view.listenTo(view.model, 'cierre:updated', estado => {
             view._crmCierreRevision = (view._crmCierreRevision || 0) + 1;
             view._crmCierreGuia = estado;
+            if (typeof view.trigger === 'function') { view.trigger('crm:cierre-guia'); }
             view._crmCierreError = false;
             render(view);
         });

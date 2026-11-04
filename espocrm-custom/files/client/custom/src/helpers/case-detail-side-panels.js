@@ -14,7 +14,6 @@ define('custom:helpers/case-detail-side-panels', [
 
     const FIELD_PANELS = [
         'actaVisita',
-        'decisionJuridica',
         'formatoGenerado',
     ];
 
@@ -22,6 +21,7 @@ define('custom:helpers/case-detail-side-panels', [
     const FIRST_PANELS = [
         'caseTimeline',
         'comunicacionesCasoPanel',
+        'decisionJuridica',
         'evaluacionResultado',
         'actaVisita',
     ];
@@ -172,9 +172,9 @@ define('custom:helpers/case-detail-side-panels', [
     };
 
     const COMPETENCIA_OPCIONES = [
-        {value: 'Total', label: 'Total', help: 'La Alcaldía es competente; el caso continúa.'},
-        {value: 'Parcial', label: 'Parcial', help: 'Se atiende la parte municipal y se remite la parte ajena.'},
-        {value: 'Ninguna', label: 'Ninguna', help: 'Se remite el caso completo a la autoridad competente.'},
+        {value: 'Total', label: 'Total', help: 'La Secretaría de Medio Ambiente es competente, el caso continúa.'},
+        {value: 'Parcial', label: 'Parcial', help: 'Se atiende la parte de la secretaría y se remite la parte ajena.'},
+        {value: 'Ninguna', label: 'Ninguna', help: 'Se remite la solicitud a la autoridad competente.'},
     ];
 
     const CLASIFICACION_CAMPOS = [
@@ -2489,29 +2489,6 @@ define('custom:helpers/case-detail-side-panels', [
         });
     };
 
-    // La definición no es una etapa aislada: nace de la visita vigente.
-    // Por ello se inserta dentro de la tarjeta de la última visita diligenciada.
-    const embedDecisionInCurrentVisit = function (recordView) {
-        const $actaPanel = findIn(recordView.$el, ACTA_VISITA_PANEL);
-        const $decisionPanel = findIn(recordView.$el, DECISION_PANEL);
-        const $card = $actaPanel.find('.case-visita-archivo-card.is-current').first();
-
-        if (!$card.length || !$decisionPanel.length) {
-            return;
-        }
-
-        const $field = $decisionPanel.find('.case-decision-juridica').first().closest('.field');
-
-        if (!$field.length || $field.closest('.case-visita-decision').length) {
-            return;
-        }
-
-        const $host = $('<div class="case-visita-decision"></div>');
-        $host.append($field);
-        $card.append($host);
-        $decisionPanel.hide();
-    };
-
     const distribute = function (recordView) {
         if (!recordView || !recordView.$el || recordView.mode !== 'detail') {
             return;
@@ -2525,7 +2502,6 @@ define('custom:helpers/case-detail-side-panels', [
         }
 
         removeLeftHistoryDuplicates(recordView);
-        embedDecisionInCurrentVisit(recordView);
 
         let $container = $side.find('.' + CONTAINER_CLASS);
 

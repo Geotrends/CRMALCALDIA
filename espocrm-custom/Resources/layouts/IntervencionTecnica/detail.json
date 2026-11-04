@@ -11,6 +11,9 @@
                 {"name": "responsable"}
             ],
             [
+                {"name": "programacionVisita", "fullWidth": true}
+            ],
+            [
                 {"name": "fechaSolicitud"},
                 {"name": "fechaProgramada"}
             ],
@@ -31,6 +34,17 @@
         ],
         "style": "default",
         "label": "Resultado y soportes"
+    },
+    {
+        "rows": [
+            [
+                {"name": "avalTecnico"},
+                {"name": "avalTecnicoFecha"}
+            ],
+            [{"name": "observacionesRevision", "fullWidth": true}]
+        ],
+        "style": "default",
+        "label": "Revisión técnica"
     },
     {
         "rows": [

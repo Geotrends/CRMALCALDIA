@@ -493,3 +493,41 @@ table.table.audited-summary-table > tbody > tr > td:nth-child(3) {
   color: #334155;
   font-size: 12px;
 }
+
+/* Visita programada: tarjetas del acta de visita y del informe técnico */
+.detail[data-scope="Case"] .panel[data-name="actaVisita"] .case-programacion-tarjetas {
+  display: grid;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.detail[data-scope="Case"] .panel[data-name="actaVisita"] .case-programacion-tarjeta {
+  background: var(--crm-surface, #fff);
+  border: 1px solid var(--crm-form-value-border, #e2e8f0);
+  border-radius: var(--crm-radius-md, 8px);
+  padding: 10px 12px;
+}
+
+.detail[data-scope="Case"] .panel[data-name="actaVisita"] .case-programacion-tarjeta__titulo {
+  align-items: center;
+  display: flex;
+  font-weight: 600;
+  gap: 6px;
+  margin: 0 0 6px;
+}
+
+.detail[data-scope="Case"] .panel[data-name="actaVisita"] .case-programacion-tarjeta__estado {
+  background: #eef2f7;
+  border-radius: 999px;
+  color: #334155;
+  font-size: 11px;
+  font-weight: 600;
+  margin-left: auto;
+  padding: 2px 8px;
+}
+
+.detail[data-scope="Case"] .panel[data-name="actaVisita"] .case-programacion-correccion {
+  color: #b45309;
+  font-size: 12px;
+  margin: 4px 0 8px;
+}

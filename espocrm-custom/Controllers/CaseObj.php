@@ -26,6 +26,7 @@ use Espo\Custom\Tools\CaseObj\CaseCompetenciaService;
 use Espo\Custom\Tools\CaseObj\CaseDestinoService;
 use Espo\Custom\Tools\CaseObj\CaseProcesoService;
 use Espo\Custom\Tools\CaseObj\CaseRegistrosTramiteOrdinario;
+use Espo\Custom\Tools\CaseObj\CaseRevisionTecnicoJuridicaService;
 use Espo\Custom\Tools\CaseObj\CaseCreateDefaultsService;
 use Espo\Custom\Tools\CaseObj\CaseCronogramaService;
 use Espo\Custom\Tools\CaseObj\CaseGestionTecnicaHelper;
@@ -1068,6 +1069,16 @@ class CaseObj extends BaseCaseObj
         $body = $request->getParsedBody();
         $id = $this->parseCaseIdFromRequest($body);
         $data = is_object($body) ? get_object_vars($body) : (is_array($body) ? $body : []);
+
+        return $this->definirTramite($id, $data);
+    }
+
+    /**
+     * @param array<string, mixed> $data decision, motivo, entidadRemision?, ejecutar?
+     * @return array<string, mixed>
+     */
+    private function definirTramite(string $id, array $data): array
+    {
         $decision = trim((string) ($data['decision'] ?? ''));
         $motivo = trim((string) ($data['motivo'] ?? ''));
         $entidad = trim((string) ($data['entidadRemision'] ?? ''));
@@ -1095,7 +1106,13 @@ class CaseObj extends BaseCaseObj
         }
 
         $status = trim((string) $case->get('status'));
-        if (!in_array($status, [CaseActaVisitaHelper::STATUS_EN_GESTION_TECNICA, CaseActaVisitaHelper::STATUS_REVISION_HALLAZGOS, 'Visita aprobada'], true)) {
+        if (!in_array($status, [
+            CaseActaVisitaHelper::STATUS_EN_GESTION_TECNICA,
+            CaseActaVisitaHelper::STATUS_REVISION_TECNICA,
+            CaseActaVisitaHelper::STATUS_REVISION_JURIDICA,
+            CaseActaVisitaHelper::STATUS_REVISION_HALLAZGOS,
+            'Visita aprobada',
+        ], true)) {
             throw new BadRequest('El caso debe tener una visita diligenciada para definir el trámite.');
         }
 
@@ -1171,6 +1188,113 @@ class CaseObj extends BaseCaseObj
         }
 
         return ['success' => true, 'status' => CaseActaVisitaHelper::STATUS_REVISION_HALLAZGOS];
+    }
+
+    /**
+     * GET Case/action/revisionEstado?id=  → etapa de la revisión técnico-jurídica y qué puede decidir el usuario.
+     *
+     * @return array<string, mixed>
+     */
+    public function getActionRevisionEstado(Request $request): array
+    {
+        $case = $this->getCaseOrFail((string) $request->getQueryParam('id'));
+
+        return $this->injectableFactory
+            ->create(CaseRevisionTecnicoJuridicaService::class)
+            ->estado($case, $this->getUser());
+    }
+
+    /**
+     * POST Case/action/revisionTecnica  body: { id, decision, motivo, entidadRemision? }
+     *
+     * Decisión del Director Técnico: nueva_visita, correcciones, enviar_juridica o remitir.
+     *
+     * @return array<string, mixed>
+     */
+    public function postActionRevisionTecnica(Request $request): array
+    {
+        $body = $request->getParsedBody();
+        $data = is_object($body) ? get_object_vars($body) : (is_array($body) ? $body : []);
+        $case = $this->getCaseOrFail($this->parseCaseIdFromRequest($body));
+        $decision = trim((string) ($data['decision'] ?? ''));
+        $motivo = trim((string) ($data['motivo'] ?? ''));
+        $revision = $this->injectableFactory->create(CaseRevisionTecnicoJuridicaService::class);
+
+        if ($decision !== CaseRevisionTecnicoJuridicaService::DEC_REMITIR) {
+            return $revision->decidirTecnica($case, $this->getUser(), $decision, $motivo);
+        }
+
+        $revision->exigirEtapa($case, CaseRevisionTecnicoJuridicaService::ETAPA_TECNICA);
+
+        if (!$revision->puedeDecidirTecnica($this->getUser())) {
+            throw new Forbidden('La revisión técnica la hace el Director Técnico.');
+        }
+
+        $intervencion = $revision->intervencionRevisada($case);
+
+        $resultado = $this->definirTramite($case->getId(), [
+            'decision' => 'Remisión por competencia',
+            'motivo' => $motivo,
+            'entidadRemision' => $data['entidadRemision'] ?? '',
+            'ejecutar' => true,
+        ]);
+
+        if ($intervencion) {
+            $revision->avalar($intervencion, $motivo);
+        }
+
+        return $resultado;
+    }
+
+    /**
+     * POST Case/action/revisionJuridica  body: { id, decision: abrir|no_abrir, observaciones }
+     *
+     * Decisión del Apoyo Jurídico: abrir actuación o no abrirla (con observaciones).
+     *
+     * @return array<string, mixed>
+     */
+    public function postActionRevisionJuridica(Request $request): array
+    {
+        $body = $request->getParsedBody();
+        $data = is_object($body) ? get_object_vars($body) : (is_array($body) ? $body : []);
+        $case = $this->getCaseOrFail($this->parseCaseIdFromRequest($body));
+        $decision = trim((string) ($data['decision'] ?? ''));
+        $observaciones = trim((string) ($data['observaciones'] ?? ''));
+        $revision = $this->injectableFactory->create(CaseRevisionTecnicoJuridicaService::class);
+
+        $revision->exigirEtapa($case, CaseRevisionTecnicoJuridicaService::ETAPA_JURIDICA);
+
+        if (!$revision->puedeDecidirJuridica($this->getUser())) {
+            throw new Forbidden('La revisión jurídica la hace el Apoyo Jurídico.');
+        }
+
+        if (!in_array($decision, [CaseRevisionTecnicoJuridicaService::DEC_ABRIR, CaseRevisionTecnicoJuridicaService::DEC_NO_ABRIR], true)) {
+            throw new BadRequest('Decisión de revisión jurídica no válida.');
+        }
+
+        $revision->verificarFechaRespuesta($case, $data);
+
+        if ($decision === CaseRevisionTecnicoJuridicaService::DEC_ABRIR) {
+            return $this->definirTramite($case->getId(), [
+                'decision' => 'Apertura de actuación',
+                'motivo' => $observaciones !== '' ? $observaciones : 'Apertura de actuación decidida en la revisión jurídica.',
+                'ejecutar' => false,
+            ]);
+        }
+
+        if ($decision === CaseRevisionTecnicoJuridicaService::DEC_NO_ABRIR) {
+            if ($observaciones === '') {
+                throw new BadRequest('Deje sus observaciones: por qué no se abre actuación.');
+            }
+
+            return $this->definirTramite($case->getId(), [
+                'decision' => 'Cierre de atención',
+                'motivo' => $observaciones,
+                'ejecutar' => true,
+            ]);
+        }
+
+        throw new BadRequest('Decisión de revisión jurídica no válida.');
     }
 
     /**

@@ -316,6 +316,8 @@
         'Radicado': {bg: '#e0f2fe', text: '#0369a1'},
         'Asignado': {bg: '#fce7f3', text: '#9d174d'},
         'En gestión técnica': {bg: '#fef9c3', text: '#854d0e'},
+        'Revisión técnica': {bg: '#ccfbf1', text: '#115e59'},
+        'Revisión jurídica': {bg: '#d1fae5', text: '#065f46'},
         'Revisión de hallazgos': {bg: '#dcfce7', text: '#166534'},
         'Pendiente de respuesta final': {bg: '#e0e7ff', text: '#3730a3'},
         'Remitido por competencia': {bg: '#f3e8ff', text: '#6b21a8'},
@@ -328,6 +330,8 @@
         'Radicado': ESTADO_PALETTE['Radicado'].bg,
         'Asignado': ESTADO_PALETTE['Asignado'].bg,
         'En gestión técnica': ESTADO_PALETTE['En gestión técnica'].bg,
+        'Revisión técnica': ESTADO_PALETTE['Revisión técnica'].bg,
+        'Revisión jurídica': ESTADO_PALETTE['Revisión jurídica'].bg,
         'Revisión de hallazgos': ESTADO_PALETTE['Revisión de hallazgos'].bg,
         'Pendiente de respuesta final': ESTADO_PALETTE['Pendiente de respuesta final'].bg,
         'Remitido por competencia': ESTADO_PALETTE['Remitido por competencia'].bg,
@@ -340,6 +344,8 @@
         'Radicado': ESTADO_PALETTE['Radicado'].text,
         'Asignado': ESTADO_PALETTE['Asignado'].text,
         'En gestión técnica': ESTADO_PALETTE['En gestión técnica'].text,
+        'Revisión técnica': ESTADO_PALETTE['Revisión técnica'].text,
+        'Revisión jurídica': ESTADO_PALETTE['Revisión jurídica'].text,
         'Revisión de hallazgos': ESTADO_PALETTE['Revisión de hallazgos'].text,
         'Pendiente de respuesta final': ESTADO_PALETTE['Pendiente de respuesta final'].text,
         'Remitido por competencia': ESTADO_PALETTE['Remitido por competencia'].text,
@@ -369,7 +375,7 @@
 
     var ESTADOS_FIN = ['Finalizado', 'Proceso cerrado'];
     // Una vez radicada, la solicitud entra en gestión administrativa aunque aún no tenga asignación.
-    var ESTADOS_GESTION = ['Radicado', 'Asignado', 'En gestión técnica', 'Revisión de hallazgos',
+    var ESTADOS_GESTION = ['Radicado', 'Asignado', 'En gestión técnica', 'Revisión técnica', 'Revisión jurídica', 'Revisión de hallazgos',
         'Pendiente de respuesta final', 'Remitido por competencia'];
     var ESTADOS_POR_FINALIZAR = ['Pendiente de respuesta final', 'Remitido por competencia'];
 
@@ -428,7 +434,7 @@
             if (!fin && visitaPendiente(c)) { r.visitasPendientes++; }
             if (ESTADOS_POR_FINALIZAR.indexOf(c.status) !== -1) { r.porFinalizar++; }
 
-            if (!fin && ['En gestión técnica', 'Revisión de hallazgos'].indexOf(c.status) !== -1
+            if (!fin && ['En gestión técnica', 'Revisión técnica', 'Revisión jurídica', 'Revisión de hallazgos'].indexOf(c.status) !== -1
                 && !APOYO.gestionEnCursoPorCaso[c.id] && ultima && !actaRevisada(ultima)) {
                 r.porDefinir++;
             }
@@ -545,6 +551,8 @@
         {status: 'Radicado', label: 'Radicado'},
         {status: 'Asignado', label: 'Asignado'},
         {status: 'En gestión técnica', label: 'En gestión técnica'},
+        {status: 'Revisión técnica', label: 'Revisión técnica'},
+        {status: 'Revisión jurídica', label: 'Revisión jurídica'},
         {status: 'Revisión de hallazgos', label: 'Revisión de hallazgos'},
         {status: 'Pendiente de respuesta final', label: 'Pendiente de respuesta final'},
         {status: 'Remitido por competencia', label: 'Remitido por competencia'},

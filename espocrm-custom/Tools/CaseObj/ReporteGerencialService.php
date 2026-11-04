@@ -18,6 +18,8 @@ class ReporteGerencialService
     'Asignado',
     CaseActaVisitaHelper::STATUS_EN_GESTION_TECNICA,
     CaseActaVisitaHelper::STATUS_REVISION_HALLAZGOS,
+    CaseActaVisitaHelper::STATUS_REVISION_TECNICA,
+    CaseActaVisitaHelper::STATUS_REVISION_JURIDICA,
   ];
 
   public function __construct(

@@ -676,3 +676,73 @@ html.crm-modern-ui body .detail[data-scope="Case"] .btn.btn-primary.case-acta-ca
 .detail[data-scope="Case"] > .alcaldia-case-docs > .panel-heading { align-items: center; background: linear-gradient(90deg, var(--crm-form-heading-bg) 0%, var(--crm-form-heading-bg-end) 78%); border-bottom: 1px solid var(--crm-form-value-border); border-left: 0; display: flex; padding: 14px 20px 14px 16px; }
 .detail[data-scope="Case"] > .alcaldia-case-docs > .panel-heading .panel-title { color: var(--crm-form-accent-dark); font-size: var(--crm-font-size-lg); font-weight: 700; letter-spacing: -0.02em; margin-right: auto; }
 .detail[data-scope="Case"] > .alcaldia-case-docs > .panel-body { background: var(--crm-surface); padding: 14px 16px; }
+
+/* Revisión técnico-jurídica en dos etapas (Director Técnico → Apoyo Jurídico) */
+.case-revision__resumen {
+  background: var(--crm-bg-elevated, #f8fafc);
+  border: 1px solid var(--crm-form-value-border, #e2e8f0);
+  border-radius: var(--crm-radius-md, 8px);
+  margin: 0 0 14px;
+  padding: 10px 14px;
+}
+
+.case-revision__resumen p {
+  margin: 4px 0;
+}
+
+.case-revision__comentario {
+  color: #334155;
+}
+
+.case-revision__opciones {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 14px;
+}
+
+.case-revision__opcion {
+  align-items: flex-start;
+  border: 1px solid var(--crm-form-value-border, #e2e8f0);
+  border-radius: var(--crm-radius-md, 8px);
+  cursor: pointer;
+  display: flex;
+  font-weight: 400;
+  gap: 10px;
+  margin: 0;
+  padding: 10px 12px;
+}
+
+.case-revision__opcion.is-selected {
+  background: #f0f9ff;
+  border-color: #38bdf8;
+}
+
+.case-revision__opcion input {
+  margin-top: 4px;
+}
+
+.case-revision__opcion-texto {
+  display: grid;
+  gap: 2px;
+}
+
+.case-revision__opcion-texto small {
+  color: #475569;
+}
+
+.case-revision__fecha {
+    margin: 12px 0;
+    padding: 12px 14px;
+    border: 1px solid var(--border-color, #d9dee3);
+    border-radius: 8px;
+}
+
+.case-revision__fecha-check {
+    display: block;
+    font-weight: 400;
+    margin: 4px 0;
+}
+
+.case-revision__fecha-corregir {
+    margin-top: 8px;
+}

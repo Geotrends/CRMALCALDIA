@@ -509,6 +509,8 @@ class CaseTimelineService
             'Remitido por competencia' => self::STEP_RESPUESTA_FINAL,
             // Compatibilidad: no se muestra ni se produce en casos nuevos.
             'Visita aprobada' => 'Revisión de hallazgos',
+            CaseActaVisitaHelper::STATUS_REVISION_TECNICA => 'Revisión de hallazgos',
+            CaseActaVisitaHelper::STATUS_REVISION_JURIDICA => 'Revisión de hallazgos',
             'Rejected' => 'Finalizado',
         ];
 

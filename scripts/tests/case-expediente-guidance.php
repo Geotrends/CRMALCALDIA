@@ -64,6 +64,8 @@ namespace {
     use Espo\Custom\Tools\CaseObj\CaseCumplimientoService;
     use Espo\Custom\Tools\User\AlcaldiaUserProfile;
 
+    require __DIR__ . '/../../espocrm-custom/Tools/CaseObj/CaseVencimientoHelper.php';
+
     require $argv[1] ?? __DIR__ . '/../../espocrm-custom/Tools/CaseObj/CaseExpedienteGuidance.php';
     function verify(bool $condition, string $message): void {
         if (!$condition) throw new \RuntimeException($message);
@@ -102,6 +104,8 @@ namespace {
     $r = $service->estado($case, $inspector, $apertura);
     verify(str_contains($r['accion'], 'respuesta final') && $r['actor'] === 'Inspección', 'archivar no oculta la respuesta final pendiente');
     $em->respuestaFinal = true;
+    verify($service->estado($case, $inspector, $apertura)['actor'] !== 'Sin acciones pendientes', 'una comunicación por sí sola no declara finalizado un caso todavía abierto');
+    $case->values['status'] = 'Finalizado';
     verify($service->estado($case, $inspector, $apertura)['actor'] === 'Sin acciones pendientes', 'registrada la respuesta final se completa el seguimiento');
     $em->entities['AutoInicio']['auto'] = new Entity(['assignedUserName' => 'Jurídica', 'assignedUserId' => 'juridica', 'inspectorId' => 'inspector', 'inspectorName' => 'Inspector Ambiental']);
     $sinAuto = $service->estado($case, $inspector, ['aplica' => true, 'fase' => 'preparar']);

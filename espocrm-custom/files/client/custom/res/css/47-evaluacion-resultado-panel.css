@@ -1,4 +1,21 @@
 /* Panel «Evaluación de resultado» de la solicitud: mismas tarjetas y botones que el panel «Visitas». */
+.detail[data-scope="Case"] .case-evaluacion-resumen {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 20px;
+  border-top: 1px solid #d7e5df;
+  margin: 12px 0 0;
+  padding-top: 14px;
+}
+.detail[data-scope="Case"] .case-evaluacion-resumen dt { color: #546c64; font-size: 12px; font-weight: 600; }
+.detail[data-scope="Case"] .case-evaluacion-resumen dd { color: #234b40; margin: 5px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.detail[data-scope="Case"] .case-evaluacion-resumen__resultado,
+.detail[data-scope="Case"] .case-evaluacion-resumen__observaciones { grid-column: 1 / -1; }
+.detail[data-scope="Case"] .panel[data-name="evaluacionResultado"] .is-completed { background: #f5faf7; border-color: #bdd8cb; }
+@media (max-width: 767px) {
+  .detail[data-scope="Case"] .case-evaluacion-resumen { grid-template-columns: 1fr; }
+}
+
 .detail .panel[data-name="evaluacionResultado"] .field[data-name="cPanelEvaluacionResultado"] {
   background: transparent !important;
   border: none !important;

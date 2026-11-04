@@ -26,7 +26,7 @@ function decisionView(getRequest = () => Promise.resolve({list: []})) {
             ? Promise.resolve({enProcesoOtraVisita: false}) : getRequest(endpoint, data)}, {},
         {safeReRender() { renders++; return Promise.resolve(); }},
     ]);
-    const model = Object.assign(new EventEmitter(), {id: 'case', get: key => ({status: 'En gestión técnica'})[key]});
+    const model = Object.assign(new EventEmitter(), {id: 'case', get: key => ({status: 'Revisión de hallazgos'})[key]});
     const attributes = {};
     const view = Object.assign(new EventEmitter(), methods, {
         model, getUser: () => ({}), isRendered: () => true,
@@ -51,7 +51,7 @@ test('un panel ya visible cambia de aviso sin firma al formulario sin recargar l
     view.hasActaFirmada = true;
     view.refreshViewState();
     await flush();
-    assert.equal(view.data().showRevisar, true);
+    assert.equal(view.data().showDecisiones, true);
     assert.equal(current.renders, 2);
     view.refreshViewState();
     assert.equal(current.renders, 2, 'una actualización sin cambios conserva lo que se escribe');
@@ -72,7 +72,7 @@ test('el formulario descarta la consulta anterior y carga el acta nueva tras una
     await flush();
     assert.equal(requests, 2);
     assert.equal(current.view.currentActa.id, 'new');
-    assert.equal(current.view.data().showRevisar, true);
+    assert.equal(current.view.data().showDecisiones, true);
     current.view.emit('remove');
 });
 
@@ -99,7 +99,7 @@ test('una visita complementaria ya solicitada muestra confirmación en lugar de 
     // Cuando llega el acta siguiente, su revisión sí vuelve a estar disponible.
     current.view.currentActa = {id: 'acta-2', cDecisionTramite: ''};
     assert.equal(current.view.data().showComplementariaSolicitada, false);
-    assert.equal(current.view.data().showRevisar, true);
+    assert.equal(current.view.data().showDecisiones, true);
 });
 
 test('guardar la revisión sin preparar todavía la visita permite completar la solicitud', () => {
